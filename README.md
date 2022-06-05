@@ -1,2 +1,3 @@
-# Calradian_Kings
-CK3 MOD INDEV
+# Calradian Kings
+# CK3 MOD INDEV
+# GitHub Repository
