@@ -2,9 +2,9 @@ Includes = {
 	"cw/camera.fxh"
 	"jomini/jomini_flat_border.fxh"
 	"jomini/jomini_fog.fxh"
-	"jomini/jomini_fog_of_war.fxh"
-	# MOD(map-skybox)
-	"gh_camera_utils.fxh"
+	# MOD(godherja-snowfall)
+	#"jomini/jomini_fog_of_war.fxh"
+	"gh_atmospheric.fxh"
 	# END MOD
 	"standardfuncsgfx.fxh"
 }
@@ -75,14 +75,13 @@ PixelShader =
 			{
 				float4 Diffuse = PdxTex2D( BorderTexture, Input.UV );
 
-				Diffuse.rgb = ApplyFogOfWar( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				// MOD(godherja-snowfall)
+				//Diffuse.rgb = ApplyFogOfWar( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				Diffuse.rgb = GH_ApplyAtmosphericEffects( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				// END MOD
 				Diffuse.rgb = ApplyDistanceFog( Diffuse.rgb, Input.WorldSpacePos );
 				Diffuse.a *= _Alpha;
-
-				// MOD(map-skybox)
-				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
-				// END MOD
-
+				
 				return Diffuse;
 			}
 		]]
@@ -101,13 +100,12 @@ PixelShader =
 				float vPulseFactor = saturate( smoothstep( 0.0f, 1.0f, 0.4f + sin( GlobalTime * 2.5f ) * 0.25f ) );
 				Diffuse.rgb = saturate( Diffuse.rgb * vPulseFactor );
 				
-				Diffuse.rgb = ApplyFogOfWar( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				// MOD(godherja-snowfall)
+				//Diffuse.rgb = ApplyFogOfWar( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				Diffuse.rgb = GH_ApplyAtmosphericEffects( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				// END MOD
 				Diffuse.rgb = ApplyDistanceFog( Diffuse.rgb, Input.WorldSpacePos );
 				Diffuse.a *= _Alpha;
-
-				// MOD(map-skybox)
-				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
-				// END MOD
 				
 				return Diffuse;
 			}
@@ -132,13 +130,12 @@ PixelShader =
 
 				Diffuse.rgb = saturate( Diffuse.rgb * colorMult );
 
-				Diffuse.rgb = ApplyFogOfWar( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				// MOD(godherja-snowfall)
+				//Diffuse.rgb = ApplyFogOfWar( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				Diffuse.rgb = GH_ApplyAtmosphericEffects( Diffuse.rgb, Input.WorldSpacePos, FogOfWarAlpha );
+				// END MOD
 				Diffuse.rgb = ApplyDistanceFog( Diffuse.rgb, Input.WorldSpacePos );
 				Diffuse.a *= _Alpha;
-
-				// MOD(map-skybox)
-				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
-				// END MOD
 
 				return Diffuse;
 			}
@@ -156,18 +153,25 @@ BlendState BlendState
 
 RasterizerState RasterizerState
 {
-	#DepthBias = -50
-	DepthBias = -10000
-	SlopeScaleDepthBias = -2
+	# MOD(map-skybox)
+	DepthBias = -20000
+	SlopeScaleDepthBias = 0
+	# END MOD
 }
 
 DepthStencilState DepthStencilState
 {
-	DepthEnable = no
+	# MOD(map-skybox)
+	DepthEnable = yes
+	DepthWriteEnable = no
+	# END MOD
 	StencilEnable = yes
-	FrontStencilFunc = not_equal
+	# MOD(map-skybox)
+	FrontStencilFunc = greater_equal
+	# END MOD
 	StencilRef = 1
 }
+
 
 Effect PdxBorder
 {
