@@ -7,10 +7,7 @@ Includes = {
 	"cw/pdxterrain.fxh"
 	"jomini/jomini_fog.fxh"
 	"jomini/jomini_lighting.fxh"
-	# MOD(godherja-snowfall)
-	#"jomini/jomini_fog_of_war.fxh"
-	"gh_atmospheric.fxh"
-	# END MOD
+	"jomini/jomini_fog_of_war.fxh"
 	"jomini/jomini_water.fxh"
 	"jomini/jomini_mapobject.fxh"
 	"constants.fxh"
@@ -153,6 +150,21 @@ PixelShader =
 		SampleModeU = "Wrap"
 		SampleModeV = "Wrap"
 	}
+
+	# MOD(map-skybox)
+	TextureSampler SkyboxSample
+	{
+		Index = 12
+		MagFilter = "Linear"
+		MinFilter = "Linear"
+		MipFilter = "Linear"
+		SampleModeU = "Clamp"
+		SampleModeV = "Clamp"
+		Type = "Cube"
+		File = "gfx/map/environment/SkyBox.dds"
+		srgb = yes
+	}
+	# END MOD
 }
 
 VertexStruct VS_OUTPUT
@@ -336,6 +348,24 @@ PixelShader =
 		}
 	]]
 
+	# MOD(map-skybox)
+	MainCode SKYX_PS_sky
+	{
+		Input = "VS_OUTPUT"
+		Output = "PDX_COLOR"
+		Code
+		[[
+			PDX_MAIN
+			{
+				float3 FromCameraDir = normalize(Input.WorldSpacePos - CameraPosition);
+				float4 CubemapSample = PdxTexCube(SkyboxSample, FromCameraDir);
+
+				return CubemapSample;
+			}
+		]]
+	}
+	# END MOD
+
 	MainCode PS_standard
 	{
 		Input = "VS_OUTPUT"
@@ -440,16 +470,9 @@ PixelShader =
 					float3 Color = CalculateSunLighting( MaterialProps, LightingProps, EnvironmentMap );
 				#endif
 				
-				#ifndef UNDERWATER
-					// MOD(godherja-snowfall)
-					//Color = ApplyFogOfWar( Color, Input.WorldSpacePos, FogOfWarAlpha );
-					Color = GH_ApplyAtmosphericEffects( Color, Input.WorldSpacePos, FogOfWarAlpha );
-					#ifndef NO_FOG
-					// END MOD
-						Color = ApplyDistanceFog( Color, Input.WorldSpacePos );
-					// MOD(godherja-snowfall)
-					#endif
-					// END MOD
+				#if !defined( UNDERWATER ) && !defined( NO_FOG )
+					Color = ApplyFogOfWar( Color, Input.WorldSpacePos, FogOfWarAlpha );
+					Color = ApplyDistanceFog( Color, Input.WorldSpacePos );
 				#endif
 				
 				float Alpha = Diffuse.a;
@@ -879,6 +902,26 @@ Effect snap_to_terrain_atlas_usercolorShadow_mapobject
 	RasterizerState = ShadowRasterizerState
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
 }
+
+# MOD(map-skybox)
+Effect SKYX_sky
+{
+	VertexShader = "VS_standard"
+	PixelShader = "SKYX_PS_sky"
+}
+
+Effect SKYX_sky_mapobject
+{
+	VertexShader = "VS_mapobject"
+	PixelShader = "SKYX_PS_sky"
+}
+
+Effect SKYX_sky_selection_mapobject
+{
+	VertexShader = "VS_mapobject"
+	PixelShader = "SKYX_PS_sky"
+}
+# END MOD
 
 Effect court
 {

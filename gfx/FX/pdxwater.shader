@@ -4,10 +4,7 @@ Includes = {
 	"jomini/jomini_water_default.fxh"
 	"jomini/jomini_water_pdxmesh.fxh"
 	"jomini/jomini_water.fxh"
-	# MOD(godherja-snowfall)
-	#"jomini/jomini_fog_of_war.fxh"
-	"gh_atmospheric.fxh"
-	# END MOD
+	"jomini/jomini_fog_of_war.fxh"
 	"jomini/jomini_mapobject.fxh"
 	"standardfuncsgfx.fxh"
 }
@@ -62,10 +59,7 @@ PixelShader =
 					#endif
 				#endif
 				
-				// MOD(godherja-snowfall)
-				//Water.rgb = ApplyFogOfWarMultiSampled( Water.rgb, Input.WorldSpacePos, FogOfWarAlpha );
-				Water.rgb = GH_ApplyAtmosphericEffects( Water.rgb, Input.WorldSpacePos, FogOfWarAlpha, 0.4f );
-				// END MOD
+				Water.rgb = ApplyFogOfWarMultiSampled( Water.rgb, Input.WorldSpacePos, FogOfWarAlpha );
 				Water.rgb = ApplyDistanceFog( Water.rgb, Input.WorldSpacePos );
 
 				Water.rgb = FlatMapLerp > 0.0f ? lerp( Water.rgb, PdxTex2D( FlatMapTexture, Input.UV01 ).rgb, FlatMapLerp ) : Water.rgb;
@@ -110,10 +104,7 @@ PixelShader =
 						ApplySecondaryColorGame( Water.rgb, float2( Input.UV01.x, 1.0f - Input.UV01.y ) );
 				#endif
 				
-				// MOD(godherja-snowfall)
-				//Water.rgb = ApplyFogOfWarMultiSampled( Water.rgb, Input.WorldSpacePos, FogOfWarAlpha );
-				Water.rgb = GH_ApplyAtmosphericEffects( Water.rgb, Input.WorldSpacePos, FogOfWarAlpha, 0.4f );
-				// END MOD
+				Water.rgb = ApplyFogOfWarMultiSampled( Water.rgb, Input.WorldSpacePos, FogOfWarAlpha );
 				Water.rgb = ApplyDistanceFog( Water.rgb, Input.WorldSpacePos );
 
 				Water.rgb = FlatMapLerp > 0.0f ? lerp( Water.rgb, PdxTex2D( FlatMapTexture, Input.UV01 ).rgb, FlatMapLerp ) : Water.rgb;
