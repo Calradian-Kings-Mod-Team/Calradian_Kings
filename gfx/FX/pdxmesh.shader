@@ -150,21 +150,6 @@ PixelShader =
 		SampleModeU = "Wrap"
 		SampleModeV = "Wrap"
 	}
-
-	# MOD(map-skybox)
-	TextureSampler SkyboxSample
-	{
-		Index = 12
-		MagFilter = "Linear"
-		MinFilter = "Linear"
-		MipFilter = "Linear"
-		SampleModeU = "Clamp"
-		SampleModeV = "Clamp"
-		Type = "Cube"
-		File = "gfx/map/environment/SkyBox.dds"
-		srgb = yes
-	}
-	# END MOD
 }
 
 VertexStruct VS_OUTPUT
@@ -347,25 +332,7 @@ PixelShader =
 			return UV;
 		}
 	]]
-
-	# MOD(map-skybox)
-	MainCode SKYX_PS_sky
-	{
-		Input = "VS_OUTPUT"
-		Output = "PDX_COLOR"
-		Code
-		[[
-			PDX_MAIN
-			{
-				float3 FromCameraDir = normalize(Input.WorldSpacePos - CameraPosition);
-				float4 CubemapSample = PdxTexCube(SkyboxSample, FromCameraDir);
-
-				return CubemapSample;
-			}
-		]]
-	}
-	# END MOD
-
+	
 	MainCode PS_standard
 	{
 		Input = "VS_OUTPUT"
@@ -460,6 +427,12 @@ PixelShader =
 				#if defined( APPLY_WINTER )
 					Diffuse.rgb = ApplyDynamicMasksDiffuse( Diffuse.rgb, Normal, ColorMapCoords );
 				#endif
+
+				// Colormap blend, pre light
+				#if defined( COLORMAP )
+					float3 ColorMap = PdxTex2D( ColorTexture, float2( ColorMapCoords.x, 1.0 - ColorMapCoords.y ) ).rgb;
+					Diffuse.rgb = SoftLight( Diffuse.rgb, ColorMap, ( 1 - Properties.r ) * COLORMAP_OVERLAY_STRENGTH );
+				#endif
 				
 				SMaterialProperties MaterialProps = GetMaterialProperties( Diffuse.rgb, Normal, Properties.a, Properties.g, Properties.b );
 				#if defined( LOW_SPEC_SHADERS )
@@ -470,7 +443,7 @@ PixelShader =
 					float3 Color = CalculateSunLighting( MaterialProps, LightingProps, EnvironmentMap );
 				#endif
 				
-				#if !defined( UNDERWATER ) && !defined( NO_FOG )
+				#ifndef UNDERWATER
 					Color = ApplyFogOfWar( Color, Input.WorldSpacePos, FogOfWarAlpha );
 					Color = ApplyDistanceFog( Color, Input.WorldSpacePos );
 				#endif
@@ -533,18 +506,6 @@ RasterizerState ShadowRasterizerState
 RasterizerState SelectionRasterizerState
 {
 	DepthBias = -20000
-	SlopeScaleDepthBias = 2
-}
-
-RasterizerState TravelArrowMarkerRasterizerState
-{
-	DepthBias = -60000
-	SlopeScaleDepthBias = 2
-}
-
-RasterizerState TravelArrowMarkerShadowRasterizerState
-{
-	DepthBias = 40000
 	SlopeScaleDepthBias = 2
 }
 
@@ -732,6 +693,32 @@ Effect snap_to_terrain_alpha_to_coverageShadow
 	RasterizerState = ShadowRasterizerState
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
 }
+Effect snap_to_terrain_alpha_to_coverage_colormap
+{
+	VertexShader = "VS_standard"
+	PixelShader = "PS_standard"
+	BlendState = "alpha_to_coverage"
+	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "COLORMAP" "ALPHA_TO_COVERAGE" "APPLY_WINTER" }
+}
+Effect snap_to_terrain_alpha_to_coverage_colormapShadow
+{
+	VertexShader = "VertexPdxMeshStandardShadow"
+	PixelShader = "PixelPdxMeshAlphaBlendShadow"
+	RasterizerState = ShadowRasterizerState
+	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "ALPHA_TO_COVERAGE" }
+}
+Effect standard_colormap
+{
+	VertexShader = "VS_standard"
+	PixelShader = "PS_standard"
+	Defines = { "COLORMAP" "APPLY_WINTER" }
+}
+Effect standard_colormapShadow
+{
+	VertexShader = "VertexPdxMeshStandardShadow"
+	PixelShader = "PixelPdxMeshAlphaBlendShadow"
+	RasterizerState = ShadowRasterizerState
+}
 Effect snap_to_terrain_atlas
 {
 	VertexShader = "VS_standard"
@@ -775,23 +762,6 @@ Effect selection_markerShadow
 	
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
 	RasterizerState = ShadowRasterizerState
-}
-
-Effect travel_arrow_marker
-{
-	VertexShader = "VS_standard"
-	PixelShader = "PS_standard"
-	BlendState = "alpha_blend"
-	DepthStencilState = "depth_no_write"
-	RasterizerState = TravelArrowMarkerRasterizerState
-	Defines = { "NO_FOG" }
-}
-Effect travel_arrow_markerShadow
-{
-	VertexShader = "VertexPdxMeshStandardShadow"
-	PixelShader = "PixelPdxMeshAlphaBlendShadow"
-	RasterizerState = TravelArrowMarkerShadowRasterizerState
-	Defines = { "NO_FOG" }
 }
 
 Effect material_test
@@ -876,6 +846,32 @@ Effect snap_to_terrain_alpha_to_coverageShadow_mapobject
 	RasterizerState = ShadowRasterizerState
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
 }
+Effect snap_to_terrain_alpha_to_coverage_colormap_mapobject
+{
+	VertexShader = "VS_mapobject"
+	PixelShader = "PS_standard"
+	BlendState = "alpha_to_coverage"
+	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "COLORMAP" "ALPHA_TO_COVERAGE" "APPLY_WINTER" }
+}
+Effect snap_to_terrain_alpha_to_coverage_colormapShadow_mapobject
+{
+	VertexShader = "VS_jomini_mapobject_shadow"
+	PixelShader = "PS_jomini_mapobject_shadow_alphablend"
+	RasterizerState = ShadowRasterizerState
+	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "ALPHA_TO_COVERAGE" }
+}
+Effect standard_colormap_mapobject
+{
+	VertexShader = "VS_mapobject"
+	PixelShader = "PS_standard"
+	Defines = { "COLORMAP" "APPLY_WINTER" }
+}
+Effect standard_colormapShadow_mapobject
+{
+	VertexShader = "VS_jomini_mapobject_shadow"
+	PixelShader = "PS_jomini_mapobject_shadow_alphablend"
+	RasterizerState = ShadowRasterizerState
+}
 Effect snap_to_terrain_atlas_mapobject
 {
 	VertexShader = "VS_mapobject"
@@ -902,26 +898,6 @@ Effect snap_to_terrain_atlas_usercolorShadow_mapobject
 	RasterizerState = ShadowRasterizerState
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
 }
-
-# MOD(map-skybox)
-Effect SKYX_sky
-{
-	VertexShader = "VS_standard"
-	PixelShader = "SKYX_PS_sky"
-}
-
-Effect SKYX_sky_mapobject
-{
-	VertexShader = "VS_mapobject"
-	PixelShader = "SKYX_PS_sky"
-}
-
-Effect SKYX_sky_selection_mapobject
-{
-	VertexShader = "VS_mapobject"
-	PixelShader = "SKYX_PS_sky"
-}
-# END MOD
 
 Effect court
 {
