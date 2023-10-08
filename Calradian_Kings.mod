@@ -2,7 +2,7 @@ version="1.0.0"
 tags={
 	"Total Conversion"
 }
-name="Calradian Kings"
+name="Calradian Kings Git"
 replace_path="common/bookmark_portraits"
 replace_path="common/bookmarks"
 replace_path="common/religion/religions"
