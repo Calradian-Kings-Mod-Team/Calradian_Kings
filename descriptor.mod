@@ -2,7 +2,7 @@ version="1.7"
 tags={
 	"Total Conversion"
 }
-name="Calradian_Kings"
+name="Calradian Kings"
 replace_path="common/bookmark_portraits"
 replace_path="common/bookmarks"
 replace_path="common/religion/religions"
