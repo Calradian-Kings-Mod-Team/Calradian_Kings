@@ -1,324 +1,383 @@
-﻿create_roman_empire_scripted_effect = {
-	add_trait = augustus
-	#Create Roman Empire, shift dejure/history/laws, destroy e_byzantium.
-	hidden_effect = {
-		every_held_title = { #Should shift all dejure of all Empires owned at the time.
-			limit = {
-				tier = tier_empire
-			}
-			every_in_de_jure_hierarchy = {
-				limit = {
-					tier = tier_kingdom
-				}
-				set_de_jure_liege_title = title:e_roman_empire
-				
-			}
-		}
-		every_held_title = { #Completely Controlled Kingdoms as well.
-			limit = {
-				tier = tier_kingdom
-				root = { completely_controls = prev }
-			}
-			set_de_jure_liege_title = title:e_roman_empire
-		}
-	}
-	
-	create_title_and_vassal_change = {
-		type = created
-		save_scope_as = change
-		add_claim_on_loss = no
-	}
-	title:e_roman_empire = {
-		change_title_holder = {
-			holder = root
-			change = scope:change
-		}
-		copy_title_history = title:e_byzantium
-	}
-	resolve_title_and_vassal_change = scope:change
-	hidden_effect = { set_primary_title_to = title:e_roman_empire }
-	every_held_title = { #Should destroy all other Empires owned at the time.
-		limit = {
-				tier = tier_empire
-			NOT = { this = title:e_roman_empire }
-		}
-		root = { destroy_title = prev }
-	}
-	if = { #Automatically move capital to Constantinople, unless it's been set to Rome.
-		limit = {
-			NOT = { capital_county = { this = title:c_roma } }
-			NOT = { capital_county = { this = title:c_byzantion } }
-			culture = { has_cultural_pillar = heritage_byzantine }
-		}
-		hidden_effect = {
-			if = { #Usurp if not held personally.
-				limit = {
-					NOT = { this = title:c_byzantion.holder }
-				}
-				create_title_and_vassal_change = {
-					type = returned
-					save_scope_as = change
-					add_claim_on_loss = no
-				}
-				title:c_byzantion = {
-					change_title_holder = {
-						holder = root
-						change = scope:change
-					}
-				}
-				resolve_title_and_vassal_change = scope:change
-			}
-		}
-		root = { set_realm_capital = title:c_byzantion }
-	}
-	else_if = {
-		limit = {
-			NOT = { capital_county = { this = title:c_roma } }
-			NOT = { capital_county = { this = title:c_byzantion } }
-			NOT = { culture = { has_cultural_pillar = heritage_byzantine } }
-			exists = title:e_roman_empire.holder
-		}
-		hidden_effect = {
-			if = { #Usurp if not held personally.
-				limit = {
-					NOT = { this = title:c_roma.holder }
-				}
-				create_title_and_vassal_change = {
-					type = returned
-					save_scope_as = change
-					add_claim_on_loss = no
-				}
-				title:c_roma = {
-					change_title_holder = {
-						holder = root
-						change = scope:change
-					}
-				}
-				resolve_title_and_vassal_change = scope:change
-			}
-		}
-		root = { set_realm_capital = title:c_roma }
-	}
-	hidden_effect = {
-		create_story = restoring_roman_provinces_story
-		add_character_flag = flag_restorer_of_rome #used for Eulogy.
-	}
-}
-create_roman_empire_holy_scripted_effect = {
-	add_trait = augustus
-	#Create Roman Empire, shift dejure/history/laws, destroy e_hre.
-	hidden_effect = {
-		every_held_title = { #Should shift all dejure of all Empires owned at the time.
-			limit = {
-				tier = tier_empire
-			}
-			every_in_de_jure_hierarchy = {
-				limit = {
-					tier = tier_kingdom
-				}
-				set_de_jure_liege_title = title:e_roman_empire
-				
-			}
-		}
-	}
-	create_title_and_vassal_change = {
-		type = created
-		save_scope_as = change
-		add_claim_on_loss = no
-	}
-	title:e_roman_empire = {
-		change_title_holder = {
-			holder = root
-			change = scope:change
-		}
-		set_variable = {
-			name = variable_restored_hre #Used for flavor later.
-			value = yes
-		}	
-		copy_title_history = title:e_hre
-	}
-	resolve_title_and_vassal_change = scope:change
-	hidden_effect = { set_primary_title_to = title:e_roman_empire }
-	every_held_title = { #Should destroy all other Empires owned at the time.
-		limit = {
-			tier = tier_empire
-			NOT = { this = title:e_roman_empire }
-		}
-		root = { destroy_title = prev }
-	}
-	hidden_effect = {
-		title:e_roman_empire = {
-			set_coa = e_hre_roman
-			set_color_from_title = title:e_hre
-		}
-	}
+﻿declare_bloodline_holy_decision_effect = {
+	save_scope_as = progenitor_holy_blood
 
-	if = { #Automatically move capital to Rome.
-		limit = {
-			NOT = { capital_county = { this = title:c_roma } }
-			exists = title:e_roman_empire.holder
-		}
-		hidden_effect = {
-			if = { #Usurp if not held personally.
-				limit = {
-					NOT = { title:c_roma.holder = { this = root } }
-				}
-				create_title_and_vassal_change = {
-					type = returned
-					save_scope_as = change
-					add_claim_on_loss = no
-				}
-				title:c_roma = {
-					change_title_holder = {
-						holder = root
-						change = scope:change
-					}
-				}
-				resolve_title_and_vassal_change = scope:change
-			}
-		}
-		title:e_roman_empire.holder = { set_realm_capital = title:c_roma }
-	}
-	hidden_effect = {
-		create_story = restoring_roman_provinces_story
-		add_character_flag = flag_restorer_of_rome #used for Eulogy.
-	}
-}
-create_roman_empire_italy_scripted_effect = {
-	add_trait = augustus
-	#Create Roman Empire, shift dejure/history/laws, destroy e_italy.
-	hidden_effect = {
-		every_held_title = { #Should shift all dejure of all Empires owned at the time.
-			limit = {
-				tier = tier_empire
-			}
-			every_in_de_jure_hierarchy = {
-				limit = {
-					tier = tier_kingdom
-				}
-				set_de_jure_liege_title = title:e_roman_empire
-				
-			}
-		}
-	}
-	create_title_and_vassal_change = {
-		type = created
-		save_scope_as = change
-		add_claim_on_loss = no
-	}
-	title:e_roman_empire = {
-		change_title_holder = {
-			holder = root
-			change = scope:change
-		}
+	faith = {
 		set_variable = {
-			name = variable_restored_italy #Used for flavor later.
+			name = variable_savior_found
 			value = yes
-		}	
-		copy_title_history = title:e_italy
-	}
-	resolve_title_and_vassal_change = scope:change
-	hidden_effect = { set_primary_title_to = title:e_roman_empire }
-	every_held_title = { #Should destroy all other Empires owned at the time.
-		limit = {
-			tier = tier_empire
-			NOT = { this = title:e_roman_empire }
-		}
-		root = { destroy_title = prev }
-	}
-	if = { #Automatically move capital to Rome.
-		limit = {
-			NOT = { capital_county = { this = title:c_roma } }
-			exists = title:e_roman_empire.holder
-		}
-		hidden_effect = {
-			if = { #Usurp if not held personally.
-				limit = {
-					NOT = { title:c_roma.holder = { this = root } }
-				}
-				create_title_and_vassal_change = {
-					type = returned
-					save_scope_as = change
-					add_claim_on_loss = no
-				}
-				title:c_roma = {
-					change_title_holder = {
-						holder = root
-						change = scope:change
-					}
-				}
-				resolve_title_and_vassal_change = scope:change
-			}
-		}
-		title:e_roman_empire.holder = { set_realm_capital = title:c_roma }
-	}
-	hidden_effect = {
-		create_story = restoring_roman_provinces_story
-		add_character_flag = flag_restorer_of_rome #used for Eulogy.
-	}
-}
-mend_great_schism_scripted_effect = {
-	root.faith = {
-		if = { #If from obscure branch of Christianity, make it official.
-			limit = {
-				root.faith = { NOT = { has_doctrine = special_doctrine_ecumenical_christian } }
-			}
-			add_doctrine = special_doctrine_ecumenical_christian
 		}
 		change_fervor = {
 			value = 25
-			desc = fervor_gain_mended_schism
+			desc = fervor_gain_holy_bloodline
 		}
 	}
-	every_player = { #Notify all players of the same Faith.
+	if = { #Temporal.
 		limit = {
-			NOT = { this = root }
-			faith = root.faith
+			root.faith.religious_head = root
 		}
-		trigger_event = roman_restoration.0103
-	}
-	every_ruler = { #Notify rulers of other Christian branches that they are no longer valid and offer chance at conversion.
-		limit = {
-			faith.religion = root.faith.religion
-			NOT = { faith = root.faith }
-			NOT = { government_has_flag = government_is_theocracy }
-			NOT = { this = this.faith.religious_head }
-			faith = {
-				has_doctrine = special_doctrine_ecumenical_christian
-			}
+		add_trait = savior
+		root.dynasty = {
+			add_dynasty_prestige = 1000
+			add_dynasty_prestige_level = 1
 		}
-		trigger_event = roman_restoration.0101
 	}
-	every_player = { #Then notify all infidel players that might be around.
-		limit = {
-			OR = {
-				AND = { #Either filthy heretics...
-					faith.religion = root.faith.religion
-					faith = { NOT = { has_doctrine = special_doctrine_ecumenical_christian } }
-				}
-				NOT = { faith.religion = root.faith.religion } #...Or Heathens.
-			}
-		}
-		trigger_event = roman_restoration.0102
-	}
-	religion:christianity_religion = {
-		every_faith = { #All main branches of Christianity that were considered Ecumenical are now heresies.
-			custom = every_ecumenical_christian_faith.tt
-			limit = {
-				this.religion = root.faith.religion
-				has_doctrine = special_doctrine_ecumenical_christian
-				NOT = { this = root.faith }
-			}
-			remove_doctrine = special_doctrine_ecumenical_christian
-			change_fervor = {
-				value = -25
-				desc = fervor_loss_mended_schism
-			}
+	else = { #Spiritual.
+		add_trait = paragon
+		root.dynasty = {
+			add_dynasty_prestige = 500
 		}
 	}
 
-	set_nickname_effect = { NICKNAME = nick_the_ecumenist }
+	every_child = {
+		even_if_dead = yes
+		trigger_event = major_decisions.0101
+	
+		every_child = {
+			even_if_dead = yes
+			limit = { 
+				OR = {
+					is_grandchild_of = scope:progenitor_holy_blood 
+					is_great_grandchild_of = scope:progenitor_holy_blood  
+				}
+			}
+			trigger_event = major_decisions.0101
+
+			every_child = {
+				even_if_dead = yes
+				limit = { 
+					OR = {
+						is_grandchild_of = scope:progenitor_holy_blood 
+						is_great_grandchild_of = scope:progenitor_holy_blood  
+					}
+				}
+				trigger_event = major_decisions.0101
+			}
+		}
+	}
 }
+
+## Uncomment when we need to in order to work on these
+# create_roman_empire_scripted_effect = {
+# 	add_trait = augustus
+# 	#Create Roman Empire, shift dejure/history/laws, destroy e_byzantium.
+# 	hidden_effect = {
+# 		every_held_title = { #Should shift all dejure of all Empires owned at the time.
+# 			limit = {
+# 				tier = tier_empire
+# 			}
+# 			every_in_de_jure_hierarchy = {
+# 				limit = {
+# 					tier = tier_kingdom
+# 				}
+# 				set_de_jure_liege_title = title:e_roman_empire
+				
+# 			}
+# 		}
+# 		every_held_title = { #Completely Controlled Kingdoms as well.
+# 			limit = {
+# 				tier = tier_kingdom
+# 				root = { completely_controls = prev }
+# 			}
+# 			set_de_jure_liege_title = title:e_roman_empire
+# 		}
+# 	}
+	
+# 	create_title_and_vassal_change = {
+# 		type = created
+# 		save_scope_as = change
+# 		add_claim_on_loss = no
+# 	}
+# 	title:e_roman_empire = {
+# 		change_title_holder = {
+# 			holder = root
+# 			change = scope:change
+# 		}
+# 		copy_title_history = title:e_byzantium
+# 	}
+# 	resolve_title_and_vassal_change = scope:change
+# 	hidden_effect = { set_primary_title_to = title:e_roman_empire }
+# 	every_held_title = { #Should destroy all other Empires owned at the time.
+# 		limit = {
+# 				tier = tier_empire
+# 			NOT = { this = title:e_roman_empire }
+# 		}
+# 		root = { destroy_title = prev }
+# 	}
+# 	if = { #Automatically move capital to Constantinople, unless it's been set to Rome.
+# 		limit = {
+# 			NOT = { capital_county = { this = title:c_roma } }
+# 			NOT = { capital_county = { this = title:c_byzantion } }
+# 			culture = { has_cultural_pillar = heritage_byzantine }
+# 		}
+# 		hidden_effect = {
+# 			if = { #Usurp if not held personally.
+# 				limit = {
+# 					NOT = { this = title:c_byzantion.holder }
+# 				}
+# 				create_title_and_vassal_change = {
+# 					type = returned
+# 					save_scope_as = change
+# 					add_claim_on_loss = no
+# 				}
+# 				title:c_byzantion = {
+# 					change_title_holder = {
+# 						holder = root
+# 						change = scope:change
+# 					}
+# 				}
+# 				resolve_title_and_vassal_change = scope:change
+# 			}
+# 		}
+# 		root = { set_realm_capital = title:c_byzantion }
+# 	}
+# 	else_if = {
+# 		limit = {
+# 			NOT = { capital_county = { this = title:c_roma } }
+# 			NOT = { capital_county = { this = title:c_byzantion } }
+# 			NOT = { culture = { has_cultural_pillar = heritage_byzantine } }
+# 			exists = title:e_roman_empire.holder
+# 		}
+# 		hidden_effect = {
+# 			if = { #Usurp if not held personally.
+# 				limit = {
+# 					NOT = { this = title:c_roma.holder }
+# 				}
+# 				create_title_and_vassal_change = {
+# 					type = returned
+# 					save_scope_as = change
+# 					add_claim_on_loss = no
+# 				}
+# 				title:c_roma = {
+# 					change_title_holder = {
+# 						holder = root
+# 						change = scope:change
+# 					}
+# 				}
+# 				resolve_title_and_vassal_change = scope:change
+# 			}
+# 		}
+# 		root = { set_realm_capital = title:c_roma }
+# 	}
+# 	hidden_effect = {
+# 		create_story = restoring_roman_provinces_story
+# 		add_character_flag = flag_restorer_of_rome #used for Eulogy.
+# 	}
+# }
+# create_roman_empire_holy_scripted_effect = {
+# 	add_trait = augustus
+# 	#Create Roman Empire, shift dejure/history/laws, destroy e_hre.
+# 	hidden_effect = {
+# 		every_held_title = { #Should shift all dejure of all Empires owned at the time.
+# 			limit = {
+# 				tier = tier_empire
+# 			}
+# 			every_in_de_jure_hierarchy = {
+# 				limit = {
+# 					tier = tier_kingdom
+# 				}
+# 				set_de_jure_liege_title = title:e_roman_empire
+				
+# 			}
+# 		}
+# 	}
+# 	create_title_and_vassal_change = {
+# 		type = created
+# 		save_scope_as = change
+# 		add_claim_on_loss = no
+# 	}
+# 	title:e_roman_empire = {
+# 		change_title_holder = {
+# 			holder = root
+# 			change = scope:change
+# 		}
+# 		set_variable = {
+# 			name = variable_restored_hre #Used for flavor later.
+# 			value = yes
+# 		}	
+# 		copy_title_history = title:e_hre
+# 	}
+# 	resolve_title_and_vassal_change = scope:change
+# 	hidden_effect = { set_primary_title_to = title:e_roman_empire }
+# 	every_held_title = { #Should destroy all other Empires owned at the time.
+# 		limit = {
+# 			tier = tier_empire
+# 			NOT = { this = title:e_roman_empire }
+# 		}
+# 		root = { destroy_title = prev }
+# 	}
+# 	hidden_effect = {
+# 		title:e_roman_empire = {
+# 			set_coa = e_hre_roman
+# 			set_color_from_title = title:e_hre
+# 		}
+# 	}
+
+# 	if = { #Automatically move capital to Rome.
+# 		limit = {
+# 			NOT = { capital_county = { this = title:c_roma } }
+# 			exists = title:e_roman_empire.holder
+# 		}
+# 		hidden_effect = {
+# 			if = { #Usurp if not held personally.
+# 				limit = {
+# 					NOT = { title:c_roma.holder = { this = root } }
+# 				}
+# 				create_title_and_vassal_change = {
+# 					type = returned
+# 					save_scope_as = change
+# 					add_claim_on_loss = no
+# 				}
+# 				title:c_roma = {
+# 					change_title_holder = {
+# 						holder = root
+# 						change = scope:change
+# 					}
+# 				}
+# 				resolve_title_and_vassal_change = scope:change
+# 			}
+# 		}
+# 		title:e_roman_empire.holder = { set_realm_capital = title:c_roma }
+# 	}
+# 	hidden_effect = {
+# 		create_story = restoring_roman_provinces_story
+# 		add_character_flag = flag_restorer_of_rome #used for Eulogy.
+# 	}
+# }
+# create_roman_empire_italy_scripted_effect = {
+# 	add_trait = augustus
+# 	#Create Roman Empire, shift dejure/history/laws, destroy e_italy.
+# 	hidden_effect = {
+# 		every_held_title = { #Should shift all dejure of all Empires owned at the time.
+# 			limit = {
+# 				tier = tier_empire
+# 			}
+# 			every_in_de_jure_hierarchy = {
+# 				limit = {
+# 					tier = tier_kingdom
+# 				}
+# 				set_de_jure_liege_title = title:e_roman_empire
+				
+# 			}
+# 		}
+# 	}
+# 	create_title_and_vassal_change = {
+# 		type = created
+# 		save_scope_as = change
+# 		add_claim_on_loss = no
+# 	}
+# 	title:e_roman_empire = {
+# 		change_title_holder = {
+# 			holder = root
+# 			change = scope:change
+# 		}
+# 		set_variable = {
+# 			name = variable_restored_italy #Used for flavor later.
+# 			value = yes
+# 		}	
+# 		copy_title_history = title:e_italy
+# 	}
+# 	resolve_title_and_vassal_change = scope:change
+# 	hidden_effect = { set_primary_title_to = title:e_roman_empire }
+# 	every_held_title = { #Should destroy all other Empires owned at the time.
+# 		limit = {
+# 			tier = tier_empire
+# 			NOT = { this = title:e_roman_empire }
+# 		}
+# 		root = { destroy_title = prev }
+# 	}
+# 	if = { #Automatically move capital to Rome.
+# 		limit = {
+# 			NOT = { capital_county = { this = title:c_roma } }
+# 			exists = title:e_roman_empire.holder
+# 		}
+# 		hidden_effect = {
+# 			if = { #Usurp if not held personally.
+# 				limit = {
+# 					NOT = { title:c_roma.holder = { this = root } }
+# 				}
+# 				create_title_and_vassal_change = {
+# 					type = returned
+# 					save_scope_as = change
+# 					add_claim_on_loss = no
+# 				}
+# 				title:c_roma = {
+# 					change_title_holder = {
+# 						holder = root
+# 						change = scope:change
+# 					}
+# 				}
+# 				resolve_title_and_vassal_change = scope:change
+# 			}
+# 		}
+# 		title:e_roman_empire.holder = { set_realm_capital = title:c_roma }
+# 	}
+# 	hidden_effect = {
+# 		create_story = restoring_roman_provinces_story
+# 		add_character_flag = flag_restorer_of_rome #used for Eulogy.
+# 	}
+# }
+# mend_great_schism_scripted_effect = {
+# 	root.faith = {
+# 		if = { #If from obscure branch of Christianity, make it official.
+# 			limit = {
+# 				root.faith = { NOT = { has_doctrine = special_doctrine_ecumenical_christian } }
+# 			}
+# 			add_doctrine = special_doctrine_ecumenical_christian
+# 		}
+# 		change_fervor = {
+# 			value = 25
+# 			desc = fervor_gain_mended_schism
+# 		}
+# 	}
+# 	every_player = { #Notify all players of the same Faith.
+# 		limit = {
+# 			NOT = { this = root }
+# 			faith = root.faith
+# 		}
+# 		trigger_event = roman_restoration.0103
+# 	}
+# 	every_ruler = { #Notify rulers of other Christian branches that they are no longer valid and offer chance at conversion.
+# 		limit = {
+# 			faith.religion = root.faith.religion
+# 			NOT = { faith = root.faith }
+# 			NOT = { government_has_flag = government_is_theocracy }
+# 			NOT = { this = this.faith.religious_head }
+# 			faith = {
+# 				has_doctrine = special_doctrine_ecumenical_christian
+# 			}
+# 		}
+# 		trigger_event = roman_restoration.0101
+# 	}
+# 	every_player = { #Then notify all infidel players that might be around.
+# 		limit = {
+# 			OR = {
+# 				AND = { #Either filthy heretics...
+# 					faith.religion = root.faith.religion
+# 					faith = { NOT = { has_doctrine = special_doctrine_ecumenical_christian } }
+# 				}
+# 				NOT = { faith.religion = root.faith.religion } #...Or Heathens.
+# 			}
+# 		}
+# 		trigger_event = roman_restoration.0102
+# 	}
+# 	religion:christianity_religion = {
+# 		every_faith = { #All main branches of Christianity that were considered Ecumenical are now heresies.
+# 			custom = every_ecumenical_christian_faith.tt
+# 			limit = {
+# 				this.religion = root.faith.religion
+# 				has_doctrine = special_doctrine_ecumenical_christian
+# 				NOT = { this = root.faith }
+# 			}
+# 			remove_doctrine = special_doctrine_ecumenical_christian
+# 			change_fervor = {
+# 				value = -25
+# 				desc = fervor_loss_mended_schism
+# 			}
+# 		}
+# 	}
+
+# 	set_nickname_effect = { NICKNAME = nick_the_ecumenist }
+# }
 
 # restore_papacy_scripted_effect = {
 # 	save_scope_as = reformer
@@ -1138,63 +1197,63 @@ mend_great_schism_scripted_effect = {
 # 	hidden_effect = { set_primary_title_to = title:k_rum }
 # }
 
-# declare_bloodline_holy_decision_effect = {
-# 	save_scope_as = progenitor_holy_blood
+declare_bloodline_holy_decision_effect = { # No reason to delete, yet
+	save_scope_as = progenitor_holy_blood
 
-# 	faith = {
-# 		set_variable = {
-# 			name = variable_savior_found
-# 			value = yes
-# 		}
-# 		change_fervor = {
-# 			value = 25
-# 			desc = fervor_gain_holy_bloodline
-# 		}
-# 	}
-# 	if = { #Temporal.
-# 		limit = {
-# 			root.faith.religious_head = root
-# 		}
-# 		add_trait = savior
-# 		root.dynasty = {
-# 			add_dynasty_prestige = 1000
-# 			add_dynasty_prestige_level = 1
-# 		}
-# 	}
-# 	else = { #Spiritual.
-# 		add_trait = paragon
-# 		root.dynasty = {
-# 			add_dynasty_prestige = 500
-# 		}
-# 	}
+	faith = {
+		set_variable = {
+			name = variable_savior_found
+			value = yes
+		}
+		change_fervor = {
+			value = 25
+			desc = fervor_gain_holy_bloodline
+		}
+	}
+	if = { #Temporal.
+		limit = {
+			root.faith.religious_head = root
+		}
+		add_trait = savior
+		root.dynasty = {
+			add_dynasty_prestige = 1000
+			add_dynasty_prestige_level = 1
+		}
+	}
+	else = { #Spiritual.
+		add_trait = paragon
+		root.dynasty = {
+			add_dynasty_prestige = 500
+		}
+	}
 
-# 	every_child = {
-# 		even_if_dead = yes
-# 		trigger_event = major_decisions.0101
+	every_child = {
+		even_if_dead = yes
+		trigger_event = major_decisions.0101
 	
-# 		every_child = {
-# 			even_if_dead = yes
-# 			limit = { 
-# 				OR = {
-# 					is_grandchild_of = scope:progenitor_holy_blood 
-# 					is_great_grandchild_of = scope:progenitor_holy_blood  
-# 				}
-# 			}
-# 			trigger_event = major_decisions.0101
+		every_child = {
+			even_if_dead = yes
+			limit = { 
+				OR = {
+					is_grandchild_of = scope:progenitor_holy_blood 
+					is_great_grandchild_of = scope:progenitor_holy_blood  
+				}
+			}
+			trigger_event = major_decisions.0101
 
-# 			every_child = {
-# 				even_if_dead = yes
-# 				limit = { 
-# 					OR = {
-# 						is_grandchild_of = scope:progenitor_holy_blood 
-# 						is_great_grandchild_of = scope:progenitor_holy_blood  
-# 					}
-# 				}
-# 				trigger_event = major_decisions.0101
-# 			}
-# 		}
-# 	}
-# }
+			every_child = {
+				even_if_dead = yes
+				limit = { 
+					OR = {
+						is_grandchild_of = scope:progenitor_holy_blood 
+						is_great_grandchild_of = scope:progenitor_holy_blood  
+					}
+				}
+				trigger_event = major_decisions.0101
+			}
+		}
+	}
+}
 
 # sicilian_parliament_building_scripted_effect = {
 # 	#this is the County title.
