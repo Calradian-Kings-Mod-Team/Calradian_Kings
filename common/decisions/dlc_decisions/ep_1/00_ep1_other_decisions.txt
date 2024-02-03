@@ -1,0 +1,231 @@
+﻿##################################################
+
+#	Royal Court Other Decisions List
+
+#	Adopt Puppy - doot a puppo
+#	Introduce a Fashion at Court - make a bold fashion statement
+
+##################################################
+
+
+
+#############################################
+# Adopt Puppy								#
+# by Joe Parkin								#
+#############################################
+
+adopt_puppy_decision = {
+	title = adopt_puppy_decision_name
+	picture = "gfx/interface/illustrations/decisions/decision_activity.dds"
+	desc = adopt_puppy_decision_desc
+	selection_tooltip = adopt_puppy_decision_tooltip
+	cooldown = { years = 5 }
+	major = no
+	sort_order = 89
+
+	is_shown = {
+		# House has the Dog Lovers modifier from Hold Court event
+		is_lowborn = no
+		exists = house
+		house = { has_house_modifier = hold_court_8140_house_modifier }
+	}
+
+	is_valid_showing_failures_only = {
+		# Does not already have a pet.
+		custom_tooltip = {
+			text = adopt_puppy_decision_already_pet_tt
+			NOR = {
+				any_owned_story = { story_type = story_cycle_pet_dog }
+				any_owned_story = { story_type = story_cycle_pet_cat }
+				has_character_modifier = dog_story_modifier
+				has_character_modifier = cat_story_modifier
+			}
+		}
+	}
+
+	effect = {
+		show_as_tooltip = { start_dog_story_cycle_effect = yes }
+		trigger_event = hold_court.8142
+	}
+
+	cost = { gold = minor_gold_value }
+
+	ai_check_interval = 60
+	
+	ai_potential = {
+		# Has enough gold.
+		short_term_gold >= minor_gold_value
+		NOR = {
+			has_trait = lazy
+			has_trait = callous
+		}
+	}
+
+	ai_will_do = {
+		base = 100
+		# You're richer.
+		modifier = {
+			add = 50
+			faith = { has_doctrine_parameter = gruesome_festivals_active }
+			short_term_gold >= massive_gold_value
+		}
+		modifier = {
+			add = 50
+			faith = { has_doctrine_parameter = gruesome_festivals_active }
+			short_term_gold >= monumental_gold_value
+		}
+	}
+}
+
+
+## No more fashion
+
+#############################################
+# Finance Culture Development				#
+# by Maxence Voleau 						#
+#############################################
+
+promote_other_culture_development_decision = {
+	title = promote_other_culture_development_decision_name
+	picture = "gfx/interface/illustrations/decisions/decision_misc.dds"
+	desc = promote_other_culture_development_decision_desc
+	selection_tooltip = promote_other_culture_development_decision_tooltip
+	cooldown = { years = 10 }
+	major = no
+	sort_order = 90
+
+	is_shown = {
+		exists = dynasty
+		dynasty = {
+			has_dynasty_perk = ep1_culture_legacy_5
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = promote_other_culture_development_decision_not_acceptance_tt
+			any_sub_realm_county = {
+				count > 0
+				AND = {
+					NOT = { culture = root.culture}
+					culture = {
+						cultural_acceptance = {
+							target = ROOT.culture
+							value >= 75
+						}
+					}
+				}
+			}
+		}
+	}
+
+	effect = {
+
+		#Add a modifier on the character who spent the money
+		add_character_modifier = {
+			modifier = promote_culture_leader_modifier
+			years = 10
+		}
+
+		#Collect the list of Cultures which will be affected 
+		hidden_effect = {
+			every_sub_realm_county = {
+				if = {
+					limit = {
+						NOT = { 
+							culture = {
+								any_in_list = {
+									list = promoted_culture
+									this = prev
+								}
+							}
+						}
+						NOT = {	root.culture = culture }
+						culture = {
+							cultural_acceptance = {
+								target = ROOT.culture
+								value >= 75
+							}
+						}
+					}
+					culture = { add_to_temporary_list = promoted_culture }
+				}
+			}
+		}
+
+		#Generate intelligible effect
+		if = {
+			limit = {
+				any_in_list = {
+					list = promoted_culture
+					count > 0
+				}
+			}
+			every_in_list = {
+				list = promoted_culture
+				this =  { save_scope_as = current_culture }
+				custom_tooltip = promote_other_culture_development_decision_effect_summary #see if a modifier can be injected for better effect
+			}
+		}
+		else = {
+			custom_tooltip = promote_other_culture_development_decision_no_effect
+		}
+		
+		#Apply the actual effect: add a County Modifier on the relevant Counties
+		hidden_effect = {
+			every_sub_realm_county = {
+				if = {
+					limit = {
+						NOT = { culture = root.culture }
+						culture = {
+							cultural_acceptance = {
+								target = root.culture
+								value >= 75
+							}
+						}
+					}
+				 	add_county_modifier = {
+				 		modifier = promote_culture_modifier
+				 		years = 10
+				 	}
+				}
+			}
+		}
+	}
+
+	cost = {
+		gold = {
+			value = minor_gold_value
+			every_sub_realm_county = {
+				if = {
+					limit = {
+						NOT = { culture = root.culture }
+						culture = {
+							cultural_acceptance = {
+								target = root.culture
+								value >= 75
+							}
+						}
+					}
+					add = 10
+				}
+			}
+		} 
+	}
+
+	ai_check_interval = 120
+	
+	ai_potential = {
+		is_at_war = no
+		# Has enough gold.
+		short_term_gold >= ai_war_chest_desired_gold_value
+		NOR = {
+			has_trait = lazy
+			has_trait = callous
+		}
+	}
+
+	ai_will_do = {
+		base = 100
+	}
+}
