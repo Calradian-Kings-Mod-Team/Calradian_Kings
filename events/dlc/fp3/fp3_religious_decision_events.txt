@@ -1,0 +1,349 @@
+﻿namespace = fp3_decision
+
+##################################################
+# #Zoroastrian Decision Events
+
+##################################################
+
+fp3_decision.0001 = {
+	type = character_event
+	title = fp3_decision.0001.t 
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					has_faith = faith:darshi_faith
+				}
+				desc = fp3_decision.0001.desc_general_zoroastrian 
+			}
+			
+		}
+		desc = fp3_decision.0001_desc_ending 
+	}
+		
+
+
+	theme = crown
+	override_background = { reference = throne_room_east }
+
+	left_portrait = {
+		character = root
+		animation = personality_bold 
+	}
+
+	option = { #Kindle the fire (elaborate ceremony)
+		name = fp3_decision.0001.b	
+
+		add_piety = massive_piety_loss
+
+		dynasty = { add_dynasty_prestige = medium_dynasty_prestige_value }
+
+		add_character_modifier = {
+			modifier = fp3_royal_fire_modifier 
+		}
+
+		custom_tooltip = fp3_decision.0001_vassal_and_courtier_opinion_impressed 
+		hidden_effect = {
+			every_vassal = {
+				IF = { 
+					limit = {
+						NOT = {
+							has_religion = religion:darshi_religion 
+						}
+						OR = {
+							faith = { has_doctrine = doctrine_pluralism_fundamentalist }
+							faith = {	has_doctrine = doctrine_pluralism_righteous }	
+						}	
+					}
+					add_opinion = {
+						target = root
+						opinion = -20
+						modifier = fp3_strange_rituals_opinion 
+					}				
+				}
+				ELSE = {
+					add_opinion = {
+						target = root
+						opinion = 15
+						modifier = fp3_magnificent_fire_ritual_opinion
+					}
+				}	
+			}
+			every_courtier = {
+				IF = { 
+					limit = {
+						NOT = {
+							has_religion = religion:darshi_religion 
+						}
+						OR = {
+							faith = { has_doctrine = doctrine_pluralism_fundamentalist }
+							faith = {	has_doctrine = doctrine_pluralism_righteous }	
+						}	
+					}
+					add_opinion = {
+						target = root
+						opinion = -20
+						modifier = fp3_strange_rituals_opinion 
+					}				
+				}
+				ELSE = {
+					add_opinion = {
+						target = root
+						opinion = 15
+						modifier = fp3_magnificent_fire_ritual_opinion
+					}
+				}		
+			}
+		}
+
+        ai_chance = { #ambitious and zealous AIs pick this option
+        	base = 10
+        	ai_value_modifier = {
+            	ai_energy = 0.5
+            	ai_zeal = 1
+        	}
+   		}  	
+
+   		stress_impact = { #Ambitious rulers of course like this, but paranoid ones are worried about offending people. 
+			ambitious = medium_stress_impact_loss
+			arrogant = medium_stress_impact_loss
+			zealous = medium_stress_impact_loss 
+			gregarious = medium_stress_impact_loss
+			august = medium_stress_impact_loss 
+			gallant = medium_stress_impact_loss
+			content = miniscule_stress_impact_gain
+			cynical = minor_stress_impact_gain	
+			temperate = miniscule_stress_impact_gain
+			paranoid = minor_stress_impact_gain	
+		}
+	}
+
+	option = { #Kindle the fire (less elaborate ceremony) 
+		name = fp3_decision.0001.c
+
+
+		add_piety = major_piety_loss
+
+		add_character_modifier = {
+			modifier = fp3_royal_fire_modifier 
+		}
+
+		custom_tooltip = fp3_decision.0001_vassal_and_courtier_opinion 
+		hidden_effect = {
+			every_vassal = {
+				IF = { 
+					limit = {
+						NOT = {
+							has_religion = religion:darshi_religion 
+						}
+						OR = {
+							faith = { has_doctrine = doctrine_pluralism_fundamentalist }
+							faith = {	has_doctrine = doctrine_pluralism_righteous }	
+						}	
+					}
+					add_opinion = {
+						target = root
+						opinion = -20
+						modifier = fp3_strange_rituals_opinion 
+					}				
+				}
+				ELSE = {
+					add_opinion = {
+						target = root
+						opinion = 10
+						modifier = fp3_blessed_by_fire_opinion
+					}
+				}	
+			}
+			every_courtier = {
+				IF = { 
+					limit = {
+						NOT = {
+							has_religion = religion:darshi_religion 
+						}
+						OR = {
+							faith = { has_doctrine = doctrine_pluralism_fundamentalist }
+							faith = {	has_doctrine = doctrine_pluralism_righteous }	
+						}	
+					}
+					add_opinion = {
+						target = root
+						opinion = -20
+						modifier = fp3_strange_rituals_opinion 
+					}				
+				}
+				ELSE = {
+					add_opinion = {
+						target = root
+						opinion = 10
+						modifier = fp3_blessed_by_fire_opinion
+					}
+				}		
+			}
+		}
+
+		ai_chance = { #more cautious AIs pick this option
+        	base = 10
+        	ai_value_modifier = {
+            	ai_rationality = 0.5
+            	ai_greed = 1
+        	}
+   		}  	
+
+   		stress_impact = { #Wasteful or ambitious rulers loathe this more moderate option, but temperate and content rulers love it. 
+			ambitious = minor_stress_impact_gain
+			zealous = miniscule_stress_impact_gain
+			august = minor_stress_impact_gain
+			gallant = miniscule_stress_impact_gain 
+			paranoid = minor_stress_impact_gain
+			content = medium_stress_impact_loss
+			temperate = medium_stress_impact_loss	
+		}
+	}
+
+	option = { #Skip it for now
+		name = fp3_decision.0001.d
+
+		ai_chance = { #the AI generally shouldn't pick this, as it's the opting-out-option
+        	base = 1 	
+   		}  	
+	}	
+}
+
+fp3_decision.0002 = {
+	type = character_event
+	title = fp3_decision.0002.t 
+	desc = fp3_decision.0002.desc
+	
+	theme = death
+	left_portrait = {
+		character = scope:occupant
+		animation = celebrate_sword
+	}
+	right_portrait = {
+		character = ROOT
+		animation = shock
+	}
+	override_background = { reference = battlefield }
+
+	trigger = {
+
+		is_ai = no 
+		has_character_modifier = fp3_royal_fire_modifier 
+	}
+
+	cooldown = { years = 30 }
+
+	immediate = {
+
+		remove_character_modifier = fp3_royal_fire_modifier 
+
+		hidden_effect = {
+			add_character_flag = {
+				flag = fire_recently_quenched
+				days = 1825
+			}
+		}
+
+		if = {
+			limit = {
+				OR = {
+					has_trait = ambitious
+					has_trait = august
+					has_trait = craven
+					has_trait = gallant 
+					has_trait = zealous
+					has_trait = arrogant
+					has_trait = paranoid 
+					has_trait = lunatic 
+				}
+			}
+			add_stress = major_stress_impact_gain
+		}
+		else = { add_stress = medium_stress_impact_gain	}
+
+
+		custom_tooltip = fp3_decision.0002_fire_destroyed_tt
+		hidden_effect = { #Now they like you less because your royal fire got quenched 
+			every_vassal = {
+				if = { 
+					limit = {
+						NOR = { #but these personalities stand by you no matter what, or are less superstitious 
+							has_trait = cynical
+							has_trait = trusting 
+							has_trait = forgiving
+							has_trait = brave
+						}
+					}
+					add_opinion = {
+						target = root
+						opinion = -20
+						modifier = fp3_bad_portent_opinion 
+					}				
+				}
+			}
+			every_courtier = { #but these personalities stand by you no matter what, or are less superstitious 
+				if = { 
+					limit = {
+						NOR = {
+							has_trait = brave 
+							has_trait = cynical
+							has_trait = trusting 
+							has_trait = forgiving
+						}
+					}
+					add_opinion = {
+						target = root
+						opinion = -20
+						modifier = fp3_bad_portent_opinion 
+					}				
+				}
+			}		
+		}
+	}
+
+	option = { #It matters not, it was merely a symbol 
+		name = fp3_decision.0002.a
+
+		trigger = {
+			OR = {
+				has_trait = calm
+				has_trait = content 
+				has_trait = cynical
+				has_trait = diplomat
+				has_trait = temperate 
+				# has_trait = saoshyant 
+			}
+		}
+
+		add_piety = minor_piety_loss
+
+		add_stress = medium_stress_impact_loss 
+	}
+
+	option = { #This atrocity must be avenged! 
+		name = fp3_decision.0002.b
+		trigger = {
+			scope:occupant = {
+				NOR = {	
+					has_relation_rival = root 
+					has_relation_nemesis = root
+				}
+			}
+		}
+
+		set_relation_nemesis = scope:occupant 
+	}
+
+	option = { #What am I to do now? 
+		name = fp3_decision.0002.c	
+	}
+}
+
+
+# No Badd Fortress Event or Decision
+
+# No Magi Event or Decisions
+
+# Islamic References Removed
+

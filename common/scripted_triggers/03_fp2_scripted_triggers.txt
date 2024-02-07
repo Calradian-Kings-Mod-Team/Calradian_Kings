@@ -1,0 +1,317 @@
+﻿
+##################################################
+# General Triggers
+
+fp2_should_use_iberian_graphics_trigger = {
+	culture = { has_building_gfx = iberian_building_gfx }
+}
+
+## No Struggle
+
+##############################################
+# Cultural & Regional Triggers
+
+culture_valid_for_ritualised_best_friends_trigger = {
+	culture = { has_cultural_parameter = strong_hooks_and_stress_effects_best_friends }
+}
+
+valid_ritualised_best_friendship_two_way_trigger = {
+	$ACTOR_FRIEND$ = {
+		# Check that they have the appropriate cultural parameter...
+		culture_valid_for_ritualised_best_friends_trigger = yes
+		# ... and that they've still got a best friend...
+		any_relation = {
+			type = best_friend
+			this = $RECIPIENT_FRIEND$
+			# ... who also still has the cultural parameter.
+			culture_valid_for_ritualised_best_friends_trigger = yes
+		}
+	}
+}
+
+valid_ritualised_best_friendship_one_way_trigger = {
+	$ACTOR_FRIEND$ = {
+		# Check that they have the appropriate cultural parameter...
+		culture_valid_for_ritualised_best_friends_trigger = yes
+		# ... and that they've got a best friend...
+		any_relation = {
+			type = best_friend
+			count >= 1
+			# ... who also still has the cultural parameter.
+			culture_valid_for_ritualised_best_friends_trigger = yes
+		}
+	}
+}
+
+##################################################
+# Illustration Triggers
+
+
+
+##################################################
+# Interaction Triggers
+
+has_any_best_friend_synergy_bonus_modifier_trigger = {
+	OR = {
+		has_character_modifier = fp2_single_synergy_diplomacy_modifier
+		has_character_modifier = fp2_single_synergy_martial_modifier
+		has_character_modifier = fp2_single_synergy_stewardship_modifier
+		has_character_modifier = fp2_single_synergy_intrigue_modifier
+		has_character_modifier = fp2_single_synergy_learning_modifier
+		has_character_modifier = fp2_double_synergy_diplomacy_diplomacy_modifier
+		has_character_modifier = fp2_double_synergy_diplomacy_martial_modifier
+		has_character_modifier = fp2_double_synergy_diplomacy_stewardship_modifier
+		has_character_modifier = fp2_double_synergy_diplomacy_intrigue_modifier
+		has_character_modifier = fp2_double_synergy_diplomacy_learning_modifier
+		has_character_modifier = fp2_double_synergy_martial_diplomacy_modifier
+		has_character_modifier = fp2_double_synergy_martial_martial_modifier
+		has_character_modifier = fp2_double_synergy_martial_stewardship_modifier
+		has_character_modifier = fp2_double_synergy_martial_intrigue_modifier
+		has_character_modifier = fp2_double_synergy_martial_learning_modifier
+		has_character_modifier = fp2_double_synergy_stewardship_diplomacy_modifier
+		has_character_modifier = fp2_double_synergy_stewardship_martial_modifier
+		has_character_modifier = fp2_double_synergy_stewardship_stewardship_modifier
+		has_character_modifier = fp2_double_synergy_stewardship_intrigue_modifier
+		has_character_modifier = fp2_double_synergy_stewardship_learning_modifier
+		has_character_modifier = fp2_double_synergy_intrigue_diplomacy_modifier
+		has_character_modifier = fp2_double_synergy_intrigue_martial_modifier
+		has_character_modifier = fp2_double_synergy_intrigue_stewardship_modifier
+		has_character_modifier = fp2_double_synergy_intrigue_intrigue_modifier
+		has_character_modifier = fp2_double_synergy_intrigue_learning_modifier
+		has_character_modifier = fp2_double_synergy_learning_diplomacy_modifier
+		has_character_modifier = fp2_double_synergy_learning_martial_modifier
+		has_character_modifier = fp2_double_synergy_learning_stewardship_modifier
+		has_character_modifier = fp2_double_synergy_learning_intrigue_modifier
+		has_character_modifier = fp2_double_synergy_learning_learning_modifier
+	}
+}
+
+purchase_truce_interaction_recipient_can_de_jure_war_actor_trigger = {
+	scope:recipient = {
+		OR = {
+			has_cb_on = {
+				target = scope:actor
+				cb = de_jure_cb
+			}
+			has_cb_on = {
+				target = scope:actor
+				cb = individual_county_de_jure_cb
+			}
+			has_cb_on = {
+				target = scope:actor
+				cb = individual_duchy_de_jure_cb
+			}
+		}
+	}
+}
+
+fp2_struggle_contract_assistance_war_winning_trigger = {
+	trigger_if = {
+		limit = {
+			scope:recipient = { is_attacker_in_war = prev }
+		}
+		attacker_war_score >= offer_assistance_interaction_already_winning_value
+	}
+	trigger_else = { defender_war_score >= offer_assistance_interaction_already_winning_value }
+}
+
+fp2_struggle_contract_assistance_war_losing_trigger = {
+	trigger_if = {
+		limit = {
+			scope:recipient = { is_attacker_in_war = prev }
+		}
+		defender_war_score >= offer_assistance_interaction_already_losing_value
+	}
+	trigger_else = { attacker_war_score >= offer_assistance_interaction_already_losing_value }
+}
+
+fp2_struggle_contract_assistance_war_outnumbering_trigger = {
+ 	trigger_if = {
+		limit = {
+			scope:recipient = { is_attacker_in_war = prev }
+		}
+		war_attacker_total_strength_halved_value > war_defender_total_strength_value
+	}
+	trigger_else = { war_defender_total_strength_halved_value > war_attacker_total_strength_value }
+ }
+
+fp2_struggle_contract_assistance_war_outnumbered_trigger = {
+ 	trigger_if = {
+		limit = {
+			scope:recipient = { is_attacker_in_war = prev }
+		}
+		war_defender_total_strength_halved_value > war_attacker_total_strength_value
+	}
+	trigger_else = { war_attacker_total_strength_halved_value > war_defender_total_strength_value }
+}
+
+fp2_struggle_contract_assistance_war_outnumbered_minor_trigger = {
+ 	trigger_if = {
+		limit = {
+			scope:recipient = { is_attacker_in_war = prev }
+		}
+		war_defender_total_strength_value > war_attacker_total_strength_value
+	}
+	trigger_else = { war_attacker_total_strength_value > war_defender_total_strength_value }
+}
+
+fp2_struggle_contract_assistance_war_insufficient_trigger = {
+	trigger_if = {
+		limit = {
+			scope:recipient = { is_attacker_in_war = prev }
+		}
+		scope:actor.max_military_strength < war_defender_total_strength_divided_value
+	}
+	trigger_else = { scope:actor.max_military_strength < war_attacker_total_strength_divided_value }
+}
+
+##################################################
+# Religious Triggers
+
+
+
+##################################################
+# Achievement Triggers
+
+##################################################
+# Decision Triggers
+
+##### Struggle Ending #####
+
+### Common
+
+### NO IBERIA OR IBERIAN STRUGGLE ###
+
+fp2_struggle_enforce_truce_war_leader_trigger = {
+	custom_tooltip = {
+		text = fp2_enforce_truce_war_with_not_involved_tt
+		any_character_struggle = {
+			involvement = involved
+		}
+	}
+	custom_tooltip = {
+		text = fp2_enforce_truce_tier_difference_tt
+		tier_difference = {
+			target = scope:actor
+			value <= 0
+		}
+	}
+	NOR = {
+		this = scope:recipient
+		this = scope:actor
+	}
+	custom_tooltip = {
+		text = fp2_enforce_truce_liege_or_independent_tt
+		OR = {
+			scope:recipient = { is_independent_ruler = yes }
+			scope:recipient.top_liege = scope:actor.top_liege
+			is_independent_ruler = yes
+			top_liege = scope:actor.top_liege
+		}
+	}
+}
+
+fp2_bargain_fealty_war_outnumbered_trigger = {
+	war_attacker_total_strength_halved_value > scope:recipient.max_military_strength
+}
+
+fp2_bargain_fealty_war_losing_trigger = {
+	attacker_war_score >= fp2_bargain_fealty_interaction_already_losing_value
+}
+
+
+### Lyonese/Perassic Monk ###
+
+# fp2_lyonese_monk_0002_papal_hof_trigger = {
+# 	religion = religion:christianity_religion
+# 	exists = faith.religious_head
+# 	faith.religious_head_title = title:k_papal_state
+# }
+
+# fp2_lyonese_monk_0002_valid_character_configuration_trigger = {
+# 	OR = {
+# 		has_trait = scholar
+# 		has_trait = theologian
+# 		has_trait = lifestyle_mystic
+# 		AND = {
+# 			is_ai = no
+# 			learning >= very_high_skill_rating
+# 			has_lifestyle = learning_lifestyle
+# 		}
+# 	}
+# }
+
+# fp2_lyonese_monk_0002_valid_court_trigger = {
+# 	# Must have the Pope as a HoF.
+# 	fp2_lyonese_monk_0002_papal_hof_trigger = yes
+# 	# Filter out anyone not able to be at home when the monk comes a'knockin'.
+# 	is_physically_able = yes
+# 	# Must be into bookish discussions.
+# 	## Narratively, this is what attracts them to your court.
+# 	## Mechanically, this is how players can opt in for the chain so it's not completely random.
+# 	fp2_lyonese_monk_0002_valid_character_configuration_trigger = yes
+# 	# Remove non-playables.
+# 	NOR = {
+# 		government_has_flag = government_is_theocracy
+# 		government_has_flag = government_is_republic
+# 	}
+# 	# Plus, for various reasons, we don't want Lyon _itself_.
+# }
+
+# fp2_lyonese_monk_0000_valid_for_events_trigger = {
+# 	fp2_lyonese_monk_0000_out_of_realm_trigger = no
+# 	fp2_lyonese_monk_0000_out_of_freedom_trigger = no
+# 	fp2_lyonese_monk_0000_out_of_popes_trigger = no
+# 	fp2_lyonese_monk_0000_out_of_faith_trigger = no
+# }
+
+# fp2_lyonese_monk_0000_out_of_realm_trigger = {
+# 	scope:acolyte = {
+# 		OR = {
+# 			is_alive = no
+# 			is_imprisoned = yes
+# 			AND = {
+# 				is_landed = no
+# 				NOT = {
+# 					host = scope:acolyte_host
+# 					# Make an exception if you're in prison, since that should give a different event.
+# 					scope:acolyte_host = { is_imprisoned = no }
+# 				}
+# 			}
+# 			AND = {
+# 				is_landed = yes
+# 				NOT = {
+# 					any_liege_or_above = { this = scope:acolyte_host }
+# 				}
+# 			}
+# 		}
+# 	}
+# }
+
+# fp2_lyonese_monk_0000_out_of_freedom_trigger = { is_imprisoned = yes }
+
+# fp2_lyonese_monk_0000_out_of_popes_trigger = {
+# 	NOT = { exists = scope:story.var:base_faith.religious_head }
+# }
+
+# fp2_lyonese_monk_0000_out_of_faith_trigger = {
+# 	OR = {
+# 		NOT = { scope:acolyte.faith.religious_head = scope:story.var:base_faith.religious_head }
+# 		NOT = { scope:acolyte_host.faith.religious_head = scope:story.var:base_faith.religious_head }
+# 	}
+# }
+
+fp2_eligible_for_yearly_events_trigger = {
+	has_fp2_dlc_trigger = yes
+	OR = {
+		any_character_struggle = {
+			involvement = involved
+		}
+		AND = {
+			exists = capital_province
+			capital_province = {
+				geographical_region = region_perassic
+			}
+		}
+	}
+}

@@ -1,0 +1,191 @@
+﻿favour_skilled_outsiders_decision_apply_opinions_effect = {
+	# Courtly vassals.
+	every_vassal = {
+		custom = favour_skilled_outsiders_decision.tt.upset_elites.courtly_non_heritage
+		limit = { favour_skilled_outsiders_decision_grab_courtlies_trigger = yes }
+		add_opinion = {
+			target = root
+			modifier = upset_elites_opinion
+			opinion = -40
+		}
+	}
+	# Landless councillors.
+	every_councillor = {
+		custom = favour_skilled_outsiders_decision.tt.upset_elites.landless_councillor_non_heritage
+		limit = { favour_skilled_outsiders_decision_grab_landless_councillors_trigger = yes }
+		add_opinion = {
+			target = root
+			modifier = upset_elites_opinion
+			opinion = -30
+		}
+	}
+	# Remaining vassals.
+	every_vassal = {
+		custom = favour_skilled_outsiders_decision.tt.upset_elites.non_courtly_non_heritage
+		limit = { favour_skilled_outsiders_decision_non_courtlies_trigger = yes }
+		add_opinion = {
+			target = root
+			modifier = upset_elites_opinion
+			opinion = -20
+		}
+	}
+}
+
+## CK EDIT: Removed all references to disable decisions/events/vanilla faiths & cultures
+
+purchase_truce_interaction_work_out_purchase_cost_effect = {
+	scope:actor = {
+		# Small cost.
+		if = {
+			limit = { always = scope:pt_sum_small }
+			pay_short_term_gold = {
+				target = scope:recipient
+				gold = {
+					value = 0
+					add = {
+						# If scope:actor makes more money, we use them as a base.
+						if = {
+							limit = { scope:actor.yearly_character_income > scope:recipient.yearly_character_income }
+							add = scope:actor.purchase_truce_interaction_small_sum
+						}
+						# Otherwise, we take scope:recipient.
+						else = { add = scope:recipient.purchase_truce_interaction_small_sum }
+					}
+					# Struggle Reduction
+					if = {
+						limit = {
+							any_character_struggle = {
+								involvement = involved
+								has_struggle_phase_parameter = struggle_cheaper_buy_truce
+								is_secondary_character_involvement_involved_trigger = {
+									CHAR = scope:recipient
+								}
+							}
+						}
+						multiply = 0.5
+					}
+				}
+			}
+		}
+		# Large cost.
+		else_if = {
+			limit = { always = scope:pt_sum_large }
+			pay_short_term_gold = {
+				target = scope:recipient
+				gold = {
+					value = 0
+					# If scope:actor makes more money, we use them as a base.
+					if = {
+						limit = { scope:actor.yearly_character_income > scope:recipient.yearly_character_income }
+						add = scope:actor.purchase_truce_interaction_major_sum
+					}
+					# Otherwise, we take scope:recipient.
+					else = { add = scope:recipient.purchase_truce_interaction_major_sum }
+
+					# Struggle Reduction
+					if = {
+						limit = {
+							any_character_struggle = {
+								involvement = involved
+								has_struggle_phase_parameter = struggle_cheaper_buy_truce
+								is_secondary_character_involvement_involved_trigger = {
+									CHAR = scope:recipient
+								}
+							}
+						}
+						multiply = 0.5
+					}
+				}
+			}
+		}
+		# Medium cost; we do this last as a fallback.
+		else = {
+			pay_short_term_gold = {
+				target = scope:recipient
+				gold = {
+					value = 0
+					# If scope:actor makes more money, we use them as a base.
+					if = {
+						limit = { scope:actor.yearly_character_income > scope:recipient.yearly_character_income }
+						add = scope:actor.purchase_truce_interaction_medium_sum
+					}
+					# Otherwise, we take scope:recipient.
+					else = { add = scope:recipient.purchase_truce_interaction_medium_sum }
+
+					# Struggle Reduction
+					if = {
+						limit = {
+							any_character_struggle = {
+								involvement = involved
+								has_struggle_phase_parameter = struggle_cheaper_buy_truce
+								is_secondary_character_involvement_involved_trigger = {
+									CHAR = scope:recipient
+								}
+							}
+						}
+						multiply = 0.5
+					}
+				}
+			}
+		}
+	}
+}
+
+purchase_truce_interaction_activate_catalyst_effect = {
+	if = {
+		limit = {
+			any_character_struggle = {
+				involvement = involved
+				activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+					CATALYST = catalyst_bought_important_truce
+					CHAR = scope:recipient
+				}
+			}
+		}
+		every_character_struggle = {
+			involvement = involved
+			limit = {
+				activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+					CATALYST = catalyst_bought_important_truce
+					CHAR = scope:recipient
+				}
+			}
+			activate_struggle_catalyst = {
+				catalyst = catalyst_bought_important_truce
+				character = scope:actor
+			}
+		}
+	}
+
+	# Generic truce catalayst
+	if = {
+		limit = {
+			any_character_struggle = {
+				involvement = involved
+				activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+					CATALYST = catalyst_sign_truce_outside_war
+					CHAR = scope:recipient
+				}
+			}
+		}
+		every_character_struggle = {
+			involvement = involved
+			limit = {
+				activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+					CATALYST = catalyst_sign_truce_outside_war
+					CHAR = scope:recipient
+				}
+			}
+			activate_struggle_catalyst = {
+				catalyst = catalyst_sign_truce_outside_war
+				character = scope:actor
+			}
+		}
+	}
+}
+
+## CK_UPDATE CK_STRUGGLE CK_SCRIPTS - Change to Imperial struggle or any struggle we want using the bargain interaction:
+# struggle_can_access_unlocks_bargain_fealty_interaction_trigger = {
+# 	# Just uhh, use an OR if you add something else.
+# 	is_struggle_type = iberian_struggle
+# }

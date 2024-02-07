@@ -1,0 +1,282 @@
+﻿fp3_should_use_iranian_graphics_trigger = {
+	culture = { has_building_gfx = iranian_building_gfx }
+}
+
+eligible_for_fp3_khvarenah_legacy_trigger = {
+	has_fp3_dlc_trigger = yes
+	dynasty = {
+		OR = {
+			dynast = {
+				culture = {
+					OR = {
+						has_cultural_pillar = heritage_iranian 
+						any_parent_culture_or_above = {
+							has_cultural_pillar = heritage_iranian 
+						}
+					}
+				}
+			}
+			has_dynasty_perk = fp3_khvarenah_legacy_1
+		}
+	}
+}
+
+fp3_warrior_culture_trigger = { 
+	AND = {
+		OR = {
+			has_cultural_pillar = ethos_bellicose
+			has_cultural_tradition = tradition_swords_for_hire
+		}
+		OR = {
+			has_cultural_pillar = heritage_darshi
+			has_cultural_pillar = heritage_nahasi
+			has_cultural_pillar = heritage_khuzic
+		}
+	}
+}
+
+### REWORK THIS WITH DARSHI EXPANSION, USE ORIGINAL FILE AS REFERENCE. CK_UPDATE CK_DARSHI CK_RELIGION
+fp3_custom_divinity_for_zoroastrianism_faiths = {
+	faith.religion = faith:darshi_faith.religion
+}
+
+fp3_sufism_enthusiast_trigger = {
+	has_religion = religion:aserai_religion
+	learning > good_skill_level 
+	OR = {
+		faith = { has_doctrine = tenet_esotericism }
+		faith = { has_doctrine_parameter = meditation_mechanics_active }
+		has_character_modifier = hallucinogenic_visions_uplifting_modifier
+		has_character_modifier = cosmic_insights_modifier 
+		has_character_modifier = ck_bafyi_initiate_modifier 
+		has_character_modifier = foreboding_visions_modifier
+		has_character_modifier = mysterious_prophetess_illness_modifier 
+		learning >= excellent_skill_level
+	}
+}
+
+# Used for speeding-up debug. Has little to no impact on performance, does not cause errors, or affect player experience.
+is_developer_testing_trigger = {
+	is_ai = no
+	debug_only = yes
+	has_multiple_players = no
+}
+
+		
+fp3_eligible_for_yearly_events_trigger = {
+	has_fp3_dlc_trigger = yes
+	OR = {
+		culture = { has_cultural_pillar = heritage_darshi }
+		culture = { has_cultural_pillar = heritage_khuzic }
+	}
+	any_realm_county = { # Most events are geographical in nature
+		any_county_province = { geographical_region = region_darshi_west }
+	}
+}
+
+fp3_is_valid_futuwaa_member = {
+	$SPONSOR$.capital_province ?= { this = prev.location } # Prevents error log errors from dumbo AI
+	is_ai = yes # TODO_CD_EREN: Allow players to benefit too (requires sending them interface messages that their skills have increased)
+	age > 12
+	age < 25
+	is_married = no
+	can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = $SPONSOR$ }
+}
+
+fp3_is_valid_madrasa_pupil = {
+	$SPONSOR$.capital_province ?= { this = prev.location } # Prevents error log errors from dumbo AI
+	is_ai = yes # TODO_CD_EREN: Allow players to benefit too (see above)
+	age > 8
+	age < 16
+	NOT = { has_character_flag = studying_at_university }
+	#Gender rules
+	OR = {
+		$SPONSOR$ = { has_realm_law = equal_law }
+		AND = {
+			$SPONSOR$ = {
+				OR = {
+					has_realm_law = female_only_law
+					has_realm_law = female_preference_law
+				}
+			}
+			is_female = yes
+		}
+		AND = {
+			$SPONSOR$ = {
+				OR = {
+					has_realm_law = male_only_law
+					has_realm_law = male_preference_law
+				}
+			}
+			is_male = yes
+		}
+	}
+}
+
+
+fp3_fortress_of_faith_county_trigger = {
+	faith = { save_temporary_scope_as = compare_faith }
+	root.faith = { 
+		faith_hostility_level = { 
+			target = scope:compare_faith
+			value < faith_evil_level
+		}
+	}
+}
+
+fp3_proper_gender_for_dynastic_ambition_trigger = {
+	OR = { #checking for appropriate gender
+		AND = {
+			root = {
+				OR = {
+					has_realm_law = male_preference_law
+					has_realm_law = male_only_law
+				}
+			}
+			is_male = yes
+		}
+		AND = {
+			root = {
+				OR = {
+					has_realm_law = female_preference_law
+					has_realm_law = female_only_law
+				}
+			}
+			is_female = yes
+		}
+		AND = {
+			root = { has_realm_law = equal_law }
+			OR = {
+				is_female = yes
+				is_male = yes
+			}
+		}
+	}
+}
+
+fp3_embellish_capital_decision_character_trigger = {
+	is_capable_adult_ai = yes
+	is_imprisoned = no
+	is_healthy = yes 
+	NOR = { 
+		has_relation_rival = root 
+		is_vassal_of = root
+	}
+}
+
+
+favour_skilled_outsiders_decision_valid_character_to_take_trigger = {
+	OR = {
+		has_perk = meritocracy_perk
+		government_has_flag = government_is_clan
+		culture = { has_cultural_pillar = ethos_egalitarian }
+		calc_true_if = {
+			amount >= 2
+			has_trait = calm
+			has_trait = humble
+			has_trait = ambitious
+		}
+	}
+}
+
+favour_skilled_outsiders_decision_valid_county_to_generate_trigger = {
+	culture = {
+		# We don't technically need a custom tooltip for this, but the formatting looks much nicer.
+		custom_tooltip = {
+			text = favour_skilled_outsiders_decision.tt.not_share_your_heritage
+			NOT = { has_same_culture_heritage = root.culture }
+		}
+		trigger_if = {
+			limit = { exists = root.cp:councillor_chancellor }
+			custom_tooltip = {
+				text = favour_skilled_outsiders_decision.tt.not_share_chancellor_heritage
+				NOT = { has_same_culture_heritage = root.cp:councillor_chancellor.culture }
+			}
+		}
+		trigger_if = {
+			limit = { exists = root.cp:councillor_marshal }
+			custom_tooltip = {
+				text = favour_skilled_outsiders_decision.tt.not_share_marshal_heritage
+				NOT = { has_same_culture_heritage = root.cp:councillor_marshal.culture }
+			}
+		}
+		trigger_if = {
+			limit = { exists = root.cp:councillor_steward }
+			custom_tooltip = {
+				text = favour_skilled_outsiders_decision.tt.not_share_steward_heritage
+				NOT = { has_same_culture_heritage = root.cp:councillor_steward.culture }
+			}
+		}
+		trigger_if = {
+			limit = { exists = root.cp:councillor_spymaster }
+			custom_tooltip = {
+				text = favour_skilled_outsiders_decision.tt.not_share_spymaster_heritage
+				NOT = { has_same_culture_heritage = root.cp:councillor_spymaster.culture }
+			}
+		}
+		trigger_if = {
+			limit = { exists = root.cp:councillor_court_chaplain }
+			custom_tooltip = {
+				text = favour_skilled_outsiders_decision.tt.not_share_court_chaplain_heritage
+				NOT = { has_same_culture_heritage = root.cp:councillor_court_chaplain.culture }
+			}
+		}
+		trigger_if = {
+			limit = {
+				root = { is_independent_ruler = no }
+			}
+			custom_tooltip = {
+				text = favour_skilled_outsiders_decision.tt.not_share_liege_heritage
+				save_temporary_scope_as = culture_temp
+				NOT = {
+					root = {
+						any_liege_or_above = {
+							culture = { has_same_culture_heritage = scope:culture_temp }
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+favour_skilled_outsiders_decision_grab_courtlies_trigger = {
+	OR = {
+		NOT = { exists = scope:outsider_select }
+		NOT = {
+			culture = { has_same_culture_heritage = scope:outsider_select.culture }
+		}
+	}
+	has_vassal_stance = courtly
+}
+
+favour_skilled_outsiders_decision_grab_landless_councillors_trigger = {
+	OR = {
+		NOT = { exists = scope:outsider_select }
+		NOT = {
+			culture = { has_same_culture_heritage = scope:outsider_select.culture }
+		}
+	}
+	is_landed = no
+}
+
+favour_skilled_outsiders_decision_non_courtlies_trigger = {
+	OR = {
+		NOT = { exists = scope:outsider_select }
+		NOT = {
+			culture = { has_same_culture_heritage = scope:outsider_select.culture }
+		}
+	}
+	NOT = { has_vassal_stance = courtly }
+}
+
+has_clan_succession_law = {
+	is_ruler = yes
+	OR = {
+		has_realm_law = clan_antagonistic_partition_succession_law
+		has_realm_law = clan_competitive_partition_succession_law
+		has_realm_law = clan_impassive_partition_succession_law
+		has_realm_law = clan_friendly_partition_succession_law
+		has_realm_law = clan_harmonious_partition_succession_law
+	}
+}

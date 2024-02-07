@@ -21,6 +21,10 @@
 @pikemen_low_maint_cost = 0.3
 @pikemen_high_maint_cost = @[pikemen_low_maint_cost * high_maint_mult]
 
+@shock_troop_recruitment_cost = 70
+@shock_troop_low_maint_cost = 0.3
+@shock_troop_high_maint_cost = @[shock_troop_low_maint_cost * high_maint_mult]
+
 @heavy_infantry_recruitment_cost = 90
 @heavy_infantry_low_maint_cost = 0.4
 @heavy_infantry_high_maint_cost = @[heavy_infantry_low_maint_cost * high_maint_mult]
@@ -54,6 +58,10 @@ crossbowmen_high_maint_cost = @[archers_high_maint_cost * 1.5]
 pikemen_recruitment_cost = @[pikemen_recruitment_cost]
 pikemen_low_maint_cost = @[pikemen_low_maint_cost]
 pikemen_high_maint_cost = @[pikemen_high_maint_cost]
+
+shock_troop_recruitment_cost = @[shock_troop_recruitment_cost]
+shock_troop_low_maint_cost = @[shock_troop_low_maint_cost]
+shock_troop_high_maint_cost = @[shock_troop_high_maint_cost]
 
 heavy_infantry_recruitment_cost = @[heavy_infantry_recruitment_cost]
 heavy_infantry_low_maint_cost = @[heavy_infantry_low_maint_cost]
@@ -426,6 +434,29 @@ culture_ai_weight_pikemen = {
 	}
 }
 
+culture_ai_weight_shock = {
+	value = 0
+	
+	if = { # Cultures that favours shock infantry
+		limit = {
+			OR = {
+				culture = { has_cultural_pillar = heritage_byalic }
+				culture = { has_cultural_pillar = heritage_battanian }
+			}
+		}
+		add = 40
+	}
+	
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				culture_has_pikemen_maa = yes
+			}
+		}
+		add = -500
+	}
+}
+
 culture_ai_weight_light_cavalry = {
 	value = 20
 	
@@ -518,14 +549,7 @@ culture_ai_weight_heavy_cavalry = {
 				OR = {
 					has_cultural_pillar = heritage_battanian
 					has_cultural_pillar = heritage_chertygic
-					has_cultural_pillar = heritage_south_slavic
-					has_cultural_pillar = heritage_sahelian
-					has_cultural_pillar = heritage_senegambian
-					has_cultural_pillar = heritage_west_african
-					has_cultural_pillar = heritage_yoruba
-					has_cultural_pillar = heritage_somalian
-					has_cultural_pillar = heritage_east_african
-					has_cultural_pillar = heritage_burman
+					has_cultural_pillar = heritage_east_nahasa
 				}
 			}
 		}
@@ -609,6 +633,24 @@ counter_synergy_ai_weight_pikemen = {
 			NOT = { #no need to add more if i.e. regional or inherited maa of that type already exists
 				number_maa_regiments_of_base_type = {
 					type = pikemen
+					value >= 1
+				}
+			}
+		}
+	}
+}
+
+counter_synergy_ai_weight_shock = {
+	value = 60
+	if = {
+		limit = {
+			number_maa_regiments_of_base_type = {
+				type = archers
+				value >= 3
+			}
+			NOT = { #no need to add more if i.e. regional or inherited maa of that type already exists
+				number_maa_regiments_of_base_type = {
+					type = shock_troops
 					value >= 1
 				}
 			}
