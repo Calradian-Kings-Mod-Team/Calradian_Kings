@@ -985,23 +985,6 @@ fp3_misc_decisions.0028 = { # Recipient response
 		}
 	}
 
-	# Bargain regent
-	option = {
-		name = fp3_misc_decisions.0028.b
-		trigger = {
-			is_diarch = no
-			scope:actor = { has_active_diarchy = no }
-		}
-		save_scope_as = negotiate_regent
-		ai_chance = {
-			base = 0
-			modifier = {
-				exists = scope:negotiate_bargain
-				add = 100
-			}
-		}
-	}
-
 	# Bargain gold
 	option = {
 		name = fp3_misc_decisions.0028.c
@@ -1051,6 +1034,11 @@ fp3_misc_decisions.0028 = { # Recipient response
 	# Reject
 	option = {
 		name = fp3_misc_decisions.0028.e
+		reverse_add_opinion = {
+			target = scope:actor
+			modifier = annoyed_opinion
+			opinion = -20
+		}
 		ai_chance = {
 			base = 0
 			modifier = {
@@ -1079,7 +1067,6 @@ fp3_misc_decisions.0029 = { # Actor response
 					trigger = {
 						calc_true_if = {
 							amount >= 1
-							exists = scope:negotiate_regent
 							exists = scope:negotiate_gold
 							exists = scope:negotiate_hook
 						}
@@ -1096,10 +1083,6 @@ fp3_misc_decisions.0029 = { # Actor response
 			triggered_desc = {
 				trigger = { exists = scope:negotiate_accept }
 				desc = fp3_misc_decisions.0029.accept
-			}
-			triggered_desc = {
-				trigger = { exists = scope:negotiate_regent }
-				desc = fp3_misc_decisions.0029.regent
 			}
 			triggered_desc = {
 				trigger = { exists = scope:negotiate_gold }
@@ -1119,7 +1102,6 @@ fp3_misc_decisions.0029 = { # Actor response
 		triggered_animation = {
 			trigger = {
 				OR = {
-					exists = scope:negotiate_regent
 					exists = scope:negotiate_gold
 					exists = scope:negotiate_hook
 				}
@@ -1157,7 +1139,6 @@ fp3_misc_decisions.0029 = { # Actor response
 			limit = {
 				calc_true_if = {
 					amount = 0
-					exists = scope:negotiate_regent
 					exists = scope:negotiate_gold
 					exists = scope:negotiate_hook
 				}
@@ -1184,7 +1165,6 @@ fp3_misc_decisions.0029 = { # Actor response
 		trigger = {
 			calc_true_if = {
 				amount >= 1
-				exists = scope:negotiate_regent
 				exists = scope:negotiate_gold
 				exists = scope:negotiate_hook
 			}
@@ -1192,12 +1172,6 @@ fp3_misc_decisions.0029 = { # Actor response
 		show_as_tooltip = {
 			switch = {
 				trigger = exists
-				scope:negotiate_regent = {
-					scope:actor = {
-						set_diarch = scope:recipient
-						start_diarchy = vizierate
-					}
-				}
 				scope:negotiate_gold = {
 					scope:actor = {
 						pay_short_term_gold = {
@@ -1227,7 +1201,6 @@ fp3_misc_decisions.0029 = { # Actor response
 		trigger = {
 			calc_true_if = {
 				amount >= 1
-				exists = scope:negotiate_regent
 				exists = scope:negotiate_gold
 				exists = scope:negotiate_hook
 			}
@@ -1242,7 +1215,6 @@ fp3_misc_decisions.0029 = { # Actor response
 		trigger = {
 			calc_true_if = {
 				amount = 0
-				exists = scope:negotiate_regent
 				exists = scope:negotiate_gold
 				exists = scope:negotiate_hook
 				exists = scope:negotiate_accept
@@ -1261,7 +1233,16 @@ fp3_misc_decisions.0029 = { # Actor response
 fp3_misc_decisions.0030 = { # Actor response
 	type = character_event
 	title = fp3_misc_decisions.0022.t
-	desc = fp3_misc_decisions.0030.desc
+	desc = {
+		desc = fp3_misc_decisions.0030.desc
+		first_valid = {
+			triggered_desc = {
+				trigger = { exists = scope:negotiate_bargain_accept }
+				desc = fp3_misc_decisions.0030.accept
+			}
+			desc = fp3_misc_decisions.0030.reject
+		}
+	}
 	theme = dynasty
 	left_portrait = {
 		character = scope:recipient
@@ -1288,32 +1269,29 @@ fp3_misc_decisions.0030 = { # Actor response
 	}
 
 	immediate = {
-		switch = {
-			trigger = exists
-			scope:negotiate_regent = {
-				scope:actor = {
-					set_diarch = scope:recipient
-					start_diarchy = vizierate
+		if = {
+			limit = { exists = scope:negotiate_bargain_accept }
+			switch = {
+				trigger = exists
+				scope:negotiate_gold = {
+					scope:actor = {
+						pay_short_term_gold = {
+							gold = scope:recipient.medium_gold_value
+							target = scope:recipient
+						}
+					}
 				}
-			}
-			scope:negotiate_gold = {
-				scope:actor = {
-					pay_short_term_gold = {
-						gold = scope:recipient.medium_gold_value
-						target = scope:recipient
+				scope:negotiate_hook = {
+					scope:recipient = {
+						add_hook_no_toast = {
+							target = scope:actor
+							type = predecessor_loyalty_hook
+						}
 					}
 				}
 			}
-			scope:negotiate_hook = {
-				scope:recipient = {
-					add_hook_no_toast = {
-						target = scope:actor
-						type = predecessor_loyalty_hook
-					}
-				}
-			}
+			house = { set_house_head = scope:actor }
 		}
-		house = { set_house_head = scope:actor }
 	}
 
 	# Accepted

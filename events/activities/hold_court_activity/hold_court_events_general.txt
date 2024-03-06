@@ -267,6 +267,8 @@ hold_court.0021 = {
 		name = hold_court.0021.a
 		# Guaranteed small grandeur reward, in addition to any from events
 		change_current_court_grandeur = minor_court_grandeur_gain
+		# LEGITIMACY GAIN FROM HOLDING COURT
+		add_legitimacy = minor_legitimacy_gain
 	}
 }
 
@@ -9438,18 +9440,10 @@ hold_court.5010 = {
 
 # Dancing mania has gripped one of your provinces
 scripted_trigger hold_court_5020_province_trigger = {
-	OR = {
-		has_holding_type = castle_holding
-		has_holding_type = city_holding
-		has_holding_type = tribal_holding
-	}
-	county = {
-		NOR = {
-			has_county_modifier = dance_plague_modifier
-			has_county_modifier = contained_dance_plague_modifier
-			has_county_modifier = fanning_the_dancing_flames_modifier
-		}
-	}
+	any_province_epidemic = {
+		epidemic_type = epidemic_type:ergotism
+		outbreak_intensity < apocalyptic
+	}	
 }
 hold_court.5020 = {
 	type = court_event
@@ -9500,7 +9494,7 @@ hold_court.5020 = {
 		roles = {
 			scope:peasant = {
 				group = petitioners_group
-				animation = sadness
+				animation = dancing_plague
 			}
 			scope:portrait_2 = {
 				group = petitioners_group
@@ -9516,54 +9510,16 @@ hold_court.5020 = {
 	}
 	
 	trigger = {
-		NOT = { has_character_flag = had_event_hold_court_5020 }
+		NOT = { has_character_flag = had_event_dancing_plague }
 		any_realm_province = {
 			hold_court_5020_province_trigger = yes
 		}
 	}
 
-	weight_multiplier = {
-		base = 0.25
-		modifier = {
-			add = 0.25
-			capital_province = {
-				geographical_region = world_calradia
-				hold_court_5020_province_trigger = yes
-			}
-		}
-
-		# No court weighting, since no court would make this more likely.
-	}
-
 	immediate = {
-		add_character_flag = {
-			flag = had_event_hold_court_5020
-			years = 10
-		}
+		add_character_flag = had_event_dancing_plague
 		random_realm_province = {
 			limit = {
-				hold_court_5020_province_trigger = yes
-					AND = {
-						county.title_province = {
-							geographical_region = region_vlandia
-						}
-						current_date >= 1121.1.1
-						current_date <= 1122.1.1
-					}
-			}
-			alternative_limit = {
-				hold_court_5020_province_trigger = yes
-				county.title_province = {
-					geographical_region = region_vlandia
-				}
-			}
-			alternative_limit = {
-				hold_court_5020_province_trigger = yes
-				county.title_province = {
-					geographical_region = world_calradia
-				}
-			}
-			alternative_limit = {
 				hold_court_5020_province_trigger = yes
 			}
 			save_scope_as = province
@@ -9618,6 +9574,7 @@ hold_court.5020 = {
 				}
 			}
 		}
+
 		# Trigger next event in chain.
 		hold_court_queue_next_event_effect = yes
 	}
@@ -9625,14 +9582,6 @@ hold_court.5020 = {
 
 	option = { # It looks like you're having a grand time, what are you complaining about?
 		name = hold_court.5020.a
-		scope:province = {	
-			county = {	
-				add_county_modifier = {
-					modifier = dance_plague_modifier
-					days = 3650
-				}
-			}
-		}
 		stress_impact = {
 			base = medium_stress_impact_loss
 			compassionate = major_stress_impact_gain
@@ -9668,6 +9617,16 @@ hold_court.5020 = {
 			}
 		}
 
+		scope:province = {
+			random = {
+				chance = 25
+				create_epidemic_outbreak = {
+					type = ergotism
+					intensity = minor
+				}
+			}
+		}
+
 		stress_impact = {
 			zealous = medium_stress_impact_loss
 			cynical = medium_stress_impact_gain
@@ -9687,7 +9646,7 @@ hold_court.5020 = {
 		scope:province = {	
 			county = {
 				add_county_modifier = {
-					modifier = contained_dance_plague_modifier
+					modifier = physician_dance_plague_modifier
 					days = 3650
 				}
 			}
@@ -9704,6 +9663,17 @@ hold_court.5020 = {
 				}
 			}
 		}
+
+		scope:province = {
+			random = {
+				chance = 25
+				create_epidemic_outbreak = {
+					type = ergotism
+					intensity = minor
+				}
+			}
+		}
+
 		add_learning_lifestyle_xp = medium_lifestyle_xp
 	}
 
@@ -9711,6 +9681,7 @@ hold_court.5020 = {
 		name = hold_court.5020.d
 		trigger = {
 			employs_court_position = court_musician_court_position
+			has_trait = eccentric
 			any_court_position_holder = {
 		        type = court_musician_court_position
 		        is_physically_able_adult = yes
@@ -9736,8 +9707,20 @@ hold_court.5020 = {
 				}
 			}
 		}
+
+		scope:province = {
+			random = {
+				chance = 90
+				create_epidemic_outbreak = {
+					type = ergotism
+					intensity = minor
+				}
+			}
+		}
+
 		stress_impact = {
 			lifestyle_reveler = major_stress_impact_loss
+			eccentric = major_stress_impact_loss
 		}
 	}
 	
@@ -30962,7 +30945,7 @@ hold_court.8110 = {
 				tier = tier_county
 				county = {
 					county_control > 80
-					any_province = { has_holding = yes }
+					any_county_province = { has_holding = yes }
 				}
 			}
 			random_county_province = {
