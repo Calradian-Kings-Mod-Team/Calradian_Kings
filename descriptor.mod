@@ -1,6 +1,9 @@
-version="0.0.4"
+version="0.0.1"
 tags={
 	"Total Conversion"
+	"Map"
+	"Graphics"
+	"Bookmarks"
 }
 name="Calradian Kings"
 replace_path="common/bookmark_portraits"
@@ -20,5 +23,4 @@ replace_path="history/provinces"
 replace_path="history/titles"
 replace_path="history/cultures"
 replace_path="map_data"
-picture="thumbnail.png"
 supported_version="1.12.*"
