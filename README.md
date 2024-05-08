@@ -1,9 +1,9 @@
 Calradian Kings
-Welcome to the immersive world of Calradic Kings, a mod that seamlessly integrates the captivating World of Mount and Blade into Crusader Kings 3. To embark on this epic journey, follow the comprehensive guide below to ensure a smooth installation process:
+Welcome to the immersive world of Calradian Kings, a mod that seamlessly integrates the captivating World of Mount and Blade into Crusader Kings 3. To embark on this epic journey, follow the comprehensive guide below to ensure a smooth installation process:
 
 Step 1: Download the Mod
 
-Visit the page of Calradic Kings. Download the mod files, they will be compressed.
+Visit the page of Calradian Kings. Download the mod files, they will be compressed.
 
 STEP 2: EXTRACT MOD FILES
 
@@ -15,11 +15,11 @@ Navigate to the mod folder for Crusader Kings 3 within the game's installation f
 
 STEP 4: COPY MOD FILES
 
-Copy the entirety of the Calradic Kings mod folder (extracted in Step 2) into the mod folder of Crusader Kings 3.
+Copy the entirety of the Calradian Kings mod folder (extracted in Step 2) into the mod folder of Crusader Kings 3.
 
 STEP 5: ENABLE THE MOD
 
-Launch Crusader Kings 3 launcher. Navigate to the "Mod" tab, where you'll find Calradic Kings listed. Enable the mod by checking the corresponding box next to its name.
+Launch Crusader Kings 3 launcher. Navigate to the "Mod" tab, where you'll find Calradian Kings listed. Enable the mod by checking the corresponding box next to its name.
 
 STEP 6: ADJUST LOAD ORDER
 
@@ -27,7 +27,7 @@ In case you're using multiple mods, fine-tune the load order in the launcher to 
 
 STEP 7: VERIFY GAME VERSION
 
-Ensure compatibility by confirming that the Calradic Kings mod aligns with the version of Crusader Kings 3 you have installed. Keep in mind that the mod may require updates after game patches or expansions.
+Ensure compatibility by confirming that the Calradian Kings mod aligns with the version of Crusader Kings 3 you have installed. Keep in mind that the mod may require updates after game patches or expansions.
 
 STEP 8: TROUBLESHOOTING
 

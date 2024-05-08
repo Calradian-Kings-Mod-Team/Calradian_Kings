@@ -87,7 +87,7 @@ window = {
 				}
 
 				blockoverride "button_pin" {}
-
+				
 				background = {
 					using = Background_Area_Solid
 					modify_texture = {
@@ -171,8 +171,6 @@ window = {
 					}
 
 					text_label_center = {
-						parentanchor = top|hcenter
-						position = { 0 85 }
 						text = "IMPRISONED_BY"
 					}
 					expand = {}
@@ -246,6 +244,7 @@ window = {
 						visible = "[Character.IsHostage]"
 						text = "WARDEN_OF"
 					}
+
 					text_label_center = {
 						datacontext = "[CharacterWindow.GetCharacter]"
 						visible = "[Not( Character.IsHostage )]"
@@ -263,6 +262,7 @@ window = {
 						tooltip = "MRW_TT_NOT_RIGHTFUL_LIEGE"
 					}
 				}
+
 
 				portrait_opinion = {
 					name = "liege_opinion"
@@ -691,7 +691,7 @@ window = {
 							duration = 1.2
 							using = Animation_Curve_Default
 						}
-
+	
 						state = {
 							name = b
 							next = a
@@ -699,7 +699,7 @@ window = {
 							duration = 0.6
 							using = Animation_Curve_Default
 						}
-
+						
 						glow = {
 							glow_radius = 2
 							glow_generation_rules= {
@@ -710,7 +710,7 @@ window = {
 							}
 							using = Color_Orange
 						}
-					}
+					}		
 
 					highlight_icon_lifestyle_focus = {
 						size = { 100% 100% }
@@ -732,7 +732,6 @@ window = {
 					size = { 35 35 }
 				}
 			}
-
 
 			button_normal = {
 				name = "open_royal_court"
@@ -804,7 +803,7 @@ window = {
 								name = "character_name"
 								raw_text = "[Character.GetUINameNotMeNoTooltip], "
 								margin_left = 2
-								max_width = 400
+								max_width = 398
 								fontsize = 20
 								fontsize_min = 14
 								align = nobaseline
@@ -995,24 +994,56 @@ window = {
 
 					vbox = {
 						layoutpolicy_vertical = expanding
-						margin = { 0 2 }
+						margin = { 0 0 }
 
 						using = Animation_Character_Window_Refresh
 
-						fixedgridbox = {
-							name = "modifiers_grid"
-							datamodel = "[CharacterWindow.GetTimedModifiers]"
-							addcolumn = 25
-							addrow = 23
-							datamodel_wrap = 2
-							maxhorizontalslots = 5
+						button_group = {
+							onclick = "[CharacterWindow.ToggleExpandedModifiers]"
+							visible = "[DataModelHasItems( CharacterWindow.GetTimedModifiers )]"
+							tooltip = "CHARACTER_WINDOW_MODIFIERS"
 
-							item = {
-								icon = {
-									size = { 22 22 }
-									alwaystransparent = no
-									texture = "[ModifierItem.GetIcon]"
-									tooltip = "[ModifierItem.GetTooltip]"
+							# Button here purely to give mouse hover visual effect
+							button_standard_hover = {
+								size = { 100% 100% }
+							}
+
+							hbox = {
+								margin_top = 2
+								margin_bottom = 1
+								margin_left = 2
+								set_parent_size_to_minimum = yes
+
+								fixedgridbox = {
+									name = "modifiers_grid"
+									datamodel = "[CharacterWindow.GetTimedModifiers]"
+									addcolumn = 25
+									addrow = 23
+									datamodel_wrap = 2
+									maxhorizontalslots = 4
+									maxverticalslots =2
+
+									layoutpolicy_vertical = expanding
+
+									using = Animation_Character_Window_Refresh
+
+									item = {
+										modifier_item_icon = {
+											size = { 22 22 }
+
+											blockoverride "input_info_text" {
+												text = "CHARACTER_WINDOW_MODIFIERS"
+											}
+										}
+									}
+								}
+
+								text_single = {
+									visible = "[CharacterWindow.IsExtraModifiersNumberShown]"
+									min_width = 22
+									margin_bottom = 10
+									text = "CHARACTER_WINDOW_EXTRA_MODIFIERS"
+									default_format = "#low"
 								}
 							}
 						}
@@ -2926,11 +2957,8 @@ window = {
 						flipdirection = yes
 
 						item = {
-							icon = {
+							modifier_item_icon = {
 								size = { 35 35 }
-								alwaystransparent = no
-								texture = "[ModifierItem.GetIcon]"
-								tooltip = "[ModifierItem.GetTooltip]"
 							}
 						}
 					}
@@ -3213,26 +3241,7 @@ window = {
 											using = tooltip_es
 											tooltip_offset = { 0 22 }
 
-											icon = {
-												name = "involved_banner"
-												visible = "[Struggle.IsInvolvedCharacter(Character.Self)]"
-												size = { 70 90 }
-												texture = "gfx/interface/icons/struggle_banners/involved_banner.dds"
-											}
-
-											icon = {
-												name = "interloper_banner"
-												visible = "[Struggle.IsInterloperCharacter(Character.Self)]"
-												size = { 70 90 }
-												texture = "gfx/interface/icons/struggle_banners/interloper_banner.dds"
-											}
-
-											icon = {
-												parentanchor = center
-												position = { 0 -7 }
-												texture = "[Struggle.GetCurrentPhase.GetIcon]"
-												size = { 40 40 }
-											}
+											widget_struggle_icon = {}
 										}
 									}
 
@@ -3268,6 +3277,158 @@ window = {
 										portrait_offset = { 1 0 }
 									}
 								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		# Modifiers expanded
+		scrollbox = {
+			name = "modifiers_expanded"
+			visible = "[CharacterWindow.AreModifiersExpanded]"
+			layoutpolicy_vertical = expanding
+			layoutpolicy_horizontal = expanding
+
+			using = Animation_Tab_Switch
+
+			blockoverride "scrollbox_content"
+			{
+				spacing = 15
+
+				text_label_center = {
+					text = "MODIFIERS"
+				}
+
+				vbox = {
+					layoutpolicy_horizontal = expanding
+					datamodel = "[CharacterWindow.GetTimedModifiers]"
+					spacing = 2
+
+					item = {
+						vbox = {
+							layoutpolicy_horizontal = expanding
+
+							hbox = {
+								layoutpolicy_horizontal = expanding
+
+								hbox = {
+									margin_right = 10
+									margin_top = 8
+									margin_left = -4
+
+									icon = {
+										size = { 32 32 }
+										texture = "[ModifierItem.GetIcon]"
+									}
+								}
+
+								text_single = {
+									layoutpolicy_horizontal = expanding
+									text = "[ModifierItem.GetStaticModifier.GetName]"
+								}
+							}
+
+							textbox = {
+								layoutpolicy_horizontal = expanding
+								visible = "[ModifierItem.HasTooltipDataByTag('single_modifier')]"
+								datacontext = "[ModifierItem.GetSingleModifierTooltipData]"
+								max_width = 500
+								using = DefaultTooltipText
+								multiline = yes
+								text = "[TimedModifierSingleItem.GetDesc]"
+								alwaystransparent = no
+							}
+							
+							vbox = {
+								visible = "[ModifierItem.HasTooltipDataByTag('preview_list')]"
+								datacontext = "[ModifierItem.GetPreviewList]"
+								layoutpolicy_horizontal = expanding
+
+								textbox = {
+									layoutpolicy_horizontal = expanding
+									max_width = 500
+									using = DefaultTooltipText
+									multiline = yes
+									text = "[TimedModifierPreviewList.GetScaledDesc]"
+									alwaystransparent = no
+								}
+
+								vbox = {
+									datamodel = "[TimedModifierPreviewList.GetItems]"
+									layoutpolicy_horizontal = expanding
+									max_width = 500
+
+									item = {
+										vbox = {
+											layoutpolicy_horizontal = expanding
+
+											text_single = {
+												layoutpolicy_horizontal = expanding
+												text = "[TimedModifierPreviewItem.GetTitle]"
+											}
+
+											text_single = {
+												layoutpolicy_horizontal = expanding
+												text = "[TimedModifierPreviewItem.GetExpirationDate]"
+											}
+
+											expand = {}
+										}
+									}
+								}
+							}
+
+							vbox = {
+								layoutpolicy_horizontal = expanding
+								visible = "[ModifierItem.HasTooltipDataByTag('scaled_single_modifier')]"
+								datacontext = "[ModifierItem.GetScaledSingleModifierTooltipData]"
+
+								textbox = {
+									layoutpolicy_horizontal = expanding
+									max_width = 500
+									using = DefaultTooltipText
+									multiline = yes
+									text = "[TimedModifierScaledSingleItem.GetDesc]"
+									alwaystransparent = no
+								}
+
+								vbox = {
+									layoutpolicy_horizontal = expanding
+									datamodel = "[TimedModifierScaledSingleItem.GetEffectItems]"
+
+									item = {
+										textbox = {
+											layoutpolicy_horizontal = expanding
+											max_width = 500
+											margin_top = 5
+											margin_left = 10
+											margin_right = 5
+											margin_bottom = 10
+											using = DefaultTooltipText
+											using = Background_Area
+											text = "[CString.GetString]"
+											alwaystransparent = no
+										}
+									}
+								}
+
+								text_single = {
+									layoutpolicy_horizontal = growing
+									max_width = 500
+									text = "[TimedModifierScaledSingleItem.GetExpirationDate]"
+								}
+							}
+
+							spacer = {
+								size = { 2 10 }
+							}
+
+							divider_light = {
+								layoutpolicy_horizontal = expanding
+								# Don't show divider after the last item in the datamodel
+								visible = "[Not( EqualTo_int32( PdxGuiWidget.GetIndexInDataModel, Subtract_int32( GetDataModelSize( CharacterWindow.GetTimedModifiers ), '(int32)1' ) ) )]"
 							}
 						}
 					}
@@ -3361,7 +3522,7 @@ window = {
 		name = "vassal_filter_window"
 		datacontext = "[CharacterWindow.GetVassals]"
 		size = { 510 820 }
-		position = { 525 275 }
+		position = { 525 200 }
 
 		blockoverride "editbox_properties"
 		{
@@ -4219,7 +4380,7 @@ types CharacterWindow
 							datacontext = "[DiplomacyItem.GetStruggle]"
 							visible = "[DiplomacyItem.IsStruggle]"
 							position = { 0 -3 }
-							size = { 50 60 }
+							size = { 52 64 }
 							onclick = "[DiplomacyItem.OnClick]"
 
 							datacontext = "[DiplomacyItem.GetTargetCharacter]"
@@ -4227,42 +4388,7 @@ types CharacterWindow
 							using = tooltip_es
 							tooltip_offset = { 0 22 }
 
-							icon = {
-								name = "involved_banner"
-								visible = "[Struggle.IsInvolvedCharacter(Character.Self)]"
-								size = { 50 65 }
-								texture = "gfx/interface/icons/struggle_banners/involved_banner_tiny.dds"
-							}
-
-							icon = {
-								visible = "[Struggle.IsInvolvedCharacter(Character.Self)]"
-								parentanchor = center
-								position = { 0 2 }
-								size = { 34 34 }
-								texture = "gfx/interface/icons/struggle_banners/icon_background_02.dds"
-							}
-
-							icon = {
-								name = "interloper_banner"
-								visible = "[Struggle.IsInterloperCharacter(Character.Self)]"
-								size = { 50 65 }
-								texture = "gfx/interface/icons/struggle_banners/interloper_banner_tiny.dds"
-							}
-
-							icon = {
-								visible = "[Struggle.IsInterloperCharacter(Character.Self)]"
-								parentanchor = center
-								position = { 0 2 }
-								size = { 34 34 }
-								texture = "gfx/interface/icons/struggle_banners/icon_background_01.dds"
-							}
-
-							icon = {
-								parentanchor = center
-								position = { 0 2 }
-								size = { 30 30 }
-								texture = "[Struggle.GetCurrentPhase.GetIcon]"
-							}
+							widget_struggle_icon = {}
 						}
 					}
 				}
@@ -4279,14 +4405,14 @@ types CharacterWindow
 			datacontext = "[Struggle.GetCurrentPhase]"
 			visible = "[Struggle.IsInvolvedCharacter(Character.Self)]"
 
-			blockoverride "point_based_widget_content" {
+			blockoverride "point_based_widget_content" { 
 				highlight_icon = {
 					size = { 100% 100% }
 					texture = "gfx/interface/icons/struggle_banners/point_involved_banner_small.dds"
 				}
 			}
 
-			blockoverride "time_based_widget_content" {
+			blockoverride "time_based_widget_content" { 
 				highlight_icon = {
 					size = { 100% 100% }
 					texture = "gfx/interface/icons/struggle_banners/time_involved_banner_small.dds"
@@ -4298,14 +4424,14 @@ types CharacterWindow
 			datacontext = "[Struggle.GetCurrentPhase]"
 			visible = "[Struggle.IsInterloperCharacter(Character.Self)]"
 
-			blockoverride "point_based_widget_content" {
+			blockoverride "point_based_widget_content" { 
 				highlight_icon = {
 					size = { 100% 100% }
 					texture = "gfx/interface/icons/struggle_banners/point_interloper_banner_small.dds"
 				}
 			}
 
-			blockoverride "time_based_widget_content" {
+			blockoverride "time_based_widget_content" { 
 				highlight_icon = {
 					size = { 100% 100% }
 					texture = "gfx/interface/icons/struggle_banners/time_interloper_banner_small.dds"
@@ -4317,27 +4443,27 @@ types CharacterWindow
 			size = { 100% 100% }
 			position = { 0 -3 }
 
-			icon = {
-				visible = "[Struggle.IsInvolvedCharacter(Character.Self)]"
-				parentanchor = center
-				size = { 34 34 }
-				texture = "gfx/interface/icons/struggle_banners/icon_background_02.dds"
-			}
+							icon = {
+								visible = "[Struggle.IsInvolvedCharacter(Character.Self)]"
+								parentanchor = center
+								size = { 34 34 }
+								texture = "gfx/interface/icons/struggle_banners/icon_background_02.dds"
+							}
 
-			icon = {
-				visible = "[Struggle.IsInterloperCharacter(Character.Self)]"
-				parentanchor = center
-				size = { 34 34 }
-				texture = "gfx/interface/icons/struggle_banners/icon_background_01.dds"
-			}
+							icon = {
+								visible = "[Struggle.IsInterloperCharacter(Character.Self)]"
+								parentanchor = center
+								size = { 34 34 }
+								texture = "gfx/interface/icons/struggle_banners/icon_background_01.dds"
+							}
 
-			icon = {
-				parentanchor = center
-				size = { 30 30 }
-				texture = "[Struggle.GetCurrentPhase.GetIcon]"
-			}
-		}
-	}
+							icon = {
+								parentanchor = center
+								size = { 30 30 }
+								texture = "[Struggle.GetCurrentPhase.GetIcon]"
+							}
+						}
+					}
 
 	type realm_name_and_type_vbox = vbox {
 		layoutpolicy_horizontal = expanding
@@ -4512,7 +4638,7 @@ types CharacterWindow
 					}
 				}
 			}
-
+			
 			icon = {
 				name = "diarchy_active_icon"
 				visible = "[And(CharacterWindow.GetCharacter.HasActiveDiarchy, Not(CharacterWindow.ShowMarriageIcon))]"
