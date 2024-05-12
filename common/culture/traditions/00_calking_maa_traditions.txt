@@ -22,15 +22,9 @@ tradition_sturgian_forest_raiders = {
 
 	}
 
-	cost = {
-		prestige = {
-			value = 150
-		}
-	} 
+
 
 	parameters = {
-		unlock_maa_druzhinnik = yes
-		unlock_maa_ulfhednar = yes
 		forest_fighter_trait_more_common = yes
 		can_recruit_forest_specialist = yes
 		culture_can_raid_over_land_even_if_feudal = yes
@@ -42,10 +36,82 @@ tradition_sturgian_forest_raiders = {
 	}
 
 	province_modifier = {
-		forest_levy_size = 0.1
+		forest_levy_size = 0.15
 		taiga_levy_size = 0.1
-		forest_supply_limit_mult = 0.25
-		taiga_supply_limit_mult = 0.25
+		forest_supply_limit_mult = 0.3
+		taiga_supply_limit_mult = 0.3
+	}
+
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_bellicose = { is_in_list = traits }
+						culture_pillar:ethos_stoic = { is_in_list = traits }
+						culture_pillar:ethos_communal = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_bellicose_stoic_or_communal_desc
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						any_culture_county = {
+							percent >= 0.3
+							any_county_province = {
+								AND = {
+									geographical_region = region_longships
+									OR = {
+										terrain = forest
+										terrain = taiga
+									}
+								}
+							}
+						}
+					}
+				}
+				add = {
+					value = tradition_unfulfilled_criteria_penalty
+					desc = forest_percentage_desc
+				}
+			}
+			
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+	ai_will_do = {
+		value = 100
+		if = {
+			limit = {
+				NOT = {
+					scope:character = {
+						any_sub_realm_county = {
+							percent >= 0.2
+							culture = scope:character.culture
+							any_county_province = {
+								AND = {
+									geographical_region = region_longships
+									OR = {
+										terrain = forest
+										terrain = taiga
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			multiply = 0
+		}
 	}
 }
 
