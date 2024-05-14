@@ -155,28 +155,64 @@ tradition_imperial_military_tradition = {
 	category = combat
 	layers = {
 		0 = martial
-		1 = mena
-		4 = shield.dds
+		1 = mediterranean
+		4 = laurel.dds
 	}
 
 
 	is_shown = {
-
+	has_cultural_pillar = heritage_calradian
 	}
 
 	can_pick = {
 
 	}
-
+	province_modifier = {
+	}
 	cost = {
 		prestige = {
-			value = 150
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_bellicose = { is_in_list = traits }
+						culture_pillar:ethos_egalitarian = { is_in_list = traits }
+						culture_pillar:ethos_courtly = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_bellicose_egalitarian_or_courtly_desc
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						any_culture_county = {
+							count >= 50
+							any_county_province = {
+								geographical_region = region_imperial_calradia
+							}
+						}
+					}
+				}
+				add = {
+					value = tradition_unfulfilled_criteria_penalty
+					desc = culture_in_calradian_empire_desc
+				}
+			}
+			
+			multiply = tradition_replacement_cost_if_relevant
 		}
-	} 
+	}
 
 	parameters = {
 		unlock_maa_legionary = yes
-		unlock_maa_imperial_cataphract = yes
+		unlock_maa_cataphract = yes
 	}
 
 	character_modifier = {
@@ -194,7 +230,7 @@ tradition_khuzait_plains_masters = {
 	layers = {
 		0 = martial
 		1 = mena
-		4 = shield.dds
+		4 = bow.dds
 	}
 
 
