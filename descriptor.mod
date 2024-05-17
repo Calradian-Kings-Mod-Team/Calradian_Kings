@@ -5,7 +5,7 @@ tags={
 	"Graphics"
 	"Bookmarks"
 }
-name="Calradian Kings Dev Version"
+name="Calradian Kings"
 replace_path="common/bookmark_portraits"
 replace_path="common/dna_data"
 replace_path="common/bookmarks"
@@ -24,3 +24,4 @@ replace_path="history/titles"
 replace_path="history/cultures"
 replace_path="map_data"
 supported_version="1.12.*"
+remote_file_id="3242534502"
