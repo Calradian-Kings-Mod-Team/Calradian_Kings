@@ -3068,978 +3068,978 @@ purchase_truce_interaction = {
 # by Joe Parkin
 ##################################################
 
-contract_assistance_interaction = {
-	category = interaction_category_diplomacy
-	interface_priority = 15
-	common_interaction = yes
-	interface = interfere_in_war
-	special_interaction = interfere_in_war_interaction
-	popup_on_receive = yes
-	pause_on_receive = yes
+# contract_assistance_interaction = {
+# 	category = interaction_category_diplomacy
+# 	interface_priority = 15
+# 	common_interaction = yes
+# 	interface = interfere_in_war
+# 	special_interaction = interfere_in_war_interaction
+# 	popup_on_receive = yes
+# 	pause_on_receive = yes
 
-	ai_maybe = yes
-	desc = contract_assistance_interaction_desc
-	icon = icon_gold
+# 	ai_maybe = yes
+# 	desc = contract_assistance_interaction_desc
+# 	icon = icon_gold
 
-	greeting = positive
-	notification_text = contract_assistance_interaction_notification
+# 	greeting = positive
+# 	notification_text = contract_assistance_interaction_notification
 
-	cooldown_against_recipient = { years = 5 }
+# 	cooldown_against_recipient = { years = 5 }
 
-	is_shown = {
-		# Actor is Involved in Struggle
-		scope:actor = {
-			any_character_struggle = {
-				involvement = involved
-				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
-			}
-		}
-		# Recipient is Involved in Struggle, at war, and not at war with Actor
-		scope:recipient = {
-			any_character_struggle = {
-				involvement = involved
-				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
-			}
-			is_at_war = yes
-			NOR = {
-				this = scope:actor
-				is_at_war_with = scope:actor
-			}
-		}
-	}
+# 	is_shown = {
+# 		# Actor is Involved in Struggle
+# 		scope:actor = {
+# 			any_character_struggle = {
+# 				involvement = involved
+# 				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+# 			}
+# 		}
+# 		# Recipient is Involved in Struggle, at war, and not at war with Actor
+# 		scope:recipient = {
+# 			any_character_struggle = {
+# 				involvement = involved
+# 				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+# 			}
+# 			is_at_war = yes
+# 			NOR = {
+# 				this = scope:actor
+# 				is_at_war_with = scope:actor
+# 			}
+# 		}
+# 	}
 
-	has_valid_target = {
-		exists = scope:target
-	}
+# 	has_valid_target = {
+# 		exists = scope:target
+# 	}
 
-	has_valid_target_showing_failures_only = {
-		scope:target = { is_war_leader = scope:recipient }
-	}
+# 	has_valid_target_showing_failures_only = {
+# 		scope:target = { is_war_leader = scope:recipient }
+# 	}
 
-	is_valid_showing_failures_only = {
-		scope:recipient = {
-			# Cannot demand gold from allies
-			NOT = { is_allied_to = scope:actor }
-		}
+# 	is_valid_showing_failures_only = {
+# 		scope:recipient = {
+# 			# Cannot demand gold from allies
+# 			NOT = { is_allied_to = scope:actor }
+# 		}
 
-		# Recipient is not in (any) war against your liege(s)
-		trigger_if = {
-			limit = { exists = scope:actor.liege }
-			custom_description = {
-				text = join_war_interaction_recipient_warring_with_my_liege
-				subject = scope:recipient
-				scope:actor = {
-					NOT = { any_liege_or_above = { is_at_war_with = scope:recipient } }
-				}
-			}
-		}
+# 		# Recipient is not in (any) war against your liege(s)
+# 		trigger_if = {
+# 			limit = { exists = scope:actor.liege }
+# 			custom_description = {
+# 				text = join_war_interaction_recipient_warring_with_my_liege
+# 				subject = scope:recipient
+# 				scope:actor = {
+# 					NOT = { any_liege_or_above = { is_at_war_with = scope:recipient } }
+# 				}
+# 			}
+# 		}
 
-		# Cannot join wars with raised armies
-		scope:actor = { has_raised_armies = no }
+# 		# Cannot join wars with raised armies
+# 		scope:actor = { has_raised_armies = no }
 
-		# Can only contract one war at a time
-		custom_tooltip = {
-			text = contract_assistance_war_already_contracted_tt
-			scope:actor = { NOT = { has_variable = owed_contract_assistance_war } }
-		}
-	}
+# 		# Can only contract one war at a time
+# 		custom_tooltip = {
+# 			text = contract_assistance_war_already_contracted_tt
+# 			scope:actor = { NOT = { has_variable = owed_contract_assistance_war } }
+# 		}
+# 	}
 	
-	can_be_picked = {
-		# Recipient is war leader in chosen war
-		scope:target = {
-			is_war_leader = scope:recipient
-			# Cannot contract against allies
-			trigger_if = {
-				limit = {
-					any_war_attacker = { this = scope:recipient }
-				}
-				NOT = {
-					any_war_defender = { is_allied_to = scope:actor }
-				}
-			}
-			trigger_else = {
-				NOT = {
-					any_war_attacker = { is_allied_to = scope:actor }
-				}
-			}
-			# not already in target war
-			custom_description = {
-				text = join_war_interaction_already_in_target_war
-				NOR = {
-					any_war_attacker = { this = scope:actor }
-					any_war_defender = { this = scope:actor }
-				}
-			}
-		}
-		# Liege checks
-		can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:recipient JOINER = scope:actor }
-	}
+# 	can_be_picked = {
+# 		# Recipient is war leader in chosen war
+# 		scope:target = {
+# 			is_war_leader = scope:recipient
+# 			# Cannot contract against allies
+# 			trigger_if = {
+# 				limit = {
+# 					any_war_attacker = { this = scope:recipient }
+# 				}
+# 				NOT = {
+# 					any_war_defender = { is_allied_to = scope:actor }
+# 				}
+# 			}
+# 			trigger_else = {
+# 				NOT = {
+# 					any_war_attacker = { is_allied_to = scope:actor }
+# 				}
+# 			}
+# 			# not already in target war
+# 			custom_description = {
+# 				text = join_war_interaction_already_in_target_war
+# 				NOR = {
+# 					any_war_attacker = { this = scope:actor }
+# 					any_war_defender = { this = scope:actor }
+# 				}
+# 			}
+# 		}
+# 		# Liege checks
+# 		can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:recipient JOINER = scope:actor }
+# 	}
 
-	on_accept = {
-		# Add Actor to Recipient's war
-		scope:target = {
-			hidden_effect = { set_called_to = scope:actor }
-			if = {
-				limit = { is_attacker = scope:recipient }
-				add_attacker = scope:actor
-			}
-			else = { add_defender = scope:actor }
-		}
-		# Actor effects
-		scope:actor = {
-			save_scope_as = contract_assistance_helper
-			set_variable = {
-				name = owed_contract_assistance_war
-				value = scope:target
-			}
-			set_variable = {
-				name = owed_contract_assistance_contribution
-				value = offer_assistance_interaction_war_contribution_value
-			}
-			set_variable = {
-				name = owed_contract_assistance_gold
-				value = offer_assistance_interaction_gold_value
-			}
-			stress_impact = {
-				craven = medium_stress_impact_gain
-				shy = minor_stress_impact_gain
-			}
+# 	on_accept = {
+# 		# Add Actor to Recipient's war
+# 		scope:target = {
+# 			hidden_effect = { set_called_to = scope:actor }
+# 			if = {
+# 				limit = { is_attacker = scope:recipient }
+# 				add_attacker = scope:actor
+# 			}
+# 			else = { add_defender = scope:actor }
+# 		}
+# 		# Actor effects
+# 		scope:actor = {
+# 			save_scope_as = contract_assistance_helper
+# 			set_variable = {
+# 				name = owed_contract_assistance_war
+# 				value = scope:target
+# 			}
+# 			set_variable = {
+# 				name = owed_contract_assistance_contribution
+# 				value = offer_assistance_interaction_war_contribution_value
+# 			}
+# 			set_variable = {
+# 				name = owed_contract_assistance_gold
+# 				value = offer_assistance_interaction_gold_value
+# 			}
+# 			stress_impact = {
+# 				craven = medium_stress_impact_gain
+# 				shy = minor_stress_impact_gain
+# 			}
 
-			# Struggle Catalyst
-			# if = {
-			# 	limit = {
-			# 		# Verify if vassal used to be independent
-			# 		any_character_struggle = {
-			# 			involvement = involved
-			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
-			# 				CATALYST = catalyst_join_war_as_assisant
-			# 				CHAR = scope:recipient
-			# 			}
-			# 		}
-			# 	}
-			# 	every_character_struggle = {
-			# 		involvement = involved
-			# 		limit = {
-			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
-			# 				CATALYST = catalyst_join_war_as_assisant
-			# 				CHAR = scope:recipient
-			# 			}
-			# 		}
-			# 		activate_struggle_catalyst = {
-			# 			catalyst = catalyst_join_war_as_assisant
-			# 			character = scope:actor
-			# 		}
-			# 	}
-			# }
-		}
-		# Recipient effects
-		scope:recipient = {
-			stress_impact = {
-				greedy = medium_stress_impact_gain
-				arrogant = medium_stress_impact_gain
-			}
-			custom_tooltip = contract_assistance_interaction_condition_tt
-			show_as_tooltip = {
-				pay_short_term_gold = {
-					target = scope:actor
-					gold = offer_assistance_interaction_gold_value
-				}
-			}
-		}
+# 			# Struggle Catalyst
+# 			# if = {
+# 			# 	limit = {
+# 			# 		# Verify if vassal used to be independent
+# 			# 		any_character_struggle = {
+# 			# 			involvement = involved
+# 			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+# 			# 				CATALYST = catalyst_join_war_as_assisant
+# 			# 				CHAR = scope:recipient
+# 			# 			}
+# 			# 		}
+# 			# 	}
+# 			# 	every_character_struggle = {
+# 			# 		involvement = involved
+# 			# 		limit = {
+# 			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+# 			# 				CATALYST = catalyst_join_war_as_assisant
+# 			# 				CHAR = scope:recipient
+# 			# 			}
+# 			# 		}
+# 			# 		activate_struggle_catalyst = {
+# 			# 			catalyst = catalyst_join_war_as_assisant
+# 			# 			character = scope:actor
+# 			# 		}
+# 			# 	}
+# 			# }
+# 		}
+# 		# Recipient effects
+# 		scope:recipient = {
+# 			stress_impact = {
+# 				greedy = medium_stress_impact_gain
+# 				arrogant = medium_stress_impact_gain
+# 			}
+# 			custom_tooltip = contract_assistance_interaction_condition_tt
+# 			show_as_tooltip = {
+# 				pay_short_term_gold = {
+# 					target = scope:actor
+# 					gold = offer_assistance_interaction_gold_value
+# 				}
+# 			}
+# 		}
 
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:actor
-			TARGET = scope:recipient
-			VALUE = medium_unity_loss
-			DESC = clan_unity_contract_assistance.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
-	}
+# 		# If we're a clan this interaction affects unity
+# 		add_clan_unity_interaction_effect = {
+# 			CHARACTER = scope:actor
+# 			TARGET = scope:recipient
+# 			VALUE = medium_unity_loss
+# 			DESC = clan_unity_contract_assistance.desc
+# 			REVERSE_NON_HOUSE_TARGET = no
+# 		}
+# 	}
 
-	on_decline = {
-		# Refusal notification
-		scope:actor = { trigger_event = char_interaction.0236 }
+# 	on_decline = {
+# 		# Refusal notification
+# 		scope:actor = { trigger_event = char_interaction.0236 }
 
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:recipient
-			TARGET = scope:actor
-			VALUE = minor_unity_gain
-			DESC = clan_unity_contract_assistance_decline.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
-	}
+# 		# If we're a clan this interaction affects unity
+# 		add_clan_unity_interaction_effect = {
+# 			CHARACTER = scope:recipient
+# 			TARGET = scope:actor
+# 			VALUE = minor_unity_gain
+# 			DESC = clan_unity_contract_assistance_decline.desc
+# 			REVERSE_NON_HOUSE_TARGET = no
+# 		}
+# 	}
 	
-	ai_accept = {
-		base = 0 # Reluctant to spend money without good reason
-		# Recipient already winning war
-		modifier = {
-			add = -50
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = { fp2_struggle_contract_assistance_war_winning_trigger = yes }
-			}
-			trigger_else = {
-				any_character_war = {
-					count = all # So predicted negative modifiers are treated seperately
-					fp2_struggle_contract_assistance_war_winning_trigger = yes
-				}
-			}
-			desc = OA_AI_WINNING_WAR_REASON
-		}
-		# Recipient losing war
-		modifier = {
-			add = 50
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = { fp2_struggle_contract_assistance_war_losing_trigger = yes }
-			}
-			trigger_else = {
-				any_character_war = { fp2_struggle_contract_assistance_war_losing_trigger = yes }
-			}
-			desc = OA_AI_LOSING_WAR_REASON
-		}
-		# Recipient already significantly outnumbers enemy
-		modifier = {
-			add = -50
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = { fp2_struggle_contract_assistance_war_outnumbering_trigger = yes }
-			}
-			trigger_else = {
-				any_character_war = {
-					count = all # So predicted negative modifiers are treated seperately
-					fp2_struggle_contract_assistance_war_outnumbering_trigger = yes
-				}
-			}
-			desc = OA_AI_OUTNUMBER_ENEMY_REASON
-		}
-		# Recipient is outnumbered
-		modifier = {
-			add = 50
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = {
-					fp2_struggle_contract_assistance_war_outnumbered_minor_trigger = yes
-					NOT = { fp2_struggle_contract_assistance_war_outnumbered_trigger = yes }
-				}
-			}
-			trigger_else = {
-				any_character_war = {
-					fp2_struggle_contract_assistance_war_outnumbered_minor_trigger = yes
-					NOT = { fp2_struggle_contract_assistance_war_outnumbered_trigger = yes }
-				}
-			}
-			desc = OA_AI_OUTNUMBERED_MINOR_REASON
-		}
-		# Recipient is very outnumbered
-		modifier = {
-			add = 125
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = { fp2_struggle_contract_assistance_war_outnumbered_trigger = yes }
-			}
-			trigger_else = {
-				any_character_war = { fp2_struggle_contract_assistance_war_outnumbered_trigger = yes }
-			}
-			desc = OA_AI_OUTNUMBERED_REASON
-		}
-		# Recipient has low cash
-		modifier = {
-			add = {
-				value = -50
-				if = {
-					limit = {
-						gold < 0
-					}
-					add = -100
-				}
-				if = {
-					limit = {
-						debt_level >= 2
-					}
-					add = -200
-				}
-				if = { # Very generous or vengeful characters *will* make poor decisions
-					limit = {
-						OR = {
-							ai_greed <= -50
-							ai_vengefulness >= 50
-						}
-					}
-					multiply = 0.5
-				}
-			}
-			gold < offer_assistance_interaction_gold_value
-			desc = OA_AI_CANNOT_AFFORD_REASON
-		}
-		# Recipient has a lot of cash
-		modifier = {
-			add = {
-				value = 25
-				if = {
-					limit = {
-						gold >= {
-							value = offer_assistance_interaction_gold_value
-							multiply = 2
-						}
-					}
-					add = 50
-				}
-				if = {
-					limit = {
-						gold >= {
-							value = offer_assistance_interaction_gold_value
-							multiply = 3
-						}
-					}
-					add = 50
-				}
-			}
-			gold >= offer_assistance_interaction_gold_value
-			desc = OA_AI_EXTRA_GOLD_REASON
-		}
-		# Actor's troops would be little help
-		modifier = {
-			add = -50
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = { fp2_struggle_contract_assistance_war_insufficient_trigger = yes }
-			}
-			trigger_else = {
-				any_character_war = {
-					count = all # So predicted negative modifiers are treated seperately
-					fp2_struggle_contract_assistance_war_insufficient_trigger = yes
-				}
-			}
-			desc = OA_AI_FEW_TROOPS_REASON
-		}
-		# Recipient is fighting a defensive war
-		modifier = {  
-			add = 25
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target.casus_belli.primary_defender = scope:recipient
-			}
-			trigger_else = {
-				scope:recipient = {
-					any_character_war = { primary_defender = scope:recipient }
-				}
-			}
-			desc = OA_AI_DEFENSIVE_WAR_REASON
-		}
-		# Recipient is not interested in help for certain wars
-		modifier = {  
-			add = -300
-			exists = scope:target
-			scope:target = {
-				using_cb = peasant_war
-			}
-			desc = OA_AI_UNINTERESTED_WAR_REASON
-		}
-		modifier = {
-			add = {
-				value = scope:actor.martial
-				multiply = 2
-			}
-			scope:actor = { martial >= 12 }
-			desc = OA_AI_MARTIAL_REASON
-		}
-		modifier = {
-			add = -50
-			scope:actor = { has_character_flag = fp2_contract_assistance_failure }
-			desc = OA_AI_FAILURE_REASON
-		}
-		# Opinion Factor
-		opinion_modifier = {
-			who = scope:recipient
-			opinion_target = scope:actor
-			multiplier = 0.25
-			desc = AI_OPINION_REASON
-		}
+# 	ai_accept = {
+# 		base = 0 # Reluctant to spend money without good reason
+# 		# Recipient already winning war
+# 		modifier = {
+# 			add = -50
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = { fp2_struggle_contract_assistance_war_winning_trigger = yes }
+# 			}
+# 			trigger_else = {
+# 				any_character_war = {
+# 					count = all # So predicted negative modifiers are treated seperately
+# 					fp2_struggle_contract_assistance_war_winning_trigger = yes
+# 				}
+# 			}
+# 			desc = OA_AI_WINNING_WAR_REASON
+# 		}
+# 		# Recipient losing war
+# 		modifier = {
+# 			add = 50
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = { fp2_struggle_contract_assistance_war_losing_trigger = yes }
+# 			}
+# 			trigger_else = {
+# 				any_character_war = { fp2_struggle_contract_assistance_war_losing_trigger = yes }
+# 			}
+# 			desc = OA_AI_LOSING_WAR_REASON
+# 		}
+# 		# Recipient already significantly outnumbers enemy
+# 		modifier = {
+# 			add = -50
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = { fp2_struggle_contract_assistance_war_outnumbering_trigger = yes }
+# 			}
+# 			trigger_else = {
+# 				any_character_war = {
+# 					count = all # So predicted negative modifiers are treated seperately
+# 					fp2_struggle_contract_assistance_war_outnumbering_trigger = yes
+# 				}
+# 			}
+# 			desc = OA_AI_OUTNUMBER_ENEMY_REASON
+# 		}
+# 		# Recipient is outnumbered
+# 		modifier = {
+# 			add = 50
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = {
+# 					fp2_struggle_contract_assistance_war_outnumbered_minor_trigger = yes
+# 					NOT = { fp2_struggle_contract_assistance_war_outnumbered_trigger = yes }
+# 				}
+# 			}
+# 			trigger_else = {
+# 				any_character_war = {
+# 					fp2_struggle_contract_assistance_war_outnumbered_minor_trigger = yes
+# 					NOT = { fp2_struggle_contract_assistance_war_outnumbered_trigger = yes }
+# 				}
+# 			}
+# 			desc = OA_AI_OUTNUMBERED_MINOR_REASON
+# 		}
+# 		# Recipient is very outnumbered
+# 		modifier = {
+# 			add = 125
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = { fp2_struggle_contract_assistance_war_outnumbered_trigger = yes }
+# 			}
+# 			trigger_else = {
+# 				any_character_war = { fp2_struggle_contract_assistance_war_outnumbered_trigger = yes }
+# 			}
+# 			desc = OA_AI_OUTNUMBERED_REASON
+# 		}
+# 		# Recipient has low cash
+# 		modifier = {
+# 			add = {
+# 				value = -50
+# 				if = {
+# 					limit = {
+# 						gold < 0
+# 					}
+# 					add = -100
+# 				}
+# 				if = {
+# 					limit = {
+# 						debt_level >= 2
+# 					}
+# 					add = -200
+# 				}
+# 				if = { # Very generous or vengeful characters *will* make poor decisions
+# 					limit = {
+# 						OR = {
+# 							ai_greed <= -50
+# 							ai_vengefulness >= 50
+# 						}
+# 					}
+# 					multiply = 0.5
+# 				}
+# 			}
+# 			gold < offer_assistance_interaction_gold_value
+# 			desc = OA_AI_CANNOT_AFFORD_REASON
+# 		}
+# 		# Recipient has a lot of cash
+# 		modifier = {
+# 			add = {
+# 				value = 25
+# 				if = {
+# 					limit = {
+# 						gold >= {
+# 							value = offer_assistance_interaction_gold_value
+# 							multiply = 2
+# 						}
+# 					}
+# 					add = 50
+# 				}
+# 				if = {
+# 					limit = {
+# 						gold >= {
+# 							value = offer_assistance_interaction_gold_value
+# 							multiply = 3
+# 						}
+# 					}
+# 					add = 50
+# 				}
+# 			}
+# 			gold >= offer_assistance_interaction_gold_value
+# 			desc = OA_AI_EXTRA_GOLD_REASON
+# 		}
+# 		# Actor's troops would be little help
+# 		modifier = {
+# 			add = -50
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = { fp2_struggle_contract_assistance_war_insufficient_trigger = yes }
+# 			}
+# 			trigger_else = {
+# 				any_character_war = {
+# 					count = all # So predicted negative modifiers are treated seperately
+# 					fp2_struggle_contract_assistance_war_insufficient_trigger = yes
+# 				}
+# 			}
+# 			desc = OA_AI_FEW_TROOPS_REASON
+# 		}
+# 		# Recipient is fighting a defensive war
+# 		modifier = {  
+# 			add = 25
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target.casus_belli.primary_defender = scope:recipient
+# 			}
+# 			trigger_else = {
+# 				scope:recipient = {
+# 					any_character_war = { primary_defender = scope:recipient }
+# 				}
+# 			}
+# 			desc = OA_AI_DEFENSIVE_WAR_REASON
+# 		}
+# 		# Recipient is not interested in help for certain wars
+# 		modifier = {  
+# 			add = -300
+# 			exists = scope:target
+# 			scope:target = {
+# 				using_cb = peasant_war
+# 			}
+# 			desc = OA_AI_UNINTERESTED_WAR_REASON
+# 		}
+# 		modifier = {
+# 			add = {
+# 				value = scope:actor.martial
+# 				multiply = 2
+# 			}
+# 			scope:actor = { martial >= 12 }
+# 			desc = OA_AI_MARTIAL_REASON
+# 		}
+# 		modifier = {
+# 			add = -50
+# 			scope:actor = { has_character_flag = fp2_contract_assistance_failure }
+# 			desc = OA_AI_FAILURE_REASON
+# 		}
+# 		# Opinion Factor
+# 		opinion_modifier = {
+# 			who = scope:recipient
+# 			opinion_target = scope:actor
+# 			multiplier = 0.25
+# 			desc = AI_OPINION_REASON
+# 		}
 
-		modifier = {
-			add = {
-				value = ai_greed
-				multiply = -0.2
-			}
-			ai_greed <= 0.5
-			desc = AI_VALUE_MODIFIER_GREED
-		}
+# 		modifier = {
+# 			add = {
+# 				value = ai_greed
+# 				multiply = -0.2
+# 			}
+# 			ai_greed <= 0.5
+# 			desc = AI_VALUE_MODIFIER_GREED
+# 		}
 
-		modifier = {
-			add = {
-				value = ai_boldness
-				multiply = -0.2
-			}
-			NOT = { ai_boldness = 0 }
-			desc = AI_VALUE_MODIFIER_BOLDNESS
-		}
+# 		modifier = {
+# 			add = {
+# 				value = ai_boldness
+# 				multiply = -0.2
+# 			}
+# 			NOT = { ai_boldness = 0 }
+# 			desc = AI_VALUE_MODIFIER_BOLDNESS
+# 		}
 
-		# Allegiances
-		# fp2_contracting_ally_modifier = {
-		# 	WARMONGER = scope:recipient
-		# 	WARJOINER = scope:actor
-		# }
-	}
+# 		# Allegiances
+# 		# fp2_contracting_ally_modifier = {
+# 		# 	WARMONGER = scope:recipient
+# 		# 	WARJOINER = scope:actor
+# 		# }
+# 	}
 
-	ai_potential = {
-		is_imprisoned = no
-		is_at_war = no
-		ai_boldness >= -25
-	}
-	ai_target_quick_trigger = { adult = yes }
-	ai_targets = {
-		ai_recipients = neighboring_rulers
-	}
+# 	ai_potential = {
+# 		is_imprisoned = no
+# 		is_at_war = no
+# 		ai_boldness >= -25
+# 	}
+# 	ai_target_quick_trigger = { adult = yes }
+# 	ai_targets = {
+# 		ai_recipients = neighboring_rulers
+# 	}
 
-	ai_set_target = {
-		scope:recipient = {
-			ordered_character_war = { #We offer our services for the war where the character is losing the most
-				limit = {
-					is_war_leader = prev
-					NOR = {
-						any_war_attacker = { this = scope:actor }
-						any_war_defender = { this = scope:actor }
-					}
-					save_temporary_scope_as = target
-					can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:recipient JOINER = scope:actor }
-				}
-				order_by = {
-					value = 0
-					add = {
-						if = {
-							limit = { any_war_attacker = { this = scope:recipient } }
-							subtract = attacker_war_score
-						}
-						else = {
-							subtract = defender_war_score
-						}
-					}
-				}
-				save_scope_as = target
-			}
-		}
-	}
+# 	ai_set_target = {
+# 		scope:recipient = {
+# 			ordered_character_war = { #We offer our services for the war where the character is losing the most
+# 				limit = {
+# 					is_war_leader = prev
+# 					NOR = {
+# 						any_war_attacker = { this = scope:actor }
+# 						any_war_defender = { this = scope:actor }
+# 					}
+# 					save_temporary_scope_as = target
+# 					can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:recipient JOINER = scope:actor }
+# 				}
+# 				order_by = {
+# 					value = 0
+# 					add = {
+# 						if = {
+# 							limit = { any_war_attacker = { this = scope:recipient } }
+# 							subtract = attacker_war_score
+# 						}
+# 						else = {
+# 							subtract = defender_war_score
+# 						}
+# 					}
+# 				}
+# 				save_scope_as = target
+# 			}
+# 		}
+# 	}
 	
-	ai_targets = {
-		ai_recipients = peer_vassals
-	}
-	ai_frequency = 24 # We need a quite high frequency as wars do not last forever
+# 	ai_targets = {
+# 		ai_recipients = peer_vassals
+# 	}
+# 	ai_frequency = 24 # We need a quite high frequency as wars do not last forever
 
-	ai_will_do = {
-		base = 0
+# 	ai_will_do = {
+# 		base = 0
 
-		modifier = { # Increase chance if recipient is losing a war
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = { fp2_struggle_contract_assistance_war_losing_trigger = yes }
-			}
-			add = 25
-		}
+# 		modifier = { # Increase chance if recipient is losing a war
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = { fp2_struggle_contract_assistance_war_losing_trigger = yes }
+# 			}
+# 			add = 25
+# 		}
 		
-		modifier = { # Increase chance with amount of gold of recipient over interaction cost
-			factor = offer_assistance_interaction_gold_modifier_value
-		}
+# 		modifier = { # Increase chance with amount of gold of recipient over interaction cost
+# 			factor = offer_assistance_interaction_gold_modifier_value
+# 		}
 
-		modifier = { # Increase chance if likes recipient more than enemy
-			scope:actor = {
-				save_temporary_opinion_value_as = {
-					name = contract_assistance_actor_opinion
-					target = scope:recipient
-				}
-			}
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = {
-					any_war_participant = {
-						is_leader_in_war = scope:target
-						NOT = { this = scope:recipient }
-						reverse_opinion = {
-							target = scope:actor
-							value < scope:contract_assistance_actor_opinion
-						}
-					}
-				}
-			}
-			add = 25
-		}
+# 		modifier = { # Increase chance if likes recipient more than enemy
+# 			scope:actor = {
+# 				save_temporary_opinion_value_as = {
+# 					name = contract_assistance_actor_opinion
+# 					target = scope:recipient
+# 				}
+# 			}
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = {
+# 					any_war_participant = {
+# 						is_leader_in_war = scope:target
+# 						NOT = { this = scope:recipient }
+# 						reverse_opinion = {
+# 							target = scope:actor
+# 							value < scope:contract_assistance_actor_opinion
+# 						}
+# 					}
+# 				}
+# 			}
+# 			add = 25
+# 		}
 
-		modifier = { # Increase chance for family
-			scope:recipient = {
-				OR = {
-					dynasty = scope:actor.dynasty
-					is_consort_of = scope:actor
-				}
-			}
-			add = 25
-		}
+# 		modifier = { # Increase chance for family
+# 			scope:recipient = {
+# 				OR = {
+# 					dynasty = scope:actor.dynasty
+# 					is_consort_of = scope:actor
+# 				}
+# 			}
+# 			add = 25
+# 		}
 
-		modifier = { # Decrease chance if army is small
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = { fp2_struggle_contract_assistance_war_insufficient_trigger = yes }
-			}
-			add = -50
-		}
+# 		modifier = { # Decrease chance if army is small
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = { fp2_struggle_contract_assistance_war_insufficient_trigger = yes }
+# 			}
+# 			add = -50
+# 		}
 
-		modifier = { # Increase chance for rivalry
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = {
-					any_war_participant = {
-						is_leader_in_war = scope:target
-						NOT = { this = scope:recipient }
-						has_relation_rival = scope:actor
-					}
-				}
-			}
-			add = 25
-		}
+# 		modifier = { # Increase chance for rivalry
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = {
+# 					any_war_participant = {
+# 						is_leader_in_war = scope:target
+# 						NOT = { this = scope:recipient }
+# 						has_relation_rival = scope:actor
+# 					}
+# 				}
+# 			}
+# 			add = 25
+# 		}
 
-		# Higher chance to target a human player
-		modifier = {
-			scope:recipient = { is_ai = no }
-			factor = 2
-		}
-	}
-}
+# 		# Higher chance to target a human player
+# 		modifier = {
+# 			scope:recipient = { is_ai = no }
+# 			factor = 2
+# 		}
+# 	}
+# }
 
 ##################################################
 # Request Contract Assistance
 # by Maxence Voleau
 ##################################################
 
-request_contract_assistance_interaction = {
-	category = interaction_category_diplomacy
-	interface_priority = 15
-	common_interaction = yes
-	interface = call_ally
-	special_interaction = call_ally_interaction
-	popup_on_receive = yes
-	pause_on_receive = yes
+# request_contract_assistance_interaction = {
+# 	category = interaction_category_diplomacy
+# 	interface_priority = 15
+# 	common_interaction = yes
+# 	interface = call_ally
+# 	special_interaction = call_ally_interaction
+# 	popup_on_receive = yes
+# 	pause_on_receive = yes
 
-	ai_maybe = yes
-	desc = request_contract_assistance_interaction_desc
-	icon = icon_gold
+# 	ai_maybe = yes
+# 	desc = request_contract_assistance_interaction_desc
+# 	icon = icon_gold
 
-	greeting = positive
-	notification_text = request_contract_assistance_interaction_notification
+# 	greeting = positive
+# 	notification_text = request_contract_assistance_interaction_notification
 
-	cooldown_against_recipient = { years = 5 }
+# 	cooldown_against_recipient = { years = 5 }
 
-	is_shown = {
-		# Actor is Involved in Struggle
-		scope:actor = {
-			any_character_struggle = {
-				involvement = involved
-				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
-			}
-			is_at_war = yes
-			NOR = {
-				this = scope:recipient
-				is_at_war_with = scope:recipient
-			}
-		}
-		# Recipient is Involved in Struggle, at war, and not at war with Actor
-		scope:recipient = {
-			any_character_struggle = {
-				involvement = involved
-				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
-			}
-		}
-	}
+# 	is_shown = {
+# 		# Actor is Involved in Struggle
+# 		scope:actor = {
+# 			any_character_struggle = {
+# 				involvement = involved
+# 				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+# 			}
+# 			is_at_war = yes
+# 			NOR = {
+# 				this = scope:recipient
+# 				is_at_war_with = scope:recipient
+# 			}
+# 		}
+# 		# Recipient is Involved in Struggle, at war, and not at war with Actor
+# 		scope:recipient = {
+# 			any_character_struggle = {
+# 				involvement = involved
+# 				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+# 			}
+# 		}
+# 	}
 
-	has_valid_target = {
-		exists = scope:target
-	}
+# 	has_valid_target = {
+# 		exists = scope:target
+# 	}
 
-	has_valid_target_showing_failures_only = {
-		scope:target = { 
-			is_war_leader = scope:actor
+# 	has_valid_target_showing_failures_only = {
+# 		scope:target = { 
+# 			is_war_leader = scope:actor
 
-			# Cannot contract against allies
-			trigger_if = {
-				limit = {
-					any_war_attacker = { this = scope:recipient }
-				}
-				NOT = {
-					any_war_defender = { is_allied_to = scope:actor }
-				}
-			}
-			trigger_else = {
-				NOT = {
-					any_war_attacker = { is_allied_to = scope:actor }
-				}
-			}
-		}
-	}
+# 			# Cannot contract against allies
+# 			trigger_if = {
+# 				limit = {
+# 					any_war_attacker = { this = scope:recipient }
+# 				}
+# 				NOT = {
+# 					any_war_defender = { is_allied_to = scope:actor }
+# 				}
+# 			}
+# 			trigger_else = {
+# 				NOT = {
+# 					any_war_attacker = { is_allied_to = scope:actor }
+# 				}
+# 			}
+# 		}
+# 	}
 
-	is_valid_showing_failures_only = {
-		scope:recipient = {
-			# Cannot demand gold from allies
-			NOT = { is_allied_to = scope:actor }
-		}
-		# Actor is not in (any) war against Recipient's liege(s)
-		trigger_if = {
-			limit = { exists = scope:recipient.liege }
-			custom_description = {
-				text = join_war_interaction_recipient_warring_with_my_liege
-				subject = scope:actor
-				scope:recipient = {
-					NOT = {
-						any_liege_or_above = { is_at_war_with = scope:actor }
-					}
-				}
-			}
-		}
+# 	is_valid_showing_failures_only = {
+# 		scope:recipient = {
+# 			# Cannot demand gold from allies
+# 			NOT = { is_allied_to = scope:actor }
+# 		}
+# 		# Actor is not in (any) war against Recipient's liege(s)
+# 		trigger_if = {
+# 			limit = { exists = scope:recipient.liege }
+# 			custom_description = {
+# 				text = join_war_interaction_recipient_warring_with_my_liege
+# 				subject = scope:actor
+# 				scope:recipient = {
+# 					NOT = {
+# 						any_liege_or_above = { is_at_war_with = scope:actor }
+# 					}
+# 				}
+# 			}
+# 		}
 
-		# Cannot join wars with raised armies
-		scope:recipient = { has_raised_armies = no }
+# 		# Cannot join wars with raised armies
+# 		scope:recipient = { has_raised_armies = no }
 
-		# Can only contract one war at a time
-		custom_tooltip = {
-			text = contract_assistance_war_already_contracted_tt
-			scope:recipient = {
-				NOT = { has_variable = owed_contract_assistance_war }
-			}
-		}
-	}
+# 		# Can only contract one war at a time
+# 		custom_tooltip = {
+# 			text = contract_assistance_war_already_contracted_tt
+# 			scope:recipient = {
+# 				NOT = { has_variable = owed_contract_assistance_war }
+# 			}
+# 		}
+# 	}
 
-	can_be_picked = {
-		# Recipient is war leader in chosen war
-		scope:target = {
-			is_war_leader = scope:actor
-			# not already in target war
-			custom_description = {
-				text = join_war_interaction_already_in_target_war
-				NOR = {
-					any_war_attacker = { this = scope:recipient }
-					any_war_defender = { this = scope:recipient }
-				}
-			}
-		}
-		# Liege checks
-		can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:actor JOINER = scope:recipient }
-	}
+# 	can_be_picked = {
+# 		# Recipient is war leader in chosen war
+# 		scope:target = {
+# 			is_war_leader = scope:actor
+# 			# not already in target war
+# 			custom_description = {
+# 				text = join_war_interaction_already_in_target_war
+# 				NOR = {
+# 					any_war_attacker = { this = scope:recipient }
+# 					any_war_defender = { this = scope:recipient }
+# 				}
+# 			}
+# 		}
+# 		# Liege checks
+# 		can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:actor JOINER = scope:recipient }
+# 	}
 
-	on_accept = {
-		# Add Actor to Recipient's war
-		scope:target = {
-			hidden_effect = { set_called_to = scope:recipient }
-			if = {
-				limit = { is_attacker = scope:actor }
-				add_attacker = scope:recipient
-			}
-			else = { add_defender = scope:recipient }
-		}
-		# Actor effects
-		scope:recipient = {
-			save_scope_as = contract_assistance_helper
-			set_variable = {
-				name = owed_contract_assistance_war
-				value = scope:target
-			}
-			set_variable = {
-				name = owed_contract_assistance_contribution
-				value = offer_assistance_interaction_war_contribution_value
-			}
-			set_variable = {
-				name = owed_contract_assistance_gold
-				value = offer_assistance_interaction_gold_value
-			}
-			stress_impact = {
-				craven = medium_stress_impact_gain
-				shy = minor_stress_impact_gain
-			}
+# 	on_accept = {
+# 		# Add Actor to Recipient's war
+# 		scope:target = {
+# 			hidden_effect = { set_called_to = scope:recipient }
+# 			if = {
+# 				limit = { is_attacker = scope:actor }
+# 				add_attacker = scope:recipient
+# 			}
+# 			else = { add_defender = scope:recipient }
+# 		}
+# 		# Actor effects
+# 		scope:recipient = {
+# 			save_scope_as = contract_assistance_helper
+# 			set_variable = {
+# 				name = owed_contract_assistance_war
+# 				value = scope:target
+# 			}
+# 			set_variable = {
+# 				name = owed_contract_assistance_contribution
+# 				value = offer_assistance_interaction_war_contribution_value
+# 			}
+# 			set_variable = {
+# 				name = owed_contract_assistance_gold
+# 				value = offer_assistance_interaction_gold_value
+# 			}
+# 			stress_impact = {
+# 				craven = medium_stress_impact_gain
+# 				shy = minor_stress_impact_gain
+# 			}
 
 
-			# Struggle Catalyst
-			# if = {
-			# 	limit = {
-			# 		# Verify if vassal used to be independent
-			# 		any_character_struggle = {
-			# 			involvement = involved
-			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
-			# 				CATALYST = catalyst_join_war_as_assisant
-			# 				CHAR = scope:recipient
-			# 			}
-			# 		}
-			# 	}
-			# 	every_character_struggle = {
-			# 		involvement = involved
-			# 		limit = {
-			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
-			# 				CATALYST = catalyst_join_war_as_assisant
-			# 				CHAR = scope:recipient
-			# 			}
-			# 		}
-			# 		activate_struggle_catalyst = {
-			# 			catalyst = catalyst_join_war_as_assisant
-			# 			character = scope:recipient
-			# 		}
-			# 	}
-			# }
-		}
-		# Recipient effects
-		scope:actor = {
-			stress_impact = {
-				greedy = medium_stress_impact_gain
-				arrogant = medium_stress_impact_gain
-			}
-			custom_tooltip = request_contract_assistance_interaction_condition_tt
-			show_as_tooltip = {
-				pay_short_term_gold = {
-					target = scope:recipient
-					gold = offer_assistance_interaction_gold_value 
-				}
-			}
-		}
+# 			# Struggle Catalyst
+# 			# if = {
+# 			# 	limit = {
+# 			# 		# Verify if vassal used to be independent
+# 			# 		any_character_struggle = {
+# 			# 			involvement = involved
+# 			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+# 			# 				CATALYST = catalyst_join_war_as_assisant
+# 			# 				CHAR = scope:recipient
+# 			# 			}
+# 			# 		}
+# 			# 	}
+# 			# 	every_character_struggle = {
+# 			# 		involvement = involved
+# 			# 		limit = {
+# 			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+# 			# 				CATALYST = catalyst_join_war_as_assisant
+# 			# 				CHAR = scope:recipient
+# 			# 			}
+# 			# 		}
+# 			# 		activate_struggle_catalyst = {
+# 			# 			catalyst = catalyst_join_war_as_assisant
+# 			# 			character = scope:recipient
+# 			# 		}
+# 			# 	}
+# 			# }
+# 		}
+# 		# Recipient effects
+# 		scope:actor = {
+# 			stress_impact = {
+# 				greedy = medium_stress_impact_gain
+# 				arrogant = medium_stress_impact_gain
+# 			}
+# 			custom_tooltip = request_contract_assistance_interaction_condition_tt
+# 			show_as_tooltip = {
+# 				pay_short_term_gold = {
+# 					target = scope:recipient
+# 					gold = offer_assistance_interaction_gold_value 
+# 				}
+# 			}
+# 		}
 
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:actor
-			TARGET = scope:recipient
-			VALUE = medium_unity_loss
-			DESC = clan_unity_request_assistance.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
-	}
+# 		# If we're a clan this interaction affects unity
+# 		add_clan_unity_interaction_effect = {
+# 			CHARACTER = scope:actor
+# 			TARGET = scope:recipient
+# 			VALUE = medium_unity_loss
+# 			DESC = clan_unity_request_assistance.desc
+# 			REVERSE_NON_HOUSE_TARGET = no
+# 		}
+# 	}
 
-	on_decline = {
-		# Refusal notification
-		scope:actor = { trigger_event = char_interaction.0236 }
+# 	on_decline = {
+# 		# Refusal notification
+# 		scope:actor = { trigger_event = char_interaction.0236 }
 
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:recipient
-			TARGET = scope:actor
-			VALUE = minor_unity_gain
-			DESC = clan_unity_request_assistance_decline.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
-	}
+# 		# If we're a clan this interaction affects unity
+# 		add_clan_unity_interaction_effect = {
+# 			CHARACTER = scope:recipient
+# 			TARGET = scope:actor
+# 			VALUE = minor_unity_gain
+# 			DESC = clan_unity_request_assistance_decline.desc
+# 			REVERSE_NON_HOUSE_TARGET = no
+# 		}
+# 	}
 
-	ai_accept = {
-		base = 0 # Reluctant to spend money without good reason
+# 	ai_accept = {
+# 		base = 0 # Reluctant to spend money without good reason
 
-		# Recipient has low cash
-		modifier = {
-			add = {
-				value = 25
-				if = {
-					limit = {
-						gold < 0
-					}
-					add = {
-						value = 25
-						multiply = debt_level
-					}
-				}
-				if = { # Very generous or vengeful characters *will* make poor decisions
-					limit = {
-						OR = {
-							ai_greed <= -50
-							ai_vengefulness >= 50
-						}
-					}
-					multiply = 0.5
-				}
-			}
-			desc = AI_VALUE_MODIFIER_GREED
-		}
-		# Recipient has a lot of cash
-		modifier = {
-			add = {
-				value = -25
-				if = {
-					limit = {
-						gold >= {
-							value = offer_assistance_interaction_gold_value
-							multiply = 2
-						}
-					}
-					add = -50
-				}
-				if = {
-					limit = {
-						gold >= {
-							value = offer_assistance_interaction_gold_value
-							multiply = 3
-						}
-					}
-					add = -50
-				}
-			}
-			gold >= offer_assistance_interaction_gold_value
-			desc = OA_AI_EXTRA_GOLD_REASON
-		}
-		# Recipient is not interested in help for certain wars
-		modifier = {
-			add = -500
-			exists = scope:target
-			scope:target = {
-				using_cb = peasant_war
-			}
-			desc = OA_AI_UNINTERESTED_WAR_REASON
-		}
-		modifier = {
-			add = {
-				value = scope:actor.martial
-				multiply = 2
-			}
-			scope:actor = { martial >= 12 }
-			desc = OA_AI_MARTIAL_REASON
-		}
-		modifier = {
-			add = -50
-			scope:recipient = { has_character_flag = fp2_contract_assistance_failure }
-			desc = OA_AI_FAILURE_REASON
-		}
-		# Opinion Factor
-		opinion_modifier = {
-			who = scope:recipient
-			opinion_target = scope:actor
-			multiplier = 0.25
-			desc = AI_OPINION_REASON
-		}
+# 		# Recipient has low cash
+# 		modifier = {
+# 			add = {
+# 				value = 25
+# 				if = {
+# 					limit = {
+# 						gold < 0
+# 					}
+# 					add = {
+# 						value = 25
+# 						multiply = debt_level
+# 					}
+# 				}
+# 				if = { # Very generous or vengeful characters *will* make poor decisions
+# 					limit = {
+# 						OR = {
+# 							ai_greed <= -50
+# 							ai_vengefulness >= 50
+# 						}
+# 					}
+# 					multiply = 0.5
+# 				}
+# 			}
+# 			desc = AI_VALUE_MODIFIER_GREED
+# 		}
+# 		# Recipient has a lot of cash
+# 		modifier = {
+# 			add = {
+# 				value = -25
+# 				if = {
+# 					limit = {
+# 						gold >= {
+# 							value = offer_assistance_interaction_gold_value
+# 							multiply = 2
+# 						}
+# 					}
+# 					add = -50
+# 				}
+# 				if = {
+# 					limit = {
+# 						gold >= {
+# 							value = offer_assistance_interaction_gold_value
+# 							multiply = 3
+# 						}
+# 					}
+# 					add = -50
+# 				}
+# 			}
+# 			gold >= offer_assistance_interaction_gold_value
+# 			desc = OA_AI_EXTRA_GOLD_REASON
+# 		}
+# 		# Recipient is not interested in help for certain wars
+# 		modifier = {
+# 			add = -500
+# 			exists = scope:target
+# 			scope:target = {
+# 				using_cb = peasant_war
+# 			}
+# 			desc = OA_AI_UNINTERESTED_WAR_REASON
+# 		}
+# 		modifier = {
+# 			add = {
+# 				value = scope:actor.martial
+# 				multiply = 2
+# 			}
+# 			scope:actor = { martial >= 12 }
+# 			desc = OA_AI_MARTIAL_REASON
+# 		}
+# 		modifier = {
+# 			add = -50
+# 			scope:recipient = { has_character_flag = fp2_contract_assistance_failure }
+# 			desc = OA_AI_FAILURE_REASON
+# 		}
+# 		# Opinion Factor
+# 		opinion_modifier = {
+# 			who = scope:recipient
+# 			opinion_target = scope:actor
+# 			multiplier = 0.25
+# 			desc = AI_OPINION_REASON
+# 		}
 
-		modifier = {
-			add = {
-				value = ai_greed
-				multiply = 0.2
-			}
-			ai_greed <= 0.5
-			desc = AI_VALUE_MODIFIER_GREED
-		}
+# 		modifier = {
+# 			add = {
+# 				value = ai_greed
+# 				multiply = 0.2
+# 			}
+# 			ai_greed <= 0.5
+# 			desc = AI_VALUE_MODIFIER_GREED
+# 		}
 
-		modifier = {
-			add = {
-				value = ai_boldness
-				multiply = 0.2
-			}
-			NOT = { ai_boldness = 0 }
-			desc = AI_VALUE_MODIFIER_BOLDNESS
-		}
+# 		modifier = {
+# 			add = {
+# 				value = ai_boldness
+# 				multiply = 0.2
+# 			}
+# 			NOT = { ai_boldness = 0 }
+# 			desc = AI_VALUE_MODIFIER_BOLDNESS
+# 		}
 
-		# Allegiances
-		fp2_contracting_ally_modifier = {
-			WARMONGER = scope:actor
-			WARJOINER = scope:recipient
-		}
-	}
+# 		# Allegiances
+# 		fp2_contracting_ally_modifier = {
+# 			WARMONGER = scope:actor
+# 			WARJOINER = scope:recipient
+# 		}
+# 	}
 
-	ai_potential = {
-		# the AI cannot use it for now so let's block it
-		is_imprisoned = no
-		is_at_war = no
-		gold >= ai_war_chest_desired_gold_value
-	}
-	ai_target_quick_trigger = { adult = yes }
-	ai_targets = {
-		ai_recipients = neighboring_rulers
-	}
+# 	ai_potential = {
+# 		# the AI cannot use it for now so let's block it
+# 		is_imprisoned = no
+# 		is_at_war = no
+# 		gold >= ai_war_chest_desired_gold_value
+# 	}
+# 	ai_target_quick_trigger = { adult = yes }
+# 	ai_targets = {
+# 		ai_recipients = neighboring_rulers
+# 	}
 
-	ai_set_target = {
-		scope:actor = {
-			ordered_character_war = { #We offer our services for the war where the character is losing the most
-				limit = {
-					is_war_leader = prev
-					NOR = {
-						any_war_attacker = { this = scope:recipient }
-						any_war_defender = { this = scope:recipient }
-					}
-					save_temporary_scope_as = target
-					can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:actor JOINER = scope:recipient }
-				}
-				order_by = {
-					value = 0
-					add = {
-						if = {
-							limit = { any_war_attacker = { this = scope:actor } }
-							subtract = attacker_war_score
-						}
-						else = {
-							subtract = defender_war_score
-						}
-					}
-				}
-				save_scope_as = target
-			}
-		}
-	}
+# 	ai_set_target = {
+# 		scope:actor = {
+# 			ordered_character_war = { #We offer our services for the war where the character is losing the most
+# 				limit = {
+# 					is_war_leader = prev
+# 					NOR = {
+# 						any_war_attacker = { this = scope:recipient }
+# 						any_war_defender = { this = scope:recipient }
+# 					}
+# 					save_temporary_scope_as = target
+# 					can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:actor JOINER = scope:recipient }
+# 				}
+# 				order_by = {
+# 					value = 0
+# 					add = {
+# 						if = {
+# 							limit = { any_war_attacker = { this = scope:actor } }
+# 							subtract = attacker_war_score
+# 						}
+# 						else = {
+# 							subtract = defender_war_score
+# 						}
+# 					}
+# 				}
+# 				save_scope_as = target
+# 			}
+# 		}
+# 	}
 
-	ai_targets = {
-		ai_recipients = peer_vassals
-	}
-	ai_frequency = 36
+# 	ai_targets = {
+# 		ai_recipients = peer_vassals
+# 	}
+# 	ai_frequency = 36
 
-	ai_will_do = {
-		base = 0
+# 	ai_will_do = {
+# 		base = 0
 
-		modifier = { # AI is losing the war
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = {
-					trigger_if = {
-						limit = {
-							scope:actor = { is_attacker_in_war = prev }
-						}
-						defender_war_score >= offer_assistance_interaction_already_losing_value
-					}
-					trigger_else = { attacker_war_score >= offer_assistance_interaction_already_losing_value }
-				}
-			}
-			add = 15
-		}
+# 		modifier = { # AI is losing the war
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = {
+# 					trigger_if = {
+# 						limit = {
+# 							scope:actor = { is_attacker_in_war = prev }
+# 						}
+# 						defender_war_score >= offer_assistance_interaction_already_losing_value
+# 					}
+# 					trigger_else = { attacker_war_score >= offer_assistance_interaction_already_losing_value }
+# 				}
+# 			}
+# 			add = 15
+# 		}
 
-		modifier = { # Increase chance for asking family
-			scope:recipient = {
-				OR = {
-					dynasty = scope:actor.dynasty
-					is_consort_of = scope:actor
-				}
-			}
-			factor = 2
-		}
+# 		modifier = { # Increase chance for asking family
+# 			scope:recipient = {
+# 				OR = {
+# 					dynasty = scope:actor.dynasty
+# 					is_consort_of = scope:actor
+# 				}
+# 			}
+# 			factor = 2
+# 		}
 
-		modifier = { # Decrease chance if army is small
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = {
-					trigger_if = {
-						limit = {
-							scope:recipient = { is_attacker_in_war = prev }
-						}
-						scope:actor.max_military_strength < war_defender_total_strength_divided_value
-					}
-					trigger_else = { scope:actor.max_military_strength < war_attacker_total_strength_divided_value }
-				}
-			}
-			add = -50
-		}
+# 		modifier = { # Decrease chance if army is small
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = {
+# 					trigger_if = {
+# 						limit = {
+# 							scope:recipient = { is_attacker_in_war = prev }
+# 						}
+# 						scope:actor.max_military_strength < war_defender_total_strength_divided_value
+# 					}
+# 					trigger_else = { scope:actor.max_military_strength < war_attacker_total_strength_divided_value }
+# 				}
+# 			}
+# 			add = -50
+# 		}
 
-		modifier = { # Increase chance for rivalry
-			trigger_if = {
-				limit = { exists = scope:target }
-				scope:target = {
-					any_war_participant = {
-						is_leader_in_war = scope:target
-						NOT = { this = scope:actor }
-						has_relation_rival = scope:recipient
-					}
-				}
-			}
-			add = 25
-		}
+# 		modifier = { # Increase chance for rivalry
+# 			trigger_if = {
+# 				limit = { exists = scope:target }
+# 				scope:target = {
+# 					any_war_participant = {
+# 						is_leader_in_war = scope:target
+# 						NOT = { this = scope:actor }
+# 						has_relation_rival = scope:recipient
+# 					}
+# 				}
+# 			}
+# 			add = 25
+# 		}
 
-		modifier = { # AI is extremely rich
-			short_term_gold >= ai_war_chest_desired_gold_value
-			add = 50
-		}
-	}
-}
+# 		modifier = { # AI is extremely rich
+# 			short_term_gold >= ai_war_chest_desired_gold_value
+# 			add = 50
+# 		}
+# 	}
+# }
 
 ##################################################
 # Enforce Truce
@@ -4527,707 +4527,707 @@ request_contract_assistance_interaction = {
 # by Joe Parkin
 ##################################################
 
-bargain_fealty_interaction = {
-	category = interaction_category_diplomacy
-	desc = bargain_fealty_interaction_desc
-	interface_priority = 60
-	interface = call_ally
-	special_interaction = call_ally_interaction
-	popup_on_receive = yes
-	pause_on_receive = yes
+# bargain_fealty_interaction = {
+# 	category = interaction_category_diplomacy
+# 	desc = bargain_fealty_interaction_desc
+# 	interface_priority = 60
+# 	interface = call_ally
+# 	special_interaction = call_ally_interaction
+# 	popup_on_receive = yes
+# 	pause_on_receive = yes
 
-	icon = icon_vassal
-	greeting = positive
-	notification_text = bargain_fealty_interaction_notification
+# 	icon = icon_vassal
+# 	greeting = positive
+# 	notification_text = bargain_fealty_interaction_notification
 
-	cooldown_against_recipient = { years = 5 }
+# 	cooldown_against_recipient = { years = 5 }
 
-	is_shown = {
-		# Actor is Involved in Struggle
-		scope:actor = {
-			any_character_struggle = {
-				involvement = involved
-				# struggle_can_access_unlocks_bargain_fealty_interaction_trigger = yes
-			}
-			is_independent_ruler = yes
-			is_at_war = yes
-			any_character_war = {
-				is_war_leader = prev
-				primary_defender = prev
-			}
-			tier_difference = {
-				target = scope:recipient
-				value <= -1
-			}
-		}
-		# Recipient is not at war with Actor
-		scope:recipient = {
-			any_neighboring_and_across_water_top_liege_realm_owner = { this = scope:actor }
-			primary_title = { is_mercenary_company = no }
-			NOR = {
-				this = scope:actor
-				is_at_war_with = scope:actor
-			}
-		}
-	}
+# 	is_shown = {
+# 		# Actor is Involved in Struggle
+# 		scope:actor = {
+# 			any_character_struggle = {
+# 				involvement = involved
+# 				# struggle_can_access_unlocks_bargain_fealty_interaction_trigger = yes
+# 			}
+# 			is_independent_ruler = yes
+# 			is_at_war = yes
+# 			any_character_war = {
+# 				is_war_leader = prev
+# 				primary_defender = prev
+# 			}
+# 			tier_difference = {
+# 				target = scope:recipient
+# 				value <= -1
+# 			}
+# 		}
+# 		# Recipient is not at war with Actor
+# 		scope:recipient = {
+# 			any_neighboring_and_across_water_top_liege_realm_owner = { this = scope:actor }
+# 			primary_title = { is_mercenary_company = no }
+# 			NOR = {
+# 				this = scope:actor
+# 				is_at_war_with = scope:actor
+# 			}
+# 		}
+# 	}
 
-	is_valid_showing_failures_only = {
-		scope:actor = {
-			any_character_struggle = {
-				involvement = involved
-				has_struggle_phase_parameter = unlocks_bargain_fealty_interaction
-			}
-		}
-	}
+# 	is_valid_showing_failures_only = {
+# 		scope:actor = {
+# 			any_character_struggle = {
+# 				involvement = involved
+# 				has_struggle_phase_parameter = unlocks_bargain_fealty_interaction
+# 			}
+# 		}
+# 	}
 
-	can_be_picked = {
-		# Actor is war leader in chosen war
-		exists = scope:target
-		scope:target = {
-			is_war_leader = scope:actor
-			primary_defender = scope:actor
-			custom_tooltip = {
-				text = bargain_fealty_border_raid_tt
-			}
-			custom_tooltip = {
-				text = bargain_fealty_struggle_clash_tt
-			}
-		}
-		# Actor is not involved in a war involving Recipient
-		joiner_not_already_in_another_war_with_any_target_war_participants_trigger = {
-			WARRIOR = scope:actor
-			JOINER = scope:recipient
-		}
-	}
+# 	can_be_picked = {
+# 		# Actor is war leader in chosen war
+# 		exists = scope:target
+# 		scope:target = {
+# 			is_war_leader = scope:actor
+# 			primary_defender = scope:actor
+# 			custom_tooltip = {
+# 				text = bargain_fealty_border_raid_tt
+# 			}
+# 			custom_tooltip = {
+# 				text = bargain_fealty_struggle_clash_tt
+# 			}
+# 		}
+# 		# Actor is not involved in a war involving Recipient
+# 		joiner_not_already_in_another_war_with_any_target_war_participants_trigger = {
+# 			WARRIOR = scope:actor
+# 			JOINER = scope:recipient
+# 		}
+# 	}
 
-	on_accept = {
-		if = {
-			limit = { exists = scope:target }
-			# Add Recipient to Actor's war
-			scope:target = {
-				hidden_effect = { set_called_to = scope:recipient }
-				if = {
-					limit = { is_attacker = scope:actor }
-					add_attacker = scope:recipient
-				}
-				else = { add_defender = scope:recipient }
-			}
-			create_title_and_vassal_change = {
-				type = swear_fealty
-				save_scope_as = change
-			}
-			scope:actor = {
-				change_liege = {
-					liege = scope:recipient
-					change = scope:change
-				}
-				resolve_title_and_vassal_change = scope:change
-			}
-			# Actor effects
-			scope:actor = {
-				stress_impact = {
-					arrogant = medium_stress_impact_gain
-					craven = medium_stress_impact_gain
-				}
-			}
-			# Recipient effects
-			scope:recipient = {
-				stress_impact = {
-					greedy = medium_stress_impact_gain
-					craven = medium_stress_impact_gain
-				}
-			}
-		}
-		else = {
-			scope:actor = {
-				send_interface_toast = {
-					title = war_ended_before_response
-					left_icon = scope:recipient
-				}
-			}
-		}
+# 	on_accept = {
+# 		if = {
+# 			limit = { exists = scope:target }
+# 			# Add Recipient to Actor's war
+# 			scope:target = {
+# 				hidden_effect = { set_called_to = scope:recipient }
+# 				if = {
+# 					limit = { is_attacker = scope:actor }
+# 					add_attacker = scope:recipient
+# 				}
+# 				else = { add_defender = scope:recipient }
+# 			}
+# 			create_title_and_vassal_change = {
+# 				type = swear_fealty
+# 				save_scope_as = change
+# 			}
+# 			scope:actor = {
+# 				change_liege = {
+# 					liege = scope:recipient
+# 					change = scope:change
+# 				}
+# 				resolve_title_and_vassal_change = scope:change
+# 			}
+# 			# Actor effects
+# 			scope:actor = {
+# 				stress_impact = {
+# 					arrogant = medium_stress_impact_gain
+# 					craven = medium_stress_impact_gain
+# 				}
+# 			}
+# 			# Recipient effects
+# 			scope:recipient = {
+# 				stress_impact = {
+# 					greedy = medium_stress_impact_gain
+# 					craven = medium_stress_impact_gain
+# 				}
+# 			}
+# 		}
+# 		else = {
+# 			scope:actor = {
+# 				send_interface_toast = {
+# 					title = war_ended_before_response
+# 					left_icon = scope:recipient
+# 				}
+# 			}
+# 		}
 
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:actor
-			TARGET = scope:recipient
-			VALUE = medium_unity_gain
-			DESC = clan_unity_bargained_fealty.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
-	}
+# 		# If we're a clan this interaction affects unity
+# 		add_clan_unity_interaction_effect = {
+# 			CHARACTER = scope:actor
+# 			TARGET = scope:recipient
+# 			VALUE = medium_unity_gain
+# 			DESC = clan_unity_bargained_fealty.desc
+# 			REVERSE_NON_HOUSE_TARGET = no
+# 		}
+# 	}
 
-	on_decline = {
-		# Refusal notification
-		scope:actor = { trigger_event = char_interaction.0236 }
+# 	on_decline = {
+# 		# Refusal notification
+# 		scope:actor = { trigger_event = char_interaction.0236 }
 
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:recipient
-			TARGET = scope:actor
-			VALUE = minor_unity_loss
-			DESC = clan_unity_bargain_fealty_refusal.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
-	}
+# 		# If we're a clan this interaction affects unity
+# 		add_clan_unity_interaction_effect = {
+# 			CHARACTER = scope:recipient
+# 			TARGET = scope:actor
+# 			VALUE = minor_unity_loss
+# 			DESC = clan_unity_bargain_fealty_refusal.desc
+# 			REVERSE_NON_HOUSE_TARGET = no
+# 		}
+# 	}
 
-	ai_accept = {
-		base = 25
-		# Recipient would be very outnumbered
-		modifier = {
-			add = -75
-			exists = scope:target
-			scope:target = { fp2_bargain_fealty_war_outnumbered_trigger = yes }
-			desc = BF_AI_OUTNUMBERED_REASON
-		}
-		# Actor is same culture as recipient
-		modifier = {
-			add = -10
-			NOT = { scope:actor.culture = scope:recipient.culture }
-			desc = BF_AI_DIFFERENT_CULTURE_REASON
-		}
-		# Actor is same faith as recipient
-		modifier = {
-			add = -15
-			NOT = { scope:actor.faith = scope:recipient.faith }
-			desc = BF_AI_DIFFERENT_FAITH_REASON
-		}
-		# Actor is de jure vassal of recipient
-		modifier = {
-			add = 25
-			scope:actor = {
-				any_held_title = { target_is_de_jure_liege_or_above = scope:recipient.primary_title }
-			}
-			desc = BF_AI_DE_JURE_REASON
-		}
-		# Actor is de jure vassal of recipient
-		modifier = {
-			add = 25
-			scope:actor.dynasty = scope:recipient.dynasty
-			desc = BF_AI_SAME_DYNASTY_REASON
-		}
-		# Too big to be vassal
-		modifier = {
-			add = -50
-			scope:actor.realm_size >= fp2_bargain_fealty_half_realm_size_value
-			desc = BF_AI_TOO_LARGE_REASON
-		}
-		# Opinion Factor
-		opinion_modifier = {
-			who = scope:recipient
-			opinion_target = scope:actor
-			multiplier = 1
-			desc = AI_OPINION_REASON
-		}
+# 	ai_accept = {
+# 		base = 25
+# 		# Recipient would be very outnumbered
+# 		modifier = {
+# 			add = -75
+# 			exists = scope:target
+# 			scope:target = { fp2_bargain_fealty_war_outnumbered_trigger = yes }
+# 			desc = BF_AI_OUTNUMBERED_REASON
+# 		}
+# 		# Actor is same culture as recipient
+# 		modifier = {
+# 			add = -10
+# 			NOT = { scope:actor.culture = scope:recipient.culture }
+# 			desc = BF_AI_DIFFERENT_CULTURE_REASON
+# 		}
+# 		# Actor is same faith as recipient
+# 		modifier = {
+# 			add = -15
+# 			NOT = { scope:actor.faith = scope:recipient.faith }
+# 			desc = BF_AI_DIFFERENT_FAITH_REASON
+# 		}
+# 		# Actor is de jure vassal of recipient
+# 		modifier = {
+# 			add = 25
+# 			scope:actor = {
+# 				any_held_title = { target_is_de_jure_liege_or_above = scope:recipient.primary_title }
+# 			}
+# 			desc = BF_AI_DE_JURE_REASON
+# 		}
+# 		# Actor is de jure vassal of recipient
+# 		modifier = {
+# 			add = 25
+# 			scope:actor.dynasty = scope:recipient.dynasty
+# 			desc = BF_AI_SAME_DYNASTY_REASON
+# 		}
+# 		# Too big to be vassal
+# 		modifier = {
+# 			add = -50
+# 			scope:actor.realm_size >= fp2_bargain_fealty_half_realm_size_value
+# 			desc = BF_AI_TOO_LARGE_REASON
+# 		}
+# 		# Opinion Factor
+# 		opinion_modifier = {
+# 			who = scope:recipient
+# 			opinion_target = scope:actor
+# 			multiplier = 1
+# 			desc = AI_OPINION_REASON
+# 		}
 
-		ai_value_modifier = {
-			ai_boldness = 1
-			max = 0
-		}
+# 		ai_value_modifier = {
+# 			ai_boldness = 1
+# 			max = 0
+# 		}
 
-		ai_value_modifier = {
-			ai_greed = 1
-			max = 0
-		}
+# 		ai_value_modifier = {
+# 			ai_greed = 1
+# 			max = 0
+# 		}
 
-		modifier = {
-			add = {
-				value = ai_greed
-				multiply = 2
-			}
-			ai_greed >= 1
-			desc = AI_VALUE_MODIFIER_GREED
-		}
+# 		modifier = {
+# 			add = {
+# 				value = ai_greed
+# 				multiply = 2
+# 			}
+# 			ai_greed >= 1
+# 			desc = AI_VALUE_MODIFIER_GREED
+# 		}
 
-		modifier = {
-			add = {
-				value = ai_boldness
-				multiply = 2
-			}
-			NOT = { ai_boldness = 0 }
-			desc = AI_VALUE_MODIFIER_BOLDNESS
-		}
-	}
-	ai_will_do = {
-		base = 5
-		modifier = {
-			add = 20
-			any_character_war = {
-				is_war_leader = prev
-				primary_defender = prev
-				casus_belli = {
-					any_target_title = { holder = scope:actor }
-				}
-			}
-		}
-		modifier = {
-			factor = 2
-			any_character_war = {
-				is_war_leader = prev
-				primary_defender = prev
-				war_defender_total_strength_value < war_attacker_total_strength_halved_value
-			}
-		}
-	}
-	ai_potential = { is_imprisoned = no }
-	ai_target_quick_trigger = { adult = yes }
-	ai_targets = { ai_recipients = neighboring_rulers }
-	ai_frequency = 36
-}
+# 		modifier = {
+# 			add = {
+# 				value = ai_boldness
+# 				multiply = 2
+# 			}
+# 			NOT = { ai_boldness = 0 }
+# 			desc = AI_VALUE_MODIFIER_BOLDNESS
+# 		}
+# 	}
+# 	ai_will_do = {
+# 		base = 5
+# 		modifier = {
+# 			add = 20
+# 			any_character_war = {
+# 				is_war_leader = prev
+# 				primary_defender = prev
+# 				casus_belli = {
+# 					any_target_title = { holder = scope:actor }
+# 				}
+# 			}
+# 		}
+# 		modifier = {
+# 			factor = 2
+# 			any_character_war = {
+# 				is_war_leader = prev
+# 				primary_defender = prev
+# 				war_defender_total_strength_value < war_attacker_total_strength_halved_value
+# 			}
+# 		}
+# 	}
+# 	ai_potential = { is_imprisoned = no }
+# 	ai_target_quick_trigger = { adult = yes }
+# 	ai_targets = { ai_recipients = neighboring_rulers }
+# 	ai_frequency = 36
+# }
 
 ##################################################
 # Invite Foreign Ruler to Feast / Hunt
 # by Maxence Voleau
 ##################################################
 
-invite_foreign_ruler_to = {
-	interface_priority = 30
-	category = interaction_category_diplomacy
-	common_interaction = yes
-	desc = invite_foreign_ruler_to_desc
-	icon = activity_feast
-	greeting = positive
-	notification_text = INVITE_FOREIGN_RULER_TO_NOTIFICATION
-	popup_on_receive = yes
-	ai_maybe = yes
+# invite_foreign_ruler_to = {
+# 	interface_priority = 30
+# 	category = interaction_category_diplomacy
+# 	common_interaction = yes
+# 	desc = invite_foreign_ruler_to_desc
+# 	icon = activity_feast
+# 	greeting = positive
+# 	notification_text = INVITE_FOREIGN_RULER_TO_NOTIFICATION
+# 	popup_on_receive = yes
+# 	ai_maybe = yes
 
-	cooldown = { years = 1 }
-	cooldown_against_recipient = { years = 5 }
+# 	cooldown = { years = 1 }
+# 	cooldown_against_recipient = { years = 5 }
 
-	is_shown = {
-		# Interaction deprecated by new activity planning system
-		always = no
+# 	is_shown = {
+# 		# Interaction deprecated by new activity planning system
+# 		always = no
 
-		NOT = { scope:actor = scope:recipient }
-		# Scope:actor needs to either be involved in certain struggle types or else have a specific perk.
-		scope:actor = {
-			any_character_struggle = {
-				involvement = involved
-				is_struggle_type = iberian_struggle
-			}
-		}
-		# Scope:recipient must be landed, and neither over or under scope:actor.
-		scope:recipient = {
-			any_character_struggle = {
-				involvement = involved
-				is_struggle_type = iberian_struggle
-			}
-			is_landed = yes
-			NOR = {
-				any_liege_or_above = { this = scope:actor }
-				any_vassal_or_below = { this = scope:actor }
-			}
-		}
-	}
+# 		NOT = { scope:actor = scope:recipient }
+# 		# Scope:actor needs to either be involved in certain struggle types or else have a specific perk.
+# 		scope:actor = {
+# 			any_character_struggle = {
+# 				involvement = involved
+# 				is_struggle_type = iberian_struggle
+# 			}
+# 		}
+# 		# Scope:recipient must be landed, and neither over or under scope:actor.
+# 		scope:recipient = {
+# 			any_character_struggle = {
+# 				involvement = involved
+# 				is_struggle_type = iberian_struggle
+# 			}
+# 			is_landed = yes
+# 			NOR = {
+# 				any_liege_or_above = { this = scope:actor }
+# 				any_vassal_or_below = { this = scope:actor }
+# 			}
+# 		}
+# 	}
 
-	is_valid_showing_failures_only = {
-		# Scope:actor must be an available adult.
-		scope:actor = { is_available_adult = yes }
-		# Scope:recipient must be at least available.
-		scope:recipient = { is_available_adult = yes }
-		# Make sure that scope:actor is going into this with a clean, no-recent/active/forbidden hostilities mindset.
-		scope:actor = {
-			NOT = {
-				is_at_war_with = scope:recipient
-				# Involved characters can't be on opposite sides in an active war.
-			}
-		}
+# 	is_valid_showing_failures_only = {
+# 		# Scope:actor must be an available adult.
+# 		scope:actor = { is_available_adult = yes }
+# 		# Scope:recipient must be at least available.
+# 		scope:recipient = { is_available_adult = yes }
+# 		# Make sure that scope:actor is going into this with a clean, no-recent/active/forbidden hostilities mindset.
+# 		scope:actor = {
+# 			NOT = {
+# 				is_at_war_with = scope:recipient
+# 				# Involved characters can't be on opposite sides in an active war.
+# 			}
+# 		}
 
-		# Verify that you can start one of the decision
-		# interaction deprecated by new activity planning system
-		# custom_description = {
-		# 	text = no_activity_available
-		# 	scope:actor = {
-		# 	OR = {
-		# 			can_execute_decision = start_hunt_decision
-		# 			can_execute_decision = host_feast_decision
-		# 		}
-		# 	}
-		# }
-	}
+# 		# Verify that you can start one of the decision
+# 		# interaction deprecated by new activity planning system
+# 		# custom_description = {
+# 		# 	text = no_activity_available
+# 		# 	scope:actor = {
+# 		# 	OR = {
+# 		# 			can_execute_decision = start_hunt_decision
+# 		# 			can_execute_decision = host_feast_decision
+# 		# 		}
+# 		# 	}
+# 		# }
+# 	}
 
-	on_accept = {
-		# Notifications with most effects.
-		if = {
-			limit = { scope:invite_to_hunt = yes }
-			scope:actor = {
-				set_variable = {
-					name = special_guest
-					value = scope:recipient
-				}
-				show_as_tooltip = {
-					remove_short_term_gold = hunt_activity_base_cost
-				}
-				send_interface_toast = {
-					title = invited_to_hunt.accept.actor.tt
-					left_icon = scope:recipient
-					progress_towards_friend_effect = {
-						REASON = friend_invited_to_hunt
-						CHARACTER = scope:recipient
-						OPINION = 0
-					}
-					custom_tooltip = invite_foreign_ruler_to.hunt.tooltip
-					# interaction deprecated by new activity planning system
-					#execute_decision = start_hunt_decision
-				}
-			}
-			scope:recipient = {
-				send_interface_toast = {
-					title = invited_to_hunt.accept.recipient.tt
-					left_icon = scope:actor
-				}
-			}
-		}
-		else_if = {
-			limit = { scope:invite_to_feast = yes }
-			scope:actor = {
-				set_variable = {
-					name = special_guest
-					value = scope:recipient
-				}
-				show_as_tooltip = {
-					remove_short_term_gold = feast_activity_cost
-				}
-				send_interface_toast = {
-					title = invited_to_feast.accept.actor.tt
-					left_icon = scope:recipient
-					progress_towards_friend_effect = {
-						REASON = friend_invited_to_feast
-						CHARACTER = scope:recipient
-						OPINION = 0
-					}
-					custom_tooltip = invite_foreign_ruler_to.feast.tooltip
-					# interaction deprecated by new activity planning system
-					#execute_decision = host_feast_decision
-				}
-			}
-			scope:recipient = {
-				send_interface_toast = {
-					title = invited_to_feast.accept.recipient.tt
-					left_icon = scope:actor
-				}
-			}
-		}
+# 	on_accept = {
+# 		# Notifications with most effects.
+# 		if = {
+# 			limit = { scope:invite_to_hunt = yes }
+# 			scope:actor = {
+# 				set_variable = {
+# 					name = special_guest
+# 					value = scope:recipient
+# 				}
+# 				show_as_tooltip = {
+# 					remove_short_term_gold = hunt_activity_base_cost
+# 				}
+# 				send_interface_toast = {
+# 					title = invited_to_hunt.accept.actor.tt
+# 					left_icon = scope:recipient
+# 					progress_towards_friend_effect = {
+# 						REASON = friend_invited_to_hunt
+# 						CHARACTER = scope:recipient
+# 						OPINION = 0
+# 					}
+# 					custom_tooltip = invite_foreign_ruler_to.hunt.tooltip
+# 					# interaction deprecated by new activity planning system
+# 					#execute_decision = start_hunt_decision
+# 				}
+# 			}
+# 			scope:recipient = {
+# 				send_interface_toast = {
+# 					title = invited_to_hunt.accept.recipient.tt
+# 					left_icon = scope:actor
+# 				}
+# 			}
+# 		}
+# 		else_if = {
+# 			limit = { scope:invite_to_feast = yes }
+# 			scope:actor = {
+# 				set_variable = {
+# 					name = special_guest
+# 					value = scope:recipient
+# 				}
+# 				show_as_tooltip = {
+# 					remove_short_term_gold = feast_activity_cost
+# 				}
+# 				send_interface_toast = {
+# 					title = invited_to_feast.accept.actor.tt
+# 					left_icon = scope:recipient
+# 					progress_towards_friend_effect = {
+# 						REASON = friend_invited_to_feast
+# 						CHARACTER = scope:recipient
+# 						OPINION = 0
+# 					}
+# 					custom_tooltip = invite_foreign_ruler_to.feast.tooltip
+# 					# interaction deprecated by new activity planning system
+# 					#execute_decision = host_feast_decision
+# 				}
+# 			}
+# 			scope:recipient = {
+# 				send_interface_toast = {
+# 					title = invited_to_feast.accept.recipient.tt
+# 					left_icon = scope:actor
+# 				}
+# 			}
+# 		}
 
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:actor
-			TARGET = scope:recipient
-			VALUE = medium_unity_gain
-			DESC = clan_unity_feast_invite.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
-	}
+# 		# If we're a clan this interaction affects unity
+# 		add_clan_unity_interaction_effect = {
+# 			CHARACTER = scope:actor
+# 			TARGET = scope:recipient
+# 			VALUE = medium_unity_gain
+# 			DESC = clan_unity_feast_invite.desc
+# 			REVERSE_NON_HOUSE_TARGET = no
+# 		}
+# 	}
 
-	on_decline = {
-		# Scope:actor gains some stress over the whole ordeal.
-		scope:actor = {
-			send_interface_toast = {
-				title = invite_foreign_ruler_to.decline.actor.tt
-				left_icon = scope:recipient
-				add_prestige = medium_prestige_loss
-			}
-		}
-		# Scope:actor loses opinion of scope:recipient.
-		scope:recipient = {
-			send_interface_toast = {
-				title = invite_foreign_ruler_to.decline.recipient.tt
-				left_icon = scope:actor
-				reverse_add_opinion = {
-					target = scope:actor
-					modifier = refusal_opinion
-					opinion = -50
-				}
-			}
-		}
+# 	on_decline = {
+# 		# Scope:actor gains some stress over the whole ordeal.
+# 		scope:actor = {
+# 			send_interface_toast = {
+# 				title = invite_foreign_ruler_to.decline.actor.tt
+# 				left_icon = scope:recipient
+# 				add_prestige = medium_prestige_loss
+# 			}
+# 		}
+# 		# Scope:actor loses opinion of scope:recipient.
+# 		scope:recipient = {
+# 			send_interface_toast = {
+# 				title = invite_foreign_ruler_to.decline.recipient.tt
+# 				left_icon = scope:actor
+# 				reverse_add_opinion = {
+# 					target = scope:actor
+# 					modifier = refusal_opinion
+# 					opinion = -50
+# 				}
+# 			}
+# 		}
 
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:recipient
-			TARGET = scope:actor
-			VALUE = minor_unity_loss
-			DESC = clan_unity_feast_invite_decline.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
-	}
+# 		# If we're a clan this interaction affects unity
+# 		add_clan_unity_interaction_effect = {
+# 			CHARACTER = scope:recipient
+# 			TARGET = scope:actor
+# 			VALUE = minor_unity_loss
+# 			DESC = clan_unity_feast_invite_decline.desc
+# 			REVERSE_NON_HOUSE_TARGET = no
+# 		}
+# 	}
 
-	# Send Options
-	## Invite to Hunt
-	send_option = {
-		is_valid = {
-			scope:actor = {
-				# TODO_CD_EP2: commented to prevent errors
-				# interaction deprecated by new activity planning system?
-				#can_execute_decision = start_hunt_decision
-			}
-			# as an AI, don't invite human players to Hunt as we are lacking interesting content
-			trigger_if = {
-				limit = { scope:actor = { is_ai = yes } }
-				scope:recipient = { is_ai = yes }
-			}
-		}
-		flag = invite_to_hunt
-		starts_enabled = { always = yes }
-		localization = "INVITE_TO_HUNT"
-	}
-	## Invite to Feast
-	send_option = {
-		is_valid = {
-			scope:actor = {
-				# interaction deprecated by new activity planning system
-				#can_execute_decision = host_feast_decision
-			}
-		}
-		flag = invite_to_feast
-		starts_enabled = { always = yes }
-		localization = "INVITE_TO_FEAST"
-	}
-	# AI
-	## Standard Acceptance stuff
-	ai_accept = {
-		# Try to make it 0 for most interactions.
-		base = 0
+# 	# Send Options
+# 	## Invite to Hunt
+# 	send_option = {
+# 		is_valid = {
+# 			scope:actor = {
+# 				# TODO_CD_EP2: commented to prevent errors
+# 				# interaction deprecated by new activity planning system?
+# 				#can_execute_decision = start_hunt_decision
+# 			}
+# 			# as an AI, don't invite human players to Hunt as we are lacking interesting content
+# 			trigger_if = {
+# 				limit = { scope:actor = { is_ai = yes } }
+# 				scope:recipient = { is_ai = yes }
+# 			}
+# 		}
+# 		flag = invite_to_hunt
+# 		starts_enabled = { always = yes }
+# 		localization = "INVITE_TO_HUNT"
+# 	}
+# 	## Invite to Feast
+# 	send_option = {
+# 		is_valid = {
+# 			scope:actor = {
+# 				# interaction deprecated by new activity planning system
+# 				#can_execute_decision = host_feast_decision
+# 			}
+# 		}
+# 		flag = invite_to_feast
+# 		starts_enabled = { always = yes }
+# 		localization = "INVITE_TO_FEAST"
+# 	}
+# 	# AI
+# 	## Standard Acceptance stuff
+# 	ai_accept = {
+# 		# Try to make it 0 for most interactions.
+# 		base = 0
 
-		# more likely if lower rank than actor
-		modifier = {
-			add = 20
-			scope:actor.primary_title.tier > primary_title.tier
-			desc = RANK_DIFFERENCE_REASON
-		}
+# 		# more likely if lower rank than actor
+# 		modifier = {
+# 			add = 20
+# 			scope:actor.primary_title.tier > primary_title.tier
+# 			desc = RANK_DIFFERENCE_REASON
+# 		}
 
-		# less likely if that's the opposite
-		modifier = {
-			add = -20
-			scope:actor.primary_title.tier < primary_title.tier
-			desc = RANK_DIFFERENCE_REASON
-		}
+# 		# less likely if that's the opposite
+# 		modifier = {
+# 			add = -20
+# 			scope:actor.primary_title.tier < primary_title.tier
+# 			desc = RANK_DIFFERENCE_REASON
+# 		}
 
-		# AI take opinion into account
-		opinion_modifier = {
-			who = scope:recipient
-			opinion_target = scope:actor
-			multiplier = 1
-			desc = AI_OPINION_REASON
-		}
+# 		# AI take opinion into account
+# 		opinion_modifier = {
+# 			who = scope:recipient
+# 			opinion_target = scope:actor
+# 			multiplier = 1
+# 			desc = AI_OPINION_REASON
+# 		}
 
-		# sociability plays a lot as well
-		ai_value_modifier = {
-			ai_sociability = 1
-		}
+# 		# sociability plays a lot as well
+# 		ai_value_modifier = {
+# 			ai_sociability = 1
+# 		}
 
-		# is rival or nemesis
-		modifier = {
-			add = -50
-			has_relation_rival = scope:actor
-			desc = WE_ARE_RIVALS
-		}
+# 		# is rival or nemesis
+# 		modifier = {
+# 			add = -50
+# 			has_relation_rival = scope:actor
+# 			desc = WE_ARE_RIVALS
+# 		}
 
-		modifier = {
-			add = -100
-			has_relation_nemesis = scope:actor
-			desc = WE_ARE_NEMESES
-		}
-
-
-		# is friend
-		modifier = {
-			add = 25
-			has_relation_friend = scope:actor
-			desc = WE_ARE_FRIENDS
-		}
+# 		modifier = {
+# 			add = -100
+# 			has_relation_nemesis = scope:actor
+# 			desc = WE_ARE_NEMESES
+# 		}
 
 
-		# is best friend
-		modifier = {
-			add = 50
-			has_relation_best_friend = scope:actor
-			desc = WE_ARE_BEST_FRIENDS
-		}
+# 		# is friend
+# 		modifier = {
+# 			add = 25
+# 			has_relation_friend = scope:actor
+# 			desc = WE_ARE_FRIENDS
+# 		}
 
-		modifier = {
-			add = 100
-			OR = {
-				has_relation_lover = scope:actor
-				has_relation_soulmate = scope:actor
-			}
-			desc = WE_ARE_LOVERS
-		}
 
-		# hunters love to hunt
-		modifier = {
-			add = 25
-			scope:invite_to_hunt = yes
-			has_trait = lifestyle_hunter
-			desc = AI_RELEVANT_TRAITS
-		}
+# 		# is best friend
+# 		modifier = {
+# 			add = 50
+# 			has_relation_best_friend = scope:actor
+# 			desc = WE_ARE_BEST_FRIENDS
+# 		}
 
-		# reveler loves feasts
-		modifier = {
-			add = 25
-			scope:invite_to_feast = yes
-			has_trait = lifestyle_reveler
-			desc = AI_RELEVANT_TRAITS
-		}
+# 		modifier = {
+# 			add = 100
+# 			OR = {
+# 				has_relation_lover = scope:actor
+# 				has_relation_soulmate = scope:actor
+# 			}
+# 			desc = WE_ARE_LOVERS
+# 		}
 
-		# Struggle agenda
-		modifier = {
-			desc = AI_STRUGGLE_INTENT
-			scope:invite_to_feast = yes
-			scope:recipient = {
-				any_character_struggle = {
-					involvement = involved
-					phase_has_catalyst = catalyst_invite_diff_faith_culture_to_feast
-				}
-			}
-			scope:actor = {
-				any_character_struggle = {
-					involvement = involved
-					phase_has_catalyst = catalyst_invite_diff_faith_culture_to_feast
-				}
-			}
-			NAND = {
-				scope:actor.faith = scope:recipient.faith
-				scope:actor.culture = scope:recipient.culture
-			}
-			add = {
-				value = 0
-				if = {
-					limit = {
-						scope:actor = {
-							has_character_flag = agenda_towards_deescalation
-						}
-					}
-					add = 100
-				}
-				else_if = {
-					limit = {
-						scope:actor = {
-							has_character_flag = agenda_towards_escalation
-						}
-					}
-					add = -100
-				}
-			}
-		}
-	}
-	## Performance-enhancement
-	ai_potential = {
-		is_landed = yes
-		is_available_at_peace_ai_adult = yes
-		is_imprisoned = no
-		# Matches the regular minimum triggers.
-		OR = {
-			any_character_struggle = { involvement = involved }
-		}
-		short_term_gold > standard_activity_cost
-	}
+# 		# hunters love to hunt
+# 		modifier = {
+# 			add = 25
+# 			scope:invite_to_hunt = yes
+# 			has_trait = lifestyle_hunter
+# 			desc = AI_RELEVANT_TRAITS
+# 		}
 
-	ai_target_quick_trigger = { adult = yes }
-	ai_targets = {
-		ai_recipients = neighboring_rulers
-		ai_recipients = peer_vassals
-		max = 10
-	}
-	## Frequency
-	ai_frequency = 60
-	ai_will_do = {
-		base = 0
+# 		# reveler loves feasts
+# 		modifier = {
+# 			add = 25
+# 			scope:invite_to_feast = yes
+# 			has_trait = lifestyle_reveler
+# 			desc = AI_RELEVANT_TRAITS
+# 		}
 
-		# sociability plays a lot as well
-		ai_value_modifier = {
-			ai_sociability = 1
-		}
+# 		# Struggle agenda
+# 		modifier = {
+# 			desc = AI_STRUGGLE_INTENT
+# 			scope:invite_to_feast = yes
+# 			scope:recipient = {
+# 				any_character_struggle = {
+# 					involvement = involved
+# 					phase_has_catalyst = catalyst_invite_diff_faith_culture_to_feast
+# 				}
+# 			}
+# 			scope:actor = {
+# 				any_character_struggle = {
+# 					involvement = involved
+# 					phase_has_catalyst = catalyst_invite_diff_faith_culture_to_feast
+# 				}
+# 			}
+# 			NAND = {
+# 				scope:actor.faith = scope:recipient.faith
+# 				scope:actor.culture = scope:recipient.culture
+# 			}
+# 			add = {
+# 				value = 0
+# 				if = {
+# 					limit = {
+# 						scope:actor = {
+# 							has_character_flag = agenda_towards_deescalation
+# 						}
+# 					}
+# 					add = 100
+# 				}
+# 				else_if = {
+# 					limit = {
+# 						scope:actor = {
+# 							has_character_flag = agenda_towards_escalation
+# 						}
+# 					}
+# 					add = -100
+# 				}
+# 			}
+# 		}
+# 	}
+# 	## Performance-enhancement
+# 	ai_potential = {
+# 		is_landed = yes
+# 		is_available_at_peace_ai_adult = yes
+# 		is_imprisoned = no
+# 		# Matches the regular minimum triggers.
+# 		OR = {
+# 			any_character_struggle = { involvement = involved }
+# 		}
+# 		short_term_gold > standard_activity_cost
+# 	}
 
-		# hunters love to hunt
-		modifier = {
-			add = 25
-			scope:invite_to_hunt = yes
-			has_trait = lifestyle_hunter
-		}
+# 	ai_target_quick_trigger = { adult = yes }
+# 	ai_targets = {
+# 		ai_recipients = neighboring_rulers
+# 		ai_recipients = peer_vassals
+# 		max = 10
+# 	}
+# 	## Frequency
+# 	ai_frequency = 60
+# 	ai_will_do = {
+# 		base = 0
 
-		# small boost if no firends
-		modifier = {
-			add = 25
-			num_of_relation_friend = 0
-		}
-		# reveler loves feasts
-		modifier = {
-			add = 25
-			scope:invite_to_feast = yes
-			has_trait = lifestyle_reveler
-		}
+# 		# sociability plays a lot as well
+# 		ai_value_modifier = {
+# 			ai_sociability = 1
+# 		}
 
-		# From Hunt decision
-		ai_value_modifier = {
-			ai_energy = 1
-			ai_greed = -0.5
-			ai_compassion = -0.5
-		}
+# 		# hunters love to hunt
+# 		modifier = {
+# 			add = 25
+# 			scope:invite_to_hunt = yes
+# 			has_trait = lifestyle_hunter
+# 		}
 
-		modifier = {
-			add = 10
-			scope:invite_to_hunt = yes
-			has_trait_rank = {
-				trait = education_martial
-				rank > 0
-			}
-		}
-		modifier = {
-			add = 10
-			scope:invite_to_hunt = yes
-			has_trait_rank = {
-				trait = education_martial
-				rank > 2
-			}
-		}
+# 		# small boost if no firends
+# 		modifier = {
+# 			add = 25
+# 			num_of_relation_friend = 0
+# 		}
+# 		# reveler loves feasts
+# 		modifier = {
+# 			add = 25
+# 			scope:invite_to_feast = yes
+# 			has_trait = lifestyle_reveler
+# 		}
 
-		modifier = {
-			scope:invite_to_hunt = yes
-			add = 35
-			stress > low_stress
-		}
+# 		# From Hunt decision
+# 		ai_value_modifier = {
+# 			ai_energy = 1
+# 			ai_greed = -0.5
+# 			ai_compassion = -0.5
+# 		}
 
-		# Struggle agenda
-		modifier = {
-			scope:recipient = {
-				any_character_struggle = {
-					involvement = involved
-				}
-			}
-			scope:actor = {
-				any_character_struggle = {
-					involvement = involved
-				}
-			}
-			NAND = {
-				scope:actor.faith = scope:recipient.faith
-				scope:actor.culture = scope:recipient.culture
-			}
-			add = {
-				value = 0
-				if = {
-					limit = {
-						scope:actor = {
-							any_character_struggle = {
-								phase_has_catalyst = catalyst_invite_diff_faith_culture_to_feast
+# 		modifier = {
+# 			add = 10
+# 			scope:invite_to_hunt = yes
+# 			has_trait_rank = {
+# 				trait = education_martial
+# 				rank > 0
+# 			}
+# 		}
+# 		modifier = {
+# 			add = 10
+# 			scope:invite_to_hunt = yes
+# 			has_trait_rank = {
+# 				trait = education_martial
+# 				rank > 2
+# 			}
+# 		}
 
-							}
-							has_character_flag = agenda_towards_escalation
-						}
-					}
-					add = -100
-				}
-				else_if = {
-					limit = {
-						scope:actor = {
-							any_character_struggle = {
-								phase_has_catalyst = catalyst_invite_diff_faith_culture_to_feast
-							}
-						}
-					}
-					add = 100
-				}
-			}
-		}
-	}
-}
+# 		modifier = {
+# 			scope:invite_to_hunt = yes
+# 			add = 35
+# 			stress > low_stress
+# 		}
+
+# 		# Struggle agenda
+# 		modifier = {
+# 			scope:recipient = {
+# 				any_character_struggle = {
+# 					involvement = involved
+# 				}
+# 			}
+# 			scope:actor = {
+# 				any_character_struggle = {
+# 					involvement = involved
+# 				}
+# 			}
+# 			NAND = {
+# 				scope:actor.faith = scope:recipient.faith
+# 				scope:actor.culture = scope:recipient.culture
+# 			}
+# 			add = {
+# 				value = 0
+# 				if = {
+# 					limit = {
+# 						scope:actor = {
+# 							any_character_struggle = {
+# 								phase_has_catalyst = catalyst_invite_diff_faith_culture_to_feast
+
+# 							}
+# 							has_character_flag = agenda_towards_escalation
+# 						}
+# 					}
+# 					add = -100
+# 				}
+# 				else_if = {
+# 					limit = {
+# 						scope:actor = {
+# 							any_character_struggle = {
+# 								phase_has_catalyst = catalyst_invite_diff_faith_culture_to_feast
+# 							}
+# 						}
+# 					}
+# 					add = 100
+# 				}
+# 			}
+# 		}
+# 	}
+# }
