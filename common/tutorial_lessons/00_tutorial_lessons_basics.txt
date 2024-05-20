@@ -10,21 +10,147 @@ lesson_basics = {
 		animation = center
 
 		gui_transition = {
+			button_id = "full_tutorial_explanation"
+			button_text = "full_tutorial_explanation_desc"
+			target = lesson_basics_camera
+		}
+
+		gui_transition = {
+			button_id = "quick_tutorial_explanation"
+			button_text = "quick_tutorial_explanation_desc"
+			target = lesson_basics_camera
+		}
+
+		gui_transition = {
 			button_id = "next"
-			button_text = "tutorial_lesson_button_next"
+			button_text = "quick_tutorial_desc"
+			target = lesson_basics_quick_camera
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "full_tutorial_desc"
 			target = lesson_basics_camera
 		}
 		effect = {
 			hidden_effect = {
+				remove_character_flag = full_tutorial_selected
+				remove_character_flag = quick_tutorial_selected
 				set_global_variable = {
 					name = is_in_tutorial
 					value = yes
 					years = 5
 				}
+				set_variable = {
+					name = hide_ui_timeline
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_character
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_top_bar
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_character_model
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_bottom_left_bar
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_coa_bottom_left
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_realm
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_character_sheet_bottom
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_character_info
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_main_tabs
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_map_zoom
+					value = 1
+				}
+				set_variable = {
+					name = hide_ui_spouse
+					value = 1
+				}
+				
 			}
 		}
 	}
 
+	#### START QUICK TUTORIAL
+	# Moving the map
+	lesson_basics_quick_camera = {
+		text = "lesson_basics_quick_camera_desc"
+		animation = right
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+
+		effect = {
+			add_character_flag = {
+				flag = quick_tutorial_selected
+				days = 200
+			}
+			send_short_tutorial_started_telemetry = yes
+
+			close_all_views = yes
+			pan_camera_to_title = title:k_vlandia
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_welcome
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_zoom
+		}
+	}
+	# Zooming
+	lesson_basics_quick_zoom = {
+		text = "lesson_basics_quick_zoom_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		highlight_widget = "details_map"
+		highlight_widget = "political_map"
+		highlight_widget = "paper_map"
+
+		effect = {
+			remove_variable = hide_ui_map_zoom
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_camera
+		}
+
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_finish
+		}
+	}
+
+	#### START FULL TUTORIAL
 	#### I — Basics...
 	# HUD basics...
 	lesson_basics_camera = { # WASD and scroll wheel
@@ -36,6 +162,24 @@ lesson_basics = {
 		effect = {
 			close_all_views = yes
 			pan_camera_to_title = title:k_vlandia
+			remove_variable = hide_ui_timeline
+			remove_variable = hide_ui_bottom_left_bar
+			remove_variable = hide_ui_character
+			remove_variable = hide_ui_character_info
+			remove_variable = hide_ui_character_model
+			remove_variable = hide_ui_character_sheet_bottom
+			remove_variable = hide_ui_coa_bottom_left
+			remove_variable = hide_ui_main_tabs
+			remove_variable = hide_ui_realm
+			remove_variable = hide_ui_timeline
+			remove_variable = hide_ui_top_bar
+			remove_variable = hide_ui_spouse
+
+			add_character_flag = {
+				flag = full_tutorial_selected
+				days = 200
+			}
+			send_long_tutorial_started_telemetry = yes
 		}
 
 		gui_transition = {
@@ -147,16 +291,840 @@ lesson_basics = {
 					has_character_flag = tutorial_open_tooltip_complete
 				}
 			}
+			
+		}
+	}
+}
+
+lesson_basics_quick_continued = {
+	chain = lesson_chain_basics_quick_continued
+	shown_in_encyclopedia = no
+	# What makes a ruler...
+	lesson_basics_quick_characters = {
+		text = "lesson_basics_quick_characters_desc"
+		force_pause_game = yes
+		animation = center
+		shown_in_encyclopedia = no
+
+		highlight_widget = "character_window"
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+
+		effect = {
+			remove_variable = hide_ui_character_model
+			close_all_views = yes
+		}
+		
+		trigger_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_this_is_you_1
+			trigger = {
+				custom_description = {
+					text = "lesson_basics_characters_click_on_character"
+					is_widgetid_open = character_window
+				}
+			}
+		}
+	}
+	lesson_basics_quick_this_is_you_1 = {
+		text = "lesson_basics_quick_this_is_you_1_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		animation = center
+
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		highlight_widget = "main_characters"
+
+		effect = {
+			open_view_data = character
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_characters
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_this_is_you_2
+		}
+	}
+	lesson_basics_quick_this_is_you_2 = {
+		text = "lesson_basics_quick_this_is_you_2_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		animation = far_right
+
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		highlight_widget = "tutorial_spouse"
+
+		effect = {
+			remove_variable = hide_ui_spouse
+			if = {
+				limit = {
+					NOT = { is_widgetid_open = character_window }
+				}
+				open_view_data = character
+			}
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_this_is_you_1
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_married_great_job
+			enabled = {
+				custom_description = {
+					text = lesson_basics_quick_find_spouse_tt
+					OR = {
+						is_married = yes
+						is_betrothed = yes
+					}
+				}
+			}
+		}
+		trigger_transition = {
+			target = lesson_basics_quick_married_great_job
+			trigger = {
+				NOT = { has_character_flag = tutorial_is_married }
+				OR = {
+					is_married = yes
+					is_betrothed = yes
+				}
+			}
+		}
+	}
+	lesson_basics_quick_married_great_job = {
+		text = "lesson_basics_quick_married_great_job_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		animation = far_right
+
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		highlight_widget = "main_characters"
+
+		effect = {
+			remove_variable = hide_ui_spouse
+			add_character_flag = {
+				flag = tutorial_is_married
+				days = 200
+			}
+			if = {
+				limit = {
+					NOT = { is_widgetid_open = character_window }
+				}
+				open_view_data = character
+			}
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_this_is_you_2
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_this_is_you_3
 		}
 	}
 
+	lesson_basics_quick_this_is_you_3 = {
+		text = "lesson_basics_quick_this_is_you_3_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		animation = center
+
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		highlight_widget = "3_personality_traits"
+
+		effect = {
+			remove_variable = hide_ui_character_info
+			if = {
+				limit = {
+					NOT = { is_widgetid_open = character_window }
+				}
+				open_view_data = character
+			}
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_married_great_job
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_skills
+		}
+
+	}
+	# Skills...
+	lesson_basics_quick_skills = {
+		text = "lesson_basics_quick_skills_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		animation = center
+		
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		highlight_widget = "tutorial_highlight_skills"
+
+		effect = {
+			if = {
+				limit = {
+					NOT = { is_widgetid_open = character_window }
+				}
+				open_view_data = character
+			}
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_this_is_you_3
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_your_domain_1
+		}
+	}
+	# Titles
+	lesson_basics_quick_your_domain_1 = {
+		text = "lesson_basics_quick_your_domain_desc_1"
+		force_pause_game = yes
+		animation = right
+		shown_in_encyclopedia = no
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		highlight_widget = "realm_info"
+		#highlight_widget = "realm_shield"
+		#highlight_widget = "government_type"
+
+		effect = {
+			remove_variable = hide_ui_realm
+			pan_camera_to_title = title:b_ab_comer_castle
+			if = {
+				limit = {
+					NOT = { is_widgetid_open = character_window }
+				}
+				open_view_data = character
+			}
+			
+		}
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_skills
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_your_domain_2
+		}
+	}
 	
+	lesson_basics_quick_your_domain_2 = {
+		text = "lesson_basics_quick_your_domain_desc_2"
+		force_pause_game = yes
+		animation = right
+		shown_in_encyclopedia = no
+
+		effect = {
+			pan_camera_to_title = title:b_ab_comer_castle
+			if = {
+				limit = {
+					NOT = { is_widgetid_open = character_window }
+				}
+				open_view_data = character
+			}
+		}
+
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		highlight_widget = "realm_shield"
+		highlight_widget = "player_icon"
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_your_domain_1
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_your_domain_3
+		}
+	}
+	lesson_basics_quick_your_domain_3 = {
+		text = "lesson_basics_quick_your_domain_desc_3"
+		force_pause_game = yes
+		animation = right
+		shown_in_encyclopedia = no
+
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		highlight_widget = "titles"
+
+		effect = {
+			if = {
+				limit = {
+					NOT = { is_widgetid_open = character_window }
+				}
+				open_view_data = character
+			}
+		}
+		
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_your_domain_2
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_relationships
+		}
+	}
+	lesson_basics_quick_relationships = {
+		text = "lesson_basics_quick_relationships_desc"
+		force_pause_game = yes
+		animation = right
+		shown_in_encyclopedia = no
+
+		highlight_widget = "tutorial_highlight_bottom_left_portrait_button"
+		#highlight_widget = "tabs"
+		highlight_widget = "family"
+
+		effect = {
+			remove_variable = hide_ui_character_sheet_bottom
+			if = {
+				limit = {
+					NOT = { is_widgetid_open = character_window }
+				}
+				open_view_data = character
+			}
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_your_domain_3
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_realm
+		}
+	}
+	lesson_basics_quick_realm = {
+		text = "lesson_basics_quick_realm_desc"
+		animation = center
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		delay = 1
+
+		highlight_widget = "tab_my_realm_tutorial_uses_this"
+		highlight_widget = "tab_domain"
+
+		effect = {
+			remove_variable = hide_ui_main_tabs
+			close_all_views = yes
+			if = {
+				limit = {
+					cp:councillor_court_chaplain = {
+						is_ai = yes
+						opinion = {
+							target = root
+							value <= 0
+						}
+					}
+				}
+				
+				cp:councillor_court_chaplain = {
+					add_opinion = { 
+						modifier = grateful_opinion
+						target = root
+						opinion = 47
+					}
+				}
+			}
+
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_relationships
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_realm_great_job
+			enabled = {
+				custom_description = {
+					text = lesson_basics_realm_view_tt
+					is_widgetid_open = my_realm_window
+					NOT = {is_widgetid_open = tab_vassals}
+					NOT = {is_widgetid_open = tab_succession}
+				}
+			}
+		}
+		trigger_transition = {
+			target = lesson_basics_quick_realm_great_job
+			trigger = {
+				is_widgetid_open = my_realm_window
+				NOT = {is_widgetid_open = tab_vassals}
+				NOT = {is_widgetid_open = tab_succession}
+			}
+		}
+	}
+	lesson_basics_quick_realm_great_job = {
+		text = "lesson_basics_quick_realm_great_job_desc"
+		animation = left
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		
+		effect = {
+			pan_camera_to_title = capital_barony
+			open_view_data = my_realm
+		}
+
+		highlight_widget = "tab_my_realm_tutorial_uses_this"
+		highlight_widget = "tab_domain"
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_realm
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_vassals
+		}
+	}
+
+	# Vassal view click instruction...
+	lesson_basics_quick_vassals = {
+		text = "lesson_basics_quick_vassals_desc"
+		force_pause_game = yes
+		animation = left
+		shown_in_encyclopedia = no
+		
+		effect = {
+			pan_camera_to_title = title:c_charas
+			open_view_data = my_realm
+		}
+
+		
+		highlight_widget = "tab_my_realm_tutorial_uses_this"
+		highlight_widget = "tutorial_highlight_vassals_tab"
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_realm_great_job
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_vassals_great_job
+			enabled = {
+				custom_description = {
+					text = lesson_basics_realm_view_tt
+					is_widgetid_open = my_realm_window #find the realm view
+				}
+				custom_description = {
+					text = lesson_basics_vassals_tab_tt
+					is_widgetid_open = tab_vassals #find the realm view
+				}
+			}
+		}
+
+		trigger_transition = {
+			target = lesson_basics_quick_vassals_great_job
+			trigger = { is_widgetid_open = tab_vassals }
+		}
+	}
+	lesson_basics_quick_vassals_2 = { # Opened all Vassal views
+		text = "lesson_basics_quick_vassals_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+
+		highlight_widget = "tab_my_realm_tutorial_uses_this"
+		highlight_widget = "tutorial_highlight_vassals_tab"
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_realm_great_job
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_vassals_great_job
+			enabled = {
+				custom_description = {
+					text = lesson_basics_realm_view_tt
+					is_widgetid_open = my_realm_window #find the realm view
+				}
+				custom_description = {
+					text = lesson_basics_vassals_tab_tt
+					is_widgetid_open = tab_vassals #find the realm view
+				}
+			}
+		}
+		trigger_transition = {
+			target = lesson_basics_quick_vassals_great_job
+			trigger = {
+				is_widgetid_open = my_realm_window #find the realm view
+				is_widgetid_open = tab_vassals #find the realm view
+				NOT = { has_character_flag = tutorial_vassal_tab_open_complete }
+			}
+		}
+	}
+	lesson_basics_quick_vassals_great_job = {
+		text = "lesson_basics_quick_vassals_great_job_desc"
+		force_pause_game = yes
+		animation = left
+		shown_in_encyclopedia = no
+
+		highlight_widget = "tutorial_highlight_vassal"
+		highlight_widget = "tab_my_realm_tutorial_uses_this"
+
+		effect = {
+			pan_camera_to_title = title:c_charas
+			add_character_flag = {
+				flag = tutorial_vassal_tab_open_complete
+				days = 200
+			}
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_vassals_2
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_vassals_great_job_2
+		}
+	}
+	lesson_basics_quick_vassals_great_job_2 = {
+		text = "lesson_basics_quick_vassals_great_job_2_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+
+		highlight_widget = "tutorial_highlight_vassal"
+		highlight_widget = "tab_my_realm_tutorial_uses_this"
+
+		effect = {
+			pan_camera_to_title = title:d_neurval
+			add_character_flag = {
+				flag = tutorial_vassal_tab_open_complete
+				days = 200
+			}
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_vassals_great_job
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_council_1
+		}
+	}
+	lesson_basics_quick_council_1 = {
+		text = "lesson_basics_quick_council_1_desc"
+		force_pause_game = yes
+		animation = center
+		shown_in_encyclopedia = no
+		delay = 1
+		
+		highlight_widget = "tab_council"
+
+		effect = {
+			pan_camera_to_title = title:c_pravend
+			close_all_views = yes
+		}
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_vassals_great_job_2
+		}
+		trigger_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_council_2
+			trigger = {
+				custom_description = {
+					text = lesson_basics_council_view_tt
+					is_widgetid_open = council_window
+				}
+			}
+		}
+	}
+
+	# Council tasks...
+	lesson_basics_quick_council_2 = {
+		text = "lesson_basics_quick_council_2_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		animation = center
+		highlight_widget = "tab_council"
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_council_1
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_council_3
+		}
+	}
+	lesson_basics_quick_council_3 = {
+		text = "lesson_basics_quick_council_3_desc"
+		force_pause_game = yes
+		shown_in_encyclopedia = no
+		animation = left
+		
+		highlight_widget = "potential_task"
+		highlight_widget = "tab_council"
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_council_2
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_resources_1
+			enabled = {
+				custom_description = {
+					text = lesson_basics_council_fabricate_claim_tt
+					cp:councillor_court_chaplain = {
+						is_performing_council_task = task_fabricate_claim
+					}
+
+				}
+			}
+		}
+		trigger_transition = {
+			target = lesson_basics_quick_resources_1
+			trigger = {
+				NOT = { has_character_flag = tutorial_council_fabricate_claim_done }
+				cp:councillor_court_chaplain = {
+					is_performing_council_task = task_fabricate_claim
+				}
+			}
+		}
+	}
+	lesson_basics_quick_resources_1 = {
+		text = "lesson_basics_quick_resources_1_desc"
+		force_pause_game = yes		
+		highlight_widget = "resources"
+		animation = top_right
+
+		effect = {
+			remove_variable = hide_ui_top_bar
+			close_all_views = yes
+			add_character_flag = {
+				flag = tutorial_council_fabricate_claim_done
+				days = 200
+			}
+			if = {
+				limit = {
+					gold > 800
+				}
+				remove_short_term_gold = 800
+			}
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_council_3 # ends current lesson chain
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_resources_gold
+		}
+	}
+	lesson_basics_quick_resources_gold = {
+		text = "lesson_basics_quick_resources_gold_desc"
+		force_pause_game = yes		
+		highlight_widget = "gold"
+		animation = top_right
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_resources_1 # ends current lesson chain
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_resources_prestige
+		}
+	}
+	lesson_basics_quick_resources_prestige = {
+		text = "lesson_basics_quick_resources_prestige_desc"
+		force_pause_game = yes		
+		highlight_widget = "prestige"
+		animation = top_right
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_resources_gold
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_resources_piety
+		}
+	}
+	lesson_basics_quick_resources_piety = {
+		text = "lesson_basics_quick_resources_piety_desc"
+		force_pause_game = yes		
+		highlight_widget = "piety"
+		animation = top_right
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_resources_prestige
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_resources_renown
+		}
+	}
+	lesson_basics_quick_resources_renown = {
+		text = "lesson_basics_quick_resources_renown_desc"
+		force_pause_game = yes		
+		highlight_widget = "renown"
+		animation = top_right
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_resources_piety
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_resources_time
+		}
+	}
+	lesson_basics_quick_resources_time = {
+		text = "lesson_basics_quick_resources_time_desc"
+		highlight_widget = "timeline_widget"
+		animation = center
+		pause_game = yes
+
+		effect = {
+			remove_global_variable = is_in_tutorial
+			remove_variable = hide_ui_timeline
+			remove_variable = hide_ui_bottom_left_bar
+			remove_variable = hide_ui_character
+			remove_variable = hide_ui_character_info
+			remove_variable = hide_ui_character_model
+			remove_variable = hide_ui_character_sheet_bottom
+			remove_variable = hide_ui_coa_bottom_left
+			remove_variable = hide_ui_main_tabs
+			remove_variable = hide_ui_realm
+			remove_variable = hide_ui_timeline
+			remove_variable = hide_ui_top_bar
+		}
+
+		gui_transition = {
+			button_id = "back"
+			button_text = "tutorial_lesson_button_back"
+			target = lesson_basics_quick_resources_renown # ends current lesson chain
+		}
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_next"
+			target = lesson_basics_quick_done
+			enabled = {
+				custom_description = {
+					text = lesson_basics_quick_unpause_tt
+					current_day > 15 
+				}
+			}
+		}
+		trigger_transition = {
+			target = lesson_basics_quick_done
+			trigger = {
+				current_day > 15 
+			}
+		}
+	}
+	lesson_basics_quick_done = {
+		text = "lesson_basics_quick_done_desc"
+		animation = center
+		delay = 1
+
+		effect = {
+			set_global_variable = {
+				name = tutorial_completed
+				value = 1
+				days = 2000
+			}
+			send_short_tutorial_finished_telemetry = yes
+
+			set_global_variable = {
+				name = tutorial_current_situation_gradual_reveal_3
+				value = 1
+				days = 900
+			}
+			set_global_variable = {
+				name = tutorial_current_situation_gradual_reveal_2
+				value = 1
+				days = 550
+			}
+			set_global_variable = {
+				name = tutorial_current_situation_gradual_reveal_1
+				value = 1
+				days = 70
+			}
+			add_character_flag = {
+				flag = ignore_marriage_event
+				days = 10
+			}	
+			trigger_event = {
+				id = tutorial.0001
+				months = { 1 2 }
+			}
+		}
+
+		gui_transition = {
+			button_id = "next"
+			button_text = "tutorial_lesson_button_finish_tutorial"
+			target = lesson_finish
+		}
+	}
+
+	finish_gamestate_tutorial = yes
 }
 
 ### II — Map (Land and Titles)...
 lesson_basics_map = {
 	chain = lesson_chain_basics_map
 	delay = 0
+	start_automatically = yes
 	# This is a map, there are titles...
 	lesson_basics_web_of_titles = {
 		text = "lesson_basics_web_of_titles_desc"
@@ -217,7 +1185,7 @@ lesson_basics_map = {
 
 		effect = {
 			close_all_views = yes
-			pan_camera_to_title = title:c_galend
+			pan_camera_to_title = title:c_charas
 		}
 		
 		gui_transition = {
@@ -480,7 +1448,7 @@ lesson_basics_lifestyles = {
 		text = "lesson_basics_lifestyles_2_desc"
 		header_info = "lesson_step_2_of_2"
 		force_pause_game = yes
-		animation = bottom_right
+		animation = right
 
 		highlight_widget = "focus_area"
 
@@ -1789,7 +2757,7 @@ lesson_basics_domain = {
 
 		effect = {
 			close_all_views = yes
-			pan_camera_to_title = title:k_battania
+			pan_camera_to_title = title:d_neurval
 		}
 
 		gui_transition = {
