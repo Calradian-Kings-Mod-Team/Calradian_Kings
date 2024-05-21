@@ -438,7 +438,114 @@ fp3_misc_decisions.0021 = {
 	}
 }
 
-# 00_fp3_interactions.txt commented out
+fp3_misc_decisions.0022 = { # Actor Duel opening
+	type = character_event
+	window = duel_event
+	title = fp3_misc_decisions.0022.t
+	desc = {
+		desc = fp3_misc_decisions.0022.desc.intro
+		desc = fp1_tbc.0001.desc.outro
+		desc = fp3_misc_decisions.0022.desc.body
+	}
+	theme = dynasty
+	left_portrait = {
+		character = scope:actor
+		animation = throne_room_one_handed_passive_1
+	}
+	right_portrait = {
+		character = scope:recipient
+		animation = war_over_win
+	}
+	override_background = { reference = throne_room }
+
+	trigger = {
+		# DLC check.
+		has_fp3_dlc_trigger = yes
+		# If, for any reason, scope:recipient has died or been imprisoned, then the bout is cancelled.
+		scope:recipient = {
+			is_alive = yes
+			is_imprisoned = no
+		}
+	}
+
+	on_trigger_fail = {
+		# Inform both parties that the duel has invalidated.
+		scope:actor = {
+			send_interface_toast = {	
+				title = fp3_misc_decisions.0022.trigger_failure.actor
+				left_icon = scope:recipient
+			}
+		}
+		scope:recipient = {
+			send_interface_toast = {	
+				title = fp3_misc_decisions.0022.trigger_failure.recipient
+				left_icon = scope:actor
+			}
+		}
+		# Reset scope:actor's cooldowns against scope:recipient.
+		scope:actor = {
+			remove_interaction_cooldown = challenge_to_trial_by_combat_interaction
+			remove_interaction_cooldown_against = {
+				interaction = fp3_challenge_house_head_interaction
+				target = scope:recipient
+			}
+		}
+		scope:recipient = {
+			# allow challenges again
+			remove_character_flag = ongoing_house_head_challenge_flag
+		}
+	}
+
+	immediate = {
+		play_music_cue = "mx_cue_combat_stinger"
+		# Nab scope:champion's location for terrain.
+		scope:recipient = {
+			# And scope:champion's location name for loc.
+			location.barony = { save_scope_as = duel_location }
+		}
+	}
+
+	# Almost there.
+	option = {
+		name = fp3_misc_decisions.0022.a
+
+		# Inform scope:actor that the bout will begin immediately.
+		custom_tooltip = fp3_misc_decisions.0022.a.tt
+		# Configure the bout.
+		switch = {
+			trigger = scope:lethal
+			yes = {
+				configure_start_single_combat_effect = {
+					SC_INITIATOR = scope:actor 
+					SC_ATTACKER = scope:actor
+					SC_DEFENDER = scope:recipient
+					FATALITY = always
+					FIXED = no
+					LOCALE = throne_room
+					OUTPUT_EVENT = fp3_misc_decisions.0021
+					INVALIDATION_EVENT = single_combat.1006
+				}
+			}
+			no = {
+				configure_start_single_combat_effect = {
+					SC_INITIATOR = scope:actor 
+					SC_ATTACKER = scope:actor
+					SC_DEFENDER = scope:recipient
+					FATALITY = no
+					FIXED = no
+					LOCALE = throne_room
+					OUTPUT_EVENT = fp3_misc_decisions.0021
+					INVALIDATION_EVENT = single_combat.1006
+				}
+			}
+		}
+		# No stress for single-option events.
+		ai_chance = {
+			# AI will always choose single option.
+			base = 100
+		}
+	}
+}
 
 fp3_misc_decisions.0023 = { # Recipient Duel Outcome(s)
 	type = character_event
@@ -511,9 +618,123 @@ fp3_misc_decisions.0023 = { # Recipient Duel Outcome(s)
 	}
 }
 
-# 00_fp3_interactions.txt commented out
+fp3_misc_decisions.0025 = { # Interaction declined
+	type = letter_event
+	sender = scope:recipient
+	opening = fp3_misc_decisions.0025.t
+	desc = fp3_misc_decisions.0025.desc
 
-# 00_fp3_interactions.txt commented out
+	immediate = {
+		show_as_tooltip = {  scope:recipient = { add_prestige = major_prestige_loss } }
+	}
+
+	option = {
+		name = fp3_misc_decisions.0025.a
+		ai_chance = {
+			base = 25
+			ai_value_modifier = {
+				ai_honor = 0.25
+			}
+		}
+	}
+
+	option = {
+		name = fp3_misc_decisions.0025.b
+		trigger = {
+			can_set_relation_rival_trigger = { CHARACTER = scope:recipient }
+		}
+		progress_towards_rival_effect = {
+			REASON = rival_house_head_rejected_challenge
+			CHARACTER = scope:recipient
+			OPINION = default_rival_opinion
+		}
+		ai_chance = {
+			base = 5
+			ai_value_modifier = {
+				ai_boldness = 0.25
+				ai_vengefulness = 0.5
+			}
+		}
+	}
+}
+
+fp3_misc_decisions.0026 = { # Actor Diplomacy opening
+	type = character_event
+	title = fp3_misc_decisions.0022.t
+	desc = fp3_misc_decisions.0026.desc
+	theme = dynasty
+	left_portrait = {
+		character = scope:actor
+		animation = worry
+	}
+	right_portrait = {
+		character = scope:recipient
+		animation = war_over_win
+	}
+	override_background = { reference = throne_room }
+
+	trigger = {
+		# DLC check.
+		has_fp3_dlc_trigger = yes
+		# If, for any reason, scope:recipient has died or been imprisoned, then the bout is cancelled.
+		scope:recipient = {
+			is_alive = yes
+			is_imprisoned = no
+		}
+	}
+
+	on_trigger_fail = {
+		# Inform both parties that the duel has invalidated.
+		scope:actor = {
+			send_interface_toast = {	
+				title = fp3_misc_decisions.0022.trigger_failure.actor
+				left_icon = scope:recipient
+			}
+		}
+		scope:recipient = {
+			send_interface_toast = {	
+				title = fp3_misc_decisions.0022.trigger_failure.recipient
+				left_icon = scope:actor
+			}
+		}
+		# Reset scope:actor's cooldowns against scope:recipient.
+		scope:actor = {
+			remove_interaction_cooldown = challenge_to_trial_by_combat_interaction
+			remove_interaction_cooldown_against = {
+				interaction = fp3_challenge_house_head_interaction
+				target = scope:recipient
+			}
+		}
+		scope:recipient = {
+			# allow challenges again
+			remove_character_flag = ongoing_house_head_challenge_flag
+		}
+	}
+
+	immediate = {
+		play_music_cue = "mx_cue_combat_stinger"
+		# Nab scope:champion's location for terrain.
+		scope:recipient = {
+			# And scope:champion's location name for loc.
+			location.barony = { save_scope_as = duel_location }
+		}
+	}
+
+	# Almost there.
+	option = {
+		name = fp3_misc_decisions.0026.a
+		custom_tooltip = fp3_misc_decisions.0026.a.tt
+		trigger_event = {
+			id = fp3_misc_decisions.0027
+			days = 1
+		}
+		# No stress for single-option events.
+		ai_chance = {
+			# AI will always choose single option.
+			base = 100
+		}
+	}
+}
 
 fp3_misc_decisions.0027 = { # Actor reason choice
 	type = character_event
