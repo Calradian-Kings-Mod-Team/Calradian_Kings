@@ -11894,6 +11894,7 @@ scripted_trigger hold_court_6050_religion_trigger = {
 	OR = {
 		religion = religion:calradian_religion
 		religion = religion:aserai_religion
+		religion = religion:ghavati_religion
 	}
 }
 
@@ -16664,6 +16665,12 @@ hold_court.6150 = {
 		modifier = {
 			factor = 1.5
 			culture = { has_cultural_tradition = tradition_mendicant_mystics}
+		}
+		modifier = {
+			factor = 2
+			faith.religion = religion:calradian_religion
+			current_year < 1001
+			current_year >= 990
 		}
 
 		# Court weightings.
@@ -23625,6 +23632,7 @@ hold_court.7070 = {
 		NOT = { has_character_flag = had_hold_court_7070 }
 		hold_court_7070_modifiers_trigger = no
 		# Must be have clerical taxation doctrine
+		faith = { religion_tag = calradian_religion }
 		faith = { has_doctrine = doctrine_clerical_function_taxation }
 		# A valid bishop exists
 		any_theocratic_vassal = {
@@ -24824,7 +24832,7 @@ scripted_trigger hold_court_8020_cathedral_barony_trigger = {
 			has_building = holy_site_cathedral_01
 			has_building = holy_site_mosque_01
 			has_building = holy_site_pagan_grand_temple_01
-			# has_building = holy_site_indian_grand_temple_01
+			has_building = holy_site_indian_grand_temple_01
 			has_building = holy_site_other_grand_temple_01
 		}
 	}
@@ -24975,7 +24983,17 @@ hold_court.8020 = {
 			court_event_character_flag_effect = yes
 		}
 		hidden_effect = {
-			create_artifact_sculpture_religious_effect = { OWNER = scope:bishop }
+			if = {
+				limit = { religion = religion:christianity_religion }
+				create_artifact_pedestal_reliquary_christian_effect = { OWNER = scope:bishop }
+			}
+			else_if = {
+				limit = { religion = religion:islam_religion }
+				create_artifact_pedestal_reliquary_islam_effect = { OWNER = scope:bishop }
+			}
+			else = {
+				create_artifact_sculpture_religious_effect = { OWNER = scope:bishop }
+			}
 			scope:newly_created_artifact = { save_scope_as = bishop_relic }
 		}
 		if = {
