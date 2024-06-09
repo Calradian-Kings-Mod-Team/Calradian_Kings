@@ -862,7 +862,18 @@ independence_faction_modifiers = {
 	modifier = { # Electors are less likely to join independence factions, if their faith is astray or below
 		desc = "FACTION_REASON_ELECTOR"
 
-		add = -100
+		add = {
+			value = -150
+			if = {
+				limit = {
+					exists = title:e_calradian_empire
+					$FACTION_TARGET$ = {
+						has_primary_title = title:e_calradian_empire
+					}
+				}
+				add = -150
+			}
+		}
 		$FACTION_TARGET$.primary_title = {
 			has_order_of_succession = election
 			any_elector = {
@@ -1061,7 +1072,41 @@ independence_faction_modifiers = {
 		}
 	 	$FACTION_TARGET$.primary_title = title:k_vlandia
 	}
+	# Stop Khuzaits from shattering so badly
+	modifier = {
+		desc = "FACTION_REASON_KHUZAIT"
+		add = -100
+		current_year =<1110
+		culture = {
+			has_cultural_pillar = heritage_khuzic
+		}
+	 	$FACTION_TARGET$.primary_title = title:e_khuzait_khanate
+	}
 	
+	# CALRADIAN KINGS - EMPIRE FACTIONALISM #
+	modifier = {
+		desc = "FACTION_REASON_FACTIONALISM"
+		add = -75
+		OR = {
+			AND = {
+				has_trait = ck_oligarch
+				$FACTION_TARGET$ = { has_trait = ck_oligarch }
+			}
+			AND = {
+				has_trait = ck_populist
+				$FACTION_TARGET$ = { has_trait = ck_populist }
+			}
+			AND = {
+				has_trait = ck_militarist
+				$FACTION_TARGET$ = { has_trait = ck_militarist }
+			}
+			AND = {
+				has_trait = ck_royalist
+				$FACTION_TARGET$ = { has_trait = ck_royalist }
+			}
+		}
+	 	$FACTION_TARGET$.primary_title.tier = tier_empire
+	}
 	# Less likely for French vassals
 	# modifier = {
 	# 	desc = "FACTION_REASON_FRENCH_VASSAL"
