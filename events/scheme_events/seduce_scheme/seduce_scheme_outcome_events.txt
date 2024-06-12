@@ -103,7 +103,14 @@ seduce_outcome.0002 = {
 			limit = { scope:target = { is_ai = yes } }
 			if = {
 				limit = {
-					exists = scope:scheme_successful
+					AND = {
+						exists = scope:scheme_successful
+						NOT = {
+							scope:target = {
+								has_trait = widow
+							}
+						}
+					}
 				}
 				trigger_event = {
 					on_action = seduce_success
@@ -116,10 +123,26 @@ seduce_outcome.0002 = {
 			}
 		}
 		#FOR PLAYER CHARACTER, SEND CHOICE EVENT
-		else = {
-			scope:target = {
+		else_if = {
+			limit = { scope:target = { is_ai = no } }
+			if = {
+				limit = {
+					AND = {
+						exists = scope:scheme_successful
+						NOT = {
+							scope:target = {
+								has_trait = widow
+							}
+						}
+					}
+				}
 				trigger_event = {
 					id = seduce_outcome.0003
+				}
+			}
+			else = {
+				trigger_event = {
+					on_action = seduce_failure
 				}
 			}
 		}
