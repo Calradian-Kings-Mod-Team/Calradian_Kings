@@ -1,0 +1,111 @@
+# The entry should be named in the same way that the elective succession law is named to define it's voter's logic.
+# Root scope - Elector, the character voting in the election.
+# scope:candidate scope - Candidate, Character considered for the title.
+# scope:title scope - Title, The title the nomination is for.
+# scope:holder scope - Ruler, The ruler currently holding the title.
+# scope:holder_candidate scope - Favored Candidate, The title owner's candidate.
+# The voter will vote for the top score candidate calculated from this script.
+
+legionary_elective = {
+	elector_vote_strength = {
+		base = 1
+		modifier = {
+			desc = tooltip_legionary_vote_martial_1_tier
+		    add = 1
+			martial >= 13
+		}
+		modifier = {
+			desc = tooltip_legionary_vote_martial_2_tier
+		    add = 1
+			martial >= 17
+		}
+		modifier = {
+			desc = tooltip_legionary_vote_prowess_1_tier
+		    add = 1
+			prowess >= 13
+		}
+		modifier = {
+			desc = tooltip_legionary_vote_prowess_2_tier
+		    add = 1
+			prowess >= 17
+		}
+		modifier = {
+			desc = tooltip_legionary_vote_prestige_1_tier
+		    add = 1
+			prestige_level >= 3
+		}
+		modifier = {
+			desc = tooltip_legionary_vote_leading_army_tier
+		    add = 1
+			AND = {
+			    is_commanding_army = yes
+				is_ai = yes
+			}
+		}
+	}
+	
+	electors = {
+		add = holder
+		add = {
+		    type = holder_direct_vassals
+			limit = {
+				is_knight = yes
+			}
+		}
+		add = {
+		    type = holder_direct_vassals
+			limit = {
+				OR = {
+				    martial >= 19
+					has_trait = strategist
+				}
+			}
+		}
+	}
+
+	candidate_score = {
+		base = 0
+		######################	Elector self-voting pattern	##########################
+		elector_self_voting_pattern_feudal_elective_modifier = yes
+
+		##########################	Holder voting pattern	##########################
+		holder_voting_pattern_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (circumstances)	##########################
+		elector_voting_pattern_circumstances_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (prestige/piety)	##########################
+		elector_voting_pattern_prestige_piety_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (traits)	##########################
+		elector_voting_pattern_traits_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (opinion)	##########################
+		elector_voting_pattern_opinion_feudal_elective_modifier = yes
+	}
+	
+	#scope:candidate = Candidate, scope:title = Title, scope:holder_candidate = Candidate currently selected by ruler.
+	candidates = {
+		add = {
+		    type = holder_direct_vassals
+			limit = {
+			    is_adult = yes
+				OR = {
+				    prowess >= 13
+					martial >= 13
+				}
+			}
+		}
+		add = {
+			type = holder_close_or_extended_family
+			limit = {
+			    is_adult = yes
+				OR = {
+				    martial >= 9
+					prowess >= 9
+				}
+				is_close_family_of = scope:holder
+			}
+		}
+	}
+}
