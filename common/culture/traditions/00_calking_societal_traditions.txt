@@ -102,3 +102,60 @@ tradition_gottic_hearths = {
 		}
 	}
 }
+
+tradition_disloyal_vaegirs = {
+	category = societal
+
+	layers = {
+		0 = diplo
+		1 = western
+		4 = conversation.dds
+	}
+	
+	is_shown = {
+		has_cultural_pillar = heritage_byalic
+	}
+	
+	parameters = {
+		disloyal_trait_more_common = yes
+		unruly_vaegirs = yes
+	}
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_spiritual = { is_in_list = traits }
+						culture_pillar:ethos_communal = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_spiritual_or_communal_desc
+				}
+			}
+			
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+	ai_will_do = {
+		value = 100
+		if = {
+			limit = {
+				OR = {
+					culture_tradition:tradition_republican_legacy = { is_in_list = traits }
+					culture_tradition:tradition_eye_for_an_eye = { is_in_list = traits }
+					culture_tradition:tradition_equitable = { is_in_list = traits }
+					culture_tradition:tradition_charitable = { is_in_list = traits }
+					culture_tradition:tradition_modest = { is_in_list = traits }
+				}
+			}
+			multiply = 0.1
+		}
+	}
+}
