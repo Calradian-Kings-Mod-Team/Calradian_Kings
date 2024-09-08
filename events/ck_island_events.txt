@@ -1,0 +1,345 @@
+﻿namespace = ck_island_events
+
+##########################
+###   Western Island   ###
+##########################
+ck_island_events.0001 = {
+	type = character_event
+	title = ck_island_events.0001.t
+	desc = {
+		first_valid = {
+			# Imperial
+			triggered_desc = {
+				trigger = {
+					OR = {
+						religion = religion:calradian
+						culture = { has_cultural_pillar = heritage_calradian }
+					}
+				}
+				desc = ck_island_events.0001.desc.imperial
+			}
+			# Non-Imperial
+			desc = ck_island_events.0001.desc
+		}
+	}
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #Reintegrate into Pamphia
+		name = ck_island_events.0001.a
+		ai_chance = {
+			base = 90
+			modifier = { #Content rulers are fine with sitting on their island
+				add = -50
+				has_trait = content
+			}
+			modifier = { #Ambitious rulers want to pursue all of pamphia
+				add = 10
+				has_trait = ambitious
+			}
+			modifier = { #Just rulers want to restore the old Imperial province
+				add = 50
+				has_trait = just
+			}
+			modifier = { #Arbitrary rulers don't care about tradition.
+				add = -80
+				has_trait = arbitrary
+			}
+		}
+		stress_impact = {
+			just = small_stress_impact_loss
+		}
+		if = {
+			limit = {
+				NOT = {
+					title:d_konios = {
+						de_jure_liege = {
+							this = title:k_wempire_k_3
+						}
+					}
+				}
+			}
+			title:d_konios = {
+				save_scope_as = d_konios
+				set_de_jure_liege_title = title:k_wempire_k_3
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					title:d_atacarys = {
+						de_jure_liege = {
+							this = title:k_wempire_k_3
+						}
+					}
+				}
+			}
+			title:d_atacarys = {
+				save_scope_as = d_atacarys
+				set_de_jure_liege_title = title:k_wempire_k_3
+			}
+		}
+		add_unpressed_claim = title:k_wempire_k_3
+		add_unpressed_claim = title:d_charas
+		add_prestige = 250 #Less as not full kingdom title, as well as this the claims also help balance it
+		trigger = {
+			culture = { has_cultural_pillar = heritage_calradian }
+			NOT = {
+				dynasty = dynasty:dynn_mytophion
+			}
+		}
+	}
+	option = { #Reintegrate into Pamphia(Acapanos)
+		name = ck_island_events.0001.a1
+		ai_chance = {
+			base = 120
+			modifier = { #Content rulers are fine with sitting on their island
+				add = -50
+				has_trait = content
+			}
+			modifier = { #Ambitious rulers want to pursue all of pamphia
+				add = 10
+				has_trait = ambitious
+			}
+			modifier = { #Just rulers want to restore the old Imperial province
+				add = 50
+				has_trait = just
+			}
+			modifier = { #Arbitrary rulers don't care about tradition.
+				add = -80
+				has_trait = arbitrary
+			}
+		}
+		stress_impact = {
+			just = small_stress_impact_loss
+		}
+		if = {
+			limit = {
+				NOT = {
+					title:d_konios = {
+						de_jure_liege = {
+							this = title:k_wempire_k_3
+						}
+					}
+				}
+			}
+			title:d_konios = {
+				save_scope_as = d_konios
+				set_de_jure_liege_title = title:k_wempire_k_3
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					title:d_atacarys = {
+						de_jure_liege = {
+							this = title:k_wempire_k_3
+						}
+					}
+				}
+			}
+			title:d_atacarys = {
+				save_scope_as = d_atacarys
+				set_de_jure_liege_title = title:k_wempire_k_3
+			}
+		}
+		add_pressed_claim = title:k_wempire_k_3
+		add_unpressed_claim = title:d_contiere
+		add_pressed_claim = title:d_charas
+		add_unpressed_claim = title:d_weyard
+		add_unpressed_claim = title:d_thractorae
+		add_unpressed_claim = title:d_garontor
+		add_prestige = 250 #Less as not full kingdom title, as well as this the claims also help balance it
+		trigger = {
+			culture = { has_cultural_pillar = heritage_calradian }
+			dynasty = dynasty:dynn_mytophion
+		}
+	}
+
+	option = { #A new province
+		name = ck_island_events.0001.b
+		ai_chance = {
+			base = 10
+			modifier = { #Content rulers are fine with sitting on their island
+				add = 50
+				has_trait = content
+			}
+			modifier = {  #Ambitious rulers want to pursue all of pamphia
+				add = -100
+				has_trait = ambitious
+			}
+			modifier = { #Just rulers want to restore the old Imperial province
+				add = -50
+				has_trait = just
+			}
+		}
+		title:d_konios = {
+			save_scope_as = d_konios
+			set_de_jure_liege_title = title:k_mytophion
+		}
+		title:d_atacarys = {
+			save_scope_as = d_atacarys
+			set_de_jure_liege_title = title:k_mytophion
+		}
+		create_title_and_vassal_change = {
+			type = returned
+			save_scope_as = title_change
+			add_claim_on_loss = no
+		}
+		title:k_mytophion = {
+			change_title_holder = {
+				holder = root
+				change = scope:title_change
+			}
+			save_scope_as = k_mytophion
+		}
+		stress_impact = {
+			ambitious = small_stress_impact_gain
+			arbitrary = small_stress_impact_loss
+		}
+		if = {
+			limit = {
+				NOT = {
+					title:k_mytophion = {
+						de_jure_liege = {
+							this = title:e_calradian_empire
+						}
+					}
+				}
+			}
+			title:k_mytophion = {
+				save_scope_as = k_mytophion
+				set_de_jure_liege_title = title:e_calradian_empire
+			}
+		}
+		resolve_title_and_vassal_change = scope:title_change
+		hidden_effect = {
+			if = {
+				limit = {
+					NOR = {
+						primary_title = { this = title:k_mytophion }
+						highest_held_title_tier = tier_empire
+					}
+				}
+				set_primary_title_to = title:k_mytophion
+			}
+		}
+		add_prestige = -250 # Lowers your prestige since you are seen as doing something unimperial
+		trigger = {
+			culture = { has_cultural_pillar = heritage_calradian }
+		}
+	}
+	option = { #A new kingdom
+		name = ck_island_events.0001.c
+		ai_chance = {
+			base = 90
+			modifier = { #Ambitious rulers want to pursue all the islands
+				add = -100
+				has_trait = ambitious
+			}
+			modifier = { #Content rulers are fine with sitting on their island
+				add = 10
+				has_trait = content
+			}
+		}
+		title:d_konios = {
+			save_scope_as = d_konios
+			set_de_jure_liege_title = title:k_mytophion
+		}
+		title:d_atacarys = {
+			save_scope_as = d_atacarys
+			set_de_jure_liege_title = title:k_mytophion
+		}
+		create_title_and_vassal_change = {
+			type = returned
+			save_scope_as = title_change
+			add_claim_on_loss = no
+		}
+		title:k_mytophion = {
+			change_title_holder = {
+				holder = root
+				change = scope:title_change
+			}
+			save_scope_as = k_mytophion
+		}
+		stress_impact = {
+			ambitious = small_stress_impact_gain
+		}
+		resolve_title_and_vassal_change = scope:title_change
+		hidden_effect = {
+			if = {
+				limit = {
+					NOR = {
+						primary_title = { this = title:k_mytophion }
+						highest_held_title_tier = tier_empire
+					}
+				}
+				set_primary_title_to = title:k_mytophion
+			}
+		}
+		add_prestige = 400 #Same as any kingdom
+		trigger = {
+			NOT = {
+				culture = { has_cultural_pillar = heritage_calradian }
+			}
+		}
+	}
+	option = { #We shall claim the West!
+		name = ck_island_events.0001.d
+		ai_chance = {
+			base = 10
+			modifier = { #Ambitious rulers want to pursue all the islands
+				add = 100
+				has_trait = ambitious
+			}
+			modifier = { #Content rulers are fine with sitting on their island
+				add = -10
+				has_trait = content
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					title:d_konios = {
+						de_jure_liege = {
+							this = title:k_esglaons
+						}
+					}
+				}
+			}
+			title:d_konios = {
+				save_scope_as = d_konios
+				set_de_jure_liege_title = title:k_esglaons
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					title:d_atacarys = {
+						de_jure_liege = {
+							this = title:k_esglaons
+						}
+					}
+				}
+			}
+			title:d_atacarys = {
+				save_scope_as = d_atacarys
+				set_de_jure_liege_title = title:k_esglaons
+			}
+		}
+		add_unpressed_claim = title:k_esglaons
+		add_prestige = 750 #More than others
+		trigger = {
+			NOT = {
+				culture = { has_cultural_pillar = heritage_calradian }
+			}
+		}
+	}
+}

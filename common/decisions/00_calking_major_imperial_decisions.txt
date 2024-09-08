@@ -142,3 +142,74 @@ choose_imperial_faction_decision = {
 	ai_check_interval = 0
 
 }
+
+# The Fate of the Eastern Islands, adjusted from a Godherja decision.
+ck_the_fate_of_the_east_islands_decision = {
+	picture = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds"
+	major = yes
+	ai_check_interval = 600
+	desc = ck_the_fate_of_the_east_islands_decision_desc
+
+	is_shown = {
+		AND = {
+			exists = capital_province
+			capital_province = { geographical_region = region_mytophion }
+		}
+		NOR = {
+			exists = title:k_mytophion.holder
+			is_target_in_global_variable_list = {
+				name = unavailable_unique_decisions
+				target = flag:ck_the_fate_of_the_east_islands_decision
+			}
+		}
+	}
+
+	is_valid = {
+		OR = {
+			is_independent_ruler = yes
+			top_liege = {
+				highest_held_title_tier = tier_empire
+			}
+		}
+		has_title = title:d_konios
+		has_title = title:d_atacarys
+	}
+
+	is_valid_showing_failures_only = {
+		is_capable_adult = yes
+		is_imprisoned = no
+		is_at_war = no
+	}
+
+	cost = {
+		gold = 150
+	}
+
+	effect = {
+		save_scope_as = mytophion_founder
+
+		#Events
+		trigger_event = ck_island_events.0001
+
+		#Can only happen once
+		add_to_global_variable_list = {
+			name = unavailable_unique_decisions
+			target = flag:ck_the_fate_of_the_east_islands_decision
+		}
+		set_global_variable = {
+			name = ck_the_fate_of_the_east_islands_decision
+			value = scope:mytophion_founder
+		}
+	}
+
+	ai_potential = {
+		always = yes
+	}
+
+	ai_will_do = {
+		base = 5
+		ai_value_modifier = {
+			ai_boldness = 1.0
+		}
+	}
+}
