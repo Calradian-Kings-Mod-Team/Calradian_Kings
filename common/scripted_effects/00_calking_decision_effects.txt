@@ -61,3 +61,101 @@ set_senate_faction_effect = {
 
 	add_trait_force_tooltip = $IMPFACTION$
 }
+
+
+## Kohinik Kingdom Formation ##
+
+kohinik_cultural_acceptance_effect = {
+	every_culture_global = {		
+		limit = {
+			save_temporary_scope_as = this_culture
+			AND = {
+				has_cultural_pillar = heritage_khuzic
+				culture_number_of_counties > 0
+				any_realm_province = {
+					geographical_region = region_k_tanaesis
+				}
+			}
+			
+		}
+		save_scope_as = khuzait_culture_scope
+	}
+}
+
+borteq_cultural_acceptance_effect = {
+	kohinik_cultural_acceptance_effect = yes
+	scope:khuzait_culture_scope = {
+		change_cultural_acceptance = {
+			target = root.culture
+			value = medium_positive_culture_acceptance
+			desc = kohinik_khuzait_acceptance
+		}
+	}
+}
+
+borteq_popular_opinion_1_effect = {
+	every_sub_realm_county = {
+		limit = {
+			geographical_region = region_k_tanaesis
+			NOT = {
+				culture = { has_cultural_pillar = heritage_kohinik }
+			}
+		}
+		add_county_modifier = {
+			modifier = respected_cultural_independence
+			years = 20
+		}
+	}
+}
+
+piss_off_urban_locals_effect = {
+	every_sub_realm_county = {
+		limit = {
+			title_capital_county.title_province = { geographical_region = region_k_tanaesis }
+			development_level >= 10
+			NOT = {
+				culture = { has_cultural_pillar = heritage_kohinik }
+			}
+			NOT = {
+				holder = {
+					AND = {
+						is_ai = no
+						NOT = {
+							culture = { has_cultural_pillar = heritage_kohinik }
+						}
+					}
+				}
+			}
+		}
+		add_county_modifier = {
+			modifier = disrespected_cultural_independence_rural
+			years = 20
+		}
+	}
+}
+
+piss_off_rural_locals_effect = {
+	every_sub_realm_county = {
+		limit = {
+			title_capital_county.title_province = { geographical_region = region_k_tanaesis }
+			development_level <= 7
+			NOT = {
+				culture = { has_cultural_pillar = heritage_kohinik }
+			}
+			NOT = {
+				holder = {
+					AND = {
+						is_ai = no
+						NOT = {
+							culture = { has_cultural_pillar = heritage_kohinik }
+						}
+					}
+				}
+			}
+		}
+		add_county_modifier = {
+			modifier = disrespected_cultural_independence_urban 
+			years = 20
+		}
+	}
+}

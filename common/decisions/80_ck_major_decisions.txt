@@ -44,3 +44,160 @@ widow_decision = {
 		base = 0
 	}
 }
+
+form_transtanaesic_kingdom_decision = {
+	picture = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds"
+
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_calradian }
+					top_liege = {
+						highest_held_title_tier = tier_empire
+					}
+				}
+				desc = form_transtanaesic_kingdom_decision.calradian
+			}
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				desc = form_transtanaesic_kingdom_decision.kohinik
+			}
+			desc = form_transtanaesic_kingdom_decision
+		}
+	}
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_calradian }
+					top_liege = {
+						highest_held_title_tier = tier_empire
+					}
+				}
+				desc = form_transtanaesic_kingdom_decision_desc.calradian
+			}
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				desc = form_transtanaesic_kingdom_decision_desc.kohinik
+			}
+			desc = form_transtanaesic_kingdom_decision_desc
+		}
+	}
+
+	confirm_text = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_calradian }
+				}
+				desc = form_transtanaesic_kingdom_decision_confirm.calradian
+			}
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				desc = form_transtanaesic_kingdom_decision_confirm.kohinik
+			}
+			desc = form_transtanaesic_kingdom_decision_confirm
+		}
+	}
+	
+	selection_tooltip = form_transtanaesic_kingdom_decision_tooltip
+	major = yes
+
+	ai_check_interval = 120
+
+	is_shown = {
+		is_landed = yes
+		NOT = { exists = title:k_transtanaesia.holder }
+		NOT = {  #Can only do it once.
+			is_target_in_global_variable_list = {
+				name = unavailable_unique_decisions
+				target = flag:flag_formed_transtanaesia_kingdom
+			}
+		}
+		#No kings or emperors.
+		highest_held_title_tier <= tier_duchy
+		OR = {
+			culture = { has_cultural_pillar = heritage_calradian }
+			culture = { has_cultural_pillar = heritage_kohinik }
+		}
+		any_sub_realm_county = {
+			title_province = { geographical_region = region_k_tanaesis }
+		}
+	}
+
+	is_valid = {
+		OR = {
+			is_independent_ruler = yes
+			custom_description = {
+				text = vassal_of_a_calradian_empire
+				AND = {
+					top_liege = {
+						culture = { has_cultural_pillar = heritage_calradian }
+						highest_held_title_tier = tier_empire
+					}
+				}
+			}
+			
+		}
+		
+		prestige_level >= high_prestige_level
+		#And the core of Tanaesis
+		completely_controls_region = region_k_tanaesis
+	}
+
+	is_valid_showing_failures_only = {
+		is_capable_adult = yes
+		is_imprisoned = no
+		is_at_war = no
+	}
+
+	cost = {
+		gold = 200
+	}
+
+	effect = {
+		if = {
+			limit = {
+				culture = { has_cultural_pillar = heritage_calradian }
+			}
+			save_scope_as = calradian_founder
+		}
+		else_if = {
+			limit = {
+				culture = { has_cultural_pillar = heritage_kohinik }
+			}
+			save_scope_as = kohinik_founder
+		}
+		gain_heroic_legend_seed_tooltip_effect = yes
+		# show_as_tooltip = {
+		# 	form_switzerland_scripted_effect = yes
+		# }
+		trigger_event = ck_tanesis_events.0001
+
+		hidden_effect = {
+			add_to_global_variable_list = {
+				name = unavailable_unique_decisions
+				target = flag:flag_formed_transtanaesia_kingdom
+			}
+			set_global_variable = {
+				name = flag_formed_transtanaesia_kingdom
+				value = root
+			}
+		}
+	}
+	
+	ai_potential = {
+		always = yes
+	}
+
+	ai_will_do = {
+		base = 100
+	}
+}
