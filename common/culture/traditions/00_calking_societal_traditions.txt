@@ -1,4 +1,153 @@
-﻿
+﻿tradition_brutish = {
+	category = societal
+	
+	layers = {
+		0 = martial
+		1 = western
+		4 = brutish.dds
+	}
+	
+	
+	parameters = {
+		strong_traits_more_valued = yes
+		strong_traits_more_common = yes
+		rowdy_trait_more_common = yes
+		pensive_trait_less_common = yes
+	}
+	character_modifier = {
+		dread_baseline_add = 10
+		tyranny_gain_mult = -0.05
+		different_culture_opinion = -5
+		general_opinion = -5
+ 		owned_scheme_secrecy_add  = -15
+		monthly_diplomacy_lifestyle_xp_gain_mult = -0.05
+		diplomacy = -1
+		ai_boldness = 25
+	}
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_communal = { is_in_list = traits }
+						culture_pillar:ethos_bellicose = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_bellicose_or_communal_desc
+				}
+			}
+			if = {
+				limit = {
+					trigger_if = {
+						limit = {
+							scope:character = {
+								is_ai = no
+							}
+						}
+						NOT = {
+							any_ruler = {
+								count >= 5
+								culture = prev
+								primary_title.tier >= tier_county
+								has_trait = vengeful
+							}
+						}
+					}
+					trigger_else = {
+						always = no
+					}
+				}
+				add = {
+					value = tradition_unfulfilled_criteria_penalty
+					desc = rulers_with_vengeful_desc
+				}
+			}
+			
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+	ai_will_do = {
+		value = 100
+		if = {
+			limit = {
+				OR = {
+					culture_tradition:tradition_welcoming = { is_in_list = traits }
+					culture_tradition:tradition_zealous_people = { is_in_list = traits }
+					culture_tradition:tradition_forbearing = { is_in_list = traits }
+					culture_tradition:tradition_equitable = { is_in_list = traits }
+					culture_tradition:tradition_charitable = { is_in_list = traits }
+					culture_tradition:tradition_modest = { is_in_list = traits }
+				}
+			}
+			multiply = 0.1
+		}
+	}
+}
+tradition_winemasters = { 
+	category = societal
+	
+	layers = {
+		0 = diplo
+		1 = mediterranean
+		4 = grape.dds
+	}
+	
+	can_pick = {
+		custom_tooltip = {
+			text = culture_in_perassic_desc
+			any_culture_county = {
+				percent >= 0.3
+				any_county_province = {
+					geographical_region = region_perassic
+				}
+			}
+		}
+	}
+	
+	parameters = { ########## ADD "DRUNKARDS MORE COMMON" #############
+		refined_feasts = yes
+		renown_from_feasts = yes
+	}
+	character_modifier = {
+		health = 0.1
+	}
+
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_courtly = { is_in_list = traits }
+						culture_pillar:ethos_communal = { is_in_list = traits }
+						culture_pillar:ethos_spiritual = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_courtly_communal_or_spiritual_desc
+				}
+			}
+
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+
+	ai_will_do = {
+		value = 100
+	}
+}
 
 tradition_gottic_hearths = {
 	category = societal
