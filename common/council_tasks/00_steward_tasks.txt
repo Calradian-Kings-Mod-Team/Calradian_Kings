@@ -1,4 +1,4 @@
-﻿task_collect_taxes = {
+task_collect_taxes = {
 	default_task = yes
 	position = councillor_steward
 
@@ -804,6 +804,11 @@ task_promote_culture = {
 			limit = {
 				scope:councillor_liege = { is_ai = yes }
 			}
+			NAND = { 
+				#### It should be allowed after we add new post-calradic cultures
+				scope:councillor_liege.culture = { has_culture_pillar = heritage_calradian }
+				scope:county.culture = { has_culture_pillar = heritage_calradian }
+			}
 			OR = {
 				NOT = {
 					scope:county.culture = {
@@ -821,6 +826,14 @@ task_promote_culture = {
 					any_parent_culture = {
 						this = scope:county.culture
 					}
+				}
+				AND = {
+					scope:county.culture = {
+						cultural_acceptance = { target = scope:councillor_liege.culture value <= 75 }
+					}
+					scope:councillor_liege.primary_title.tier >= tier_duchy
+					scope:councillor_liege.culture = { has_culture_pillar = heritage_calradian }
+					scope:county.culture = { has_cultural_pillar = heritage_palaic }
 				}
 				# AND = {
 				# 	# Scottish rulers should convert counties of 'old' cultures to the new one.
@@ -853,6 +866,14 @@ task_promote_culture = {
 						this = scope:county.culture
 					}
 				}
+				AND = {
+					scope:county.culture = {
+						cultural_acceptance = { target = scope:councillor_liege.culture value <= 75 }
+					}
+					scope:councillor_liege.primary_title.tier >= tier_duchy
+					scope:councillor_liege.culture = { has_culture_pillar = heritage_calradian }
+					scope:county.culture = { has_cultural_pillar = heritage_palaic }
+				}
 				# AND = {
 				# 	# Scottish rulers should convert counties of 'old' cultures to the new one.
 				# 	scope:councillor_liege.culture = culture:scottish
@@ -878,7 +899,14 @@ task_promote_culture = {
 						culture = scope:councillor_liege.culture # The AI only wants to convert counties bordering their own culture
 					}
 				}
-				
+				AND = {
+					scope:county.culture = {
+						cultural_acceptance = { target = scope:councillor_liege.culture value <= 75 }
+					}
+					scope:councillor_liege.primary_title.tier >= tier_duchy
+					scope:councillor_liege.culture = { has_culture_pillar = heritage_calradian }
+					scope:county.culture = { has_cultural_pillar = heritage_palaic }
+				}
 				# AND = {
 					NOT = {
 						scope:county = {
@@ -1000,7 +1028,175 @@ task_promote_culture = {
 			}
 		}
 		scope:county = {
-			if = {
+			if = { ### Tenomyzean
+				limit = {
+					scope:councillor_liege.culture = {
+						has_cultural_tradition = tradition_high_calradic
+					}
+					scope:county.title_province = {
+						geographical_region = region_colonization_tenomyzean
+					}
+					NOT = {
+						scope:county.culture = {
+							has_cultural_tradition = tradition_high_calradic
+						}
+					}
+					#current_year >= 1150 #I'm yet to know what year we'll choose
+				}
+				culture = {
+					change_cultural_acceptance = {
+						target = scope:councillor_liege.culture
+						value = culture_conversion_acceptance_impact
+						desc = cultural_acceptance_loss_promote_culture
+					}
+				}
+				set_county_culture = culture:tenomyzean
+			}
+			else_if = {
+				limit = { ###Nevysean
+					scope:councillor_liege.culture = {
+						has_cultural_tradition = tradition_high_calradic
+					}
+					scope:county.title_province = {
+						geographical_region = region_colonization_nevysean
+					}
+					NOT = {
+						scope:county.culture = {
+							has_cultural_tradition = tradition_high_calradic
+						}
+					}
+					#current_year >= 1150 #I'm yet to know what year we'll choose
+				}
+				culture = {
+					change_cultural_acceptance = {
+						target = scope:councillor_liege.culture
+						value = culture_conversion_acceptance_impact
+						desc = cultural_acceptance_loss_promote_culture
+					}
+				}
+				set_county_culture = culture:nevysean
+			}
+			else_if = {
+				limit = { ###Calsean
+					scope:councillor_liege.culture = {
+						has_cultural_tradition = tradition_high_calradic
+					}
+					scope:county.title_province = {
+						geographical_region = region_colonization_calsean
+					}
+					NOT = {
+						scope:county.culture = {
+							has_cultural_tradition = tradition_high_calradic
+						}
+					}
+					#current_year >= 1150 #I'm yet to know what year we'll choose
+				}
+				culture = {
+					change_cultural_acceptance = {
+						target = scope:councillor_liege.culture
+						value = culture_conversion_acceptance_impact
+						desc = cultural_acceptance_loss_promote_culture
+					}
+				}
+				set_county_culture = culture:calsean
+			}
+			else_if = {
+				limit = { ###Arisean
+					scope:councillor_liege.culture = {
+						has_cultural_tradition = tradition_high_calradic
+					}
+					scope:county.title_province = {
+						geographical_region = region_colonization_arisean
+					}
+					NOT = {
+						scope:county.culture = {
+							has_cultural_tradition = tradition_high_calradic
+						}
+					}
+					#current_year >= 1150 #I'm yet to know what year we'll choose
+				}
+				culture = {
+					change_cultural_acceptance = {
+						target = scope:councillor_liege.culture
+						value = culture_conversion_acceptance_impact
+						desc = cultural_acceptance_loss_promote_culture
+					}
+				}
+				set_county_culture = culture:arisean
+			}
+			else_if = {
+				limit = { ###Temean
+					scope:councillor_liege.culture = {
+						has_cultural_tradition = tradition_high_calradic
+					}
+					scope:county.title_province = {
+						geographical_region = region_colonization_temean
+					}
+					NOT = {
+						scope:county.culture = {
+							has_cultural_tradition = tradition_high_calradic
+						}
+					}
+					#current_year >= 1150 #I'm yet to know what year we'll choose
+				}
+				culture = {
+					change_cultural_acceptance = {
+						target = scope:councillor_liege.culture
+						value = culture_conversion_acceptance_impact
+						desc = cultural_acceptance_loss_promote_culture
+					}
+				}
+				set_county_culture = culture:temean
+			}
+			else_if = {
+				limit = { ###Tripotamean
+					scope:councillor_liege.culture = {
+						has_cultural_tradition = tradition_high_calradic
+					}
+					scope:county.title_province = {
+						geographical_region = region_colonization_tripotamean
+					}
+					NOT = {
+						scope:county.culture = {
+							has_cultural_tradition = tradition_high_calradic
+						}
+					}
+					#current_year >= 1150 #I'm yet to know what year we'll choose
+				}
+				culture = {
+					change_cultural_acceptance = {
+						target = scope:councillor_liege.culture
+						value = culture_conversion_acceptance_impact
+						desc = cultural_acceptance_loss_promote_culture
+					}
+				}
+				set_county_culture = culture:tripotamean
+			}
+			else_if = {
+				limit = { ###Tanaesean
+					scope:councillor_liege.culture = {
+						has_cultural_tradition = tradition_high_calradic
+					}
+					scope:county.title_province = {
+						geographical_region = region_colonization_tanaesean
+					}
+					NOT = {
+						scope:county.culture = {
+							has_cultural_tradition = tradition_high_calradic
+						}
+					}
+					#current_year >= 1150 #I'm yet to know what year we'll choose
+				}
+				culture = {
+					change_cultural_acceptance = {
+						target = scope:councillor_liege.culture
+						value = culture_conversion_acceptance_impact
+						desc = cultural_acceptance_loss_promote_culture
+					}
+				}
+				set_county_culture = culture:tanaesean
+			}
+			else_if = {
 				limit = {
 					NOT = {
 						scope:councillor_liege.culture = {
@@ -1018,8 +1214,11 @@ task_promote_culture = {
 						desc = cultural_acceptance_loss_promote_culture
 					}
 				}
+				set_county_culture = scope:councillor_liege.culture
 			}
-			set_county_culture = scope:councillor_liege.culture
+			else = {
+				set_county_culture = scope:councillor_liege.culture
+			}
 		}
 		scope:councillor = {
 			start_default_task = yes
@@ -1898,3 +2097,4 @@ task_convince_dejure = {
 		}
 	}
 }
+

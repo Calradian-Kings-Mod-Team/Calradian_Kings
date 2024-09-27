@@ -1,0 +1,120 @@
+﻿#Generic travel events
+
+namespace = ck_travel_events
+
+##############################
+##  Travel Flavour Events   ##
+##############################
+
+
+ck_travel_events.0001 = { ### Encounter local vulgar commoner
+	type = character_event
+	title = ck_travel_events.0001.t
+	desc = ck_travel_events.0001.desc
+	theme = travel
+	left_portrait = {
+		character = root 
+	   	animation = throne_room_conversation_4
+	}
+	right_portrait = {
+		character = scope:local_commoner
+		animation = throne_room_conversation_1
+	}
+	cooldown = { years = 1 }
+	trigger = {
+		is_available_travelling_adult = yes
+		is_landed = yes
+		is_travelling = yes
+		root.culture = {
+			has_cultural_tradition = tradition_high_calradic
+		}
+		root.location.county = {
+			culture = {
+				has_cultural_tradition = tradition_vulgar_calradic
+			}
+		}
+	}
+	immediate = {
+		create_character = {
+			template = generic_peasant_character
+			location = root.location
+			culture = root.location.county.culture
+			faith = root.location.county.faith
+			save_scope_as = local_commoner
+		}
+	}
+	#Are this people truly Calradians?
+	option = {
+		name = ck_travel_events.0001.a
+		flavor = ck_travel_events.0001.a.t
+		
+		add_stress = 5
+		add_prestige = -10
+		
+		ai_chance = {
+			base = 100
+		}
+	}
+	#Get this mumbling fool out of my way
+	option = {
+		name = ck_travel_events.0001.b
+		flavor = ck_travel_events.0001.b.t
+		
+		add_prestige = -25
+		add_dread = 5
+		add_character_modifier = {
+			modifier = disrespected_commoners
+			months = 6
+		}
+		root.culture = {
+			change_cultural_acceptance = {
+				target = scope:local_commoner.culture
+				value = -2
+				desc = vulgars_disrespected
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 100
+				OR = {
+					has_trait = arrogant
+					has_trait = cruel
+				}
+			}
+		}
+	}
+	#Learning - I wish to be able to understand you
+	option = {
+		name = ck_travel_events.0001.c
+		flavor = ck_travel_events.0001.c.t
+		
+		trigger = {
+			learning >= 13
+		}
+		
+		add_stress = 5
+		add_prestige = -5
+		add_character_modifier = {
+			modifier = wants_to_learn_local_dialects
+			months = 18
+		}
+		ai_chance = {
+			base = 50
+		}
+	}
+	#die
+	after = {
+		if = {
+			limit = {
+				NOT = {
+					scope:local_commoner = { is_courtier_of = root }
+				}
+				scope:local_commoner = { is_alive = yes }
+			}
+			scope:local_commoner = {
+				silent_disappearance_effect = yes
+			}
+		}
+	}
+}
