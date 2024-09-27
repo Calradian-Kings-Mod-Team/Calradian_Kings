@@ -1,4 +1,113 @@
-﻿
+﻿tradition_battanian_unity = {
+	category = societal
+
+	layers = {
+		0 = learning
+		1 = mediterranean
+		4 = speech.dds
+	}
+	
+	is_shown = {
+		has_cultural_pillar = heritage_battanian
+		NOR = {
+			this = culture:druin
+			has_cultural_tradition = tradition_isolationist
+			has_cultural_tradition = tradition_tribe_unity
+			has_cultural_tradition = tradition_strong_kinship
+		}
+	}
+	
+	parameters = {
+		courtiers_less_likely_to_leave_same_culture_court = yes
+		less_plague_spread_culture = yes
+		battanian_tolerance = yes
+		bonuses_from_patriarch_matriarch_trait = yes
+		cultural_house_personal_scheme_success_chance = yes
+		landing_house_members_give_prestige = yes
+		penalty_for_revoking_titles_from_house_members = yes
+	}
+	character_modifier = {
+		dynasty_house_opinion = 10
+		opinion_of_liege = -5
+	}
+	culture_modifier = {
+		cultural_acceptance_gain_mult = -0.15
+	}
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_communal = { is_in_list = traits }
+						culture_pillar:ethos_spiritual = { is_in_list = traits }
+						culture_pillar:ethos_stoic = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_communal_spiritual_or_stoic_desc
+				}
+			}
+			if = {
+				limit = {
+					scope:character = {
+						any_sub_realm_county = {
+							culture = scope:character.culture
+							any_neighboring_county = {
+								NOT = {
+									culture = scope:character.culture
+								}
+								culture = {
+									cultural_acceptance = { target = scope:character.culture value >= 40 }
+								}
+							}
+						}
+					}
+				}
+				add = {
+					value = tradition_unfulfilled_criteria_penalty
+					desc = non_tolerated_cultures_desc
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						has_variable = defensive_traditionalist_discount
+						has_variable = aggressive_traditionalist_discount
+					}
+				}
+				add = {
+					value = traditionalist_discount
+					desc = traditionalist_discount_desc
+				}
+			}
+			
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+	ai_will_do = {
+		value = 100
+		if = {
+			limit = {
+				OR = {
+					culture_tradition:tradition_welcoming = { is_in_list = traits }
+					culture_tradition:tradition_eye_for_an_eye = { is_in_list = traits }
+					culture_tradition:tradition_forbearing = { is_in_list = traits }
+					culture_tradition:tradition_equitable = { is_in_list = traits }
+					culture_tradition:tradition_charitable = { is_in_list = traits }
+					culture_tradition:tradition_modest = { is_in_list = traits }
+				}
+			}
+			multiply = 0.1
+		}
+	}
+}
+
 
 tradition_gottic_hearths = {
 	category = societal
