@@ -1,0 +1,907 @@
+﻿namespace = ck_tanesis_events
+
+scripted_effect move_de_jure_titles = {
+	title:d_akkan = {
+		save_scope_as = d_akkan
+		set_de_jure_liege_title = title:k_transtanaesia
+	}
+	title:d_chaikand = {
+		save_scope_as = d_chaikand
+		set_de_jure_liege_title = title:k_transtanaesia
+	}
+	title:d_tanesis = {
+		save_scope_as = d_akkan
+		set_de_jure_liege_title = title:k_transtanaesia
+	}
+	title:c_usek = {
+		save_scope_as = c_usek
+		set_de_jure_liege_title = title:d_chaikand
+	}
+	title:c_yinun = {
+		save_scope_as = c_yinun
+		set_de_jure_liege_title = title:d_chaikand
+	}
+	title:c_turanis = {
+		save_scope_as = turanis
+		set_de_jure_liege_title = title:d_ozu
+	}
+	title:c_akiser = {
+		save_scope_as = c_akiser
+		set_de_jure_liege_title = title:d_ozu
+	}
+	title:c_akiser_castle = {
+		save_scope_as = c_akiser_castle
+		set_de_jure_liege_title = title:d_ozu
+	}
+	title:c_tatanyid = {
+		save_scope_as = c_tatanyid
+		set_de_jure_liege_title = title:d_ozu
+	}
+	title:c_ushket = {
+		save_scope_as = c_ushket
+		set_de_jure_liege_title = title:d_ozu
+	}
+	title:c_hanekhy = {
+		save_scope_as = c_hanekhy
+		set_de_jure_liege_title = title:d_zakhan
+	}
+	title:d_zakhan = {
+		save_scope_as = d_zakhan
+		set_de_jure_liege_title = title:k_iltan
+	}
+	title:d_usek = {
+		save_scope_as = d_usek
+		set_de_jure_liege_title = title:k_devseg
+	}
+	title:k_transtanaesia = { save_scope_as = transtanaesia }
+	create_title_and_vassal_change = {
+		type = created
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	title:k_transtanaesia = {
+		change_title_holder = {
+			holder = root
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+	hidden_effect = { set_primary_title_to = title:k_transtanaesia }
+	add_prestige = major_prestige_gain
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = crown_authority_0
+				has_realm_law = crown_authority_1
+				has_realm_law = crown_authority_2
+			}
+		}
+		add_realm_law_skip_effects = crown_authority_3
+	}
+	if = {
+		limit = {
+			exists = title:k_urkhanate.holder
+		}
+		destroy_title = title:k_urkhanate
+	}
+}
+
+scripted_effect move_culture_to_cities = {
+	every_sub_realm_county = {
+		if = {
+			limit = {
+				root.culture = { has_cultural_pillar = heritage_kohinik }
+				title_capital_county.title_province = { geographical_region = region_k_tanaesis }
+				development_level >= 10
+				NOT = {
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				NOT = {
+					holder = {
+						AND = {
+							is_ai = no
+							NOT = {
+								culture = { has_cultural_pillar = heritage_kohinik }
+							}
+						}
+					}
+				}
+			}
+			random_list = {
+				50 = {
+					set_county_culture = culture:kartinakh
+				}
+				50 = {
+					set_county_culture = culture:kohayan
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				root.culture = { has_cultural_pillar = heritage_calradian }
+				title_capital_county.title_province = { geographical_region = region_k_tanaesis }
+				development_level >= 10
+				NOT = {
+					culture = { has_cultural_pillar = heritage_calradian }
+				}
+				NOT = {
+					holder = {
+						AND = {
+							is_ai = no
+							NOT = {
+								culture = { has_cultural_pillar = heritage_calradian }
+							}
+						}
+					}
+				}
+			}
+			set_county_culture = culture:penthian
+		}
+	}
+}
+
+scripted_effect move_culture_to_lower_dev_areas = {
+	every_sub_realm_county = {
+		if = {
+			limit = {
+				root.culture = { has_cultural_pillar = heritage_kohinik }
+				title_capital_county.title_province = { geographical_region = region_k_tanaesis }
+				development_level <= 7
+				NOT = {
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				NOT = {
+					holder = {
+						AND = {
+							is_ai = no
+							NOT = {
+								culture = { has_cultural_pillar = heritage_kohinik }
+							}
+						}
+					}
+				}
+			}
+			random_list = {
+				50 = {
+					set_county_culture = culture:kartinakh
+				}
+				50 = {
+					set_county_culture = culture:kohayan
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				root.culture = { has_cultural_pillar = heritage_calradian }
+				title_capital_county.title_province = { geographical_region = region_k_tanaesis }
+				development_level <= 7
+				NOT = {
+					culture = { has_cultural_pillar = heritage_calradian }
+				}
+				NOT = {
+					holder = {
+						AND = {
+							is_ai = no
+							NOT = {
+								culture = { has_cultural_pillar = heritage_calradian }
+							}
+						}
+					}
+				}
+			}
+			set_county_culture = culture:penthian
+		}
+	}
+}
+ck_tanesis_events.0001 = {
+	type = character_event
+	title = {
+		first_valid = {
+			# Calradian 
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_calradian }
+					top_liege = {
+						highest_held_title_tier = tier_empire
+					}
+				}
+				desc = ck_tanesis_events.0001.t.calradian
+			}
+			# Kohinik
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				desc = ck_tanesis_events.0001.t.kohinik
+			}
+			triggered_desc = {
+				trigger = {
+					culture = { has_cultural_pillar = heritage_nahasi }
+				}
+				desc = ck_tanesis_events.0001.t.aserai
+			}
+			# Fallback
+			desc = ck_tanesis_events.0001.t
+		}
+	}
+	desc = {
+		first_valid = {
+			# Calradian
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_calradian }
+					top_liege = {
+						highest_held_title_tier = tier_empire
+					}
+				}
+				desc = ck_tanesis_events.0001.desc.calradian
+			}
+			# Kohinik
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				desc = ck_tanesis_events.0001.desc.kohinik
+			}
+			# Fallback
+			desc = ck_tanesis_events.0001.desc
+		}
+	}
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	window = fullscreen_event
+	override_background = {
+		reference = ck_fullscreen_tanaesis
+	}
+	immediate = {
+		play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { # Calradian - Integrate new theme into Calradian Empire if bookmark is 1084 or 980
+		name = ck_tanesis_events.0001.calradian.a
+		ai_chance = {
+			base = 50
+			modifier = { #Just rulers want to restore the old Imperial province
+				add = 50
+				has_trait = just
+			}
+		}
+		stress_impact = {
+			just = medium_stress_impact_loss
+		}
+		hidden_effect = {
+			if = {
+				limit = {
+					exists = title:e_calradian_empire
+					NOT = {
+						title:k_transtanaesia = {
+							de_jure_liege = {
+								this = title:e_calradian_empire
+							}
+						}
+					}
+				}
+				title:d_akkan = {
+					save_scope_as = d_akkan
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:d_chaikand = {
+					save_scope_as = d_chaikand
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:d_tanesis = {
+					save_scope_as = d_tanesis
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:c_usek = {
+					save_scope_as = c_usek
+					set_de_jure_liege_title = title:d_chaikand
+				}
+				title:c_yinun = {
+					save_scope_as = c_yinun
+					set_de_jure_liege_title = title:d_chaikand
+				}
+				title:c_turanis = {
+					save_scope_as = c_turanis
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_akiser = {
+					save_scope_as = c_akiser
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_akiser_castle = {
+					save_scope_as = c_akiser_castle
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_tatanyid = {
+					save_scope_as = c_tatanyid
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_ushket = {
+					save_scope_as = c_ushket
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_hanekhy = {
+					save_scope_as = c_hanekhy
+					set_de_jure_liege_title = title:d_zakhan
+				}
+				title:d_zakhan = {
+					save_scope_as = d_zakhan
+					set_de_jure_liege_title = title:k_iltan
+				}
+				title:d_usek = {
+					save_scope_as = d_usek
+					set_de_jure_liege_title = title:k_devseg
+				}
+			}
+		}
+		create_title_and_vassal_change = {
+			type = created
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		title:k_transtanaesia = {
+			change_title_holder = {
+				holder = root
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		hidden_effect = { set_primary_title_to = title:k_transtanaesia }
+		if = {
+			limit = {
+				OR = {
+					has_realm_law = crown_authority_0
+					has_realm_law = crown_authority_1
+					has_realm_law = crown_authority_2
+				}
+			}
+			add_realm_law_skip_effects = crown_authority_3
+		}
+		
+		if = {
+			limit = {
+				exists = title:k_urkhanate.holder
+			}
+			destroy_title = title:k_urkhanate
+		}
+		add_prestige = 300 # Full kingdom
+		title:k_transtanaesia = { set_de_jure_liege_title = title:e_calradian_empire }
+		trigger = {
+			culture = { has_cultural_pillar = heritage_calradian }
+			top_liege = {
+				highest_held_title_tier = tier_empire
+			}
+		}
+		trigger_event = ck_tanesis_events.0002
+	}
+	option = { # Unaffiliated Independent Kingdom
+		name = ck_tanesis_events.0001.neutral
+		ai_chance = {
+			base = 50
+		}
+		stress_impact = {
+			ambitious = medium_stress_impact_loss
+		}
+		hidden_effect = {
+			if = {
+				title:d_akkan = {
+					save_scope_as = d_akkan
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:d_chaikand = {
+					save_scope_as = d_chaikand
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:d_tanesis = {
+					save_scope_as = d_tanesis
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:c_usek = {
+					save_scope_as = c_usek
+					set_de_jure_liege_title = title:d_chaikand
+				}
+				title:c_yinun = {
+					save_scope_as = c_yinun
+					set_de_jure_liege_title = title:d_chaikand
+				}
+				title:c_turanis = {
+					save_scope_as = c_turanis
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_akiser = {
+					save_scope_as = c_akiser
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_akiser_castle = {
+					save_scope_as = c_akiser_castle
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_tatanyid = {
+					save_scope_as = c_tatanyid
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_ushket = {
+					save_scope_as = c_ushket
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_hanekhy = {
+					save_scope_as = c_hanekhy
+					set_de_jure_liege_title = title:d_zakhan
+				}
+				title:d_zakhan = {
+					save_scope_as = d_zakhan
+					set_de_jure_liege_title = title:k_iltan
+				}
+				title:d_usek = {
+					save_scope_as = d_usek
+					set_de_jure_liege_title = title:k_devseg
+				}
+			}
+		}
+		create_title_and_vassal_change = {
+			type = created
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		title:k_transtanaesia = {
+			change_title_holder = {
+				holder = root
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		hidden_effect = { set_primary_title_to = title:k_transtanaesia }
+		if = {
+			limit = {
+				OR = {
+					has_realm_law = crown_authority_0
+					has_realm_law = crown_authority_1
+					has_realm_law = crown_authority_2
+				}
+			}
+			add_realm_law_skip_effects = crown_authority_3
+		}
+		if = {
+			limit = {
+				has_title = title:c_makeb
+			}
+			set_realm_capital = title:c_makeb
+		}
+		title:c_makeb = {
+			set_county_culture = root.culture
+		}
+		if = {
+			limit = {
+				exists = title:k_urkhanate.holder
+			}
+			destroy_title = title:k_urkhanate
+		}
+		add_prestige = 300 # Full kingdom
+		trigger = {
+			NOR = {
+				AND = {
+					culture = { has_cultural_pillar = heritage_calradian }
+					top_liege = {
+						highest_held_title_tier = tier_empire
+					}
+				}
+				culture = { has_cultural_pillar = heritage_kohinik }
+				culture = { has_cultural_pillar = heritage_khuzic }
+			}
+			
+		}
+	}
+	option = { # Unaffiliated Independent Kingdom - Chaikand
+		name = ck_tanesis_events.0001.neutral_chaikand
+		ai_chance = {
+			base = 50
+		}
+		stress_impact = {
+			ambitious = medium_stress_impact_loss
+		}
+		hidden_effect = {
+			if = {
+				title:d_akkan = {
+					save_scope_as = d_akkan
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:d_chaikand = {
+					save_scope_as = d_chaikand
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:d_tanesis = {
+					save_scope_as = d_tanesis
+					set_de_jure_liege_title = title:k_transtanaesia
+				}
+				title:c_usek = {
+					save_scope_as = c_usek
+					set_de_jure_liege_title = title:d_chaikand
+				}
+				title:c_yinun = {
+					save_scope_as = c_yinun
+					set_de_jure_liege_title = title:d_chaikand
+				}
+				title:c_turanis = {
+					save_scope_as = c_turanis
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_akiser = {
+					save_scope_as = c_akiser
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_akiser_castle = {
+					save_scope_as = c_akiser_castle
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_tatanyid = {
+					save_scope_as = c_tatanyid
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_ushket = {
+					save_scope_as = c_ushket
+					set_de_jure_liege_title = title:d_ozu
+				}
+				title:c_hanekhy = {
+					save_scope_as = c_hanekhy
+					set_de_jure_liege_title = title:d_zakhan
+				}
+				title:d_zakhan = {
+					save_scope_as = d_zakhan
+					set_de_jure_liege_title = title:k_iltan
+				}
+				title:d_usek = {
+					save_scope_as = d_usek
+					set_de_jure_liege_title = title:k_devseg
+				}
+			}
+		}
+		create_title_and_vassal_change = {
+			type = created
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		title:k_transtanaesia = {
+			change_title_holder = {
+				holder = root
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		hidden_effect = { set_primary_title_to = title:k_transtanaesia }
+		if = {
+			limit = {
+				OR = {
+					has_realm_law = crown_authority_0
+					has_realm_law = crown_authority_1
+					has_realm_law = crown_authority_2
+				}
+			}
+			add_realm_law_skip_effects = crown_authority_3
+		}
+		if = {
+			limit = {
+				has_title = title:c_chaikand
+			}
+			set_realm_capital = title:c_chaikand
+		}
+		title:c_chaikand = {
+			set_county_culture = root.culture
+		}
+		if = {
+			limit = {
+				exists = title:k_urkhanate.holder
+			}
+			destroy_title = title:k_urkhanate
+		}
+		add_prestige = 300 # Full kingdom
+		trigger = {
+			NOR = {
+				AND = {
+					culture = { has_cultural_pillar = heritage_calradian }
+					top_liege = {
+						highest_held_title_tier = tier_empire
+					}
+				}
+				culture = { has_cultural_pillar = heritage_kohinik }
+				culture = { has_cultural_pillar = heritage_khuzic }
+			}
+			
+		}
+	}
+	option = { # Migrate Kohinik tribes to the coast, lowering development of a region if they have Kohinik cultures
+		name = ck_tanesis_events.0001.kohinik.a
+		ai_chance = {
+			base = 50
+		}
+		trigger_event = ck_tanesis_events.0002
+		# hidden_effect = {
+		# 	title:d_akkan = {
+		# 		save_scope_as = d_akkan
+		# 		set_de_jure_liege_title = title:k_transtanaesia
+		# 	}
+		# 	title:d_chaikand = {
+		# 		save_scope_as = d_chaikand
+		# 		set_de_jure_liege_title = title:k_transtanaesia
+		# 	}
+		# 	title:d_tanesis = {
+		# 		save_scope_as = d_akkan
+		# 		set_de_jure_liege_title = title:k_transtanaesia
+		# 	}
+		# 	title:c_usek = {
+		# 		save_scope_as = c_usek
+		# 		set_de_jure_liege_title = title:d_chaikand
+		# 	}
+		# 	title:c_yinun = {
+		# 		save_scope_as = c_yinun
+		# 		set_de_jure_liege_title = title:d_chaikand
+		# 	}
+		# 	title:c_turanis = {
+		# 		save_scope_as = c_turanis
+		# 		set_de_jure_liege_title = title:d_ozu
+		# 	}
+		# 	title:c_akiser = {
+		# 		save_scope_as = c_akiser
+		# 		set_de_jure_liege_title = title:d_ozu
+		# 	}
+		# 	title:c_akiser_castle = {
+		# 		save_scope_as = c_akiser_castle
+		# 		set_de_jure_liege_title = title:d_ozu
+		# 	}
+		# 	title:c_tatanyid = {
+		# 		save_scope_as = c_tatanyid
+		# 		set_de_jure_liege_title = title:d_ozu
+		# 	}
+		# 	title:c_ushket = {
+		# 		save_scope_as = c_ushket
+		# 		set_de_jure_liege_title = title:d_ozu
+		# 	}
+		# 	title:c_hanekhy = {
+		# 		save_scope_as = c_hanekhy
+		# 		set_de_jure_liege_title = title:d_zakhan
+		# 	}
+		# }
+		title:k_transtanaesia = {
+			change_title_holder = {
+				holder = root
+				change = scope:change
+			}
+		}
+		hidden_effect = {
+			move_de_jure_titles = yes
+		}
+		custom_tooltip = new_de_jure_liege
+		# add_prestige = 400 # Gave land to their people
+		trigger = {
+			culture = { has_cultural_pillar = heritage_kohinik }
+		}
+	}
+}
+
+## Kohinik, decide on future of lands
+ck_tanesis_events.0002 = {
+	title = {
+		first_valid = {
+			# Calradian 
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_calradian }
+					top_liege = {
+						highest_held_title_tier = tier_empire
+					}
+				}
+				desc = ck_tanesis_events.0002.t.calradian
+			}
+			# Kohinik
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				desc = ck_tanesis_events.0002.t
+			}
+			# Fallback
+			desc = ck_tanesis_events.0002.t
+		}
+	}
+	desc = {
+		first_valid = {
+			# Calradian
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_calradian }
+					top_liege = {
+						highest_held_title_tier = tier_empire
+					}
+				}
+				desc = ck_tanesis_events.0002.desc.calradian
+			}
+			# Kohinik
+			triggered_desc = {
+				trigger = { 
+					culture = { has_cultural_pillar = heritage_kohinik }
+				}
+				desc = ck_tanesis_events.0002.desc
+			}
+			# Fallback
+			desc = ck_tanesis_events.0001.desc.fallback
+		}
+	}
+	type = character_event
+	window = fullscreen_event
+	override_background = {
+		reference = ck_fullscreen_tanaesis
+	}
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = thinking
+	}
+
+	immediate = {
+		play_music_cue = "mx_cue_positive_effect"
+		every_culture_global = {		
+			limit = {
+				AND = {
+					has_cultural_pillar = heritage_khuzic
+					culture_number_of_counties > 0
+					any_realm_province = {
+						geographical_region = region_k_tanaesis
+					}
+				}
+				
+			}
+			save_scope_as = khuzait_culture_scope
+		}
+	}
+
+	option = { # Increase acceptance to the locals
+		name = ck_tanesis_events.0002.kohinik.a
+		ai_chance = {
+			base = 50
+			modifier = { # 
+				add = 20
+				has_trait = just
+			}
+			modifier = { # 
+				add = 15
+				has_trait = content
+			}
+			modifier = { # 
+				add = 20
+				has_trait = patient
+			}
+			modifier = { # 
+				add = -20
+				has_trait = impatient
+			}
+		}
+		stress_impact = {
+			just = medium_stress_impact_loss
+			impatient = minor_stress_impact_gain
+		}
+		borteq_cultural_acceptance_effect = yes # Increased acceptance and all Khuzuq counties get a positive modifier.
+		hidden_effect = {
+			borteq_popular_opinion_1_effect = yes
+		}
+		custom_tooltip = borteq_popular_opinion_desc
+	}
+	option = { 
+		name = ck_tanesis_events.0002.kohinik.b
+		ai_chance = {
+			base = 50
+			modifier = { #Just rulers will not force out native populations
+				add = -40
+				has_trait = just
+			}
+			modifier = {
+				add = 10
+				has_trait = ambitious
+			}
+		}
+		stress_impact = {
+			just = major_stress_impact_gain
+			ambitious = medium_stress_impact_loss
+		}
+		hidden_effect = { # Assume leadership of Makeb, Chaikand, giving a new tradition
+			move_culture_to_cities = yes
+		}
+		custom_tooltip = ck_tanesis_events.0002.kohinik.b_tooltip
+		custom_tooltip = ck_tanesis_events.0002.kohinik.migrate
+
+		piss_off_rural_locals_effect = yes
+		pull_khuzuq_culture = yes
+		trigger = {
+			culture = { has_cultural_pillar = heritage_kohinik }
+		}
+	}
+	option = { 
+		name = ck_tanesis_events.0002.kohinik.b
+		ai_chance = {
+			base = 50
+			modifier = { #Just rulers will not force out native populations
+				add = -40
+				has_trait = just
+			}
+			modifier = {
+				add = 10
+				has_trait = ambitious
+			}
+		}
+		stress_impact = {
+			just = major_stress_impact_gain
+			ambitious = medium_stress_impact_loss
+		}
+		hidden_effect = { # Assume leadership of Makeb, Chaikand, giving a new tradition
+			move_culture_to_cities = yes
+		}
+		custom_tooltip = ck_tanesis_events.0002.kohinik.b_tooltip
+		custom_tooltip = ck_tanesis_events.0002.calradian.migrate
+
+		piss_off_rural_locals_effect = yes
+		pull_khuzuq_culture = yes
+		trigger = {
+			culture = { has_cultural_pillar = heritage_calradian }
+		}
+	}
+	option = { # 
+		name = ck_tanesis_events.0002.kohinik.c
+		ai_chance = {
+			base = 50
+			modifier = { #Just rulers will not force out native populations
+				add = -40
+				has_trait = just
+			}
+			modifier = {
+				add = 10
+				has_trait = ambitious
+			}
+		}
+		stress_impact = {
+			just = major_stress_impact_gain
+			ambitious = medium_stress_impact_loss
+		}
+		hidden_effect = { # Migrate your people into the pastures and farmlands, giving a tradition to horse MAAs
+			move_culture_to_lower_dev_areas = yes
+		}
+		custom_tooltip = ck_tanesis_events.0002.kohinik.c_tooltip
+		custom_tooltip = ck_tanesis_events.0002.kohinik.migrate
+		trigger = {
+			culture = { has_cultural_pillar = heritage_kohinik }
+		}
+
+		piss_off_urban_locals_effect = yes
+		pull_khuzuq_culture = yes
+	}
+	option = { # 
+		name = ck_tanesis_events.0002.kohinik.c
+		ai_chance = {
+			base = 50
+			modifier = { #Just rulers will not force out native populations
+				add = -40
+				has_trait = just
+			}
+			modifier = {
+				add = 10
+				has_trait = ambitious
+			}
+		}
+		stress_impact = {
+			just = major_stress_impact_gain
+			ambitious = medium_stress_impact_loss
+		}
+		hidden_effect = { # Migrate your people into the pastures and farmlands, giving a tradition to horse MAAs
+			move_culture_to_lower_dev_areas = yes
+		}
+		custom_tooltip = ck_tanesis_events.0002.kohinik.c_tooltip
+		custom_tooltip = ck_tanesis_events.0002.calradian.migrate
+		trigger = {
+			culture = { has_cultural_pillar = heritage_calradian }
+		}
+
+		piss_off_urban_locals_effect = yes
+		pull_khuzuq_culture = yes
+	}
+}
