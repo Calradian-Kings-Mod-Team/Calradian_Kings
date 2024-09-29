@@ -1,4 +1,98 @@
-﻿
+# restore_badd_fortress_scripted_effect = {
+	
+# 	# Buff Ahar 
+# 	title:b_ahar = {
+# 		# Give it an extra building slot.
+# 		title_province = {
+# 			add_province_modifier = extra_building_slot
+# 			add_province_modifier = { #and a mighty defensive buff
+# 				modifier = fp3_mountain_redoubt_modifier
+# 			}
+# 		}	
+# 	}
+# 	title:c_tabriz = { # And a decent development boost.
+# 		change_development_level = minor_development_level_gain
+# 	}
+# 	# Make it your capital if it wasn't already.
+# 	if = {
+# 		limit = {
+# 			NOT = { capital_county = title:c_tabriz }
+# 		}
+# 		set_realm_capital = title:c_tabriz
+# 	}
+# 	title:b_ahar = { set_capital_barony = yes }		
+# }
+
+destroy_the_magi_scripted_effect = {
+
+	add_heresiarch_trait_effect = yes
+
+	religion = { save_scope_as = root_religion }
+
+	faith = {
+		change_fervor = {
+			value = 50
+			desc = fervor_gain_magi_destroyed
+		}
+		if = {
+			limit = { 
+				AND = {
+					has_doctrine = doctrine_spiritual_head 
+					has_doctrine = doctrine_theocracy_temporal
+				}
+			}
+			custom_tooltip = replace_the_high_priest_effect_tooltip
+			hidden_effect = {
+				remove_doctrine = doctrine_spiritual_head
+				add_doctrine = doctrine_no_head 		
+			}
+		}
+	}
+			
+
+	if = {
+		limit = {
+			AND = {
+				root.religion = religion:zoroastrianism_religion
+				# OR = {
+					has_faith = faith:parivashite_faith
+				# 	has_faith = faith:zurvanism 
+				# }
+			}
+		}
+		add_prestige = massive_prestige_gain 
+	}
+
+ 	custom_tooltip = destroy_the_magi_opinion_tooltip 
+	hidden_effect = {
+ 		every_ruler = {
+			if = {
+				limit = {
+					AND = {
+						NOT = {
+							has_faith = faith:parivashite_faith
+							# has_faith = faith:zurvanism 
+						}
+						religion = religion:zoroastrianism_religion
+					}				
+				}
+				add_opinion = {
+					target = root
+					modifier = fp3_spawn_of_ahriman_opinion
+				}
+			}
+			else_if = {
+				limit = {
+					faith = { has_doctrine = doctrine_major_branch_behdin }
+				}
+				add_opinion = {
+					target = root
+					modifier = fp3_abolished_priesthood_opinion
+				}
+			}	
+		}
+	}	
+}
 
 opinion_based_on_sky_burial_viewpoint_scripted_effect = {
 	if = {

@@ -5,9 +5,9 @@ artifact_value_trigger = {
 		limit = {
 			exists = $VALUE$
 		}
-	$VALUE$ >= $MIN$
-	$VALUE$ < $MAX$
-}
+		$VALUE$ >= $MIN$
+		$VALUE$ < $MAX$
+	}
 	trigger_else_if = {
 		limit = {
 			$MIN$ < 50
@@ -100,6 +100,7 @@ artifact_has_religious_decorations_trigger = {
 		has_artifact_feature = decoration_pattern_religion
 		has_artifact_feature = decoration_pattern_religious_symbol
 		has_artifact_feature = decoration_pattern_eschatology
+		has_artifact_feature = icon_decoration_pattern_saint
 	}
 }
 
@@ -302,7 +303,15 @@ artifact_use_mena_building_visuals_trigger = {
 
 artifact_use_mediterranean_building_visuals_trigger = {
 	exists = culture
-	culture = { has_building_gfx = mediterranean_building_gfx }
+	culture = { OR = {
+		has_building_gfx = mediterranean_building_gfx
+		has_building_gfx = byzantine_building_gfx }
+	}
+}
+
+artifact_use_byzantine_building_visuals_trigger = {
+	exists = culture
+	culture = { has_building_gfx = byzantine_building_gfx }
 }
 
 artifact_use_iberian_building_visuals_trigger = {
@@ -352,16 +361,7 @@ artifact_should_use_gfx_type_trigger = {
 }
 
 artifact_low_rarity_trigger = {
-	trigger_if = {
-		limit = { exists = scope:artifact }
-		scope:artifact = {
-			OR = {
-				rarity = masterwork
-				rarity = common
-			}
-		}
-	}
-	trigger_else = {
+	scope:artifact ?= {
 		OR = {
 			rarity = masterwork
 			rarity = common
@@ -370,16 +370,7 @@ artifact_low_rarity_trigger = {
 }
 
 artifact_medium_rarity_trigger = {
-	trigger_if = {
-		limit = { exists = scope:artifact }
-		scope:artifact = {
-			OR = {
-				rarity = masterwork
-				rarity = famed
-			}
-		}
-	}
-	trigger_else = {
+	scope:artifact ?= {
 		OR = {
 			rarity = masterwork
 			rarity = famed
@@ -388,16 +379,7 @@ artifact_medium_rarity_trigger = {
 }
 
 artifact_high_rarity_trigger = {
-	trigger_if = {
-		limit = { exists = scope:artifact }
-		scope:artifact = {
-			OR = {
-				rarity = famed
-				rarity = illustrious
-			}
-		}
-	}
-	trigger_else = {
+	scope:artifact ?= {
 		OR = {
 			rarity = famed
 			rarity = illustrious
@@ -672,7 +654,7 @@ artifact_feature_wood_cherry_trigger = {
 # dogwood
 artifact_feature_wood_dogwood_trigger = {
 	artifact_value_trigger = { VALUE = scope:wealth MIN = 10 MAX = 90 }
-	artifact_region_trigger = { CHARACTER = scope:owner REGION = material_woods_hazel }
+	artifact_region_trigger = { CHARACTER = scope:owner REGION = material_woods_dogwood }
 }
 
 # hazel
@@ -1177,6 +1159,7 @@ artifact_feature_pattern_culture_symbol_trigger = {
 	}
 	scope:owner = {
 		has_royal_court = yes
+		has_dlc_feature = royal_court
 		court_grandeur_current_level > 1
 	}
 }
@@ -1199,6 +1182,7 @@ artifact_feature_pattern_culture_style_trigger = {
 	}
 	scope:owner = {
 		has_royal_court = yes
+		has_dlc_feature = royal_court
 		court_grandeur_current_level > 1
 	}
 }

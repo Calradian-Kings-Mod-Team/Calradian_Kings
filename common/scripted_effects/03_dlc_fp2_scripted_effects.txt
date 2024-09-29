@@ -442,22 +442,109 @@ purchase_truce_interaction_work_out_truce_days_effect = {
 	}
 }
 
+purchase_truce_interaction_work_out_purchase_cost_effect = {
+	scope:actor = {
+		# Small cost.
+		if = {
+			limit = { always = scope:pt_sum_small }
+			pay_short_term_gold = {
+				target = scope:recipient
+				gold = {
+					value = 0
+					add = pt_sum_small_value
+				}
+			}
+		}
+		# Large cost.
+		else_if = {
+			limit = { always = scope:pt_sum_large }
+			pay_short_term_gold = {
+				target = scope:recipient
+				gold = {
+					value = 0
+					add = pt_sum_large_value
+				}
+			}
+		}
+		# Medium cost; we do this last as a fallback.
+		else = {
+			pay_short_term_gold = {
+				target = scope:recipient
+				gold = {
+					value = 0
+					add = pt_sum_medium_value
+				}
+			}
+		}
+	}
+}
+
+purchase_truce_interaction_activate_catalyst_effect = {
+	if = {
+		limit = {
+			any_character_struggle = {
+				involvement = involved
+				activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+					CATALYST = catalyst_bought_important_truce
+					CHAR = scope:recipient
+				}
+			}
+		}
+		every_character_struggle = {
+			involvement = involved
+			limit = {
+				activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+					CATALYST = catalyst_bought_important_truce
+					CHAR = scope:recipient
+				}
+			}
+			activate_struggle_catalyst = {
+				catalyst = catalyst_bought_important_truce
+				character = scope:actor
+			}
+		}
+	}
+
+	# Generic truce catalayst
+	if = {
+		limit = {
+			any_character_struggle = {
+				involvement = involved
+				activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+					CATALYST = catalyst_sign_truce_outside_war
+					CHAR = scope:recipient
+				}
+			}
+		}
+		every_character_struggle = {
+			involvement = involved
+			limit = {
+				activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+					CATALYST = catalyst_sign_truce_outside_war
+					CHAR = scope:recipient
+				}
+			}
+			activate_struggle_catalyst = {
+				catalyst = catalyst_sign_truce_outside_war
+				character = scope:actor
+			}
+		}
+	}
+}
 
 clean_revolt_county_modifiers_from_faction_members_effect = {
 	every_faction_county_member = {
 		if = {
-			if = {
-				limit = { has_county_modifier = small_investment_in_revolt_modifier	}
-				remove_county_modifier = small_investment_in_revolt_modifier
-			}
-			else_if = {
-				limit = { has_county_modifier = medium_investment_in_revolt_modifier	}
-				remove_county_modifier = medium_investment_in_revolt_modifier
-			}
-			else_if = {
-				limit = { has_county_modifier = high_investment_in_revolt_modifier	}
-				remove_county_modifier = high_investment_in_revolt_modifier
-			}
+			limit = { has_county_modifier = small_investment_in_revolt_modifier	}
+			remove_county_modifier = small_investment_in_revolt_modifier
+		}
+		else_if = {
+			limit = { has_county_modifier = medium_investment_in_revolt_modifier	}
+			remove_county_modifier = medium_investment_in_revolt_modifier
+		}
+		else_if = {
+			limit = { has_county_modifier = high_investment_in_revolt_modifier	}
+			remove_county_modifier = high_investment_in_revolt_modifier
 		}
 	}
 }
@@ -564,7 +651,7 @@ fp2_contract_assistance_war_pay_effect = {
 				}
 				scope:contract_assistance_hirer = {
 					send_interface_message = {
-						type = msg_contract_assistance_bad
+						type = event_gold_neutral
 						title = contract_assistance_war_msg_title
 						left_icon = scope:contract_assistance_helper
 						custom_tooltip = contract_assistance_war_msg_hirer_paid_desc
@@ -576,7 +663,7 @@ fp2_contract_assistance_war_pay_effect = {
 				}
 				scope:contract_assistance_helper = {
 					send_interface_message = {
-						type = msg_contract_assistance_good
+						type = event_gold_good
 						title = contract_assistance_war_msg_title
 						left_icon = scope:contract_assistance_hirer
 						custom_tooltip = contract_assistance_war_msg_helper_paid_desc
@@ -594,7 +681,7 @@ fp2_contract_assistance_war_pay_effect = {
 			else = {
 				scope:contract_assistance_hirer = {
 					send_interface_message = {
-						type = msg_contract_assistance_good
+						type = event_gold_neutral
 						title = contract_assistance_war_msg_title
 						left_icon = scope:contract_assistance_helper
 						custom_tooltip = contract_assistance_war_msg_hirer_kept_desc
@@ -606,7 +693,7 @@ fp2_contract_assistance_war_pay_effect = {
 						years = 10
 					}
 					send_interface_message = {
-						type = msg_contract_assistance_bad
+						type = event_gold_bad
 						title = contract_assistance_war_msg_title
 						left_icon = scope:contract_assistance_hirer
 						custom_tooltip = contract_assistance_war_msg_helper_kept_desc
@@ -646,7 +733,7 @@ fp2_contract_assistance_invalidated_effect = {
 			}
 			scope:contract_assistance_hirer = {
 				send_interface_message = {
-					type = msg_contract_assistance_good
+					type = event_gold_neutral
 					title = contract_assistance_war_msg_title
 					left_icon = scope:contract_assistance_helper
 					custom_tooltip = contract_assistance_war_msg_hirer_invalidated_desc
@@ -654,7 +741,7 @@ fp2_contract_assistance_invalidated_effect = {
 			}
 			scope:contract_assistance_helper = {
 				send_interface_message = {
-					type = msg_contract_assistance_bad
+					type = event_gold_neutral
 					title = contract_assistance_war_msg_title					
 					left_icon = scope:contract_assistance_hirer
 					custom_tooltip = contract_assistance_war_msg_helper_invalidated_desc
@@ -748,6 +835,233 @@ invite_special_guest_to_activity_effect = {
 # Other Artefacts
 ##################################################
 
+create_artifact_fp2_armillary_sphere_core_effect = {
+	create_artifact = {	
+		name = fp2_armillary_sphere
+		# Description will be regenerated in the post-creation effects, since we need to nab materials.
+		description = placeholder 
+		creator = scope:maker
+		type = $TYPE$
+		visuals = fp2_armillary_sphere
+		wealth = scope:wealth
+		quality = scope:quality
+		modifier = artifact_placeholder_modifier
+		save_scope_as = newly_created_artifact
+	}
+}
+
+create_artifact_fp2_armillary_sphere_effect = {
+	# Set up general scopes.
+	$OWNER$ = { save_scope_as = owner }
+	$MAKER$ = { save_scope_as = maker }
+	# Begin creating.
+	hidden_effect_new_object = {
+		# Get artifact quality, wealth, and materials.
+		get_artifact_quality_effect = yes
+		get_artifact_wealth_effect = yes
+		# Create the artifact.
+		scope:owner = {
+			if = {
+				limit = { has_royal_court = yes }
+				create_artifact_fp2_armillary_sphere_core_effect = { TYPE = scientific_apparatus }
+			}
+			else = {
+				create_artifact_fp2_armillary_sphere_core_effect = { TYPE = miscellaneous_when_not_court }
+			}
+		}
+		scope:newly_created_artifact = {
+			# Flag this as something that can be reforged for free, if relevant.
+			if = {
+				limit = {
+					$OWNER$ = { has_royal_court = no }
+				}
+				set_variable = {
+					name = dlc_potential_court_artefact
+					value = yes
+				}
+			}
+			set_artifact_feature_group = generic_material_wood
+			set_artifact_feature_group = decoration_material_inlay
+			set_artifact_description = fp2_armillary_sphere_desc
+			# Let's add modifiers!
+			add_scaled_artifact_modifier_learning_lifestyle_xp_effect = yes
+			if = {
+				limit = {
+					OR = {
+						rarity = famed
+						rarity = illustrious
+					}
+				}
+				add_artifact_modifier = artifact_learning_per_prestige_level_modifier
+			}
+			add_scaled_artifact_modifier_grandeur_big_effect = yes
+			# Remove the placeholder.
+			remove_artifact_modifier = artifact_placeholder_modifier
+		}
+	}
+}
+
+create_artifact_fp2_2p_chess_board_effect = {
+	$OWNER$ = { save_scope_as = owner }
+	set_artifact_rarity_common = yes
+	create_artifact = {
+		name = fp2_2p_chess_board
+		description = fp2_2p_chess_board_desc
+		type = miscellaneous_when_not_court
+		visuals = fp2_2p_chess_board
+		wealth = scope:wealth
+		quality = scope:quality
+		modifier = artifact_stress_gain_2_modifier
+		save_scope_as = newly_created_artifact
+	}
+	scope:newly_created_artifact = {
+		# Flag this as something that can be reforged for free.
+		set_variable = {
+			name = dlc_potential_court_artefact
+			value = yes
+		}
+		# And used in board games.
+		set_variable = {
+			name = can_be_used_for_board_games
+			value = yes
+		}
+		hidden_effect = { add_artifact_modifier = artifact_befriend_scheme_phase_duration_add_2_modifier }
+	}
+}
+
+create_artifact_fp2_4p_chess_board_effect = {
+	$OWNER$ = { save_scope_as = owner }
+	set_artifact_rarity_masterwork = yes
+	create_artifact = {
+		name = fp2_4p_chess_board
+		description = fp2_4p_chess_board_desc
+		type = miscellaneous_when_not_court
+		visuals = fp2_4p_chess_board
+		wealth = scope:wealth
+		quality = scope:quality
+		modifier = artifact_stress_gain_4_modifier
+		save_scope_as = newly_created_artifact
+	}
+	scope:newly_created_artifact = {
+		# Flag this as something that can be reforged for free.
+		set_variable = {
+			name = dlc_potential_court_artefact
+			value = yes
+		}
+		# And used in board games.
+		set_variable = {
+			name = can_be_used_for_board_games
+			value = yes
+		}
+		hidden_effect = { add_artifact_modifier = artifact_befriend_scheme_phase_duration_add_4_modifier }
+	}
+}
+
+create_artifact_fp2_andalusian_aquamanile_core_effect = {
+	create_artifact = {
+		name = fp2_andalusian_aquamanile
+		# Description will be regenerated in the post-creation effects, since we need to nab materials.
+		description = placeholder 
+		type = $TYPE$
+		visuals = fp2_andalusian_aquamanile
+		wealth = scope:wealth
+		quality = scope:quality
+		modifier = artifact_negate_health_penalty_add_2_modifier
+		save_scope_as = newly_created_artifact
+	}
+}
+
+create_artifact_fp2_andalusian_aquamanile_effect = {
+	# Set up general scopes.
+	$OWNER$ = { save_scope_as = owner }
+	$SMITH$ = { save_scope_as = maker }
+	# Begin creating.
+	hidden_effect_new_object = {
+		# Get artifact quality, wealth, and materials.
+		get_artifact_quality_effect = yes
+		get_artifact_wealth_effect = yes
+		# Create the artifact.
+		scope:owner = {
+			if = {
+				limit = { has_royal_court = yes }
+				create_artifact_fp2_andalusian_aquamanile_core_effect = { TYPE = jug }
+			}
+			else = {
+				create_artifact_fp2_andalusian_aquamanile_core_effect = { TYPE = miscellaneous_when_not_court }
+			}
+		}
+		scope:newly_created_artifact = {
+			# Flag this as something that can be reforged for free, if relevant.
+			if = {
+				limit = {
+					$OWNER$ = { has_royal_court = no }
+				}
+				set_variable = {
+					name = dlc_potential_court_artefact
+					value = yes
+				}
+			}
+			set_artifact_feature_group = goblet_material
+			set_artifact_feature_group = decoration_material_inlay
+			set_artifact_description = fp2_andalusian_aquamanile_desc
+			# Let's add modifiers!
+			## Illustrious gets to be very swanky.
+			if = {
+				limit = { rarity = illustrious }
+				add_2_scaled_artifact_modifier_devotion_effect = yes
+				add_scaled_artifact_modifier_grandeur_small_effect = yes
+			}
+			## Common is a bit meh.
+			else_if = {
+				limit = { rarity = common }
+				add_scaled_artifact_modifier_devotion_effect = yes
+			}
+			## Everything else is decent.
+			else = { add_2_scaled_artifact_modifier_devotion_effect = yes }
+		}
+	}
+}
+
+fp2_enforce_truce_opinion_effect = {
+	if = {
+		limit = { scope:target.attacker_war_score >= fp2_enforce_truce_war_score_value }
+		reverse_add_opinion = {
+			target = scope:target.primary_attacker
+			modifier = fp2_enforced_truce_opinion
+			opinion = -20
+		}
+		reverse_add_opinion = {
+			target = scope:target.primary_defender
+			modifier = fp2_enforced_truce_opinion
+			opinion = 20
+		}
+	}
+	else_if = {
+		limit = { scope:target.defender_war_score >= fp2_enforce_truce_war_score_value }
+		reverse_add_opinion = {
+			target = scope:target.primary_defender
+			modifier = fp2_enforced_truce_opinion
+			opinion = -20
+		}
+		reverse_add_opinion = {
+			target = scope:target.primary_attacker
+			modifier = fp2_enforced_truce_opinion
+			opinion = 20
+		}
+	}
+	else = {
+		reverse_add_opinion = {
+			target = scope:target.primary_defender
+			modifier = fp2_enforced_truce_opinion
+			opinion = -10
+		}
+		reverse_add_opinion = {
+			target = scope:target.primary_attacker
+			modifier = fp2_enforced_truce_opinion
+			opinion = -10
+		}
+	}
+}
 
 ##############################################################
 # Generic Scripted Effect: Get Lowest/Highest Player Skill

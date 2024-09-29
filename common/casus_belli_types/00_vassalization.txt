@@ -8,13 +8,21 @@
 	defender_score_from_battles_scale = 150
 	
 	allowed_for_character = {
-		# OR = {
+		OR = {
 			has_perk = forced_vassalage_perk
-			# any_character_struggle = {
-			# 	involvement = involved
-			# 	has_struggle_phase_parameter = unlocks_forced_vassalization_casus_belli
-			# }
-		# }
+			AND = {
+				OR = {
+					has_game_rule = default_conquerors_bonuses
+					has_game_rule = extreme_conquerors_bonuses
+					has_game_rule = random_conquerors_bonuses
+				}
+				ai_has_conqueror_personality = yes
+			}
+			ai_should_get_conqueror_bonuses = yes
+		}
+		NOT = {
+			government_has_flag = government_is_landless_adventurer
+		}
 	}
 
 	# Root is the title
@@ -48,7 +56,12 @@
 			}
 
 			trigger_if = { # if unlocked without the perk, only target involved or interloper
-				limit = { NOT = { scope:attacker = { has_perk = forced_vassalage_perk } } }
+				limit = {
+					NOR = {
+						scope:attacker = { has_perk = forced_vassalage_perk }
+						scope:attacker = { ai_should_get_conqueror_bonuses = yes }
+					}
+				}
 				any_character_struggle = {
 					involvement = involved
 				}
@@ -321,6 +334,21 @@
 				}
 				add = -1000
 			}
+		}
+		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
+		multiply = byzantium_conquests_ai_score_value
+
+		#Declaring war on the frankokratia leader can really ruin the whole thing
+		if = {
+			limit = {
+				scope:defender = {
+					any_owned_story = {
+						story_type = frankokratia_story
+						NOT = { has_variable = franko_war_complete }
+					}
+				}
+			}
+			multiply = 0
 		}
 	}
 }
