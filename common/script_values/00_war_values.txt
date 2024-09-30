@@ -285,32 +285,34 @@ byzantium_conquests_ai_score_value = {
 				highest_held_title_tier >= tier_duchy
 				# Now check title ownership.
 				OR = {
-					has_title = title:e_byzantium
-					has_title = title:e_roman_empire
+					has_title = title:e_calradian_empire
+					# has_title = title:e_roman_empire
 					any_liege_or_above = {
-						OR = {
-							has_title = title:e_byzantium
-							has_title = title:e_roman_empire
-						}
+						# OR = {
+							has_title = title:e_calradian_empire
+							# has_title = title:e_roman_empire
+						# }
 					}
 					# Account for the 4th crusade.
 					## Y'know, roughly.
 					AND = {
 						NOT = {
-							exists = title:e_byzantium
+							exists = title:e_calradian_empire
 						}
 						primary_title = {
 							OR = {
-								empire = title:e_byzantium
-								empire = title:e_latin_empire
+								empire = title:e_calradian_empire
+								empire = title:e_southern_empire
+								empire = title:e_western_empire
+								empire = title:e_northern_empire
 							}
 						}
 						OR = {
 							culture = { has_cultural_pillar = heritage_calradian }
-							culture = culture:greek
+							culture = culture:calradian
 							culture = {
     								any_parent_culture_or_above = {
-									this = culture:greek
+									this = culture:calradian
 								}
 							} 
 						}
@@ -323,22 +325,21 @@ byzantium_conquests_ai_score_value = {
 			title_province = {
 				# Constantinople is king.
 				if = {
-					limit = { county = title:c_byzantion }
+					limit = { county = title:c_lycaron }
 					add = 100
 				}
 				## We literally do not care about Rome: New York beats OG York, New Rome beats OG Rome.
 				# Next, we prioritise Anatolia.
 				else_if = {
-					limit = { geographical_region = ghw_region_anatolia }
+					limit = { geographical_region = region_imperial_calradia }
 					add = 5
 				}
 				# Then Greece and the Balkans.
 				else_if = {
 					limit = {
 						OR = {
-							geographical_region = ghw_region_greece
-							geographical_region = ghw_region_thessalonika
-							geographical_region = custom_eastern_balkans
+							geographical_region = region_laconis
+							geographical_region = region_rhodokia
 						}
 					}
 					add = 4.5
@@ -393,7 +394,7 @@ byzantium_conquests_ai_score_value = {
 				}
 				## Then total.
 				else_if = {
-					limit = { geographical_region = custom_roman_empire }
+					limit = { geographical_region = old_calradian_borders }
 					add = 0.5
 				}
 				# And _otherwise_, we probably don't want to even look at this thing.
@@ -407,7 +408,7 @@ muslim_invasions_prefer_nonmuslims_ai_score_value = {
 	value = 1
 	if = {
 		limit = {
-			scope:attacker.religion = religion:islam_religion
+			scope:attacker.religion = religion:aserai_religion
 		}
 		every_in_list = {
 			list = target_titles
@@ -416,18 +417,18 @@ muslim_invasions_prefer_nonmuslims_ai_score_value = {
 					OR = {
 						AND = {
 							tier = tier_county
-							NOT = { holder.top_liege.religion = religion:islam_religion }
+							NOT = { holder.top_liege.religion = religion:aserai_religion }
 							any_county_province = {
-								geographical_region = ghw_region_holy_land
+								geographical_region = custom_roman_syria_palestina
 							}
 						}
 						AND = {
 							tier > tier_county
 							any_in_de_jure_hierarchy = {
 								tier = tier_county
-								NOT = { holder.top_liege.religion = religion:islam_religion }
+								NOT = { holder.top_liege.religion = religion:aserai_religion }
 								any_county_province = {
-									geographical_region = ghw_region_holy_land
+									geographical_region = custom_roman_syria_palestina
 								}
 							}
 						}
@@ -440,10 +441,10 @@ muslim_invasions_prefer_nonmuslims_ai_score_value = {
 					OR = {
 						AND = {
 							tier = tier_county
-							NOT = { holder.top_liege.religion = religion:islam_religion }
+							NOT = { holder.top_liege.religion = religion:aserai_religion }
 							any_county_province = {
 								OR = {
-									geographical_region = ghw_region_anatolia
+									geographical_region = region_calradia_southeast
 									geographical_region = world_india
 								}
 							}
@@ -452,10 +453,10 @@ muslim_invasions_prefer_nonmuslims_ai_score_value = {
 							tier > tier_county
 							any_in_de_jure_hierarchy = {
 								tier = tier_county
-								NOT = { holder.top_liege.religion = religion:islam_religion }
+								NOT = { holder.top_liege.religion = religion:aserai_religion }
 								any_county_province = {
 									OR = {
-										geographical_region = ghw_region_anatolia
+										geographical_region = region_calradia_southeast
 										geographical_region = world_india
 									}
 								}
@@ -470,13 +471,13 @@ muslim_invasions_prefer_nonmuslims_ai_score_value = {
 					OR = {
 						AND = {
 							tier = tier_county
-							NOT = { holder.top_liege.religion = religion:islam_religion }
+							NOT = { holder.top_liege.religion = religion:aserai_religion }
 						}
 						AND = {
 							tier > tier_county
 							any_in_de_jure_hierarchy = {
 								tier = tier_county
-								NOT = { holder.top_liege.religion = religion:islam_religion }
+								NOT = { holder.top_liege.religion = religion:aserai_religion }
 							}
 						}
 					}
