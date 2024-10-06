@@ -1,0 +1,96 @@
+﻿namespace = cid
+
+## NO EL CID
+scripted_trigger cid_0001_hate_trigger = {
+	OR = {
+		has_relation_rival = root
+		has_relation_nemesis = root
+		opinion = {
+			target = root
+			value <= -50
+		}
+	}
+}
+
+scripted_effect create_el_cid_story = {
+	create_story = {
+		type = story_el_cid
+		save_scope_as = new_story
+	}
+	random_owned_story = {
+		limit = { story_type = story_el_cid }
+		save_scope_as = story_el_cid
+		story_owner = {
+			set_variable = {
+				name = cid_enemy
+				value = flag:$ENEMY$
+			}
+			set_variable = {
+				name = cid_liege
+				value = scope:liege
+			}
+			set_variable = {
+				name = cid_loyalty_counter
+				value = 0
+			}
+			set_variable = ongoing_cid_story_cycle
+		}
+	}
+}
+
+scripted_trigger cid_1010_courtier_trigger = {
+	is_adult = yes
+	NOR = {
+		is_close_family_of = root
+		is_spouse_of = root
+	}
+}
+
+scripted_trigger cid_2010_possible_child_trigger = {
+	is_child_of = root
+	trigger_if = {
+		limit = {
+			NOR = {
+				faith = { has_doctrine = doctrine_polygamy }
+				allowed_more_spouses = yes
+			}
+		}
+		is_married = no
+		is_betrothed = no
+	}
+}
+
+scripted_trigger cid_2010_herald_trigger = {
+	is_capable_adult = yes
+	NOR = {
+		is_close_family_of = scope:liege
+		is_spouse_of = scope:liege
+	}
+	NOT = { has_council_position = councillor_court_chaplain }
+}
+
+scripted_effect cid_2010_create_proposed_spouse_effect = {
+	create_character = {
+		template = knight
+		dynasty = none
+		location = scope:liege.location
+		culture = scope:liege.location.culture
+		faith = scope:liege.location.faith
+		gender_female_chance = $CHANCE$
+		save_scope_as = proposed_spouse
+	}
+}
+
+scripted_effect cid_2020_loyal_effect = {
+	if = {
+		limit = { NOT = { has_trait = loyal } }
+		add_trait_force_tooltip = loyal
+	}
+}
+
+scripted_effect cid_4010_disloyal_effect = {
+	if = {
+		limit = { NOT = { has_trait = disloyal } }
+		add_trait_force_tooltip = disloyal
+	}
+}

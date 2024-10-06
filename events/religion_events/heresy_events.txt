@@ -34,6 +34,8 @@ heresy.0001 = {
 				any_held_title = {
 					tier = tier_duchy
 					count < 3 #Limit the influence of Mega-Dukes
+					is_landless_type_title = no
+					is_noble_family_title = no
 				}
 			}
 			#Then accept any valid Duke.
@@ -67,13 +69,27 @@ heresy.0001 = {
 					has_game_rule = strict_regional_heresy
 					trigger_if = {
 						limit = {
+							faith = faith:western_calradic
+						}
+						capital_county = {
+							title_province = {
+								OR = {
+									geographical_region = region_vlandia # Faith/Sect of Darusan
+									geographical_region = region_hetjur_faith
+								}
+							}
+						}
+					}
+					trigger_if = {
+						limit = {
 							faith = faith:calradic
 						}
 						capital_county = {
 							title_province = {
 								OR = {
-									geographical_region = region_imperial_calradia # Darusan
-									geographical_region = region_vlandia # Faith/Sect of Darusan
+									geographical_region = world_steppe # Paulician
+									geographical_region = region_perassic_isles # Iconoclast
+									geographical_region = region_imperial_calradia # Bogomils
 								}
 							}
 						}
@@ -118,45 +134,39 @@ heresy.0001 = {
 					}
 					add_to_list = potential_heresies
 				}
-				#if = { #Does not currently do anything, even if un#'d CK UPDATE
-				#	# Abrahamics also get bonus dualistic heresies
-				#	limit = {
-				#		is_in_family = rf_abrahamic
-				#	}
-				#	if = {
-				#		limit = {
-				#			this = religion:calradian_religion
-				#		}
-				#		faith:darusan = {
-				#			add_to_list = potential_heresies
-				#		}
-				#
-				#	}
-				#	if = {
-				#		limit = {
-				#			current_year <= 1120
-				#			this = religion:calradian_religion
-				#
-				#		}
-				#		faith:ember_flame = {
-				#			add_to_list = potential_heresies
-				#		}
-				#	}
-				#	# else_if = { ### maybe add Aserai heresies soon. Keeping this commented out CK_UPDATE CK_ASERAI CK_RELIGION
-				#	# 	limit = {
-				#	# 		this = religion:aserai_religion
-				#	# 	}
-				#	# 	faith:sarranid_faith = {
-				#	# 		add_to_list = potential_heresies
-				#	# 	}
-				#	# 	faith:sabianism = {
-				#	# 		add_to_list = potential_heresies
-				#	# 	}
-				#	# 	faith:valentinianism = {
-				#	# 		add_to_list = potential_heresies
-				#	# 	}
-				#	# }
-				#}
+				if = { #Does not currently do anything, even if un#'d CK UPDATE
+					# Abrahamics also get bonus dualistic heresies
+					limit = {
+						is_in_family = rf_abrahamic
+					}
+					if = {
+						limit = {
+							this = religion:calradian_religion
+						}
+						faith:darusan = {
+							add_to_list = potential_heresies
+						}
+				
+					}
+					if = {
+						limit = {
+							current_year <= 1120
+							this = religion:calradian_religion
+				
+						}
+						faith:ember_flame = {
+							add_to_list = potential_heresies
+						}
+					}
+					else_if = { ### maybe add Aserai heresies soon. Keeping this commented out CK_UPDATE CK_ASERAI CK_RELIGION
+						limit = {
+							this = religion:aserai_religion
+						}
+						faith:moustari_faith = {
+							add_to_list = potential_heresies
+						}
+					}
+				}
 			}
 
 			#We want to pick certain faiths to be our heresy over others, assuming they are valid.
@@ -271,7 +281,7 @@ heresy.0001 = {
 						this = faith:hetjur
 						scope:heretic_capital = {
 							title_province = {
-								geographical_region = dlc_fp1_region_northern_vlandia
+								geographical_region = region_hetjur_faith
 							}
 						}
 					}
@@ -306,92 +316,93 @@ heresy.0001 = {
 					exists = scope:heretic_faith
 				}
 
-			save_scope_as = origin_faith
+				save_scope_as = origin_faith
 
-				#Determine roughly how many Counties we expext to flip to the heretical Faith.
-			random_list = {
-				20 = {
-					modifier = {
-						add = 20
-						fervor > 30
+					#Determine roughly how many Counties we expext to flip to the heretical Faith.
+				random_list = {
+					20 = {
+						modifier = {
+							add = 20
+							fervor > 30
+						}
+						set_variable = {
+							name = heresy_power
+							value = 10
+						}
 					}
-					set_variable = {
-						name = heresy_power
-						value = 10
+					55 = {
+						set_variable = {
+							name = heresy_power
+							value = 15
+						}
+					}
+					20 = {
+						modifier = {
+							add = 30
+							fervor <= 20
+						}
+						set_variable = {
+							name = heresy_power
+							value = 20
+						}
+					}
+					5 = {
+						modifier = {
+							add = 45
+							fervor <= 10
+						}
+						set_variable = {
+							name = heresy_power
+							value = 25
+						}
 					}
 				}
-				55 = {
-					set_variable = {
-						name = heresy_power
-						value = 15
-					}
-				}
-				20 = {
-					modifier = {
-						add = 30
-						fervor <= 20
-					}
-					set_variable = {
-						name = heresy_power
-						value = 20
-					}
-				}
-				5 = {
-					modifier = {
-						add = 45
-						fervor <= 10
-					}
-					set_variable = {
-						name = heresy_power
-						value = 25
-					}
-				}
-			}
 
-			# Modify heresy power for pluralist/fundamentalist
-			if = {
-				limit = {
-					has_doctrine_parameter = pluralism_pluralistic_resistant_to_heresy
+				# Modify heresy power for pluralist/fundamentalist
+				if = {
+					limit = {
+						has_doctrine_parameter = pluralism_pluralistic_resistant_to_heresy
+					}
+					change_variable = {
+						name = heresy_power
+						multiply = hostility_multiplier_pluralism
+					}
 				}
-				change_variable = {
-					name = heresy_power
-					multiply = hostility_multiplier_pluralism
+				else_if = {
+					limit = {
+						has_doctrine_parameter = pluralism_fundamentalist_vulnerable_to_heresy
+					}
+					change_variable = {
+						name = heresy_power
+						multiply = hostility_multiplier_fundamentalist
+					}
 				}
-			}
-			else_if = {
-				limit = {
-					has_doctrine_parameter = pluralism_fundamentalist_vulnerable_to_heresy
+				# Changes to another religion have reduced heresy power
+				if = {
+					limit = {
+						NOT = { scope:origin_faith.religion = scope:heretic_faith.religion }
+					}
+					change_variable = {
+						name = heresy_power
+						multiply = 0.5
+					}
 				}
-				change_variable = {
-					name = heresy_power
-					multiply = hostility_multiplier_fundamentalist
+				#Flag the heretic faith as the parent faith's active heresy for the next 10 years.
+				set_variable = {
+					name = current_heresy
+					value = scope:heretic_faith
+					days = 3650
 				}
-			}
-			# Changes to another religion have reduced heresy power
-			if = {
-				limit = {
-					NOT = { scope:origin_faith.religion = scope:heretic_faith.religion }
-				}
-				change_variable = {
-					name = heresy_power
-					multiply = 0.5
-				}
-			}
-			#Flag the heretic faith as the parent faith's active heresy for the next 10 years.
-			set_variable = {
-				name = current_heresy
-				value = scope:heretic_faith
-				days = 3650
-			}
-			#Trigger the heresy outbreak event.
-			scope:heretic_ruler = {
-				trigger_event = {
-					id = heresy.0010
-					days = 3
+				#Trigger the heresy outbreak event.
+				scope:heretic_ruler = {
+					trigger_event = {
+						id = heresy.0010
+						days = 3
+					}
 				}
 			}
 		}
-	}	
+	}
 }
 
 ##################################
@@ -719,7 +730,10 @@ heresy.0010 = {
 			desc = heresy.0010.desc.exists
 		}
 	}
-	left_portrait = scope:heretic_ruler
+	left_portrait = {
+		character = scope:heretic_ruler
+		animation = prayer
+	}
 	major = yes
 	theme = faith
 	
@@ -787,7 +801,7 @@ heresy.0010 = {
 						}
 					}
 				}
-				add_trait = heresiarch
+				add_heresiarch_trait_effect = yes
 			}
 
 			#Kick off the follow-up events in the heresy chain.

@@ -3,35 +3,6 @@ cloaks = {
 
 	usage = game
 
-	no_cloak = {
-		dna_modifiers = {
-			accessory = {
-				mode = add
-				
-				gene = cloaks
-				template = no_cloak
-				range = { 0 1 }
-			}
-		}	
-        outfit_tags = { no_clothes nightgown }
-		weight = {
-			base = 0
-			modifier = {
-				add = 100
-				OR = {
-					government_has_flag = government_is_theocracy
-					is_theocratic_lessee = yes
-					has_character_modifier = vow_of_poverty_modifier
-					# Deliberately not the "fully naked" one since dropping your cloak's intended even if nudity is disabled
-					should_be_naked_trigger = yes
-				}
-			}	
-			modifier = {
-				add = 200
-				activity_tournament_shirtless_trigger = yes
-			}
-		}
-	}
 
     ep2_western_era1_low_nobles_cloaks = {
         dna_modifiers = {
@@ -86,7 +57,8 @@ cloaks = {
 					AND = {
 						is_ruler = yes
 						has_government = theocracy_government
-					}  
+					}
+					government_has_flag = government_is_landless_adventurer
                 }  
             }
 		    modifier = {
@@ -118,10 +90,10 @@ cloaks = {
 	                    CULTURE_INPUT = western
 	                }               
                 }
-		NAND = {
-			is_ruler = yes
-			has_government = theocracy_government
-		}
+				NAND = {
+					is_ruler = yes
+					has_government = theocracy_government
+				}
                 has_ep2_dlc_trigger = yes   
                 portrait_era1_trigger = yes     
             }
@@ -164,6 +136,17 @@ cloaks = {
 	                }
                 }
             }
+            modifier = {
+                add = 100       # Era 1 kings and queens will use the era 1 high nobility cloak and not the regular royalty one
+                has_ep2_dlc_trigger = yes   
+                portrait_era1_trigger = yes
+				government_has_flag = government_is_landless_adventurer
+				has_realm_law = camp_purpose_legitimists
+                OR = {
+					portrait_western_clothing_trigger = yes
+					portrait_byzantine_clothing_trigger = yes
+                }
+            }
 		    modifier = {
 		        add = 50
 		        court_fashion_level_5_trigger = {
@@ -171,6 +154,10 @@ cloaks = {
 		        }
 		        has_ep2_dlc_trigger = yes 
 		        portrait_era1_trigger = yes 
+		    }	
+		    modifier = {
+		        factor = 0
+		        has_ep3_dlc_trigger = yes 
 		    }	
         }
     }
@@ -184,6 +171,7 @@ cloaks = {
 				range = { 0 1 }
 			}
 		}
+		outfit_tags = { no_clothes nightgown no_cloak beggar_rags }
 		weight = {
 			base = 0
 			modifier = { # Some random chance for no cloak
@@ -246,6 +234,16 @@ cloaks = {
 				add = 50
 				is_adult = yes
 				OR = {
+					AND = {
+						government_has_flag = government_is_landless_adventurer
+						has_realm_law = camp_purpose_legitimists
+						OR = {
+							portrait_western_clothing_trigger = yes
+							portrait_byzantine_clothing_trigger = yes
+							portrait_dde_hre_clothing_trigger = yes
+							portrait_northern_clothing_trigger = yes
+						}
+					}
 	                portrait_royalty_trigger = {
 	                    CULTURE_INPUT = western
 	                }  
@@ -300,6 +298,40 @@ cloaks = {
                 has_ep2_dlc_trigger = yes   
                 portrait_era1_trigger = yes
             }	
+            modifier = {
+                factor = 0       # Should NOT show up if EP2 is active and we're not in the right era
+                has_ep3_dlc_trigger = yes   
+            }
+		}
+	}
+
+	camp_purpose_brigands_cloaks = {
+		dna_modifiers = {
+			accessory = {
+				mode = add
+				gene = cloaks
+				template = camp_purpose_brigands_cloaks
+				range = { 0 1 }
+			}
+			morph = {
+				mode = add
+				gene = gene_bs_cloak
+				template = cloak
+				value = 1.0
+			}
+		}	
+		weight = {
+			base = 0
+			modifier = {
+				add = 100
+				government_has_flag = government_is_landless_adventurer
+				OR = {
+					has_realm_law = camp_purpose_brigands
+					liege ?= { has_realm_law = camp_purpose_brigands }
+				}
+				portrait_african_clothing_trigger = no
+				has_fp1_dlc_trigger = yes
+			}
 		}
 	}
 
@@ -335,7 +367,7 @@ cloaks = {
 	                } 
 				}
 				has_fp1_dlc_trigger = yes
-			}	
+			}
 			modifier = {
 				add = 51
 				OR = {
@@ -534,6 +566,11 @@ cloaks = {
                 has_ce1_dlc_trigger = yes
                 portrait_wear_no_armor_trigger = yes  
             }
+            modifier = {
+                factor = 0
+                government_has_flag = government_is_landless_adventurer
+				NOT = { has_realm_law = camp_purpose_legitimists }
+            }
         }
     }
 
@@ -571,6 +608,11 @@ cloaks = {
                 }
                 has_ce1_dlc_trigger = yes
                 portrait_wear_no_armor_trigger = yes   
+            }
+            modifier = {
+                factor = 0
+                government_has_flag = government_is_landless_adventurer
+				NOT = { has_realm_law = camp_purpose_legitimists }
             }
         }
     }
@@ -610,6 +652,11 @@ cloaks = {
                 has_ce1_dlc_trigger = yes
                 portrait_wear_no_armor_trigger = yes
             }
+            modifier = {
+                factor = 0
+                government_has_flag = government_is_landless_adventurer
+				NOT = { has_realm_law = camp_purpose_legitimists }
+            }
         }
     }
 
@@ -638,7 +685,12 @@ cloaks = {
             modifier = {
                 add = 50
                 is_adult = yes
-                OR = {   
+                OR = {
+					AND = {
+						government_has_flag = government_is_landless_adventurer
+						has_realm_law = camp_purpose_legitimists
+						portrait_western_clothing_trigger = yes
+					}
                 	portrait_royalty_trigger = { 
 	                    CULTURE_INPUT = western
 	                }    
@@ -753,9 +805,16 @@ cloaks = {
             base = 0
             modifier = {
                 add = 50
-                portrait_high_nobles_clothing_trigger = {
-                    CULTURE_INPUT = afr_berber
-                }
+				OR = {
+					portrait_high_nobles_clothing_trigger = {
+						CULTURE_INPUT = afr_berber
+					}
+					AND = {
+						government_has_flag = government_is_landless_adventurer
+						has_realm_law = camp_purpose_legitimists
+						portrait_afr_berber_clothing_trigger = yes
+					}
+				}
             }
             modifier = {
                 factor = 0
@@ -769,6 +828,185 @@ cloaks = {
                 }  
             }
         }
+    }
+
+
+## EP3 - Roads to Power ##
+
+    ep3_byzantine_era1_low_nobles = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = cloaks
+                template = ep3_byzantine_era1_nob
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            modifier = {
+                add = 25
+                portrait_low_nobles_clothing_trigger = { 
+                    CULTURE_INPUT = byzantine
+                } 
+                has_ep3_dlc_trigger = yes   
+                portrait_era1_trigger = yes     
+            }
+        }
+    }
+
+    ep3_byzantine_era2_low_nobles = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = cloaks
+                template = ep3_byzantine_era2_nob
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            modifier = {
+                add = 25
+                portrait_low_nobles_clothing_trigger = { 
+                    CULTURE_INPUT = byzantine
+                } 
+                has_ep3_dlc_trigger = yes   
+                OR = {
+                	portrait_era2_trigger = yes  
+                	portrait_era3_trigger = yes  
+                	portrait_era4_trigger = yes  
+                }    
+            }
+        }
+    }
+
+    ep3_byzantine_era1_high_nobles = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = cloaks
+                template = ep3_byzantine_era1_nob
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            modifier = {
+                add = 45
+                portrait_high_nobles_clothing_trigger = { 
+                    CULTURE_INPUT = byzantine
+                } 
+                has_ep3_dlc_trigger = yes   
+                portrait_era1_trigger = yes     
+            }
+        }
+    }
+
+    ep3_byzantine_era2_high_nobles = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = cloaks
+                template = ep3_byzantine_era2_nob
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            modifier = {
+                add = 45
+                portrait_high_nobles_clothing_trigger = { 
+                    CULTURE_INPUT = byzantine
+                } 
+                has_ep3_dlc_trigger = yes   
+                OR = {
+                	portrait_era2_trigger = yes  
+                	portrait_era3_trigger = yes  
+                	portrait_era4_trigger = yes  
+                }   
+            }
+            modifier = {
+                factor = 0
+                OR = {
+	                portrait_royalty_clothing_trigger = { 
+	                    CULTURE_INPUT = byzantine
+	                } 
+	                portrait_imperial_clothing_trigger = { 
+	                    CULTURE_INPUT = byzantine
+	                } 
+                } 
+            }
+        }
+    }
+
+    ep3_byzantine_era1_imperial = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = cloaks
+                template = ep3_byzantine_era1_imperial
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            modifier = {
+                add = 100
+                OR = {
+	                portrait_royalty_trigger = { 
+	                    CULTURE_INPUT = byzantine
+	                }   
+	                portrait_imperial_trigger = { 
+	                    CULTURE_INPUT = byzantine
+	                }               
+                }
+                has_ep3_dlc_trigger = yes   
+                portrait_era1_trigger = yes     
+            }
+        }
+    }
+
+    ep3_no_cloak = {
+		dna_modifiers = {
+			accessory = {
+				mode = add
+				gene = cloaks
+				template = no_cloak
+				range = { 0 1 }
+			}
+		}
+		outfit_tags = { no_clothes nightgown no_cloak beggar_rags }
+		weight = {
+			base = 0
+			modifier = { # Some random chance for no cloak
+				add = 50
+				portrait_byzantine_clothing_trigger = yes
+			}
+			modifier = { 
+				add = -15
+            	portrait_low_nobles_trigger = { 
+                    CULTURE_INPUT = byzantine
+                } 
+			}
+			modifier = { 
+				add = -30
+            	portrait_high_nobles_headgear_trigger = { 
+                    CULTURE_INPUT = byzantine
+                } 
+			}
+			modifier = { 
+				add = -50
+				OR = {
+	            	portrait_royalty_trigger = { 
+	                    CULTURE_INPUT = byzantine
+	                } 
+	            	portrait_imperial_trigger = { 
+	                    CULTURE_INPUT = byzantine
+	                } 
+				}
+			}
+		}
     }
 
 	#

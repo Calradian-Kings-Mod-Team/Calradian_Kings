@@ -62,6 +62,7 @@ scripted_trigger pay_homage_valid_trigger = { # Homage is still valid
 		is_alive = yes 
 		is_imprisoned = no 
 		has_royal_court = yes
+		has_dlc_feature = royal_court
 	}
 }
 
@@ -711,13 +712,10 @@ pay_homage.0101 = {
 		random_list = {
 			2 = { # Linguistic
 				trigger = {
+					scope:homage_vassal.learning < average_skill_rating
 					NOT = {
 						scope:homage_vassal = { knows_court_language_of = scope:homage_liege }
 					}
-				}
-				modifier = {
-					factor = 2
-					scope:homage_vassal.learning < average_skill_rating
 				}
 				modifier = {
 					factor = 2
@@ -732,17 +730,12 @@ pay_homage.0101 = {
 				save_scope_value_as = { name = homage_faux_pas_language value = yes }
 			}
 			2 = { # Clumsy
-				trigger = { scope:homage_vassal.prowess <= average_skill_rating }
-				modifier = {
-					factor = 2
-					scope:homage_vassal.prowess < low_skill_rating
-				}
+				trigger = { scope:homage_vassal.prowess < low_skill_rating }
 				save_scope_value_as = { name = homage_faux_pas_clumsy value = yes }
 			}
 			2 = { # Infatuation
-				trigger = { exists = scope:homage_infatuation }
-				modifier = {
-					factor = 2
+				trigger = { 
+					exists = scope:homage_infatuation 
 					scope:homage_vassal.attraction >= 20
 				}
 				save_scope_value_as = { name = homage_faux_pas_infatuation value = yes }
@@ -750,6 +743,7 @@ pay_homage.0101 = {
 			2 = { # Delivery
 				trigger = {
 					scope:homage_vassal = {
+						diplomacy < average_skill_rating
 						OR = {
 							has_trait = stuttering
 							has_trait = lisping
@@ -763,13 +757,9 @@ pay_homage.0101 = {
 						}
 					}
 				}
-				modifier = {
-					factor = 2
-					scope:homage_vassal.diplomacy < average_skill_rating
-				}
 				save_scope_value_as = { name = homage_faux_pas_delivery value = yes }
 			}
-			10 = {}
+			50 = {}
 		}
 		pay_homage_select_nickname_effect = yes # pick a nick to give, if faux pas
 		save_opinion_value_as = {
@@ -1294,7 +1284,7 @@ pay_homage.0601 = {
 		character = scope:homage_liege
 		triggered_animation = {
 			trigger = { is_imprisoned = yes }
-			animation = prison_dungeon
+			animation = prisondungeon
 		}
 		triggered_animation = {
 			trigger = { is_alive = no }

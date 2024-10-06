@@ -144,6 +144,24 @@ set_up_regional_mythical_creature_effect = {
 					value = flag:fin
 				}
 			}
+			50 = {
+				trigger = {
+					location = { geographical_region = custom_gotland }
+				}
+				set_variable = {
+					name = regional_mythical_creature_trinket
+					value = flag:bysn
+				}
+			}
+			50 = {
+				trigger = {
+					location = { geographical_region = custom_gotland }
+				}
+				set_variable = {
+					name = regional_mythical_creature_trinket
+					value = flag:disma
+				}
+			}
 		}
 	}
 	else_if = {
@@ -335,6 +353,60 @@ set_up_regional_mythical_creature_effect = {
 	# 		}
 	# 	}
 	# }
+	else_if = {
+		#West Steppe
+		limit = {
+			location = { geographical_region = world_steppe_west }
+			NOT = { exists = var:regional_mythical_creature_trinket }
+		}
+		random_list = {
+			50 = {
+				set_variable = {
+					name = regional_mythical_creature_trinket
+					value = flag:aptah_baga #Legendary two-headed frog (from Sakha)
+				}
+			}
+			50 = {
+				set_variable = {
+					name = regional_mythical_creature_trinket
+					value = flag:xullyukuns #Supernatural water spirit (from Sakha)
+				}
+			}
+			50 = {
+				set_variable = {
+					name = regional_mythical_creature_trinket
+					value = flag:zilant #Dragon/wyvern-like creature
+				}
+			}
+		}
+	}
+	else_if = {
+		#East Steppe
+		limit = {
+			location = { geographical_region = world_steppe_east }
+			NOT = { exists = var:regional_mythical_creature_trinket }
+		}
+		random_list = {
+			50 = {
+				set_variable = {
+					name = regional_mythical_creature_trinket
+					value = flag:yelbeghen #Seven-headed giant/dragon
+				}
+			}
+			50 = {
+				set_variable = {
+					name = regional_mythical_creature_trinket
+					value = flag:tepegoz #Fleshy giant-like cyclops
+				}
+			}
+			50 = {
+				set_variable = {
+					name = regional_mythical_creature_trinket
+					value = flag:archura #Deceitful forest demon
+				}
+			}
+		}
+	}
 	#Fallback
 	else = {
 		random_list = {
@@ -369,6 +441,10 @@ select_local_farm_animal_effect = {
 			}
 		}
 		50 = {
+			modifier = {
+				factor = 0
+				faith = { religion_tag = hinduism_religion }
+			}
 			set_variable = {
 				name = local_farm_animal
 				value = flag:cow
@@ -443,7 +519,7 @@ select_scapegoat_faith_effect = {
 		}
 		100 = { # Vassal in your realm with hostile faith
 			trigger = {
-				top_liege = {
+				top_liege ?= {
 					any_vassal_or_below = {
 						save_temporary_scope_as = courtier_to_check
 						root.faith = {
@@ -543,7 +619,7 @@ select_scapegoat_faith_effect = {
 				# }
 				1000 = { # Aserai
 					trigger = {
-						capital_province = {
+						capital_province ?= {
 							OR = {
 								geographical_region = region_east_nahasa # This would only apply for non-Islamic middle-easterners
 								geographical_region = world_india
@@ -566,7 +642,7 @@ select_scapegoat_faith_effect = {
 				}
 				1000 = { # Christianity
 					trigger = {
-						capital_province = {
+						capital_province ?= {
 							OR = {
 								geographical_region = world_calradia
 								geographical_region = world_india
@@ -610,7 +686,7 @@ select_scapegoat_faith_effect = {
 				}
 				# 1000 = { # Jainism
 				# 	trigger = {
-				# 		capital_province = {
+				# 		capital_province ?= {
 				# 			OR = {
 				# 				geographical_region = world_india
 				# 				geographical_region = world_burma
@@ -626,7 +702,7 @@ select_scapegoat_faith_effect = {
 				# }
 				1000 = { # Zoroastrianism
 					trigger = {
-						capital_province = {
+						capital_province ?= {
 							OR = {
 								geographical_region = world_india
 								geographical_region = region_east_nahasa
@@ -640,6 +716,87 @@ select_scapegoat_faith_effect = {
 						}
 					}
 				}
+				# 1000 = { # Buddhism (Non-Buddhist Tibetans)
+				# 	trigger = {
+				# 		capital_province ?= {
+				# 			OR = {
+				# 				geographical_region = world_tibet
+				# 				geographical_region = world_burma # In case Burma ceases to be Buddhist
+				# 			}
+				# 		}
+				# 		NOT = { root.faith.religion = religion:buddhism_religion }
+				# 	}
+				# 	religion:buddhism_religion = {
+				# 		random_faith = {
+				# 			save_scope_as = faith_to_blame
+				# 		}
+				# 	}
+				# }
+				# 1000 = { # Bon (Non-Bon Tibetans)
+				# 	trigger = {
+				# 		capital_province ?= {
+				# 			geographical_region = world_tibet
+				# 		}
+				# 		NOT = { root.faith.religion = religion:bon_religion }
+				# 	}
+				# 	religion:bon_religion = {
+				# 		random_faith = {
+				# 			save_scope_as = faith_to_blame
+				# 		}
+				# 	}
+				# }
+				# 1000 = { # West African paganism
+				# 	trigger = {
+				# 		capital_province ?= {
+				# 			geographical_region = region_west_nahasa
+				# 		}
+				# 		NOT = { root.faith.religion = religion:west_african_religion }
+				# 	}
+				# 	religion:west_african_religion = {
+				# 		random_faith = {
+				# 			save_scope_as = faith_to_blame
+				# 		}
+				# 	}
+				# }
+				# 1000 = { # West African paganism
+				# 	trigger = {
+				# 		capital_province ?= {
+				# 			geographical_region = region_west_nahasa
+				# 		}
+				# 		NOT = { root.faith.religion = religion:west_african_bori_religion }
+				# 	}
+				# 	religion:west_african_bori_religion = {
+				# 		random_faith = {
+				# 			save_scope_as = faith_to_blame
+				# 		}
+				# 	}
+				# }
+				# 1000 = { # West African paganism
+				# 	trigger = {
+				# 		capital_province ?= {
+				# 			geographical_region = region_west_nahasa
+				# 		}
+				# 		NOT = { root.faith.religion = religion:west_african_orisha_religion }
+				# 	}
+				# 	religion:west_african_orisha_religion = {
+				# 		random_faith = {
+				# 			save_scope_as = faith_to_blame
+				# 		}
+				# 	}
+				# }
+				# 1000 = { # West African paganism
+				# 	trigger = {
+				# 		capital_province ?= {
+				# 			geographical_region = region_west_nahasa
+				# 		}
+				# 		NOT = { root.faith.religion = religion:west_african_roog_religion }
+				# 	}
+				# 	religion:west_african_roog_religion = {
+				# 		random_faith = {
+				# 			save_scope_as = faith_to_blame
+				# 		}
+				# 	}
+				# }
 				# 1000 = { # Buddhism (Non-Buddhist Tibetans)
 				# 	trigger = {
 				# 		capital_province = {

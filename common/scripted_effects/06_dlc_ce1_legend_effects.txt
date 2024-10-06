@@ -16,6 +16,7 @@
 # balancing_legend_global_var_effect
 # send_interface_message_legend_notification_effect
 # send_interface_toast_legend_notification_effect
+# create_swan_knight_legend_seed_effect
 
 grab_appropriate_chronicler_effect = {
 	if = { #If the culture would have relied on poets for this we grab them first
@@ -343,12 +344,29 @@ grab_mythical_founder_effect = {
 				}
 				10 = { # KANNIC # CK_UPDATE CK_LOCALIZATION CK_FIX - UPDATE THIS WHEN NEW ASERAI KINGDOMS ARE MADE
 					trigger = {
-						OR = {
-							root.primary_title = title:k_aserai
-							root.primary_title = title:e_nahasa
+						AND = {
+							OR = {
+								root.primary_title = title:k_aserai
+								root.primary_title = title:e_nahasa
+								root.primary_title = title:k_kanniq	
+							}
+							NOT = {
+								root.religion = religion:aserai_religion
+							}
 						}
 					}
 					set_variable = { name = mythical_ancestor_var value = flag:kannic_founders }
+				}
+				10 = { # Alixenus
+					trigger = {
+						OR = {
+							scope:target_title = title:k_geroia
+							scope:target_title = title:k_thlos
+							scope:target_title = title:k_lotki
+							scope:target_title = title:e_antipari
+						}
+					}
+					set_variable = { name = mythical_ancestor_var value = flag:alixenus }
 				}
 				1 = { # Fallback, only triggered when necessary
 					set_variable = { name = mythical_ancestor_var value = flag:fallback }
@@ -362,6 +380,8 @@ disburse_hunt_legend_seeds = {
 	if = {
 		limit = {
 			is_ruler = yes
+			has_dlc_feature = legends
+			NOT = { has_game_rule = historical_legends_only }
 		}
 		if = {
 			limit = {
@@ -1037,7 +1057,7 @@ get_appropriate_exotic_location = {
 			trigger = {
 				OR = {
 					religion = { is_in_family = rf_abrahamic }
-					# religion = religion:hellenism_religion
+					religion = religion:thexnyian_religion
 					culture = { has_cultural_pillar = heritage_calradian }
 					culture = { has_cultural_pillar = heritage_palaic }
 				}
@@ -1051,7 +1071,7 @@ get_appropriate_exotic_location = {
 			trigger = {
 				OR = {
 					religion = { is_in_family = rf_abrahamic }
-					# religion = religion:hellenism_religion
+					religion = religion:thexnyian_religion
 					culture = { has_cultural_pillar = heritage_calradian }
 					culture = { has_cultural_pillar = heritage_palaic }
 				}
@@ -1416,15 +1436,15 @@ give_legendary_building_heroic_tooltip_effect = { #50% chance
 				value = 50
 			}
 			give_legendary_building_location_heroic_effect = yes
+			set_variable = {
+				name = legendary_reward_location
+				value = scope:legendary_locale
+			}
+			set_variable = {
+				name = legendary_figure
+				value = scope:protagonist
+			}
 		}
-	}
-	set_variable = {
-		name = legendary_reward_location
-		value = scope:legendary_locale
-	}
-	set_variable = {
-		name = legendary_figure
-		value = scope:protagonist
 	}
 }
 
@@ -1571,9 +1591,6 @@ give_legendary_building_location_standard_effect = {
 	}
 	else = { # Final fallback, just any barony in your realm
 		random_sub_realm_barony = {
-			limit = {
-				title_province = { has_special_building_slot = no }
-			}
 			title_province = { save_scope_as = legendary_locale }
 		}
 	}
@@ -1745,16 +1762,16 @@ mark_historical_legend_as_done = {
 			}
 		}
 	}
-	# if = { # Arthur
-	# 	limit = {
-	# 		legend_property:ancestor ?= character:159835
-	# 		legend_property:title ?= title:k_vlandia
-	# 	}
-	# 	set_global_variable = {
-	# 		name = king_arthur_legend
-	# 		value = yes
-	# 	}
-	# }
+	if = { # Arthur
+		limit = {
+			legend_property:ancestor ?= character:lotkian_alixenus
+			legend_property:title ?= title:e_antipari
+		}
+		set_global_variable = {
+			name = alixenus_legend
+			value = yes
+		}
+	}
 	# else_if = { # Carolingian
 	# 	limit = {
 	# 		legend_property:ancestor ?= character:6392
@@ -2161,6 +2178,68 @@ send_interface_toast_legend_notification_effect = {
 			title = legend_spread_notification_title
 			custom_tooltip = legend_spread_notification_desc
 			left_icon = scope:spread_county
+		}
+	}
+}
+
+create_swan_knight_legend_seed_effect = {
+	if = {
+		limit = {
+			location = {
+				geographical_region = world_calradia
+			}
+		}
+		create_legend_seed = {
+			type = heroic
+			quality = famed
+			chronicle = swan_knight
+			properties = {
+				friendly_animal = flag:swan
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			location = {
+				OR = {
+					geographical_region = world_india
+					geographical_region = world_burma
+					geographical_region = ghw_region_caucasus
+				}
+			}
+		}
+		create_legend_seed = {
+			type = heroic
+			quality = famed
+			chronicle = swan_knight
+			properties = {
+				friendly_animal = flag:tiger
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			location = {
+				geographical_region = world_nahasa
+			}
+		}
+		create_legend_seed = {
+			type = heroic
+			quality = famed
+			chronicle = swan_knight
+			properties = {
+				friendly_animal = flag:lion
+			}
+		}
+	}
+	else = {
+		create_legend_seed = {
+			type = heroic
+			quality = famed
+			chronicle = swan_knight
+			properties = {
+				friendly_animal = flag:hart
+			}
 		}
 	}
 }

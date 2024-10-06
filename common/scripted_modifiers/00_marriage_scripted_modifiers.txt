@@ -155,6 +155,14 @@
 					}
 				}
 			}
+			if = {
+				limit = {
+					scope:actor = {
+						is_at_war = yes
+					}
+				}
+				multiply = 0.5
+			}
 		}
 		scope:recipient = {
 			NOR = {
@@ -165,6 +173,8 @@
 						value <= -3
 					}
 				}
+				is_landless_adventurer = yes
+				scope:actor = { is_landless_adventurer = yes }
 			}
 			OR = {
 				ai_diplomacy_stance = {
@@ -220,6 +230,14 @@
 						multiply = 0.5
 					}
 				}
+			}
+			if = {
+				limit = {
+					scope:actor = {
+						is_at_war = yes
+					}
+				}
+				multiply = 0.5
 			}
 		}
 		scope:recipient = {
@@ -289,6 +307,49 @@
 		}
 		desc = YOU_HAVE_TOO_MANY_ALLIANCES
 	}
+	modifier = {
+		add = {
+			value = -50
+			scope:recipient = { # If the recipient is busy with their own wars its extra unattractive
+				if = {
+					limit = {
+						is_at_war = yes
+					}
+					add = -50
+				}
+			}
+			scope:recipient = { # Cautious or Economic Boom AI's do not want to join your wars
+				if = {
+					limit = {
+						OR = {
+							ai_has_cautious_personality = yes
+							ai_has_economical_boom_personality = yes
+						}
+					}
+					add = -50
+				}
+			}
+		}
+		scope:actor = {
+			is_at_war = yes
+		}
+		scope:recipient = {
+			NOR = {
+				is_allied_to = scope:actor
+				is_close_family_of = scope:actor
+				has_relation_friend = scope:actor
+				has_relation_lover = scope:actor
+				target_is_vassal_or_below = scope:actor
+				target_is_liege_or_above = scope:actor
+			}
+			yields_alliance = {
+				candidate = scope:secondary_recipient
+				target = scope:actor
+				target_candidate = scope:secondary_actor
+			}
+		}
+		desc = YOU_ARE_AT_WAR
+	}
 	# Clan contract: Marriage Favor
 	modifier = {
 		add = 100
@@ -312,169 +373,61 @@
 	# TIER DIFFERENCES #
 	####################
 	modifier = {
-		scope:recipient = {
-			OR = {
-				AND = {
-					is_lowborn = no
-					dynasty = scope:secondary_recipient.dynasty
-				}
-				is_close_or_extended_family_of = scope:secondary_recipient
-			}
+		marry_close_family_tiers_acceptance_value != 0
+		add = marry_close_family_tiers_acceptance_value
+		desc = CLOSE_FAMILY_TIERS_REASON
+		NOT = {
+			scope:actor = { is_landless_adventurer = yes }
 		}
-		scope:actor = {
-			OR = {
-				is_close_or_extended_family_of = scope:secondary_actor
-				this = scope:secondary_actor
-			}
-			tier_difference = {
-				target = scope:recipient
-				value >= 1
-			}
-		}
-		add = {
-			value = scope:actor.highest_held_title_tier
-			subtract = scope:recipient.highest_held_title_tier
-			multiply = 30
-		}
-		desc = MARRYING_UP_REASON
 	}
-	
+
+	##########################
+	# GOVERMMENT DIFFERENCES #
+	##########################
 	modifier = {
+		add = -15
+		scope:actor = { # Individuals within an administrative realm would be unlikely to marry outside the realm
+			government_has_flag = government_is_administrative
+		}
 		scope:recipient = {
-			OR = {
-				AND = {
-					is_lowborn = no
-					dynasty = scope:secondary_recipient.dynasty
-				}
-				is_close_or_extended_family_of = scope:secondary_recipient
-			}
+			NOT = { government_has_flag = government_is_administrative }
 		}
-		scope:actor = {
-			OR = {
-				is_close_or_extended_family_of = scope:secondary_actor
-				this = scope:secondary_actor
-			}
-			tier_difference = {
-				target = scope:recipient
-				value <= -1
-			}
-		}
-		add = {
-			value = scope:actor.highest_held_title_tier
-			subtract = scope:recipient.highest_held_title_tier
-			if = {
-				limit = { scope:actor.highest_held_title_tier = tier_kingdom }
-				multiply = 30
-			}
-			else = {
-				multiply = 40
-			}
-		}
-		desc = MARRYING_DOWN_REASON
+		desc = THEY_ARE_NON_ADMIN_REASON
 	}
-	
+
 	modifier = {
+		add = -15
 		scope:recipient = {
-			OR = {
-				AND = {
-					is_lowborn = no
-					dynasty = scope:secondary_recipient.dynasty
-				}
-				is_close_or_extended_family_of = scope:secondary_recipient
-			}
+			government_has_flag = government_is_administrative
 		}
-		scope:actor = {
-			NOR = {
-				is_close_or_extended_family_of = scope:secondary_actor
-				this = scope:secondary_actor
-			}
-		}
-		NOR = {
-			scope:secondary_actor = {
-				tier_difference = {
-					target = scope:recipient
-					value >= 0
-				}
-			}
-			AND = {
-				exists = scope:secondary_actor.father
-				scope:secondary_actor.father = {
-					tier_difference = {
-						target = scope:recipient
-						value >= 0
-					}
-				}
-			}
-			AND = {
-				exists = scope:secondary_actor.mother
-				scope:secondary_actor.mother = {
-					tier_difference = {
-						target = scope:recipient
-						value >= 0
-					}
-				}
-			}
-		}
+		scope:actor = { # Individuals outside an administrative realm would be unlikely to marry into the realm
+			NOT = { government_has_flag = government_is_administrative }
+		}		
+		desc = YOU_ARE_NON_ADMIN_REASON
+	}
+
+	modifier = {
 		add = {
-			value = 0
 			if = {
 				limit = {
-					scope:secondary_actor = {
-						exists = father.primary_title
-						trigger_if = {
-							limit = {
-								exists = mother.primary_title
-							}
-							father.primary_title.tier >= mother.primary_title.tier
-						}
-					}
+					scope:secondary_recipient = { is_close_or_extended_family_of = scope:recipient }
 				}
-				add = scope:secondary_actor.father.highest_held_title_tier
-				subtract = scope:recipient.highest_held_title_tier
-				if = {
-					limit = { scope:secondary_actor.father.highest_held_title_tier = tier_kingdom }
-					multiply = 30
-				}
-				else = {
-					multiply = 40
-				}
+				add = -50
 			}
 			else_if = {
 				limit = {
-					scope:secondary_actor = {
-						exists = mother.primary_title
-						trigger_if = {
-							limit = {
-								exists = father.primary_title
-							}
-							mother.primary_title.tier >= father.primary_title.tier
-						}
-					}
+					exists = scope:recipient.house
+					scope:secondary_recipient.house ?= scope:recipient.house
 				}
-				add = scope:secondary_actor.mother.highest_held_title_tier
-				subtract = scope:recipient.highest_held_title_tier
-				if = {
-					limit = { scope:secondary_actor.mother.highest_held_title_tier = tier_kingdom }
-					multiply = 30
-				}
-				else = {
-					multiply = 40
-				}
+				add = -30
 			}
-			else = {
-				add = scope:secondary_actor.highest_held_title_tier
-				subtract = scope:recipient.highest_held_title_tier
-				if = {
-					limit = { scope:secondary_actor.highest_held_title_tier = tier_kingdom }
-					multiply = 30
-				}
-				else = {
-					multiply = 40
-				}
-			}
-			
+			else = { add = -20 }
 		}
-		desc = MARRYING_DOWN_REASON
+		scope:actor = { government_has_flag = government_is_landless_adventurer }
+		scope:recipient = {
+			NOT = { government_has_flag = government_is_landless_adventurer }
+		}
+		desc = distrust_laamps_for_marriage_tt
 	}
 
 	############
@@ -622,6 +575,7 @@
 		trigger = {
 			scope:actor = {
 				has_royal_court = yes
+				has_dlc_feature = royal_court
 				NOT = { knows_court_language_of = this }
 			}
 			NOT = {
@@ -631,6 +585,7 @@
 				AND = {
 					scope:recipient = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 					}
 					scope:actor = { # You share Court Language
 						has_same_court_language = scope:recipient
@@ -644,6 +599,7 @@
 					exists = liege 
 					liege = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 						has_same_court_language = scope:actor
 					}
 				}
@@ -658,6 +614,7 @@
 					}
 					liege.liege = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 						has_same_court_language = scope:actor
 					}
 				}
@@ -677,6 +634,7 @@
 					}
 					liege.liege.liege = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 						has_same_court_language = scope:actor
 					}
 				}
@@ -701,6 +659,7 @@
 					}
 					liege.liege.liege.liege = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 						has_same_court_language = scope:actor
 					}
 				}
@@ -714,6 +673,7 @@
 		trigger = {
 			scope:actor = {
 				has_royal_court = yes
+				has_dlc_feature = royal_court
 				knows_court_language_of = this
 			}
 			NOT = {
@@ -723,6 +683,7 @@
 				AND = {
 					scope:recipient = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 					}
 					scope:actor = { # You share Court Language
 						has_same_court_language = scope:recipient
@@ -736,6 +697,7 @@
 					exists = liege 
 					liege = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 						has_same_court_language = scope:actor
 					}
 				}
@@ -750,6 +712,7 @@
 					}
 					liege.liege = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 						has_same_court_language = scope:actor
 					}
 				}
@@ -769,6 +732,7 @@
 					}
 					liege.liege.liege = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 						has_same_court_language = scope:actor
 					}
 				}
@@ -793,10 +757,19 @@
 					}
 					liege.liege.liege.liege = {
 						has_royal_court = yes
+						has_dlc_feature = royal_court
 						has_same_court_language = scope:actor
 					}
 				}
 			}
+		}
+	}
+
+	modifier = { # Contact list for Laamps
+		add = 25
+		desc = laamp_from_contact_list_reason
+		scope:recipient = {
+			is_contact_of = scope:actor
 		}
 	}
 	
@@ -1401,7 +1374,7 @@
 			}
 		}
 		scope:secondary_actor = {
-			is_landed = no
+			is_landed_or_landless_administrative = no
 			NOT = { is_close_or_extended_family_of = scope:secondary_recipient }
 		}
 		desc = VALUABLE_CLAIMANT
@@ -1551,7 +1524,9 @@
 		desc = COWED_REASON
 	}
 
-	opinion_modifier = { # Additional reluctance if recipient likes the close relative
+	# Additional reluctance if recipient likes the close relative
+	## Between landed chars.
+	opinion_modifier = {
 		trigger = {
 			NOT = { scope:recipient = scope:secondary_recipient }
 			scope:recipient = {
@@ -1564,11 +1539,36 @@
 					value > 10
 				}
 			}
+			scope:actor = {
+				NOT = { is_landless_adventurer = yes }
+			}
 		}
 	
 		who = scope:recipient
 		opinion_target = scope:secondary_recipient
 		multiplier = -0.15
+		desc = DEAR_TO_ME_REASON
+	}
+	## Verses an adventurer.
+	opinion_modifier = {
+		trigger = {
+			NOT = { scope:recipient = scope:secondary_recipient }
+			scope:recipient = {
+				OR = {
+					is_close_or_extended_family_of = scope:secondary_recipient
+					has_relation_lover = scope:secondary_recipient
+				}
+				opinion = {
+					target = scope:secondary_recipient
+					value > 10
+				}
+			}
+			scope:actor = { is_landless_adventurer = yes }
+		}
+	
+		who = scope:recipient
+		opinion_target = scope:secondary_recipient
+		multiplier = -1
 		desc = DEAR_TO_ME_REASON
 	}
 
@@ -1641,6 +1641,7 @@
 		desc = COURT_GRANDEUR_LEVEL_MARRIAGE_ACCEPTANCE_BOOST_MODIFIER
 		scope:actor = {
 			has_royal_court = yes
+			has_dlc_feature = royal_court
 			court_grandeur_current_level > court_grandeur_minimum_expected_level
 		}
 	}
@@ -1650,6 +1651,7 @@
 		desc = COURT_GRANDEUR_LEVEL_MARRIAGE_ACCEPTANCE_PENALTY_MODIFIER
 		scope:actor = {
 			has_royal_court = yes
+			has_dlc_feature = royal_court
 			court_grandeur_current_level < court_grandeur_minimum_expected_level
 		}
 	}
@@ -1673,6 +1675,17 @@
 			scope:recipient.culture = scope:actor.culture
 		}
 		desc = TRADITION_PENALTY_ISOLATIONIST
+	}
+	modifier = { # Wedding Ceremonies
+		exists = scope:actor.house
+		scope:actor.house = {
+			has_variable = intermarrying_with_var
+			var:intermarrying_with_var = {
+				this = scope:recipient.house
+			}
+		}
+		add = 20
+		desc = EVENT_BONUS_INTERMARRYING_ADMIN
 	}
 	################
 	#  STRUGGLES   #
@@ -1823,6 +1836,12 @@
 	# 	desc = STRUGGLE_MARRIAGE_ACCEPTANCE_USING_PIETY_AS_CURRENCY
 	# 	scope:piety_cost_reduction ?= yes
 	# }
+
+	modifier = {
+		add = 25
+		desc = INFLUENCE_INTERACTION_ACCEPTANCE_SEND_OPTION
+		scope:influence_send_option = yes
+	}
 	
 	################
 	#  DIARCHIES   #
@@ -2049,57 +2068,10 @@ elopment_ai_accept_modifier = { #Should copy marriage_ai_accept_modifier on rele
 	# TIER DIFFERENCES #
 	####################
 	modifier = {
-		exists = scope:recipient.liege.dynasty
-		scope:recipient = {
-			OR = {
-				AND = {
-					is_lowborn = no
-					exists = dynasty
-					dynasty = scope:recipient.liege.dynasty
-				}
-				is_close_or_extended_family_of = scope:recipient.liege
-				is_spouse_of = scope:recipient.liege
-			}
-		}
-		scope:actor.primary_title.tier > scope:recipient.liege.primary_title.tier
-		add = {
-			value = scope:actor.highest_held_title_tier
-			subtract = scope:recipient.liege.highest_held_title_tier
-			multiply = 30
-		}
-		desc = MARRYING_UP_REASON
+		elope_close_family_tiers_acceptance_value != 0
+		add = elope_close_family_tiers_acceptance_value
+		desc = CLOSE_FAMILY_TIERS_REASON
 	}
-	
-	modifier = {
-		exists = scope:recipient.liege.dynasty
-		scope:recipient = {
-			OR = {
-				AND = {
-					is_lowborn = no
-					exists = dynasty
-					dynasty = scope:recipient.liege.dynasty
-				}
-				is_close_or_extended_family_of = scope:recipient.liege
-				is_spouse_of = scope:recipient.liege
-			}
-		}
-		scope:actor.primary_title.tier < scope:recipient.liege.primary_title.tier
-		add = {
-			value = scope:actor.highest_held_title_tier
-			subtract = scope:recipient.liege.highest_held_title_tier
-			if = {
-				limit = { scope:actor.highest_held_title_tier = tier_kingdom }
-				multiply = 25
-			}
-			else = {
-				multiply = 35
-			}
-		}
-		desc = MARRYING_DOWN_REASON
-	}
-
-	
-
 	
 	###########################
 	# DYNASTY PRESTIGE LEVELS #
@@ -2349,7 +2321,7 @@ divorce_character_ai_accept_modifier = {
 		desc = DIVORCE_IMPOTENT_EUNUCH
 		scope:secondary_recipient = {
 			is_female = no
-			has_trait = eunuch
+			is_eunuch_trigger = yes
 		}
 	}
 
