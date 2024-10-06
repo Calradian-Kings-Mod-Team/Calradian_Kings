@@ -1,41 +1,49 @@
 ﻿abduct = {
-
+	# Basic Setup
 	skill = intrigue
 	desc = "abduct_desc_general"
-	hostile = yes
+	success_desc = "ABDUCT_SUCCESS_DESC"
+	discovery_desc = "ABDUCT_DISCOVERY_DESC"
 	icon = icon_scheme_abduct
+	illustration = "gfx/interface/illustrations/event_scenes/corridor.dds"
+	category = hostile
+	target_type = character
+	is_secret = yes
+	maximum_breaches = 5
+	cooldown = { years = 10 }
 
-	power_per_skill_point = 2.0
-	resistance_per_skill_point = 1.75
-	power_per_agent_skill_point = 1
-
-	minimum_progress_chance = 10
-	maximum_progress_chance = 90
-	minimum_success = 5
+	# Parameters
+	speed_per_skill_point = t2_spsp_owner_value
+	speed_per_target_skill_point = t2_spsp_target_value
+	base_progress_goal = t2_base_phase_length_value
 	maximum_secrecy = 85
-	maximum_success = 85
+	base_maximum_success = t2_base_max_success_value
+	phases_per_agent_charge = 1
+	success_chance_growth_per_skill_point = t2_scgpsp_value
 
+	# Core Triggers
 	allow = {
-		# OR = {
+		OR = {
 			has_perk = kidnapper_perk # Scheme unlocked by the Kidnapper Perk
+			domicile ?= { has_domicile_parameter = camp_reduced_prisoner_escape_chance }
 			# AND = {
 			# 	any_character_struggle = {
 			# 		involvement = involved
 			# 		has_struggle_phase_parameter = unlocks_abduct_for_all
-			# 		# is_secondary_character_involvement_involved_trigger = {
-			# 		# 	CHAR = scope:target
-			# 		# }
+			# 		is_secondary_character_involvement_involved_trigger = {
+			# 			CHAR = scope:target
+			# 		}
 			# 	}
 			# }
-		# }
+		}
 
 		is_adult = yes
-		is_landed = yes
+		is_playable_character = yes
 		is_imprisoned = no
 	}
-
 	valid = {
-		is_landed = yes
+		is_playable_character = yes
+		is_ruler = yes
 		is_incapable = no
 		custom_description = { #If they're your kid you need special traits to do it
 			text = abduct_own_children_block
@@ -66,58 +74,36 @@
 		}
 	}
 
-	valid_agent = {
-		age >= 14
-	}
-
+	# Agents
+	agent_leave_threshold = -25
 	agent_join_chance = {
 		base = 0
 
-		# Base Reluctance, including negative AI Energy
-		modifier = {
-			add = {
-				value = -20
-				if = {
-					limit = {
-						ai_energy < 0
-					}
-					add = {
-						value = ai_energy
-						multiply = 0.5
-					}
-				}
-			}
-			desc = BASE_RELUCTANCE
-		}
-
-		#Is Owner sending a gift in the invite interaction?
-		modifier = {
-			add = bribe_acceptance_value
-			exists = scope:gift
-			always = scope:gift
-			NOT = {
-				OR = {
-					scope:target = { is_parent_of = root }
-					root = { is_parent_of = scope:target }
-				}
-			}
-			desc = "SCHEME_WITH_GIFT"
-		}
-
-		#Scope:target has caused internal strife in the realm
-		character_hates_scope_due_to_strife_plus_desc_modifier = { TARGET = scope:target }
-
-		#Family Feud
-		house_feud_hostile_scheme_agent_modifier = yes
-
-		#Default Hostile Scheme modifiers
-		hostile_murder_agent_base_join_chance_modifier = yes
+		ai_agent_join_chance_basic_suite_modifier = yes
+		ai_agent_join_chance_hostile_grievous_modifier = yes
 	}
+	agent_groups_owner_perspective = { courtiers guests scripted_relations }
+	agent_groups_target_character_perspective = { courtiers vassals }
+	valid_agent = { is_valid_agent_standard_trigger = yes }
 
+	odds_prediction = {
+		add = hostile_scheme_base_odds_prediction_target_is_char_value
+		add = odds_skill_contribution_intrigue_value
+		add = agent_groups_owner_perspective_value
+		add = agent_groups_target_character_perspective_value
+		add = odds_abduct_scheme_misc_value 
+		min = 0
+	}
+	
+	# Base Chances
 	base_success_chance = {
 		base = 0
+		scheme_type_skill_success_chance_modifier = { SKILL = INTRIGUE }
 
 		hostile_scheme_base_chance_modifier = yes
+
+		# Countermeasures.
+		apply_calculated_scheme_success_chance_adjustments_modifier = yes
 
 		# You found their escape tunnel
 		modifier = {
@@ -204,7 +190,7 @@
 			modifier = {
 				add = -150
 				scope:target = {
-					is_landed = no
+					is_playable_character = no
 					exists = liege
 					liege = {
 						is_at_war_with = scope:owner
@@ -215,7 +201,7 @@
 			modifier = {
 				add = -100
 				scope:target = {
-					is_landed = yes
+					is_playable_character = yes
 					exists = liege
 					liege = {
 						is_at_war_with = scope:owner
@@ -227,6 +213,15 @@
 
 		# Diarchs are better at schemes within their liege's realm
 		diarch_scheming_within_realm_bonus_modifier = yes
+		
+		# You have a secret tunnel yourself
+		modifier = {
+			add = 25
+			desc = "SCHEME_SECRET_DOMICILE_TUNNEL"
+			scope:owner = {
+				exists = var:ep3_secret_tunnels_var
+			}
+		}
 
 		# Tailor
 		modifier = {
@@ -240,38 +235,49 @@
 			desc = "tournament_tailor_mixup_scheme_modifier_value"
 		}
 	}
-
-	agent_success_chance = {
-		base = 0
-
-		hostile_scheme_agent_success_chance_modifier = yes #Adds a value depending on their "closeness" to target
+	base_secrecy = {
+		add = secrecy_base_value
+		add = countermeasure_apply_secrecy_maluses_value
 	}
 
-	agent_leave_threshold = -25
-
-	cooldown = { years = 10 }
-	is_secret = yes
-	base_secrecy = 10
-
-	on_ready = {
-		scheme_owner = {
+	# On Actions
+	on_start = {
+		set_variable = {
+			name = apply_countermeasures
+			value = flag:calculating
+		}
+		add_scheme_starting_opportunities_intrigue_effect = yes
+		# Fallback agents — a balanced config if you start the scheme from script.
 			if = {
 				limit = {
-					has_character_flag = is_in_event_abduct_outcome_0001
-				}
-				trigger_event = {
-					id = abduct_outcome.0001
-					days = 1
+				scheme_owner = {
+					NOT = { has_variable = agents_added }
 				}
 			}
-			else = {
-				trigger_event = abduct_outcome.0001
-			}
+			add_agent_slot = agent_thug
+			add_agent_slot = agent_thug
+			add_agent_slot = agent_muscle
+			add_agent_slot = agent_footpad
+			add_agent_slot = agent_lookout
 		}
 	}
-
+	on_phase_completed = {
+		suppress_scheme_follow_up_event_till_input_given_effect = yes
+		abduct_scheme_prep_effect = yes
+		cap_schemes_and_fire_reminders_effect = yes
+	}
+	on_hud_click  = { abduct_scheme_prep_effect = yes }
+	on_semiyearly = {
+		if = {
+			limit = {
+				scheme_owner = { is_ai = yes }
+			}
+			abduct_scheme_prep_effect = yes
+			}
+		}
 	on_monthly = {
-		hostile_scheme_discovery_chance_effect = yes
+		hostile_scheme_monthly_discovery_chance_effect = yes
+
 		if = {
 			limit = {
 				NOT = { exists = scope:discovery_event_happening }
@@ -284,10 +290,8 @@
 			}
 		}
 	}
-
-
 	on_invalidated = {
-		scheme_target = {
+		scheme_target_character = {
 			save_scope_as = target
 		}
 		scheme_owner = {
@@ -368,7 +372,4 @@
 			}
 		}
 	}
-
-	success_desc = "ABDUCT_SUCCESS_DESC"
-	discovery_desc = "ABDUCT_DISCOVERY_DESC"
 }

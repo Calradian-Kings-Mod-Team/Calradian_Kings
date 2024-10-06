@@ -344,12 +344,29 @@ grab_mythical_founder_effect = {
 				}
 				10 = { # KANNIC # CK_UPDATE CK_LOCALIZATION CK_FIX - UPDATE THIS WHEN NEW ASERAI KINGDOMS ARE MADE
 					trigger = {
-						OR = {
-							root.primary_title = title:k_aserai
-							root.primary_title = title:e_nahasa
+						AND = {
+							OR = {
+								root.primary_title = title:k_aserai
+								root.primary_title = title:e_nahasa
+								root.primary_title = title:k_kanniq	
+							}
+							NOT = {
+								root.religion = religion:aserai_religion
+							}
 						}
 					}
 					set_variable = { name = mythical_ancestor_var value = flag:kannic_founders }
+				}
+				10 = { # Alixenus
+					trigger = {
+						OR = {
+							scope:target_title = title:k_geroia
+							scope:target_title = title:k_thlos
+							scope:target_title = title:k_lotki
+							scope:target_title = title:e_antipari
+						}
+					}
+					set_variable = { name = mythical_ancestor_var value = flag:alixenus }
 				}
 				1 = { # Fallback, only triggered when necessary
 					set_variable = { name = mythical_ancestor_var value = flag:fallback }
@@ -1745,16 +1762,16 @@ mark_historical_legend_as_done = {
 			}
 		}
 	}
-	# if = { # Arthur
-	# 	limit = {
-	# 		legend_property:ancestor ?= character:159835
-	# 		legend_property:title ?= title:k_vlandia
-	# 	}
-	# 	set_global_variable = {
-	# 		name = king_arthur_legend
-	# 		value = yes
-	# 	}
-	# }
+	if = { # Arthur
+		limit = {
+			legend_property:ancestor ?= character:lotkian_alixenus
+			legend_property:title ?= title:e_antipari
+		}
+		set_global_variable = {
+			name = alixenus_legend
+			value = yes
+		}
+	}
 	# else_if = { # Carolingian
 	# 	limit = {
 	# 		legend_property:ancestor ?= character:6392
@@ -2203,7 +2220,7 @@ create_swan_knight_legend_seed_effect = {
 	else_if = {
 		limit = {
 			location = {
-				geographical_region = world_africa
+				geographical_region = world_nahasa
 			}
 		}
 		create_legend_seed = {

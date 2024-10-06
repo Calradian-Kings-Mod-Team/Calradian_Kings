@@ -1,0 +1,102 @@
+﻿spawn_historical_characters_effect = {
+	
+	
+	if = { # Petrarch (Francesco Petrarca)
+		limit = {
+			current_year >= 1324
+			current_year <= 1344
+			NOT = { exists = global_var:hchar_petrarch }
+		}
+		set_global_variable = { name = hchar_petrarch value = yes }
+		title:b_garantor = {
+			save_scope_as = birth_location
+			create_character = {
+				age = 20
+				name = "Francesco"
+				gender_female_chance = 0
+				random_traits = no
+				location = scope:birth_location.title_province
+				faith = scope:birth_location.title_province.faith
+				culture = scope:birth_location.title_province.culture
+				trait = education_diplomacy_4
+				trait = ambitious
+				trait = gregarious
+				trait = diligent
+				trait = poet
+				trait = scholar
+				diplomacy = { min_template_high_skill max_template_high_skill }
+				martial = { min_template_low_skill max_template_low_skill }
+				stewardship = { min_template_high_skill max_template_high_skill }
+				intrigue = { min_template_high_skill max_template_high_skill }
+				learning = { min_template_high_skill max_template_high_skill }
+				prowess = { min_template_low_skill max_template_low_skill }
+				save_scope_as = historical_character
+			}
+			scope:historical_character ?= {
+				historical_character_finalization_effect = yes
+				give_nickname = nick_petrarch
+				set_variable = petrarch
+				save_scope_as = major
+				create_inspiration = book_inspiration
+			}
+			if = { limit = { has_variable = petrarch } } # Error suppression
+			spawn_historical_characters_boilerplate_effect = yes
+		}
+	}
+}
+
+historical_character_finalization_effect = {
+	add_trait = historical_character
+	house ?= {
+		generate_coa = yes
+	}
+	dynasty ?= {
+		set_coa = scope:historical_character.house
+	}
+	set_variable = {
+		name = show_historical_gui
+		value = 1
+	}
+}
+
+spawn_historical_characters_boilerplate_effect = {
+	county = { save_scope_as = county_scope }
+	county.holder = {
+		if = {
+			limit = {
+				is_ai = no
+			}
+			trigger_event = historical_char_creation_events.1
+		}
+		else_if = {
+			limit = {
+				OR = {
+					exists = scope:major
+					has_game_rule = all_historical_characters
+				}
+				any_liege_or_above = {
+					is_ai = no
+				}
+			}
+			random_liege_or_above = {
+				limit = {
+					is_ai = no
+				}
+				trigger_event = historical_char_creation_events.1
+			}
+		}
+		else_if = {
+			limit = {
+				exists = scope:county_scope.duchy.holder
+			}
+			scope:county_scope.duchy.holder = {
+				trigger_event = historical_char_creation_events.1
+			}
+		}
+		else = {
+			top_liege = {
+				trigger_event = historical_char_creation_events.1
+			}
+		}
+	}
+}
