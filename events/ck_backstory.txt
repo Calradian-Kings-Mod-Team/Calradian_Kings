@@ -1,5 +1,10 @@
 ﻿namespace = ck_backstory
 
+scripted_effect ck_backstory_imprisoner = {
+	root.location.county.holder = {
+		save_scope_as = ck_imprisoner
+	}
+}
 ck_backstory.0001 = { #Your family was?
 	type = character_event
 	title = ck_backstory.0001.t
@@ -11,7 +16,9 @@ ck_backstory.0001 = { #Your family was?
 		character = root
 		animation = writing
 	}
-
+	immediate = {
+		remove_all_backstory_flags = yes
+	}
 	
 	option = { # Option 1
 		name = CK_FAMILY_1
@@ -20,6 +27,17 @@ ck_backstory.0001 = { #Your family was?
 		}
 		hidden_effect = {
 			add_character_flag = s1.1
+		}
+		show_as_tooltip = {
+			add_character_modifier = {
+				modifier = born_into_nobility
+				# years = 50
+			}
+			dynasty = {
+				add_dynasty_prestige_level = 1
+			}
+			add_prestige_level = 1
+			add_prestige = 250
 		}
 	}
 	option = { # Option 2
@@ -31,6 +49,45 @@ ck_backstory.0001 = { #Your family was?
 		hidden_effect = {
 			add_character_flag = s1.2
 		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_battanian
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_merchants
+					# years = 50
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_nahasi
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_warrior_slaves
+					# years = 50
+				}
+			}
+			# Healers
+			else_if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_battanian
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_healers
+					# years = 50
+				}
+			}
+		}
 	}
 	option = { # Option 3
 		name = CK_FAMILY_3
@@ -39,6 +96,56 @@ ck_backstory.0001 = { #Your family was?
 		}
 		hidden_effect = {
 			add_character_flag = s1.3
+		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_nahasi
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_merchants
+					# years = 50
+				}
+			}
+			else_if = {
+				trigger = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_khuzic
+							has_cultural_pillar = heritage_nahasi
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_farmers
+					# years = 50
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_battanian
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_tribes_b
+					# years = 50
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_khuzic
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_tribes_k
+					# years = 50
+				}
+			}
 		}
 	}
 	option = { # Option 4
@@ -49,6 +156,37 @@ ck_backstory.0001 = { #Your family was?
 		hidden_effect = {
 			add_character_flag = s1.4
 		}
+		show_as_tooltip = {
+			# Blacksmiths
+			if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_khuzic
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_blacksmith
+					# years = 50
+				}
+			}
+			else_if = {
+				trigger = {
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_khuzic
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_farmers
+					# years = 50
+				}
+			}
+		}
 	}
 	option = { # Option 5
 		name = CK_FAMILY_5
@@ -58,6 +196,37 @@ ck_backstory.0001 = { #Your family was?
 		hidden_effect = {
 			add_character_flag = s1.5
 		}
+		show_as_tooltip = {
+			# Hunters
+			if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_calradian
+							has_cultural_pillar = heritage_khuzic
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_hunters
+					# years = 50
+				}
+			}
+			# Nomads
+			else_if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_nahasi
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_nomads
+					# years = 50
+				}
+			}
+		}
 	}
 	option = { # Option 6
 		name = CK_FAMILY_6
@@ -66,6 +235,54 @@ ck_backstory.0001 = { #Your family was?
 		}
 		hidden_effect = {
 			add_character_flag = s1.6
+		}
+		show_as_tooltip = {
+			# Nomads
+			if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_khuzic
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_nomads
+					# years = 50
+				}
+			}
+			# Vagabonds
+			else_if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_squalor
+					# years = 50
+				}
+			}
+			# Mercenaries
+			else_if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_khuzic
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = born_into_mercenaries
+					# years = 50
+				}
+			}
 		}
 	}
 }
@@ -171,13 +388,15 @@ ck_backstory.0002 = { #Your childhood was?
 		triggered_animation = {
 			trigger = { 
 				root = { 
-					has_character_flag = s1.4
-					culture = {
-						NOR = {
-							has_cultural_pillar = heritage_khuzic
-							has_cultural_pillar = heritage_sturgic
-							has_cultural_pillar = heritage_nahasi
-							has_cultural_pillar = heritage_calradian
+					AND = {
+						has_character_flag = s1.4
+						culture = {
+							NOR = {
+								has_cultural_pillar = heritage_khuzic
+								has_cultural_pillar = heritage_sturgic
+								has_cultural_pillar = heritage_nahasi
+								has_cultural_pillar = heritage_calradian
+							}
 						}
 					}
 				} 
@@ -278,6 +497,24 @@ ck_backstory.0002 = { #Your childhood was?
 				}
 			}
 			outfit_tags = { calradian_nobility_clothes }
+		}
+		triggered_outfit = {
+			trigger = { 
+				root = { 
+					AND = {
+						has_character_flag = s1.4
+						culture = {
+							NOR = {
+								has_cultural_pillar = heritage_khuzic
+								has_cultural_pillar = heritage_sturgic
+								has_cultural_pillar = heritage_nahasi
+								has_cultural_pillar = heritage_calradian
+							}
+						}
+					}
+				} 
+			}
+			outfit_tags = { western_commoner_outfit }
 		}
 		triggered_outfit = {
 			trigger = {
@@ -555,6 +792,10 @@ ck_backstory.0002 = { #Your childhood was?
 					culture = root.culture
 					faith = root.faith
 					save_scope_as = ck_father
+					age = {
+						value = root.age
+						add = 21
+					}
 					after_creation = {
 						# add_character_flag = no_headgear
 					}
@@ -564,6 +805,10 @@ ck_backstory.0002 = { #Your childhood was?
 					culture = root.culture
 					faith = root.faith
 					prowess = 16
+					age = {
+						value = root.age
+						add = 19
+					}
 					save_scope_as = ck_mother
 					after_creation = {
 						# add_character_flag = no_headgear
@@ -580,6 +825,11 @@ ck_backstory.0002 = { #Your childhood was?
 		hidden_effect = {
 			add_character_flag = s2.1
 		}
+		show_as_tooltip = {
+			add_martial_skill = 4
+			add_diplomacy_skill = 3
+		}
+		custom_tooltip = random_commander_trait_tt
 	}
 	option = {
 		name = CK_CHILD_2
@@ -589,6 +839,11 @@ ck_backstory.0002 = { #Your childhood was?
 		hidden_effect = {
 			add_character_flag = s2.2
 		}
+		show_as_tooltip = {
+			add_prowess_skill = 6
+			add_martial_skill = 2
+		}
+		custom_tooltip = random_prowess_trait_tt
 	}
 	option = {
 		name = CK_CHILD_3
@@ -597,6 +852,11 @@ ck_backstory.0002 = { #Your childhood was?
 		}
 		hidden_effect = {
 			add_character_flag = s2.3
+		}
+		show_as_tooltip = {
+			add_learning_skill = 2
+			add_intrigue_skill = 2
+			random_diligent_traits = yes
 		}
 	}
 	
@@ -608,6 +868,19 @@ ck_backstory.0002 = { #Your childhood was?
 		hidden_effect = {
 			add_character_flag = s2.4
 		}
+		show_as_tooltip = {
+			add_learning_skill = 4
+			add_stewardship_skill = 4
+			if = {
+				limit = {
+					NOT = {
+						has_trait = logistician
+					}
+				}
+				add_trait = logistician
+			}
+			random_numbers_traits = yes
+		}
 	}
 	option = {
 		name = CK_CHILD_5
@@ -616,6 +889,30 @@ ck_backstory.0002 = { #Your childhood was?
 		}
 		hidden_effect = {
 			add_character_flag = s2.5
+		}
+		show_as_tooltip = {
+			add_diplomacy_skill = 5
+			add_intrigue_skill = 3
+			if = {
+				limit = {
+					NOR = {
+						has_trait = gregarious
+						number_of_personality_traits >= 4
+					}
+				}
+				add_trait_force_tooltip = gregarious
+			}
+			if = {
+				limit = {
+					AND = {
+						has_trait = shy
+						NOT = {
+							number_of_personality_traits >= 4
+						}
+					}
+				}
+				remove_trait_force_tooltip = shy
+			}
 		}
 	}
 	option = {
@@ -626,10 +923,23 @@ ck_backstory.0002 = { #Your childhood was?
 		hidden_effect = {
 			add_character_flag = s2.6
 		}
-	}
-	after = {
-		scope:ck_mother = { silent_disappearance_effect = yes }
-		scope:ck_father = { silent_disappearance_effect = yes }
+		show_as_tooltip = {
+			add_martial_skill = 2
+			add_stewardship_skill = 3
+			if = {
+				limit = {
+					NOT = {
+						has_trait = tourney_participant
+					}
+				}
+				add_trait = tourney_participant
+				add_trait_xp = {
+					trait = tourney_participant
+					track = horse
+					value = 65
+				}
+			}
+		}
 	}
 }
 ck_backstory.0003 = { #Your young adulthood?? Teenager?? I forgor how it was in m&b
@@ -724,6 +1034,48 @@ ck_backstory.0003 = { #Your young adulthood?? Teenager?? I forgor how it was in 
 		hidden_effect = {
 			add_character_flag = s3.1
 		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_khuzic
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ts_town_watch
+					# years = 50
+				}
+				add_trait = tourney_participant
+				add_trait_xp = {
+					trait = tourney_participant
+					track = bow
+					value = 65
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						NOR = {
+							this = culture:vlandian
+							any_parent_culture_or_above = {
+								this = culture:vlandian
+							}
+						}
+					} 
+				}
+				add_character_modifier = {
+					modifier = ts_sheep
+					# years = 50
+				}
+				add_trait = athletic
+			}
+		}
 	}
 	option = {
 		name = CK_TEEN_B
@@ -732,6 +1084,73 @@ ck_backstory.0003 = { #Your young adulthood?? Teenager?? I forgor how it was in 
 		}
 		hidden_effect = {
 			add_character_flag = s3.2
+		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					AND = {
+						NOT = { 
+							has_character_flag = s1.4
+						}
+						culture = {
+							NOR = {
+								this = culture:vlandian
+								any_parent_culture_or_above = {
+									this = culture:vlandian
+								}
+							}
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ts_smithy
+					# years = 50
+				}
+			}
+			else_if = {
+				limit = {
+					AND = {
+						has_character_flag = s1.4
+						culture = {
+							NOR = {
+								has_cultural_pillar = heritage_nahasi
+								has_cultural_pillar = heritage_khuzic
+								this = culture:vlandian
+								any_parent_culture_or_above = {
+									this = culture:vlandian
+								}
+							}
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ts_smithy_2
+					# years = 50
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_khuzic
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ts_alley
+					# years = 50
+				}
+				add_trait = gallowsbait
+				add_trait_xp = {
+					trait = gallowsbait
+					track = thief
+					value = 60
+				}
+			}
 		}
 	}
 	option = {
@@ -742,6 +1161,12 @@ ck_backstory.0003 = { #Your young adulthood?? Teenager?? I forgor how it was in 
 		hidden_effect = {
 			add_character_flag = s3.3
 		}
+		show_as_tooltip = {
+			add_character_modifier = {
+				modifier = ts_docks
+				# years = 50
+			}
+		}
 	}
 	option = {
 		name = CK_TEEN_D
@@ -750,6 +1175,12 @@ ck_backstory.0003 = { #Your young adulthood?? Teenager?? I forgor how it was in 
 		}
 		hidden_effect = {
 			add_character_flag = s3.4
+		}
+		show_as_tooltip = {
+			add_character_modifier = {
+				modifier = ts_market
+				# years = 50
+			}
 		}
 	}
 	option = {
@@ -760,6 +1191,49 @@ ck_backstory.0003 = { #Your young adulthood?? Teenager?? I forgor how it was in 
 		hidden_effect = {
 			add_character_flag = s3.5
 		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_khuzic
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ts_reading
+					# years = 50
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						NOR = {
+							this = culture:vlandian
+							any_parent_culture_or_above = {
+								this = culture:vlandian
+							}
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ts_herbs
+					# years = 50
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_trait = lifestyle_physician
+						}
+					}
+					add_trait = lifestyle_physician
+				}
+			}
+		}
 	}
 	option = {
 		name = CK_TEEN_F
@@ -769,10 +1243,78 @@ ck_backstory.0003 = { #Your young adulthood?? Teenager?? I forgor how it was in 
 		hidden_effect = {
 			add_character_flag = s3.6
 		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_khuzic
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ts_stables
+					# years = 50
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						NOR = {
+							this = culture:vlandian
+							any_parent_culture_or_above = {
+								this = culture:vlandian
+							}
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ts_small_game
+					# years = 50
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_trait = lifestyle_hunter
+						}
+					}
+					add_trait = lifestyle_hunter
+				}
+			}
+			if = {
+				limit = {
+					AND = {
+						culture = {
+							NOR = {
+								has_cultural_pillar = heritage_sturgic
+								has_cultural_pillar = heritage_battanian
+								has_cultural_pillar = heritage_nahasi
+								has_cultural_pillar = heritage_khuzic
+							}
+						}
+						NOT = {
+							AND = {
+								has_trait = tourney_participant
+								has_character_flag = s2.6
+							}
+						}
+					}
+				}
+				add_trait = tourney_participant
+				add_trait_xp = {
+					trait = tourney_participant
+					track = horse
+					value = 65
+				}
+			}
+		}
 	}
 	after = {
-		scope:ck_mother = { silent_disappearance_effect = yes }
-		scope:ck_father = { silent_disappearance_effect = yes }
+		scope:ck_player_infant = { silent_disappearance_effect = yes }
 	}
 }
 ck_backstory.0004 = { # Youth - training
@@ -817,7 +1359,6 @@ ck_backstory.0004 = { # Youth - training
 								has_cultural_pillar = heritage_khuzic
 								has_cultural_pillar = heritage_sturgic
 								has_cultural_pillar = heritage_nahasi
-								has_cultural_pillar = heritage_calradian
 								has_cultural_pillar = heritage_battanian
 							}
 						}
@@ -853,6 +1394,75 @@ ck_backstory.0004 = { # Youth - training
 		hidden_effect = {
 			add_character_flag = s4.1
 		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					NOR = {
+						has_trait = open_terrain_expert
+						culture = {
+							OR = {
+								has_cultural_pillar = heritage_sturgic
+								has_cultural_pillar = heritage_battanian
+							}
+						}
+					}
+				}
+				add_trait = open_terrain_expert
+			}
+			if = {
+				limit = {
+					NOR = {
+						has_character_flag = s2.6
+						AND = {
+							culture = {
+								NOR = {
+									has_cultural_pillar = heritage_sturgic
+									has_cultural_pillar = heritage_battanian
+									has_cultural_pillar = heritage_nahasi
+									has_cultural_pillar = heritage_khuzic
+								}
+							}
+							has_character_flag = s3.6
+						}
+						culture = {
+							OR = {
+								has_cultural_pillar = heritage_sturgic
+								has_cultural_pillar = heritage_battanian
+							}
+						}
+					}
+				}
+				add_trait = tourney_participant
+				add_trait_xp = {
+					trait = tourney_participant
+					track = horse
+					value = 65
+				}
+				add_martial_skill = 1
+			}
+			else_if = {
+				limit = {
+					AND = {
+						culture = {
+							NOR = {
+								has_cultural_pillar = heritage_calradian
+								has_cultural_pillar = heritage_nahasi
+								this = culture:vlandian
+								any_parent_culture_or_above = {
+									this = culture:vlandian
+								}
+								has_cultural_pillar = heritage_khuzic
+							}
+						} 
+						NOT = {
+							has_trait = unyielding_defender
+						}
+					}
+				}
+				add_trait = unyielding_defender
+				add_martial_skill = 1
+			}
+		}
 	}
 	option = {
 		name = CK_YOUTH_2
@@ -861,6 +1471,43 @@ ck_backstory.0004 = { # Youth - training
 		}
 		hidden_effect = {
 			add_character_flag = s4.2
+		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					NOR = {
+						AND = {
+							has_character_flag = s3.1
+							culture = {
+								NOR = {
+									has_cultural_pillar = heritage_sturgic
+									has_cultural_pillar = heritage_battanian
+									has_cultural_pillar = heritage_nahasi
+									has_cultural_pillar = heritage_khuzic
+									has_cultural_pillar = heritage_calradian
+								}
+							}
+						}
+						has_trait = tourney_participant
+					}
+				}
+				add_trait = tourney_participant
+				add_trait_xp = {
+					trait = tourney_participant
+					track = bow
+					value = 65
+				}
+				add_martial_skill = 1
+			}
+			else_if = {
+				limit = {
+					NOT = {
+						has_trait = unyielding_defender
+					}
+				}
+				add_trait = unyielding_defender
+				add_martial_skill = 1
+			}
 		}
 	}
 	option = {
@@ -871,6 +1518,20 @@ ck_backstory.0004 = { # Youth - training
 		hidden_effect = {
 			add_character_flag = s4.3
 		}
+		show_as_tooltip = {
+			add_character_modifier = {
+				modifier = training_scouts
+				# years = 50
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_trait = organizer
+					}
+				}
+				add_trait = organizer
+			}
+		}
 	}
 	option = {
 		name = CK_YOUTH_4
@@ -879,6 +1540,20 @@ ck_backstory.0004 = { # Youth - training
 		}
 		hidden_effect = {
 			add_character_flag = s4.4
+		}
+		show_as_tooltip = {
+			add_character_modifier = {
+				modifier = training_infantry
+				# years = 50
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_trait = flexible_leader
+					}
+				}
+				add_trait = flexible_leader
+			}
 		}
 	}
 	option = {
@@ -889,6 +1564,42 @@ ck_backstory.0004 = { # Youth - training
 		hidden_effect = {
 			add_character_flag = s4.5
 		}
+		show_as_tooltip = {
+			add_character_modifier = {
+				modifier = training_skirmishers
+				# years = 50
+			}
+			if = {
+				limit = {
+					NOR = {
+						has_trait = cautious_leader
+						culture = {
+							OR = {
+								has_cultural_pillar = heritage_battanian
+								has_cultural_pillar = heritage_sturgic
+							}
+						}
+					}
+				}
+				add_trait = cautious_leader
+			}
+			else_if = {
+				limit = {
+					AND = {
+						culture = {
+								OR = {
+									has_cultural_pillar = heritage_battanian
+									has_cultural_pillar = heritage_sturgic
+								}
+							}
+						NOT = {
+							has_trait = forest_fighter
+						}
+					}
+				}
+				add_trait = forest_fighter
+			}
+		}
 	}
 	option = {
 		name = CK_YOUTH_6
@@ -898,6 +1609,33 @@ ck_backstory.0004 = { # Youth - training
 		hidden_effect = {
 			add_character_flag = s4.6
 		}
+		show_as_tooltip = {
+			add_character_modifier = {
+				modifier = training_marched
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_trait = forder
+					}
+				}
+				add_trait = forder
+			}
+			if = {
+				limit = {
+					NOT = {
+						AND = {
+							has_character_flag = s2.4
+							has_trait = logistician
+						}
+					}
+				}
+				add_trait = logistician
+			}
+		}
+	}
+	after = {
+		scope:ck_player_child = { silent_disappearance_effect = yes }
 	}
 }
 ck_backstory.0005 = { # Later youth - adventure
@@ -911,7 +1649,6 @@ ck_backstory.0005 = { # Later youth - adventure
 		character = scope:ck_player_teen
 		animation = marshal
 		triggered_outfit = {
-			remove_default_outfit = yes
 			outfit_tags = { military_outfit }
 		}
 		# Battanian Kern
@@ -954,14 +1691,61 @@ ck_backstory.0005 = { # Later youth - adventure
 		if = {
 			limit = { is_ai = no }
 			hidden_effect = {
-				create_character = {
-					template = ck_doppelganger_teen_template
-					culture = root.culture
-					faith = root.faith
-					save_scope_as = ck_player_teen
-					after_creation = {
-						add_character_flag = no_headgear
-						add_character_flag = no_beard
+				if = {
+					limit = {
+						NOT = {
+							exists = scope:ck_player_teen
+						}
+					}
+					create_character = {
+						template = ck_doppelganger_teen_template
+						culture = root.culture
+						faith = root.faith
+						save_scope_as = ck_player_teen
+						after_creation = {
+							add_character_flag = no_headgear
+							add_character_flag = no_beard
+						}
+					}
+				}
+				if = {
+					limit = {
+						OR = {
+							scope:ck_victim = {
+								is_alive = no
+							}
+							NOT = {
+								exists = scope:ck_victim
+							}
+						}
+					}
+					create_character = {
+						gender_female_chance = 0
+						location = root.location
+						template = new_warrior_character
+						faith = root.faith
+						culture = root.culture
+						save_scope_as = ck_victim
+					}
+				}
+				if = {
+					limit = {
+						OR = {
+							NOT = {
+								exists = scope:ck_prisoner
+							}
+							scope:ck_prisoner = {
+								is_alive = no
+							}
+						}
+					}
+					create_character = {
+						gender_female_chance = 0
+						location = root.location
+						template = new_warrior_character
+						faith = root.location.faith
+						culture = root.location.culture
+						save_scope_as = ck_prisoner
 					}
 				}
 			}
@@ -975,6 +1759,19 @@ ck_backstory.0005 = { # Later youth - adventure
 		}
 		hidden_effect = {
 			add_character_flag = s5.1
+			scope:ck_prisoner = { silent_disappearance_effect = yes }
+		}
+		show_as_tooltip = {
+			custom_tooltip = {
+				text = ck_backstory_kill_enemy
+				scope:ck_victim = {
+					death = {
+						death_reason = death_battle
+						killer = root
+					}
+				}
+			}
+			add_prestige = 200
 		}
 	}
 	option = {
@@ -984,6 +1781,46 @@ ck_backstory.0005 = { # Later youth - adventure
 		}
 		hidden_effect = {
 			add_character_flag = s5.2
+			scope:ck_victim = { silent_disappearance_effect = yes }
+		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_khuzic
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_calradian
+						}
+					} 
+				}
+				root.location.county.holder = {
+					imprison = {
+						target = scope:ck_prisoner
+						type = dungeon
+					}
+					add_opinion = {
+						target = root
+						modifier = ck_caught_thief
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_calradian
+					}
+				}
+				add_character_modifier = {
+					modifier = travel_local_hero_modifier
+				}
+				add_prestige = 100
+			}
+			else = {
+				add_prestige = 300
+			}
 		}
 	}
 	option = {
@@ -993,6 +1830,11 @@ ck_backstory.0005 = { # Later youth - adventure
 		}
 		hidden_effect = {
 			add_character_flag = s5.3
+			scope:ck_prisoner = { silent_disappearance_effect = yes }
+			scope:ck_victim = { silent_disappearance_effect = yes }
+		}
+		show_as_tooltip = {
+			add_gold = 50
 		}
 	}
 	option = {
@@ -1002,6 +1844,28 @@ ck_backstory.0005 = { # Later youth - adventure
 		}
 		hidden_effect = {
 			add_character_flag = s5.4
+			scope:ck_prisoner = { silent_disappearance_effect = yes }
+			scope:ck_victim = { silent_disappearance_effect = yes }
+		}
+		show_as_tooltip = {
+			if = {
+				limit = {
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_khuzic
+							has_cultural_pillar = heritage_nahasi
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = modifier_hunt_hunting_trophy
+				}
+			}
+			else = {
+				add_prestige = 250
+			}
 		}
 	}
 	option = {
@@ -1009,8 +1873,14 @@ ck_backstory.0005 = { # Later youth - adventure
 		trigger_event = {
 			id = ck_backstory.0006
 		}
+		show_as_tooltip = {
+			add_trait = lifestyle_reveler
+			add_piety = -15
+		}
 		hidden_effect = {
 			add_character_flag = s5.5
+			scope:ck_prisoner = { silent_disappearance_effect = yes }
+			scope:ck_victim = { silent_disappearance_effect = yes }
 		}
 	}
 	option = {
@@ -1020,7 +1890,25 @@ ck_backstory.0005 = { # Later youth - adventure
 		}
 		hidden_effect = {
 			add_character_flag = s5.6
+			scope:ck_prisoner = { silent_disappearance_effect = yes }
+			scope:ck_victim = { silent_disappearance_effect = yes }
 		}
+		trigger = {
+			NOT = {
+				has_trait = callous
+			}
+		}
+		show_as_unavailable = {
+			has_trait = callous
+		}
+		show_as_tooltip = {
+			add_character_modifier = {
+				modifier = kindness_ck
+			}
+		}
+	}
+	after = {
+		scope:ck_player_teen = { silent_disappearance_effect = yes }
 	}
 }
 ck_backstory.0006 = { #Reason for adventuring
@@ -1095,6 +1983,9 @@ ck_backstory.0006 = { #Reason for adventuring
 			id = ck_backstory.0007
 		}
 	}
+	after = {
+		scope:ck_player_young = { silent_disappearance_effect = yes }
+	}
 }
 ck_backstory.0007 = { # Synopsis
 	type = character_event
@@ -1108,7 +1999,6 @@ ck_backstory.0007 = { # Synopsis
 		character = root
 		animation = thinking
 	}
-
 	option = {
 		name = FINISH_CK_DONE
 		trigger_event = {
@@ -1127,47 +2017,26 @@ ck_backstory.0007 = { # Synopsis
 			create_character_memory = {
 				type = ck_backstory_memory_ach
 			}
-
+			parents_ck_marry = yes
 		}
+		overall_backstory_effect = yes
+		new_mom_and_dad = yes
 	}
 	option = {
 		name = GO_BACK_CK
 		trigger_event = {
 			id = ck_backstory.0001
 		}
+		custom_tooltip = {
+			text = family_type_gg
+		}
 		hidden_effect = {
-		#This also deserves a memory
-			remove_character_flag = s1.1
-			remove_character_flag = s1.2
-			remove_character_flag = s1.3
-			remove_character_flag = s1.4
-			remove_character_flag = s1.5
-			remove_character_flag = s1.6
-			remove_character_flag = s2.1
-			remove_character_flag = s2.2
-			remove_character_flag = s2.3
-			remove_character_flag = s2.4
-			remove_character_flag = s2.5
-			remove_character_flag = s2.6
-			remove_character_flag = s3.1
-			remove_character_flag = s3.2
-			remove_character_flag = s3.3
-			remove_character_flag = s3.4
-			remove_character_flag = s3.5
-			remove_character_flag = s3.6
-			remove_character_flag = s4.1
-			remove_character_flag = s4.2
-			remove_character_flag = s4.3
-			remove_character_flag = s4.4
-			remove_character_flag = s4.5
-			remove_character_flag = s4.6
-			remove_character_flag = s5.1
-			remove_character_flag = s5.2
-			remove_character_flag = s5.3
-			remove_character_flag = s5.4
-			remove_character_flag = s5.5
-			remove_character_flag = s5.6
-
+			#This also deserves a memory
+			remove_all_backstory_flags = yes
+			scope:ck_mother = { silent_disappearance_effect = yes }
+			scope:ck_father = { silent_disappearance_effect = yes }
+			scope:ck_prisoner = { silent_disappearance_effect = yes }
+			scope:ck_victim = { silent_disappearance_effect = yes }
 		}
 	}
 }

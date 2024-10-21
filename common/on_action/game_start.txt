@@ -2107,7 +2107,29 @@ on_game_start_after_lobby = {
 					move_to_pool = yes
 				}
 				# Courtiers.
-				trigger_event = ck_backstory.0001
+				if = {
+					limit = {
+						AND = {
+							is_ai = no
+							has_game_rule = ck_backstory_enabled
+							is_from_ruler_designer = yes
+						}
+					}
+					trigger_event = ck_backstory.0001
+				}
+				else_if = {
+					limit = {
+						OR = {
+							is_ai = yes
+							has_game_rule = ck_backstory_disabled
+							AND = {
+								is_ai = yes
+								has_game_rule = ck_backstory_enabled
+							}
+						}
+					}
+					trigger_event = ep3_laamps.1001
+				}
 			}
 			# Starting camp purposes.
 			character:jawwal_landless_1 ?= {
