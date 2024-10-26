@@ -1,0 +1,281 @@
+﻿recruit_local_troops_decision = {
+	ai_check_interval = 0
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
+	}
+	desc = recruit_local_troops_decision_desc
+	decision_group_type = adventurer_minor
+
+	is_shown = {
+		is_landless_adventurer = yes
+		is_landed = no
+	}
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = recruits_local_cooldown_desc
+			NOT = {
+				has_character_flag = recruits_local_troops_cooldown
+			}
+		}
+		trigger_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_calradian
+				}
+			}
+			custom_tooltip = {
+				text = recruits_local_troops_tt_desc
+				NOT = {
+					has_character_flag = recruits_calradian_troops
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_battanian
+				}
+			}
+			custom_tooltip = {
+				text = recruits_local_troops_tt_desc
+				NOT = {
+					has_character_flag = recruits_battanian_troops
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_balian
+				}
+			}
+			custom_tooltip = {
+				text = recruits_local_troops_tt_desc
+				NOT = {
+					has_character_flag = recruits_balian_troops
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+			}
+			custom_tooltip = {
+				text = recruits_local_troops_tt_desc
+				NOT = {
+					has_character_flag = recruits_nahasi_troops
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_khuzic
+				}
+			}
+			custom_tooltip = {
+				text = recruits_local_troops_tt_desc
+				NOT = {
+					has_character_flag = recruits_khuzic_troops
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_sturgic
+				}
+			}
+			custom_tooltip = {
+				text = recruits_local_troops_tt_desc
+				NOT = {
+					has_character_flag = recruits_sturgic_troops
+				}
+			}
+		}
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = valid_culture_desc
+			domicile.domicile_location.county.culture = {
+				NOT = {
+					has_same_culture_heritage = root.culture
+				}
+			}
+		}
+		custom_tooltip = {
+			text = valid_cultural_area_desc
+			domicile.domicile_location.county.culture = {
+				OR = {
+					has_cultural_pillar = heritage_calradian
+					has_cultural_pillar = heritage_battanian
+					has_cultural_pillar = heritage_balian
+					has_cultural_pillar = heritage_nahasi
+					has_cultural_pillar = heritage_khuzic
+					has_cultural_pillar = heritage_sturgic
+				}
+			}
+		}
+	}
+
+	effect = {
+		add_character_flag = {
+			flag = recruits_local_troops_cooldown
+			weeks = 12
+		}
+		add_character_flag = recruits_local_troops
+		## I know this shit below is ugly, but it works
+		remove_character_flag = recruits_calradian_troops
+		remove_character_flag = recruits_battanian_troops
+		remove_character_flag = recruits_balian_troops
+		remove_character_flag = recruits_khuzic_troops
+		remove_character_flag = recruits_nahasi_troops
+		remove_character_flag = recruits_sturgic_troops
+		if = {
+			limit = {
+				NOT = {
+					has_character_modifier = recruits_local_troops
+				}
+			}
+			add_character_modifier = recruits_local_troops
+		}
+		if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_calradian
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_calradian_troops
+			custom_tooltip = will_recruit_calradians
+		}
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_battanian
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_battanian_troops	
+			custom_tooltip = will_recruit_battanians
+		}
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_balian
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_balian_troops	
+			custom_tooltip = will_recruit_balians
+		}
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_khuzic
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_khuzic_troops
+			custom_tooltip = will_recruit_khuzics
+		}
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_nahasi_troops	
+			custom_tooltip = will_recruit_nahasi
+		}
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					has_cultural_pillar = heritage_sturgic
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_sturgic_troops	
+			custom_tooltip = will_recruit_sturgic
+		}
+		else = {
+			custom_tooltip = will_recruit_local
+		}
+		custom_tooltip = will_receive_cooldown
+	}
+
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+recruit_cultural_troops_decision = {
+	ai_check_interval = 0
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
+	}
+	desc = return_to_cultural_troops_decision_desc
+	decision_group_type = adventurer_minor
+	
+	is_shown = {
+		has_character_flag = recruits_local_troops
+	}
+	
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = recruits_local_cooldown_desc
+			NOT = {
+				has_character_flag = recruits_local_troops_cooldown
+			}
+		}
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = recruits_local_troops_valid_desc
+			has_character_flag = recruits_local_troops
+		}
+	}
+	
+	effect = {
+		send_interface_toast = {
+			title = recruit_local_troops_message
+		}
+		custom_tooltip = returns_to_cultural_troops_desc
+		remove_character_modifier = recruits_local_troops
+
+		remove_character_flag = recruits_calradian_troops
+		remove_character_flag = recruits_battanian_troops
+		remove_character_flag = recruits_balian_troops
+		remove_character_flag = recruits_khuzic_troops
+		remove_character_flag = recruits_nahasi_troops
+		remove_character_flag = recruits_sturgic_troops
+		remove_character_flag = recruits_local_troops
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
