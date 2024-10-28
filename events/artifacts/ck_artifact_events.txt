@@ -1,0 +1,84 @@
+﻿
+namespace = ck_artifact
+
+ck_artifact.0001 = { ## Awful wine bought
+	type = character_event
+	title = ck_artifact.0001.title
+	desc = ck_artifact.0001.desc
+	
+	theme = default
+	right_portrait = {
+		character = root
+		animation = poison
+	}
+	left_portrait = {
+		character = scope:winemaker
+		animation = beg
+	}
+	override_background = sitting_room
+	
+	trigger = {
+		OR = {
+			is_landless_adventurer = no
+			any_sub_realm_barony = {
+				has_building_or_higher = building_wineyards_01
+			}
+		}
+	}
+	
+	immediate = {
+		create_character = {
+			age = { 40 60 }
+			gender = male
+			random_traits = yes
+			location = root.location
+			faith = root.faith
+			culture = root.culture
+			dynasty = none
+			save_scope_as = winemaker
+		}
+	}
+	
+	option = { # Let him go, it's only wine
+		name = ck_artifact.0001.a
+		add_prestige = -10
+		add_stress = 10
+		custom_tooltip = ck_artifact.0001.a.tt
+		add_gold = { 30 70 }
+		hidden_effect = {
+			scope:winemaker = {
+				death = {
+					death_reason = death_disappearance
+				}
+			}
+		}
+		
+	}
+	option = { # Imprison him
+		name = ck_artifact.0001.b
+		add_tyranny = 7
+		add_stress = 5
+		imprison = {
+			target = scope:winemaker
+		}
+	}
+	option = { # Kill him, embargo wine from county
+		name = ck_artifact.0001.c
+		add_prestige = -10
+		add_tyranny = 10
+		add_stress = -7
+		scope:winemaker = {
+			death = {
+				killer = root
+				death_reason = death_chopped_to_pieces
+			}
+		}
+		trigger = {
+			OR = {
+				has_trait = sadistic
+				has_trait = wrathful
+			}
+		}
+	}
+
+}
