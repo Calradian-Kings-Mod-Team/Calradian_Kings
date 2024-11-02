@@ -93,6 +93,22 @@ on_title_destroyed = {
 				}
 			}
 		}
+		# Claimant Emperor trait
+		if = {
+			limit = {
+				scope:landed_title = {
+					NOT = {
+						this = title:e_calradian_empire
+					}
+					tier = tier_empire
+				}
+				culture = {
+					has_cultural_pillar = heritage_calradian
+				}
+				has_trait = claimant_emperor
+			}
+			remove_trait = claimant_emperor
+		}
 	}
 }
 
@@ -247,6 +263,43 @@ on_title_gain = {
 				change_current_court_grandeur = var:previous_holder_grandeur_value
 				remove_variable = previous_holder_grandeur_value
 			}
+		}
+
+		# Adventurers using "recruit local maa" decision getting landed
+		if = {
+			limit = {
+				has_character_flag = recruits_local_troops
+			}
+			remove_character_modifier = recruits_local_troops
+			remove_character_flag = recruits_local_troops
+			remove_character_flag = recruits_calradian_troops
+			remove_character_flag = recruits_battanian_troops
+			remove_character_flag = recruits_balian_troops
+			remove_character_flag = recruits_khuzic_troops
+			remove_character_flag = recruits_nahasi_troops
+			remove_character_flag = recruits_sturgic_troops
+		}
+		
+		# Claimant Emperor trait
+		if = {
+			limit = {
+				scope:title = {
+					NOT = {
+						this = title:e_calradian_empire
+					}
+					tier = tier_empire
+				}
+				scope:title.title_capital_county = {
+					empire = title:e_calradian_empire 
+				}
+				culture = {
+					has_cultural_pillar = heritage_calradian
+				}
+				NOT = {
+					has_trait = claimant_emperor
+				}
+			}
+			add_trait = claimant_emperor
 		}
 
 		# Petition allowed again
@@ -3042,6 +3095,26 @@ on_title_lost = {
 			remove_trait = ck_populist
 			remove_trait = ck_militarist
 		}
+		
+		# Claimant Emperor trait
+		if = {
+			limit = {
+				scope:title = {
+					NOT = {
+						this = title:e_calradian_empire
+					}
+					tier = tier_empire
+				}
+				scope:title.title_capital_county = {
+					empire = title:e_calradian_empire 
+				}
+				culture = {
+					has_cultural_pillar = heritage_calradian
+				}
+				has_trait = claimant_emperor
+			}
+			remove_trait = claimant_emperor
+		}
 
 		# EP3 LAAMP SUPPORTER INVALIDATION
 		ep3_laamp_supporter_invalidated_effect = yes
@@ -4575,6 +4648,7 @@ on_realm_capital_change = {
 		}
 	}
 }
+
 
 
 
