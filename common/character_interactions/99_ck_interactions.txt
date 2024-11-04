@@ -1,4 +1,4 @@
-﻿#############################
+#############################
 ### Imperial Interactions ###
 # Demand change of an imperial faction #
 demand_change_senatorial_faction = { 
@@ -870,9 +870,219 @@ demand_change_senatorial_faction = {
 			add = -100
 		}
 	}
-	#ai_accept = {
-	#
-	#}
+	ai_accept = {
+		base = -30
+		
+		### General modifiers, applies to every request ###
+		modifier = { #Is fickle # +30
+			add = 30
+			desc = forced_to_change_faction.acceptance.fickle
+			scope:recipient = {
+				has_trait = fickle
+			}
+		}
+		modifier = { #Friends or best friends # +30
+			add = 30
+			desc = forced_to_change_faction.acceptance.friend_or_best_friend
+			scope:recipient = {
+				OR = {
+					has_relation_friend = scope:actor
+					has_relation_best_friend = scope:actor
+				}
+			}
+		}
+		modifier = { #Opinion above 50 # +20
+			add = 20
+			desc = forced_to_change_faction.acceptance.good_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value >= 50
+				}
+			}
+		}
+		modifier = { #Specific acceptance traits # +20
+			add = 20
+			desc = forced_to_change_faction.acceptance.general_traits_accept
+			scope:recipient = {
+				OR = {
+					has_trait = deceitful
+					has_trait = arbitrary
+					has_trait = trusting
+				}
+			}
+		}
+		modifier = { #Is disloyal # +20
+			add = 20
+			desc = forced_to_change_faction.acceptance.disloyal
+			scope:recipient = {
+				has_trait = disloyal
+			}
+		}
+		modifier = { #Is councillor of sender # +10
+			add = 10
+			desc = forced_to_change_faction.acceptance.councillor
+			scope:recipient = {
+				is_councillor_of = scope:actor
+			}
+		}
+		modifier = { #Is powerful vassal # -15
+			add = -15
+			desc = forced_to_change_faction.acceptance.powerful_vassal
+			scope:recipient = {
+				is_powerful_vassal = yes
+			}
+		}
+		modifier = { #Specific rejection traits # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.general_traits_reject
+			scope:recipient = {
+				OR = {
+					has_trait = ambitious
+					has_trait = just
+					has_trait = content
+				}
+			}
+		}
+		modifier = { #Is loyal # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.loyal
+			scope:recipient = {
+				has_trait = loyal
+			}
+		}
+		modifier = { #Opinion below -30 # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.bad_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value <= -30
+				}
+			}
+		}
+		modifier = { #Is stubborn # -30
+			add = -30
+			desc = forced_to_change_faction.acceptance.stubborn
+			scope:recipient = {
+				has_trait = stubborn
+			}
+		}
+
+		### Gold bribe modifiers ###
+		modifier = { #Small bribe # +10
+			add = 10
+			desc = forced_to_change_faction.acceptance.this_offer.1
+			scope:bribe_with_gold_small ?= yes
+		}
+		modifier = { #Big bribe # +36
+			add = 36
+			desc = forced_to_change_faction.acceptance.this_offer.2
+			scope:bribe_with_gold_big ?= yes
+		}
+		modifier = { #Is greedy # +40
+			add = 40
+			desc = forced_to_change_faction.acceptance.greedy
+			scope:recipient = {
+				has_trait = greedy
+			}
+			OR = {
+				scope:bribe_with_gold_big ?= yes
+				scope:bribe_with_gold_small ?= yes
+			}
+		}
+		modifier = { #Is content # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.content
+			scope:recipient = {
+				has_trait = content
+			}
+			OR = {
+				scope:bribe_with_gold_big ?= yes
+				scope:bribe_with_gold_small ?= yes
+			}
+		}
+		modifier = { #Bribe too small # -30
+			add = -30
+			desc = forced_to_change_faction.acceptance.too_small_bribe
+			scope:recipient = {
+				gold >= 50
+			}
+			scope:bribe_with_gold_small ?= yes
+		}
+		modifier = { #Too rich to bribe # -75
+			add = -75
+			desc = forced_to_change_faction.acceptance.too_rich
+			scope:recipient = {
+				gold >= 650
+			}
+			OR = {
+				scope:bribe_with_gold_big ?= yes
+				scope:bribe_with_gold_small ?= yes
+			}
+		}
+		
+		### Favor modifiers ###
+		modifier = { #Hook on liege is useful, no? # +70
+			add = 70
+			desc = forced_to_change_faction.acceptance.favor
+			scope:bribe_with_favor ?= yes
+		}
+		modifier = { #Is content # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.content
+			scope:recipient = {
+				has_trait = content
+			}
+			scope:bribe_with_favor ?= yes
+		}
+		
+		### Intimidation modifiers ###
+		modifier = { #Intimidation # +50
+			add = 50
+			desc = forced_to_change_faction.acceptance.this_offer.3
+			scope:bribe_with_dread ?= yes
+		}
+		modifier = { #Is craven # +50
+			add = 50
+			desc = forced_to_change_faction.acceptance.craven
+			scope:recipient = {
+				has_trait = craven
+			}
+			scope:bribe_with_dread ?= yes
+		}
+		modifier = { #Is paranoid # +20
+			add = 20
+			desc = forced_to_change_faction.acceptance.paranoid
+			scope:recipient = {
+				has_trait = paranoid
+			}
+			scope:bribe_with_dread ?= yes
+		}
+		modifier = { #Is brave # -75
+			add = -75
+			desc = forced_to_change_faction.acceptance.brave
+			scope:recipient = {
+				has_trait = brave
+			}
+			scope:bribe_with_dread ?= yes
+		}
+		
+		### Goodwill modifiers ###
+		modifier = { #This offer # +35
+			add = 35
+			desc = forced_to_change_faction.acceptance.this_offer.4
+			scope:bribe_with_opinion ?= yes
+		}
+		
+		### Hook modifiers ###
+		modifier = { #This offer # +500
+			add = 500
+			desc = forced_to_change_faction.acceptance.this_offer.5
+			scope:demand_with_hook ?= yes
+		}
+		
+	}
 	on_decline = {
 		scope:actor = {
 			trigger_event = ck_imperial_events.0003
