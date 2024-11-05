@@ -39,23 +39,7 @@ imperial_province_cb = { #Calradian heritage, only on de iure calradia, against 
 	ai_only_against_neighbors = yes
 	
 	ai_score_mult = {
-		value = viking_conquest_ai_score_value
-
-
-		# AI in struggles act insularly for wars that don't have a familial or legal basis.
-		multiply = struggle_wars_prioritise_struggle_targets_value
-		#Declaring war on the frankokratia leader can really ruin the whole thing
-		if = {
-			limit = {
-				scope:defender = {
-					any_owned_story = {
-						story_type = frankokratia_story
-						NOT = { has_variable = franko_war_complete }
-					}
-				}
-			}
-			multiply = 0
-		}
+		value = 1
 	}
 
 	valid_to_start = {
@@ -288,7 +272,7 @@ imperial_province_cb = { #Calradian heritage, only on de iure calradia, against 
 
 	war_name = "EXPANSION_WAR_NAME"
 	war_name_base = "EXPANSION_WAR_NAME_BASE"
-	cb_name = "EXPANSION_COUNTY_CB_NAME"
+	cb_name = "CK_EXPANSION_COUNTY_CB_NAME"
 
 	interface_priority = 83
 
@@ -343,23 +327,7 @@ imperial_duchy_cb = {
 	ai_only_against_neighbors = yes
 	
 	ai_score_mult = {
-		value = viking_conquest_ai_score_value
-
-		# AI in struggles act insularly for wars that don't have a familial or legal basis.
-		multiply = struggle_wars_prioritise_struggle_targets_value
-
-		#Declaring war on the frankokratia leader can really ruin the whole thing
-		if = {
-			limit = {
-				scope:defender = {
-					any_owned_story = {
-						story_type = frankokratia_story
-						NOT = { has_variable = franko_war_complete }
-					}
-				}
-			}
-			multiply = 0
-		}
+		value = 1.5
 	}
 
 	valid_to_start = {
@@ -680,7 +648,7 @@ imperial_duchy_cb = {
 
 	war_name = "EXPANSION_WAR_NAME"
 	war_name_base = "EXPANSION_WAR_NAME_BASE"
-	cb_name = "EXPANSION_DUCHY_CB_NAME"
+	cb_name = "CK_EXPANSION_DUCHY_CB_NAME"
 
 	interface_priority = 84
 
@@ -740,8 +708,7 @@ imperial_kingdom_cb = {
 	ai_only_against_neighbors = yes
 	
 	ai_score_mult = {
-		value = viking_conquest_ai_score_value
-
+		value = 1.3
 	}
 
 	valid_to_start = {
@@ -1071,7 +1038,7 @@ imperial_kingdom_cb = {
 
 	war_name = "EXPANSION_WAR_NAME"
 	war_name_base = "EXPANSION_WAR_NAME_BASE"
-	cb_name = "EXPANSION_DUCHY_CB_NAME"
+	cb_name = "CK_EXPANSION_KINGDOM_CB_NAME"
 
 	interface_priority = 84
 
@@ -1118,24 +1085,23 @@ imperial_territory_cb = {
 			}
 		}
 	}
-	target_titles = all
+	target_titles = neighbor_land_or_water
 	target_title_tier = duchy
 	target_de_jure_regions_above = yes
 	ignore_effect = change_title_holder
 
 
-	ai_score_mult = {
-		value = viking_conquest_ai_score_value
-
+	ai_score_mult = { ##WIP, add more conditions later
+		value = 3 #AI should be eager to reconquer Calradian territories
 	}
 
 	valid_to_start = {
 		scope:target = {
 			empire = title:e_calradian_empire
 		}
-		scope:attacker = {
-			is_independent_ruler = yes
-		}
+		#scope:attacker = {
+		#	is_independent_ruler = yes
+		#}
 	}
 
 	should_invalidate = {
@@ -1161,18 +1127,11 @@ imperial_territory_cb = {
 		prestige = {
 			value = 0
 			if = {
-				limit = {
-					NOT = { scope:defender.faith = scope:attacker.faith }
-				}
-				add = {
-					value = 150
-					desc = CB_COST_DIFFERENT_FAITH
-				}
 				add = {
 					value = 10
 					multiply = scope:attacker.realm_size
 					desc = CB_REALM_SIZE_COST
-					max = 300
+					max = 200
 				}
 			}
 			multiply = common_cb_prestige_cost_multiplier
@@ -1195,6 +1154,26 @@ imperial_territory_cb = {
 
 	on_victory = {
 		scope:attacker = { show_pow_release_message_effect = yes }
+		
+		# Liberator nick
+		scope:attacker = {
+			if = {
+				limit = {
+					NOT = {
+						has_nickname = nick_the_liberator_ck
+					}
+				}
+				random_list = {
+					3 = {
+						trigger_event = {
+							id = ck_imperial_events.0004
+							days = { 1 3 }
+						}
+					}
+					5 = { }
+				}
+			}
+		}
 		
 		# Legitimacy
 		add_legitimacy_attacker_victory_effect = yes
@@ -1219,15 +1198,15 @@ imperial_territory_cb = {
 			conquest_cb_title_transfer = {
 				RELIGIOUS_WAR = no
 			}
-		}
-
-		every_in_list = {
-			list = vassals_taken
-			change_liege = {
-				liege = scope:attacker
-				change = scope:change
+			every_in_de_jure_hierarchy = {
+				limit = { holder.top_liege = scope:defender }
+				change_title_holder = {
+					holder = scope:attacker
+					change = scope:change
+				}
 			}
 		}
+
 
 		every_in_list = {
 			list = titles_taken
@@ -1420,9 +1399,9 @@ imperial_territory_cb = {
 	attacker_allies_inherit = yes
 	defender_allies_inherit = yes
 
-	war_name = "CONQUEST_WAR_NAME"
-	war_name_base = "CONQUEST_WAR_NAME_BASE"
-	cb_name = "CONQUEST_DUCHY_CB_NAME"
+	war_name = "CK_RECONQUEST_WAR_NAME"
+	war_name_base = "CK_RECONQUEST_WAR_NAME_BASE"
+	cb_name = "CK_RECONQUEST_CB_NAME"
 
 	interface_priority = 79
 
@@ -1694,9 +1673,9 @@ imperial_authority_cb = {
 	attacker_allies_inherit = yes
 	defender_allies_inherit = yes
 	
-	war_name = "VASSALIZATION_WAR_NAME"
-	war_name_base = "VASSALIZATION_WAR_NAME_BASE"
-	cb_name = "VASSALIZATION_CB_NAME"
+	war_name = "CK_IMPOSE_AUTHORITY_WAR_NAME"
+	war_name_base = "CK_IMPOSE_AUTHORITY_WAR_NAME_BASE"
+	cb_name = "CK_IMPOSE_AUTHORITY_CB_NAME"
 	interface_priority = 59
 	
 	ticking_war_score_targets_entire_realm = yes
@@ -1707,8 +1686,8 @@ imperial_authority_cb = {
 	
 	max_ai_diplo_distance_to_title = 500
 
-	ai_score_mult = {
-		value = 1
+	ai_score_mult = { ## WIP, add more conditions later ##
+		value = 1.5 # Emperors should be eager to vassalize independent calradians
 		
 	}
 }
