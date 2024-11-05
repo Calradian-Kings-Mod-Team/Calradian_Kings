@@ -1,4 +1,225 @@
-﻿recruit_local_troops_decision = {
+buy_wine_decision = {
+	ai_check_interval = 100
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_spend_money.dds"
+	}
+	desc = buy_wine_decision_desc 
+	#decision_group_type = ???
+	
+	cost = { gold = 200 }
+	cooldown = { months = 18 } #was 2 years
+	
+	is_shown = { 
+		OR = {
+			custom_tooltip = {
+				text = winery_present_camp_tt
+				AND = {
+					domicile.domicile_location.barony.title_province = {
+						has_building_or_higher = wineyards_01
+					}
+					is_landless_adventurer = yes
+				}
+			}
+			any_sub_realm_barony = {
+				title_province = {
+					has_building_or_higher = wineyards_01
+				}
+			}
+			root.culture = {
+				has_cultural_tradition = tradition_winemasters
+			}
+		}
+	}
+	is_valid = {
+		OR = {
+			custom_tooltip = {
+				text = winery_present_tt
+				any_sub_realm_barony = {
+					title_province = {
+						has_building_or_higher = wineyards_01
+					}
+				}
+			}
+			custom_tooltip = {
+				text = winemasters_tradition_tt
+				root.culture = {
+					has_cultural_tradition = tradition_winemasters
+				}
+			}
+			custom_tooltip = {
+				text = winery_present_camp_tt
+				AND = {
+					domicile.domicile_location.barony.title_province = {
+						has_building_or_higher = wineyards_01
+					}
+					is_landless_adventurer = yes
+				}
+			}
+		}
+	}
+	effect = {
+		custom_tooltip = buy_wine_effect_desc
+		hidden_effect = {
+			random_list = {
+				8 = {
+					create_artifact = {
+						name = wine_1_name
+						description = wine_1_desc
+						type = miscellaneous
+						visuals = ck_wine
+						quality = 5
+						wealth = 5
+						modifier = artifact_wine_modifier_1
+						decaying = no
+						history = {
+							type = created_before_history
+						}
+						save_scope_as = bought_wine
+					}
+					send_interface_toast = {
+						type = msg_artifact_gained
+						title = wine_1_bought_title
+						right_icon = scope:bought_wine
+						custom_tooltip = wine_1_bought_tooltip
+					}
+					trigger_event = {
+						id = ck_artifact.0001
+						days = 5
+					}
+				}
+				50 = {
+					create_artifact = {
+						name = wine_2_name
+						description = wine_2_desc
+						type = miscellaneous
+						visuals = ck_wine
+						quality = 20
+						wealth = 20
+						modifier = artifact_wine_modifier_2
+						decaying = no
+						history = {
+							type = created_before_history
+						}
+						save_scope_as = bought_wine
+					}
+					send_interface_toast = {
+						type = msg_artifact_gained
+						title = wine_2_bought_title
+						right_icon = scope:bought_wine
+						custom_tooltip = wine_2_bought_tooltip
+					}
+				}
+				25 = {
+					create_artifact = {
+						name = wine_3_name
+						description = wine_3_desc
+						type = miscellaneous
+						visuals = ck_wine
+						quality = 35
+						wealth = 35
+						modifier = artifact_wine_modifier_3
+						decaying = no
+						history = {
+							type = created_before_history
+						}
+						save_scope_as = bought_wine
+					}
+					send_interface_toast = {
+						type = msg_artifact_gained
+						title = wine_3_bought_title
+						right_icon = scope:bought_wine
+						custom_tooltip = wine_3_bought_tooltip
+					}
+					modifier = {
+						add = 25
+						any_sub_realm_barony = {
+							title_province = {
+								has_building_or_higher = wineyards_06
+							}
+						}
+					}
+				}
+				15 = {
+					create_artifact = {
+						name = wine_4_name
+						description = wine_4_desc
+						type = miscellaneous
+						visuals = ck_wine
+						quality = 50
+						wealth = 50
+						modifier = artifact_wine_modifier_4
+						decaying = no
+						history = {
+							type = created_before_history
+						}
+						save_scope_as = bought_wine
+					}
+					send_interface_toast = {
+						type = msg_artifact_gained
+						title = wine_4_bought_title
+						right_icon = scope:bought_wine
+						custom_tooltip = wine_4_bought_tooltip
+					}
+					modifier = {
+						add = 25
+						any_sub_realm_barony = {
+							title_province = {
+								has_building_or_higher = wineyards_06
+							}
+						}
+					}
+				}
+				5 = {
+					create_artifact = {
+						name = wine_5_name
+						description = wine_5_desc
+						type = miscellaneous
+						visuals = ck_wine
+						quality = 70
+						wealth = 70
+						modifier = artifact_wine_modifier_5
+						decaying = no
+						history = {
+							type = created_before_history
+						}
+						save_scope_as = bought_wine
+					}
+					send_interface_toast = {
+						type = msg_artifact_gained
+						title = wine_5_bought_title
+						right_icon = scope:bought_wine
+						custom_tooltip = wine_5_bought_tooltip
+					}
+					modifier = {
+						add = 10
+						any_sub_realm_barony = {
+							title_province = {
+								has_building_or_higher = wineyards_06
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	ai_potential = {
+		always = yes
+	}
+
+	ai_will_do = {
+		base = 25
+		modifier = {
+			add = 100
+			has_trait = drunkard
+		}
+		modifier = {
+			add = 50
+			has_trait = gregarious
+		}
+	}
+	
+}
+recruit_local_troops_decision = {
 	ai_check_interval = 0
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
@@ -237,6 +458,7 @@ recruit_cultural_troops_decision = {
 	
 	is_shown = {
 		has_character_flag = recruits_local_troops
+		is_landed = no
 	}
 	
 	is_valid_showing_failures_only = {
@@ -262,6 +484,245 @@ recruit_cultural_troops_decision = {
 		custom_tooltip = returns_to_cultural_troops_desc
 		remove_character_modifier = recruits_local_troops
 
+		remove_character_flag = recruits_calradian_troops
+		remove_character_flag = recruits_battanian_troops
+		remove_character_flag = recruits_balian_troops
+		remove_character_flag = recruits_khuzic_troops
+		remove_character_flag = recruits_nahasi_troops
+		remove_character_flag = recruits_sturgic_troops
+		remove_character_flag = recruits_local_troops
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+recruit_local_troops_landed_decision = {
+	ai_check_interval = 0
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
+	}
+	desc = recruit_local_troops_landed_decision_desc
+
+	is_shown = {
+		is_landed = yes
+		NOT = {
+			has_character_flag = recruits_local_troops
+		}
+	}
+	
+	cooldown = { years = 6 }
+	
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = recruits_local_cooldown_desc
+			NOT = {
+				has_character_flag = recruits_local_troops_cooldown
+			}
+		}
+		custom_tooltip = {
+			text = you_already_recruit_local_tt
+			NOT = {
+				has_character_flag = recruits_local_troops
+			}
+		}
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = half_of_realm_foreign_and_valid_tt
+			any_sub_realm_county = {
+				percent > 0.5
+				culture = {
+					NOT = {
+						has_same_culture_heritage = root.culture
+					}
+				}
+			}
+			any_sub_realm_county = {
+				percent > 0.5
+				culture = {
+					OR = {
+						has_cultural_pillar = heritage_calradian
+						has_cultural_pillar = heritage_battanian
+						has_cultural_pillar = heritage_balian
+						has_cultural_pillar = heritage_nahasi
+						has_cultural_pillar = heritage_khuzic
+						has_cultural_pillar = heritage_sturgic
+					}
+				}
+			}
+		}
+	}
+	
+	effect = {
+		if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_calradian
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_calradians
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_battanian
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_battanians
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_balian
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_balians
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_khuzic
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_khuzics
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_nahasi
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_nahasi
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_sturgic
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}	
+			custom_tooltip = will_recruit_sturgic
+		}
+		else = {
+			custom_tooltip = will_recruit_local.2
+		}
+		custom_tooltip = {
+			text = recruits_local_troops_modifier_tt
+			add_character_modifier = {
+				modifier = recruits_local_troops_maint
+				years = 6
+			}
+		}
+		add_character_modifier = recruits_local_troops_landed
+		custom_tooltip = will_receive_cooldown.2
+		add_character_flag = {
+			flag = recruits_local_troops_cooldown
+			years = 6
+		}
+		hidden_effect = { recruit_local_landed_ruler_effect = yes } 
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+recruit_cultural_troops_landed_decision = {
+	ai_check_interval = 0
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
+	}
+	desc = recruit_cultural_troops_landed_decision_desc
+	
+	is_shown = {
+		has_character_flag = recruits_local_troops
+		is_landed = yes
+	}
+	
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = recruits_local_cooldown_desc
+			NOT = {
+				has_character_flag = recruits_local_troops_cooldown
+			}
+		}
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = recruits_local_troops_valid_desc
+			has_character_flag = recruits_local_troops
+		}
+	}
+	
+	effect = {
+		send_interface_toast = {
+			title = recruit_local_troops_message
+		}
+		custom_tooltip = returns_to_cultural_troops_desc
+		remove_character_modifier = recruits_local_troops_landed
 		remove_character_flag = recruits_calradian_troops
 		remove_character_flag = recruits_battanian_troops
 		remove_character_flag = recruits_balian_troops
