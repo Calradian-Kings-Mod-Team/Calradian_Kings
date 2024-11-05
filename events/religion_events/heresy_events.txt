@@ -128,41 +128,47 @@ heresy.0001 = {
 
 			# Compile a list of possible heresies to convert to.
 			religion = {
+				#This every faith section adds all faiths that are in the same religion. IE: Cult of Ember flame is by default added to any calradic faith during this event. It is removed from the valid ones in the invalid_for_heresy_events trigger.
 				every_faith = {
 					limit = {
 						NOT = { invalid_for_heresy_events = yes }
 					}
 					add_to_list = potential_heresies
 				}
-				if = { #Does not currently do anything, even if un#'d CK UPDATE
-					# Abrahamics also get bonus dualistic heresies
+				if = {
+					# These three religious groups get bonus heresies
 					limit = {
-						is_in_family = rf_abrahamic
-					}
-					if = {
-						limit = {
+						OR = {
+							this = religion:khuzait_religion
+							this = religion:balian_religion
 							this = religion:calradian_religion
 						}
-						faith:darusan = {
+					}
+					if = { #Khuzaits get Kholradya as an additional option.
+						limit = {
+							this = religion:khuzait_religion
+						}
+						faith:kholradya = {
 							add_to_list = potential_heresies
 						}
-				
 					}
-					if = {
+					else_if = { #Baerlonics get Wilundic and Hetjur as options
 						limit = {
-							current_year <= 1120
+							this = religion:balian_religion
+						}
+						faith:hetjur = {
+							add_to_list = potential_heresies
+						}
+						faith:western_calradic = {
+							add_to_list = potential_heresies
+						}
+					}
+					else_if = { #Ember flame is disallowed before 1084(add better date when existent). Darusan is always disallowed for now, but should be added in here once it has a trigger to use. CK_UPDATE 
+						limit = {
+							current_year <= 1084
 							this = religion:calradian_religion
-				
 						}
 						faith:ember_flame = {
-							add_to_list = potential_heresies
-						}
-					}
-					else_if = { ### maybe add Aserai heresies soon. Keeping this commented out CK_UPDATE CK_ASERAI CK_RELIGION
-						limit = {
-							this = religion:aserai_religion
-						}
-						faith:moustari_faith = {
 							add_to_list = potential_heresies
 						}
 					}
@@ -249,21 +255,12 @@ heresy.0001 = {
 					# 		this = faith:sabianism
 					# 	}
 					# }
-					# #Rare Faiths
-					# modifier = {
-					# 	factor = 0.1
-					# 	OR = {
-					# 		this = faith:sethianism
-					# 		this = faith:priscillianism
-					# 		this = faith:cainitism
-					# 	}
-					# }
-					# Disabled Faiths
-					modifier = {				
-						factor = 0
-						this = faith:adenmites
-						# this = faith:insular_celtic Maybe a future Vlandian sect of Darusan (USE THE OR TRIGGER)
-
+					#Rare Faiths
+					modifier = {
+						factor = 0.1
+						#OR = {
+							this = faith:aekekartel #dying religion
+						#}
 					}
 					# Darusans more likely to appear in the Imperial core of Calradia
 					modifier = {
