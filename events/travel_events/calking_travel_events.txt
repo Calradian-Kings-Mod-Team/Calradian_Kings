@@ -118,3 +118,400 @@ ck_travel_events.0001 = { ### Encounter local vulgar commoner
 		}
 	}
 }
+
+ck_travel_events.0002 = { ### Encounter sea raiders
+	type = character_event
+	title = ck_travel_events.0002.t
+	desc = {
+		random_valid = {
+			desc = ck_travel_events.0002.desc1
+			desc = ck_travel_events.0002.desc2
+			desc = ck_travel_events.0002.desc3
+			desc = ck_travel_events.0002.desc4
+		}
+	}
+	theme = widgetless_travel_danger
+	left_portrait = {
+		character = root
+		animation = worry
+	}
+	right_portrait = {
+		character = scope:high_prowess_traveller_sr_ck
+		animation = shock
+	}
+	cooldown = { years = 10 }
+	trigger = {
+		is_available_travelling_adult = yes
+		is_travelling = yes
+		OR = { #Only in sturgia
+			root.location = { geographical_region = minadoria_region }
+			root.location = { geographical_region = sturgia_region }
+		}
+		location = { #Low county control = Sea Raiders able to raid with impunity
+			travel_danger_type = {
+				travel_plan = root.current_travel_plan
+				type = county_control
+			}
+		}
+		if = { #Does not have a large army as a laamp
+			limit = {
+				has_ep3_dlc_trigger = yes
+				current_military_strength < @ep3_laamp_flavour_ewan_baggage_train_has_significant_armed_force
+			}
+			always = no
+		}
+	}
+	immediate = {
+		current_travel_plan = {
+			ordered_entourage_character = {
+				limit = { poisonous_plant_eater_trigger = yes }
+				order_by = { #search for chad prowess guy
+					value = {
+						value = prowess
+						multiply = 2
+					}
+				}
+				save_scope_as = high_prowess_traveller_sr_ck
+			}
+		}
+	}
+	#We have no choice but to fight then...
+	option = {
+		name = ck_travel_events.0002.a
+		flavor = ck_travel_events.0002.a.t
+		stress_impact = {
+			craven = major_stress_impact_gain
+			brave = major_stress_impact_loss
+		}
+		random_list = {
+			25 = { #You win easily!
+				desc = ck_travel_events.0002.tt.wineasily
+				add_prestige = 100
+				modifier = {
+					current_travel_plan = {	#Large party
+						num_entourage_characters > 8 
+					}
+					factor = 1.4
+				}
+				modifier = { #Medium Party
+					current_travel_plan = {	
+						num_entourage_characters < 8
+						num_entourage_characters > 4 
+					}
+					factor = 1.1
+				}
+				modifier = { add = prowess }
+				modifier = { add = martial }
+			}
+			50 = { #You win, but suffer some losses
+				desc = ck_travel_events.0002.tt.winmoderately
+				add_prestige = 50
+				modifier = {
+					current_travel_plan = {	#Large party
+						num_entourage_characters > 8 
+					}
+					factor = 1.3
+				}
+				modifier = { #Medium Party
+					current_travel_plan = {	
+						num_entourage_characters < 8
+						num_entourage_characters > 4 
+					}
+					factor = 1.3
+				}
+				modifier = { add = prowess }
+				modifier = { add = martial }
+				random_list = {
+					50 = {
+						random_list = {
+							5 = {
+								add_trait = wounded_1
+							}
+							4 = {
+								add_trait = wounded_1
+							}
+							1 = {
+								add_trait = wounded_2
+							}
+						}
+					}
+					50 = {
+						desc = ck_travel_events.0002.tt.notinjured
+						modifier = { add = prowess }
+					}
+				}
+				random_entourage_character = {
+					limit = {
+						NOT = { this = root }
+						AND = {
+							NOT = { has_trait = wounded_1 }
+							NOT = { has_trait = wounded_2 }
+						}
+					}
+					alternative_limit = { always = yes }
+					random_list = {
+						4 = {
+							add_trait = wounded_1
+						}
+						1 = {
+							add_trait = wounded_2
+						}
+						1 = {
+							death = { death_reason = death_ck_sea_raiders }
+						}
+					}
+				}
+				random_entourage_character = {
+					limit = {
+						NOT = { this = root }
+						AND = {
+							NOT = { has_trait = wounded_1 }
+							NOT = { has_trait = wounded_2 }
+						}
+					}
+					alternative_limit = { always = yes }
+					random_list = {
+						4 = {
+							add_trait = wounded_1
+						}
+						1 = {
+							add_trait = wounded_2
+						}
+						1 = {
+							death = { death_reason = death_ck_sea_raiders }
+						}
+					}
+				}
+				random_entourage_character = {
+					limit = {
+						NOT = { this = root }
+						AND = {
+							NOT = { has_trait = wounded_1 }
+							NOT = { has_trait = wounded_2 }
+						}
+					}
+					alternative_limit = { always = yes }
+					random_list = {
+						4 = {
+							add_trait = wounded_1
+						}
+						1 = {
+							add_trait = wounded_2
+						}
+						1 = {
+							death = { death_reason = death_ck_sea_raiders }
+						}
+					}
+				}
+			}
+			5 = { #You all die.
+				desc = ck_travel_events.0002.tt.defeat
+				modifier = {
+					current_travel_plan = {	#Large party
+						num_entourage_characters > 8 
+					}
+					factor = 0.1
+				}
+				death = { death_reason = death_ck_sea_raiders }
+				every_entourage_character = {
+					death = { death_reason = death_ck_sea_raiders }
+				}
+			}
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = -99
+				has_trait = craven
+			}
+			modifier = {
+				add = 50
+				has_trait = brave
+			}
+		}
+	}
+	##(PREVIOUSLY SELECTED TRAVEL GROUP MEMBER), you got this, right?
+	#option = {
+	#	name = ck_travel_events.0002.b
+	#	flavor = ck_travel_events.0002.b.t
+	#	
+	#	stress_impact = {
+	#		craven = major_stress_impact_gain
+	#		brave = major_stress_impact_loss
+	#	}
+	#	ai_chance = {
+	#		base = 0
+	#		modifier = {
+	#			add = 100
+	#			OR = {
+	#				has_trait = arrogant
+	#				has_trait = callous
+	#				has_trait = deceitful
+	#				has_trait = arbitrary
+	#			}
+	#		}
+	#		modifier = {
+	#			add = 1000
+	#			has_trait = craven
+	#		}
+	#	}
+	#}
+	#Is that my cousin over there?
+	option = {
+		name = ck_travel_events.0002.c
+		flavor = ck_travel_events.0002.c.t
+		
+		trigger = {
+			root.culture = { #Nords can attempt to negotiate
+				has_cultural_pillar = heritage_byalic
+			}
+		}
+		random_list = {
+			50 = {
+				desc = ck_travel_events.0002.tt.cwas_cousin
+				add_stress = -25
+			}
+			50 = {
+				desc = ck_travel_events.0002.tt.cwasnt_cousin
+				random_list = {
+					25 = { #You win easily!
+						desc = ck_travel_events.0002.tt.wineasily
+						add_prestige = 100
+						modifier = {
+							current_travel_plan = {	#Large party
+								num_entourage_characters > 8 
+							}
+							factor = 1.4
+						}
+						modifier = { #Medium Party
+							current_travel_plan = {	
+								num_entourage_characters < 8
+								num_entourage_characters > 4 
+							}
+							factor = 1.1
+						}
+						modifier = { add = prowess }
+						modifier = { add = martial }
+					}
+					50 = { #You win, but suffer some losses
+						desc = ck_travel_events.0002.tt.winmoderately
+						add_prestige = 50
+						modifier = {
+							current_travel_plan = {	#Large party
+								num_entourage_characters > 8 
+							}
+							factor = 1.3
+						}
+						modifier = { #Medium Party
+							current_travel_plan = {	
+								num_entourage_characters < 8
+								num_entourage_characters > 4 
+							}
+							factor = 1.3
+						}
+						modifier = { add = prowess }
+						modifier = { add = martial }
+						random_list = {
+							50 = {
+								random_list = {
+									5 = {
+										add_trait = wounded_1
+									}
+									4 = {
+										add_trait = wounded_1
+									}
+									1 = {
+										add_trait = wounded_2
+									}
+								}
+							}
+							50 = {
+								desc = ck_travel_events.0002.tt.notinjured
+								modifier = { add = prowess }
+							}
+						}
+						random_entourage_character = {
+							limit = {
+								NOT = { this = root }
+								AND = {
+									NOT = { has_trait = wounded_1 }
+									NOT = { has_trait = wounded_2 }
+								}
+							}
+							alternative_limit = { always = yes }
+							random_list = {
+								4 = {
+									add_trait = wounded_1
+								}
+								1 = {
+									add_trait = wounded_2
+								}
+								1 = {
+									death = { death_reason = death_ck_sea_raiders }
+								}
+							}
+						}
+						random_entourage_character = {
+							limit = {
+								NOT = { this = root }
+								AND = {
+									NOT = { has_trait = wounded_1 }
+									NOT = { has_trait = wounded_2 }
+								}
+							}
+							alternative_limit = { always = yes }
+							random_list = {
+								4 = {
+									add_trait = wounded_1
+								}
+								1 = {
+									add_trait = wounded_2
+								}
+								1 = {
+									death = { death_reason = death_ck_sea_raiders }
+								}
+							}
+						}
+						random_entourage_character = {
+							limit = {
+								NOT = { this = root }
+								AND = {
+									NOT = { has_trait = wounded_1 }
+									NOT = { has_trait = wounded_2 }
+								}
+							}
+							alternative_limit = { always = yes }
+							random_list = {
+								4 = {
+									add_trait = wounded_1
+								}
+								1 = {
+									add_trait = wounded_2
+								}
+								1 = {
+									death = { death_reason = death_ck_sea_raiders }
+								}
+							}
+						}
+					}
+					5 = { #You all die.
+						desc = ck_travel_events.0002.tt.defeat
+						modifier = {
+							current_travel_plan = {	#Large party
+								num_entourage_characters > 8 
+							}
+							factor = 0.1
+						}
+						death = { death_reason = death_ck_sea_raiders }
+						every_entourage_character = {
+							death = { death_reason = death_ck_sea_raiders }
+						}
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 50000
+		}
+	}
+}
