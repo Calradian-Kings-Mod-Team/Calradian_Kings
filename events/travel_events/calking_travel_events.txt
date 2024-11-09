@@ -119,6 +119,48 @@ ck_travel_events.0001 = { ### Encounter local vulgar commoner
 	}
 }
 
+scripted_effect sea_raiders_injuries_ck_effect = {
+	random_list = {
+		4 = {
+			root = {
+				send_interface_toast = {
+					title = ck_travel_events.0002.tt.wd1
+					left_icon = $CKSRWOUND$
+					$CKSRWOUND$ = {
+						add_trait = wounded_1
+					}
+				}
+			}
+		}
+		1 = {
+			root = {
+				send_interface_toast = {
+					title = ck_travel_events.0002.tt.wd2
+					left_icon = $CKSRWOUND$
+					$CKSRWOUND$ = {
+						add_trait = wounded_2
+					}
+				}
+			}
+		}
+		1 = {
+			root = {
+				send_interface_toast = {
+					title = ck_travel_events.0002.tt.ded
+					left_icon = $CKSRWOUND$
+					$CKSRWOUND$ = {
+						death = { death_reason = death_ck_sea_raiders }
+					}
+				}
+			}
+		}
+	}
+	traveler_danger_xp_effect = {
+		MIN = 5
+		MAX = 15
+	}
+}
+
 ck_travel_events.0002 = { ### Encounter sea raiders
 	type = character_event
 	title = ck_travel_events.0002.t
@@ -164,7 +206,9 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 	immediate = {
 		current_travel_plan = {
 			ordered_entourage_character = {
-				limit = { poisonous_plant_eater_trigger = yes }
+				limit = {
+					NOT = { this = root }
+				}
 				order_by = { #search for chad prowess guy
 					value = {
 						value = prowess
@@ -172,6 +216,43 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 					}
 				}
 				save_scope_as = high_prowess_traveller_sr_ck
+			}
+			random_entourage_character = { #these three pick at risk targets who could die/get wounded in the event.
+				limit = {
+					NOT = { this = root }
+					AND = {
+						NOT = { has_trait = wounded_1 }
+						NOT = { has_trait = wounded_2 }
+					}
+				}
+				save_scope_as = atrisk1_sr_ck
+			}
+			random_entourage_character = {
+				limit = {
+					NOT = { this = root }
+					AND = {
+						NOT = { has_trait = wounded_1 }
+						NOT = { has_trait = wounded_2 }
+					}
+					NOT = {
+						this = scope:atrisk1_sr_ck
+					}
+				}
+				save_scope_as = atrisk2_sr_ck
+			}
+			random_entourage_character = {
+				limit = {
+					NOT = { this = root }
+					AND = {
+						NOT = { has_trait = wounded_1 }
+						NOT = { has_trait = wounded_2 }
+					}
+					NOR = {
+						this = scope:atrisk1_sr_ck
+						this = scope:atrisk2_sr_ck
+					}
+				}
+				save_scope_as = atrisk3_sr_ck
 			}
 		}
 	}
@@ -187,6 +268,10 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 			25 = { #You win easily!
 				desc = ck_travel_events.0002.tt.wineasily
 				add_prestige = 100
+				traveler_danger_xp_effect = {
+					MIN = 1
+					MAX = 5
+				}
 				modifier = {
 					current_travel_plan = {	#Large party
 						num_entourage_characters > 8 
@@ -206,6 +291,10 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 			50 = { #You win, but suffer some losses
 				desc = ck_travel_events.0002.tt.winmoderately
 				add_prestige = 50
+				traveler_danger_xp_effect = {
+					MIN = 5
+					MAX = 10
+				}
 				modifier = {
 					current_travel_plan = {	#Large party
 						num_entourage_characters > 8 
@@ -237,71 +326,13 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 						modifier = { add = prowess }
 					}
 				}
-				random_entourage_character = {
-					limit = {
-						NOT = { this = root }
-						AND = {
-							NOT = { has_trait = wounded_1 }
-							NOT = { has_trait = wounded_2 }
-						}
-					}
-					alternative_limit = { always = yes }
-					random_list = {
-						4 = {
-							add_trait = wounded_1
-						}
-						1 = {
-							add_trait = wounded_2
-						}
-						1 = {
-							death = { death_reason = death_ck_sea_raiders }
-						}
-					}
-				}
-				random_entourage_character = {
-					limit = {
-						NOT = { this = root }
-						AND = {
-							NOT = { has_trait = wounded_1 }
-							NOT = { has_trait = wounded_2 }
-						}
-					}
-					alternative_limit = { always = yes }
-					random_list = {
-						4 = {
-							add_trait = wounded_1
-						}
-						1 = {
-							add_trait = wounded_2
-						}
-						1 = {
-							death = { death_reason = death_ck_sea_raiders }
-						}
-					}
-				}
-				random_entourage_character = {
-					limit = {
-						NOT = { this = root }
-						AND = {
-							NOT = { has_trait = wounded_1 }
-							NOT = { has_trait = wounded_2 }
-						}
-					}
-					alternative_limit = { always = yes }
-					random_list = {
-						4 = {
-							add_trait = wounded_1
-						}
-						1 = {
-							add_trait = wounded_2
-						}
-						1 = {
-							death = { death_reason = death_ck_sea_raiders }
-						}
-					}
+				hidden_effect = {
+					sea_raiders_injuries_ck_effect = { CKSRWOUND = scope:atrisk1_sr_ck }
+					sea_raiders_injuries_ck_effect = { CKSRWOUND = scope:atrisk2_sr_ck }
+					sea_raiders_injuries_ck_effect = { CKSRWOUND = scope:atrisk3_sr_ck }
 				}
 			}
-			5 = { #You all die.
+			10 = { #You all die.
 				desc = ck_travel_events.0002.tt.defeat
 				modifier = {
 					current_travel_plan = {	#Large party
@@ -309,6 +340,13 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 					}
 					factor = 0.1
 				}
+				modifier = { #Small Party
+					current_travel_plan = {
+						num_entourage_characters < 4
+					}
+					factor = 10
+				}
+				modifier = { subtract = prowess }
 				death = { death_reason = death_ck_sea_raiders }
 				every_entourage_character = {
 					death = { death_reason = death_ck_sea_raiders }
@@ -374,6 +412,10 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 					25 = { #You win easily!
 						desc = ck_travel_events.0002.tt.wineasily
 						add_prestige = 100
+						traveler_danger_xp_effect = {
+							MIN = 1
+							MAX = 5
+						}
 						modifier = {
 							current_travel_plan = {	#Large party
 								num_entourage_characters > 8 
@@ -393,6 +435,10 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 					50 = { #You win, but suffer some losses
 						desc = ck_travel_events.0002.tt.winmoderately
 						add_prestige = 50
+						traveler_danger_xp_effect = {
+							MIN = 5
+							MAX = 10
+						}
 						modifier = {
 							current_travel_plan = {	#Large party
 								num_entourage_characters > 8 
@@ -420,75 +466,17 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 								}
 							}
 							50 = {
-								desc = ck_travel_events.0002.tt.notinjured
+								#desc = ck_travel_events.0002.tt.notinjured
 								modifier = { add = prowess }
 							}
 						}
-						random_entourage_character = {
-							limit = {
-								NOT = { this = root }
-								AND = {
-									NOT = { has_trait = wounded_1 }
-									NOT = { has_trait = wounded_2 }
-								}
-							}
-							alternative_limit = { always = yes }
-							random_list = {
-								4 = {
-									add_trait = wounded_1
-								}
-								1 = {
-									add_trait = wounded_2
-								}
-								1 = {
-									death = { death_reason = death_ck_sea_raiders }
-								}
-							}
-						}
-						random_entourage_character = {
-							limit = {
-								NOT = { this = root }
-								AND = {
-									NOT = { has_trait = wounded_1 }
-									NOT = { has_trait = wounded_2 }
-								}
-							}
-							alternative_limit = { always = yes }
-							random_list = {
-								4 = {
-									add_trait = wounded_1
-								}
-								1 = {
-									add_trait = wounded_2
-								}
-								1 = {
-									death = { death_reason = death_ck_sea_raiders }
-								}
-							}
-						}
-						random_entourage_character = {
-							limit = {
-								NOT = { this = root }
-								AND = {
-									NOT = { has_trait = wounded_1 }
-									NOT = { has_trait = wounded_2 }
-								}
-							}
-							alternative_limit = { always = yes }
-							random_list = {
-								4 = {
-									add_trait = wounded_1
-								}
-								1 = {
-									add_trait = wounded_2
-								}
-								1 = {
-									death = { death_reason = death_ck_sea_raiders }
-								}
-							}
+						hidden_effect = {
+							sea_raiders_injuries_ck_effect = { CKSRWOUND = scope:atrisk1_sr_ck }
+							sea_raiders_injuries_ck_effect = { CKSRWOUND = scope:atrisk2_sr_ck }
+							sea_raiders_injuries_ck_effect = { CKSRWOUND = scope:atrisk3_sr_ck }
 						}
 					}
-					5 = { #You all die.
+					10 = { #You all die.
 						desc = ck_travel_events.0002.tt.defeat
 						modifier = {
 							current_travel_plan = {	#Large party
@@ -496,6 +484,13 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 							}
 							factor = 0.1
 						}
+						modifier = { #Small Party
+							current_travel_plan = {
+								num_entourage_characters < 4
+							}
+							factor = 10
+						}
+						modifier = { subtract = prowess }
 						death = { death_reason = death_ck_sea_raiders }
 						every_entourage_character = {
 							death = { death_reason = death_ck_sea_raiders }
