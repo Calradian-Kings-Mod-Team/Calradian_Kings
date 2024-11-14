@@ -1113,6 +1113,9 @@ sturgia_collapse_formalized_effect = {
 	title:d_velkynaz = {
 		set_de_jure_liege_title = title:k_jumnor
 	}
+	title:c_marabrot = {
+		set_de_jure_liege_title = title:d_sobrenska
+	}
 	##Vannoumi##
 	title:k_vakken = {
 		set_de_jure_liege_title = title:e_minadoria
@@ -1168,6 +1171,9 @@ sturgia_collapse_formalized_effect = {
 		set_de_jure_liege_title = title:e_minadoria
 		set_capital_county = title:c_sibir
 	}
+	title:c_selfonsk = {
+		set_de_jure_liege_title = title:d_brynov
+	}
 	#d_sibir
 	#d_lakonich
 	#d_chertyg
@@ -1184,7 +1190,7 @@ sturgia_collapse_formalized_effect = {
 	}
 	#d_amezyh
 	#d_ircara
-	##Vaegir##
+	##Dolinsk/Vaegir##
 	title:k_vaegir = {
 		set_de_jure_liege_title = title:e_sturgia
 	}
@@ -1197,52 +1203,62 @@ sturgia_collapse_formalized_effect = {
 	title:d_vastra = {
 		set_de_jure_liege_title = title:k_vaegir
 	}
-	##Varcheg##
-	title:k_varcheg = {
-		set_de_jure_liege_title = title:e_sturgia
-	}
-	title:d_south_kachyar = {
-		set_de_jure_liege_title = title:k_varcheg
-	}
-	title:d_dornyk = {
-		set_de_jure_liege_title = title:k_varcheg
-	}
-	title:d_versgard = {
-		set_de_jure_liege_title = title:k_varcheg
-	}
-	##Byalia##
-	title:k_byalia = {
-		set_de_jure_liege_title = title:e_sturgia
-	}
-	title:d_byalia = {
-		set_de_jure_liege_title = title:k_byalia
-	}
-	title:d_mazayar = {
-		set_de_jure_liege_title = title:k_byalia
-	}
-	title:d_kachyar = {
-		set_de_jure_liege_title = title:k_byalia
-	}
-	title:d_tyrtiv = {
-		set_de_jure_liege_title = title:k_byalia
-	}
-	title:d_ledvid = {
-		set_de_jure_liege_title = title:k_byalia
-	}
-	title:d_ornshiv = {
-		set_de_jure_liege_title = title:k_byalia
-	}
-	#Hacardia
-	title:k_hacardia = {
-		set_de_jure_liege_title = title:e_sturgia
-	}
-	title:d_hacard = {
-		set_de_jure_liege_title = title:k_hacardia
+	if = { #Check if Nords Formed
+		limit = {
+			NOT = {
+				is_target_in_global_variable_list = {
+					name = unavailable_unique_decisions
+					target = flag:flag_formed_nord_kingdom
+				}
+			}
+		}
+		##Varcheg##
+		title:k_varcheg = {
+			set_de_jure_liege_title = title:e_sturgia
+		}
+		title:d_south_kachyar = {
+			set_de_jure_liege_title = title:k_varcheg
+		}
+		title:d_dornyk = {
+			set_de_jure_liege_title = title:k_varcheg
+		}
+		title:d_versgard = {
+			set_de_jure_liege_title = title:k_varcheg
+		}
+		##Byalia##
+		title:k_byalia = {
+			set_de_jure_liege_title = title:e_sturgia
+		}
+		title:d_byalia = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_mazayar = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_kachyar = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_tyrtiv = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_ledvid = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_ornshiv = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		#Hacardia
+		title:k_hacardia = {
+			set_de_jure_liege_title = title:e_sturgia
+		}
+		title:d_hacard = {
+			set_de_jure_liege_title = title:k_hacardia
+		}
 	}
 	##Druinova##
 	if = {
 		limit = {
-			exists = title:e_battania
+			exists = title:k_battania.holder
 		}
 		title:d_druinova = {
 			set_de_jure_liege_title = title:k_battania
@@ -1251,9 +1267,10 @@ sturgia_collapse_formalized_effect = {
 	else_if = {
 		limit = {
 			NOT = {
-				exists = title:e_battania.holder
+				exists = title:k_battania.holder
 			}
 		}
+		set_global_variable = sturgia_collapse_druinova_var
 		title:k_druinova = {
 			set_de_jure_liege_title = title:e_sturgia
 		}
@@ -1287,6 +1304,36 @@ sturgia_collapse_entirely_effect = {
 	title:d_mazopor = {
 		set_de_jure_liege_title = title:k_jumnor
 	}
+	#Remove any kingdoms re-added to the grand principality
+	if = {
+		limit = {
+			has_global_variable = sturgia_collapse_druinova_var
+		}
+		title:k_druinova = {
+			set_de_jure_liege_title = title:e_sturgia
+		}
+	}
+	title:k_hacardia = {
+		set_de_jure_liege_title = title:e_sturgia
+	}
+	title:k_byalia = {
+		set_de_jure_liege_title = title:e_sturgia
+	}
+	title:k_varcheg = {
+		set_de_jure_liege_title = title:e_sturgia
+	}
+	title:k_minadoria = {
+		set_de_jure_liege_title = title:e_minadoria
+	}
+	title:k_tyal = {
+		set_de_jure_liege_title = title:e_minadoria
+	}
+	title:k_vakken = {
+		set_de_jure_liege_title = title:e_minadoria
+	}
+	title:k_jumnor = {
+		set_de_jure_liege_title = title:e_minadoria
+	}
 }
 restore_petty_sturgia_effect = {
 	title:d_ircara = {
@@ -1302,8 +1349,81 @@ restore_petty_sturgia_effect = {
 		set_de_jure_liege_title = title:k_sturgia
 	}
 }
+kingdom_of_the_nords_effect = {
+	if = {
+		limit = {
+			has_global_variable = sturgia_collapse_var
+		}
+		title:k_byalia = {
+			set_de_jure_liege_title = title:e_nords
+		}
+		title:k_varcheg = {
+			set_de_jure_liege_title = title:e_nords
+		}
+		title:k_hacardia = {
+			set_de_jure_liege_title = title:e_nords
+		}
+	}
+	if = {
+		limit = {
+			has_global_variable = sturgia_collapse_druinova_var
+		}
+		title:k_druinova = {
+			set_de_jure_liege_title = title:e_nords
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_global_variable = sturgia_collapse_var
+			}
+		}
+		##Varcheg##
+		title:k_varcheg = {
+			set_de_jure_liege_title = title:e_nords
+		}
+		title:d_south_kachyar = {
+			set_de_jure_liege_title = title:k_varcheg
+		}
+		title:d_dornyk = {
+			set_de_jure_liege_title = title:k_varcheg
+		}
+		title:d_versgard = {
+			set_de_jure_liege_title = title:k_varcheg
+		}
+		##Byalia##
+		title:k_byalia = {
+			set_de_jure_liege_title = title:e_nords
+		}
+		title:d_byalia = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_mazayar = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_kachyar = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_tyrtiv = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_ledvid = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		title:d_ornshiv = {
+			set_de_jure_liege_title = title:k_byalia
+		}
+		#Hacardia
+		title:k_hacardia = {
+			set_de_jure_liege_title = title:e_nords
+		}
+		title:d_hacard = {
+			set_de_jure_liege_title = title:k_hacardia
+		}
+	}
+}
 shatter_kingdoms_and_empires_effect = {
-	character:Aserai_BH_1 = { #Will need to be fixed better with a dynamic choice when warband or other start dates are added. CK UPDATE CK_UPDATE
+	random_ruler = {
 		destroy_title = title:k_battania
 		destroy_title = title:k_vlandia
 		destroy_title = title:e_nahasa
@@ -1318,7 +1438,7 @@ shatter_kingdoms_and_empires_effect = {
 	}
 }
 shatter_calradian_empires_effect = {
-	character:Aserai_BH_1 = { #Will need to be fixed better with a dynamic choice when warband or other start dates are added. CK UPDATE CK_UPDATE
+	random_ruler = {
 		destroy_title = title:e_northern_empire
 		destroy_title = title:k_nempire_k_1
 		destroy_title = title:e_southern_empire
