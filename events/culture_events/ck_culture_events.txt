@@ -1,0 +1,1022 @@
+﻿namespace = ck_culture_events
+
+ck_culture_events.0001 = { # Influence actors guild
+	type = character_event
+	title = ck_culture_events.0001.t
+	desc = ck_culture_events.0001.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = interested
+	}
+	override_background = { reference = council_chamber }
+	
+	option = { # Bribe with gold
+		name = ck_culture_events.0001.a 
+		
+		
+		add_character_flag = {
+			flag = influenced_actors_guild
+			years = 3
+		}
+		remove_short_term_gold = medium_gold_value
+		
+		random_list = {
+			3 = {
+				custom_tooltip = {
+					text = excellent_play_tt
+					random_sub_realm_county = {
+						save_scope_as = theatre_county
+						limit = {
+							holder = root
+						}
+						add_county_modifier = {
+							modifier = excellent_play_modifier
+							years = 2
+						}
+						holder = {
+							send_interface_toast = {
+								title = excellent_play.notification
+								custom_tooltip = excellent_play.notification_desc
+							}
+						}
+					}
+				}
+			}
+			6 = {
+				custom_tooltip = {
+					text = good_play_tt
+					random_sub_realm_county = {
+						save_scope_as = theatre_county
+						limit = {
+							holder = root
+						}
+						add_county_modifier = {
+							modifier = good_play_modifier
+							years = 2
+						}
+						holder = {
+							send_interface_toast = {
+								title = good_play.notification
+								custom_tooltip = good_play.notification_desc
+							}
+						}
+					}
+				}
+			}
+			2 = {
+				custom_tooltip = {
+					text = mockery_play_tt
+					random_sub_realm_county = {
+						save_scope_as = theatre_county
+						limit = {
+							holder = root
+						}
+						add_county_modifier = {
+							modifier = bad_play_modifier
+							years = 2
+						}
+						holder = {
+							send_interface_toast = {
+								title = bad_play.notification
+								custom_tooltip = bad_play.notification_desc
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		ai_chance = {
+			base = 75
+		}
+	}
+	
+	option = { # Intimidate
+		name = ck_culture_events.0001.b 
+		trigger = {
+			dread >= 20
+		}
+		
+		show_as_unavailable = {
+			dread < 20
+		}
+		
+		add_character_flag = {
+			flag = influenced_actors_guild
+			years = 3
+		}
+		
+		random_list = {
+			2 = {
+				custom_tooltip = {
+					text = excellent_play_tt
+					random_sub_realm_county = {
+						save_scope_as = theatre_county
+						limit = {
+							holder = root
+						}
+						add_county_modifier = {
+							modifier = excellent_play_modifier
+							years = 2
+						}
+						holder = {
+							send_interface_toast = {
+								title = excellent_play.notification
+								custom_tooltip = excellent_play.notification_desc
+							}
+						}
+					}
+				}
+			}
+			6 = {
+				custom_tooltip = {
+					text = good_play_tt
+					random_sub_realm_county = {
+						save_scope_as = theatre_county
+						limit = {
+							holder = root
+						}
+						add_county_modifier = {
+							modifier = good_play_modifier
+							years = 2
+						}
+						holder = {
+							send_interface_toast = {
+								title = good_play.notification
+								custom_tooltip = good_play.notification_desc
+							}
+						}
+					}
+				}
+			}
+			4 = {
+				custom_tooltip = {
+					text = mockery_play_tt
+					random_sub_realm_county = {
+						save_scope_as = theatre_county
+						limit = {
+							holder = root
+						}
+						add_county_modifier = {
+							modifier = bad_play_modifier
+							years = 2
+						}
+						holder = {
+							send_interface_toast = {
+								title = bad_play.notification
+								custom_tooltip = bad_play.notification_desc
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		ai_chance = {
+			base = 25
+		}
+	}
+	
+	option = { # Change of mind
+		name = ck_culture_events.0001.c
+		remove_character_flag = considering_decision
+		hidden_effect = {
+			add_prestige = 100
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+
+ck_culture_events.0002 = { # Local play mocks ruler
+	type = character_event
+	title = ck_culture_events.0002.t
+	desc = ck_culture_events.0002.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = war_defender
+	}
+	override_background = { reference = council_chamber }
+	
+	trigger = {
+		NOT = {
+			has_character_flag = influenced_actors_guild
+		}
+		culture = {
+			OR = {
+				has_cultural_tradition = tradition_high_calradic
+				has_cultural_tradition = tradition_theatre_enthusiasts
+			}
+		}
+		is_landed = yes
+		is_capable_adult = yes
+	}
+	
+	immediate = {
+		random_sub_realm_county = {
+			limit = {
+				holder = root
+			}
+			add_county_modifier = {
+				modifier = bad_play_modifier
+				years = 2
+			}
+			save_scope_as = theatre_county
+		}
+	}
+	
+	option = { # Who cares about theatre
+		name = ck_culture_events.0002.a 
+		
+		add_prestige = -100
+		add_stress = 5
+		
+		stress_impact = {
+			arrogant = minor_stress_gain
+		}
+		
+	}
+	option = { # Arrest those actors
+		name = ck_culture_events.0002.b
+		add_prestige = -150
+		add_tyranny = 5
+		
+		stress_impact = {
+			gregarious = minor_stress_gain
+			forgiving = minor_stress_gain
+		}
+		
+	}
+}
+ck_culture_events.0003 = { # Local play mocks family member
+	type = character_event
+	title = ck_culture_events.0003.t
+	desc = {
+		first_valid = {
+			#Child relative
+			triggered_desc = {
+				trigger = { 
+					scope:slandered_family = {
+						is_child_of = root
+					}
+				}
+				desc = ck_culture_events.0003.desc.a
+			}
+			#Regular relative
+			triggered_desc = {
+				desc = ck_culture_events.0003.desc
+			}
+		}
+	}
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = war_defender
+	}
+	left_portrait = {
+		character = scope:slandered_family
+		animation = anger
+	}
+	override_background = { reference = council_chamber }
+	
+	trigger = {
+		NOT = {
+			has_character_flag = influenced_actors_guild
+		}
+		any_close_or_extended_family_member = {
+			is_courtier_of = root
+			age >= 12
+		}
+		culture = {
+			OR = {
+				has_cultural_tradition = tradition_high_calradic
+				has_cultural_tradition = tradition_theatre_enthusiasts
+			}
+		}
+		is_landed = yes
+		is_capable_adult = yes
+	}
+	
+	immediate = {
+		random_sub_realm_county = {
+			limit = {
+				holder = root
+			}
+			save_scope_as = theatre_county
+		}
+		random_courtier_or_guest = {
+			limit = {
+				is_close_or_extended_family_of = root
+				age >= 12
+			}
+			save_scope_as = slandered_family
+		}
+		add_character_modifier = {
+			modifier = family_mocked
+			years = 2
+		}
+	}
+	
+	option = { # Who cares about theatre
+		name = ck_culture_events.0003.a
+		
+		stress_impact = {
+			arrogant = minor_stress_gain
+		}
+		
+		scope:slandered_family = {
+			add_stress = 10
+			add_prestige = -100
+			add_opinion = {
+				modifier = didnt_defend_my_name
+				months = 12
+				target = root
+			}
+		}
+		
+		
+	}
+	option = { # Arrest those actors
+		name = ck_culture_events.0002.b #same response as 2 event
+		add_prestige = -50
+		add_tyranny = 5
+
+		stress_impact = {
+			gregarious = minor_stress_gain
+			forgiving = minor_stress_gain
+		}
+		
+		scope:slandered_family = {
+			add_stress = -10
+			add_prestige = -50
+			add_opinion = {
+				modifier = defended_my_name
+				months = 12
+				target = root
+			}
+		}
+		
+	}
+}
+
+ck_culture_events.0004 = { # Local play praises ruler
+	type = character_event
+	title = ck_culture_events.0004.t
+	desc = ck_culture_events.0004.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	override_background = { reference = council_chamber }
+	
+	trigger = {
+		culture = {
+			OR = {
+				has_cultural_tradition = tradition_high_calradic
+				has_cultural_tradition = tradition_theatre_enthusiasts
+			}
+		}
+		is_landed = yes
+		is_capable_adult = yes
+	}
+	
+	immediate = {
+		random_sub_realm_county = {
+			limit = {
+				holder = root
+			}
+			add_county_modifier = {
+				modifier = good_play_modifier
+				years = 2 
+			}
+			save_scope_as = theatre_county
+		}
+	}
+	
+	option = { # It's good to be loved
+		name = ck_culture_events.0004.a 
+		
+		add_prestige = 100
+		add_stress = -5
+		
+	}
+	option = { # Ambivalent response # placeholder
+		name = ck_culture_events.0004.b
+		add_piety = 50
+		
+	}
+}
+ck_culture_events.0005 = { # Local actors request patronage
+	type = character_event
+	title = ck_culture_events.0005.t
+	desc = ck_culture_events.0005.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = interested
+	}
+	override_background = { reference = council_chamber }
+	
+	trigger = {
+		culture = {
+			OR = {
+				has_cultural_tradition = tradition_high_calradic
+				has_cultural_tradition = tradition_theatre_enthusiasts
+			}
+		}
+		is_landed = yes
+		is_capable_adult = yes
+	}
+
+	option = { # Approve their request
+		name = ck_culture_events.0005.a 
+		
+		remove_short_term_gold = medium_gold_value
+		add_prestige = 50
+		add_character_modifier = {
+			modifier = patron_of_theatre
+			months = 18
+		}
+		trigger_event = {
+			id = ck_culture_events.0004
+			months = { 2 6 }
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				short_term_gold >= medium_gold_value
+			}
+		}
+	}
+	option = { # Deny their request 
+		name = ck_culture_events.0005.b
+		add_prestige = -10
+	}
+}
+ck_culture_events.0006 = { # Invite local patricians
+	type = character_event
+	title = ck_culture_events.0006.t
+	desc = {
+		desc = ck_culture_events.0006.desc_intro
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_mediocre
+					}
+				}
+				desc = ck_culture_events.0006.desc.1
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_awful
+					}
+				}
+				desc = ck_culture_events.0006.desc.2
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_stewardship_good
+					}
+				}
+				desc = ck_culture_events.0006.desc.3
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_stewardship_excellent
+					}
+				}
+				desc = ck_culture_events.0006.desc.4
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_diplomacy_good
+					}
+				}
+				desc = ck_culture_events.0006.desc.5
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_diplomacy_excellent
+					}
+				}
+				desc = ck_culture_events.0006.desc.6
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_martial_good
+					}
+				}
+				desc = ck_culture_events.0006.desc.7
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_martial_excellent
+					}
+				}
+				desc = ck_culture_events.0006.desc.8
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_intrigue_good
+					}
+				}
+				desc = ck_culture_events.0006.desc.9
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_intrigue_excellent
+					}
+				}
+				desc = ck_culture_events.0006.desc.10
+			}
+			triggered_desc = {
+				trigger = {
+					scope:patrician = {
+						has_character_flag = patrician_prowess
+					}
+				}
+				desc = ck_culture_events.0006.desc.11
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					exists = scope:patrician_child_1
+				}
+				desc = ck_culture_events.0006.desc_ending.1
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:patrician_child_single
+				}
+				desc = ck_culture_events.0006.desc_ending.2
+			}
+			desc = ck_culture_events.0006.desc_ending.3
+		}
+	}
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = interested
+	}
+	left_portrait = {
+		character = scope:patrician
+		animation = throne_room_bow_3
+	}
+
+	override_background = { reference = council_chamber }
+	
+	immediate = {
+		random_sub_realm_county = {
+			save_scope_as = patrician_county
+		}
+		create_character = { # wifey # żono moja, serce moje
+			age = { 20 35 }
+			gender = female
+			#random_traits = no
+			location = root.location
+			faith = root.faith
+			culture = root.culture
+			dynasty = generate
+			save_scope_as = patrician_wife
+		}
+		random_list = { # patricians # 2 for each stat, except of learning # 2 overall stats # 1 prowess
+			3 = {
+				create_character = { #mediocre stats overall
+					age = { 30 45 }
+					gender = male
+					random_traits_list = {
+						count = 1
+						education_intrigue_2 = { }
+						education_diplomacy_2 = { }
+						education_stewardship_2 = { }
+						education_martial_2 = { }
+					}
+					martial = { 10 13 }
+					stewardship = { 10 13 }
+					diplomacy = { 10 13 }
+					intrigue = { 10 13 }
+					prowess = { 0 6 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_mediocre
+					}
+				}
+			}
+			2 = {
+				create_character = { #awful stats overall
+					age = { 30 45 }
+					gender = male
+					random_traits_list = {
+						count = 1
+						education_intrigue_1 = { }
+						education_diplomacy_1 = { }
+						education_stewardship_1 = { }
+						education_martial_1 = { }
+					}
+					random_traits_list = {
+						count = 1
+						intellect_bad_1 = { }
+						drunkard = { }
+					}
+					martial = { 1 8 }
+					stewardship = { 1 8 }
+					diplomacy = { 1 8 }
+					intrigue = { 1 8 }
+					prowess = { 0 6 }
+					learning = { 1 8 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_awful
+					}
+				}
+			}
+			2 = {
+				create_character = { #stewardship good
+					age = { 30 45 }
+					gender = male
+					trait = education_stewardship_3
+					martial = { 10 13 }
+					stewardship = { 13 16 }
+					diplomacy = { 10 13 }
+					intrigue = { 10 13 }
+					prowess = { 0 6 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_stewardship_good
+					}
+				}
+			}
+			2 = {
+				create_character = { #martial good
+					age = { 30 45 }
+					gender = male
+					trait = education_martial_3
+					stewardship = { 10 13 }
+					martial = { 13 16 }
+					diplomacy = { 10 13 }
+					intrigue = { 10 13 }
+					prowess = { 3 12 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_martial_good
+					}
+				}
+			}
+			2 = {
+				create_character = { #diplomacy good
+					age = { 30 45 }
+					gender = male
+					trait = education_diplomacy_3
+					stewardship = { 10 13 }
+					diplomacy = { 13 16 }
+					martial = { 10 13 }
+					intrigue = { 10 13 }
+					prowess = { 3 12 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_diplomacy_good
+					}
+				}
+			}
+			2 = {
+				create_character = { #intrigue good
+					age = { 30 45 }
+					gender = male
+					trait = education_intrigue_3
+					stewardship = { 10 13 }
+					intrigue = { 13 16 }
+					martial = { 10 13 }
+					diplomacy = { 10 13 }
+					prowess = { 3 12 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_intrigue_good
+					}
+				}
+			}
+			1 = {
+				create_character = { #intrigue excellent
+					age = { 30 45 }
+					gender = male
+					random_traits_list = {
+						count = 1
+						education_intrigue_4 = { }
+						education_intrigue_5 = { }
+					}
+					random_traits_list = {
+						count = 1
+						intellect_good_1 = { }
+						schemer = { }
+					}
+					stewardship = { 10 13 }
+					intrigue = { 18 27 }
+					martial = { 10 13 }
+					diplomacy = { 10 13 }
+					prowess = { 6 12 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_intrigue_excellent
+					}
+				}
+			}
+			1 = {
+				create_character = { #diplo excellent
+					age = { 30 45 }
+					gender = male
+					random_traits_list = {
+						count = 1
+						education_diplomacy_4 = { }
+						education_diplomacy_5 = { }
+					}
+					random_traits_list = {
+						count = 1
+						intellect_good_1 = { }
+						diplomat = { }
+					}
+					stewardship = { 10 13 }
+					diplomacy = { 18 27 }
+					martial = { 10 13 }
+					intrigue = { 10 13 }
+					prowess = { 6 12 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_diplomacy_excellent
+					}
+				}
+			}
+			1 = {
+				create_character = { #martial excellent
+					age = { 30 45 }
+					gender = male
+					random_traits_list = {
+						count = 1
+						education_martial_4 = { }
+						education_martial_5 = { }
+					}
+					random_traits_list = {
+						count = 1
+						intellect_good_1 = { }
+						strategist = { }
+					}
+					stewardship = { 10 13 }
+					martial = { 18 27 }
+					diplomacy = { 10 13 }
+					intrigue = { 10 13 }
+					prowess = { 6 12 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_martial_excellent
+					}
+				}
+			}
+			1 = {
+				create_character = { #stewardship excellent
+					age = { 30 45 }
+					gender = male
+					random_traits_list = {
+						count = 1
+						education_stewardship_4 = { }
+						education_stewardship_5 = { }
+					}
+					random_traits_list = {
+						count = 1
+						intellect_good_1 = { }
+						administrator = { }
+					}
+					martial = { 10 13 }
+					stewardship = { 18 27 }
+					diplomacy = { 10 13 }
+					intrigue = { 10 13 }
+					prowess = { 0 6 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_stewardship_excellent
+					}
+				}
+			}
+			1 = {
+				create_character = { #prowess # disfigured cataphract veteran
+					age = { 30 45 }
+					gender = male
+					trait = education_martial_3
+					trait = disfigured
+					trait = scarred
+					random_traits_list = {
+						count = 1
+						physique_good_1  = { }
+						physique_good_2  = { }
+						gallant = { }
+					}
+					martial = { 10 16 }
+					stewardship = { 8 13 }
+					diplomacy = { 8 13 }
+					intrigue = { 8 13 }
+					prowess = { 16 30 }
+					learning = { 5 12 }
+					#random_traits = no
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = generate
+					save_scope_as = patrician
+					after_creation = { 
+						marry = scope:patrician_wife
+						add_character_flag = patrician_prowess
+					}
+				}
+			}
+		}
+		random_list = { # their children
+			3 = { # two kids
+				create_character = {
+					age = { 5 12 }
+					gender_female_chance = 50
+					#random_traits = no
+					father = scope:patrician
+					mother = scope:patrician_wife
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = inherit
+					save_scope_as = patrician_child_1
+					after_creation = { add_character_flag = patrician_child_1 }
+				}
+				create_character = {
+					age = { 5 12 }
+					gender_female_chance = 50
+					#random_traits = no
+					father = scope:patrician
+					mother = scope:patrician_wife
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = inherit
+					save_scope_as = patrician_child_2
+					after_creation = { add_character_flag = patrician_child_2 }
+				}
+			}
+			2 = { # one kid
+				create_character = {
+					age = { 5 12 }
+					gender_female_chance = 50
+					#random_traits = no
+					father = scope:patrician
+					mother = scope:patrician_wife
+					location = root.location
+					faith = root.faith
+					culture = root.culture
+					dynasty = inherit
+					save_scope_as = patrician_child_single
+					after_creation = { add_character_flag = patrician_child_single }
+				}
+			}
+			1 = { } # no kids
+		}
+	}
+	
+	option = {
+		name = ck_culture_events.0006.a
+		custom_tooltip = ck_culture_events.0006.a.tt
+		
+		hidden_effect = {
+			add_courtier = scope:patrician
+			add_courtier = scope:patrician_wife
+			add_courtier = scope:patrician_child_1
+			add_courtier = scope:patrician_child_2
+			add_courtier = patrician_child_single
+		}
+	}
+	option = {
+		name = ck_culture_events.0006.b
+		
+		hidden_effect = { #time to die
+			if = {
+				limit = {
+					scope:patrician = { is_alive = yes }
+				}
+				scope:patrician = {
+					silent_disappearance_effect = yes
+				}
+			}
+			if = {
+				limit = {
+					scope:patrician_wife = { is_alive = yes }
+				}
+				scope:patrician_wife = {
+					silent_disappearance_effect = yes
+				}
+			}
+			if = {
+				limit = {
+					scope:patrician_child_1 = { is_alive = yes }
+				}
+				scope:patrician_child_1 = {
+					silent_disappearance_effect = yes
+				}
+			}
+			if = {
+				limit = {
+					scope:patrician_child_2 = { is_alive = yes }
+				}
+				scope:patrician_child_2 = {
+					silent_disappearance_effect = yes
+				}
+			}
+			if = {
+				limit = {
+					scope:patrician_child_single = { is_alive = yes }
+				}
+				scope:patrician_child_single = {
+					silent_disappearance_effect = yes
+				}
+			}
+		}
+		
+	}
+	
+}
