@@ -3,7 +3,33 @@ buy_wine_decision = {
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/decision_spend_money.dds"
 	}
-	desc = buy_wine_decision_desc 
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					culture = {
+						has_cultural_tradition = tradition_winemasters
+					}
+				}
+				desc = buy_wine_decision_desc.1 
+			}
+			triggered_desc = {
+				trigger = {
+					NOT = {
+						culture = {
+							has_cultural_tradition = tradition_winemasters
+						}
+					}
+					any_sub_realm_barony = {
+						title_province = {
+							has_building_or_higher = wineyards_01
+						}
+					}
+				}
+				desc = buy_wine_decision_desc.2
+			}
+		}
+	}
 	#decision_group_type = ???
 	
 	cost = { gold = 200 }
@@ -458,6 +484,7 @@ recruit_cultural_troops_decision = {
 	
 	is_shown = {
 		has_character_flag = recruits_local_troops
+		is_landed = no
 	}
 	
 	is_valid_showing_failures_only = {
@@ -490,6 +517,347 @@ recruit_cultural_troops_decision = {
 		remove_character_flag = recruits_nahasi_troops
 		remove_character_flag = recruits_sturgic_troops
 		remove_character_flag = recruits_local_troops
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+recruit_local_troops_landed_decision = {
+	ai_check_interval = 0
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
+	}
+	desc = recruit_local_troops_landed_decision_desc
+
+	is_shown = {
+		is_landed = yes
+		NOT = {
+			has_character_flag = recruits_local_troops
+		}
+	}
+	
+	cooldown = { years = 6 }
+	
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = you_already_recruit_local_tt
+			NOT = {
+				has_character_flag = recruits_local_troops
+			}
+		}
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = half_of_realm_foreign_and_valid_tt
+			any_sub_realm_county = {
+				percent > 0.5
+				culture = {
+					NOT = {
+						has_same_culture_heritage = root.culture
+					}
+				}
+			}
+			any_sub_realm_county = {
+				percent > 0.5
+				culture = {
+					OR = {
+						has_cultural_pillar = heritage_calradian
+						has_cultural_pillar = heritage_battanian
+						has_cultural_pillar = heritage_balian
+						has_cultural_pillar = heritage_nahasi
+						has_cultural_pillar = heritage_khuzic
+						has_cultural_pillar = heritage_sturgic
+					}
+				}
+			}
+		}
+	}
+	
+	effect = {
+		if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_calradian
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_calradians
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_battanian
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_battanians
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_balian
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_balians
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_khuzic
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_khuzics
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_nahasi
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_nahasi
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						has_cultural_pillar = heritage_sturgic
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}	
+			custom_tooltip = will_recruit_sturgic
+		}
+		else = {
+			custom_tooltip = will_recruit_local.2
+		}
+		custom_tooltip = {
+			text = recruits_local_troops_modifier_tt
+			add_character_modifier = {
+				modifier = recruits_local_troops_maint
+				years = 6
+			}
+		}
+		add_character_modifier = recruits_local_troops_landed
+		hidden_effect = { recruit_local_landed_ruler_effect = yes } 
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+recruit_cultural_troops_landed_decision = {
+	ai_check_interval = 0
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
+	}
+	desc = recruit_cultural_troops_landed_decision_desc
+	
+	is_shown = {
+		has_character_flag = recruits_local_troops
+		is_landed = yes
+	}
+	
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = recruits_local_cooldown_desc
+			NOT = {
+				has_character_flag = recruits_local_troops_cooldown
+			}
+		}
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = recruits_local_troops_valid_desc
+			has_character_flag = recruits_local_troops
+		}
+	}
+	
+	effect = {
+		send_interface_toast = {
+			title = recruit_local_troops_message
+		}
+		custom_tooltip = returns_to_cultural_troops_desc
+		remove_character_modifier = recruits_local_troops_landed
+		remove_character_flag = recruits_calradian_troops
+		remove_character_flag = recruits_battanian_troops
+		remove_character_flag = recruits_balian_troops
+		remove_character_flag = recruits_khuzic_troops
+		remove_character_flag = recruits_nahasi_troops
+		remove_character_flag = recruits_sturgic_troops
+		remove_character_flag = recruits_local_troops
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+influence_actors_guild = {
+	ai_check_interval = 120
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_culture.dds"
+	}
+	desc = influence_actors_guild_decision_desc
+	
+	is_shown = {
+		culture = {
+			OR = {
+				has_cultural_parameter = theatre_decision
+				has_cultural_tradition = tradition_high_calradic
+			}
+		}
+		is_landed = yes
+	}
+	
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = already_considering_decision_tt
+			NOT = {
+				has_character_flag = considering_decision
+			}
+		}
+		custom_tooltip = {
+			text = influenced_actors_guild_cooldown_tt
+			NOT = {
+				has_character_flag = influenced_actors_guild
+			}
+		}
+		is_capable_adult = yes
+	}
+
+	is_valid = {
+		custom_tooltip = {
+			text = hc_or_theatre_tradition_tt
+			culture = {
+				OR = {
+					has_cultural_parameter = theatre_decision
+					has_cultural_tradition = tradition_high_calradic
+				}
+			}
+		}
+	}
+	
+	cost = {
+		prestige = 100
+	}
+	
+	effect = {
+		custom_tooltip = influence_actors_guild_effect_tt
+		custom_tooltip = influence_actors_guild_cooldown_tt
+		trigger_event = ck_culture_events.0001
+		add_character_flag = {
+			flag = considering_decision
+			days = 1
+		}
+	}
+	
+	ai_potential = {
+		gold >= 300
+	}
+
+	ai_will_do = {
+		base = 100
+	}
+}
+invite_patrician_family_decision = {
+	ai_check_interval = 0
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
+	}
+	desc = invite_patrician_family_decision_desc
+	
+	cooldown = {
+		years = 4
+	}
+	
+	is_shown = {
+		culture = {
+			has_cultural_tradition = tradition_high_calradic
+		}
+		is_landed = yes
+	}
+	
+	is_valid = {
+		culture = {
+			has_cultural_tradition = tradition_high_calradic
+		}
+	}
+	
+	is_valid_showing_failures_only = {
+		is_capable_adult = yes
+	}
+	
+	effect = {
+		custom_tooltip = invite_patrician_effect
+		trigger_event = ck_culture_events.0006
+	}
+	
+	cost = {
+		prestige = 150
+		gold = 200
 	}
 	
 	ai_potential = {
