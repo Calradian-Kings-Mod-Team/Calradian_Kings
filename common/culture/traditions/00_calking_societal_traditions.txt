@@ -417,3 +417,147 @@ tradition_disloyal_vaegirs = {
 		}
 	}
 }
+
+tradition_seafaring_kannic = {
+	category = societal
+
+
+	layers = {
+		0 = martial
+		1 = western
+		4 = kannic_ship.dds
+	}
+
+	is_shown = {
+		has_cultural_pillar = heritage_nahasi
+	}
+
+	can_pick = {
+		any_parent_culture_or_above = {
+			this = culture:kannic
+		}
+		custom_description = {
+			text = percentage_of_culture_on_coast_desc
+			any_culture_county = {
+				percent >= 0.5
+				any_county_province = {
+					is_coastal = yes
+				}
+			}
+		}
+		custom_tooltip = {
+			text = cannot_have_tradition_fp1_coastal_warriors
+			NOT = { culture_tradition:tradition_fp1_coastal_warriors = { is_in_list = traits } }
+		}
+		custom_tooltip = {
+			text = cannot_have_tradition_seafaring
+			NOT = { culture_tradition:tradition_seafaring = { is_in_list = traits } }
+		}
+	}
+	
+	parameters = {
+		trade_ports_give_control_growth = yes
+		trade_ports_give_levies = yes
+		can_travel_along_rivers = yes
+		trade_ports_enabled_for_tribals = yes
+	}
+	character_modifier = {
+		embarkation_cost_mult = -0.85
+		sea_travel_danger = medium_sea_danger_reduction
+	}
+	
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_bellicose = { is_in_list = traits }
+						culture_pillar:ethos_bureaucratic = { is_in_list = traits }
+						culture_pillar:ethos_spiritual = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_bellicose_bureaucratic_or_spiritual_desc
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						any_culture_county = {
+							percent >= 0.7
+							any_county_province = {
+								is_coastal = yes
+							}
+						}
+					}
+				}
+				add = {
+					value = tradition_unfulfilled_criteria_penalty
+					desc = high_coastal_percentage_desc
+				}
+			}
+
+			if = {
+				limit = {
+					scope:character = {
+						has_variable = tradition_seafaring_travel_discount
+					}
+					
+				}
+
+				add = {
+					value = tradition_travel_discount
+					desc = tradition_travel_discount_desc
+				}
+			}
+
+			
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+	
+	ai_will_do = {
+		value = 200
+		if = { # Make stacking more less common
+			limit = {
+				OR = {
+					culture_tradition:tradition_maritime_mercantilism = { is_in_list = traits }
+					culture_tradition:tradition_fishermen = { is_in_list = traits }
+				}
+			}
+			multiply = 2
+		}
+		if = {
+			limit = {
+				NOT = {
+					scope:character = {
+						any_sub_realm_county = {
+							percent >= 0.3
+							any_county_province = {
+								is_coastal = yes
+							}
+						}
+					}
+				}
+			}
+			multiply = 0
+		}
+		else_if = {
+			limit = {
+				any_culture_county = {
+					percent >= 0.6
+					any_county_province = {
+						is_coastal = yes
+					}
+				}
+			}
+			multiply = 8
+		}
+	}
+}
