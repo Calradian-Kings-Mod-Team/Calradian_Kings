@@ -194,6 +194,12 @@ scripted_trigger 1000_time_to_go_home_trigger = {
 		}
 		exists = scope:laamp_decision_finished_castle_option
 	}
+	trigger_if = {
+		limit = {
+			scope:visiting_location = { has_building_or_higher = lake_rat_hideout }
+		}
+		exists = scope:laamp_decision_finished_hideout_option
+	}
 	#Did we have, and are we done with the City Holding option?
 	trigger_if = {
 		limit = { 
@@ -1263,6 +1269,16 @@ ep3_laamp_decision_event.1000 = {
 					target = flag:has_church_option
 				}
 			}
+			## LAKE RAT HIDEOUT - CALRADIAN KINGS ##
+			if = {
+				limit = {
+					scope:visiting_location = { has_building_or_higher = lake_rat_hideout }
+				}
+				add_to_variable_list = {
+					name = list_of_options
+					target = flag:has_hideout_option
+				}
+			}
 			#Castle Holding: Visit the local castle grounds
 			if = {
 				limit = {
@@ -1394,6 +1410,51 @@ ep3_laamp_decision_event.1000 = {
 		trigger_event = ep3_laamp_decision_event.1040
 		ai_chance = { base = 100 }
 	}
+
+	## LAKE RATS HIDEOUT OPTION: VISIT THE HIDEOUT FOR CONTRACTS ##
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					#Return to look at the church
+					triggered_desc = {
+						trigger = { exists = scope:been_to_hideout_grounds }
+						desc = ep3_laamp_decision_event.1000.ck.1_second
+					}
+					#First time looking at the church
+					desc = ep3_laamp_decision_event.1000.ck.1
+				}
+			}
+		}
+		trigger = {
+			#Do we actually have the castle option available
+			custom_tooltip = {
+				text = tapped_out.tt
+				is_target_in_variable_list = {
+					name = list_of_options
+					target = flag:has_hideout_option
+				}
+				NOT = { exists = scope:laamp_decision_finished_hideout_option }
+			}
+		}
+		show_as_unavailable = {
+			#Hide the options when we're _all_ done
+			trigger_if = {
+				limit = { 
+					exists = scope:laamp_decision_finished_hideout_option
+					1000_time_to_go_home_trigger = no
+				}
+				always = yes
+			}
+			trigger_else = { always = no }
+		}
+		reason = visit_hideout
+		#Actual transition event
+		custom_tooltip = ep3_laamp_decision_event.1000.ck.tt
+		trigger_event = ep3_laamp_decision_event.4100
+		ai_chance = { base = 100 }
+	}
+
 	#Castle Holding Option: Visit the local castle grounds
 	option = {
 		name = {
@@ -15215,6 +15276,393 @@ ep3_laamp_decision_event.1047 = {
 		}
 		#What was our last location
 		1000_update_last_location_effect = { LOCATION_FLAG = flag:physician }
+	}
+}
+
+
+######################################################################
+# HIDEOUT GROUNDS
+# ep3_laamp_decision_event.4100
+######################################################################
+
+# #Set the correct variable to block off the Hideout option and remove the desc flavor variable
+
+
+scripted_effect 4100_rat_king_available_effect = {
+	root.location.county.holder = {
+		AND = {
+			primary_title = title:c_hudeyna
+			is_travelling = no
+			is_ai = yes
+		}
+	}
+}
+
+scripted_effect 4100_rat_king_is_ai_effect = {
+	root.location.county.holder = {
+		AND = {
+			primary_title = title:c_hudeyna
+			is_ai = yes
+		}
+	}
+}
+
+scripted_effect 4100_finished_castle_effect = {
+	remove_list_variable = {
+		name = list_of_options
+		target = flag:has_hideout_option
+	}
+	save_scope_as = laamp_decision_finished_hideout_option
+}
+
+#Nothing left for us to do
+scripted_trigger 4100_done_with_hideout_trigger = {
+	always = yes
+}
+
+# # Hideout: Visit the Lake Rat Hideout
+
+ep3_laamp_decision_event.4100 = {
+	type = character_event
+	title = ep3_laamp_decision_event.4100.t
+	window = visit_settlement_window
+	desc = {
+		#Intro
+		first_valid = {
+			#We've returned to this scene, now what
+			#RETURN: We've returned from Main Square
+			random_valid = {
+				triggered_desc = { 
+					trigger = { 
+						var:return_from_location ?= flag:main_square
+						exists = scope:been_to_hideout_grounds
+						OR = {
+							scope:hideout_loc_tracker ?= 0
+							scope:hideout_loc_tracker ?= 2
+						}
+					}
+					desc = ep3_laamp_decision_event.4100.desc_returned_01
+				}
+				triggered_desc = { 
+					trigger = { 
+						var:return_from_location ?= flag:main_square
+						scope:hideout_loc_tracker ?= 1
+					}
+					desc = ep3_laamp_decision_event.4100.desc_returned_02
+				}
+			}
+			#RETURN: We've returned from the Lake Rat tavern
+			triggered_desc = {
+				trigger = { var:return_from_location ?= flag:lake_tavern }
+				desc = ep3_laamp_decision_event.4100.desc_returned_from_lakerat_tavern
+			}
+			#RETURN: We've returned from the Rat King
+			triggered_desc = {
+				trigger = { var:return_from_location ?= flag:rat_king }
+				desc = ep3_laamp_decision_event.4100.desc_returned_from_ratking
+			}
+			#FIRST TIME: First time here
+			triggered_desc = {
+				trigger = { 
+					NOT = { exists = scope:been_to_hideout_grounds }
+				}
+				desc = ep3_laamp_decision_event.4100.desc
+			}
+		}
+		#Mid - MaA option or not?
+		first_valid = {
+			#FIRST TIME: Yup, we can reinforce MaA
+			triggered_desc = {
+				trigger = {
+					4100_rat_king_available_effect = yes
+					NOT = { exists = scope:been_to_hideout_grounds }
+				}
+				desc = ep3_laamp_decision_event.4100.rat_king
+			}
+			#FIRST TIME: Nope, no MaA to reinforce
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = scope:been_to_hideout_grounds }
+				}
+				desc = ep3_laamp_decision_event.4100.no_rat_king
+			}
+		}
+		#Outro
+		first_valid = {
+			#FIRST TIME: First time here, curious partner
+			triggered_desc = {
+				trigger = {
+					exists = scope:visiting_partner
+					NOT = { exists = scope:been_to_hideout_grounds }
+				}
+				desc = ep3_laamp_decision_event.4100.desc_outro_partner
+			}
+			#FIRST TIME: First time here
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = scope:been_to_hideout_grounds }
+				}
+				desc = ep3_laamp_decision_event.4100.desc_outro
+			}
+			#RETURN: Partner - there is nothing left for us here
+			triggered_desc = {
+				trigger = { 
+					exists = scope:visiting_partner
+					4100_done_with_hideout_trigger = yes 
+				}
+				desc = ep3_laamp_decision_event.4100.desc_outro_return_partner_finished
+			}
+			#RETURN: There is nothing left for us here
+			triggered_desc = {
+				trigger = { 4100_done_with_hideout_trigger = yes }
+				desc = ep3_laamp_decision_event.4100.desc_outro_return_finished
+			}
+			#RETURN: We've been here before
+			random_valid = {
+				#RETURN: Partner flavor
+				triggered_desc = {
+					trigger = {
+						exists = scope:visiting_partner
+						exists = scope:been_to_hideout_grounds
+						scope:hideout_loc_tracker ?= 0
+					}
+					desc = ep3_laamp_decision_event.4100.desc_outro_return_partner_01
+				}
+				triggered_desc = {
+					trigger = {
+						exists = scope:visiting_partner
+						scope:hideout_loc_tracker ?= 1
+					}
+					desc = ep3_laamp_decision_event.4100.desc_outro_return_partner_02
+				}
+				triggered_desc = {
+					trigger = {
+						exists = scope:visiting_partner
+						scope:hideout_loc_tracker ?= 2
+					}
+					desc = ep3_laamp_decision_event.4100.desc_outro_return_partner_03
+				}
+				#RETURN: Generics
+				triggered_desc = {
+					trigger = { 
+						exists = scope:been_to_hideout_grounds
+						scope:hideout_loc_tracker ?= 0
+					}
+					desc = ep3_laamp_decision_event.4100.desc_outro_return_01
+				}
+				triggered_desc = {
+					trigger = { scope:hideout_loc_tracker ?= 1 }
+					desc = ep3_laamp_decision_event.4100.desc_outro_return_02
+				}
+				triggered_desc = {
+					trigger = { scope:hideout_loc_tracker ?= 2 }
+					desc = ep3_laamp_decision_event.4100.desc_outro_return_03
+				}
+			}
+		}
+	}
+	theme = martial
+	#Get outta here already
+	override_effect_2d = {
+		trigger = { 
+			4100_done_with_hideout_trigger = yes
+			scope:visiting_location = { is_drylands_or_desert_trigger = no }
+		}
+  		reference = rain	
+	}
+	override_background = {
+		trigger = {
+			scope:visiting_location = { 
+				geographical_region = world_calradia
+				NOT = { geographical_region = region_rhodokia }
+			}
+		}
+		reference = gallows 
+	}
+	override_background = { reference = ep3_city_gate }
+	left_portrait = {
+		trigger = { exists = scope:visiting_partner }
+		character = scope:visiting_partner
+		#If it's our (tired) visiting partner
+		triggered_animation = {
+			trigger = { 4100_done_with_hideout_trigger = yes }
+			animation = boredom
+		}
+		animation = survey
+	}
+	center_portrait = {
+		character = root
+		triggered_animation = {
+			trigger = { prowess < average_skill_rating }
+			animation = personality_coward
+		}
+		animation = personality_bold
+	}
+	immediate = {
+		#Can we _not_ repeat the loc?
+		1025_set_and_check_hub_loc_tracker_scope_effect = { HUB = hideout }
+		# Rare: Spawn a spectacular Bodyguard
+		# if = {
+		# 	limit = {
+		# 		NOT = { has_variable = laamp_decision_1000_checked_for_bodyguard }
+		# 	}
+		# 	random_list = {
+		# 		80 = {
+		# 			#No Bodyguard
+		# 		}
+		# 		20 = {
+		# 			#Has this person been our bodyguard in the past 10 years?
+		# 			random_pool_character = {
+		# 				province = scope:visiting_location
+		# 				limit = {
+		# 					1010_basic_merchant_checks_trigger = yes
+		# 					save_temporary_scope_as = saved_character_check
+		# 					#Let's avoid double-dipping
+		# 					1010_is_a_saved_bodyguard_trigger = yes
+		# 					1010_is_a_saved_merchant_trigger = no
+		# 					1010_is_a_saved_peddler_trigger = no
+		# 					1010_is_a_saved_crier_trigger = no
+		# 					1010_is_a_saved_storyteller_trigger = no
+		# 					1010_is_a_saved_thief_trigger = no
+		# 					1010_is_a_saved_healer_trigger = no
+		# 					1010_is_a_saved_clergy_trigger = no
+		# 					1010_is_a_saved_physician_trigger = no
+		# 					1010_is_a_saved_weaponsmith_trigger = no
+		# 					1010_is_a_saved_armorer_trigger = no
+		# 					1010_is_a_saved_jeweler_trigger = no
+		# 					1010_is_a_saved_quartermaster_trigger = no
+		# 					can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = scope:saved_character_check }
+		# 				}
+		# 				save_scope_as = laamp_bodyguard_recruit
+		# 				#Some more loc flavor shenanigans for these saved scopes
+		# 				save_scope_as = laamp_recurring_bodyguard
+		# 			}
+		# 			#Otherwise find a bodyguard in the pool
+		# 			if = {
+		# 				limit = { 
+		# 					NOT = { exists = scope:laamp_bodyguard_recruit }
+		# 				}
+		# 				random_pool_character = {
+		# 					province = scope:visiting_location
+		# 					limit = { 
+		# 						1010_basic_merchant_checks_trigger = yes
+		# 						is_available_healthy_adult = yes
+		# 						prowess > 15
+		# 						can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = this }
+		# 					}
+		# 					save_scope_as = laamp_bodyguard_recruit
+		# 				}
+		# 			}
+		# 			#Otherwise create a bodyguard
+		# 			if = {
+		# 				limit = {
+		# 					NOT = { exists = scope:laamp_bodyguard_recruit }
+		# 				}
+		# 				#Create bodyguard to stuff in pool
+		# 				create_character = {
+		# 					template = bp1_yearly_2021_martial_person_template
+		# 					location = scope:visiting_location
+		# 					dynasty = none
+		# 					culture = scope:visiting_location.culture
+		# 					faith = scope:visiting_location.faith
+		# 					prowess = { decent_skill_rating high_skill_rating }
+		# 					save_scope_as = laamp_bodyguard_recruit
+		# 				}
+		# 				scope:laamp_bodyguard_recruit ?= {
+		# 					#Chance to add a malus trait to this spectatular being
+		# 					if = {
+		# 						limit = { 
+		# 							NOR = { 
+		# 								has_trait = possessed_1 
+		# 								has_trait = lunatic_1
+		# 								has_trait = depressed_1
+		# 								has_trait = drunkard
+		# 								has_trait = hashishiyah
+		# 								has_trait = irritable
+		# 							}
+		# 						}
+		# 						hidden_effect = {
+		# 							random = {
+		# 								chance = 20
+		# 								random_list = {
+		# 									10 = { add_trait = possessed_1 }
+		# 									10 = { add_trait = lunatic_1 }
+		# 									10 = { add_trait = depressed_1 }
+		# 									10 = { add_trait = drunkard }
+		# 									10 = { add_trait = hashishiyah }
+		# 									10 = { add_trait = irritable }
+		# 								}
+		# 							}
+		# 						}
+		# 					}
+		# 				}
+		# 			}
+		# 			scope:laamp_bodyguard_recruit = { save_scope_as = 4100_third_character }
+		# 		}
+		# 	}
+		# 	#No decision-scumming
+		# 	set_variable = {
+		# 		name = laamp_decision_1000_checked_for_bodyguard
+		# 		days = visit_settlement_cooldown_days
+		# 	}
+		# }
+	}
+	# Visit the Rat King 
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					# Return to the Rat King
+					triggered_desc = {
+						trigger = { exists = scope:been_to_ratking }
+						desc = ep3_laamp_decision_event.4100.a_second
+					}
+					# First time visiting Rat King
+					desc = ep3_laamp_decision_event.4100.a
+				}
+			}
+
+		}
+	}
+	#I want to do something else
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					#Nothing left to do
+					triggered_desc = {
+						trigger = { 4100_done_with_hideout_trigger = yes }
+						desc = ep3_laamp_decision_event.4100.e_second
+					}
+					#Back to main square
+					desc = ep3_laamp_decision_event.4100.e
+				}
+			}
+		}
+		#Have we done everything? Are we closing off the option?
+		if = {
+			limit = { 4100_done_with_hideout_trigger = yes }
+			#Clean up unnecessary variables and close off the option
+			4100_finished_castle_effect = yes
+		}
+		#*Withered* - This needs to be done manually because the scope isn't saved before the next event is triggered if it's run in After = { ... }
+		1030_save_hub_scope_effect = { HUB = hideout_grounds }
+		#Go back to the main event
+		1000_return_to_main_effect = yes
+		ai_chance = {
+			base = 100
+			modifier = {
+				OR = {
+					has_trait = greedy
+					has_trait = paranoid
+				}
+				add = 300
+			}
+		}
+	}
+	after = {
+		#What was our last location
+		1000_update_last_location_effect = { LOCATION_FLAG = flag:hideout_grounds }
 	}
 }
 
