@@ -1,0 +1,804 @@
+﻿namespace = ck_arena_events
+
+scripted_effect betmoneywin_ckarena = {
+	if = {	
+		limit = {
+			has_character_flag = bet10money_ckarena
+		}
+		add_gold = 20
+		stress_impact = {
+			greedy = minor_stress_impact_loss
+		}
+		remove_character_flag = bet10money_ckarena
+	}
+	else_if = {
+		limit = {
+			has_character_flag = bet25money_ckarena
+		}
+		add_gold = 50
+		stress_impact = {
+			greedy = minor_stress_impact_loss
+		}
+		remove_character_flag = bet25money_ckarena
+	}
+	else_if = {
+		limit = {
+			has_character_flag = bet60money_ckarena
+		}
+		add_gold = 120
+		stress_impact = {
+			greedy = minor_stress_impact_loss
+		}
+		remove_character_flag = bet60money_ckarena
+	}
+	else_if = {
+		limit = {
+			has_character_flag = bet150money_ckarena
+		}
+		add_gold = 300
+		stress_impact = {
+			base = minor_stress_impact_loss
+			greedy = major_stress_impact_loss
+		}
+		remove_character_flag = bet150money_ckarena
+	}
+	#else_if = {
+	#	limit = {
+	#		has_character_flag = bet1000money_ckarena
+	#	}
+	#	add_gold = 2000
+	#	stress_impact = {
+	#		base = major_stress_impact_loss
+	#	}
+	#	remove_character_flag = bet1000money_ckarena
+	#}
+}
+
+scripted_effect clearduelflags_ckarena = {
+	if = {	
+		limit = {
+			has_character_flag = duelnov_ckarena
+		}
+		remove_character_flag = duelnov_ckarena
+	}
+	if = {	
+		limit = {
+			has_character_flag = duelreg_ckarena
+		}
+		remove_character_flag = duelreg_ckarena
+	}
+	if = {	
+		limit = {
+			has_character_flag = duelvet_ckarena
+		}
+		remove_character_flag = duelvet_ckarena
+	}
+	if = {	
+		limit = {
+			has_character_flag = duelchamp_ckarena
+		}
+		remove_character_flag = duelchamp_ckarena
+	}
+}
+
+##########################
+### Visiting the Arena ###
+########  1--100  ########
+##########################
+ck_arena_events.0001 = { #The Arena
+	type = character_event
+	title = ck_arena_events.0001.t
+	desc = ck_arena_events.0001.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #The Duel
+		name = ck_arena_events.0001.a
+		trigger_event = ck_arena_events.0101
+	}
+	option = { #The Melee
+		name = ck_arena_events.0001.b
+		trigger_event = ck_arena_events.0201
+		#3: 2 denars, 5 EXP
+		#6: 10 denars, 10 EXP
+		#10: 25 denars, 10 EXP
+		#20: 60 denars, 10 EXP
+		#last man standing: 250 denars, 200 EXP
+	}
+	option = { #I'll bet on a match
+		name = ck_arena_events.0001.c
+		remove_short_term_gold = 50
+		random_list = { #The house always wins...
+			60 = {
+				trigger_event = ck_arena_events.0002
+			}
+			45 = {
+				trigger_event = ck_arena_events.0003
+			}
+			5 = { #save scumming
+				trigger_event = ck_arena_events.0004
+			}
+		}
+		trigger = {
+			has_gold = 50
+		}
+	}
+	option = { #Go for a walk instead...
+		name = ck_arena_events.0001.d
+		custom_tooltip = ckwhoknows.tt #ckwhoknows.tt:0 "Who knows what will happen on your walk..."
+		hidden_effect = {
+			random_list = { #If you want to, feel free to add an additional result here.
+				10 = { #street brawl
+					trigger_event = ck_arena_events.0007
+				}
+				20 = { #pickpocket
+					trigger_event = ck_arena_events.0005
+				}
+				90 = { #a nice walk
+					trigger_event = ck_arena_events.0006
+				}
+			}
+		}
+	}
+	option = { #No Thanks
+		name = ck_arena_events.0001.e
+		
+	}
+}
+ck_arena_events.0002 = { #The Arena - Lost the Bet!
+	type = character_event
+	title = ck_arena_events.0002.t
+	desc = ck_arena_events.0002.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #I should've known better...
+		name = ck_arena_events.0002.a
+		stress_impact = {
+			greedy = minor_stress_impact_gain
+		}
+	}
+}
+ck_arena_events.0003 = { #The Arena - Won the Bet!
+	type = character_event
+	title = ck_arena_events.0003.t
+	desc = ck_arena_events.0003.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #Easy money!
+		name = ck_arena_events.0003.a
+		add_gold = 75
+		stress_impact = {
+			greedy = minor_stress_impact_loss
+		}
+	}
+}
+ck_arena_events.0004 = { #The Arena - Triumphant Bet!
+	type = character_event
+	title = ck_arena_events.0004.t
+	desc = ck_arena_events.0004.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #Hah! I knew they had it in them!
+		name = ck_arena_events.0004.a
+		add_gold = 150
+	}
+}
+ck_arena_events.0005 = { #Pickpocket!
+	type = character_event
+	title = ck_arena_events.0005.t
+	desc = ck_arena_events.0005.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+		remove_short_term_gold = 10
+	}
+
+	option = { #Just what I needed...
+		name = ck_arena_events.0005.a
+		stress_impact = {
+			base = minor_stress_impact_gain
+			greedy = major_stress_impact_gain
+		}
+	}
+	option = { #Ah well, they're more happy about getting the money than I am sad about losing it
+		name = ck_arena_events.0005.b
+		trigger = {
+			OR = {
+				has_trait = generous
+				has_trait = content
+			}
+			NOT = {
+				has_trait = greedy
+			}
+		}
+		stress_impact = {
+			generous = minor_stress_impact_loss
+			content = minor_stress_impact_loss
+		}
+	}
+}
+ck_arena_events.0006 = { #A Nice Walk
+	type = character_event
+	title = ck_arena_events.0006.t
+	desc = ck_arena_events.0006.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = happiness
+	}
+
+	#immediate = {
+	#	play_music_cue = "mx_cue_epic_sacral_moment"
+	#}
+
+	option = { #It is a good feeling.
+		name = ck_arena_events.0006.a
+		stress_impact = {
+			base = minor_stress_impact_loss
+		}
+	}
+}
+ck_arena_events.0007 = { #Street Brawl!
+	type = character_event
+	title = ck_arena_events.0007.t
+	desc = ck_arena_events.0007.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #Fight!
+		name = ck_arena_events.0007.a
+		random_list = { #add prowess
+			4 = { #win
+				trigger_event = ck_arena_events.0202
+			}
+			4 = { #U got a bow, and are fucked
+				trigger_event = ck_arena_events.0203
+			}
+		}
+	}
+	option = { #Run!
+		name = ck_arena_events.0007.b
+		
+	}
+	option = { #I have money!
+		name = ck_arena_events.0007.c
+	}
+}
+ck_arena_events.0008 = { #Street Brawl - Victory!
+	type = character_event
+	title = ck_arena_events.0008.t
+	desc = ck_arena_events.0008.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #Ill gotten gains gained legitimately?
+		name = ck_arena_events.0008.a
+		random_list = {
+			80 = {
+				add_gold = 10
+			}
+			18 = {
+				add_gold = 25
+			}
+			2 = {
+				add_gold = 50
+			}
+		}
+	}
+}
+vck_arena_events.0009 = { #Street Brawl - Defeat!
+	type = character_event
+	title = ck_arena_events.0009.t
+	desc = ck_arena_events.0009.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #Ouch...
+		name = ck_arena_events.0009.a
+		increase_wounds_effect = {
+			REASON = street_brawl_loss
+		}
+		remove_short_term_gold = 50
+	}
+}
+##########################
+######## The Duel ########
+#######  101--200  #######
+##########################
+ck_arena_events.0101 = { #The Duel
+	type = character_event
+	title = ck_arena_events.0101.t
+	desc = ck_arena_events.0101.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	left_portrait = {
+		character = scope:duelopponent_ckarena
+		animation = marshal
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+		if = {
+			#Prevent re-entering this event from reloading the opponent.
+			limit = {
+				NOT = {
+					ROOT = { 
+						has_character_flag = duel_ckarena
+					}
+				}
+			}
+			random_list = {
+				#Novice
+				10 = {
+					modifier = {
+						add = {
+							value = 0
+							subtract = prowess
+						}
+					}
+					create_character = {
+						template = new_warrior_character
+						location = root.location
+						culture = root.location.county.culture
+						faith = root.location.county.faith
+						gender_female_chance = scope_value_target_soldier_female_chance
+						prowess = { mediocre_skill_rating decent_skill_rating }
+						save_scope_as = duelopponent_ckarena
+					}
+					add_character_flag = duelnov_ckarena
+				}
+				#Regular
+				20 = {
+					modifier = {
+						add = {
+							value = 0
+							subtract = prowess
+						}
+					}
+					create_character = {
+						template = new_warrior_character
+						location = root.location
+						culture = root.location.county.culture
+						faith = root.location.county.faith
+						gender_female_chance = scope_value_target_soldier_female_chance
+						prowess = { medium_skill_rating }
+						save_scope_as = duelopponent_ckarena
+					}
+					add_character_flag = duelreg_ckarena
+				}
+				#Veteran
+				15 = {
+					modifier = {
+						add = {
+							value = 0
+							add = prowess
+						}
+					}
+					create_character = {
+						template = new_warrior_character
+						location = root.location
+						culture = root.location.county.culture
+						faith = root.location.county.faith
+						gender_female_chance = scope_value_target_soldier_female_chance
+						prowess = { high_skill_rating }
+						save_scope_as = duelopponent_ckarena
+					}
+					add_character_flag = duelvet_ckarena
+				}
+				#Champion
+				10 = {
+					modifier = {
+						add = {
+							value = 0
+							add = prowess
+						}
+					}
+					create_character = {
+						template = new_warrior_character
+						location = root.location
+						culture = root.location.county.culture
+						faith = root.location.county.faith
+						gender_female_chance = scope_value_target_soldier_female_chance
+						prowess = { very_high_skill_rating }
+						save_scope_as = duelopponent_ckarena
+					}
+					add_character_flag = duelchamp_ckarena
+				}
+			}
+		}
+		scope:duelopponent_ckarena = { add_character_flag = duelop_ckarena }
+	}
+
+	option = { #The Duel commences!
+		name = ck_arena_events.0101.a
+		#single_combat.0001
+		configure_start_single_combat_effect = {
+			SC_INITIATOR = ROOT
+			SC_ATTACKER = ROOT
+			SC_DEFENDER = scope:duelopponent_ckarena
+			FATALITY = no
+			FIXED = no
+			LOCALE = terrain_scope
+			OUTPUT_EVENT = ck_arena_events.0102
+			INVALIDATION_EVENT = fp1_tbc.0102
+		}
+		hidden_effect = {
+			remove_character_flag = duel_ckarena
+		}
+	}
+	option = { #I'll bet gold on this!
+		name = ck_arena_events.0101.b
+		trigger = {
+			NOR = {
+				has_character_flag = bet10money_ckarena
+				has_character_flag = bet25money_ckarena
+				has_character_flag = bet60money_ckarena
+				has_character_flag = bet150money_ckarena
+				#has_character_flag = bet1000money_ckarena
+			}
+		}
+		add_character_flag = duel_ckarena
+		trigger_event = ck_arena_events.401
+	}
+	option = { #I changed my mind. (Lose prestige, but you don't risk being wounded(generate guy and show him here so players can make the decision)
+		name = ck_arena_events.0101.c
+		trigger = {
+			NOR = {
+				has_character_flag = bet10money_ckarena
+				has_character_flag = bet25money_ckarena
+				has_character_flag = bet60money_ckarena
+				has_character_flag = bet150money_ckarena
+				#has_character_flag = bet1000money_ckarena
+			}
+		}
+		clearduelflags_ckarena = yes
+		add_prestige = -50 #embarassing...
+	}
+}
+ck_arena_events.0102 = {
+	hidden = yes
+
+	immediate = {
+		# Did root win?
+		if = {
+			limit = { scope:sc_victor = ROOT }
+			betmoneywin_ckarena = yes
+			#Send out the ending event
+			ROOT = {
+				send_interface_toast = {
+					title = ck_arena_events.0102.a_success
+					left_icon = ROOT
+				}
+				if = {
+					limit = {
+						has_character_flag = bet10money_ckarena
+						has_character_flag = bet25money_ckarena
+						has_character_flag = bet60money_ckarena
+						has_character_flag = bet150money_ckarena
+						#has_character_flag = bet1000money_ckarena
+					}
+					show_as_tooltip = { betmoneywin_ckarena = yes }
+				}
+			}
+		}
+		# Or did they lose?
+		else = {
+			#Send out the ending event
+			ROOT = {
+				send_interface_toast = {
+					title = ck_arena_events.0102.a_failure
+					left_icon = ROOT
+				}
+				if = {
+					limit = {
+						has_character_flag = bet10money_ckarena
+						has_character_flag = bet25money_ckarena
+						has_character_flag = bet60money_ckarena
+						has_character_flag = bet150money_ckarena
+						#has_character_flag = bet1000money_ckarena
+					}
+					show_as_tooltip = { custom_tooltip = cklostmoney.tt } #cklostmoney.tt:0 "You lost your bet..."
+				}
+			}
+		}
+		after = {
+			limit = {
+				exists = scope:duelopponent_ckarena
+				scope:duelopponent_ckarena = { is_alive = yes }
+				root = { is_ai = yes }
+			}
+			scope:duelopponent_ckarena = { silent_disappearance_effect = yes }
+		}
+		# clear opponent flags
+		clearduelflags_ckarena = yes
+	}
+}
+##########################
+####### The  Melee #######
+#######  201--300  #######
+##########################
+ck_arena_events.0201 = { #The Melee
+	type = character_event
+	title = ck_arena_events.0201.t
+	desc = ck_arena_events.0201.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+		add_character_flag = melee_ckarena
+	}
+
+	option = { #The Melee commences!
+		name = ck_arena_events.0201.a
+		hidden_effect = {
+			random_list = { #Random starting situation, weapon u have, enemies around
+				42 = { #U got a bow, and are pretty safe
+					trigger_event = ck_arena_events.0202
+				}
+				42 = { #U got a bow, and are fucked
+					trigger_event = ck_arena_events.0203
+				}
+				42 = { #U got a two handed sword
+					trigger_event = ck_arena_events.0204
+				}
+				42 = { #U got a sword and shield
+					trigger_event = ck_arena_events.0205
+				}
+				42 = { #U got a staff
+					trigger_event = ck_arena_events.0206
+				}
+				42 = { #U get approached by a guy wanting to team up(fight duel at end if u win :) )
+					trigger_event = ck_arena_events.0207
+				}
+			}
+		}
+	}
+	option = { #I'll bet gold on this!
+		name = ck_arena_events.0101.b
+		trigger_event = ck_arena_events.401
+	}
+	option = { #Err... I changed my mind. No penalty here.
+		name = ck_arena_events.0101.c
+		trigger = {
+			NOR = {
+				has_character_flag = bet10money_ckarena
+				has_character_flag = bet25money_ckarena
+				has_character_flag = bet60money_ckarena
+				has_character_flag = bet150money_ckarena
+				#has_character_flag = bet1000money_ckarena
+			}
+		}
+	}
+}
+##########################
+###### Melee  First ######
+#######  202--225  #######
+##########################
+
+##########################
+###### Melee Status ######
+#######  226--300  #######
+##########################
+
+##########################
+###### Melee  Upset ######
+#######  301--325  #######
+##########################
+
+##########################
+###### Melee Phases ######
+#######  326--335  #######
+##########################
+
+##########################
+###### Melee  Final ######
+#######  336--370  #######
+##########################
+
+##########################
+####### Arena MISC #######
+#######  401--500  #######
+##########################
+ck_arena_events.401 = { #The Arena - How Much?
+	type = character_event
+	title = ck_arena_events.401.t
+	desc = ck_arena_events.401.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+
+	immediate = {
+		#play_music_cue = "mx_cue_epic_sacral_moment"
+	}
+
+	option = { #10(brokie)
+		name = ck_arena_events.401.a
+		trigger = {
+			has_gold = 10
+		}
+		if = {
+			limit = {
+				has_character_flag = duel_ckarena
+			}
+			trigger_event = ck_arena_events.0101
+		}
+		if = {
+			limit = {
+				has_character_flag = melee_ckarena
+			}
+			trigger_event = ck_arena_events.0201
+		}
+		hidden_effect = {
+			add_character_flag = bet10money_ckarena
+		}
+		remove_short_term_gold = 10
+	}
+	option = { #25
+		name = ck_arena_events.401.b
+		trigger = {
+			has_gold = 25
+		}
+		if = {
+			limit = {
+				has_character_flag = duel_ckarena
+			}
+			trigger_event = ck_arena_events.0101
+		}
+		if = {
+			limit = {
+				has_character_flag = melee_ckarena
+			}
+			trigger_event = ck_arena_events.0201
+		}
+		hidden_effect = {
+			add_character_flag = bet25money_ckarena
+		}
+		remove_short_term_gold = 25
+	}
+	option = { #60
+		name = ck_arena_events.401.c
+		trigger = {
+			has_gold = 60
+		}
+		if = {
+			limit = {
+				has_character_flag = duel_ckarena
+			}
+			trigger_event = ck_arena_events.0101
+		}
+		if = {
+			has_character_flag = melee_ckarena
+			trigger_event = ck_arena_events.0201
+		}
+		hidden_effect = {
+			add_character_flag = bet60money_ckarena
+		}
+		remove_short_term_gold = 60
+	}
+	option = { #150(max amount in bannerlord iirc)
+		name = ck_arena_events.401.d
+		trigger = {
+			has_gold = 150
+		}
+		if = {
+			limit = {
+				has_character_flag = duel_ckarena
+			}
+			trigger_event = ck_arena_events.0101
+		}
+		if = {
+			limit = {
+				has_character_flag = melee_ckarena
+			}
+			trigger_event = ck_arena_events.0201
+		}
+		hidden_effect = {
+			add_character_flag = bet150money_ckarena
+		}
+		remove_short_term_gold = 150
+	}
+	#option = { #1000(meme)
+	#	name = ck_arena_events.401.e
+	#	trigger = {
+	#		has_gold = 1000
+	#	}
+	#	if = {
+	#		limit = {
+	#			has_character_flag = duel_ckarena
+	#		}
+	#		trigger_event = ck_arena_events.0101
+	#	}
+	#	if = {
+	#		limit = {
+	#			has_character_flag = melee_ckarena
+	#		}
+	#		trigger_event = ck_arena_events.0201
+	#	}
+	#	hidden_effect = {
+	#		add_character_flag = bet1000money_ckarena
+	#	}
+	#	remove_short_term_gold = 1000
+	#}
+	option = { #Err... I changed my mind.
+		name = ck_arena_events.0101.c
+		if = {
+			limit = {
+				has_character_flag = duel_ckarena
+			}
+			trigger_event = ck_arena_events.0101
+		}
+		if = {
+			limit = {
+				has_character_flag = melee_ckarena
+			}
+			trigger_event = ck_arena_events.0201
+		}
+		add_prestige = -1 #embarassing...
+	}
+}
