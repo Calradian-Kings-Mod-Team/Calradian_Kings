@@ -230,9 +230,6 @@ recruit_local_troops_decision = {
 	is_shown = {
 		is_landless_adventurer = yes
 		is_landed = no
-		NOT = {
-			has_character_flag = recruits_bandits
-		}
 	}
 	is_valid_showing_failures_only = {
 		custom_tooltip = {
@@ -359,14 +356,6 @@ recruit_local_troops_decision = {
 		remove_character_flag = recruits_sturgic_troops
 		if = {
 			limit = {
-				NOT = {
-					has_character_modifier = recruits_local_troops
-				}
-			}
-			add_character_modifier = recruits_local_troops
-		}
-		if = {
-			limit = {
 				domicile.domicile_location.county.culture = {
 					has_cultural_pillar = heritage_calradian
 				}
@@ -439,6 +428,14 @@ recruit_local_troops_decision = {
 		}
 		else = {
 			custom_tooltip = will_recruit_local
+		}
+		if = {
+			limit = {
+				NOT = {
+					has_character_modifier = recruits_local_troops
+				}
+			}
+			add_character_modifier = recruits_local_troops
 		}
 		custom_tooltip = will_receive_cooldown
 	}
@@ -522,12 +519,6 @@ recruit_local_troops_landed_decision = {
 	
 	is_valid_showing_failures_only = {
 		custom_tooltip = {
-			text = recruits_local_cooldown_desc
-			NOT = {
-				has_character_flag = recruits_local_troops_cooldown
-			}
-		}
-		custom_tooltip = {
 			text = you_already_recruit_local_tt
 			NOT = {
 				has_character_flag = recruits_local_troops
@@ -545,9 +536,6 @@ recruit_local_troops_landed_decision = {
 						has_same_culture_heritage = root.culture
 					}
 				}
-			}
-			any_sub_realm_county = {
-				percent > 0.5
 				culture = {
 					OR = {
 						has_cultural_pillar = heritage_calradian
@@ -563,6 +551,10 @@ recruit_local_troops_landed_decision = {
 	}
 	
 	effect = {
+		add_character_flag = {
+			flag = recruits_local_troops_cooldown
+			years = 6
+		}
 		if = {
 			limit = {
 				any_sub_realm_county = {
@@ -651,7 +643,7 @@ recruit_local_troops_landed_decision = {
 		else_if = {
 			limit = {
 				any_sub_realm_county = {
-					percent > 0.5
+					percent > 0.5	
 					culture = {
 						has_cultural_pillar = heritage_sturgic
 						NOT = {
@@ -666,7 +658,7 @@ recruit_local_troops_landed_decision = {
 			custom_tooltip = will_recruit_sturgic
 		}
 		else = {
-			custom_tooltip = will_recruit_local.2
+			custom_tooltip = will_recruit_local
 		}
 		custom_tooltip = {
 			text = recruits_local_troops_modifier_tt
@@ -676,11 +668,6 @@ recruit_local_troops_landed_decision = {
 			}
 		}
 		add_character_modifier = recruits_local_troops_landed
-		custom_tooltip = will_receive_cooldown.2
-		add_character_flag = {
-			flag = recruits_local_troops_cooldown
-			years = 6
-		}
 		hidden_effect = { recruit_local_landed_ruler_effect = yes } 
 	}
 	
@@ -697,7 +684,7 @@ recruit_cultural_troops_landed_decision = {
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
 	}
-	desc = recruit_cultural_troops_landed_decision_desc
+	desc = return_to_cultural_troops_decision_desc
 	
 	is_shown = {
 		has_character_flag = recruits_local_troops
