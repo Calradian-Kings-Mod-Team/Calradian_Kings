@@ -1,0 +1,65 @@
+﻿visit_lakerat = {
+	picture = { reference = "gfx/interface/illustrations/decisions/decision_destiny_goal.dds" }
+	desc = visit_lakerat_desc
+	selection_tooltip = visit_lakerat_tooltip
+	sort_order = 200
+	decision_group_type = adventurer_minor
+
+	is_shown = {
+		#DLC check.
+		has_ep3_dlc_trigger = yes
+		is_landless_adventurer = yes
+		root.location = {
+			has_building_or_higher = lake_rat_hideout
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		is_alive = yes
+		is_available_adult = yes
+		has_contagious_deadly_disease_trigger = no
+		root.location = {
+			has_holding = yes
+			is_occupied = no
+			is_raided = no	
+			has_building_or_higher = lake_rat_hideout
+		}
+		custom_description = {
+			text = "visit_local_settlement_decision_sieged"
+			subject = root
+			root.location = {
+				NOT = {
+					any_army_in_location = {
+						is_army_in_siege = yes
+					}
+				}
+			}
+		}
+		custom_description = {
+			text = "decision_already_visiting_local_settlement"
+			subject = root
+			NOT = { has_variable = ep3_laamp_decision_1000_is_visiting }
+		}
+	}
+	
+	effect = {
+		custom_tooltip = visit_lakerats_decision_tt
+		set_variable = ep3_laamp_decision_1000_is_visiting
+		trigger_event =  ep3_laamp_decision_event.1000
+		close_view = {
+			view = decisions
+			player = root
+		}
+	}
+	
+	ai_check_interval = 12
+
+	ai_potential = {
+		government_has_flag = government_is_landless_adventurer
+		is_available = yes
+	}
+	
+	ai_will_do = {
+		base = 100
+	}
+}
