@@ -1,0 +1,1233 @@
+﻿namespace = ck_visit_special_buildings
+
+
+## Ensure you remember the locations you have been ##
+scripted_effect ck_add_settlement_effect = {
+	#A holding is a tad bit more memorable
+	if = {
+		limit = { 
+			location = { has_holding = yes }
+		}
+		add_to_variable_list = {
+			name = ck_visited_settlements_list
+			target = root.location
+			years = 15
+		}
+	}
+	#Otherwise just some rural settlement
+	else = {
+		add_to_variable_list = {
+			name = ck_visited_settlements_list
+			target = root.location
+			years = 10
+		}
+	}
+}
+
+
+### Spawning the Contracts ###
+scripted_effect ck_option_picked_spawn_contract_effect = {
+	switch = {
+		trigger = scope:ck_$NUM$_contract
+		#Criminal Contracts / Changing to Lake Rat contracts soon
+		flag:criminal_contracts = {
+			hidden_effect = {
+				populate_task_contracts_for_area = {
+					location = scope:visiting_location
+					amount = num_contracts_spawned_value
+					group = { laamp_contracts_criminal_group }
+				}
+			}	
+		}
+	}
+}
+
+scripted_effect ck_option_tooltip_and_cooldown_contract_type_effect = {
+	switch = {
+		trigger = scope:ck_$NUM$_contract
+		#Criminal Contracts / Changing to Lake Rat contracts soon
+		flag:criminal_contracts = {
+			custom_tooltip = ep3_laamp_decision_event.1025.criminal_contracts_tt
+			#Set up the cooldown for the contract type
+			set_variable = {
+				name = ck_had_criminal_contracts_recently
+				days = visit_settlement_cooldown_days
+			}
+			#No prestige cost
+		}
+	}
+}
+
+scripted_effect ck_translate_variable_into_flag_effect = {
+	scope:visiting_location = {
+		#The Nothingness
+		if = {
+			limit = { var:ck_saved_$NUM$_contract_type ?= flag:no_contract }
+			#Nothing
+		}
+		#Criminal Contracts / Changing to Lake Rat contracts soon
+		if = {
+			limit = { var:ck_saved_$NUM$_contract_type ?= flag:criminal_contracts }
+			save_scope_value_as = {
+				name = ck_$NUM$_contract
+				value = flag:criminal_contracts
+			}
+			#Save as a temporary variable that is removed after exiting the decision to avoid desc-bloat
+			root = {
+				set_variable = {
+					name = ck_$NUM$_contract_desc
+					value = flag:criminal_contracts
+				}
+			}
+		}
+
+	}
+}
+
+scripted_trigger ck_location_has_a_saved_contract_type_trigger = {
+	scope:visiting_location = {
+		OR = { 
+			has_variable = ck_saved_first_contract_type
+			has_variable = ck_saved_second_contract_type
+			has_variable = ck_saved_third_contract_type
+		}
+	}
+}
+
+scripted_trigger ck_contract_type_is_assigned_trigger = {
+	OR = {
+		scope:ck_first_contract ?= $CONTRACT_TYPE_FLAG$
+		scope:ck_second_contract ?= $CONTRACT_TYPE_FLAG$
+		scope:ck_third_contract ?= $CONTRACT_TYPE_FLAG$
+	}
+}
+
+scripted_trigger ck_saved_location_contract_type_matches_this_type_trigger = {
+	scope:visiting_location = {
+		OR = {
+			var:ck_saved_first_contract_type ?= $CONTRACT_TYPE_FLAG$
+			var:ck_saved_second_contract_type ?= $CONTRACT_TYPE_FLAG$
+			var:ck_saved_third_contract_type ?= $CONTRACT_TYPE_FLAG$
+		}
+	}
+}
+
+#Standard checks
+scripted_trigger ck_appropriate_contract_employer_trigger = {
+	# Players shouldn't get tangled up in contracts, ever.
+	is_ai = yes
+	# Plus some standard stuff.
+	is_alive = yes
+	is_adult = yes
+	is_incapable = no
+	# Don't offer to work with those who've wronged us.
+	NOR = {
+		government_has_flag = government_is_landless_adventurer
+		# No one we're at war with.
+		is_at_war_with = root
+		# Rivals are cheap to grab.
+		has_relation_rival = root
+		# Expulsion
+		custom_tooltip = {
+			text = adventurer_expelled_trigger_tt
+			OR = {
+				has_opinion_modifier = {
+					target = root
+					modifier = eviction_ignored_opinion
+				}
+				any_liege_or_above = {
+					has_opinion_modifier = {
+						target = root
+						modifier = eviction_ignored_opinion
+					}
+				}
+			}
+		}
+	}
+}
+
+#Landed checks
+scripted_trigger ck_is_appropriate_landed_contract_employer_trigger = {
+	ck_appropriate_contract_employer_trigger = yes
+	this.capital_province ?= {
+		squared_distance = {
+			target = root.domicile.domicile_location
+			value < define:NTaskContract|ADVENTURER_DISTANCE_RESTRICTION
+		}
+	}
+}
+
+## Slow spawning of Lake Rat contracts
+scripted_effect ck_randomize_and_remember_contract_type_effect = {
+	scope:visiting_location.county = {
+		holder ?= {
+			if = {
+				limit = { ck_is_appropriate_landed_contract_employer_trigger = yes }
+			}
+			add_to_temporary_list = potential_contract_employers
+		}
+	}
+	#Did we spawn criminal contracts recently?
+	trigger = {
+		NOR = {
+			#Is this contract type already saved from our last visit?
+			trigger_if = {
+				limit = { ck_location_has_a_saved_contract_type_trigger = yes }
+				ck_saved_location_contract_type_matches_this_type_trigger = { 
+					CONTRACT_TYPE_FLAG = flag:criminal_contracts
+				}
+			}
+			trigger_else = { always = no }
+			#Are we on cooldown?
+			has_variable = ck_had_criminal_contracts_recently
+			#Has this contract type already been assigned to another contract scope this visit?
+			ck_contract_type_is_assigned_trigger = { CONTRACT_TYPE_FLAG = flag:criminal_contracts } 
+		}
+		#Can we actually spawn any criminal contracts?
+		any_in_list = {
+			list = ck_potential_contract_employers
+			save_temporary_scope_as = considered_employer
+			can_create_criminal_contract_trigger = { LAAMP = root EMPLOYER = scope:considered_employer }
+		} 
+	}
+	#Set the type
+	save_scope_value_as = {
+		name = ck_$NUM$_contract
+		value = flag:criminal_contracts
+	}
+	#Save as a temporary variable that is removed after exiting the decision to avoid desc-bloat
+	set_variable = {
+		name = ck_$NUM$_contract_desc
+		value = flag:criminal_contracts
+	}
+	scope:visiting_location = {
+		#Clean up any old variables
+		if = {
+			limit = { has_variable = ck_saved_$NUM$_contract_type }
+			remove_variable = ck_saved_$NUM$_contract_type
+		}
+		#We will not be saving legendary contracts as those are more volatile (does employer still exist? etc)
+		if = {
+			limit = { scope:ck_$NUM$_contract ?= flag:legendary_contract }
+			#Nothing
+		}
+		else_if = {
+			limit = { exists = scope:ck_$NUM$_contract }
+			#Remember this to avoid decision-scumming
+			set_variable = {
+				name = ck_saved_$NUM$_contract_type #i.e. ck_saved_first_contract_type
+				value = scope:ck_$NUM$_contract #i.e. flag:treasure_map_contract
+				days = visit_settlement_minimum_cooldown_days
+			}
+		}
+		else = {
+			save_scope_value_as = {
+				name = ck_$NUM$_no_contract
+				value = flag:no_contract
+			}
+			#Remember this to avoid decision-scumming
+			set_variable = {
+				name = ck_saved_$NUM$_contract_type
+				value = scope:ck_$NUM$_no_contract
+				days = visit_settlement_minimum_cooldown_days
+			}
+		}
+	}
+}
+
+## No Options Left
+scripted_trigger lr_time_to_go_home_trigger = {
+	has_variable = return_from_location_ck
+	#Did we have, and are we done with the Tribal / No Settlement option?
+	#Did we have, and are we done with the Sell Artifact option?
+	# trigger_if = {
+	# 	limit = { 
+	# 		OR = {
+	# 			is_target_in_variable_list = {
+	# 				name = list_of_lr_options
+	# 				target = flag:has_artifact_option
+	# 			}
+	# 			exists = scope:1020_first_artifact_to_sell 
+	# 		}
+	# 	}
+	# 	exists = scope:laamp_decision_sold_artifact
+	# }
+	#Did we have, and are we done with the Contract option?
+	OR = {
+		has_variable = ck_has_contracted_recently
+		exists = scope:rk_decision_has_contracted
+	}
+}
+
+scripted_trigger ck_done_with_hideout_trigger = {
+	exists = scope:rk_decision_has_contracted
+}
+
+#Clean up variables when we leave the decision
+scripted_effect ck_clean_up_effect = {
+	#Artifacts
+	# scope:1020_first_artifact_to_sell ?= { 1020_remove_sell_variables_effect = yes } #If we didn't sell any artifacts
+	# scope:1020_second_artifact_to_sell ?= { 1020_remove_sell_variables_effect = yes }
+	# scope:1020_third_artifact_to_sell ?= { 1020_remove_sell_variables_effect = yes }
+	# remove_variable ?= 1021_artifact_sell_screen
+	#Town Crier
+	remove_variable ?= ck_first_contract_desc
+	remove_variable ?= ck_second_contract_desc
+	remove_variable ?= ck_third_contract_desc
+	#Main
+	clear_variable_list = list_of_lr_options
+	remove_variable ?= list_of_lr_options
+	remove_variable ?= return_from_location_ck
+	#Un-engage us from the decision
+	remove_variable ?= ep3_laamp_decision_1000_is_visiting
+}
+
+# This counts the times you've been to a location and updates loc appropriately
+scripted_effect ck_set_and_check_scene_loc_tracker_scope_effect = {
+	if = {
+		limit = {
+			NOT = { exists = scope:$SCENE$_loc_tracker }	#e.g. scope:weaponsmith_loc_tracker
+		}
+		save_scope_value_as = {
+			name = $SCENE$_loc_tracker
+			value = 0
+		}
+	}
+	else_if = {
+		limit = { scope:$SCENE$_loc_tracker ?= 2 }
+		save_scope_value_as = {
+			name = $SCENE$_loc_tracker
+			value = 0
+		}
+	}
+	else_if = {
+		limit = { scope:$SCENE$_loc_tracker ?= 0 }
+		save_scope_value_as = {
+			name = $SCENE$_loc_tracker
+			value = 1
+		}
+	}
+	else = {
+		save_scope_value_as = {
+			name = $SCENE$_loc_tracker
+			value = 2
+		}			
+	}
+}
+
+# Saves hub #
+scripted_effect ck_save_hub_scope_effect = {
+	if = {
+		limit = {
+			NOT = { exists = scope:been_to_$HUB$ }
+		}
+		save_scope_as = been_to_$HUB$
+	}
+}
+# Returning to hideout #
+scripted_effect ck_return_to_main_effect = {
+	custom_tooltip = ep3_laamp_decision_event.return.tt
+	trigger_event = ck_visit_special_buildings.0001
+}
+
+#For loc flavor
+scripted_effect ck_remember_settlement_effect = {
+	#Do we already remember this place?
+	if = {
+		limit = {
+			has_variable = ck_visited_settlements_list
+			any_in_list = {
+				variable = ck_visited_settlements_list
+				this = scope:visiting_location
+			}
+		}
+		#Replace old entry with a new one
+		remove_list_variable = {
+			name = ck_visited_settlements_list
+			target = scope:visiting_location
+		}
+		ck_add_settlement_effect = yes
+	}
+	#Otherwise just add it to the list
+	else = {
+		ck_add_settlement_effect = yes
+	}
+}
+
+# This will save last location 
+scripted_effect ck_update_last_location_effect = {
+	if = {
+		limit = { has_variable = return_from_location_ck }
+		remove_variable = return_from_location_ck
+		set_variable = {
+			name = return_from_location_ck
+			value = $LOCATION_FLAG$
+		}
+	}
+	else = {
+		set_variable = {
+			name = return_from_location_ck
+			value = $LOCATION_FLAG$
+		}
+	}
+}
+
+scripted_trigger ck_has_irrational_traits = {
+	OR = {
+		has_trait = eccentric
+		has_trait = lunatic
+		has_trait = possessed
+	}
+}
+
+scripted_trigger ck_has_uninterested_traits = {
+	OR = {
+		has_trait = callous
+		has_trait = cynical
+		has_trait = arrogant
+		has_trait = fickle
+		has_trait = arbitrary
+		has_trait = patient
+		has_trait = sadistic
+	}
+}
+
+scripted_trigger ck_has_standoffish_traits = {
+	OR = {
+		has_trait = shy
+		has_trait = craven
+		has_trait = humble
+		has_trait = paranoid
+	}
+}
+## LAKE RAT HIDEOUT EVENT CHAINS ##
+# Visit the Lake Rat Hideout #
+
+ck_visit_special_buildings.0001 = {
+    type = character_event
+    title = ck_visit_special_buildings.0001.t
+	window = visit_settlement_window
+	
+	center_portrait = {
+		character = root
+		triggered_animation = {
+			trigger = { ck_has_irrational_traits = yes }
+			animation = personality_irrational
+		}
+		triggered_animation = {
+			trigger = { ck_has_standoffish_traits = yes }
+			animation = personality_coward
+		}
+		triggered_animation = {
+			trigger = { ck_has_uninterested_traits = yes }
+			animation = personality_cynical
+		}
+		animation = personality_rational
+	}
+
+	## VFXs and SFXs ##
+	override_sound = { 
+		reference = "event:/SFX/Events/Themes/sfx_event_theme_type_stewardship"
+	}
+	# Rain
+	override_effect_2d = {
+		trigger = { has_variable = 1000_is_currently_raining }
+		reference = rain	
+	}
+	# Snow
+	widget = {
+		is_shown = {
+			has_variable = return_from_location_ck
+			NOT = { exists = scope:is_unique_location }
+			scope:visiting_location = { geographical_region = region_longships }
+			has_variable = 1000_is_currently_snowing
+		}
+		gui = "event_window_widget_vfx_snow"
+		container = "foreground_shader_vfx_container"
+	}
+	override_background = { reference = market }
+
+	##---------------##
+
+	## Intro
+	desc = {
+		first_valid = { 
+			## RETURN - No options
+			triggered_desc = {
+				trigger = { lr_time_to_go_home_trigger = yes }
+				desc = ck_visit_special_buildings.0001.desc_intro_returned_home
+			}
+			## RETURN FROM:
+			first_valid = {
+				triggered_desc = { 
+					trigger = { 
+						has_variable = return_from_location_ck
+					}
+					desc = ck_visit_special_buildings.0001.desc_intro_returned_hideout_01
+				}
+				random_valid = {
+					#RETURN: We've returned from the Rat King
+					triggered_desc = {
+						trigger = { var:return_from_location_ck ?= flag:rat_king }
+						desc = ck_visit_special_buildings.0001.desc_intro_returned_from_rat_king
+					}
+					#RETURN: We've returned from the Merchant
+					triggered_desc = {
+						trigger = { var:return_from_location_ck ?= flag:merchant_ck }
+						desc = ck_visit_special_buildings.0001.desc_intro_returned_from_merchant
+					}
+					#RETURN: We've returned from the Tavern
+					triggered_desc = {
+						trigger = { var:return_from_location_ck ?= flag:tavern_ck }
+						desc = ck_visit_special_buildings.0001.desc_intro_returned_from_tavern
+					}
+				}
+			}
+			## First time ever to the hideout
+			first_valid = {
+				triggered_desc = { 
+					desc = ck_visit_special_buildings.0001.desc_intro_hideout
+				}
+			}
+		}
+
+		## Outro
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { has_variable = return_from_location_ck }
+				}
+				desc = ck_visit_special_buildings.0001.desc
+			}
+			triggered_desc = {
+				trigger = {
+					NOT = { has_variable = return_from_location_ck }
+					any_in_list = {
+						variable = ck_visited_settlements_list
+						this = scope:visiting_location
+					}
+				}
+				desc = ck_visit_special_buildings.0001.desc_02
+			}
+		}
+	}
+
+    theme = landless_adventurer
+    immediate = {
+		title:c_hudeyna.holder = { save_scope_as = rat_king_holder }
+		if = { 
+			limit = { 
+				NOT = { 
+					exists = scope:visiting_location 
+				} 
+			}
+			location = { save_scope_as = visiting_location }
+		}
+		if = {
+			limit = {
+				NOT = { exists = scope:neighboring_county }
+			}
+			location = {
+				random_neighboring_province = { 
+					limit = { is_sea_province = no }
+					save_scope_as = neighboring_county
+				}
+			}
+		}
+		random_dummy_gender_effect = yes
+		#To rain or not to rain
+		if = {
+			limit = {
+				has_variable = return_from_location_ck
+				middle_of_year_season_trigger = yes
+				location_has_winter_trigger = no
+			}
+			random_list = {
+				50 = {
+					#No rain
+				}
+				50 = {
+					set_variable = 1000_is_currently_raining
+				}
+			}
+		}
+		#To snow or not to snow
+		if = {
+			limit = {
+				has_variable = return_from_location_ck
+				end_of_year_season_trigger = yes
+				location_has_winter_trigger = yes
+			}
+			random_list = {
+				50 = {
+					#No rain
+				}
+				50 = {
+					set_variable = 1000_is_currently_snowing
+				}
+			}
+		}
+		## List of Things to Do ##
+		if = {
+			limit = {
+				NOT = {
+					exists = scope:1st_pass
+				}
+			}
+			## Tradable Loot ##
+			if = {
+				limit = {
+					any_character_artifact = {
+						count >= 1
+						# lakerat_tradable_loot = yes
+					}
+				}
+				add_to_variable_list = {
+					name = list_of_lr_options
+					target = flag:has_plunder_option
+				}
+			}
+			add_to_variable_list = {
+				name = list_of_lr_options
+				target = flag:has_rat_king_option
+			}
+			add_to_variable_list = {
+				name = list_of_lr_options
+				target = flag:has_tavern_option
+			}
+			save_scope_as = 1st_pass
+		}
+	}
+    # other event details...
+	## VISIT RAT KING  (if you don't have a contract) ##
+    option = {
+        name = {
+			text = {
+				first_valid = {
+					#Return to look at the rat king
+					triggered_desc = {
+						trigger = { exists = scope:been_to_rat_king }
+						desc = ck_visit_special_buildings.0001.1_second
+					}
+					#First time looking at the rat king
+					desc = ck_visit_special_buildings.0001.1
+				}
+			}
+		}
+		trigger = {
+			custom_tooltip = {
+				text = tapped_out.tt
+				is_target_in_variable_list = {
+					name = list_of_lr_options
+					target = flag:has_rat_king_option
+				}
+				NOT = { exists = scope:rk_decision_has_contracted }
+			}
+		}
+		show_as_unavailable = {
+			#Hide the options when we're _all_ done
+			trigger_if = {
+				limit = { 
+					scope:rat_king_holder = {
+						AND = {
+							highest_held_title_tier <= tier_duchy
+							location = province:5671
+						}
+					}
+					lr_time_to_go_home_trigger = no
+				}
+				always = yes
+			}
+			trigger_else = { always = no }
+		}
+		reason = castle_holding
+		custom_tooltip = ck_visit_special_buildings.0001.1.tt
+		trigger_event = ck_visit_special_buildings.0002
+    }
+	## SELL PLUNDER ##
+    option = {
+        name = {
+			text = {
+				first_valid = {
+					#Return to look at the merchant
+					triggered_desc = {
+						trigger = { exists = scope:already_sold_plunder }
+						desc = ck_visit_special_buildings.0001.2_second
+					}
+					#First time looking at the merchant
+					desc = ck_visit_special_buildings.0001.2
+				}
+			}
+		}
+		trigger = {
+			trigger_if = {
+				limit = {
+					is_target_in_variable_list = {
+						name = list_of_lr_options
+						target = flag:has_plunder_option
+					}
+				}
+				always = yes
+			}
+			trigger_else_if = {
+				limit = { exists = scope:lr_decision_sold_artifact }
+				custom_tooltip = {
+					text = already_sold_artifact.tt
+					#We haven't already sold an artifact
+					NOT = { exists = scope:lr_decision_sold_artifact }
+				}
+			}
+			trigger_else = { always = no }
+		}
+		show_as_unavailable = {
+			#Only show it if it was available from the start
+			trigger_if = {
+				limit = { exists = scope:lr_decision_sold_artifact }
+				always = yes 
+			}
+			trigger_else = { always = no }
+		}
+		reason = sell_artifacts
+		custom_tooltip = ck_visit_special_buildings.0001.2.tt
+		trigger_event = ck_visit_special_buildings.0003
+    }
+	## VISIT TAVERN ## / Recruit Strong Men
+    option = {
+        name = {
+			text = {
+				first_valid = {
+					#Return to look at the merchant
+					triggered_desc = {
+						trigger = { exists = scope:already_visit_tavern_ck }
+						desc = ck_visit_special_buildings.0001.3_second
+					}
+					#First time looking at the merchant
+					desc = ck_visit_special_buildings.0001.3
+				}
+			}
+		}
+		trigger = {
+			trigger_if = {
+				limit = {
+					is_target_in_variable_list = {
+						name = list_of_lr_options
+						target = flag:has_tavern_option
+					}
+				}
+				always = yes
+			}
+			trigger_else = { always = no }
+		}
+		show_as_unavailable = {
+			#Only show it if it was available from the start
+			trigger_if = {
+				limit = { exists = scope:lr_decision_sold_artifact }
+				always = yes 
+			}
+			trigger_else = { always = no }
+		}
+		reason = sell_artifacts
+		custom_tooltip = ck_visit_special_buildings.0001.3.tt
+		trigger_event = ck_visit_special_buildings.0003
+        # option details...
+    }
+	## LEAVE THE HIDEOUT ##
+    option = {
+        name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = { lr_time_to_go_home_trigger = yes }
+						desc = ep3_laamp_decision_event.1000.i_home
+					}
+					#Let's get outta here
+					desc = ck_visit_special_buildings.0001.4
+				}
+			}
+		}
+        # option details...
+		custom_tooltip = ck_visit_special_buildings.0001.4.tt
+		#For loc reasons
+		ck_remember_settlement_effect = yes
+		ck_clean_up_effect = yes
+		ai_chance = { base = 50 }
+    }
+	after = {
+		remove_variable ?= 1000_is_currently_raining
+		remove_variable ?= 1000_is_currently_snowing
+	}
+}
+
+scripted_trigger ck_done_with_rat_king_trigger = {
+	AND = {
+		exists = scope:been_to_rat_king
+		# Got a Contract #
+		exists = scope:rk_decision_has_contracted
+
+	}
+}
+
+# Visit the Rat King
+ck_visit_special_buildings.0002 = {
+	type = character_event
+	title = ck_visit_special_buildings.0002.t
+	window = visit_settlement_window
+	theme = landless_adventurer
+	override_sound = { reference = "event:/SFX/Events/Themes/sfx_event_theme_type_generic" }
+	override_background = { reference = fp1_throneroom_tribal }
+
+	## Intro 
+	desc = {
+		# INTRO:
+		first_valid = {
+			# Nothing left to do at Lake Rat
+			triggered_desc = {
+				trigger = { ck_done_with_rat_king_trigger = yes }
+				desc = ck_visit_special_buildings.0002.desc_intro_returned_home
+			}
+			# Returned from a Rat King contract discussion
+			triggered_desc = {
+				trigger = { var:return_from_location_ck ?= flag:contract_rk }
+				desc = ck_visit_special_buildings.0002.desc_intro_returned_from_second
+			}
+			# Been here before
+			triggered_desc = {
+				trigger = { 
+					exists = scope:been_to_rat_king
+				}
+				desc = ck_visit_special_buildings.0002.desc_intro_been
+			}
+			# First time here #
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = scope:been_to_rat_king }
+				}
+				desc = ck_visit_special_buildings.0002.desc
+			}
+		}
+		# OUTRO:
+		first_valid = {
+			# Rat King is NOT here #
+			triggered_desc = {
+				trigger = {
+					exists = scope:rat_king_holder 
+					scope:rat_king_holder = {
+						NOT = {
+							location = province:5671
+						}
+					}
+				}
+				desc = ck_visit_special_buildings.0002_no_rat_king
+			}
+			# Rat King is here #
+			triggered_desc = {
+				trigger = {
+					exists = scope:rat_king_holder 
+					scope:rat_king_holder = {
+						location = province:5671
+					}
+				}
+				desc = ck_visit_special_buildings.0002_rat_king
+			}
+		}
+		# Gauge wealth of Rat King #
+		first_valid = {
+			# BROKE
+			triggered_desc = {
+				trigger = {
+					exists = scope:rat_king_holder 
+					scope:rat_king_holder = {
+						gold <= 0
+					}
+				}
+				desc = ck_visit_special_buildings.0002_broke
+			}
+			# SOME
+			triggered_desc = {
+				trigger = {
+					exists = scope:rat_king_holder 
+					scope:rat_king_holder = {
+						AND = {
+							gold > 0
+							gold <= 30
+						}
+					}
+				}
+				desc = ck_visit_special_buildings.0002_some
+			}
+			# OKAY-OKAY
+			triggered_desc = {
+				trigger = {
+					exists = scope:rat_king_holder 
+					scope:rat_king_holder = {
+						AND = {
+							gold > 30
+							gold <= 150
+						}
+					}
+				}
+				desc = ck_visit_special_buildings.0002_okay
+			}
+			# WELL OFF
+			triggered_desc = {
+				trigger = {
+					exists = scope:rat_king_holder 
+					scope:rat_king_holder = {
+						AND = {
+							gold > 150
+							gold <= 550
+						}
+					}
+				}
+				desc = ck_visit_special_buildings.0002_well
+			}
+			# RICH
+			triggered_desc = {
+				trigger = {
+					exists = scope:rat_king_holder 
+					scope:rat_king_holder = {
+						AND = {
+							gold > 550
+							gold <= 1200
+						}
+					}
+				}
+				desc = ck_visit_special_buildings.0002_rich
+			}
+			# FILTHY RICH
+			triggered_desc = {
+				trigger = {
+					exists = scope:rat_king_holder 
+					scope:rat_king_holder = {
+						gold > 1200
+					}
+				}
+				desc = ck_visit_special_buildings.0002_filthy
+			}
+		}
+	}
+	center_portrait = {
+		character = root
+		triggered_animation = {
+			trigger = { ck_has_irrational_traits = yes }
+			animation = personality_irrational
+		}
+		triggered_animation = {
+			trigger = { ck_has_standoffish_traits = yes }
+			animation = personality_coward
+		}
+		triggered_animation = {
+			trigger = { ck_has_uninterested_traits = yes }
+			animation = personality_cynical
+		}
+		animation = personality_rational
+	}
+	right_portrait = {
+		trigger = { 
+			AND = {
+				exists = scope:rat_king_holder 
+				scope:rat_king_holder = {
+					location = province:5671
+				}
+			}
+		}
+		triggered_animation = {
+			trigger = { ck_has_irrational_traits = yes }
+			animation = personality_irrational
+		}
+		triggered_animation = {
+			trigger = { ck_has_standoffish_traits = yes }
+			animation = personality_coward
+		}
+		triggered_animation = {
+			trigger = { ck_has_uninterested_traits = yes }
+			animation = personality_cynical
+		}
+		animation = personality_rational
+	}
+
+	## Approach the Rat King (if they are here) ##
+	option = {
+		name = ck_visit_special_buildings.0002_a
+		trigger = { 
+			AND = {
+				exists = scope:rat_king_holder 
+				scope:rat_king_holder = {
+					location = province:5671
+				}
+				NOT = {
+					ck_done_with_rat_king_trigger = yes
+				}
+			}
+		}
+		show_as_unavailable = { always = yes }
+		reason = spawn_contracts
+		#Actual transition event
+		custom_tooltip = ck_visit_special_buildings.0002.a.tt
+		trigger_event = ck_visit_special_buildings.0003
+	}
+
+	## Leave the 'throne room' if just vibe checkin or if Rat King is not here
+	option = {
+		name = ck_visit_special_buildings.0002_b
+		if = {
+			limit = {
+				NOT = { exists = scope:been_to_rat_king }
+			}
+			save_scope_as = scope:been_to_rat_king
+		}
+		#We got kick-off!
+		ck_update_last_location_effect = { LOCATION_FLAG = flag:rat_king }
+		ck_return_to_main_effect = yes
+	}
+	after = {
+		ck_save_hub_scope_effect = { HUB = rat_king }
+	}
+}
+
+#Nothing at all!
+scripted_trigger ck_no_contracts_trigger = {
+	OR = {
+		#All contract types are on cooldown, I guess
+		NOR = { 
+			exists = scope:ck_first_contract
+			exists = scope:ck_second_contract 
+			exists = scope:ck_third_contract 
+		}
+		has_variable = ck_has_contracted_recently
+	} 
+}
+
+scripted_effect ck_return_to_second_effect = {
+	custom_tooltip = ck_laamp_decision_event.return.tt
+	trigger_event = ck_visit_special_buildings.0002
+}
+
+#Set the correct variable to block off the Contract option and remove the desc flavor variable
+scripted_effect ck_finished_contract_effect = {
+	#Set up the cooldown for the contract action
+	set_variable = {
+		name = ck_has_contracted_recently
+		days = visit_settlement_minimum_cooldown_days
+	}
+	#We're done here
+	save_scope_value_as = { 
+		name = rk_decision_has_contracted 
+		value = flag:yes	
+	}
+	#Go back to the main event
+	hidden_effect = { ck_return_to_second_effect = yes }
+}
+
+## Speak to the Rat King ##
+ck_visit_special_buildings.0003 = {
+	type = character_event
+	title = ck_visit_special_buildings.0003.t
+	window = visit_settlement_window
+	theme = landless_adventurer
+	override_background = { reference = throne_room }
+
+	# DESCRIPTION #
+	desc = {
+		first_valid = {
+			# COOLDOWN #
+			triggered_desc = {
+				trigger = { ck_no_contracts_trigger = yes }
+				desc = ep3_laamp_decision_event.1025.desc_nothing
+			}
+			# RETURN
+			random_valid = {
+				triggered_desc = { 
+					trigger = {
+						exists = scope:been_to_contract_ck
+						scope:contract_ck_loc_tracker ?= 0
+					}
+					desc = ep3_laamp_decision_event.1025.desc_returned_01 
+				}
+				# Irritated
+				triggered_desc = { 
+					trigger = { scope:contract_ck_loc_tracker ?= 1 }
+					desc = ep3_laamp_decision_event.1025.desc_returned_02
+				}
+				# Pretty pissed at wasting his/her time
+				triggered_desc = { 
+					trigger = { scope:contract_ck_loc_tracker ?= 2 }
+					desc = ep3_laamp_decision_event.1025.desc_returned_02
+				}
+			}
+			#FIRST TIME:
+			triggered_desc = {
+				trigger = {
+					NOR = { 
+						exists = scope:been_to_contract_ck
+						has_variable = ck_has_contracted_recently
+					}
+				}
+				desc = ep3_laamp_decision_event.1025.desc
+			}
+		}
+	}
+
+	right_portrait = {
+		character = scope:rat_king_holder
+		triggered_animation = {
+			trigger = { ck_no_contracts_trigger = yes }
+			animation = boredom
+		}
+		animation = debating
+	}
+
+	immediate = {
+		# To or not to repeat the loc #
+		ck_set_and_check_scene_loc_tracker_scope_effect = { SCENE = contract_ck }
+		if = { ## Check to see if you've been to the RK at all, if not then create the contracts necessary for him to dish out.
+			limit = {
+				NOT = { exists = scope:been_to_contract_ck }
+			}
+			## First Contract
+			if = {
+				limit = {
+					NOT = { exists = scope:ck_first_contract }
+				}
+				#Did we, or someone else, check for contracts here recently?
+				if = {
+					limit = {
+						scope:visiting_location = { has_variable = ck_saved_first_contract_type }
+					}
+					#Translating values from variable to flag translates to number?
+					ck_translate_variable_into_flag_effect = { NUM = first }
+				}
+				#Otherwise generate a new type
+				else = {
+					ck_randomize_and_remember_contract_type_effect = { NUM = first }
+				}	
+			}
+			## Second Contract
+			if = {
+				limit = {
+					NOT = { exists = scope:ck_second_contract }
+				}
+				#Did we, or someone else, check for contracts here recently?
+				if = {
+					limit = {
+						scope:visiting_location = { has_variable = ck_saved_second_contract_type }
+					}
+					#Translating values from variable to flag
+					ck_translate_variable_into_flag_effect = { NUM = second }
+				}
+				#Otherwise generate a new type
+				else = {
+					ck_randomize_and_remember_contract_type_effect = { NUM = second }
+				}
+			}
+			## Third Contract
+			if = {
+				limit = {
+					NOT = { exists = scope:ck_third_contract }
+				}
+				#Did we, or someone else, check for contracts here recently?
+				if = {
+					limit = {
+						scope:visiting_location = { has_variable = ck_saved_third_contract_type }
+					}
+					#Translating values from variable to flag
+					ck_translate_variable_into_flag_effect = { NUM = third }
+				}
+				#Otherwise generate a new type
+				else = {
+					ck_randomize_and_remember_contract_type_effect = { NUM = third }
+				}
+			}
+		}
+	}
+
+	## First Contract - West
+	option = {
+		name = ck_visit_special_buildings.0003.a
+		trigger = { 
+			exists = scope:ck_first_contract
+		}
+		show_as_unavailable = { exists = scope:ck_first_contract }
+		#Remove the remember-variable for A
+		scope:visiting_location = { remove_variable ?= ck_saved_first_contract_type }
+		#Spawn contract(s)
+		ck_option_picked_spawn_contract_effect = { NUM = first }
+		#Pick tooltip and set up the cooldown for the contract type
+		ck_option_tooltip_and_cooldown_contract_type_effect = { NUM = first }
+		#Done here; go back to the main event
+		ck_finished_contract_effect = yes
+		ck_finished_rat_king_contract = yes
+	}
+	## Second Contract - South
+	option = {
+		name = ck_visit_special_buildings.0003.b
+		trigger = { 
+			exists = scope:ck_second_contract
+		}
+		show_as_unavailable = { exists = scope:ck_second_contract }
+		#Remove the remember-variable for B
+		scope:visiting_location = { remove_variable ?= ck_saved_second_contract_type }
+		#Spawn contract(s)
+		ck_option_picked_spawn_contract_effect = { NUM = second }
+		#Pick tooltip and set up the cooldown for the contract type
+		ck_option_tooltip_and_cooldown_contract_type_effect = { NUM = second }
+		#Done here; go back to the main event
+		ck_finished_contract_effect = yes
+	}
+	## Third Contract - East
+	option = {
+		name = ck_visit_special_buildings.0003.c
+		trigger = { 
+			exists = scope:ck_third_contract
+		}
+		show_as_unavailable = { exists = scope:ck_third_contract }
+		#Remove the remember-variable for C
+		scope:visiting_location = { remove_variable ?= ck_saved_third_contract_type }
+		#Spawn contract(s)
+		ck_option_picked_spawn_contract_effect = { NUM = third }
+		#Pick tooltip and set up the cooldown for the contract type
+		ck_option_tooltip_and_cooldown_contract_type_effect = { NUM = third }
+		#Done here; go back to the main event
+		ck_finished_contract_effect = yes
+	}
+	# Leave
+	option = {
+		#Nothing here
+		name = {
+			trigger = {
+				NOT = { 
+					exists = scope:been_to_contract_ck
+					exists = scope:ck_first_contract
+					exists = scope:ck_second_contract
+					exists = scope:ck_third_contract
+				}
+			}
+			text = ep3_laamp_decision_event.1025.d_nothing
+		}
+		name = ep3_laamp_decision_event.1025.d
+		if = {
+			limit = { 
+				NOT = { 
+					exists = scope:ck_first_contract
+					exists = scope:ck_second_contract
+					exists = scope:ck_third_contract
+				}
+			}
+			save_scope_value_as = {
+				name = rk_decision_has_contracted
+				value = flag:no
+			}
+		}
+		#For desc flavor
+		else = { save_scope_as = been_to_contract_ck }
+		#Go back to the main event
+		ck_return_to_second_effect = yes
+	}
+
+	#################
+
+	after = {
+		ck_update_last_location_effect = { LOCATION_FLAG = flag:contract_ck }
+		ck_save_hub_scope_effect = { HUB = contract_ck }
+	}
+}
