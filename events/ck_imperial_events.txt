@@ -25,7 +25,7 @@ ck_imperial_events.0001 = { # Proclaim self as the Emperor
 			}
 		}
 	}
-	theme = realm
+	theme = crown
 	right_portrait = {
 		character = scope:new_title.holder
 		animation = personality_bold
@@ -217,4 +217,1429 @@ ck_imperial_events.0004 = { # Liberator event
 		add_prestige = 800
 		add_legitimacy = 40
 	}
+}
+ck_imperial_events.0005 = { # Preparing expedition
+	type = character_event
+	title = ck_imperial_events.0005.t
+	desc = ck_imperial_events.0005.desc
+	theme = war
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = war_over_win
+	}	
+	override_background = { reference = army_camp }
+	
+	option = { # Onwards
+		name = ck_imperial_events.0005.a
+		custom_tooltip = will_prepare_expedition_event_tt
+		custom_tooltip = will_be_ready_2_months_tt
+		
+		trigger_event = {
+			id = ck_imperial_events.0007
+			months = 2
+		}
+		add_character_flag = {
+			flag = preparing_imperial_expedition
+			years = 1
+		}
+		add_character_flag = { 
+			flag = expedition_cooldown
+			years = 6
+		}
+		every_vassal_or_below = {
+			limit = {
+				is_ai = no
+			}
+			trigger_event = {
+				id = ck_imperial_events.0006 # Inform the players
+			}
+		}
+		hidden_effect = {
+			random_list = { ### FLAVOUR EVENTS HERE
+				2 = {
+					trigger_event = {
+						id = ck_imperial_events.0015
+						days = { 14 49 }
+					}
+				}
+				2 = {
+					trigger = {
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_populist
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+					}
+					trigger_event = {
+						id = ck_imperial_events.0016
+						days = { 14 49 }
+					}
+				}
+				2 = {
+					trigger = {
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_oligarch
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+					}
+					trigger_event = {
+						id = ck_imperial_events.0017
+						days = { 14 49 }
+					}
+				}
+				2 = {
+					trigger = {
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_royalist
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+					}
+					trigger_event = {
+						id = ck_imperial_events.0018
+						days = { 14 49 }
+					}
+				}
+				2 = {
+					trigger = {
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_militarist
+							martial >= 12
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+					}
+					trigger_event = {
+						id = ck_imperial_events.0019
+						days = { 14 49 }
+					}
+				}
+				2 = {
+					trigger = {
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_royalist
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_militarist
+							martial >= 12
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+					}
+					trigger_event = {
+						id = ck_imperial_events.0019
+						days = { 14 49 }
+					}
+					trigger_event = {
+						id = ck_imperial_events.0018
+						days = { 14 49 }
+					}
+				}
+				2 = {
+					trigger = {
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_populist
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_oligarch
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+					}
+					trigger_event = {
+						id = ck_imperial_events.0017
+						days = { 14 49 }
+					}
+					trigger_event = {
+						id = ck_imperial_events.0016
+						days = { 14 49 }
+					}
+				}
+				2 = {
+					trigger = {
+						any_vassal_or_below = {
+							is_ai = yes
+							has_trait = ck_militarist
+							martial >= 12
+							is_capable_adult = yes
+							is_imprisoned = no
+						}
+					}
+					trigger_event = {
+						id = ck_imperial_events.0019
+						days = { 14 49 }
+					}
+					trigger_event = {
+						id = ck_imperial_events.0015
+						days = { 14 49 }
+					}
+				}
+			}
+		}
+		
+	}
+	option = { # On a second thought, internal matters are more important
+		name = ck_imperial_events.0005.b
+		custom_tooltip = {
+			text = refund_expedition_decision_tt
+			add_gold = 250 #Returns gold from decision
+		}
+	}
+}
+ck_imperial_events.0006 = { #Information for players about preparations for expedition
+	type = character_event
+	title = ck_imperial_events.0006.t
+	desc = ck_imperial_events.0006.desc
+	theme = war
+	override_background = { reference = army_camp }
+	right_portrait = { ###PLACEHOLDER
+		character = root.top_liege
+		animation = marshal
+	}
+	immediate = {
+		root.top_liege = {
+			save_scope_as = expedition_emperor
+		}
+		root.top_liege.primary_title = {
+			save_scope_as = expedition_empire_title
+		}
+	}
+	
+	option = { # ok
+		name = ck_imperial_events.0006.a
+	}
+	option = { # Player can decide to join the expedition
+		name = ck_imperial_events.0006.b
+		custom_tooltip = you_will_join_expedition06_tt
+		add_character_flag = {
+			flag = will_join_expedition
+			years = 1
+		}
+	}
+}
+ck_imperial_events.0007 = { #Finished preparations for expedition
+	type = character_event
+	title = ck_imperial_events.0007.t
+	desc = ck_imperial_events.0007.desc
+	theme = war
+	override_background = { reference = army_camp }
+	right_portrait = { ###PLACEHOLDER
+		character = root.top_liege
+		animation = marshal
+	}
+	
+	trigger = {
+		has_character_flag = preparing_imperial_expedition
+	}
+	
+	immediate = {
+		capital_barony = {
+			save_scope_as = military_camps_province
+		}
+	}
+	
+	option = { # lets roll 
+		name = ck_imperial_events.0007.a
+		custom_tooltip = expedition_ready_cb_tt
+		custom_tooltip = declare_war_warning_tt
+		add_character_flag = {
+			flag = has_expedition_cb
+		}
+		trigger_event = {
+			id = ck_imperial_events.0008
+			months = 6
+		}
+	}
+}
+ck_imperial_events.0008 = { #Expedition failed to begin
+	type = character_event
+	title = ck_imperial_events.0008.t
+	desc = ck_imperial_events.0008.desc
+	theme = war
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = worry
+	}
+	
+	trigger = {
+		has_character_flag = preparing_imperial_expedition
+	}
+	
+	option = { # You're weak. You're outta control. And you've become an embarrassment to yourself and everybody else.
+		name = ck_imperial_events.0008.a
+		add_legitimacy = -100
+		add_prestige = monumental_prestige_loss
+		add_prestige_level = -2
+		add_stress = medium_stress_penalty
+
+		if = {
+			limit = {
+				has_faith = faith:calradic
+			}
+			add_piety = -1000
+		}
+
+		add_character_modifier = {
+			modifier = failed_to_begin_expedition_modifier
+			years = 2
+		}
+		
+		remove_character_flag = preparing_imperial_expedition
+		remove_character_flag = has_expedition_cb
+		
+		### REMINDER - REMOVE CHARACTER FLAGS FROM FLAVOR EVENTS ###
+		
+		every_vassal_or_below = {
+			if = {
+				limit = {
+					has_character_flag = will_join_expedition
+				}
+				remove_character_flag = will_join_expedition
+			}
+		}
+	}
+}
+ck_imperial_events.0009 = { #Expedition postponed
+	type = character_event
+	title = ck_imperial_events.0009.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					is_at_war = no
+				}
+				desc = ck_imperial_events.0009.desc.a
+			}
+			triggered_desc = {
+				trigger = {
+					is_at_war = yes
+				}
+				desc = ck_imperial_events.0009.desc.b
+			}
+		}
+	}
+	theme = war
+	override_background = { reference = army_camp }
+	right_portrait = { ###PLACEHOLDER
+		character = root.top_liege
+		animation = worry
+	}
+	
+	option = { #Unfortunate
+		name = ck_imperial_events.0009.a
+		custom_tooltip = expedition_postponed_tt ##Shortened expedition cooldown and some general info
+		custom_tooltip = expedition_postponed_cooldown_tt
+		
+		remove_character_flag = preparing_imperial_expedition
+		remove_character_flag = expedition_cooldown
+		remove_character_flag = has_expedition_cb
+		remove_character_flag = agreed_to_expedition_colonization
+		
+		### REMINDER - REMOVE CHARACTER FLAGS FROM FLAVOR EVENTS ###
+		
+		add_character_flag = {
+			flag = expedition_cooldown
+			years = 2
+		}
+		every_vassal_or_below = {
+			if = {
+				limit = {
+					has_character_flag = will_join_expedition
+				}
+				remove_character_flag = will_join_expedition
+			}
+		}
+	}
+}
+ck_imperial_events.0010 = { #Expedition begins - for emperor
+	type = character_event
+	title = ck_imperial_events.0010.t
+	desc = ck_imperial_events.0010.desc
+	theme = war
+	override_background = { reference = wilderness }
+	right_portrait = { ###PLACEHOLDER
+		character = root.top_liege
+		animation = marshal
+	}
+	
+	immediate = {
+		random_character_war = {
+			if = {
+				limit = {
+					using_cb = imperial_expedition_cb
+				}
+				save_scope_as = expedition_war
+			}
+		}
+		primary_title = {
+			save_scope_as = nazwaimperium
+		}
+	}
+	
+	option = { #The Valiant die but once!
+		name = ck_imperial_events.0010.a
+		
+		
+		remove_character_flag = has_expedition_cb
+		remove_character_flag = preparing_imperial_expedition
+		custom_tooltip = { 
+			text = pledged_vassals_join_the_war_tt
+			every_vassal_or_below = {
+				if = { 
+					limit = {
+						has_character_flag = will_join_expedition
+					}
+					add_character_flag = took_part_in_expedition
+					save_temporary_scope_as = pledged_vassal
+					scope:expedition_war = {
+						add_attacker = scope:pledged_vassal
+					}
+				}
+			}
+		}
+		hidden_effect = { # Imitation of pledged vassals joining
+			if = {
+				limit = {
+					is_ai = yes
+					any_vassal_or_below = {
+						NOT = {
+							has_character_flag = will_join_expedition
+						}
+					}
+				}
+				trigger_event = ck_imperial_events.0012
+			}
+		}
+	}
+}
+ck_imperial_events.0011 = { #Expedition begins - for vassals
+	type = character_event
+	title = ck_imperial_events.0011.t
+	desc = ck_imperial_events.0011.desc
+	theme = war
+	override_background = { reference = wilderness }
+	right_portrait = { ###PLACEHOLDER
+		character = scope:emperor_expedition
+		animation = marshal
+	}
+	
+	immediate = {
+		top_liege = {
+			save_scope_as = emperor_expedition
+			random_character_war = {
+				if = {
+					limit = {
+						using_cb = imperial_expedition_cb
+					}
+					save_scope_as = expedition_war
+				}
+			}
+		}
+		top_liege.primary_title = {
+			save_scope_as = nazwaimperium
+		}
+	}
+	
+	option = { #The Valiant die but once!
+		name = ck_imperial_events.0010.a
+		
+	}
+	option = { #Join the war
+		name = ck_imperial_events.0011.b
+		trigger = {
+			is_ai = no
+			NOT = {
+				has_character_flag = will_join_expedition
+			}
+		}
+		add_character_flag = took_part_in_expedition
+		scope:expedition_war = {
+			add_attacker = root
+		}
+	}
+}
+ck_imperial_events.0012 = { #Imitation of pledged vassals joining - for AI 
+	hidden = yes
+	type = character_event
+	
+	immediate = {
+		random_character_war = {
+			if = {
+				limit = {
+					using_cb = imperial_expedition_cb
+				}
+				save_scope_as = expedition_war
+			}
+		}
+	}
+	
+	option = { ### Repeating it 4 times
+		random_vassal_or_below = {  ### Choosing vassals to join
+			limit = {
+				is_ai = yes
+				is_at_war = no
+				is_imprisoned = no
+				gold > 10
+				OR = {
+					AND = {
+						has_trait = ck_militarist
+						opinion = {
+							target = root
+							value >= 5
+						}
+					}
+					AND = {
+						OR = {
+							has_trait = ck_oligarch
+							has_trait = ck_royalist
+							has_trait = ck_populist
+						}
+						opinion = {
+							target = root
+							value >= 50
+						}
+					}
+				}
+			}
+			add_character_flag = took_part_in_expedition
+			save_temporary_scope_as = AI_pledged_vassal
+			scope:expedition_war = {
+				add_attacker = scope:AI_pledged_vassal
+			}
+		}
+		random_vassal_or_below = {  ### Choosing vassals to join
+			limit = {
+				is_ai = yes
+				is_at_war = no
+				is_imprisoned = no
+				gold > 10
+				OR = {
+					AND = {
+						has_trait = ck_militarist
+						opinion = {
+							target = root
+							value >= 5
+						}
+					}
+					AND = {
+						OR = {
+							has_trait = ck_oligarch
+							has_trait = ck_royalist
+							has_trait = ck_populist
+						}
+						opinion = {
+							target = root
+							value >= 50
+						}
+					}
+				}
+			}
+			add_character_flag = took_part_in_expedition
+			save_temporary_scope_as = AI_pledged_vassal
+			scope:expedition_war = {
+				add_attacker = scope:AI_pledged_vassal
+			}
+		}
+		random_vassal_or_below = {  ### Choosing vassals to join
+			limit = {
+				is_ai = yes
+				is_at_war = no
+				is_imprisoned = no
+				gold > 10
+				OR = {
+					AND = {
+						has_trait = ck_militarist
+						opinion = {
+							target = root
+							value >= 5
+						}
+					}
+					AND = {
+						OR = {
+							has_trait = ck_oligarch
+							has_trait = ck_royalist
+							has_trait = ck_populist
+						}
+						opinion = {
+							target = root
+							value >= 50
+						}
+					}
+				}
+			}
+			add_character_flag = took_part_in_expedition
+			save_temporary_scope_as = AI_pledged_vassal
+			scope:expedition_war = {
+				add_attacker = scope:AI_pledged_vassal
+			}
+		}
+		random_vassal_or_below = {  ### Choosing vassals to join
+			limit = {
+				is_ai = yes
+				is_at_war = no
+				is_imprisoned = no
+				gold > 10
+				OR = {
+					AND = {
+						has_trait = ck_militarist
+						opinion = {
+							target = root
+							value >= 5
+						}
+					}
+					AND = {
+						OR = {
+							has_trait = ck_oligarch
+							has_trait = ck_royalist
+							has_trait = ck_populist
+						}
+						opinion = {
+							target = root
+							value >= 50
+						}
+					}
+				}
+			}
+			add_character_flag = took_part_in_expedition
+			save_temporary_scope_as = AI_pledged_vassal
+			scope:expedition_war = {
+				add_attacker = scope:AI_pledged_vassal
+			}
+		}
+	}
+}
+ck_imperial_events.0013 = { ### Expedition failed
+	type = character_event
+	title = ck_imperial_events.0013.t
+	desc = { 
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					root = {
+						this = scope:emperor_failure
+					}
+				}
+				desc = ck_imperial_events.0013.desc
+			}
+			triggered_desc = {
+				trigger = {
+					root = {
+						is_vassal_or_below_of = scope:emperor_failure
+					}
+				}
+				desc = ck_imperial_events.0013.desc.vassal
+			}
+			triggered_desc = {
+				trigger = {
+					root = {
+						NOT = {
+							is_vassal_or_below_of = scope:emperor_failure
+						}
+						NOT = {
+							this = scope:emperor_failure
+						}
+					}
+				}
+				desc = ck_imperial_events.0013.desc.other
+			}
+		}
+	}
+	theme = war
+	override_background = { reference = wilderness }
+	right_portrait = { ###PLACEHOLDER
+		character = scope:emperor_failure
+		animation = worry
+	}
+	immediate = { ### for loc sake
+		scope:emperor_failure = {
+			save_scope_as = emperor_failure_loc
+		}
+		capital_barony = {
+			save_scope_as = nazwastolicy
+		}
+		scope:emperor_failure.primary_title = {
+			save_scope_as = empirename
+		}
+	}
+	
+	option = { # Option for Emperor # I went and saw, but left without conquest, only the bitterness of defeat…
+		name = ck_imperial_events.0013.a
+		
+		trigger = {
+			root = {
+				this = scope:emperor_failure
+			}
+		}
+		
+		add_prestige = major_prestige_loss
+		add_prestige_level = -1
+		add_legitimacy = -100
+		add_piety = -1000
+		
+		add_character_modifier = {
+			modifier = failed_expedition_modifier
+			months = 18
+		}
+		custom_tooltip = {
+			text = vassals_not_happy_tt
+			every_vassal_or_below = {
+				add_opinion = {
+					modifier = failure_expedition_opinion_modifier
+					months = 16
+					target = root
+				}
+			}
+		}
+	}
+	option = { # Option for vassals 
+		name = ck_imperial_events.0013.b
+		
+		trigger = {
+			is_vassal_or_below_of = scope:emperor_failure
+		}
+		
+		if = {
+			limit = {
+				has_character_flag = took_part_in_expedition
+			}
+			remove_character_flag = took_part_in_expedition
+		}
+		
+		custom_tooltip = emperor_infamy_tt
+	}
+	option = { # Option for other Calradians 
+		name = ck_imperial_events.0013.c
+		
+		trigger = {
+			NOT = {
+				this = scope:emperor_failure
+			}
+			NOT = {
+				is_vassal_or_below_of = scope:emperor_failure
+			}
+			culture = {
+				has_cultural_pillar = heritage_calradian
+			}
+		}
+		
+		if = {
+			limit = {
+				has_character_flag = took_part_in_expedition
+			}
+			remove_character_flag = took_part_in_expedition
+		}
+		
+		custom_tooltip = emperor_infamy_tt
+	}
+}
+ck_imperial_events.0014 = { ### Expedition success
+	type = character_event
+	title = ck_imperial_events.0014.t
+	desc = ck_imperial_events.0014.desc
+	theme = war
+	override_background = { reference = wilderness }
+	right_portrait = { ###PLACEHOLDER
+		character = scope:emperor_success
+		animation = war_over_win
+	}
+	immediate = { ### for loc sake
+		scope:emperor_success = {
+			save_scope_as = emperor_success_loc
+		}
+	}
+	
+	option = { # Option for Emperor # 
+		name = ck_imperial_events.0014.a
+		
+		trigger = {
+			root = {
+				this = scope:emperor_success
+			}
+		}
+		
+		add_prestige = 750
+		add_legitimacy = 50
+		add_piety = 500
+		
+		add_character_modifier = {
+			modifier = victorious_expedition_modifier
+			months = 16
+		}
+		custom_tooltip = {
+			text = vassals_happy_tt
+			every_vassal_or_below = {
+				add_opinion = {
+					modifier = successful_expedition_opinion_modifier
+					months = 16
+					target = root
+				}
+			}
+		}
+	}
+	option = { # Option for vassals 
+		name = ck_imperial_events.0014.b
+		
+		trigger = {
+			is_vassal_or_below_of = scope:emperor_success
+		}
+		
+		if = {
+			limit = {
+				has_character_flag = took_part_in_expedition
+			}
+			remove_character_flag = took_part_in_expedition
+			add_character_modifier = {
+				modifier = vassal_victorious_expedition_modifier
+				months = 8
+			}
+			add_piety = 250
+			add_legitimacy = 25
+			add_prestige = 450
+			add_gold = { 25 150 }
+		}
+		
+	}
+	option = { # Option for other Calradians 
+		name = ck_imperial_events.0014.c
+	
+		
+		trigger = {
+			NOT = {
+				this = scope:emperor_success
+			}
+			NOT = {
+				is_vassal_or_below_of = scope:emperor_success
+			}
+			culture = {
+				has_cultural_pillar = heritage_calradian
+			}
+		}
+		
+		if = {
+			limit = {
+				has_character_flag = took_part_in_expedition
+			}
+			remove_character_flag = took_part_in_expedition
+		}
+		
+	}
+}
+ck_imperial_events.0015 = { ### Local Patricians offer support for the Expedition
+	type = character_event
+	title = ck_imperial_events.0015.t
+	desc = ck_imperial_events.0015.desc
+	theme = war
+	override_background = { reference = council_chamber }
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = war_over_win
+	}
+	
+	trigger = {
+		has_character_flag = preparing_imperial_expedition
+	}
+	
+	option = { #Gladly!
+		name = ck_imperial_events.0015.a
+		custom_tooltip = {
+			text = will_please_militarists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+		custom_tooltip = {
+			text = will_upset_royalists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_royalist
+				}
+				add_opinion = {
+					modifier = expedition_upset_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+		random_list = {
+			5 = {
+				add_gold = 350
+			}
+			5 = {
+				custom_tooltip = {
+					text = patricians_host_army_tt
+					spawn_army = {
+						men_at_arms = {
+							type = imperial_heavy_cavalry_2
+							men = 100
+						}
+						origin = capital_province
+						location = capital_province
+						name = patrician_sponsored_host
+						inheritable = no
+					}
+					send_interface_toast = {
+						title = received_patrician_host_title
+						custom_tooltip = received_patrician_host_desc
+					}
+				}
+			}
+		}
+	}
+	option = { #No, thanks.
+		name = ck_imperial_events.0015.b
+		add_prestige = minor_prestige_gain
+		custom_tooltip = {
+			text = will_please_royalists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_royalist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+	option = { #Spend it on the common people instead!
+		name = ck_imperial_events.0015.c
+		add_piety = minor_piety_gain
+		add_prestige = minor_prestige_loss
+		stress_impact = {
+			generous = minor_stress_loss
+			improvident = minor_stress_loss
+		}
+		add_character_modifier = {
+			modifier = man_of_the_plebians
+			years = 5
+		}
+		custom_tooltip = {
+			text = will_please_populists.m
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_populist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_major
+					target = root
+					years = 2
+				}
+			}
+		}
+		custom_tooltip = {
+			text = will_upset_militarists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_upset_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+		custom_tooltip = {
+			text = will_upset_oligarchs
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_oligarch
+				}
+				add_opinion = {
+					modifier = expedition_upset_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+}
+ck_imperial_events.0016 = { ### Populist Vassal ask that conquered land be given to homeless plebians
+	type = character_event
+	title = ck_imperial_events.0016.t
+	desc = ck_imperial_events.0016.desc
+	theme = war
+	override_background = { reference = council_chamber }
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = war_over_win
+	}
+	left_portrait = { ###PLACEHOLDER
+		character = scope:asking_populist
+		animation = war_over_win
+	}
+	
+	trigger = {
+		has_character_flag = preparing_imperial_expedition
+		any_vassal_or_below = {
+			is_ai = yes
+			has_trait = ck_populist
+			is_capable_adult = yes
+			is_imprisoned = no
+		}
+	}
+	
+	immediate = {
+		random_vassal_or_below = {
+			limit = {
+				is_ai = yes
+				has_trait = ck_populist
+				is_capable_adult = yes
+				is_imprisoned = no
+			}
+			save_scope_as = asking_populist
+		}
+	}
+	
+	option = { #Wise idea
+		name = ck_imperial_events.0016.a
+		custom_tooltip = {
+			text = random_conquered_province_colonized_tt
+			add_character_flag = agreed_to_expedition_colonization
+		}
+		custom_tooltip = {
+			text = will_please_populists.m
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_populist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_major
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+	option = { #Give it to the soldiers instead.
+		name = ck_imperial_events.0016.b
+		add_prestige = minor_prestige_gain
+		custom_tooltip = {
+			text = will_upset_populists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_populist
+				}
+				add_opinion = {
+					modifier = expedition_upset_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+		custom_tooltip = {
+			text = will_please_militarists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+}
+ck_imperial_events.0017 = { ### Oligarch vassal ask that we focus on the empire 
+	type = character_event
+	title = ck_imperial_events.0017.t
+	desc = ck_imperial_events.0017.desc
+	theme = war
+	override_background = { reference = council_chamber }
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = war_over_win
+	}
+	left_portrait = { ###PLACEHOLDER
+		character = scope:asking_oligarch
+		animation = war_over_win
+	}
+	
+	trigger = {
+		has_character_flag = preparing_imperial_expedition
+		any_vassal_or_below = {
+			is_ai = yes
+			has_trait = ck_oligarch
+			is_capable_adult = yes
+			is_imprisoned = no
+		}
+	}
+	
+	immediate = {
+		random_vassal_or_below = {
+			limit = {
+				is_ai = yes
+				has_trait = ck_oligarch
+				is_capable_adult = yes
+				is_imprisoned = no
+			}
+			save_scope_as = asking_oligarch
+		}
+	}
+	
+	option = { #Fine
+		name = ck_imperial_events.0017.a
+		custom_tooltip = will_end_the_expedition
+		add_gold = 300
+		add_prestige = major_prestige_loss
+		custom_tooltip = {
+			text = will_please_oligarchs
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_oligarch
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+		custom_tooltip = {
+			text = will_upset_militarists.m
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_upset_major
+					target = root
+					years = 2
+				}
+			}
+		}
+		stress_impact = {
+			ambitious = medium_stress_penalty
+			arrogant = medium_stress_penalty
+		}
+		trigger_event = ck_imperial_events.0009
+	}
+	option = { #This is my Empire!
+		name = ck_imperial_events.0017.b
+		add_prestige = medium_prestige_gain
+		custom_tooltip = {
+			text = will_upset_oligarchs
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_oligarch
+				}
+				add_opinion = {
+					modifier = expedition_upset_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+		custom_tooltip = {
+			text = will_please_militarists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+		custom_tooltip = {
+			text = will_please_royalists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_royalist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+	option = { #To the dungeons with you!
+		name = ck_imperial_events.0017.c
+		trigger = {
+			OR = {
+				has_trait = arbitrary
+				has_trait = lunatic
+				has_trait = possessed
+				has_trait = sadistic
+				has_trait = callous
+				has_trait = cruel
+			}
+		}
+		scope:asking_oligarch = {
+			hard_imprison_character_effect = {
+				TARGET = this
+				IMPRISONER = root
+			}
+		}
+		add_tyranny = 20
+		add_dread = 20
+		custom_tooltip = {
+			text = will_please_militarists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+}
+ck_imperial_events.0018 = { ### Royalist vassal asks to be compensated for role in expedition 
+	type = character_event
+	title = ck_imperial_events.0018.t
+	desc = ck_imperial_events.0018.desc
+	theme = war
+	override_background = { reference = council_chamber }
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = war_over_win
+	}
+	left_portrait = { ###PLACEHOLDER
+		character = scope:asking_royalist
+		animation = war_over_win
+	}
+	
+	trigger = {
+		has_character_flag = preparing_imperial_expedition
+		any_vassal_or_below = {
+			is_ai = yes
+			has_trait = ck_royalist
+			is_capable_adult = yes
+			is_imprisoned = no
+		}
+	}
+	immediate = {
+		random_vassal_or_below = {
+			limit = {
+				is_ai = yes
+				has_trait = ck_royalist
+				is_capable_adult = yes
+				is_imprisoned = no
+			}
+			save_scope_as = asking_royalist
+		}
+	}
+	
+	option = { #Fine
+		name = ck_imperial_events.0018.a
+		pay_short_term_gold = {
+			target = scope:asking_royalist
+			gold = medium_gold_value
+		}
+		scope:asking_royalist = {
+			add_opinion = {
+				modifier = bribe_expedition
+				target = root
+				years = 3
+			}
+		}
+		custom_tooltip = {
+			text = will_upset_other_vassals_tt
+			every_vassal = {
+				limit = {
+					NOT = {
+						this = scope:asking_royalist
+					}
+					add_opinion = {
+						modifier = unfair_treatment_expedition
+						target = root
+						years = 1
+					}
+				}
+			}
+		}
+	}
+	option = { #Then you should send more men!
+		name = ck_imperial_events.0018.b
+		pay_short_term_gold = {
+			target = scope:asking_royalist
+			gold = medium_gold_value
+		}
+		scope:asking_royalist = {
+			add_opinion = {
+				modifier = bribe_expedition_smaller
+				target = root
+				years = 3
+			}
+		}
+		custom_tooltip = {
+			text = royalist_host_army_tt
+			spawn_army = {
+				men_at_arms = {
+					type = imperial_heavy_cavalry_2
+					men = 50
+				}
+				men_at_arms = {
+					type = imperial_heavy_cavalry_1
+					men = 50
+				}
+				origin = capital_province
+				location = capital_province
+				name = royalist_sponsored_host
+				inheritable = no
+			}
+			send_interface_toast = {
+				title = received_royalist_host_title
+				custom_tooltip = received_royalist_host_desc
+			}
+		}
+		custom_tooltip = {
+			text = will_please_militarists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+	option = { #Preposterous!
+		name = ck_imperial_events.0018.c
+		add_prestige = medium_prestige_gain
+		scope:asking_royalist = {
+			add_opinion = {
+				modifier = denied_request_expedition_modifier
+				target = root
+				months = 18
+			}
+		}
+		custom_tooltip = {
+			text = will_upset_royalists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_royalist
+				}
+				add_opinion = {
+					modifier = expedition_upset_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+}
+ck_imperial_events.0019 = { ### Militarist Vassal Presents Expedition Plan
+	type = character_event
+	title = ck_imperial_events.0019.t
+	desc = ck_imperial_events.0019.desc
+	theme = war
+	override_background = { reference = council_chamber }
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = war_over_win
+	}
+	left_portrait = { ###PLACEHOLDER
+		character = scope:asking_militarist
+		animation = war_over_win
+	}
+	
+	trigger = {
+		has_character_flag = preparing_imperial_expedition
+		any_vassal_or_below = {
+			is_ai = yes
+			has_trait = ck_militarist
+			martial >= 12
+			is_capable_adult = yes
+			is_imprisoned = no
+		}
+	}
+	immediate = {
+		random_vassal_or_below = {
+			limit = {
+				is_ai = yes
+				has_trait = ck_militarist
+				martial >= 12
+				is_capable_adult = yes
+				is_imprisoned = no
+			}
+			save_scope_as = asking_militarist
+		}
+	}
+	
+	option = { #Interesting, tell me more of this strategy.
+		name = ck_imperial_events.0019.a
+		scope:asking_militarist = {
+			add_hook = {
+				type = favor_hook
+				target = root
+				years = 4
+			}
+		}
+		add_character_modifier = {
+			modifier = vassal_strategies_modifier
+			years = 5
+		}
+		custom_tooltip = {
+			text = will_please_militarists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_pleased_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+	option = { #I have no need of your strategies.
+		name = ck_imperial_events.0019.b
+		scope:asking_militarist = {
+			add_opinion = {
+				modifier = denied_strategy_expedition_modifier
+				target = root
+				years = 2
+			}
+		}
+		custom_tooltip = {
+			text = will_upset_militarists
+			every_vassal_or_below = {
+				limit = {
+					has_trait = ck_militarist
+				}
+				add_opinion = {
+					modifier = expedition_upset_minor
+					target = root
+					years = 2
+				}
+			}
+		}
+	}
+
 }
