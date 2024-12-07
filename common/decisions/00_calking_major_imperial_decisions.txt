@@ -360,6 +360,10 @@ proclaim_the_empire = {
 			flag = grace_period_dynamic_emperor
 			years = 10
 		}
+		add_character_flag = {
+			flag = vassalization_period_dynamic_emperor
+			years = 7
+		}
 		
 		hidden_effect = { give_senatorial_faction_effect = yes } #Senatorial factions for vassals
 		capital_county = {
@@ -482,6 +486,167 @@ proclaim_the_empire = {
 		base = 100
 	}
 }
+restore_calradian_empire = { #Unite?
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds"
+	}
+	decision_group_type = major
+	ai_check_interval = 0 #was 18   ############################################################################################################REMOVED FOR NOW
+	desc = restore_calradian_empire_desc	
+
+	is_shown = {
+		culture = {
+			has_cultural_pillar = heritage_calradian
+		}
+		NOT = {
+			exists = title:e_calradian_empire.holder
+		}
+	}
+	
+	cost = {
+		gold = 300
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = is_claimant_emperor_tt
+			has_trait = claimant_emperor
+		}
+		custom_tooltip = {
+			text = prestige_and_legitimacy_proclaim_tt
+			legitimacy_level >= 1
+			prestige_level >= 1
+		}
+		OR = {
+			AND = {
+				custom_tooltip = {
+					text = sole_claimant_tt
+					NOT = {
+						any_ruler = {
+							has_trait = claimant_emperor
+							NOT = { 
+								this = root
+							}
+						}
+					}
+				}
+				custom_tooltip = {
+					text = held_counties_1_tt
+					title:e_calradian_empire = {
+						any_de_jure_county = {
+							percent >= 0.4
+							OR = {
+								holder.top_liege = root
+								holder = root
+							}
+						}
+					}
+				}
+				custom_tooltip = { # Beginning of scripted Calradian downfall
+					text = current_year_before_1150_tt
+					current_year <= 1150
+				}
+			}
+			custom_tooltip = {
+				text = held_counties_2_tt
+				title:e_calradian_empire = {
+					any_de_jure_county = {
+						percent >= 0.5
+						OR = {
+							holder.top_liege = root
+							holder = root
+						}
+					}
+				}
+				legitimacy_level >= 5
+				prestige_level >= 5
+			}
+			custom_tooltip = {
+				text = held_counties_3_tt
+				title:e_calradian_empire = {
+					any_de_jure_county = {
+						percent >= 0.6
+						OR = {
+							holder.top_liege = root
+							holder = root
+						}
+					}
+				}
+				legitimacy_level >= 4
+				prestige_level >= 4
+			}
+			custom_tooltip = {
+				text = held_counties_4_tt
+				title:e_calradian_empire = {
+					any_de_jure_county = {
+						percent >= 0.7
+						OR = {
+							holder.top_liege = root
+							holder = root
+						}
+					}
+				}
+				legitimacy_level >= 3
+				prestige_level >= 3
+			}
+			custom_tooltip = {
+				text = held_counties_5_tt
+				title:e_calradian_empire = {
+					any_de_jure_county = {
+						percent >= 0.8
+						OR = {
+							holder.top_liege = root
+							holder = root
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	is_valid_showing_failures_only = {
+		is_independent_ruler = yes
+		is_landless_adventurer = no
+		is_capable_adult = yes
+		is_imprisoned = no
+		is_at_war = no
+	}
+	
+	effect = {
+		custom_tooltip = {
+			text = calradian_empire_restored_tt
+			get_title = title:e_calradian_empire
+		}
+		#trigger_event = {
+		#	
+		#}
+		save_scope_as = restorer
+		### Moved those effects below to event immediate effects
+		#add_trait = restorer_emperor
+		#add_prestige = 3000
+		#add_legitimacy = 50
+		#if = {
+		#	limit = {
+		#		has_faith = faith:calradic_mandate
+		#	}
+		#	add_piety = 1000
+		#}
+	}
+	
+	ai_potential = {
+		is_independent_ruler = yes
+		is_landless_adventurer = no
+		highest_held_title_tier = tier_empire
+		culture = {
+			has_cultural_pillar = heritage_calradian
+		}
+		realm_size >= 128
+	}
+
+	ai_will_do = {
+		base = 100
+	}
+}
 imperial_military_expedition = {
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/decision_destiny_goal.dds"
@@ -567,9 +732,8 @@ imperial_military_expedition = {
 			days = 1
 		}
 		trigger_event = ck_imperial_events.0005
-		custom_tooltip = { 
-			text = warning_expedition_cooldown_tt
-		}
+		custom_tooltip = will_prepare_expedition_tt
+		custom_tooltip = warning_expedition_cooldown_tt 
 	}
 	
 	cost = {
@@ -633,6 +797,7 @@ postpone_imperial_military_expedition = {
 		base = 0
 	}
 }
+
 
 #### Convert to Admin - Return to the Imperial ways ###
 #
