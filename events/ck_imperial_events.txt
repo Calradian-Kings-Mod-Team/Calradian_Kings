@@ -948,7 +948,39 @@ ck_imperial_events.0013 = { ### Expedition failed
 ck_imperial_events.0014 = { ### Expedition success
 	type = character_event
 	title = ck_imperial_events.0014.t
-	desc = ck_imperial_events.0014.desc
+	desc = { 
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					root = {
+						this = scope:emperor_success
+					}
+				}
+				desc = ck_imperial_events.0014.desc
+			}
+			triggered_desc = {
+				trigger = {
+					root = {
+						is_vassal_or_below_of = scope:emperor_success
+					}
+				}
+				desc = ck_imperial_events.0014.desc.vassal
+			}
+			triggered_desc = {
+				trigger = {
+					root = {
+						NOT = {
+							is_vassal_or_below_of = scope:emperor_success
+						}
+						NOT = {
+							this = scope:emperor_success
+						}
+					}
+				}
+				desc = ck_imperial_events.0014.desc.other
+			}
+		}
+	}
 	theme = war
 	override_background = { reference = wilderness }
 	right_portrait = { ###PLACEHOLDER
@@ -958,6 +990,12 @@ ck_imperial_events.0014 = { ### Expedition success
 	immediate = { ### for loc sake
 		scope:emperor_success = {
 			save_scope_as = emperor_success_loc
+		}
+		capital_barony = {
+			save_scope_as = nazwastolicy
+		}
+		scope:emperor_success.primary_title = {
+			save_scope_as = empirename
 		}
 	}
 	
@@ -1045,7 +1083,12 @@ ck_imperial_events.0015 = { ### Local Patricians offer support for the Expeditio
 	override_background = { reference = council_chamber }
 	right_portrait = { ###PLACEHOLDER
 		character = root
-		animation = war_over_win
+		animation = thinking
+	}
+	immediate = {
+		capital_barony = {
+			save_scope_as = stolica
+		}
 	}
 	
 	trigger = {
@@ -1094,12 +1137,11 @@ ck_imperial_events.0015 = { ### Local Patricians offer support for the Expeditio
 						}
 						origin = capital_province
 						location = capital_province
-						name = patrician_sponsored_host
+						name = patrician_sponsored_host_name
 						inheritable = no
 					}
 					send_interface_toast = {
 						title = received_patrician_host_title
-						custom_tooltip = received_patrician_host_desc
 					}
 				}
 			}
@@ -1131,7 +1173,7 @@ ck_imperial_events.0015 = { ### Local Patricians offer support for the Expeditio
 			improvident = minor_stress_loss
 		}
 		add_character_modifier = {
-			modifier = man_of_the_plebians
+			modifier = man_of_the_plebians_modifier
 			years = 5
 		}
 		custom_tooltip = {
@@ -1187,7 +1229,7 @@ ck_imperial_events.0016 = { ### Populist Vassal ask that conquered land be given
 	}
 	left_portrait = { ###PLACEHOLDER
 		character = scope:asking_populist
-		animation = war_over_win
+		animation = throne_room_conversation_1
 	}
 	
 	trigger = {
@@ -1209,6 +1251,9 @@ ck_imperial_events.0016 = { ### Populist Vassal ask that conquered land be given
 				is_imprisoned = no
 			}
 			save_scope_as = asking_populist
+		}
+		primary_title = {
+			save_scope_as = nazwaimperium
 		}
 	}
 	
@@ -1275,7 +1320,7 @@ ck_imperial_events.0017 = { ### Oligarch vassal ask that we focus on the empire
 	}
 	left_portrait = { ###PLACEHOLDER
 		character = scope:asking_oligarch
-		animation = war_over_win
+		animation = throne_room_conversation_1
 	}
 	
 	trigger = {
@@ -1297,6 +1342,9 @@ ck_imperial_events.0017 = { ### Oligarch vassal ask that we focus on the empire
 				is_imprisoned = no
 			}
 			save_scope_as = asking_oligarch
+		}
+		primary_title = {
+			save_scope_as = nazwaimperium
 		}
 	}
 	
@@ -1389,7 +1437,7 @@ ck_imperial_events.0017 = { ### Oligarch vassal ask that we focus on the empire
 				has_trait = possessed
 				has_trait = sadistic
 				has_trait = callous
-				has_trait = cruel
+				has_trait = wrathful
 			}
 		}
 		scope:asking_oligarch = {
@@ -1427,7 +1475,7 @@ ck_imperial_events.0018 = { ### Royalist vassal asks to be compensated for role 
 	}
 	left_portrait = { ###PLACEHOLDER
 		character = scope:asking_royalist
-		animation = war_over_win
+		animation = throne_room_conversation_1
 	}
 	
 	trigger = {
@@ -1494,6 +1542,10 @@ ck_imperial_events.0018 = { ### Royalist vassal asks to be compensated for role 
 			}
 		}
 		custom_tooltip = {
+			text = you_will_pay_for_host_tt
+			remove_short_term_gold = 45
+		}
+		custom_tooltip = {
 			text = royalist_host_army_tt
 			spawn_army = {
 				men_at_arms = {
@@ -1506,12 +1558,11 @@ ck_imperial_events.0018 = { ### Royalist vassal asks to be compensated for role 
 				}
 				origin = capital_province
 				location = capital_province
-				name = royalist_sponsored_host
+				name = royalist_sponsored_host_name
 				inheritable = no
 			}
 			send_interface_toast = {
 				title = received_royalist_host_title
-				custom_tooltip = received_royalist_host_desc
 			}
 		}
 		custom_tooltip = {
@@ -1556,16 +1607,26 @@ ck_imperial_events.0018 = { ### Royalist vassal asks to be compensated for role 
 ck_imperial_events.0019 = { ### Militarist Vassal Presents Expedition Plan
 	type = character_event
 	title = ck_imperial_events.0019.t
-	desc = ck_imperial_events.0019.desc
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					is_female = yes
+				}
+				desc = ck_imperial_events.0019.desc.f
+			}
+			desc = ck_imperial_events.0019.desc
+		}
+	}
 	theme = war
-	override_background = { reference = council_chamber }
+	override_background = { reference = army_camp }
 	right_portrait = { ###PLACEHOLDER
 		character = root
 		animation = war_over_win
 	}
 	left_portrait = { ###PLACEHOLDER
 		character = scope:asking_militarist
-		animation = war_over_win
+		animation = throne_room_conversation_1
 	}
 	
 	trigger = {
