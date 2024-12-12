@@ -1702,5 +1702,434 @@ ck_imperial_events.0019 = { ### Militarist Vassal Presents Expedition Plan
 			}
 		}
 	}
+}
+ck_imperial_events.0020 = { ### Restoring Calradian Empire
+	type = character_event
+	title = ck_imperial_events.0020.t
+	desc = ck_imperial_events.0020.desc
+	theme = crown
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	override_background = { reference = throne_room_mediterranean }
+	
+	immediate = {
+		play_music_cue = "mx_ck_calradian_war"
 
+		hidden_effect = {
+			get_title = title:e_calradian_empire
+			set_primary_title_to = title:e_calradian_empire
+			every_held_title = {
+				limit = {
+					tier = tier_empire
+					NOT = {
+						this = title:e_calradian_empire
+					}
+				}
+				holder = {
+					destroy_title = prev
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = ck_imperial_events.0020.a
+		add_trait = restorer_emperor
+		add_nickname = nick_the_restorer_ck
+		add_prestige = 3000
+		add_legitimacy = 100
+		if = {
+			limit = {
+				has_faith = faith:calradic
+			}
+			add_piety = 1000
+		}
+		if = {
+			limit = {
+				any_ruler = {
+					has_trait = claimant_emperor
+				}
+			}
+			custom_tooltip = will_receive_depose_cb_tt
+		}
+		custom_tooltip = {
+			text = calradians_happy_tt
+			every_living_character = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_calradian
+					}
+					NOT = {
+						has_trait = claimant_emperor
+					}
+					NOR = {
+						has_relation_rival = root
+						has_relation_nemesis = root
+					}
+				}
+				add_opinion = {
+					modifier = restored_calradian_empire_modifier
+					years = 3
+					target = root
+				}
+			}
+		}
+		every_player = {
+			limit = {
+				NOR = {
+					this = root
+					has_trait = claimant_emperor
+				}
+			}
+			trigger_event = ck_imperial_events.0021
+		}
+		every_ruler = {
+			limit = {
+				has_trait = claimant_emperor
+			}
+			trigger_event = {	
+				id = ck_imperial_events.0022
+				days = 1
+			}
+		}
+	}
+}
+ck_imperial_events.0021 = { ### Calradian Empire Restored - for players
+	type = character_event
+	title = ck_imperial_events.0021.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					culture = {
+						has_cultural_pillar = heritage_calradian
+					}
+				}
+				desc = ck_imperial_events.0021.desc
+			}
+			triggered_desc = {
+				trigger = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				desc = ck_imperial_events.0021.desc.b
+			}
+		}
+	}
+	theme = crown
+	right_portrait = {
+		character = scope:emperor
+		animation = personality_bold
+	}
+	override_background = { reference = throne_room_mediterranean }
+	
+	immediate = {
+		play_music_cue = "mx_ck_calradian_war"
+		title:e_calradian_empire.holder = {
+			save_scope_as = emperor
+		}
+	}
+
+	option = {
+		name = ck_imperial_events.0021.a # for calradians
+		trigger = {
+			culture = {
+				has_cultural_pillar = heritage_calradian
+			}
+		}
+	}
+	option = {
+		name = ck_imperial_events.0021.b # for non-calradians
+		trigger = {
+			NOT = {
+				culture = {
+					has_cultural_pillar = heritage_calradian
+				}
+			}
+		}
+	}
+	
+}
+ck_imperial_events.0022 = { ### Calradian Empire Restored - for claimants 
+	type = character_event
+	title = ck_imperial_events.0022.t
+	desc = ck_imperial_events.0022.desc
+	theme = crown
+	right_portrait = {
+		character = scope:emperor
+		animation = personality_bold
+	}
+	override_background = { reference = throne_room_mediterranean }
+	
+	immediate = {
+		play_music_cue = "mx_ck_calradian_war"
+		title:e_calradian_empire.holder = {
+			save_scope_as = emperor
+		}
+	}
+	option = { #I will never give up fight for MY Empire!
+		name = ck_imperial_events.0022.a
+		
+		save_scope_as = claimant_loc
+		scope:emperor = {
+			send_interface_message = {
+				type = send_interface_message_bad
+				title = refuses_to_submit_title
+				custom_tooltip = refuses_to_submit_desc
+				right_icon = root
+			}
+		}
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = 500
+				has_trait = ambitious
+			}
+			modifier = {
+				add = -500
+				has_trait = craven
+			}
+			modifier = {
+				add = -50
+				has_trait = calm
+			}
+			modifier = {
+				add = -50
+				has_trait = just
+			}
+			modifier = {
+				add = -50
+				has_trait = humble
+			}
+			modifier = {
+				add = -50
+				has_trait = content
+			}
+			modifier = {
+				add = -50
+				has_trait = lazy
+			}
+		}
+	}
+	option = { #There is honor in recognizing one's defeat. I submit to our Emperor
+		name = ck_imperial_events.0022.b
+		
+		trigger = {
+			is_female = no
+		}
+		
+		custom_tooltip = you_will_become_vassal_tt
+		custom_tooltip = every_imperial_title_destroyed_tt
+		hidden_effect = {
+			create_title_and_vassal_change = {
+				type = swear_fealty
+				save_scope_as = change
+			}
+			every_vassal = {
+				change_liege = {
+					liege = title:e_calradian_empire.holder
+					change = scope:change
+				}
+			}
+			every_held_title = {
+				limit = {
+					tier = tier_empire
+				}
+				holder = {
+					destroy_title = prev
+				}
+			}
+			change_liege = {
+				liege = scope:emperor
+				change = scope:change
+			}
+			resolve_title_and_vassal_change = scope:change
+			save_scope_as = submitemperor
+			scope:emperor = {
+				trigger_event = ck_imperial_events.0023
+			}
+		}
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = -500
+				has_trait = ambitious
+			}
+			modifier = {
+				add = -50
+				has_trait = arrogant
+			}
+			modifier = {
+				add = -50
+				has_trait = callous
+			}
+			modifier = {
+				add = -50
+				has_trait = vengeful
+			}
+			modifier = {
+				add = -50
+				has_trait = stubborn
+			}
+		}
+	}
+	option = { #There is honor in recognizing one's defeat. I submit to our Empress
+		name = ck_imperial_events.0022.b.f
+		
+		trigger = {
+			is_female = yes
+		}
+		custom_tooltip = you_will_become_vassal_tt
+		custom_tooltip = every_imperial_title_destroyed_tt
+		hidden_effect = {
+			create_title_and_vassal_change = {
+				type = swear_fealty
+				save_scope_as = change
+			}
+			every_vassal = {
+				change_liege = {
+					liege = title:e_calradian_empire.holder
+					change = scope:change
+				}
+			}
+			every_held_title = {
+				limit = {
+					tier = tier_empire
+				}
+				holder = {
+					destroy_title = prev
+				}
+			}
+			change_liege = {
+				liege = scope:emperor
+				change = scope:change
+			}
+			resolve_title_and_vassal_change = scope:change
+			save_scope_as = submitemperor
+			scope:emperor = {
+				trigger_event = ck_imperial_events.0023
+			}
+		}
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = -500
+				has_trait = ambitious
+			}
+			modifier = {
+				add = -50
+				has_trait = arrogant
+			}
+			modifier = {
+				add = -50
+				has_trait = callous
+			}
+			modifier = {
+				add = -50
+				has_trait = vengeful
+			}
+			modifier = {
+				add = -50
+				has_trait = stubborn
+			}
+		}
+	}
+}
+ck_imperial_events.0023 = { ### Claimant submits
+	type = character_event
+	title = ck_imperial_events.0023.t
+	desc = ck_imperial_events.0023.desc
+	theme = crown
+	right_portrait = {
+		character = root
+		animation = war_over_win
+	}
+	left_portrait = {
+		character = scope:submitemperor
+		animation = throne_room_bow_3
+	}
+	override_background = { reference = throne_room_mediterranean }
+
+
+	option = { #Now serve me faithfully
+		name = ck_imperial_events.0023.a
+	}
+	option = { #But you were a traitor, weren't you?
+		name = ck_imperial_events.0023.b
+		trigger = {
+			OR = {
+				has_trait = callous
+				has_trait = wrathful
+				has_trait = deceitful
+				has_trait = sadistic
+			}
+		}
+		add_prestige = major_prestige_loss
+		add_character_modifier = {
+			modifier = ck_dishonorable_modifier 
+			years = 2
+		}
+		imprison_character_effect = {
+			TARGET = scope:submitemperor
+			IMPRISONER = root
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+ck_imperial_events.0024 = { ### Claimant deposed
+	type = character_event
+	title = ck_imperial_events.0024.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					is_female = yes
+				}
+				desc = ck_imperial_events.0024.desc.f
+			}
+			desc = ck_imperial_events.0024.desc
+		}
+	}
+	theme = crown
+	right_portrait = {
+		character = root
+		animation = war_over_win
+	}
+	left_portrait = {
+		character = scope:defender
+		animation = throne_room_kneel_1
+	}
+	override_background = { reference = throne_room_mediterranean }
+	
+	immediate = {
+		capital_barony = {
+			save_scope_as = stolica
+		}
+	}
+
+
+	option = { #keep locked
+		name = ck_imperial_events.0024.a
+		custom_tooltip = unification_keep_locked_tt
+	}
+	option = { #kill
+		name = ck_imperial_events.0024.b
+		scope:defender = {
+			death = {
+				killer = root
+				death_reason = death_execution
+			}
+		}
+		add_character_modifier = {
+			modifier = ck_honor_in_question_modifier
+			years = 2
+		}
+	}
 }
