@@ -1,4 +1,4 @@
-﻿hold_triumph_decision = {
+hold_triumph_decision = {
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/ep3_decision_hold_triumph.dds"
 	}
@@ -2065,217 +2065,244 @@ found_salon_decision = {
 # 	}
 # }
 
-#commission_icon_decision = {
-#	picture = {
-#		reference = "gfx/interface/illustrations/decisions/decision_smith.dds"
-#	}
-#	cooldown = { days = standard_commission_artifact_cooldown_time }
-#	sort_order = 150
-#	decision_group_type = admin
-#	
-#	is_shown = {
-#		has_dlc_feature = roads_to_power
-#		is_landed_or_landless_administrative = yes
-#		OR = {
-#			faith = faith:calradic
-#			faiths_are_in_orthodox_christianity_group = { FAITH_1 = faith:calradic FAITH_2 = root.faith }
-#		}
-#		faith_is_aniconic_trigger = no
-#	}
-#	
-#	is_valid_showing_failures_only = {
-#		trigger_if = {
-#			limit = {
-#				government_allows = administrative
-#			}
-#			domicile ?= {
-#				has_domicile_building_or_higher = temple_monastery_04
-#			}
-#		}
-#		trigger_else = { always = yes }
-#	}
-#
-#	minimum_cost = {
-#		# Matches the cost defined in 00_inspirations.txt
-#		gold = {
-#			value = basic_fund_inspiration_cost
-#			if = {
-#				limit = { # Estate discount bonus
-#					domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost }
-#				}
-#				multiply = estate_reduce_commission_artifact_cost_value
-#			}
-#		}
-#	}
-#	widget = {
-#    	gui = "decision_view_widget_commission_artifact"
-#		controller = decision_option_list_controller
-#		decision_to_second_step_button = "COMMISSION_ARTIFACT_DECISION_NEXT_STEP_BUTTON" 
-#
-#		# Personal Artifacts are always valid to commission
-#		item = {
-#			value = commission_trinket_icon
-#			current_description = {
-#				desc = commission_artifact_decision_option_trinket_icon_desc
-#			}
-#			localization  = {
-#				desc = commission_artifact_decision_option_trinket_icon
-#			}
-#			icon = "gfx/interface/icons/artifact/artifact_icon_byz.dds"
-#
-#			ai_chance = {
-#				value = 10
-#				if = {
-#					limit = {
-#						has_royal_court = yes
-#					}
-#					multiply = 0
-#				}
-#			}
-#		}
-#		# Court Artifacts only appear if you have the Royal Court DLC, and are only valid if you have an active Royal Court
-#		item = {
-#			value = commission_court_icon_large
-#			is_shown = { has_dlc_feature = royal_court }
-#			is_valid = { has_royal_court = yes }
-#			current_description = {
-#				desc = commission_artifact_decision_option_tapestry_desc
-#			}
-#
-#			localization = {
-#				desc = commission_artifact_decision_option_court_icon_large
-#			}
-#			icon = "gfx/interface/icons/artifact/artifact_icon_byz.dds"
-#
-#			ai_chance = {
-#				value = 20
-#				if = {
-#					limit = {
-#						has_royal_court = yes
-#						# Only make this choice if we don't already have an artifact of this type.
-#						NOT = {
-#							any_character_artifact = {
-#								artifact_slot_type = wall_big
-#							}
-#						}
-#					}
-#					add = 100
-#				}
-#			}
-#		}
-#		item = {
-#			value = commission_court_icon_small
-#			is_shown = { has_dlc_feature = royal_court }
-#			is_valid = { has_royal_court = yes }
-#			current_description = {
-#				desc = commission_artifact_decision_option_court_icon_small_desc
-#			}
-#
-#			localization = {
-#				desc = commission_artifact_decision_option_court_icon_small
-#			}
-#			icon = "gfx/interface/icons/artifact/artifact_icon_byz.dds"
-#
-#			ai_chance = {
-#				value = 20
-#				if = {
-#					limit = {
-#						has_royal_court = yes
-#						# Only make this choice if we don't already have an artifact of this type.
-#						NOT = {
-#							any_character_artifact = {
-#								artifact_slot_type = wall_small
-#							}
-#						}
-#					}
-#					add = 100
-#				}
-#			}
-#		}
-#	}
-#	effect = {
-#		if = {
-#			limit = {
-#				any_court_position_holder = {
-#					type = antiquarian_court_position
-#				}
-#			}
-#			random_court_position_holder = {
-#				type = antiquarian_court_position
-#				save_scope_as = antiquarian
-#			}
-#		}
-#		# Explanatory Tooltips
-#		custom_tooltip = commission_icon_decision_effect
-#		if = {
-#			limit = {
-#				any_pool_character = {
-#					province = root.capital_province
-#					has_no_particular_noble_roots_trigger = yes
-#					is_available_healthy_ai_adult = yes
-#					NOR = {
-#						exists = inspiration
-#						has_trait = peasant_leader
-#					}
-#				}
-#			}
-#			random_pool_character = {
-#				province = root.capital_province
-#				limit = {
-#					has_no_particular_noble_roots_trigger = yes
-#					is_available_healthy_ai_adult = yes
-#					NOR = {
-#						exists = inspiration
-#						has_trait = peasant_leader
-#					}
-#				}
-#				save_scope_as = local_artisan
-#			}
-#		}
-#		else = {
-#			# Artisan Generation
-#			hidden_effect = {
-#				create_character = {
-#					template = local_artisan_template
-#					location = root.capital_province
-#					gender_female_chance = root_faith_dominant_gender_adjusted_female_chance
-#					save_scope_as = local_artisan
-#				}
-#			}
-#		}
-#
-#		hidden_effect = {
-#			if = {
-#				# Conditional exists to avoid false-positives during tooltip generation, but 'local_artisan' should always exist on execution!
-#				limit = { exists = scope:local_artisan }
-#				root = { add_courtier = scope:local_artisan	}
-#				scope:local_artisan = {
-#					add_trait = devoted
-#				}
-#			}
-#			trigger_event = ep3_decisions_event.5000
-#		}
-#	}
-#
-#	ai_check_interval = 36
-#	
-#	ai_potential = {
-#		is_at_war = no
-#		ai_greed < medium_positive_ai_value
-#		short_term_gold > ai_war_chest_desired_gold_value
-#		war_chest_gold >= halved_ai_war_chest_gold_maximum
-#		ai_has_conqueror_personality = no
-#		ai_should_focus_on_building_in_their_capital = no
-#	}
-#
-#	ai_will_do = {
-#		base = 75
-#
-#		ai_value_modifier = {
-#			ai_zeal = 1
-#		}
-#	}
-#}
+commission_icon_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_smith.dds"
+	}
+	cooldown = { days = standard_commission_artifact_cooldown_time }
+	sort_order = 150
+	decision_group_type = admin
+	
+	is_shown = {
+		has_dlc_feature = roads_to_power
+		is_landed_or_landless_administrative = yes
+		OR = {
+			faith = faith:calradic
+			faiths_are_in_orthodox_christianity_group = { FAITH_1 = faith:calradic FAITH_2 = root.faith }
+		}
+		faith_is_aniconic_trigger = no
+	}
+	
+	is_valid_showing_failures_only = {
+		trigger_if = {
+			limit = {
+				government_allows = administrative
+			}
+			domicile ?= {
+				has_domicile_building_or_higher = temple_monastery_04
+			}
+		}
+		trigger_else = { always = yes }
+	}
+
+	minimum_cost = {
+		# Matches the cost defined in 00_inspirations.txt
+		gold = {
+			value = basic_fund_inspiration_cost
+			if = {
+				limit = { # Estate discount bonus
+					domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost }
+				}
+				multiply = estate_reduce_commission_artifact_cost_value
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							has_character_flag = s3.2
+							NOR = {
+								this = culture:vlandian
+								any_parent_culture_or_above = {
+									this = culture:vlandian
+								}
+							}
+						}
+						AND = {
+							has_character_flag = s1.4
+							culture = {
+								NOR = {
+									has_cultural_pillar = heritage_calradian
+									has_cultural_pillar = heritage_sturgic
+									has_cultural_pillar = heritage_nahasi
+									has_cultural_pillar = heritage_khuzic
+								}
+							}
+						}
+					}
+				}
+				multiply = calking_backstory_blacksmith_cost_value
+			}
+		}
+	}
+	widget = {
+    	gui = "decision_view_widget_commission_artifact"
+		controller = decision_option_list_controller
+		decision_to_second_step_button = "COMMISSION_ARTIFACT_DECISION_NEXT_STEP_BUTTON" 
+
+		# Personal Artifacts are always valid to commission
+		item = {
+			value = commission_trinket_icon
+			current_description = {
+				desc = commission_artifact_decision_option_trinket_icon_desc
+			}
+			localization  = {
+				desc = commission_artifact_decision_option_trinket_icon
+			}
+			icon = "gfx/interface/icons/artifact/artifact_icon_byz.dds"
+
+			ai_chance = {
+				value = 10
+				if = {
+					limit = {
+						has_royal_court = yes
+					}
+					multiply = 0
+				}
+			}
+		}
+		# Court Artifacts only appear if you have the Royal Court DLC, and are only valid if you have an active Royal Court
+		item = {
+			value = commission_court_icon_large
+			is_shown = { has_dlc_feature = royal_court }
+			is_valid = { has_royal_court = yes }
+			current_description = {
+				desc = commission_artifact_decision_option_tapestry_desc
+			}
+
+			localization = {
+				desc = commission_artifact_decision_option_court_icon_large
+			}
+			icon = "gfx/interface/icons/artifact/artifact_icon_byz.dds"
+
+			ai_chance = {
+				value = 20
+				if = {
+					limit = {
+						has_royal_court = yes
+						# Only make this choice if we don't already have an artifact of this type.
+						NOT = {
+							any_character_artifact = {
+								artifact_slot_type = wall_big
+							}
+						}
+					}
+					add = 100
+				}
+			}
+		}
+		item = {
+			value = commission_court_icon_small
+			is_shown = { has_dlc_feature = royal_court }
+			is_valid = { has_royal_court = yes }
+			current_description = {
+				desc = commission_artifact_decision_option_court_icon_small_desc
+			}
+
+			localization = {
+				desc = commission_artifact_decision_option_court_icon_small
+			}
+			icon = "gfx/interface/icons/artifact/artifact_icon_byz.dds"
+
+			ai_chance = {
+				value = 20
+				if = {
+					limit = {
+						has_royal_court = yes
+						# Only make this choice if we don't already have an artifact of this type.
+						NOT = {
+							any_character_artifact = {
+								artifact_slot_type = wall_small
+							}
+						}
+					}
+					add = 100
+				}
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = {
+				any_court_position_holder = {
+					type = antiquarian_court_position
+				}
+			}
+			random_court_position_holder = {
+				type = antiquarian_court_position
+				save_scope_as = antiquarian
+			}
+		}
+		# Explanatory Tooltips
+		custom_tooltip = commission_icon_decision_effect
+		if = {
+			limit = {
+				any_pool_character = {
+					province = root.capital_province
+					has_no_particular_noble_roots_trigger = yes
+					is_available_healthy_ai_adult = yes
+					NOR = {
+						exists = inspiration
+						has_trait = peasant_leader
+					}
+				}
+			}
+			random_pool_character = {
+				province = root.capital_province
+				limit = {
+					has_no_particular_noble_roots_trigger = yes
+					is_available_healthy_ai_adult = yes
+					NOR = {
+						exists = inspiration
+						has_trait = peasant_leader
+					}
+				}
+				save_scope_as = local_artisan
+			}
+		}
+		else = {
+			# Artisan Generation
+			hidden_effect = {
+				create_character = {
+					template = local_artisan_template
+					location = root.capital_province
+					gender_female_chance = root_faith_dominant_gender_adjusted_female_chance
+					save_scope_as = local_artisan
+				}
+			}
+		}
+
+		hidden_effect = {
+			if = {
+				# Conditional exists to avoid false-positives during tooltip generation, but 'local_artisan' should always exist on execution!
+				limit = { exists = scope:local_artisan }
+				root = { add_courtier = scope:local_artisan	}
+				scope:local_artisan = {
+					add_trait = devoted
+				}
+			}
+			trigger_event = ep3_decisions_event.5000
+		}
+	}
+
+	ai_check_interval = 36
+	
+	ai_potential = {
+		is_at_war = no
+		ai_greed < medium_positive_ai_value
+		short_term_gold > ai_war_chest_desired_gold_value
+		war_chest_gold >= halved_ai_war_chest_gold_maximum
+		ai_has_conqueror_personality = no
+		ai_should_focus_on_building_in_their_capital = no
+	}
+
+	ai_will_do = {
+		base = 75
+
+		ai_value_modifier = {
+			ai_zeal = 1
+		}
+	}
+}
 
 embrace_heresy_decision = {
 	picture = {
@@ -2587,6 +2614,33 @@ commission_silk_regalia_decision = {
 					domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost }
 				}
 				multiply = estate_reduce_commission_artifact_cost_value
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							has_character_flag = s3.2
+							NOR = {
+								this = culture:vlandian
+								any_parent_culture_or_above = {
+									this = culture:vlandian
+								}
+							}
+						}
+						AND = {
+							has_character_flag = s1.4
+							culture = {
+								NOR = {
+									has_cultural_pillar = heritage_calradian
+									has_cultural_pillar = heritage_sturgic
+									has_cultural_pillar = heritage_nahasi
+									has_cultural_pillar = heritage_khuzic
+								}
+							}
+						}
+					}
+				}
+				multiply = calking_backstory_blacksmith_cost_value
 			}
 		}
 	}

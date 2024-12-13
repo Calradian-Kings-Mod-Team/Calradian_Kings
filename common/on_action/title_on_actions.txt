@@ -47,6 +47,42 @@ on_title_destroyed = {
 				target = scope:landed_title
 			}
 		}
+		# Sturgia de jure split
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						OR = {
+							scope:landed_title = title:k_sturgia
+							scope:landed_title = title:k_minadoria
+							scope:landed_title = title:e_grand_principality_of_sturgia
+						}
+						NOR = {
+							exists = title:k_sturgia.holder
+							exists = title:k_minadoria.holder
+							exists = title:e_grand_principality_of_sturgia.holder
+						}
+						NOT = {
+							has_global_variable = sturgia_collapse_var
+						}
+					}
+					#Shattered world allowance(more fun tbh)
+					AND = {
+						has_game_rule = ck_full_shatter_calradia
+						NOT = {
+							has_global_variable = sturgia_collapse_var
+						}
+					}
+					AND = {
+						has_game_rule = ck_shatter_all_but_calradians
+						NOT = {
+							has_global_variable = sturgia_collapse_var
+						}
+					}
+				}
+			}
+			sturgia_collapse_formalized_effect = yes
+		}
 		#Notify folks the latin empire has fallen
 		# if = {
 		# 	limit = { scope:landed_title = title:e_latin_empire }
@@ -2227,6 +2263,20 @@ on_title_gain = {
 			}
 		}
 		
+		## LAKE RAT, RATKING NICKNAME INHERITANCE ##
+		
+		if = {
+			limit = {
+				scope:previous_holder = {
+					has_nickname = nick_the_ratking
+				}
+			}
+			scope:previous_holder = {
+				remove_nickname = yes
+			}
+		}
+
+		
 		# Did I conquer a place with holy order leases not of my faith?
 		if = {
 			limit = {
@@ -2774,7 +2824,17 @@ on_title_gain_inheritance = {
 		# 	limit = { scope:title = title:e_roman_empire }
 		# 	set_variable = uses_custom_caesar_flavourization
 		# }
-
+		if = {
+			limit = {
+				scope:title = {
+					this = title:c_hudeyna
+				}
+			}
+			
+			root = {
+				give_nickname = nick_the_ratking
+			}
+		}
 		# Additional Flavor Title
 		additional_flavor_check_effect = yes
 	}
@@ -2827,7 +2887,10 @@ on_title_gain_usurpation = {
 		# 		}
 		# 	}
 		# }
-
+		if = {
+			limit = { scope:title = title:c_hudeyna }
+			root = { give_nickname = nick_the_ratking }
+		}
 		# if = {
 		# 	limit = { # FP3
 		# 		title:e_persia = { any_in_de_jure_hierarchy = { this = scope:title } }
