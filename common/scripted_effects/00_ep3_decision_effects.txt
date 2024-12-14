@@ -216,7 +216,7 @@ convert_to_administrative_from_feudalism_game_start_effect = {
 apply_historic_administrative_game_rule_effect = {
 	# We'll be doing some excessive triggers below in a bid to lightly future-proof + error-spam mods less, don't worry about it.
 	## We also do player-specific realms separately — we need to know what their realm is so we do it after the lobby exclusively.
-	# Egypt.
+	# Darshi
 	if = {
 		limit = {
 			NOT = { has_game_rule = historicity_extra_admin_egypt_gameplay_not_administrative }
@@ -227,19 +227,53 @@ apply_historic_administrative_game_rule_effect = {
 			title:e_darshi.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
 		}
 	}
-	# # Arabia.
-	# if = {
-	# 	limit = {
-	# 		NOT = { has_game_rule = historicity_extra_admin_arabia_gameplay_not_administrative }
-	# 		exists = title:e_arabia
-	# 	}
-	# 	if = {
-	# 		limit = { has_game_rule = historicity_extra_admin_arabia_historic_867 }
-	# 		# Give the Armenians a fighting chance.
-	# 		culture:armenian = { save_scope_as = ignore_culture }
-	# 		title:e_arabia.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
-	# 	}
-	# }
+	# Northern Empire 
+	if = {
+		limit = {
+			NOT = { has_game_rule = ck_admin_government_disabled }
+			exists = title:e_northern_empire
+		}
+		if = {
+			limit = { has_game_rule = ck_admin_government_nimp }
+			culture:palaic_dryatic = { save_scope_as = ignore_culture }
+			title:e_northern_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
+		}
+	}
+	# Northern and Western Empire 
+	if = {
+		limit = {
+			NOR = { 
+				has_game_rule = ck_admin_government_disabled
+				has_game_rule = ck_admin_government_nimp
+			}
+			exists = title:e_northern_empire
+			exists = title:e_western_empire
+		}
+		if = {
+			limit = { has_game_rule = ck_admin_government_nimp_and_wimp }
+			culture:palaic_dryatic = { save_scope_as = ignore_culture }
+			title:e_northern_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
+			title:e_western_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
+		}
+	}
+	# Every Empire
+	if = {
+		limit = {
+			NOT = { 
+				has_game_rule = ck_admin_government_disabled
+			}
+			exists = title:e_northern_empire
+			exists = title:e_western_empire
+			exists = title:e_southern_empire
+		}
+		if = {
+			limit = { has_game_rule = ck_admin_government_every_empire }
+			culture:palaic_dryatic = { save_scope_as = ignore_culture }
+			title:e_northern_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
+			title:e_western_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
+			title:e_southern_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
+		}
+	}
 }
 
 convert_to_feudalism_from_administrative_effect = {
