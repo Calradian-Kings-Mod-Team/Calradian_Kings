@@ -1,0 +1,1120 @@
+#############################
+### Imperial Interactions ###
+# Demand change of an imperial faction #
+demand_change_senatorial_faction = { 
+	category = interaction_category_vassal
+	interface_priority = 110
+	icon = council
+	desc = demand_change_senatorial_faction_desc
+	common_interaction = yes
+
+	popup_on_receive = yes
+	pause_on_receive = yes
+
+	ai_min_reply_days = 1
+	ai_max_reply_days = 7
+	
+	cooldown_against_recipient = { months = 12 } 
+	
+	#notification_text = {
+	#	desc = demand_change_senatorial_faction_notification_desc
+	#}
+	
+	is_shown = {
+		scope:recipient = {
+			is_vassal_of = scope:actor
+			OR = {
+				has_trait = ck_oligarch
+				has_trait = ck_populist
+				has_trait = ck_militarist
+				has_trait = ck_royalist
+			}
+		}
+		scope:actor = {
+			culture = {
+				has_cultural_pillar = heritage_calradian
+			}
+			highest_held_title_tier = tier_empire
+			OR = {
+				has_trait = ck_oligarch
+				has_trait = ck_populist
+				has_trait = ck_militarist
+				has_trait = ck_royalist
+			}
+		}
+		scope:actor != scope:recipient
+	}
+	
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			is_adult = yes
+			NOR = {
+				is_at_war_with = scope:actor
+				has_relation_rival = scope:actor
+				has_relation_nemesis = scope:actor
+				has_opinion_modifier = {
+					target = scope:actor
+					modifier = released_from_prison
+				}
+				existing_feud_against_target_trigger = { TARGET = scope:actor }
+			}
+		}
+		#Disabled/Enabled for test purposes
+		custom_tooltip = {
+			text = already_supports_your_faction_tt
+			NAND = {
+				scope:recipient = { has_trait = ck_militarist }
+				scope:actor = { has_trait = ck_militarist }
+			}
+		}
+		custom_tooltip = {
+			text = already_supports_your_faction_tt
+			NAND = {
+				scope:recipient = { has_trait = ck_populist }
+				scope:actor = { has_trait = ck_populist }
+			}
+		}
+		custom_tooltip = {
+			text = already_supports_your_faction_tt
+			NAND = {
+				scope:recipient = { has_trait = ck_oligarch }
+				scope:actor = { has_trait = ck_oligarch }
+			}
+		}
+		custom_tooltip = {
+			text = already_supports_your_faction_tt
+			NAND = {
+				scope:recipient = { has_trait = ck_royalist }
+				scope:actor = { has_trait = ck_royalist }
+			}
+		}
+		custom_tooltip = {
+			text = demanded_recently_tt
+			NOT = {
+				scope:actor = {
+					has_character_flag = demanded_faction_change_flag
+				}
+			}
+		}
+	}
+	
+	is_highlighted = {
+		scope:actor = {
+			is_character_interaction_potentially_accepted = {
+				recipient = scope:recipient
+				interaction = contact_list_request_interaction
+			}
+		}
+	}
+	can_be_picked = {
+		NOT = { scope:recipient = root }
+	}
+	
+	#Gold bribe small
+	send_option = {
+		flag = bribe_with_gold_small
+		is_valid = {
+			custom_tooltip = {
+				scope:actor.gold > 70
+				text = demand_change_senatorial_faction.not_enough_gold
+			}
+		}
+	}
+	#Gold bribe big
+	send_option = {
+		flag = bribe_with_gold_big
+		is_valid = {
+			custom_tooltip = {
+				scope:actor.gold > 400
+				text = demand_change_senatorial_faction.not_enough_gold
+			}
+		}
+	}
+	#Favor bribe
+	send_option = {
+		flag = bribe_with_favor
+		is_valid = {
+			custom_tooltip = {
+				NOR = {
+					scope:recipient = {
+						has_hook = scope:actor
+					}
+					scope:actor = {
+						has_character_flag = AI_gave_favor_cooldown
+					}
+				}
+				text = demand_change_senatorial_faction.already_has_hook
+			}
+		}
+	}
+	#Intimidate
+	send_option = {
+		flag = bribe_with_dread
+		is_valid = {
+			custom_tooltip = {
+				scope:actor = {
+					dread > 75
+				}
+				text = demand_change_senatorial_faction.not_enough_dread
+			}
+		}
+	}
+	#Goodwill
+	send_option = {
+		flag = bribe_with_opinion
+		is_valid = {
+			custom_tooltip = {
+				scope:recipient = {
+					opinion = {
+						target = scope:actor
+						value = 100
+					}
+				}
+				text = demand_change_senatorial_faction.not_enough_opinion
+			}
+		}
+	}
+	#Has Hook
+	send_option = {
+		flag = demand_with_hook
+		is_valid = {
+			custom_tooltip = {
+				scope:actor = {
+					has_hook = scope:recipient
+				}
+				text = demand_change_senatorial_faction.no_hook_avaible
+			}
+		}
+	}
+	
+	should_use_extra_icon = {
+		scope:actor = { has_usable_hook = scope:recipient }
+	}
+	extra_icon = "gfx/interface/icons/character_interactions/hook_icon.dds"
+	
+	cost = {
+		prestige = {
+			value = 100
+		}
+	}
+	on_accept = {
+		scope:actor = {
+			switch = {
+				trigger = yes
+				scope:bribe_with_gold_small ?= {
+					scope:actor = {
+						trigger_event = ck_imperial_events.0002
+						pay_short_term_gold = {
+							target = scope:recipient
+							gold = 70
+						}
+						custom_tooltip = {
+							add_character_flag = {
+								flag = demanded_faction_change_flag
+								years = 2
+							}
+							text = demand_cooldown_tt
+						}
+					}
+					scope:recipient = {
+						add_prestige = -200
+						add_character_modifier = {
+							modifier = bribed_interaction
+							years = 5
+						}
+						add_opinion = {
+							modifier = demanded_faction_change
+							years = 2
+							target = scope:actor
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_oligarch
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								#remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_oligarch
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_militarist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								#remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_militarist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_populist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								#remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_populist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_royalist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								#remove_trait = ck_royalist
+								add_trait = ck_royalist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							add_character_flag = {
+								flag = changed_faction_from_demand
+								years = 20
+							}
+							text = will_not_change_faction_tt
+						}
+					}
+				}
+				scope:bribe_with_gold_big ?= {
+					scope:actor = {
+						trigger_event = ck_imperial_events.0002
+						pay_short_term_gold = {
+							target = scope:recipient
+							gold = 400
+						}
+						custom_tooltip = {
+							add_character_flag = {
+								flag = demanded_faction_change_flag
+								years = 2
+							}
+							text = demand_cooldown_tt
+						}
+					}
+					scope:recipient = {
+						add_prestige = -200
+						add_character_modifier = {
+							modifier = bribed_interaction
+							years = 5
+						}
+						add_opinion = {
+							modifier = demanded_faction_change
+							years = 2
+							target = scope:actor
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_oligarch
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								#remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_oligarch
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_militarist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								#remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_militarist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_populist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								#remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_populist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_royalist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								#remove_trait = ck_royalist
+								add_trait = ck_royalist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							add_character_flag = {
+								flag = changed_faction_from_demand
+								years = 20
+							}
+							text = will_not_change_faction_tt
+						}
+					}
+				}
+				scope:bribe_with_favor ?= {
+					scope:actor = {
+						trigger_event = ck_imperial_events.0002
+						add_prestige = -100
+						custom_tooltip = {
+							add_character_flag = {
+								flag = demanded_faction_change_flag
+								years = 2
+							}
+							text = demand_cooldown_tt
+						}
+					}
+					scope:recipient = {
+						add_prestige = -200
+						add_character_modifier = {
+							modifier = bribed_interaction
+							years = 5
+						}
+						add_opinion = {
+							modifier = demanded_faction_change
+							years = 2
+							target = scope:actor
+						}
+						add_hook = {
+							target = scope:actor
+							type = favor_hook
+							years = 5
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								is_ai = yes
+							}
+						}
+						scope:actor = {
+							add_character_flag = {
+								flag = AI_gave_favor_cooldown
+								years = 4
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_oligarch
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								#remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_oligarch
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_militarist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								#remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_militarist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_populist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								#remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_populist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_royalist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								#remove_trait = ck_royalist
+								add_trait = ck_royalist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							add_character_flag = {
+								flag = changed_faction_from_demand
+								years = 20
+							}
+							text = will_not_change_faction_tt
+						}
+					}
+				}
+				scope:bribe_with_dread ?= {
+					scope:actor = {
+						trigger_event = ck_imperial_events.0002
+						add_tyranny = 25
+						add_prestige = -250
+						custom_tooltip = {
+							add_character_flag = {
+								flag = demanded_faction_change_flag
+								years = 2
+							}
+							text = demand_cooldown_tt
+						}
+					}
+					scope:recipient = {
+						add_prestige = -100
+						add_opinion = {
+							modifier = demanded_faction_change_major
+							years = 7
+							target = scope:actor
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_oligarch
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								#remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_oligarch
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_militarist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								#remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_militarist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_populist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								#remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_populist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_royalist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								#remove_trait = ck_royalist
+								add_trait = ck_royalist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							add_character_flag = {
+								flag = changed_faction_from_demand
+								years = 20
+							}
+							text = will_not_change_faction_tt
+						}
+					}
+				}
+				scope:bribe_with_opinion ?= {
+					scope:actor = {
+						trigger_event = ck_imperial_events.0002
+						custom_tooltip = {
+							add_character_flag = {
+								flag = demanded_faction_change_flag
+								years = 2
+							}
+							text = demand_cooldown_tt
+						}
+					}
+					scope:recipient = {
+						add_prestige = -100
+						add_opinion = {
+							modifier = demanded_faction_change
+							years = 2
+							target = scope:actor
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_oligarch
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								#remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_oligarch
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_militarist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								#remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_militarist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_populist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								#remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_populist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_royalist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								#remove_trait = ck_royalist
+								add_trait = ck_royalist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							add_character_flag = {
+								flag = changed_faction_from_demand
+								years = 20
+							}
+							text = will_not_change_faction_tt
+						}
+					}
+				}
+				scope:demand_with_hook ?= {
+					scope:actor = {
+						use_hook = scope:recipient
+						trigger_event = ck_imperial_events.0002
+						custom_tooltip = {
+							add_character_flag = {
+								flag = demanded_faction_change_flag
+								years = 2
+							}
+							text = demand_cooldown_tt
+						}
+					}
+					scope:recipient = {
+						add_prestige = -100
+						add_opinion = {
+							modifier = demanded_faction_change
+							years = 2
+							target = scope:actor
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_oligarch
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								#remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_oligarch
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_militarist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								#remove_trait = ck_militarist
+								remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_militarist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_populist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								#remove_trait = ck_populist
+								remove_trait = ck_royalist
+								add_trait = ck_populist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					if = {
+						limit = {
+							scope:actor = {
+								has_trait = ck_royalist
+							}
+						}
+						scope:recipient = {
+							custom_tooltip = {
+								remove_trait = ck_oligarch
+								remove_trait = ck_militarist
+								remove_trait = ck_populist
+								#remove_trait = ck_royalist
+								add_trait = ck_royalist
+								
+								text = will_change_faction
+							}
+						}
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							add_character_flag = {
+								flag = changed_faction_from_demand
+								years = 20
+							}
+							text = will_not_change_faction_tt
+						}
+					}
+				}
+			}
+		}
+	}
+	ai_frequency = 10
+	ai_targets = { ai_recipients = vassals }
+	ai_potential = {
+		ai_honor < 20
+	}
+	ai_will_do = {
+		base = 45
+		modifier = {
+			scope:actor = {
+				has_trait = ambitious
+				has_trait = deceitful
+			}
+			add = 50
+		}
+		modifier = {
+			scope:actor = {
+				has_trait = just
+				has_trait = content
+			}
+			add = -30
+		}
+		modifier = {
+			scope:actor = {
+				OR = {
+					is_at_war = yes
+					is_imprisoned = yes
+				}
+			}
+			add = -100
+		}
+	}
+	ai_accept = {
+		base = -30
+		
+		### General modifiers, applies to every request ###
+		modifier = { #Is fickle # +30
+			add = 30
+			desc = forced_to_change_faction.acceptance.fickle
+			scope:recipient = {
+				has_trait = fickle
+			}
+		}
+		modifier = { #Friends or best friends # +30
+			add = 30
+			desc = forced_to_change_faction.acceptance.friend_or_best_friend
+			scope:recipient = {
+				OR = {
+					has_relation_friend = scope:actor
+					has_relation_best_friend = scope:actor
+				}
+			}
+		}
+		modifier = { #Opinion above 50 # +20
+			add = 20
+			desc = forced_to_change_faction.acceptance.good_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value >= 50
+				}
+			}
+		}
+		modifier = { #Specific acceptance traits # +20
+			add = 20
+			desc = forced_to_change_faction.acceptance.general_traits_accept
+			scope:recipient = {
+				OR = {
+					has_trait = deceitful
+					has_trait = arbitrary
+					has_trait = trusting
+				}
+			}
+		}
+		modifier = { #Is disloyal # +20
+			add = 20
+			desc = forced_to_change_faction.acceptance.disloyal
+			scope:recipient = {
+				has_trait = disloyal
+			}
+		}
+		modifier = { #Is councillor of sender # +10
+			add = 10
+			desc = forced_to_change_faction.acceptance.councillor
+			scope:recipient = {
+				is_councillor_of = scope:actor
+			}
+		}
+		modifier = { #Is powerful vassal # -15
+			add = -15
+			desc = forced_to_change_faction.acceptance.powerful_vassal
+			scope:recipient = {
+				is_powerful_vassal = yes
+			}
+		}
+		modifier = { #Specific rejection traits # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.general_traits_reject
+			scope:recipient = {
+				OR = {
+					has_trait = ambitious
+					has_trait = just
+					has_trait = content
+				}
+			}
+		}
+		modifier = { #Is loyal # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.loyal
+			scope:recipient = {
+				has_trait = loyal
+			}
+		}
+		modifier = { #Opinion below -30 # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.bad_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value <= -30
+				}
+			}
+		}
+		modifier = { #Is stubborn # -30
+			add = -30
+			desc = forced_to_change_faction.acceptance.stubborn
+			scope:recipient = {
+				has_trait = stubborn
+			}
+		}
+
+		### Gold bribe modifiers ###
+		modifier = { #Small bribe # +10
+			add = 10
+			desc = forced_to_change_faction.acceptance.this_offer.1
+			scope:bribe_with_gold_small ?= yes
+		}
+		modifier = { #Big bribe # +36
+			add = 36
+			desc = forced_to_change_faction.acceptance.this_offer.2
+			scope:bribe_with_gold_big ?= yes
+		}
+		modifier = { #Is greedy # +40
+			add = 40
+			desc = forced_to_change_faction.acceptance.greedy
+			scope:recipient = {
+				has_trait = greedy
+			}
+			OR = {
+				scope:bribe_with_gold_big ?= yes
+				scope:bribe_with_gold_small ?= yes
+			}
+		}
+		modifier = { #Is content # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.content
+			scope:recipient = {
+				has_trait = content
+			}
+			OR = {
+				scope:bribe_with_gold_big ?= yes
+				scope:bribe_with_gold_small ?= yes
+			}
+		}
+		modifier = { #Bribe too small # -30
+			add = -30
+			desc = forced_to_change_faction.acceptance.too_small_bribe
+			scope:recipient = {
+				gold >= 50
+			}
+			scope:bribe_with_gold_small ?= yes
+		}
+		modifier = { #Too rich to bribe # -75
+			add = -75
+			desc = forced_to_change_faction.acceptance.too_rich
+			scope:recipient = {
+				gold >= 650
+			}
+			OR = {
+				scope:bribe_with_gold_big ?= yes
+				scope:bribe_with_gold_small ?= yes
+			}
+		}
+		
+		### Favor modifiers ###
+		modifier = { #Hook on liege is useful, no? # +70
+			add = 70
+			desc = forced_to_change_faction.acceptance.favor
+			scope:bribe_with_favor ?= yes
+		}
+		modifier = { #Is content # -20
+			add = -20
+			desc = forced_to_change_faction.acceptance.content
+			scope:recipient = {
+				has_trait = content
+			}
+			scope:bribe_with_favor ?= yes
+		}
+		
+		### Intimidation modifiers ###
+		modifier = { #Intimidation # +50
+			add = 50
+			desc = forced_to_change_faction.acceptance.this_offer.3
+			scope:bribe_with_dread ?= yes
+		}
+		modifier = { #Is craven # +50
+			add = 50
+			desc = forced_to_change_faction.acceptance.craven
+			scope:recipient = {
+				has_trait = craven
+			}
+			scope:bribe_with_dread ?= yes
+		}
+		modifier = { #Is paranoid # +20
+			add = 20
+			desc = forced_to_change_faction.acceptance.paranoid
+			scope:recipient = {
+				has_trait = paranoid
+			}
+			scope:bribe_with_dread ?= yes
+		}
+		modifier = { #Is brave # -75
+			add = -75
+			desc = forced_to_change_faction.acceptance.brave
+			scope:recipient = {
+				has_trait = brave
+			}
+			scope:bribe_with_dread ?= yes
+		}
+		
+		### Goodwill modifiers ###
+		modifier = { #This offer # +35
+			add = 35
+			desc = forced_to_change_faction.acceptance.this_offer.4
+			scope:bribe_with_opinion ?= yes
+		}
+		
+		### Hook modifiers ###
+		modifier = { #This offer # +500
+			add = 500
+			desc = forced_to_change_faction.acceptance.this_offer.5
+			scope:demand_with_hook ?= yes
+		}
+		
+	}
+	on_decline = {
+		scope:actor = {
+			trigger_event = ck_imperial_events.0003
+		}
+	}
+	auto_accept = {
+		scope:actor = { has_usable_hook = scope:recipient }
+		scope:actor = { is_ai = yes }
+		scope:recipient = { is_ai = no }
+	}
+	on_auto_accept = {
+		scope:recipient = {
+			send_interface_toast = {
+				type = event_toast_effect_bad
+				title = forced_to_change_faction.tt.title
+				right_icon = scope:actor
+				custom_tooltip = forced_to_change_faction.tt.desc
+			}
+		}
+	}
+
+}

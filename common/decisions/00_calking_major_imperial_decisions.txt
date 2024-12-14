@@ -1,4 +1,4 @@
-﻿
+
 # Commented out for now until it's finished, so that erroring doesn't keep occurring.
 # end_the_imperial_civil_war = {
 
@@ -116,6 +116,12 @@ choose_imperial_faction_decision = {
 		is_capable_adult = yes
  		is_imprisoned = no
 		prestige >= 0
+		custom_tooltip = {
+			NOT = {
+				has_character_flag = changed_faction_from_demand
+			}
+			text = already_changed_faction_tt
+		}
 	}
 	cost = {
 		prestige = 100
@@ -160,13 +166,13 @@ choose_imperial_faction_decision = {
 
 }
 
-# The Fate of the Eastern Islands, adjusted from a Godherja decision.
+### The Fate of the Eastern Islands, adjusted from a Godherja decision. ###
 ck_the_fate_of_the_east_islands_decision = {
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds"
 	}
 	decision_group_type = major
-	ai_check_interval = 300
+	ai_check_interval = 60
 	desc = ck_the_fate_of_the_east_islands_decision_desc
 
 	is_shown = {
@@ -232,3 +238,767 @@ ck_the_fate_of_the_east_islands_decision = {
 		}
 	}
 }
+
+### Proclaim the Empire ###
+proclaim_the_empire = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds"
+	}
+	decision_group_type = major
+	ai_check_interval = 18
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					is_female = yes
+				}
+				desc = proclaim_the_empire_desc_woman
+			}
+			desc = proclaim_the_empire_desc
+		}
+	}
+	
+	is_shown = {
+		OR = { 
+			AND = {
+				is_ai = no
+				culture = {
+					has_cultural_pillar = heritage_calradian
+				}
+				NOR = {
+					exists = title:e_calradian_empire.holder
+					primary_title = {
+						tier = tier_empire
+					}
+				}
+			}
+			AND = {
+				is_ai = yes
+				is_independent_ruler = yes
+				is_landless_adventurer = no
+				highest_held_title_tier >= tier_duchy
+				culture = {
+					has_cultural_pillar = heritage_calradian
+				}
+				NOR = {
+					exists = title:e_calradian_empire.holder
+					primary_title = {
+						tier = tier_empire
+					}
+				}
+			}
+		}
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = prestige_and_legitimacy_proclaim_tt
+			legitimacy_level >= 1
+			prestige_level >= 1
+		}
+		is_independent_ruler = yes
+		OR = {
+			custom_tooltip = {
+				text = capital_in_ce_tt
+				capital_county = {
+					empire = title:e_calradian_empire
+				}
+			}
+			custom_tooltip = {
+				text = realm_portion_in_ce_tt
+				any_sub_realm_county = {
+					percent >= 0.3
+					empire = title:e_calradian_empire
+				}
+			}
+		}
+		OR = {
+			AND = {
+				custom_tooltip = {
+					text = proclaim_condition_1_tt
+					sub_realm_size >= 7
+					legitimacy_level >= 4
+					prestige_level >= 4
+				}
+				OR = {
+					has_trait = ambitious
+					has_trait = diligent
+				}
+			}
+			custom_tooltip = {
+				text = proclaim_condition_2_tt
+				sub_realm_size >= 12
+				legitimacy_level >= 3
+				prestige_level >= 3
+			}
+			custom_tooltip = {
+				text = proclaim_condition_3_tt
+				sub_realm_size >= 20
+				prestige_level >= 2
+			}
+			custom_tooltip = {
+				text = proclaim_condition_4_tt
+				sub_realm_size >= 30
+			}
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		is_independent_ruler = yes
+		is_landless_adventurer = no
+		is_capable_adult = yes
+		is_imprisoned = no
+		is_at_war = no
+	}
+	
+	effect = {
+		save_scope_as = decision_taker
+		custom_tooltip = will_become_emperor_tt
+		add_character_flag = new_claimant_emperor
+		add_trait = claimant_emperor
+		add_prestige = 2000
+		add_character_flag = {
+			flag = grace_period_dynamic_emperor
+			years = 10
+		}
+		add_character_flag = {
+			flag = vassalization_period_dynamic_emperor
+			years = 7
+		}
+		
+		hidden_effect = { give_senatorial_faction_effect = yes } #Senatorial factions for vassals
+		capital_county = {
+			save_scope_as = empire_capital_county
+		}
+		create_dynamic_title = {
+			tier = empire
+			name = DYNAMIC_EMPIRE
+			adj = DYNAMIC_EMPIRE_adj
+		}
+		create_title_and_vassal_change = {
+			type = created
+			save_scope_as = change
+			add_claim_on_loss = yes
+		}
+		scope:new_title = {
+			change_title_holder = {
+				holder = root
+				change = scope:change
+			}
+		}
+		hidden_effect = { ## Defining new empire
+			scope:new_title = { #Name, capital, colour and coa
+				set_color_from_title = scope:empire_capital_county
+				set_capital_county = scope:empire_capital_county
+				set_definitive_form = yes
+				set_title_prefix = PREFIX_THE
+				random_list = {
+					2 = { set_coa = imperial_coa_1  }
+					2 = { set_coa = imperial_coa_2  }
+					2 = { set_coa = imperial_coa_3  }
+					2 = { set_coa = imperial_coa_4  }
+					2 = { set_coa = imperial_coa_5  }
+					2 = { set_coa = imperial_coa_6  }
+					2 = { set_coa = imperial_coa_7  }
+					2 = { set_coa = imperial_coa_8  }
+					1 = { set_coa = imperial_coa_9  }
+					2 = { set_coa = imperial_coa_10 }
+					2 = { set_coa = imperial_coa_11 }
+					2 = { set_coa = imperial_coa_12 }
+					2 = { set_coa = imperial_coa_13 }
+					2 = { set_coa = imperial_coa_14 }
+					2 = { set_coa = imperial_coa_15 }
+					2 = { set_coa = imperial_coa_16 }
+					2 = { set_coa = imperial_coa_17 }
+					2 = { set_coa = imperial_coa_18 }
+					2 = { set_coa = imperial_coa_19 }
+					2 = { set_coa = imperial_coa_20 }
+				}
+			}
+			scope:new_title = { #Predefined empires
+				if = {
+					limit = {
+						scope:new_title.title_capital_county = {
+							title_province = {
+								geographical_region = region_empire_predefined_name_eastern
+							}
+						}
+						NOT = {
+							has_global_variable = eastern_empire_spawned
+						}
+					}
+					set_title_name = EASTERN_EMPIRE
+					set_global_variable = {
+						name = eastern_empire_spawned
+						value = yes
+					}
+				}
+				if = { #Easter egg
+					limit = {
+						scope:new_title.title_capital_county = {
+							kingdom = title:k_vlandia
+						}
+						NOT = {
+							has_global_variable = holy_calradian_empire_spawned
+						}
+					}
+					set_title_name = HOLY_CALRADIAN_EMPIRE
+					set_global_variable = {
+						name = holy_calradian_empire_spawned
+						value = yes
+					}
+				}
+			}
+		}
+		every_player = {
+			trigger_event = ck_imperial_events.0001
+		}
+		resolve_title_and_vassal_change = scope:change
+	}
+
+	cost = {
+		gold = {
+			value = 1
+			if = {
+				limit = {
+					is_ai = no
+				}
+				add = 299
+			}
+		}
+	}
+	
+	ai_potential = {
+		is_independent_ruler = yes
+		is_landless_adventurer = no
+		highest_held_title_tier >= tier_duchy
+		culture = {
+			has_cultural_pillar = heritage_calradian
+		}
+		NOR = {
+			exists = title:e_calradian_empire.holder
+			primary_title = {
+				tier = tier_empire
+			}
+		}
+	}
+
+	ai_will_do = {
+		base = 100
+	}
+}
+restore_calradian_empire = { #Unite?
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds"
+	}
+	decision_group_type = major
+	ai_check_interval = 18
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					is_female = yes
+				}
+				desc = restore_calradian_empire_desc_woman
+			}
+			desc = restore_calradian_empire_desc
+		}
+	}
+
+	is_shown = {
+		culture = {
+			has_cultural_pillar = heritage_calradian
+		}
+		NOT = {
+			exists = title:e_calradian_empire.holder
+		}
+		has_trait = claimant_emperor
+	}
+	
+	cost = {
+		gold = 300
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = is_claimant_emperor_tt
+			has_trait = claimant_emperor
+		}
+		custom_tooltip = {
+			text = prestige_and_legitimacy_proclaim_tt
+			legitimacy_level >= 1
+			prestige_level >= 1
+		}
+		OR = {
+			AND = {
+				custom_tooltip = {
+					text = sole_claimant_tt
+					NOT = {
+						any_ruler = {
+							has_trait = claimant_emperor
+							NOT = { 
+								this = root
+							}
+						}
+					}
+				}
+				custom_tooltip = {
+					text = held_counties_1_tt
+					title:e_calradian_empire = {
+						any_de_jure_county = {
+							percent >= 0.4
+							OR = {
+								holder.top_liege = root
+								holder = root
+							}
+						}
+					}
+				}
+				custom_tooltip = { # Beginning of scripted Calradian downfall
+					text = current_year_before_1150_tt
+					current_year <= 1150
+				}
+			}
+			custom_tooltip = {
+				text = held_counties_2_tt
+				title:e_calradian_empire = {
+					any_de_jure_county = {
+						percent >= 0.5
+						OR = {
+							holder.top_liege = root
+							holder = root
+						}
+					}
+				}
+				legitimacy_level >= 5
+				prestige_level >= 5
+			}
+			custom_tooltip = {
+				text = held_counties_3_tt
+				title:e_calradian_empire = {
+					any_de_jure_county = {
+						percent >= 0.6
+						OR = {
+							holder.top_liege = root
+							holder = root
+						}
+					}
+				}
+				legitimacy_level >= 4
+				prestige_level >= 4
+			}
+			custom_tooltip = {
+				text = held_counties_4_tt
+				title:e_calradian_empire = {
+					any_de_jure_county = {
+						percent >= 0.7
+						OR = {
+							holder.top_liege = root
+							holder = root
+						}
+					}
+				}
+				legitimacy_level >= 3
+				prestige_level >= 3
+			}
+			custom_tooltip = {
+				text = held_counties_5_tt
+				title:e_calradian_empire = {
+					any_de_jure_county = {
+						percent >= 0.8
+						OR = {
+							holder.top_liege = root
+							holder = root
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	is_valid_showing_failures_only = {
+		is_independent_ruler = yes
+		is_landless_adventurer = no
+		is_capable_adult = yes
+		is_imprisoned = no
+		is_at_war = no
+	}
+	
+	effect = {
+		custom_tooltip = calradian_empire_restored_tt
+		trigger_event = ck_imperial_events.0020
+		save_scope_as = restorer
+	}
+	
+	ai_potential = {
+		is_independent_ruler = yes
+		is_landless_adventurer = no
+		highest_held_title_tier = tier_empire
+		culture = {
+			has_cultural_pillar = heritage_calradian
+		}
+		realm_size >= 128
+	}
+
+	ai_will_do = {
+		base = 100
+	}
+}
+imperial_military_expedition = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_destiny_goal.dds"
+	}
+	decision_group_type = major
+	ai_check_interval = 0
+	desc = imperial_military_expedition_desc	
+	
+	is_shown = {
+		is_landless_adventurer = no
+		highest_held_title_tier >= tier_duchy
+		culture = {
+			has_cultural_pillar = heritage_calradian
+		}
+	}
+	
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = already_considering_decision_tt
+			NOT = {
+				has_character_flag = considering_expedition_cooldown
+			}
+		}
+		custom_tooltip = {
+			text = expedition_cooldown_tt
+			NOT = {
+				has_character_flag = expedition_cooldown
+			}
+		}
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = is_emperor_in_empire_tt
+			primary_title = {
+				tier = tier_empire
+			}
+			capital_county = {
+				empire = title:e_calradian_empire
+			}
+		}
+		is_at_war = no
+		custom_tooltip = {
+			text = must_border_foreigners_tt
+			any_neighboring_and_across_water_top_liege_realm_owner = {
+				NOT = {
+					culture = {
+						has_cultural_pillar = heritage_calradian
+					}
+				}
+				NOT = {
+					capital_county = {
+						empire = title:e_calradian_empire
+					}
+				}
+			}
+		}
+		OR = {
+			custom_tooltip = {
+				text = expedition_militarist_tt
+				has_trait = ck_militarist
+				sub_realm_size >= 25
+			}
+			custom_tooltip = {
+				text = expedition_populist_royalist_tt
+				OR = {
+					has_trait = ck_populist
+					has_trait = ck_royalist
+				}
+				sub_realm_size >= 30
+			}
+			custom_tooltip = {
+				text = expedition_oligarch_tt
+				has_trait = ck_oligarch
+				sub_realm_size >= 35
+			}
+		}
+	}
+	
+	effect = {
+		add_character_flag = {
+			flag = considering_expedition_cooldown
+			days = 1
+		}
+		trigger_event = ck_imperial_events.0005
+		custom_tooltip = will_prepare_expedition_tt
+		custom_tooltip = warning_expedition_cooldown_tt 
+	}
+	
+	cost = {
+		gold = 250
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+postpone_imperial_military_expedition = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_destiny_goal.dds"
+	}
+	decision_group_type = major
+	ai_check_interval = 0
+	desc = postpone_imperial_military_expedition_desc	
+	
+	is_shown = {
+		has_character_flag = preparing_imperial_expedition
+	}
+	
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = already_considering_decision_tt
+			NOT = {
+				has_character_flag = considering_decision
+			}
+		}
+	}
+	
+	is_valid = {
+		custom_tooltip = {
+			text = prepares_expedition_tt
+			has_character_flag = preparing_imperial_expedition
+		}
+	}
+	
+	effect = {
+		trigger_event = ck_imperial_events.0009
+		custom_tooltip = will_postpone_expedition_tt
+		add_character_flag = {
+			flag = considering_decision
+			days = 1
+		}
+	}
+	
+	cost = {
+		prestige = 250
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+
+
+#### Convert to Admin - Return to the Imperial ways ###
+#
+#ck_convert_to_administrative_decision = {
+#	picture = {
+#		reference = "gfx/interface/illustrations/decisions/ep3_cerimonial_decision.dds"
+#	}
+#	decision_group_type = major
+#	desc = ck_convert_to_administrative_decision_desc
+#
+#	ai_check_interval = 36
+#
+#	is_shown = {
+#		has_ep3_dlc_trigger = yes
+#		OR = {
+#			government_has_flag = government_is_feudal
+#			government_has_flag = government_is_clan
+#		}
+#		culture = { has_cultural_pillar = heritage_calradian }
+#	}
+#
+#	is_valid = {
+#		has_ep3_dlc_trigger = yes
+#		OR = {
+#			government_has_flag = government_is_feudal
+#			government_has_flag = government_is_clan
+#		}
+#		is_independent_ruler = yes
+#		prestige_level >= 3
+#		trigger_if = {
+#			limit = {
+#				is_ai = no
+#			}
+#			custom_tooltip = {
+#				text = ck_all_powerful_vassals_required_tt
+#				any_powerful_vassal = {
+#					count = all
+#					opinion = {
+#						target = root
+#						value >= 0
+#					}
+#				}
+#			}
+#		}
+#		
+#	}
+#	
+#	is_valid_showing_failures_only = {
+#		is_at_war = no
+#	}
+#
+#	cost = {
+#		prestige = {
+#			value = 800
+#			if = {
+#				limit = {
+#					is_ai = no
+#					OR = {
+#						has_trait = ck_royalist
+#						has_trait = ck_populist
+#						has_trait = ck_militarist
+#					}
+#				}
+#				multiply = 4
+#			}
+#			if = { # Much cheaper for vassals wanting to adopt their admin liege's government
+#				limit = {
+#					is_independent_ruler = no
+#				}
+#				multiply = 0.1
+#			}
+#		}
+#		gold = {
+#			value = 400
+#			#AI is handicapped
+#			if = {
+#				limit = { is_ai = yes }
+#				multiply = 0.5
+#			}
+#			if = {
+#				limit = { is_ai = no }
+#				#Realm size
+#				if = {
+#					limit = { root.realm_size >= 300 }
+#					multiply = 3.5
+#				}
+#				else_if = {
+#					limit = { root.realm_size >= 250 }
+#					multiply = 3
+#				}
+#				else_if = {
+#					limit = { root.realm_size >= 200 }
+#					multiply = 2.5
+#				}
+#				else_if = {
+#					limit = { root.realm_size >= 150 }
+#					multiply = 2
+#				}
+#				else_if = {
+#					limit = { root.realm_size >= 100 }
+#					multiply = 1.5
+#				}
+#			}
+#			#Income
+#			if = {
+#				limit = { root.monthly_character_income >= 100 }
+#				multiply = 3
+#			}
+#			else_if = {
+#				limit = { root.monthly_character_income >= 80 }
+#				multiply = 2.5
+#			}
+#			else_if = {
+#				limit = { root.monthly_character_income >= 60 }
+#				multiply = 2
+#			}
+#			else_if = {
+#				limit = { root.monthly_character_income >= 40 }
+#				multiply = 1.5
+#			}
+#			else_if = {
+#				limit = { root.monthly_character_income >= 20 }
+#				multiply = 1.1
+#			}
+#
+#			max = 3000
+#			
+#		}
+#	}
+#
+#	effect = {
+#		save_scope_as = actor
+#		convert_to_administrative_from_feudalism_effect = yes
+#		trigger_event = ep3_decisions_event.4060 #Also sends information event to human vassals
+#		#Letter event for the vassals
+#		hidden_effect = {
+#			if = {
+#				limit = {
+#					is_ai = no
+#				}
+#				add_achievement_global_variable_effect = {
+#					VARIABLE = achieved_epic_paperwork_achievement
+#					VALUE = yes
+#				}
+#			}
+#		}
+#	}
+#
+#	ai_potential = {
+#		OR = {
+#			government_has_flag = government_is_feudal
+#			government_has_flag = government_is_clan
+#		}
+#		is_independent_ruler = yes
+#	}
+#
+#	ai_will_do = {
+#		base = 0
+#		modifier = {
+#			highest_held_title_tier = tier_empire
+#			add = 100
+#		}
+#		modifier = {
+#			has_trait = ck_oligarch
+#			add = 100
+#		}
+#		modifier = {
+#			culture = {
+#				has_cultural_tradition = tradition_high_calradic
+#			}
+#			add = 75
+#		}
+#		modifier = {
+#			has_trait = content
+#			add = -20
+#		}
+#		modifier = {
+#			culture = {
+#				has_cultural_tradition = tradition_vulgar_calradic
+#			}
+#			add = -75
+#		}
+#		modifier = {
+#			has_trait = ck_populist
+#			add = -100
+#		}
+#		modifier = {
+#			highest_held_title_tier = tier_county
+#			add = -100
+#		}
+#		modifier = {
+#			OR = {
+#				primary_title = title:e_southern_empire
+#				primary_title = title:e_western_empire
+#			}
+#			add = -200
+#		}
+#		modifier = {
+#			OR = {
+#				has_trait = ck_militarist 
+#				has_trait = ck_royalist 
+#			}
+#			add = -200
+#		}
+#	}
+#}
+
+
