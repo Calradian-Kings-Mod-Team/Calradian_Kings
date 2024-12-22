@@ -49,6 +49,8 @@ portrait_wear_no_headgear_trigger = {
 		portrait_prisoner_trigger = yes
 		has_character_modifier = hajj_halq_modifier # To show shaved hair
 
+		has_character_flag = roaming_character
+
 		AND = { # No headgear for characters who sold their crown
 			exists = this
 			has_character_flag = sold_crown_charmod
@@ -116,6 +118,7 @@ portrait_wear_armor_trigger = {
 			NOR = {
 				has_activity_type = activity_hunt
 				has_activity_type = activity_pilgrimage
+				has_activity_type = activity_roaming
 			}
 		}
 	}
@@ -204,6 +207,10 @@ portrait_wear_armor_trigger = {
 		has_character_flag = forced_knight_armor
 		# In a Tournament
 		activity_tournament_armor_trigger = yes
+		AND = { # In case these characters become landed they should stop wearing armor
+			has_character_flag = military_outfit
+			is_ruler = no
+		}
 	}
 }
 
@@ -264,6 +271,7 @@ portrait_wear_helmet_trigger = { # Different from Armor, as Kings and Emperors s
 			NOR = {
 				has_activity_type = activity_hunt
 				has_activity_type = activity_pilgrimage
+				has_activity_type = activity_roaming
 			}
 		}
 	}
@@ -335,6 +343,10 @@ portrait_wear_helmet_trigger = { # Different from Armor, as Kings and Emperors s
 		has_character_flag = single_combat_duel_armor
 		# In a Tournament
 		activity_tournament_armor_trigger = yes
+		AND = { # In case these characters become landed they should stop wearing armor
+			has_character_flag = military_outfit
+			is_ruler = no
+		}
 	}
 	NOR = {
 		activity_tournament_shirtless_trigger = yes
@@ -617,6 +629,24 @@ portrait_afr_berber_clothing_spouse_trigger = {
 	NAND = {
 		is_playable_character = yes
 		capital_province = { geographical_region = region_north_nahasa_coast }
+	}
+}
+
+### POL ###
+
+portrait_west_slavic_clothing_trigger = {
+	has_pol_dlc_trigger = yes
+	portrait_shared_clothing_contents_trigger = {
+		CULTURE_SCOPE = scope:culture
+		CULTURE_FLAG = west_slavic
+	}
+}
+
+portrait_west_slavic_clothing_spouse_trigger = {
+	has_pol_dlc_trigger = yes
+	portrait_shared_clothing_contents_trigger = {
+		CULTURE_SCOPE = culture
+		CULTURE_FLAG = west_slavic
 	}
 }
 
@@ -1926,7 +1956,10 @@ portrait_mayor_headgear_trigger = {
 }
 
 portrait_jester_trigger = {
-	has_court_position = court_jester_court_position
+	OR = {
+		has_court_position = court_jester_court_position
+		has_character_flag = jester_outfit
+	}
 	portrait_$CULTURE_INPUT$_clothing_trigger = yes
 }
 
@@ -2197,8 +2230,11 @@ portrait_ep2_western_travel_cloak_trigger = {
 	trigger_if = {
 		limit = {
 			exists = involved_activity
-			NOT = {
-				involved_activity = { has_activity_type = activity_hunt }
+			involved_activity = { 
+				NOR = {
+					has_activity_type = activity_hunt 
+					has_activity_type = activity_roaming
+				}
 			}
 		}
 		NOT = {
@@ -2230,8 +2266,11 @@ portrait_ep2_mena_travel_cloak_trigger = {
 	trigger_if = {
 		limit = {
 			exists = involved_activity
-			NOT = {
-				involved_activity = { has_activity_type = activity_hunt }
+			involved_activity = { 
+				NOR = {
+					has_activity_type = activity_hunt 
+					has_activity_type = activity_roaming
+				}
 			}
 		}
 		NOT = {

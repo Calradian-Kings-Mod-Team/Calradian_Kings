@@ -903,6 +903,46 @@ offer_vassalization_interaction = {
 			desc = CONTRACT_HIGH_TAXES_REASON
 		}
 
+		# INSPECTION BONUSES
+		modifier = {
+			desc = "INSPECTION_REASON"
+			add = 5
+			scope:recipient = {
+				has_variable_list = lesser_inspection_bonus
+				is_target_in_variable_list = {
+					name = lesser_inspection_bonus
+					target = scope:actor
+				}
+			}
+		}
+		modifier = {
+			desc = "INSPECTION_REASON"
+			add = 10
+			scope:recipient = {
+				has_variable_list = inspection_bonus
+				is_target_in_variable_list = {
+					name = inspection_bonus
+					target = scope:actor
+				}
+			}
+		}
+		modifier = {
+			desc = "INSPECTION_REASON_REWARD"
+			add = 10
+			scope:recipient = {
+				has_variable_list = inspection_reward
+				is_target_in_variable_list = {
+					name = inspection_reward
+					target = scope:actor
+				}
+			}
+		}
+		modifier = {
+			desc = "INSPECTION_REASON_REWARD_FOCUSED"
+			add = 10
+			scope:actor = { has_character_modifier = inspection_reward_focused_vassal_acceptance }
+		}
+
 		# LOW LEGITIMACY
 		modifier = {
 			desc = "LOW_LEGITIMACY_REASON"
@@ -2068,62 +2108,6 @@ expose_secret_interaction = {
 	}
 
 	on_accept = {
-
-		scope:actor = {
-			if = {
-				limit = {
-					is_landless_adventurer = yes
-					has_perk = court_of_shadows_perk
-				}
-				add_prestige = {
-					value = 100
-					multiply = {
-						value = scope:recipient.highest_held_title_tier
-						add = 1
-					}
-					min = 50
-				}
-			}
-			if = {
-				limit = {
-					exists = scope:target
-				}
-				scope:target = {
-					expose_secret = scope:actor
-				}
-			}
-			else = {
-				every_known_secret = {
-					limit = {
-						secret_owner = scope:recipient
-					}
-					expose_secret = scope:actor
-				}
-			}
-
-			stress_impact = {
-				honest = medium_stress_impact_loss
-				just = medium_stress_impact_loss
-				shy = medium_stress_impact_gain
-			}
-		}
-
-		scope:recipient = {
-			stress_impact = {
-				honest = medium_stress_impact_loss
-				just = medium_stress_impact_loss
-				shy = medium_stress_impact_gain
-			}
-		}
-
-		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
-			CHARACTER = scope:actor
-			TARGET = scope:recipient
-			VALUE = major_unity_loss
-			DESC = clan_unity_secret_exposure.desc
-			REVERSE_NON_HOUSE_TARGET = no
-		}
 	}
 
 	auto_accept = yes
