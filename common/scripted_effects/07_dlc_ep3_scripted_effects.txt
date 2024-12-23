@@ -4099,20 +4099,87 @@ add_influence_attacker_defeat_effect = {
 	}
 }
 
-admin_independence_government_change_effect = {
-	# Effect to change the government of an admin ruler becoming independent
-	if = { # Check if we prefer to become clan (as defined in 00_government_types.txt)
+admin_change_government_effect = {
+	# Make sure you only use this effect on characters you are sure should change government! Since we don't do any extended triggers here.
+	# For a consistent behaviour, this effect is based on "convert_whole_realm_to_feudalism_effect"
+	
+	# First, let's see if the character only has their noble family title - then we don't bother changing their government
+	# We only destroy the family title to make sure it doesn't linger
+	if = {
 		limit = {
+			is_landed = no
+			any_held_title = {
+				is_noble_family_title = yes
+			}
+			NOT = {
+				any_held_title = {
+					is_noble_family_title = no
+				}
+			}
+		}
+		every_held_title = {
+			limit = {
+				is_noble_family_title = yes
+			}
+			save_temporary_scope_as = family_title
+			prev = { destroy_title = scope:family_title }
+		}
+	}
+	
+	# If not, let's change the government type
+	# If liege has clan - Become clan!
+	else_if = {
+		limit = {
+			is_independent_ruler = no
 			OR = {
-				culture = { has_cultural_pillar = heritage_nahasi }
-				culture = { has_cultural_pillar = heritage_darshi }
-				has_religion = religion:aserai_religion
+				liege = { government_has_flag = government_is_clan }
+				AND = {
+					liege = { government_has_flag = government_is_tribal }
+					religion = religion:aserai_religion
+				}
 			}
 		}
 		change_government = clan_government
 	}
-	else = { # Otherwise, become feudal
+	# If liege has feudal - Become feudal!
+	else_if = {
+		limit = {
+			is_independent_ruler = no
+			OR = {
+				liege = { government_has_flag = government_is_feudal }
+				AND = {
+					liege = { government_has_flag = government_is_tribal }
+					NOT = { religion = religion:aserai_religion }
+				}
+			}
+		}
 		change_government = feudal_government
+	}
+	# If you're an independent Muslim ruler - Become clan!
+	else_if = {
+		limit = {
+			is_independent_ruler = yes
+			faith = { religion_tag = aserai_religion }
+		}
+		change_government = clan_government
+	}
+	# If you're an independent ruler with anything else - Become feudal!
+	else = { change_government = feudal_government }
+	
+	# Finally, let's double-check and see if there are any remaining family titles we should destroy
+	if = {
+		limit = {
+			any_held_title = {
+				is_noble_family_title = yes
+			}
+		}
+		every_held_title = {
+			limit = {
+				is_noble_family_title = yes
+			}
+			save_temporary_scope_as = family_title
+			prev = { destroy_title = scope:family_title }
+		}
 	}
 }
 
