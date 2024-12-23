@@ -1,4 +1,4 @@
-version="0.0.4"
+version="0.2.0"
 tags={
 	"Total Conversion"
 	"Map"
@@ -21,5 +21,5 @@ replace_path="history/characters"
 replace_path="history/provinces"
 replace_path="history/titles"
 replace_path="history/cultures"
-supported_version="1.13.*"
+supported_version="1.14.*"
 remote_file_id="3242534502"
