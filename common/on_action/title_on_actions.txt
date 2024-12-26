@@ -1,4 +1,4 @@
-﻿#On actions about titles
+#On actions about titles
 
 # All on-actions in this file provide scope:transfer_type unless otherwise noted
 # scope:transfer_type has the following permutations:
@@ -130,15 +130,11 @@ on_title_destroyed = {
 					any_held_title = {
 						tier > tier_duchy
 						NOT = { this = scope:landed_title }
+						is_noble_family_title = no
 					}
 				}
 			}
-			every_vassal = {
-				trigger_event = {
-					id = ep3_admin_events.0003
-					days = 1
-				}
-			}
+			admin_change_government_effect = yes
 		}
 		# Claimant Emperor trait
 		if = {
@@ -198,10 +194,10 @@ on_title_gain = {
 		# Note: anything that should be run after creation can go in on_noble_family_title_created
 		if = {
 			limit = {
-				highest_held_title_tier >= tier_duchy
 				government_allows = administrative
 				is_house_head = yes
-				top_liege = {
+				highest_held_title_tier >= tier_duchy
+				liege = {
 					is_independent_ruler = yes
 					government_allows = administrative
 				}
@@ -238,13 +234,11 @@ on_title_gain = {
 			if = { # Get legitimacy from Reception Hall House Bonus
 				limit = {
 					house = { has_variable = ep3_legacy_legitimacy_counter }
+					primary_title = scope:title
 				}
-				send_interface_message = {
-					type = event_toast_effect_good
-					title = ep3_dynasty_legacy_gain_legitimacy_effect_title
-					left_icon = root
-					right_icon = root.primary_title
-					add_legitimacy = house.var:ep3_legacy_legitimacy_counter
+				trigger_event = {
+					id = ep3_admin_events.0010
+					days = 1
 				}
 			}
 		}
@@ -2306,7 +2300,31 @@ on_title_gain = {
 						county.holder = {
 							any_liege_or_above = { this = root }
 						}
+						lessee = {
+							NAND = { # Only for leases of people who are not of your faith or the holder's faith
+								faith = root.faith
+								faith = prev.county.holder.faith
+							}
+						}
 					}
+				}
+			}
+			scope:title = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						tier = tier_barony
+						is_under_holy_order_lease = yes
+						county.holder = {
+							any_liege_or_above = { this = root }
+						}
+						lessee = {
+							NAND = { # Only for leases of people who are not of your faith or the holder's faith
+								faith = root.faith
+								faith = prev.county.holder.faith
+							}
+						}
+					}
+					revoke_lease = yes
 				}
 			}
 		}
@@ -2420,7 +2438,10 @@ on_title_gain = {
 				}
 			}
 			save_scope_as = emperor
-			# if = {
+			if = {
+				limit = {
+					exists = root.house
+				}
 				#normal triggering
 				every_vassal_or_below = {
 					limit = {
@@ -2429,7 +2450,7 @@ on_title_gain = {
 						government_allows = administrative
 						OR = {
 							highest_held_title_tier >= tier_duchy
-							liege = scope:emperor
+								liege = root
 						}
 					}
 					trigger_event = {
@@ -2437,7 +2458,7 @@ on_title_gain = {
 						days = 1
 					}
 				}
-			# }
+			}
 		}
 		# Reset raid remit
 		if = {
@@ -3032,6 +3053,7 @@ on_title_lost = {
 					OR = {
 						has_culture = culture:nord
 						has_culture = culture:sturgian
+						has_culture = culture:hacardian
 					}
 				}
 				add_to_global_variable_list = {
@@ -3045,6 +3067,7 @@ on_title_lost = {
 					OR = {
 						has_culture = culture:nord
 						has_culture = culture:sturgian
+						has_culture = culture:tyalor
 					}
 				}
 				add_to_global_variable_list = {
@@ -3274,16 +3297,16 @@ on_title_lost = {
 							
 							# First, let's do some damage to the estate - We randomize the level of damage taken
 							random_list = {
-								35 = { # Damage 1
+								40 = { # Damage 1
 									trigger = {
-										num_domicile_buildings <= 8
+										num_domicile_buildings <= 6
 									}
 									set_variable = {
 										name = domicile_damage_count
 										value = 1
 									}
 								}
-								30 = { # Damage 2
+								35 = { # Damage 2
 									trigger = {
 										num_domicile_buildings > 2
 									}
@@ -3292,22 +3315,40 @@ on_title_lost = {
 										value = 2
 									}
 								}
-								25 = { # Damage 3
+								30 = { # Damage 3
 									trigger = {
-										num_domicile_buildings > 6
+										num_domicile_buildings > 4
 									}
 									set_variable = {
 										name = domicile_damage_count
 										value = 3
 									}
 								}
-								20 = { # Damage 4
+								25 = { # Damage 4
+									trigger = {
+										num_domicile_buildings > 6
+									}
+									set_variable = {
+										name = domicile_damage_count
+										value = 4
+									}
+								}
+								20 = { # Damage 5
+									trigger = {
+										num_domicile_buildings > 8
+									}
+									set_variable = {
+										name = domicile_damage_count
+										value = 5
+									}
+								}
+								15 = { # Damage 6
 									trigger = {
 										num_domicile_buildings > 10
 									}
 									set_variable = {
 										name = domicile_damage_count
-										value = 4
+										value = 6
 									}
 								}
 							}
@@ -3574,21 +3615,21 @@ on_rank_up = { # Will not fire during history execution or for dying characters
 			remove_variable = use_co_ruler_title
 		}
 		# Make a note of ranking up for stele purposes.
-		# if = {
-		# 	limit = {
-		# 		# DLC check.
-		# 		has_fp1_dlc_trigger = yes
-		# 		# Is the culture eligible?
-		# 		fp1_can_raise_stele_trigger = yes
-		# 		# Aaaaand, for balance reasons, were they landed already?
-		# 		exists = scope:title
-		# 	}
-		# 	set_variable = {
-		# 		name = recent_rank_increase
-		# 		value = root.primary_title
-		# 		years = 5
-		# 	}
-		# }
+		if = {
+			limit = {
+				# DLC check.
+				has_fp1_dlc_trigger = yes
+				# Is the culture eligible?
+				fp1_can_raise_stele_trigger = yes
+				# Aaaaand, for balance reasons, were they landed already?
+				exists = scope:title
+			}
+			set_variable = {
+				name = recent_rank_increase
+				value = root.primary_title
+				years = 5
+			}
+		}
 		# Remove any rank-inappropriate modifiers (e.g., baron buffs).
 		remove_character_modifier = mandate_baronial_troops_trained_modifier
 		remove_character_modifier = mandate_baronial_troops_half_trained_modifier
@@ -4579,7 +4620,7 @@ on_vassal_change = {
 				title = new_liege_government_changed_title
 				desc = new_liege_government_changed_desc
 				right_icon = scope:new_liege
-				admin_government_reset_effect = yes
+				admin_change_government_effect = yes
 			}
 			hidden_effect = {
 				# VASSALS AND BELOW
@@ -4590,10 +4631,32 @@ on_vassal_change = {
 						title = new_liege_government_changed_title
 						desc = new_liege_government_changed_desc
 						right_icon = scope:new_liege
-						admin_government_reset_effect = yes
+						admin_change_government_effect = yes
 					}
 				}
 			}
+		}
+		### If a admin duke-tier character becomes the top-liege's direct vassal, ensure that they have a noble family title
+		if = {
+			limit = {
+				government_allows = administrative
+				is_house_head = yes
+				highest_held_title_tier >= tier_duchy
+				liege = {
+					is_independent_ruler = yes
+					government_allows = administrative
+				}
+				NOR = {
+					any_held_title = { is_noble_family_title = yes }
+					house = {
+						any_house_member = {
+							any_held_title = { is_noble_family_title = yes }
+						}
+					}
+				}
+			}
+			create_noble_family_effect = yes
+			domicile ?= { set_up_domicile_estate_effect = yes }
 		}
 		### If an admin ruler becomes independent, who are not of a high enough rank, changes government
 		if = {
@@ -4602,7 +4665,7 @@ on_vassal_change = {
 				government_has_flag = government_is_administrative
 				highest_held_title_tier < tier_kingdom
 			}
-			admin_independence_government_change_effect = yes
+			admin_change_government_effect = yes
 		}
 
 		# Additional Flavor Title
@@ -4770,8 +4833,3 @@ on_realm_capital_change = {
 		}
 	}
 }
-
-
-
-
-
