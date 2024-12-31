@@ -287,7 +287,16 @@ great_holy_war.0001 = {
 			}
 			set_global_variable = {
 				name = cath_crusade_1
-				value = great_holy_war
+				value = 1
+			}
+		}
+		else_if = {
+			limit = {
+				scope:the_faith = { this = faith:darusan }
+			}
+			change_global_variable = {
+				name = cath_crusade_1
+				add = 1
 			}
 		}
 	}
@@ -298,6 +307,12 @@ great_holy_war.0003 = {
 	title = great_holy_war.0003.title
 	desc = {
 		first_valid = {
+			#Catholic flavour
+			triggered_desc = {
+				desc = great_holy_war.0003.catholic.desc
+				trigger = { scope:the_faith = faith:darusan }
+			}
+			#Everyone else
 			desc = great_holy_war.0003.fallback.desc
 		}
 	}
@@ -531,8 +546,6 @@ great_holy_war.0005 = {
 #Unlocking Holy Wars. (on later dates Crusades and Jihads start already unlocked from Character History)
 #Hidden check event, fired on_faith pulse.
 
-### No crusades for anyone until a quarter century later from BL ###
-
 scripted_trigger great_holy_war_0010_charas_reason_trigger = {
 	title:c_charas.holder.top_liege = {
 		NOT = {
@@ -636,7 +649,7 @@ great_holy_war.0010 = {
 		}
 		exists = religious_head
 		religious_head = { is_imprisoned = no }
-		num_county_followers >= 45 # Faith must have at least SOME legitimacy.
+		num_county_followers >= 35 # Faith must have at least SOME legitimacy.
 		OR = {
 			AND = { # Historical setup.
 				title:c_charas.holder = {
@@ -644,10 +657,10 @@ great_holy_war.0010 = {
 						faith.religion = root.religion
 					}
 				}
-				current_date >= 1115.1.1
+				current_date >= 1125.1.1
 				faith:darusan = root
 			}
-			current_date >= 1125.1.1 # Free for all after Historical years
+			current_date >= 1150.1.1 # Free for all after Historical years
 			AND = { # Any Faith is seriously under attack.
 				any_holy_site = {
 					holder.top_liege = {
@@ -705,7 +718,7 @@ great_holy_war.0010 = {
 			title:c_charas.holder.top_liege = {
 				NOT = { faith.religion = religion:aserai_religion }
 			}
-			current_date >= 1095.1.1
+			current_date >= 1100.1.1
 			root.religion = religion:aserai_religion
 		}
 	}
@@ -720,7 +733,7 @@ great_holy_war.0010 = {
 			set_variable = {
 				name = variable_first_ghw_cooldown # Wait at least a couple of months before firing the first Crusade after this event.
 				value = yes
-				days = 300
+				days = 120
 			}	
 		}	
 		save_scope_as = awakening_faith
@@ -759,6 +772,7 @@ great_holy_war.0010 = {
 	}
 }
 
+#Flavor Fluff.
 great_holy_war.0011 = {
 	type = character_event
 	title = {
@@ -1247,7 +1261,20 @@ great_holy_war.0017 = {
 	title = great_holy_war.0017.title
 	desc = {
 		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:scoped_pope = { faith = faith:darusan }
+				}
+				desc = great_holy_war.0017.desc.a
+			}
+			triggered_desc = {
+				trigger = {
+					NOT = {
+						scope:scoped_pope = { faith = faith:darusan }
+					}
+				}
 			desc = great_holy_war.0017.desc.b
+			}
 		}
 	}
 	theme = faith
@@ -3272,12 +3299,23 @@ great_holy_war.0051 = {
 	title = great_holy_war.0050.title
 	desc = {
 		first_valid = {
+			#Catholic Flavor - Attackers
+			triggered_desc = {
+				trigger = {
+					scope:attacker.faith.great_holy_war = {
+						has_pledged_attacker = root
+					}
+					scope:the_faith = faith:darusan
+				}
+				desc = great_holy_war.0051.catholic.attackers.desc
+			}
 			#Everybody else's flavor - Attackers.
 			triggered_desc = {
 				trigger = {
 					scope:attacker.faith.great_holy_war = {
 						has_pledged_attacker = root
 					}
+					NOT = { scope:the_faith = faith:darusan }
 				}
 				desc = great_holy_war.0051.generic.attackers.desc
 			}
@@ -3315,9 +3353,31 @@ great_holy_war.0051 = {
 	}
 
 	option = {
+		name = great_holy_war.0011.a
+		trigger = {
+			scope:attacker.faith.great_holy_war = { has_pledged_attacker = root }
+			root.faith.religion = religion:calradian_religion
+		}
+
+		custom_tooltip = great_holy_war.0051.generic.start.tt
+	}
+	option = {
+		name = great_holy_war.0011.b
+		trigger = {
+			scope:attacker.faith.great_holy_war = { has_pledged_attacker = root }
+			root.faith.religion = religion:islam_religion
+		}
+
+		custom_tooltip = great_holy_war.0051.generic.start.tt
+	}
+	option = {
 		name = great_holy_war.0011.c
 		trigger = {
 			scope:attacker.faith.great_holy_war = { has_pledged_attacker = root }
+			NOR = {
+				root.faith.religion = religion:calradian_religion
+				root.faith.religion = religion:aserai_religion
+			}
 		}
 
 		custom_tooltip = great_holy_war.0051.generic.start.tt
@@ -3408,9 +3468,31 @@ great_holy_war.0071 = {
 	}
 
 	option = {
+		name = great_holy_war.0011.a.calradia
+		trigger = {
+			scope:attacker.faith.great_holy_war = { has_pledged_attacker = root }
+			root.faith.religion = religion:calradian_religion
+		}
+
+		custom_tooltip = great_holy_war.0051.generic.start.tt
+	}
+	option = {
+		name = great_holy_war.0011.b.aserai
+		trigger = {
+			scope:attacker.faith.great_holy_war = { has_pledged_attacker = root }
+			root.faith.religion = religion:aserai_religion
+		}
+
+		custom_tooltip = great_holy_war.0051.generic.start.tt
+	}
+	option = {
 		name = great_holy_war.0011.c
 		trigger = {
 			scope:attacker.faith.great_holy_war = { has_pledged_attacker = root }
+			NOR = {
+				root.faith.religion = religion:calradian_religion
+				root.faith.religion = religion:aserai_religion
+			}
 		}
 
 		custom_tooltip = great_holy_war.0051.generic.start.tt
@@ -3762,7 +3844,23 @@ great_holy_war.0057 = {
 	title = great_holy_war.0057.title
 	desc = {
 		first_valid = {
+			triggered_desc = { #Crusaders
+				trigger = { faith.religion = religion:calradian_religion }
+				desc = great_holy_war.0057.crusader.desc
+			}
+			triggered_desc = { #Muslims
+				trigger = { faith.religion = religion:aserai_religion }
+				desc = great_holy_war.0057.mujahid.desc
+			}
+			triggered_desc = { #Everybody else
+				trigger = {
+					NOR = {
+						faith.religion = religion:calradian_religion
+						faith.religion = religion:aserai_religion
+					}
+				}
 			desc = great_holy_war.0057.generic.outsiders.desc
+			}
 		}
 	}
 	theme = faith
@@ -3924,10 +4022,30 @@ great_holy_war.0061 = {
 				}
 			}
 		}
+		if = {
+			limit = { faith.religion = religion:calradian_religion }
+			house = {
+				add_house_modifier = {
+					modifier = house_beneficiary_won_ghw_crusade
+					years = 30
+				}
+			}
+		}
+		else_if = {
+			limit = { faith.religion = religion:aserai_religion }
+			house = {
+				add_house_modifier = {
+					modifier = house_beneficiary_won_ghw_jihad
+					years = 30
+				}
+			}
+		}
+		else = {
 		house = {
 			add_house_modifier = {
 				modifier = house_beneficiary_won_ghw
 				years = 30
+				}
 			}
 		}
 		# Plus if we're gallowsbait, remove most/all of it — accounting for some weirdnesses from laamps.
