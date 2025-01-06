@@ -47,6 +47,20 @@
 			limit = {
 				domicile.domicile_location.county.culture = {
 					has_cultural_pillar = heritage_balian
+					NOR = {
+						this = culture:swadian
+						AND = {
+							has_cultural_pillar = heritage_balian
+							any_parent_culture_or_above = { this = culture:swadian }
+						}
+					}
+					NOR = {
+						this = culture:rhodok
+						AND = {
+							has_cultural_pillar = heritage_balian
+							any_parent_culture_or_above = { this = culture:rhodok }
+						}
+					}
 				}
 			}
 			custom_tooltip = {
@@ -97,11 +111,106 @@
 		}
 	}
 	is_valid = {
-		custom_tooltip = {
-			text = valid_culture_desc
-			domicile.domicile_location.county.culture = {
-				NOT = {
-					has_same_culture_heritage = root.culture
+		trigger_if = {
+			limit = {
+				OR = {
+					OR = {
+						has_culture = culture:swadian
+						AND = {
+							culture = { any_parent_culture_or_above = { this = culture:swadian } }
+							culture = { has_cultural_pillar = heritage_balian }
+						}
+					}
+					OR = {
+						has_culture = culture:rhodok
+						AND = {
+							culture = { any_parent_culture_or_above = { this = culture:rhodok } }
+							culture = { has_cultural_pillar = heritage_balian }
+						}
+					}
+				}
+			}
+			custom_tooltip = {
+				text = valid_culture_desc
+				domicile.domicile_location.county.culture = {
+					NOR = {
+						this = root.culture
+						any_parent_culture_or_above = { this = root.culture }
+					}
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				NOR = {
+					has_culture = culture:swadian
+					AND = {
+						culture = { any_parent_culture_or_above = { this = culture:swadian } }
+						culture = { has_cultural_pillar = heritage_balian }
+					}
+				}
+				NOR = {
+					has_culture = culture:rhodok
+					AND = {
+						culture = { any_parent_culture_or_above = { this = culture:rhodok } }
+						culture = { has_cultural_pillar = heritage_balian }
+					}
+				}
+				NOT = { culture = { has_cultural_pillar = heritage_balian } }
+			}
+			custom_tooltip = {
+				text = valid_culture_desc
+				domicile.domicile_location.county.culture = {
+					NOT = {
+						has_same_culture_heritage = root.culture
+					}
+				}
+			}
+		}
+		trigger_if = { ### Balian heritage - generic MAA
+			limit = {
+				NOR = {
+					has_culture = culture:swadian
+					AND = {
+						culture = { any_parent_culture_or_above = { this = culture:swadian } }
+						culture = { has_cultural_pillar = heritage_balian }
+					}
+				}
+				NOR = {
+					has_culture = culture:rhodok
+					AND = {
+						culture = { any_parent_culture_or_above = { this = culture:rhodok } }
+						culture = { has_cultural_pillar = heritage_balian }
+					}
+				}
+				culture = { has_cultural_pillar = heritage_balian }
+			}
+			custom_tooltip = {
+				text = valid_culture_desc
+				domicile.domicile_location.county.culture = {
+					OR = { ### Non-Balian heritages and cultures with custom MAA
+						OR = {
+							this = culture:swadian
+							AND = {
+								any_parent_culture_or_above = { this = culture:swadian }
+								has_cultural_pillar = heritage_balian
+							}
+						}
+						OR = {
+							this = culture:rhodok
+							AND = {
+								any_parent_culture_or_above = { this = culture:rhodok }
+								has_cultural_pillar = heritage_balian
+							}
+						}
+						OR = {
+							has_cultural_pillar = heritage_calradian
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_khuzic
+							has_cultural_pillar = heritage_sturgic
+						}
+					}
 				}
 			}
 		}
@@ -133,6 +242,8 @@
 		remove_character_flag = recruits_khuzic_troops
 		remove_character_flag = recruits_nahasi_troops
 		remove_character_flag = recruits_sturgic_troops
+		remove_character_flag = recruits_swadian_troops
+		remove_character_flag = recruits_rhodok_troops
 		if = {
 			limit = {
 				domicile.domicile_location.county.culture = {
@@ -156,6 +267,42 @@
 			}
 			add_character_flag = recruits_battanian_troops	
 			custom_tooltip = will_recruit_battanians
+		}
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					OR = {
+						this = culture:swadian
+						AND = {
+							any_parent_culture_or_above = { this = culture:swadian }
+							has_cultural_pillar = heritage_balian
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_swadian_troops	
+			custom_tooltip = will_recruit_swadians
+		}
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = {
+					OR = {
+						this = culture:rhodok
+						AND = {
+							any_parent_culture_or_above = { this = culture:rhodok }
+							has_cultural_pillar = heritage_balian
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_rhodok_troops	
+			custom_tooltip = will_recruit_rhodoks
 		}
 		else_if = {
 			limit = {
@@ -269,6 +416,8 @@ recruit_cultural_troops_decision = {
 		remove_character_flag = recruits_khuzic_troops
 		remove_character_flag = recruits_nahasi_troops
 		remove_character_flag = recruits_sturgic_troops
+		remove_character_flag = recruits_swadian_troops
+		remove_character_flag = recruits_rhodok_troops
 		remove_character_flag = recruits_local_troops
 	}
 	
@@ -306,23 +455,181 @@ recruit_local_troops_landed_decision = {
 	}
 	
 	is_valid = {
-		custom_tooltip = {
-			text = half_of_realm_foreign_and_valid_tt
-			any_sub_realm_county = {
-				percent > 0.5
-				culture = {
-					NOT = {
-						has_same_culture_heritage = root.culture
+		trigger_if = { ### For post-Balian cultures
+			limit = {
+				OR = {
+					OR = {
+						has_culture = culture:swadian
+						AND = {
+							culture = { any_parent_culture_or_above = { this = culture:swadian } }
+							culture = { has_cultural_pillar = heritage_balian }
+						}
+					}
+					OR = {
+						has_culture = culture:rhodok
+						AND = {
+							culture = { any_parent_culture_or_above = { this = culture:rhodok } }
+							culture = { has_cultural_pillar = heritage_balian }
+						}
 					}
 				}
-				culture = {
+			}
+			custom_tooltip = {
+				text = half_of_realm_foreign_and_valid_tt
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						NOR = {
+							this = root.culture
+							any_parent_culture_or_above = { this = root.culture }
+						}
+					}
 					OR = {
-						has_cultural_pillar = heritage_calradian
-						has_cultural_pillar = heritage_battanian
+						culture = { ### They shouldn't go back to Balian troop tree
+							OR = {
+								has_cultural_pillar = heritage_calradian
+								has_cultural_pillar = heritage_battanian
+								has_cultural_pillar = heritage_nahasi
+								has_cultural_pillar = heritage_khuzic
+								has_cultural_pillar = heritage_sturgic
+							}
+						}
+						### They should be able to recruit other post-Balian cultures
+						culture = {
+							OR = {
+								OR = {
+									this = culture:swadian
+									AND = {
+										any_parent_culture_or_above = { this = culture:swadian } 
+										has_cultural_pillar = heritage_balian 
+									}
+								}
+								OR = {
+									this = culture:rhodok
+									AND = {
+										any_parent_culture_or_above = { this = culture:rhodok } 
+										has_cultural_pillar = heritage_balian 
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		trigger_if = { ### For heritages with unique maas
+			limit = {
+				NOR = {
+					has_culture = culture:swadian
+					AND = {
+						culture = { any_parent_culture_or_above = { this = culture:swadian } }
+						culture = { has_cultural_pillar = heritage_balian }
+					}
+				}
+				NOR = {
+					has_culture = culture:rhodok
+					AND = {
+						culture = { any_parent_culture_or_above = { this = culture:rhodok } }
+						culture = { has_cultural_pillar = heritage_balian }
+					}
+				}
+			}
+			custom_tooltip = {
+				text = half_of_realm_foreign_and_valid_tt
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						NOT = {
+							has_same_culture_heritage = root.culture
+						}
+					}
+					culture = { ### every *heritage* with unique maa goes here
+						OR = {
+							has_cultural_pillar = heritage_calradian
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = heritage_balian
+							has_cultural_pillar = heritage_nahasi
+							has_cultural_pillar = heritage_khuzic
+							has_cultural_pillar = heritage_sturgic
+						}
+					}
+					culture = { ### Get rid of unique MAA cultures
+						NOR = {
+							this = culture:swadian
+							AND = {
+								any_parent_culture_or_above = { this = culture:swadian } 
+								has_cultural_pillar = heritage_balian 
+							}
+						}
+						NOR = {
+							this = culture:rhodok
+							AND = {
+								any_parent_culture_or_above = { this = culture:rhodok } 
+								has_cultural_pillar = heritage_balian 
+							}
+						}
+					}
+				}
+			}
+		}
+		trigger_if = { ### Descendant cultures should not go back to their heritage MAA - Balian cultures
+			limit = {
+				OR = {
+					OR = {
+						has_culture = culture:swadian
+						AND = {
+							culture = { any_parent_culture_or_above = { this = culture:swadian } }
+							culture = { has_cultural_pillar = heritage_balian }
+						}
+					}
+					OR = {
+						has_culture = culture:rhodok
+						AND = {
+							culture = { any_parent_culture_or_above = { this = culture:rhodok } }
+							culture = { has_cultural_pillar = heritage_balian }
+						}
+					}
+				}
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						NOR = {
+							this = root.culture
+							any_parent_culture_or_above = { this = root.culture }
+						}
+					}
+					culture = {
 						has_cultural_pillar = heritage_balian
-						has_cultural_pillar = heritage_nahasi
-						has_cultural_pillar = heritage_khuzic
-						has_cultural_pillar = heritage_sturgic
+					}
+				}
+			}
+			custom_tooltip = {
+				text = descendant_culture_tt
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						NOR = {
+							this = root.culture
+							any_parent_culture_or_above = { this = root.culture }
+						}
+					}
+					culture = {
+						OR = {
+							OR = {
+								this = culture:swadian
+								AND = {
+									any_parent_culture_or_above = { this = culture:swadian } 
+									has_cultural_pillar = heritage_balian 
+								}
+							}
+							OR = {
+								this = culture:rhodok
+								AND = {
+									any_parent_culture_or_above = { this = culture:rhodok } 
+									has_cultural_pillar = heritage_balian 
+								}
+							}
+						}
 					}
 				}
 			}
@@ -373,6 +680,60 @@ recruit_local_troops_landed_decision = {
 				any_sub_realm_county = {
 					percent > 0.5
 					culture = {
+						OR = {
+							this = culture:swadian
+							AND = {
+								any_parent_culture_or_above = { this = culture:swadian } 
+								has_cultural_pillar = heritage_balian 
+							}
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_swadians
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						OR = {
+							this = culture:rhodok
+							AND = {
+								any_parent_culture_or_above = { this = culture:rhodok } 
+								has_cultural_pillar = heritage_balian 
+							}
+						}
+					}
+				}
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			custom_tooltip = will_recruit_rhodoks
+		}
+		else_if = {
+			limit = {
+				any_sub_realm_county = {
+					percent > 0.5
+					culture = {
+						NOR = {
+							this = culture:rhodok
+							AND = {
+								any_parent_culture_or_above = { this = culture:rhodok } 
+								has_cultural_pillar = heritage_balian 
+							}
+						}
+						NOR = {
+							this = culture:swadian
+							AND = {
+								any_parent_culture_or_above = { this = culture:swadian } 
+								has_cultural_pillar = heritage_balian 
+							}
+						}
 						has_cultural_pillar = heritage_balian
 						NOT = {
 							has_same_culture_heritage = root.culture
