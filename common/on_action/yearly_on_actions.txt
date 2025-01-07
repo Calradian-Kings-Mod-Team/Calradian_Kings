@@ -147,6 +147,176 @@ yearly_global_pulse = {
 				}
 			}
 		}
+		## Vlandian pre-split info
+		if = {
+			limit = {
+				NOT = {
+					culture:vlandian = {
+						has_variable = info_split_var
+					}
+				}
+				current_date >= 1085.6.12
+			}
+			every_player = {
+				limit = {
+					OR = {
+						culture = { has_cultural_pillar = heritage_balian }
+						culture = { has_cultural_pillar = heritage_gottic }
+					}
+					NOT = {
+						has_culture = culture:sudican
+					}
+				}
+				trigger_event = ck_global_culture.1002
+			}
+			culture:vlandian = {
+				set_variable = info_split_var
+			}
+		}
+		## Rhodok emergence
+		if = {
+			limit = {
+				NOT = {
+					culture:rhodok = {
+						has_variable = rhodok_emergence_var
+					}
+				}
+				current_date >= 1098.1.1 #1099
+			}
+			random = {
+				chance = 25 #20
+				modifier = {
+					add = 100
+					current_date >= 1104.1.1
+				}
+				trigger_event = {
+					id = ck_global_culture.0001
+					days = { 30 90 }
+				}
+			}
+		}
+		if = {
+			limit = {
+				culture:rhodok = {
+					has_variable = rhodok_emergence_var
+				}
+				current_date <= 1124.1.1
+				any_county_in_region = {
+					region = region_rhodok_culture
+					count <= 2 
+					has_county_modifier = rhodok_conversion_modifier
+				}
+			}
+			trigger_event = {
+				id = ck_global_culture.0006
+				days = { 20 60 }
+			}
+		}
+		# Rhodok rebellion started by AI
+		if = {
+			limit = {
+				current_date <= 1114.1.1
+				current_date >= 1112.1.1
+				exists = title:k_vlandia.holder
+				NOT = {
+					culture:rhodok = {
+						has_variable = rhodok_rebellion_var
+					}
+				}
+			}
+			if = {
+				limit = {
+					any_ruler = {
+						is_vassal_or_below_of = title:k_vlandia.holder
+						has_culture = culture:rhodok
+						is_adult = yes
+						is_imprisoned = no
+						is_at_war = no
+						is_in_an_activity = no
+						#gold = 20000 ##### TEST - REMOVE IT LATER
+					}
+				}
+				random_ruler = {
+					limit = {
+						is_vassal_or_below_of = title:k_vlandia.holder
+						has_culture = culture:rhodok
+						is_adult = yes
+						is_imprisoned = no
+						is_at_war = no
+						is_in_an_activity = no
+					}
+					trigger_event = ck_global_culture.0008
+				}
+			}
+			else = {
+				create_character = { # Grunwalder will start the rebellion if no rhodok lord available
+					name = "Rhenald"
+					age = 45
+					gender = male
+					trait = education_martial_4
+					trait = organizer
+					trait = rough_terrain_expert
+					trait = unyielding_defender
+					trait = education_martial_prowess_3
+					trait = brave
+					trait = diligent
+					trait = gregarious
+					martial = { 20 24 }
+					stewardship = { 7 13 }
+					diplomacy = { 14 19 }
+					intrigue = { 12 15 }
+					prowess = { 18 25 }
+					learning = { 5 14 }
+					location = title:c_jaculan.title_province
+					faith = faith:western_calradic
+					culture = culture:massa
+					dynasty = dynn_grunwalder
+					save_scope_as = grunwalder
+					after_creation = { 
+						add_character_flag = is_grunwalder
+						copy_inheritable_appearance_from = character:grunwalder_dummy
+					}
+				}
+				create_dynamic_title = {
+					tier = duchy
+					name = GRUNWALDER_HOST
+					adj = GRUNWALDER_HOST_ADJ
+				}
+				create_title_and_vassal_change = {
+					type = created
+					save_scope_as = change
+					add_claim_on_loss = no
+				}
+				scope:new_title = {
+					set_capital_county = title:c_jaculan
+					set_landless_title = yes
+					set_no_automatic_claims = yes
+					set_definitive_form = yes
+					change_title_holder = {
+						holder = scope:grunwalder
+						change = scope:change
+					}
+				}
+				resolve_title_and_vassal_change = scope:change
+				scope:grunwalder = {
+					add_gold = 200
+					add_prestige = 2000
+					add_legitimacy = 150
+					trigger_event = ck_global_culture.0008
+					spawn_army = {
+						levies = 2000
+						men_at_arms = {
+							type = vlandian_crossbowmen_2 ### PLACEHOLDER
+							men = 1000
+						}
+						location = title:b_asvel.title_province
+						inheritable = no
+						uses_supply = no
+						name = grunwalder_host_army
+					}
+				}
+			}
+		}
 	}
 	
 	on_actions = {
@@ -486,6 +656,55 @@ yearly_playable_pulse = {
 				is_commanding_army = no
 			}
 			set_location_to_default = yes
+		}
+		## Rhodok unrest events
+		if = {
+			limit = {
+				culture:rhodok = {
+					has_variable = rhodok_emergence_var
+				}
+				current_date <= 1135.1.1 ## They shouldn't receive such debuffs indefinitely
+				capital_province = { geographical_region = region_rhodok_culture }
+				has_culture = culture:swadian
+				top_liege.culture = { 
+					this = culture:swadian
+				}
+				any_held_title = {
+					tier = tier_county
+					culture = {
+						NOT = {
+							has_cultural_pillar = heritage_calradian
+						}
+						NOT = {
+							this = culture:swadian
+						}
+					}
+				}
+				NOT = {
+					has_character_flag = locals_debuff_event
+				}
+			}
+			random_list = {
+				1 = { } #nothing happens
+				2 = {  ### Refusing to pay taxes
+					trigger_event = {
+						id = ck_global_culture.0014
+						days = { 15 65 }
+					}
+				}
+				2 = {  ### Levy desertion
+					trigger_event = {
+						id = ck_global_culture.0015
+						days = { 15 65 }
+					}
+				}
+				2 = { ### General unrest
+					trigger_event = {
+						id = ck_global_culture.0016
+						days = { 15 65 }
+					}
+				}
+			}
 		}
 	}
 	events = {
@@ -1787,5 +2006,7 @@ on_yearly_events = {
 		250 = ep3_landless_admin.1030 # You get offered a hook on your liege
 		250 = ep3_landless_admin.1040 # Lie about a rival candidate
 		250 = ep3_landless_admin.1050 # There's something in your basement
+		
+		
 	}
 }

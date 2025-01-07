@@ -1,0 +1,1413 @@
+﻿namespace = ck_global_culture
+
+ck_global_culture.0001 = {
+	scope = none
+	hidden = yes
+	
+	immediate = {
+		culture:rhodok = {
+			set_variable = rhodok_emergence_var
+		}
+	    culture:vlandian = {
+			every_culture_county = {
+				limit = {
+				    NOT = {
+						title_province = { geographical_region = region_rhodok_culture }
+					}
+				}
+				add_to_list = swadian_counties
+			}
+			every_culture_county = {
+				limit = {
+					title_province = { geographical_region = region_rhodok_culture }
+				}
+				add_to_list = rhodok_counties
+			}
+		}
+		every_in_list = {
+		    list = rhodok_counties
+			set_county_culture = culture:rhodok
+		}
+		every_in_list = {
+		    list = swadian_counties
+			set_county_culture = culture:swadian
+		}
+		every_living_character = {
+		    if = {
+				limit = {
+				    has_culture = culture:vlandian
+					location = { geographical_region = region_rhodok_culture }
+					AND = {
+					    is_landed = no
+					    is_lowborn = yes
+						is_courtier = no
+					}
+				}
+				set_culture = culture:rhodok
+			}
+			else_if = {
+			    limit = {
+				    has_culture = culture:vlandian
+				}
+				set_culture = culture:swadian
+			}
+		}
+		every_ruler = {
+		    if = {
+			    limit = {
+					has_culture = culture:swadian
+					capital_province = { geographical_region = region_rhodok_culture }
+					NOT = {
+					    has_title = title:k_vlandia
+					}
+				}
+				trigger_event = ck_global_culture.0003 ###Choose your culture
+			}
+		}
+		culture:rhodok = {
+			change_cultural_acceptance = {
+				target = culture:eilander
+				value = 30
+				desc = rhodok_culture_ties
+			}
+			change_cultural_acceptance = {
+				target = culture:rhoyd
+				value = 30
+				desc = rhodok_culture_ties
+			}
+			change_cultural_acceptance = {
+				target = culture:togerd
+				value = 30
+				desc = rhodok_culture_ties
+			}
+			change_cultural_acceptance = {
+				target = culture:kassen
+				value = 30
+				desc = rhodok_culture_ties
+			}
+			change_cultural_acceptance = {
+				target = culture:jendea
+				value = 30
+				desc = rhodok_culture_ties
+			}
+			change_cultural_acceptance = {
+				target = culture:pamphian
+				value = 30
+				desc = rhodok_culture_ties
+			}
+		}
+		culture:swadian = { ### Since switching to Swadian culture reverts Vlandia to confederate partition
+			get_all_innovations_from = culture:vlandian
+		}
+		culture:rhodok = {
+			get_all_innovations_from = culture:vlandian
+		}
+		title:k_vlandia = {
+			holder = {
+				trigger_event = {
+					id = ck_global_culture.1000
+					days = 7
+				}
+			}
+		}
+		every_player = {
+			if = {
+				limit = {
+					NAND = {
+						has_culture = culture:swadian
+						is_landless_adventurer = no
+						capital_province = { geographical_region = region_rhodok_culture }
+					}
+				}
+				trigger_event = ck_global_culture.1001 ###Informational event
+			}
+		}
+	}
+}
+ck_global_culture.1000 = { ### Vlandia renamed to Swadia
+	type = character_event
+	title = ck_global_culture.1000.title
+	desc = ck_global_culture.1000.desc
+	theme = crown
+	right_portrait = {
+		character = root
+		animation = chancellor ### PLACEHOLDER
+	}
+
+	option = {
+		name = ck_global_culture.1000.a
+		custom_tooltip = {
+			text = ck_global_culture.1000.a.tt
+			
+			title:k_vlandia = {
+				set_title_name = k_swadia
+			}
+		}
+	}
+}
+ck_global_culture.1001 = { ### Vlandian split informational event
+	type = character_event
+	title = ck_global_culture.1001.title
+	desc = ck_global_culture.1001.desc ### PLACEHOLDER
+	theme = culture_change
+	right_portrait = {
+		character = root
+		animation = chancellor ### PLACEHOLDER
+	}
+	
+	option = {
+		name = ck_global_culture.1001.a
+	}
+}
+ck_global_culture.1002 = { ### Pre-split info
+	type = character_event
+	title = ck_global_culture.1002.title
+	desc = ck_global_culture.1002.desc
+	override_background = { reference = farmland }
+	theme = culture_change
+	right_portrait = {
+		character = root
+		animation = chancellor ### PLACEHOLDER
+	}
+	
+	option = { ### These upstarts best stay in their place.
+		trigger = {
+			has_culture = culture:vlandian
+		}
+		name = ck_global_culture.1002.a
+	}
+	option = { ### Uncertain times ahead.
+		name = ck_global_culture.1002.b
+	}
+}
+ck_global_culture.0003 = { ### Choosing culture
+    type = character_event
+	title = ck_global_culture.0003.t
+	desc = ck_global_culture.0003.desc
+	theme = culture_change
+	override_background = { reference = study }
+	right_portrait = {
+		character = root
+		animation = chancellor
+	}
+	
+	option = {
+	    name = ck_global_culture.0003.a
+		flavor = ck_global_culture.0003.a.desc
+		custom_tooltip = ck_global_culture.0003.a.t #Population won't be happy
+		
+		hidden_effect = {
+			every_held_title = {
+				limit = {
+				    tier = tier_county
+					NOT = {
+					    culture = culture:swadian
+					}
+				}
+				add_county_modifier = {
+				    modifier = swadian_overlord_modifier
+					years = 3
+				}
+				change_county_control = -10
+			}
+			random_list = {
+				85 = {
+					trigger_event = {
+						id = ck_global_culture.0004
+						days = { 7 14 }
+					}
+				}
+				15 = {}
+			}
+		}
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = 30
+				has_trait = content
+			}
+			modifier = {
+				add = 10 
+				has_trait = arrogant
+			}
+			modifier = {
+				add = 50
+				highest_held_title_tier = tier_duchy
+			}
+			modifier = {
+				add = 30
+				any_close_or_extended_family_member = {
+					AND = {
+						is_ruler = yes
+						OR = {
+							highest_held_title_tier = tier_duchy
+							highest_held_title_tier = tier_kingdom
+						}
+					}
+				}
+			}
+		}
+	}
+	option = {
+	    name = ck_global_culture.0003.b
+		flavor = ck_global_culture.0003.b.desc
+		
+		add_prestige = major_prestige_loss
+		set_culture = culture:rhodok
+		custom_tooltip = ck_global_culture.0003.b.t #Family and courtiers will convert
+		custom_tooltip = ck_global_culture.0003.b.t2 #Population will be happy
+		hidden_effect = {
+		    every_close_or_extended_family_member = {
+			    limit = {
+					has_culture = culture:swadian
+					is_courtier_of = root
+					NOT = {
+						is_spouse_of = root
+					}
+				}
+				add_prestige = minor_prestige_loss
+				set_culture = culture:rhodok
+			}
+			every_courtier = {
+			    limit = {
+					NOR = {
+						is_close_or_extended_family_of = root
+						is_spouse_of = root
+					}
+					has_culture = culture:swadian
+					NOT = {
+						any_close_or_extended_family_member = {
+							has_culture = culture:swadian
+							is_ruler = yes
+						}
+					}
+				}
+				set_culture = culture:rhodok
+			}
+			every_spouse = {
+			    limit = {
+					has_culture = culture:swadian
+					NOT = {
+						any_close_or_extended_family_member = {
+							has_culture = culture:swadian
+							is_ruler = yes
+						}
+					}
+				}
+				set_culture = culture:rhodok
+				add_prestige = minor_prestige_loss
+			}
+			every_held_title = {
+				limit = {
+					tier = tier_county
+					NOT = {
+						culture = culture:swadian
+					}
+				}
+				add_county_modifier = {
+					modifier = rhodok_overlord_modifier
+					years = 3
+				}
+			}
+		}
+		ai_chance = {
+			base = 60
+			modifier = {
+				add = 30
+				has_trait = fickle
+			}
+			modifier = {
+				add = -30
+				has_trait = content
+			}
+			modifier = {
+				add = -10 
+				has_trait = arrogant
+			}
+			modifier = {
+				add = -50
+				highest_held_title_tier = tier_duchy
+			}
+			modifier = {
+				add = -30
+				any_close_or_extended_family_member = {
+					AND = {
+						is_ruler = yes
+						OR = {
+							highest_held_title_tier = tier_duchy
+							highest_held_title_tier = tier_kingdom
+						}
+					}
+				}
+			}
+		}
+	}
+}
+ck_global_culture.0004 = {
+    type = character_event
+	title = ck_global_culture.0004.t
+	desc = ck_global_culture.0004.desc
+	theme = culture_change
+	override_background = { reference = corridor_day }
+	right_portrait = {
+		character = root
+		animation = disapproval
+	}
+	left_portrait = {
+		character = scope:rhodok1
+		animation = throne_room_bow_1
+	}
+	
+	immediate = {
+		random_courtier = {
+			limit = {
+				NOT = {
+					any_close_or_extended_family_member = {
+						is_ruler = yes
+					}
+					is_spouse_of = root
+				}
+				has_culture = culture:swadian
+			}
+			set_culture = culture:rhodok
+			save_scope_as = rhodok1
+		}
+	}
+	
+	option = {
+		name = ck_global_culture.0004.a
+		custom_tooltip = ck_global_culture.0004.a.t #Courtier will stay
+		ai_chance = {
+			base = 60
+			modifier = {
+				add = 40
+				OR = {
+					has_trait = just
+					has_trait = content
+					has_trait = gregarious
+					has_trait = forgiving
+					has_trait = compassionate
+				}
+			}
+		}
+	}
+	option = {
+		name = ck_global_culture.0004.b
+		custom_tooltip = ck_global_culture.0004.b.t #Courtier will be expelled
+		custom_tooltip = ck_global_culture.0004.b.t2 #Population will not like that
+		
+		remove_courtier_or_guest = {
+			character = scope:rhodok1
+		}
+		scope:rhodok1 = {
+			add_opinion = {
+				target = root
+				modifier = rhodok_expelled_from_court
+			}
+		}
+		root.culture = {
+			change_cultural_acceptance = {
+				target = culture:rhodok
+				value = minor_cultural_acceptance_loss
+				desc = rhodok_courtiers_expelled
+			}
+		}
+		hidden_effect = {
+			every_held_title = {
+				limit = {
+					tier = tier_county
+					NOT = {
+						culture = culture:swadian
+					}
+				}
+				add_county_modifier = {
+					modifier = rhodok_courtiers_expelled_modifier
+					years = 3
+				}
+			}
+		}
+		ai_chance = {
+			base = 40
+			modifier = {
+				add = -40
+				OR = {
+					has_trait = just
+					has_trait = content
+					has_trait = gregarious
+					has_trait = forgiving
+					has_trait = compassionate
+				}
+			}
+			modifier = {
+				add = 60
+				OR = {
+					has_trait = cruel
+					has_trait = arrogant
+					has_trait = arbitrary
+				}
+			}
+		}	
+	}
+}
+ck_global_culture.0005 = { ###Rhodoks appeared in your county
+    type = character_event
+	title = ck_global_culture.0005.t
+	desc = ck_global_culture.0005.desc
+	theme = culture_change
+	override_background = { reference = wilderness }
+	right_portrait = {
+		character = root
+		animation = chancellor ### Placeholder
+	}
+	
+	immediate = {
+		every_held_title = {
+			limit = {
+				has_county_modifier = rhodok_conversion_modifier
+			}
+			save_scope_as = rhodok_conversion_county
+		}
+	}
+	
+	option = { #Don't bother, culture will convert as normal
+		name = ck_global_culture.0005.a
+		
+		scope:rhodok_conversion_county = {
+			holder = {
+				trigger_event = {
+					id = ck_global_culture.0007
+					months = { 10 23 }
+				}
+			}
+		}
+		ai_chance = { #Placeholder
+			base = 100
+		}
+	}
+	option = { #Encourage conversion
+		name = ck_global_culture.0005.b
+		scope:rhodok_conversion_county = {
+			holder = {
+				trigger_event = {
+					id = ck_global_culture.0007
+					months = { 5 11 }
+				}
+			}
+		}
+		#ai_chance = {
+		#	base = #???
+		#}
+	}
+	option = { #Discourage conversion ### Add some kind of debuff modifier maybe
+		name = ck_global_culture.0005.c
+		random_list = {
+			3 = {
+				scope:rhodok_conversion_county = {
+					holder = {
+						trigger_event = {
+							id = ck_global_culture.0007
+							months = { 14 23 }
+						}
+					}
+				}
+			}
+			7 = { }
+		}
+		#ai_chance = {
+		#	base = #???
+		#}
+	}
+}
+ck_global_culture.0006 = {
+	scope = none
+	hidden = yes
+	
+	immediate = {
+		random_county_in_region = {
+        	region = region_rhodok_culture
+        	limit = {
+        		NOT = {
+        			culture = culture:rhodok
+        		}
+				OR = {
+					culture = { has_cultural_pillar = heritage_balian }
+					culture = { has_cultural_pillar = heritage_gottic }
+					culture = { has_cultural_pillar = heritage_battanian }
+				}
+        		any_neighboring_county = {
+        			culture = culture:rhodok
+        		}
+        	}
+        	add_county_modifier = {
+        		modifier = rhodok_conversion_modifier
+        		years = 2 
+        	}
+        	save_scope_as = rhodok_conversion_county
+        }
+		scope:rhodok_conversion_county = {
+			holder = {
+				trigger_event = {
+					id = ck_global_culture.0005
+					days = 1
+				}
+			}
+		}
+	}
+	
+}
+ck_global_culture.0007 = { ###County converted to rhodok
+    type = character_event
+	title = ck_global_culture.0007.t
+	desc = ck_global_culture.0007.desc
+	theme = culture_change
+	override_background = { reference = wilderness }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+
+	#trigger = {
+	#	any_held_title = {
+	#		has_county_modifier = rhodok_conversion_modifier
+	#	}
+	#}
+	immediate = {
+		random_held_title = {
+			limit = {
+				has_county_modifier = rhodok_conversion_modifier
+			}
+			save_scope_as = rhodok_converted_province
+			remove_county_modifier = rhodok_conversion_modifier
+			set_county_culture = culture:rhodok
+		}
+	}
+	option = { ###Information
+		name = ck_global_culture.0007.a
+	}
+}
+ck_global_culture.0008 = { ###Start of Rhodok rebellion
+    type = character_event
+	title = ck_global_culture.0008.t
+	desc = ck_global_culture.0008.desc ###It should mention calling other rhodok nobles
+	theme = war
+	override_background = { reference = army_camp }
+	right_portrait = {
+		character = root
+		animation = celebrate_sword
+		triggered_outfit = {
+			remove_default_outfit = yes
+			outfit_tags = { military_outfit }
+		}
+	}
+
+	immediate = {
+		play_music_cue = mx_ck_calradian_war
+		title:k_vlandia.holder = {
+			save_scope_as = vlandiaking
+		}
+		hidden_effect = {
+			### Removing direct liege ###
+			if = {
+				limit = {
+					liege = {
+						NOT = {
+							has_title = title:k_vlandia
+						}
+					}
+				}
+				create_title_and_vassal_change = {
+					type = swear_fealty
+					save_scope_as = control_change
+					add_claim_on_loss = no
+				}
+				change_liege = {
+					liege = scope:vlandiaking
+					change = scope:control_change
+				}
+				resolve_title_and_vassal_change = scope:control_change
+			}
+			### Creating Rhodok de iure lands ###
+			title:d_bezan = {
+				set_de_jure_liege_title = title:k_rhodok
+			}
+			title:d_biscania = {
+				set_de_jure_liege_title = title:k_rhodok
+			}
+			title:d_neurval = {
+				set_de_jure_liege_title = title:k_rhodok
+			}
+			title:d_ibdeles = {
+				set_de_jure_liege_title = title:k_rhodok
+			}
+			title:d_sargot = {
+				set_de_jure_liege_title = title:k_rhodok
+			}
+			title:d_saren = {
+				set_de_jure_liege_title = title:k_rhodok
+			}
+			title:d_hongard = {
+				set_de_jure_liege_title = title:k_rhodok
+			}
+			###
+			culture:rhodok = {
+				set_variable = rhodok_rebellion_var
+			}
+			add_character_flag = ai_should_not_transfer
+		}
+	}
+	option = { ###Start of rebellion 
+		name = ck_global_culture.0008.a
+		start_war = {
+			cb = rhodok_war
+			target = scope:vlandiaking
+			target_title = title:k_rhodok
+			target_title = title:k_wempire_k_3
+		}
+		hidden_effect = {
+			every_ruler = {
+				limit = {
+					capital_province = {
+						geographical_region = region_rhodokia
+					}
+					is_vassal_or_below_of = scope:vlandiaking
+					NOT = {
+						has_culture = culture:swadian
+					}
+					NOT = {
+						this = root
+					}
+				}
+				trigger_event = {
+					id = ck_global_culture.0009 # Asking other non-swadian vassals to join
+					days = 1
+				}
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					has_character_flag = is_grunwalder
+				}
+			}
+			trigger_event = {
+				id = ck_global_culture.1008
+				days = { 2 5 }
+			}
+		}
+	}
+}
+ck_global_culture.1008 = { ### Grunwalder and his host join the rebellion
+    type = character_event
+	title = ck_global_culture.1008.t
+	desc = ck_global_culture.1008.desc
+	theme = war
+	override_background = { reference = wilderness }
+	right_portrait = {
+		character = scope:grunwalder
+		animation = marshal
+		triggered_outfit = {
+			remove_default_outfit = yes
+			outfit_tags = { military_outfit } ## PLACEHOLDER -  Add grunwalder's outfit
+		}
+	}
+	
+	immediate = {
+		create_character = {
+			name = "Rhenald" ## placeholder?
+			age = 45
+			gender = male
+			trait = education_martial_4
+			trait = organizer
+			trait = rough_terrain_expert
+			trait = unyielding_defender
+			trait = education_martial_prowess_3
+			trait = brave
+			trait = diligent
+			trait = gregarious
+			martial = { 20 24 }
+			stewardship = { 7 13 }
+			diplomacy = { 14 19 }
+			intrigue = { 12 15 }
+			prowess = { 18 25 }
+			learning = { 5 14 }
+			location = capital_province
+			faith = faith:western_calradic
+			culture = culture:massa
+			dynasty = dynn_grunwalder
+			save_scope_as = grunwalder
+			after_creation = { 
+				add_character_flag = is_grunwalder
+				copy_inheritable_appearance_from = character:grunwalder_dummy
+			}
+		}
+		random_character_war = {
+			if = {
+				limit = {
+					using_cb = rhodok_war
+				}
+				save_scope_as = rhodok_rebellion
+			}
+		}
+	}
+	
+	option = { # 
+		name = ck_global_culture.1008
+		add_courtier = scope:grunwalder
+		spawn_army = {
+			levies = 700
+			men_at_arms = {
+				type = vlandian_crossbowmen_2 ### PLACEHOLDER
+				men = 1500
+			}
+			men_at_arms = {
+				type = vlandian_pikemen ### placeholder
+				men = 500
+			}
+			location = capital_province
+			war = scope:rhodok_rebellion
+			uses_supply = no
+			name = grunwalder_host_army
+		}
+	}
+	
+}
+ck_global_culture.0009 = { ###Decision for other rhodok nobles to join the rebellion
+    type = character_event
+	title = ck_global_culture.0009.t
+	desc = ck_global_culture.0009.desc
+	theme = culture_change
+	override_background = { reference = wilderness }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+
+	immediate = {
+		title:k_vlandia = {
+			holder = {
+				every_character_war = { # Co za spierdolony kod, czemu nie można stworzyć scope'a przy rozpoczęciu wojny?
+					limit = {
+						using_cb = rhodok_war
+					}
+					save_scope_as = rhodok_independence_war
+				}
+			}
+		}
+	}
+	option = { ### Join the rebels
+		name = ck_global_culture.0009.a
+		scope:rhodok_independence_war = {
+			add_attacker = root
+		}
+		add_prestige = medium_prestige_gain
+		
+		hidden_effect = {
+			### Removing direct liege ###
+			if = {
+				limit = {
+					liege = {
+						NOT = {
+							has_title = title:k_vlandia
+						}
+					}
+				}
+				create_title_and_vassal_change = {
+					type = swear_fealty
+					save_scope_as = control_change
+					add_claim_on_loss = no
+				}
+				change_liege = {
+					liege = scope:vlandiaking
+					change = scope:control_change
+				}
+				resolve_title_and_vassal_change = scope:control_change
+			}
+			add_character_flag = ai_should_not_transfer
+		}
+		
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = -100
+				has_trait = craven
+			}
+		}
+	}
+	option = { ### Don't join 
+		name = ck_global_culture.0009.b
+		add_prestige = major_prestige_loss
+		add_character_flag = refused_to_rebel
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 100
+				has_trait = craven
+			}
+		}
+	}
+}
+ck_global_culture.0010 = { ###Fate of swadian players in Rhodokia
+    type = character_event
+	title = ck_global_culture.0010.t
+	desc = ck_global_culture.0010.desc
+	theme = realm
+	override_background = { reference = throne_room_west }
+	right_portrait = {
+		character = root
+		animation = throne_room_kneel_1
+	}
+	left_portrait = {
+		character = scope:rhodokking
+		animation = war_over_win
+	}
+
+	immediate = {
+		title:k_rhodok = {
+			holder = {
+				save_scope_as = rhodokking
+			}
+		}
+	}
+	option = { ###Don't yield
+		name = ck_global_culture.0010.a
+		start_war = {
+			cb = independence_war
+			target = scope:rhodokking
+		}
+	}
+	option = {  ###Allowed to stay, under conditions (Add tributary obligation later)
+		name = ck_global_culture.0010.b
+		vassal_contract_set_obligation_level = { type = feudal_government_taxes level = 4 }
+		vassal_contract_set_obligation_level = { type = feudal_government_levies level = 3 }
+	}
+}
+ck_global_culture.0011 = { ###Fate of independent Rhodokia #remember about pushing out swadians in desc
+    type = character_event
+	title = ck_global_culture.0011.t
+	desc = ck_global_culture.0011.desc
+	theme = culture_change
+	override_background = { reference = wilderness }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+
+	immediate = {
+		hidden_effect = {
+			every_vassal_or_below = {
+				remove_character_flag = ai_should_not_transfer
+			}
+			remove_character_flag = ai_should_not_transfer
+		}
+	}
+
+	option = { ###Rhodoks adopting elective succ
+		name = ck_global_culture.0011.a
+		flavor = ck_global_culture.0011.a.desc
+		title:k_rhodok = {
+			add_title_law = feudal_elective_succession_law
+		}
+		add_legitimacy_effect = { LEGITIMACY = medium_legitimacy_gain }
+		
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = -20
+				OR = {
+					has_trait = ambitious
+					has_trait = arbitrary
+					has_trait = arrogant
+					has_trait = greedy
+				}
+			}
+		}
+	}
+	option = {  ###Staying in default succ law, will anger vassals
+		name = ck_global_culture.0011.b
+		custom_tooltip = ck_global_culture.0011.b.desc
+		add_legitimacy_effect = { LEGITIMACY = major_legitimacy_loss }
+		add_tyranny = 100
+		hidden_effect = {
+			every_vassal_or_below = {
+				limit = {
+					NOT = {
+						has_culture = culture:swadian
+					}
+					OR = {
+						highest_held_title_tier = tier_county
+						highest_held_title_tier = tier_duchy
+					}
+				}
+				trigger_event = {
+					id = ck_global_culture.0012
+				}
+			}
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 20
+				OR = {
+					has_trait = ambitious
+					has_trait = arbitrary
+					has_trait = arrogant
+					has_trait = greedy
+				}
+			}
+		}
+	}
+}
+ck_global_culture.0012 = { ###Tyrant king - vassals claim rhodokia
+    type = character_event
+	title = ck_global_culture.0012.t
+	desc = ck_global_culture.0012.desc
+	theme = culture_change
+	override_background = { reference = wilderness }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+
+	option = { ###I shall rule the Rhodoks -- we fell into hands of a tyrant
+		name = ck_global_culture.0012.a
+		custom_tooltip = ck_global_culture.0012.a.desc
+		add_unpressed_claim = title:k_rhodok
+		
+		ai_chance = {
+			base = 100
+		}
+	}
+	option = { ###I shan't 
+		name = ck_global_culture.0012.b
+		custom_tooltip = ck_global_culture.0012.b.desc
+	}
+}
+ck_global_culture.0013 = { ### Swadian king claims new capital
+    type = character_event
+	title = ck_global_culture.0013.t
+	desc = ck_global_culture.0013.desc
+	theme = realm
+	override_background = { reference = council_chamber }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+	
+	immediate = {
+		hidden_effect = {
+			title:k_vlandia = {
+				set_capital_county = title:c_pravend
+			}
+		}
+	}
+
+	option = {
+		name = ck_global_culture.0013.a #Capital should be in Praven
+		
+		custom_tooltip = {
+			text = capital_pravend.tt
+			
+			get_title = title:c_pravend
+			set_realm_capital = title:c_pravend
+			if = {
+				limit = {
+					exists = title:d_pravend.holder
+					title:d_pravend.holder ?= { is_ai = yes }
+				}
+				get_title = title:d_pravend
+			}
+		}
+		ai_chance = {
+			base = 5
+		}
+	}
+	option = {
+		name = ck_global_culture.0013.b #Capital should be in Uxkhal
+		
+		custom_tooltip = {
+			text = capital_ocs_hall.tt
+			
+			get_title = title:c_ocs_hall
+			set_realm_capital = title:c_ocs_hall
+			title:k_vlandia = {
+				set_capital_county = title:c_ocs_hall
+			}
+			if = {
+				limit = {
+					exists = title:d_ocshall.holder
+					title:d_ocshall.holder ?= { is_ai = yes }
+				}
+				get_title = title:d_ocshall
+			}
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+ck_global_culture.0014 = { ## Locals refusing taxes - Swadian nobles in Rhodokia
+    type = character_event
+	title = ck_global_culture.0014.t
+	desc = ck_global_culture.0014.desc
+	theme = culture_change
+	override_background = { reference = council_chamber }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+	
+	trigger = {
+		capital_province = { geographical_region = region_rhodok_culture }
+		current_date <= 1135.1.1 ## They shouldn't receive such debuffs indefinitely
+		has_culture = culture:swadian
+		top_liege.culture = { 
+			this = culture:swadian
+		}
+		any_held_title = {
+			tier = tier_county
+			culture = {
+				NOT = {
+					has_cultural_pillar = heritage_calradian
+				}
+				NOT = {
+					this = culture:swadian
+				}
+			}
+		}
+		NOT = {
+			has_character_flag = locals_debuff_event
+		}
+	}
+	immediate = {
+		random_sub_realm_county = {
+			limit = {
+				holder = root
+				culture = {
+					NOT = {
+						has_cultural_pillar = heritage_calradian
+					}
+					NOT = {
+						this = culture:swadian
+					}
+				}
+			}
+			add_county_modifier = {
+				modifier = locals_refusing_taxes_rh_modifier
+				years = 1
+			}
+			save_scope_as = unrest_county
+		}
+		add_character_flag = {
+			flag = locals_debuff_event
+			months = 10
+		}
+	}
+	
+	option = { #Those ungrateful ingrates!
+		name = ck_global_culture.0014.a
+		
+		ai_chance = {
+			base = 5
+			modifier = {
+				add = 200
+				has_trait = just
+			}
+			modifier = {
+				add = 200
+				has_trait = compassionate
+			}
+			modifier = {
+				add = 100
+				has_trait = generous
+			}
+		}
+	}
+	option = { #We will see about this!
+		name = ck_global_culture.0014.b
+		
+		custom_tooltip = ck_global_culture.0014.b.tt # Your sheriffs will crack some skulls
+		
+		stress_impact = {
+			generous = medium_stress_gain
+			just = major_stress_gain
+			compassionate = major_stress_gain
+			wrathful = medium_stress_loss
+			sadistic = medium_stress_loss
+			vengeful = minor_stress_loss
+			greedy = minor_stress_loss
+		}
+		
+		add_legitimacy = -20
+		add_dread = 10
+		scope:unrest_county = {
+			remove_county_modifier = locals_refusing_taxes_rh_modifier
+			add_county_modifier = {
+				modifier = crackdown_rh_modifier
+				years = 1
+			}
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 55
+				has_trait = wrathful
+			}
+			modifier = {
+				add = 55
+				has_trait = sadistic
+			}
+			modifier = {
+				add = 55
+				has_trait = vengeful
+			}
+			modifier = {
+				add = 5
+				has_trait = greedy
+			}
+		}
+	}
+}
+ck_global_culture.0015 = { ## Local levies deserting - Swadian nobles in Rhodkia
+    type = character_event
+	title = ck_global_culture.0015.t
+	desc = ck_global_culture.0015.desc
+	theme = culture_change
+	override_background = { reference = council_chamber }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+	
+	trigger = {
+		capital_province = { geographical_region = region_rhodok_culture }
+		current_date <= 1135.1.1 ## They shouldn't receive such debuffs indefinitely
+		has_culture = culture:swadian
+		top_liege.culture = { 
+			this = culture:swadian
+		}
+		any_held_title = {
+			tier = tier_county
+			culture = {
+				NOT = {
+					has_cultural_pillar = heritage_calradian
+				}
+				NOT = {
+					this = culture:swadian
+				}
+			}
+		}
+		NOT = {
+			has_character_flag = locals_debuff_event
+		}
+	}
+	immediate = {
+		random_sub_realm_county = {
+			limit = {
+				holder = root
+				culture = {
+					NOT = {
+						has_cultural_pillar = heritage_calradian
+					}
+					NOT = {
+						this = culture:swadian
+					}
+				}
+			}
+			add_county_modifier = {
+				modifier = locals_deserting_rh_modifier
+				years = 1
+			}
+			save_scope_as = unrest_county
+		}
+		add_character_flag = {
+			flag = locals_debuff_event
+			months = 10
+		}
+	}
+	
+	option = { #Those ungrateful ingrates!
+		name = ck_global_culture.0015.a
+		
+		ai_chance = {
+			base = 5
+			modifier = {
+				add = 200
+				has_trait = just
+			}
+			modifier = {
+				add = 200
+				has_trait = compassionate
+			}
+			modifier = {
+				add = 100
+				has_trait = generous
+			}
+		}
+	}
+	option = { #We will see about this!
+		name = ck_global_culture.0015.b
+		
+		custom_tooltip = ck_global_culture.0015.b.tt # Your sheriffs will crack some skulls
+		
+		stress_impact = {
+			generous = medium_stress_gain
+			just = major_stress_gain
+			compassionate = major_stress_gain
+			wrathful = medium_stress_loss
+			sadistic = medium_stress_loss
+			vengeful = minor_stress_loss
+			greedy = minor_stress_loss
+		}
+		
+		add_legitimacy = -20
+		add_dread = 10
+		scope:unrest_county = {
+			remove_county_modifier = locals_deserting_rh_modifier
+			add_county_modifier = {
+				modifier = crackdown_rh_modifier
+				years = 1
+			}
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 55
+				has_trait = wrathful
+			}
+			modifier = {
+				add = 55
+				has_trait = sadistic
+			}
+			modifier = {
+				add = 55
+				has_trait = vengeful
+			}
+			modifier = {
+				add = 5
+				has_trait = greedy
+			}
+		}
+	}
+}
+ck_global_culture.0016 = { ## Local unrest - Swadian nobles in Rhodokia
+    type = character_event
+	title = ck_global_culture.0016.t
+	desc = ck_global_culture.0016.desc
+	theme = culture_change
+	override_background = { reference = council_chamber }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+	
+	trigger = {
+		capital_province = { geographical_region = region_rhodok_culture }
+		current_date <= 1135.1.1 ## They shouldn't receive such debuffs indefinitely
+		has_culture = culture:swadian
+		top_liege.culture = { 
+			this = culture:swadian
+		}
+		any_held_title = {
+			tier = tier_county
+			culture = {
+				NOT = {
+					has_cultural_pillar = heritage_calradian
+				}
+				NOT = {
+					this = culture:swadian
+				}
+			}
+		}
+		NOT = {
+			has_character_flag = locals_debuff_event
+		}
+	}
+	immediate = {
+		random_sub_realm_county = {
+			limit = {
+				holder = root
+				culture = {
+					NOT = {
+						has_cultural_pillar = heritage_calradian
+					}
+					NOT = {
+						this = culture:swadian
+					}
+				}
+			}
+			add_county_modifier = {
+				modifier = locals_unrest_rh_modifier
+				years = 1
+			}
+			save_scope_as = unrest_county
+		}
+		add_character_flag = {
+			flag = locals_debuff_event
+			months = 10
+		}
+	}
+	
+	option = { #Those ungrateful ingrates!
+		name = ck_global_culture.0016.a
+		
+		ai_chance = {
+			base = 5
+			modifier = {
+				add = 200
+				has_trait = just
+			}
+			modifier = {
+				add = 200
+				has_trait = compassionate
+			}
+			modifier = {
+				add = 100
+				has_trait = generous
+			}
+		}
+	}
+	option = { #We will see about this!
+		name = ck_global_culture.0016.b
+		
+		custom_tooltip = ck_global_culture.0015.b.tt # Your sheriffs will crack some skulls
+		
+		stress_impact = {
+			generous = medium_stress_gain
+			just = major_stress_gain
+			compassionate = major_stress_gain
+			wrathful = medium_stress_loss
+			sadistic = medium_stress_loss
+			vengeful = minor_stress_loss
+		}
+		
+		add_legitimacy = -20
+		add_dread = 10
+		scope:unrest_county = {
+			remove_county_modifier = locals_unrest_rh_modifier
+			add_county_modifier = {
+				modifier = crackdown_rh_modifier
+				years = 1
+			}
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 55
+				has_trait = wrathful
+			}
+			modifier = {
+				add = 55
+				has_trait = sadistic
+			}
+			modifier = {
+				add = 55
+				has_trait = vengeful
+			}
+		}
+	}
+}
