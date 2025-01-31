@@ -35,6 +35,61 @@ on_title_destroyed = {
 		scope:landed_title = {
 			every_claimant = { remove_claim = prev } # remove existing claims
 		}
+		# To ensure Eleftheroi host existance #
+		if = {
+			limit = {
+				scope:landed_title = {
+					this = title:d_laamp_eleftheroi
+				}
+				any_county = {
+					culture = {
+						this = culture:eleftheroi
+					}
+				}
+			}
+			create_character = {
+				age = { 30 50 }
+				gender = male
+				trait = education_martial_4
+				random_traits = yes
+				location = title:c_amprela.title_province
+				culture = culture:eleftheroi
+				faith = faith:calradic
+				dynasty = generate
+				save_scope_as = new_kyrchorion
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change_elef
+			}
+			title:d_laamp_eleftheroi = {
+				change_title_holder = {
+					holder = scope:new_kyrchorion
+					change = scope:change_elef
+				}
+			}
+			resolve_title_and_vassal_change = scope:change_elef
+			scope:new_kyrchorion = {
+				change_government = landless_adventurer_government
+				add_realm_law_skip_effects = camp_purpose_mercenaries
+				add_character_flag = ck_minor_clan_vsg
+				create_maa_regiment = {
+					type = veteran_eleftheroi
+					check_can_recruit = no
+					size = 6
+				}
+				create_maa_regiment = {
+					type = veteran_eleftheroi
+					check_can_recruit = no
+					size = 6
+				}
+				create_maa_regiment = {
+					type = veteran_eleftheroi
+					check_can_recruit = no
+					size = 3
+				}
+			}
+		}
 		# If root was a minor clan #
 		if = {
 			limit = {
@@ -51,6 +106,9 @@ on_title_destroyed = {
 			limit = {
 				# Pre-filter out anything higher or lower.
 				scope:landed_title = { tier = tier_duchy }
+				scope:landed_title = {
+					NOT = { this = title:d_laamp_eleftheroi }
+				}
 			}
 			# We don't need to check the list twice, since if they're not in it then removing them from it won't do anything.
 			remove_list_global_variable = {
