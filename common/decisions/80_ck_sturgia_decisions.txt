@@ -614,22 +614,85 @@ integrate_former_sturgian_kingdom_decision = {
 				name = unavailable_unique_decisions
 				target = flag:flag_formed_nord_kingdom
 			}
+			game_start_date <= 1257
 		}
 	}
 
 	is_valid = {
 		OR = {
-			completely_controls_region = region_hacardia
-			completely_controls_region = region_vakken
-			completely_controls_region = region_varcheg
-			completely_controls_region = region_tyal
-			completely_controls_region = region_psc_minadoria
-			completely_controls_region = region_jumnor
-			completely_controls_region = region_dolinsk
-			completely_controls_region = region_byalia
 			AND = {
-				has_global_variable = sturgia_collapse_druinova_var
-				completely_controls_region = region_druinova
+				completely_controls_region = region_hacardia
+				NOT = {
+					title:k_hacardia = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			AND = {
+				completely_controls_region = region_vakken
+				NOT = {
+					title:k_vakken = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			AND = {
+				completely_controls_region = region_varcheg
+				NOT = {
+					title:k_varcheg = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			AND = {
+				completely_controls_region = region_tyal
+				NOT = {
+					title:k_tyal = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			AND = {
+				completely_controls_region = region_psc_minadoria
+				NOT = {
+					title:k_minadoria = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			AND = {
+				completely_controls_region = region_jumnor
+				NOT = {
+					title:k_jumnor = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			AND = {
+				completely_controls_region = region_dolinsk
+				NOT = {
+					title:k_vaegir = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			AND = {
+				completely_controls_region = region_byalia
+				NOT = {
+					title:k_byalia = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			OR = {
+				AND = {
+					has_global_variable = sturgia_collapse_druinova_var
+					completely_controls_region = region_druinova
+				}
+				AND = { #Somewhat cheesy.
+					completely_controls_region = region_druinova
+					game_start_date <= 1257
+				}
 			}
 		}
 	}
@@ -750,6 +813,28 @@ integrate_former_sturgian_kingdom_decision = {
 				set_de_jure_liege_title = title:e_grand_principality_of_sturgia
 			}
 		}
+		else_if = {
+			limit = {
+				OR = {
+					AND = {
+						has_global_variable = sturgia_collapse_druinova_var
+						completely_controls_region = region_druinova
+					}
+					AND = { #Somewhat cheesy.
+						completely_controls_region = region_druinova
+						game_start_date <= 1257
+					}
+				}
+				NOT = {
+					title:k_druinova = {
+						target_is_de_jure_liege_or_above = title:e_grand_principality_of_sturgia
+					}
+				}
+			}
+			title:k_druinova = {
+				set_de_jure_liege_title = title:e_grand_principality_of_sturgia
+			}
+		}
 	}
 	
 	ai_potential = {
@@ -859,7 +944,10 @@ restore_petty_sturgia_decision = {
 		NOT = {
 			exists = title:k_sturgia.holder
 		}
-		has_global_variable = sturgia_collapse_petty_sturgia_var
+		OR = {
+			has_global_variable = sturgia_collapse_petty_sturgia_var
+			game_start_date <= 1257
+		}
 		AND = {
 			exists = capital_province
 			capital_province = { geographical_region = region_psc_sturgia }
@@ -920,7 +1008,10 @@ restore_principality_decision = {
 			exists = title:e_grand_principality_of_sturgia.holder
 			has_global_variable = sturgia_collapse_petty_sturgia_var
 		}
-		has_global_variable = sturgia_collapse_var
+		OR = {
+			has_global_variable = sturgia_collapse_petty_sturgia_var
+			game_start_date <= 1257
+		}
 		has_title = title:k_sturgia
 	}
 
