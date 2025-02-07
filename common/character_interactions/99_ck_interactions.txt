@@ -1118,3 +1118,476 @@ demand_change_senatorial_faction = {
 	}
 
 }
+
+# Invite to Imperial Expedition #
+invite_to_expedition = {
+	category = interaction_category_vassal
+	interface_priority = 120
+	icon = icon_coax_to_war
+	desc = invite_to_expedition_desc
+	common_interaction = yes
+	
+	popup_on_receive = yes
+	pause_on_receive = yes
+	
+	ai_min_reply_days = 0
+	ai_max_reply_days = 0
+	
+	cooldown_against_recipient = { months = 6 }
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_character_flag = preparing_imperial_expedition
+		}
+		scope:recipient = {
+			is_vassal_or_below_of = scope:actor
+			is_ai = yes
+		}
+		scope:actor != scope:recipient
+	}
+	
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			is_at_war = no
+			NOR = {
+				has_relation_rival = scope:actor
+				has_relation_nemesis = scope:actor
+			}
+		}
+		custom_tooltip = {
+			text = already_vowed_to_participate_tt
+			scope:recipient = {
+				NOT = {
+					has_character_flag = will_join_expedition
+				}
+			}
+		}
+	}
+	
+	#Offer nothing
+	send_option = {
+		flag = offer_nothing
+	}
+	#Offer bribe
+	send_option = {
+		flag = offer_bribe
+		is_valid = {
+			custom_tooltip = {
+				scope:actor.gold > 200
+				text = demand_change_senatorial_faction.not_enough_gold
+			}
+		}
+	}
+	#Offer favor
+	send_option = {
+		flag = offer_favor
+		is_valid = {
+			custom_tooltip = {
+				NOT = {
+					scope:recipient = {
+						has_hook = scope:actor
+					}
+				}
+				text = demand_change_senatorial_faction.already_has_hook
+			}
+		}
+	}
+	#Promise titles
+	send_option = {
+		flag = promise_title
+	}
+	#Has Hook
+	send_option = {
+		flag = demand_with_hook
+		is_valid = {
+			custom_tooltip = {
+				scope:actor = {
+					has_hook = scope:recipient
+				}
+				text = demand_change_senatorial_faction.no_hook_avaible
+			}
+		}
+	}
+	
+	should_use_extra_icon = {
+		scope:actor = { has_usable_hook = scope:recipient }
+	}
+	extra_icon = "gfx/interface/icons/character_interactions/hook_icon.dds"
+	
+	cost = {
+		prestige = {
+			value = 100
+		}
+	}
+	
+	on_accept = {
+		scope:actor = {
+			switch = {
+				trigger = yes
+				scope:offer_nothing ?= {
+					scope:actor = {
+						custom_tooltip = offer_nothing_tt
+						trigger_event = {
+							id = ck_imperial_events.0025
+							days = { 2 6 }
+						}
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							text = will_join_expedition_tt
+							add_character_flag = {
+								flag = will_join_expedition
+								years = 1
+							}
+						}
+					}
+				}
+				scope:offer_bribe ?= {
+					scope:actor = {
+						trigger_event = {
+							id = ck_imperial_events.0025
+							days = { 2 6 }
+						}
+						pay_short_term_gold = {
+							target = scope:recipient
+							gold = 200
+						}
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							text = will_join_expedition_tt
+							add_character_flag = {
+								flag = will_join_expedition
+								years = 1
+							}
+						}
+					}
+				}
+				scope:offer_favor ?= {
+					custom_tooltip = offer_favor_tt
+					scope:actor = {
+						trigger_event = {
+							id = ck_imperial_events.0025
+							days = { 2 6 }
+						}
+					}
+					scope:recipient = {
+						add_hook = {
+							target = scope:actor
+							type = favor_hook
+							years = 5
+						}
+						custom_tooltip = {
+							text = will_join_expedition_tt
+							add_character_flag = {
+								flag = will_join_expedition
+								years = 1
+							}
+						}
+					}
+				}
+				scope:promise_title ?= {
+					scope:actor = {
+						custom_tooltip = offer_title_tt
+						trigger_event = {
+							id = ck_imperial_events.0025
+							days = { 2 6 }
+						}
+						add_character_flag = promised_title_expedition
+					}
+					scope:recipient = {
+						add_character_modifier = is_promised_new_title_modifier
+						custom_tooltip = {
+							text = will_join_expedition_tt
+							add_character_flag = {
+								flag = will_join_expedition
+								years = 1
+							}
+						}
+						custom_tooltip = {
+							text = was_promised_title_expedition_tt
+							add_character_flag = {
+								flag = was_promised_title_expedition
+								years = 13
+							}
+						}
+					}
+				}
+				scope:demand_with_hook ?= {
+					scope:actor = {
+						trigger_event = {
+							id = ck_imperial_events.0025
+							days = { 2 6 }
+						}
+						use_hook = scope:recipient
+					}
+					scope:recipient = {
+						custom_tooltip = {
+							text = will_join_expedition_tt
+							add_character_flag = {
+								flag = will_join_expedition
+								years = 1
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	ai_accept = {
+		base = -25
+		
+		### General modifiers - apply to every option
+		
+		modifier = { #Friends or best friends # +30
+			add = 30
+			desc = invite_to_expedition.acceptance.friend_or_best_friend
+			scope:recipient = {
+				OR = {
+					has_relation_friend = scope:actor
+					has_relation_best_friend = scope:actor
+				}
+			}
+		}
+		modifier = { #Ambitious trait # +25
+			add = 25
+			desc = invite_to_expedition.acceptance.ambitious
+			scope:recipient = {
+				has_trait = ambitious
+			}
+		}
+		modifier = { #Is a militarist # +20
+			add = 20
+			desc = invite_to_expedition.acceptance.militarist
+			scope:recipient = {
+				has_trait = ck_militarist
+			}
+		}
+		modifier = { #Opinion above 50 # +20
+			add = 20
+			desc = invite_to_expedition.acceptance.good_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value >= 50
+				}
+			}
+		}
+		modifier = { #Is loyal # +20
+			add = 20
+			desc = invite_to_expedition.acceptance.loyal
+			scope:recipient = {
+				has_trait = loyal
+			}
+		}
+		modifier = { #Specific acceptance traits # +15
+			add = 15
+			desc = invite_to_expedition.acceptance.general_traits_accept
+			scope:recipient = {
+				OR = {
+					has_trait = greedy
+					has_trait = zealous
+					has_trait = brave
+				}
+			}
+		}
+		modifier = { #Is councillor of sender # +10
+			add = 10
+			desc = invite_to_expedition.acceptance.councillor
+			scope:recipient = {
+				is_councillor_of = scope:actor
+			}
+		}
+		modifier = { #Opinion below -30 # -20
+			add = -20
+			desc = invite_to_expedition.acceptance.bad_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value <= -30
+				}
+			}
+		}
+		modifier = { #Specific rejection traits # -25
+			add = -25
+			desc = invite_to_expedition.acceptance.general_traits_reject
+			scope:recipient = {
+				OR = {
+					has_trait = temperate
+					has_trait = content
+					has_trait = lazy
+					has_trait = paranoid
+				}
+			}
+		}
+		modifier = { #Is in debt # -60
+			add = -60
+			desc = invite_to_expedition.acceptance.debt
+			scope:recipient = {
+				gold < 0
+			}
+			scope:offer_bribe ?= no
+		}
+		modifier = { #Is craven # -100
+			add = -100
+			desc = invite_to_expedition.acceptance.craven
+			scope:recipient = {
+				has_trait = craven
+			}
+		}
+		modifier = {
+			add = -1000
+			desc = invite_to_expedition.acceptance.broken_promise
+			scope:recipient = {
+				has_opinion_modifier = {
+					target = scope:actor
+					modifier = broken_promise_expedition_modifier
+				}
+			}
+		}
+		
+		### Bribe modifiers ###
+		modifier = { #Is greedy # +30
+			add = 30
+			desc = invite_to_expedition.acceptance.greedy
+			scope:recipient = {
+				has_trait = greedy
+			}
+			scope:offer_bribe ?= yes
+		}
+		modifier = { #Bribe # +50
+			add = 50
+			desc = invite_to_expedition.acceptance.this_offer
+			scope:offer_bribe ?= yes
+		}
+		modifier = { #Is rich already # -60
+			add = -60
+			desc = invite_to_expedition.acceptance.too_rich
+			scope:recipient = {
+				gold >= 650
+			}
+			scope:offer_bribe ?= yes
+		}
+		
+		### Favor modifiers ###
+		modifier = { #Hook on liege is useful, no? # +70
+			add = 70
+			desc = forced_to_change_faction.acceptance.favor
+			scope:offer_favor ?= yes
+		}
+		
+		### Promise lands modifiers ###
+		modifier = { #Wants new lands # +75
+			add = 75
+			desc = invite_to_expedition.acceptance.this_offer.2
+			scope:promise_title ?= yes
+		}
+		modifier = { #Is greedy # +15
+			add = 15
+			desc = invite_to_expedition.acceptance.greedy.2
+			scope:recipient = {
+				has_trait = greedy
+			}
+			scope:promise_title ?= yes
+		}
+		modifier = { #Is content # -20
+			add = -20
+			desc = invite_to_expedition.acceptance.content
+			scope:recipient = {
+				has_trait = content
+			}
+			scope:promise_title ?= yes
+		}
+		modifier = { #At domain limit # -85
+			add = -85
+			desc = invite_to_expedition.acceptance.domain_limit
+			scope:recipient = {
+				highest_held_title_tier = tier_county
+				domain_limit_available <= 0
+			}
+			scope:promise_title ?= yes
+		}
+		
+		### Hook modifiers ###
+		modifier = { #This offer # +500
+			add = 500
+			desc = forced_to_change_faction.acceptance.this_offer.5
+			scope:demand_with_hook ?= yes
+		}
+		
+		### Invited vassals modifiers ###
+		modifier = { #Already invited two vassal # -15
+			add = -15
+			desc = invite_to_expedition.acceptance.two_vassals
+			scope:actor = {
+				any_vassal_or_below = {
+					count = 2
+					has_character_flag = will_join_expedition
+				}
+			}
+		}
+		modifier = { #Already invited three vassal # -30
+			add = -30
+			desc = invite_to_expedition.acceptance.three_vassals
+			scope:actor = {
+				any_vassal_or_below = {
+					count = 3
+					has_character_flag = will_join_expedition
+				}
+			}
+		}
+		modifier = { #Already invited four vassal # -40
+			add = -40
+			desc = invite_to_expedition.acceptance.four_vassals
+			scope:actor = {
+				any_vassal_or_below = {
+					count = 4
+					has_character_flag = will_join_expedition
+				}
+			}
+		}
+		modifier = { #Already invited five vassal # -50
+			add = -50
+			desc = invite_to_expedition.acceptance.five_vassals
+			scope:actor = {
+				any_vassal_or_below = {
+					count = 5
+					has_character_flag = will_join_expedition
+				}
+			}
+		}
+		modifier = { #Already invited six vassal # -60
+			add = -60
+			desc = invite_to_expedition.acceptance.six_vassals
+			scope:actor = {
+				any_vassal_or_below = {
+					count = 6
+					has_character_flag = will_join_expedition
+				}
+			}
+		}
+		modifier = { #Already invited seven and more vassal # -75
+			add = -75
+			desc = invite_to_expedition.acceptance.seven_and_above_vassals
+			scope:actor = {
+				any_vassal_or_below = {
+					count >= 7
+					has_character_flag = will_join_expedition
+				}
+			}
+		}
+	}
+	
+	is_highlighted = {
+		scope:actor = {
+			is_character_interaction_potentially_accepted = {
+				recipient = scope:recipient
+				interaction = contact_list_request_interaction
+			}
+		}
+	}
+	can_be_picked = {
+		NOT = { scope:recipient = root }
+	}
+}
