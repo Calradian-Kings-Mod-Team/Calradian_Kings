@@ -35,6 +35,103 @@ on_title_destroyed = {
 		scope:landed_title = {
 			every_claimant = { remove_claim = prev } # remove existing claims
 		}
+		# To ensure Eleftheroi host existance #
+		if = {
+			limit = {
+				scope:landed_title = {
+					this = title:d_laamp_eleftheroi
+				}
+				any_county = {
+					culture = {
+						this = culture:eleftheroi
+					}
+				}
+			}
+			create_character = {
+				age = { 30 50 }
+				gender = male
+				trait = education_martial_4
+				random_traits = yes
+				location = title:c_amprela.title_province
+				culture = culture:eleftheroi
+				faith = faith:calradic
+				dynasty = generate
+				save_scope_as = new_kyrchorion
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change_elef
+			}
+			title:d_laamp_eleftheroi = {
+				change_title_holder = {
+					holder = scope:new_kyrchorion
+					change = scope:change_elef
+				}
+			}
+			resolve_title_and_vassal_change = scope:change_elef
+			scope:new_kyrchorion = {
+				change_government = landless_adventurer_government
+				add_realm_law_skip_effects = camp_purpose_mercenaries
+				add_character_flag = ck_minor_clan_vsg
+				create_maa_regiment = {
+					type = veteran_eleftheroi
+					check_can_recruit = no
+					size = 6
+				}
+				create_maa_regiment = {
+					type = veteran_eleftheroi
+					check_can_recruit = no
+					size = 6
+				}
+				create_maa_regiment = {
+					type = veteran_eleftheroi
+					check_can_recruit = no
+					size = 3
+				}
+			}
+		}
+		# Restoring colours #
+		if = {
+			limit = {
+				scope:landed_title = {
+					has_variable = dynamic_title_colors_var
+					OR = {
+						has_variable = colored_sturgic_nordic_var
+						has_variable = colored_calradian_var
+						has_variable = colored_aserai_var
+						has_variable = colored_vlandian_var
+					}
+				}
+			}
+			scope:landed_title = {
+				if = {
+					limit = {
+						has_variable = colored_sturgic_nordic_var
+					}
+					remove_variable = colored_sturgic_nordic_var
+				}
+				if = {
+					limit = {
+						has_variable = colored_calradian_var
+					}
+					remove_variable = colored_calradian_var
+				}
+				if = {
+					limit = {
+						has_variable = colored_aserai_var
+					}
+					remove_variable = colored_aserai_var
+				}
+				if = {
+					limit = {
+						has_variable = colored_vlandian_var
+					}
+					remove_variable = colored_vlandian_var
+				}
+				set_color_from_title = scope:landed_title.title_capital_county
+			}
+		}
+		
 		# If root was a minor clan #
 		if = {
 			limit = {
@@ -51,6 +148,9 @@ on_title_destroyed = {
 			limit = {
 				# Pre-filter out anything higher or lower.
 				scope:landed_title = { tier = tier_duchy }
+				scope:landed_title = {
+					NOT = { this = title:d_laamp_eleftheroi }
+				}
 			}
 			# We don't need to check the list twice, since if they're not in it then removing them from it won't do anything.
 			remove_list_global_variable = {
@@ -93,6 +193,22 @@ on_title_destroyed = {
 				}
 			}
 			sturgia_collapse_formalized_effect = yes
+		}
+		
+		# Aserai title names
+		if = {
+			limit = {
+				has_game_rule = aserai_house_names_rule
+				scope:landed_title = {
+					has_variable = aserai_named_title_var
+				}
+				
+			}
+			scope:landed_title = {
+				remove_variable = aserai_named_title_var
+				reset_title_name = yes
+				set_definitive_form = no
+			}
 		}
 		#Notify folks the latin empire has fallen
 		# if = {
@@ -312,6 +428,43 @@ on_title_gain = {
 				remove_variable = previous_holder_grandeur_value
 			}
 		}
+		
+		# Promised to grant titles after expedition 
+		if = {
+			limit = {
+				scope:transfer_type = flag:granted
+				exists = scope:previous_holder
+				scope:previous_holder = {
+					has_character_flag = promised_title_expedition
+				}
+				has_character_flag = was_promised_title_expedition
+			}
+			remove_character_flag = was_promised_title_expedition
+			save_scope_as = letter_sender
+			scope:previous_holder = {
+				trigger_event = ck_imperial_events.0026
+			}
+			if = {
+				limit = {
+					scope:previous_holder = {
+						has_character_flag = promised_title_expedition
+						any_vassal_or_below = {
+							count = 0
+							has_character_flag = was_promised_title_expedition
+						}
+					}
+				}
+				scope:previous_holder = {
+					remove_character_flag = promised_title_expedition
+				}
+			}
+			if = {
+				limit = {
+					has_character_modifier = is_promised_new_title_modifier
+				}
+				remove_character_modifier = is_promised_new_title_modifier
+			}
+		}
 
 		# Adventurers using "recruit local maa" decision getting landed
 		if = {
@@ -322,7 +475,7 @@ on_title_gain = {
 			remove_character_flag = recruits_local_troops
 			remove_character_flag = recruits_calradian_troops
 			remove_character_flag = recruits_battanian_troops
-			remove_character_flag = recruits_balian_troops
+			remove_character_flag = recruits_vlandian_troops
 			remove_character_flag = recruits_khuzic_troops
 			remove_character_flag = recruits_nahasi_troops
 			remove_character_flag = recruits_sturgic_troops
@@ -351,7 +504,289 @@ on_title_gain = {
 			}
 			add_trait = claimant_emperor
 		}
-
+		
+		# Rhodok war conditions
+		if = {
+			limit = {
+				scope:title = {
+					this = title:k_vlandia
+				}
+				scope:previous_holder = {
+					is_alive = yes
+					is_at_war_as_defender = yes
+					any_character_war = {
+						using_cb = rhodok_war
+					}
+				}
+				NAND = {
+					is_at_war = yes
+					any_character_war = {
+						using_cb = rhodok_war
+					}
+				}
+			}
+			scope:previous_holder = {
+				every_character_war = {
+					limit = {
+						using_cb = rhodok_war
+					}
+					save_scope_as = rhodok_rebellion
+				}
+			}
+			scope:rhodok_rebellion = {
+				add_defender = root
+				#remove_participant = scope:previous_holder ### Invalidates the war - we have to come up with something else
+			}
+		}
+		
+		# Aserai title names
+		if = {
+			limit = {
+				has_game_rule = aserai_house_names_rule
+				is_independent_ruler = yes
+				is_landed = yes
+				has_primary_title = scope:title
+				culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+				scope:title = {
+					OR = {
+						tier = tier_duchy
+						tier = tier_kingdom
+					}
+				}
+			}
+			aserai_title_names_effect = yes
+		}
+		if = {
+			limit = {
+				has_game_rule = aserai_house_names_rule
+				culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+				scope:title = {
+					has_variable = aserai_named_title_var
+				}
+				NOT = {
+					has_primary_title = scope:title
+				}
+			}
+			scope:title = {
+				remove_variable = aserai_named_title_var
+				reset_title_name = yes
+				set_definitive_form = no
+			}
+		}
+		if = {
+			limit = {
+				has_game_rule = aserai_house_names_rule
+				culture = {
+					NOT = {
+						has_cultural_pillar = heritage_nahasi
+					}
+				}
+				scope:title = {
+					has_variable = aserai_named_title_var
+				}
+			}
+			scope:title = {
+				remove_variable = aserai_named_title_var
+				reset_title_name = yes
+				set_definitive_form = no
+			}
+		}
+		
+		## Recolouring major titles ##
+		# Nordic-Sturgic colours
+		if = {
+			limit = {
+				scope:title = {
+					has_variable = dynamic_title_colors_var
+					NOT = {
+						has_variable = colored_sturgic_nordic_var
+					}
+				}
+				culture = {
+					OR = {
+						has_cultural_pillar = heritage_sturgic
+						has_cultural_pillar = heritage_byalic
+					}
+				}
+				top_liege = {
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_byalic
+						}
+					}
+				}
+			}
+			scope:title = {
+				set_variable = colored_sturgic_nordic_var
+				sturgic_nordic_colors_effect = yes
+			}
+		}
+		
+		# Aserai colours
+		if = {
+			limit = {
+				scope:title = {
+					has_variable = dynamic_title_colors_var
+					NOT = {
+						has_variable = colored_aserai_var
+					}
+				}
+				culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+				top_liege = {
+					culture = {
+						has_cultural_pillar = heritage_nahasi
+					}
+				}
+			}
+			scope:title = {
+				set_variable = colored_aserai_var
+				aserai_colors_effect = yes
+			}
+		}
+		
+		# Vlandian colours
+		if = {
+			limit = {
+				scope:title = {
+					has_variable = dynamic_title_colors_var
+					NOR = {
+						has_variable = colored_vlandian_var
+						has_variable = original_vlandian_title_colors_var
+					}
+				}
+				culture = {
+					OR = {
+						has_cultural_pillar = heritage_balian
+						has_cultural_pillar = heritage_gottic
+					}
+				}
+				top_liege = {
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_balian
+							has_cultural_pillar = heritage_gottic
+						}
+					}
+				}
+			}
+			scope:title = {
+				set_variable = colored_vlandian_var
+				vlandian_colors_effect = yes
+			}
+		}
+		
+		# Restoring colours
+		if = {
+			limit = {
+				scope:title = {
+					has_variable = colored_sturgic_nordic_var
+				}
+				culture = {
+					NOR = {
+						has_cultural_pillar = heritage_sturgic
+						has_cultural_pillar = heritage_byalic
+					}
+				}
+				top_liege = {
+					culture = {
+						NOR = {
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = heritage_byalic
+						}
+					}
+				}
+			}
+			scope:title = {
+				remove_variable = colored_sturgic_nordic_var
+				if = {
+					limit = {
+						NOR = {
+							has_variable = colored_sturgic_nordic_var
+							has_variable = colored_aserai_var
+							has_variable = colored_calradian_var
+							has_variable = colored_vlandian_var
+						}
+					}
+					set_color_from_title = scope:title.title_capital_county
+				}
+			}
+		}
+		if = {
+			limit = {
+				scope:title = {
+					has_variable = colored_aserai_var
+				}
+				culture = {
+					NOT = {
+						has_cultural_pillar = heritage_nahasi
+					}
+				}
+				top_liege = {
+					culture = {
+						NOT = {
+							has_cultural_pillar = heritage_nahasi
+						}
+					}
+				}
+			}
+			scope:title = {
+				remove_variable = colored_aserai_var
+				if = {
+					limit = {
+						NOR = {
+							has_variable = colored_sturgic_nordic_var
+							has_variable = colored_aserai_var
+							has_variable = colored_calradian_var
+							has_variable = colored_vlandian_var
+						}
+					}
+					set_color_from_title = scope:title.title_capital_county
+				}
+			}
+		}
+		if = {
+			limit = {
+				scope:title = {
+					has_variable = colored_vlandian_var
+				}
+				culture = {
+					NOR = {
+						has_cultural_pillar = heritage_balian
+						has_cultural_pillar = heritage_gottic
+					}
+				}
+				top_liege = {
+					culture = {
+							NOR = {
+							has_cultural_pillar = heritage_balian
+							has_cultural_pillar = heritage_gottic
+						}
+					}
+				}
+			}
+			scope:title = {
+				remove_variable = colored_vlandian_var
+				if = {
+					limit = {
+						NOR = {
+							has_variable = colored_sturgic_nordic_var
+							has_variable = colored_aserai_var
+							has_variable = colored_calradian_var
+							has_variable = colored_vlandian_var
+						}
+					}
+					set_color_from_title = scope:title.title_capital_county
+				}
+			}
+		}
+		
 		# Petition allowed again
 		if = {
 			limit = { has_variable = petition_title_cooldown }
@@ -3638,6 +4073,31 @@ on_rank_up = { # Will not fire during history execution or for dying characters
 
 		# Additional Flavor Title
 		additional_flavor_check_effect = yes
+		
+		#Aserai title names
+		if = {
+			limit = {
+				has_game_rule = aserai_house_names_rule
+				culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+				scope:title = {
+					has_variable = aserai_named_title_var
+				}
+				primary_title = {
+					OR = {
+						tier = tier_duchy
+						tier = tier_kingdom
+					}
+				}
+			}
+			scope:title = {
+				remove_variable = aserai_named_title_var
+				reset_title_name = yes
+				set_definitive_form = no
+			}
+			aserai_title_names_effect = yes
+		}
 	}
 }
 
@@ -3686,6 +4146,24 @@ on_rank_down = { # Will not fire during history execution or for dying character
 
 		# Additional Flavor Title
 		additional_flavor_check_effect = yes
+		
+		#Aserai title names
+		if = {
+			limit = {
+				has_game_rule = aserai_house_names_rule
+				culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+				is_independent_ruler = yes
+				primary_title = {
+					OR = {
+						tier = tier_duchy
+						tier = tier_kingdom
+					}
+				}
+			}
+			aserai_title_names_effect = yes
+		}
 	}
 }
 
@@ -4579,6 +5057,22 @@ on_vassal_gained = {
 		scope:vassal = {
 			additional_flavor_check_effect = yes
 		}
+		# Aserai title names
+		if = {
+			limit = {
+				has_game_rule = aserai_house_names_rule
+				scope:vassal = {
+					primary_title = {
+						has_variable = aserai_named_title_var
+					}
+				}
+			}
+			scope:vassal.primary_title = {
+				remove_variable = aserai_named_title_var
+				reset_title_name = yes
+				set_definitive_form = no
+			}
+		}
 	}
 }
 
@@ -4672,6 +5166,24 @@ on_vassal_change = {
 
 		# Additional Flavor Title
 		additional_flavor_check_effect = yes
+		
+		# Aserai title names
+		if = {
+			limit = {
+				has_game_rule = aserai_house_names_rule
+				culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+				liege = root
+				primary_title = {
+					OR = {
+						tier = tier_duchy
+						tier = tier_kingdom
+					}
+				}
+			}
+			aserai_title_names_effect = yes
+		}
 	}
 }
 
