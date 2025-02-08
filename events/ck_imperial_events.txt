@@ -232,6 +232,7 @@ ck_imperial_events.0005 = { # Preparing expedition
 	option = { # Onwards
 		name = ck_imperial_events.0005.a
 		custom_tooltip = will_prepare_expedition_event_tt
+		custom_tooltip = can_invite_vassals_tt
 		custom_tooltip = will_be_ready_2_months_tt
 		
 		trigger_event = {
@@ -499,6 +500,7 @@ ck_imperial_events.0008 = { #Expedition failed to begin
 		
 		remove_character_flag = preparing_imperial_expedition
 		remove_character_flag = has_expedition_cb
+		remove_character_flag = promised_title_expedition
 		
 		### REMINDER - REMOVE CHARACTER FLAGS FROM FLAVOR EVENTS ###
 		
@@ -508,6 +510,14 @@ ck_imperial_events.0008 = { #Expedition failed to begin
 					has_character_flag = will_join_expedition
 				}
 				remove_character_flag = will_join_expedition
+			}
+		}
+		every_vassal_or_below = {
+			if = {
+				limit = {
+					has_character_flag = was_promised_title_expedition
+				}
+				remove_character_flag = was_promised_title_expedition
 			}
 		}
 	}
@@ -547,6 +557,7 @@ ck_imperial_events.0009 = { #Expedition postponed
 		remove_character_flag = expedition_cooldown
 		remove_character_flag = has_expedition_cb
 		remove_character_flag = agreed_to_expedition_colonization
+		remove_character_flag = promised_title_expedition
 		
 		### REMINDER - REMOVE CHARACTER FLAGS FROM FLAVOR EVENTS ###
 		
@@ -560,6 +571,14 @@ ck_imperial_events.0009 = { #Expedition postponed
 					has_character_flag = will_join_expedition
 				}
 				remove_character_flag = will_join_expedition
+			}
+		}
+		every_vassal_or_below = {
+			if = {
+				limit = {
+					has_character_flag = was_promised_title_expedition
+				}
+				remove_character_flag = was_promised_title_expedition
 			}
 		}
 	}
@@ -621,6 +640,14 @@ ck_imperial_events.0010 = { #Expedition begins - for emperor
 					}
 				}
 				trigger_event = ck_imperial_events.0012
+			}
+		}
+		every_vassal_or_below = {
+			if = {
+				limit = {
+					has_character_flag = will_join_expedition
+				}
+				remove_character_flag = will_join_expedition
 			}
 		}
 	}
@@ -866,6 +893,16 @@ ck_imperial_events.0013 = { ### Expedition failed
 	immediate = { ### for loc sake
 		scope:emperor_failure = {
 			save_scope_as = emperor_failure_loc
+			if = {
+				limit = {
+					has_character_flag = promised_title_expedition
+				}
+				remove_character_flag = promised_title_expedition
+			}
+			every_vassal_or_below = {
+				remove_character_flag = was_promised_title_expedition
+				remove_character_modifier = is_promised_new_title_modifier
+			}
 		}
 		capital_barony = {
 			save_scope_as = nazwastolicy
@@ -2148,4 +2185,122 @@ ck_imperial_events.0024 = { ### Claimant deposed
 			years = 2
 		}
 	}
+}
+ck_imperial_events.0025 = { ### Accepted invitation to imperial expedition
+	type = letter_event
+	opening = {
+		desc = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						scope:recipient = {
+							opinion = {
+								target = scope:actor
+								value >= 40
+							}
+						}
+					}
+					desc = ck_imperial_events.0002.opening.a
+				}
+				desc = ck_imperial_events.0002.opening
+			}
+		}
+	}
+	sender = scope:recipient
+	desc = ck_imperial_events.0025.desc
+	option = {
+		name = ck_imperial_events.0025.a
+	}
+}
+ck_imperial_events.0026 = { ### Emperor granted promised title
+	type = letter_event
+	opening = {
+		desc = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						scope:letter_sender = {
+							opinion = {
+								target = root
+								value >= 40
+							}
+						}
+					}
+					desc = ck_imperial_events.0002.opening.a
+				}
+				desc = ck_imperial_events.0002.opening
+			}
+		}
+	}
+	sender = scope:letter_sender
+	desc = ck_imperial_events.0026.desc
+	option = {
+		name = ck_imperial_events.0026.a
+		add_prestige = 15
+	}
+}
+ck_imperial_events.0027 = { ### Control event for vassals with promised lands
+	hidden = yes
+	type = character_event
+	
+	trigger = {
+		has_character_flag = was_promised_title_expedition
+	}
+	
+	option = {
+		save_scope_as = angry_vassal
+		top_liege = {
+			trigger_event = ck_imperial_events.0028
+		}
+	}
+}
+ck_imperial_events.0028 = { ### Vassal didn't receive promised lands
+	type = letter_event
+	opening = {
+		desc = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						scope:angry_vassal = {
+							opinion = {
+								target = root
+								value >= 40
+							}
+						}
+					}
+					desc = ck_imperial_events.0002.opening
+				}
+				desc = ck_imperial_events.0002.opening
+			}
+		}
+	}
+	
+	sender = scope:angry_vassal
+	desc = ck_imperial_events.0028.desc
+	option = {
+		name = ck_imperial_events.0028.a
+		add_legitimacy = -50
+		add_prestige = major_prestige_loss
+		add_tyranny = 15
+		scope:angry_vassal = {
+			add_opinion = {
+				modifier = broken_promise_expedition_modifier
+				years = 10
+				target = root
+			}
+		}
+		hidden_effect = {
+			every_vassal_or_below = {
+				remove_character_flag = was_promised_title_expedition
+				if = {
+					limit = {
+						has_character_modifier = is_promised_new_title_modifier
+					}
+					remove_character_modifier = is_promised_new_title_modifier
+				}
+			}
+			remove_character_flag = promised_title_expedition
+		}
+	}
+	
 }
