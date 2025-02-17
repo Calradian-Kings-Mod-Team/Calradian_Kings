@@ -306,29 +306,9 @@
 	tenet_consolamentum = {
 		icon = core_tenet_consolamentum
 
-		name = {
-			first_valid = {
-				triggered_desc = {
-					trigger = {
-						religion_tag = calradian_religion
-					}
-					desc = tenet_consolamentum_name
-				}
-				desc = tenet_consolamentum_name_alternate
-			}
-		}
+		name = tenet_consolamentum_name_alternate
 		
-		desc = {
-			first_valid = {
-				triggered_desc = {
-					trigger = {
-						religion_tag = calradian_religion
-					}
-					desc = tenet_consolamentum_miraclist_desc
-				}
-				desc = tenet_consolamentum_desc
-			}
-		}
+		desc = tenet_consolamentum_desc
 
 		piety_cost = {
 			if = {
@@ -357,7 +337,7 @@
 		is_shown = {
 			NOR = {
 				religion_tag = aserai_religion
-				
+				religion_tag = calradian_religion
 				religion_tag = darshi_religion
 				# AND = {
 					has_doctrine = pagan_hostility_doctrine
@@ -3585,6 +3565,67 @@
 		traits = {
 			virtues = { brave }
 		}
+	}
+	
+	tenet_mandated_miracles = {
+		icon = core_tenet_mandated_miracles
+
+		name = tenet_consolamentum_name
+		
+		desc = tenet_consolamentum_miraclist_desc
+
+		piety_cost = {
+			if = {
+				limit = {
+					has_doctrine = tenet_sacrificial_ceremonies
+				}
+				value = faith_tenet_cost_low
+			}
+			else_if = {
+				limit = {
+					religion_tag = darshi_religion
+				}
+				value = faith_tenet_cost_high
+			}
+			else = {
+				value = faith_tenet_cost_mid
+			}
+
+			# Multiplier for keeping same tenet
+			if = {
+				limit = { has_doctrine = tenet_mandated_miracles }
+				multiply = faith_unchanged_doctrine_cost_mult
+			}
+		}
+
+		is_shown = {
+			religion_tag = calradian_religion
+		}
+		
+		can_pick = {
+			custom_description = {
+				text = incompatible_tenet_sacrificial_ceremonies_trigger
+				NOT = { doctrine:tenet_sacrificial_ceremonies = { is_in_list = selected_doctrines } }
+			}
+			custom_description = {
+				text = incompatible_tenet_consolamentum_trigger
+				NOT = { doctrine:tenet_consolamentum = { is_in_list = selected_doctrines } }
+			}
+		}
+
+		parameters = {
+			custom_description = {
+				text = has_miraclist_mandate
+			}
+		}
+
+		character_modifier = {
+			short_reign_duration_mult = -0.5
+		}
+		
+		traits = {
+	 		virtues = { ck_mandated_miraclist = 2 }
+	 	}
 	}
 	# tenet_ck_heavens_mandate = {
 	# 	is_shown = {
