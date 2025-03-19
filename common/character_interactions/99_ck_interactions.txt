@@ -1591,3 +1591,726 @@ invite_to_expedition = {
 		NOT = { scope:recipient = root }
 	}
 }
+
+### Przypominajka, usuń potem
+### Two interactions for gero coalition, one for AI, other for player.
+### Military size of other rulers taken into account for AI
+### Run through interaction effect
+###
+
+geroian_coalition_call_AI = {
+	category = interaction_category_diplomacy
+	desc = geroian_coalition_call
+	interface_priority = 70
+	popup_on_receive = yes
+	pause_on_receive = yes
+	icon = alliance
+	greeting = positive
+	
+	ai_min_reply_days = 1
+	ai_max_reply_days = 2
+	
+	is_shown = {
+		scope:actor = {
+			has_game_rule = ck_geroian_coalition_enabled
+			is_ai = yes
+			is_landed = yes
+			culture = {
+				has_cultural_pillar = heritage_geroian
+			}
+		}
+	}
+	
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			NOT = {
+				is_at_war_with = scope:actor
+			}
+			is_imprisoned = no
+		}
+		
+	}
+	can_be_picked = {
+		NOT = { scope:recipient = root }
+	}
+	ai_accept = {
+		base = 20
+		
+		modifier = { # 75% of Geroia occupied by foreigners # +100
+			add = 1000
+			desc = geroian_coalition_call.acceptance.75percent
+			any_county_in_region = {
+				region = region_geroia
+				percent >= 0.75
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+		}
+		modifier = { # 50% of Geroia occupied by foreigners # +50
+			add = 50
+			desc = geroian_coalition_call.acceptance.50percent
+			any_county_in_region = {
+				region = region_geroia
+				percent >= 0.5
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+			any_county_in_region = {
+				region = region_geroia
+				percent < 0.75
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+		}
+		modifier = { # 25% of Geroia occupied by foreigners # +25
+			add = 25
+			desc = geroian_coalition_call.acceptance.25percent
+			any_county_in_region = {
+				region = region_geroia
+				percent < 0.5
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+			any_county_in_region = {
+				region = region_geroia
+				percent >= 0.25
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+		}
+		modifier = { #Is theocratic # +50
+			add = 50
+			desc = geroian_coalition_call.acceptance.theocratic
+			scope:recipient = {
+				NOT = {
+					has_faith = faith:aekekartel
+				}
+				government_has_flag = government_is_theocracy
+			}
+		}
+		modifier = { #Friends or best friends # +50
+			add = 50
+			desc = geroian_coalition_call.acceptance.friend_or_best_friend
+			scope:recipient = {
+				OR = {
+					has_relation_friend = scope:actor
+					has_relation_best_friend = scope:actor
+				}
+			}
+		}
+		modifier = { #Uniting against the Empire # +50
+			add = 50
+			desc = geroian_coalition_call.acceptance.empire
+			exists = title:e_calradian_empire.holder
+			scope:actor = {
+				is_at_war_with = title:e_calradian_empire.holder
+			}
+		}
+		modifier = { #Traits # +20
+			add = 20
+			desc = geroian_coalition_call.acceptance.general_traits_accept
+			scope:recipient = {
+				OR = {
+					has_trait = brave
+					has_trait = ambitious
+					has_trait = loyal
+					has_trait = compassionate
+					has_trait = zealous
+				}
+			}
+		}
+		modifier = { #Opinion above 50 # +20
+			add = 20
+			desc = geroian_coalition_call.acceptance.good_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value >= 50
+				}
+			}
+		}
+		modifier = { #Neighbour # +20
+			add = 20
+			desc = geroian_coalition_call.acceptance.neighbour
+			scope:recipient = {
+				NOT = {
+					is_vassal_or_below_of = scope:actor
+				}
+				any_sub_realm_title = {
+					is_neighbor_to_realm = scope:actor
+				}
+			}
+		}
+		modifier = { #Military more powerful than sender # +15
+			add = 15
+			desc = geroian_coalition_call.acceptance.military_powerful
+			scope:recipient = {
+				current_military_strength > scope:actor.current_military_strength
+			}
+		}
+		modifier = { #Weaker military than sender # -10
+			add = -10
+			desc = geroian_coalition_call.acceptance.military_weak
+			scope:recipient = {
+				current_military_strength < scope:actor.current_military_strength
+			}
+		}
+		modifier = { #Foreign vassal # -15
+			add = -15
+			desc = geroian_coalition_call.acceptance.vassal
+			scope:recipient = {
+				is_independent_ruler = no
+				NOT = {
+					is_vassal_or_below_of = scope:actor
+				}
+			}
+		}
+		modifier = { #Ilegitimate ruler # -20
+			add = -20
+			desc = geroian_coalition_call.acceptance.low_legitimacy
+			scope:actor = {
+				legitimacy_level = 0
+			}
+		}
+		modifier = { #General traits # -25
+			add = -25
+			desc = geroian_coalition_call.acceptance.general_traits_reject
+			scope:recipient = {
+				OR = {
+					has_trait = reclusive
+					has_trait = cynical
+					has_trait = deceitful
+				}
+			}
+		}
+		modifier = { #Negative opinion # -30
+			add = -30
+			desc = geroian_coalition_call.acceptance.negative_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value <= -50
+				}
+			}
+		}
+		modifier = { # Im your vassal/you already take my levies # -30
+			add = -30
+			desc = geroian_coalition_call.acceptance.own_vassal
+			scope:recipient = {
+				is_vassal_or_below_of = scope:actor
+			}
+		}
+		modifier = { #Already at war # -40
+			add = -40
+			desc = geroian_coalition_call.acceptance.at_war
+			scope:recipient = {
+				is_at_war = yes
+			}
+		}
+		modifier = { #Debt # -50
+			add = -50
+			desc = geroian_coalition_call.acceptance.debt
+			scope:recipient = {
+				gold < 0
+			}
+		}
+		modifier = { #Liege at war with sender # -75
+			add = -75
+			desc = geroian_coalition_call.acceptance.liege_at_war
+			scope:recipient = {
+				is_independent_ruler = no
+				top_liege = {
+					is_at_war_with = scope:actor
+				}
+			}
+		}
+		modifier = { #Rival # -100
+			add = -100
+			desc = geroian_coalition_call.acceptance.rival
+			scope:recipient = {
+				OR = {
+					has_relation_rival = scope:actor
+					has_relation_nemesis = scope:actor
+					existing_feud_against_target_trigger = { TARGET = scope:actor }
+				}
+			}
+		}
+		modifier = { #Aekekartel faith # -100
+			add = -100
+			desc = geroian_coalition_call.acceptance.aekekartel
+			scope:recipient = {
+				has_faith = faith:aekekartel
+			}
+		}
+		modifier = { #Craven # -200
+			add = -200
+			desc = geroian_coalition_call.acceptance.craven
+			scope:recipient = {
+				has_trait = craven
+			}
+		}
+		opinion_modifier = { # Opinion positive - factor
+			who = scope:recipient
+			opinion_target = scope:actor
+			multiplier = 0.3
+			max = 49
+			min = 0
+			desc = AI_OPINION_REASON
+		}
+		opinion_modifier = { # Opinion negative - factor
+			who = scope:recipient
+			opinion_target = scope:actor
+			multiplier = 0.4
+			min = -49
+			max = 0
+			desc = AI_OPINION_REASON
+		}
+	}
+	on_accept = {
+		hidden_effect = {
+			scope:actor = {
+				every_character_war = {
+					limit = {
+						has_variable = geroian_invasion_var
+						NOT = {
+							any_war_participant = {
+								this = scope:recipient
+							}
+						}
+					}
+					save_scope_as = called_geroian_war
+				}
+				add_opinion = {
+					modifier = geroian_defence
+					years = 2
+					target = scope:recipient
+				}
+			}
+		}
+		scope:called_geroian_war = {
+			add_defender = scope:recipient
+		}
+		scope:recipient = {
+			if = {
+				limit = {
+					has_character_modifier = joined_geroian_coalition
+				}
+				remove_character_modifier = joined_geroian_coalition
+			}
+			add_character_modifier = {
+				modifier = joined_geroian_coalition
+				years = 2
+			}
+		}
+	}
+	on_decline = {
+		scope:recipient = {
+			add_prestige = -200
+		}
+		scope:actor = {
+			add_opinion = {
+				modifier = geroian_didnt_come_to_my_defence
+				years = 5
+				target = scope:recipient
+			}
+		}
+	}
+}
+geroian_coalition_call = {
+	category = interaction_category_diplomacy
+	desc = geroian_coalition_call
+	interface_priority = 80
+	popup_on_receive = yes
+	pause_on_receive = yes
+	icon = alliance
+	greeting = positive
+	can_send_despite_rejection = yes
+	
+	ai_min_reply_days = 1
+	ai_max_reply_days = 2
+	
+	is_shown = {
+		scope:actor = {
+			has_game_rule = ck_geroian_coalition_enabled
+			culture = {
+				has_cultural_pillar = heritage_geroian
+			}
+			is_ai = no
+			is_landed = yes
+			is_at_war = yes
+			any_character_war = {
+				has_variable = geroian_invasion_var
+			}
+		}
+		scope:recipient = {
+			is_landed = yes
+			culture = {
+				has_cultural_pillar = heritage_geroian
+			}
+			top_liege.culture = {
+				has_cultural_pillar = heritage_geroian
+			}
+		}
+		scope:actor != scope:recipient
+	}
+	
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			NOT = {
+				is_at_war_with = scope:actor
+			}
+			is_imprisoned = no
+		}
+		custom_tooltip = {
+			text = geroian_coalition_already_helping
+			scope:actor = {
+				any_character_war = {
+					has_variable = geroian_invasion_var
+					NOT = {
+						is_defender = scope:recipient
+					}
+				}
+			}
+		}
+		
+	}
+	can_be_picked = {
+		NOT = { scope:recipient = root }
+	}
+	ai_accept = {
+		base = 20
+		
+		modifier = { # 75% of Geroia occupied by foreigners # +100
+			add = 1000
+			desc = geroian_coalition_call.acceptance.75percent
+			any_county_in_region = {
+				region = region_geroia
+				percent >= 0.75
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+		}
+		modifier = { # 50% of Geroia occupied by foreigners # +50
+			add = 50
+			desc = geroian_coalition_call.acceptance.50percent
+			any_county_in_region = {
+				region = region_geroia
+				percent >= 0.5
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+			any_county_in_region = {
+				region = region_geroia
+				percent < 0.75
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+		}
+		modifier = { # 25% of Geroia occupied by foreigners # +25
+			add = 25
+			desc = geroian_coalition_call.acceptance.25percent
+			any_county_in_region = {
+				region = region_geroia
+				percent < 0.5
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+			any_county_in_region = {
+				region = region_geroia
+				percent >= 0.25
+				holder.top_liege = {
+					NOT = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+					}
+				}
+			}
+		}
+		modifier = { #Is theocratic # +50
+			add = 50
+			desc = geroian_coalition_call.acceptance.theocratic
+			scope:recipient = {
+				NOT = {
+					has_faith = faith:aekekartel
+				}
+				government_has_flag = government_is_theocracy
+			}
+		}
+		modifier = { #Friends or best friends # +50
+			add = 50
+			desc = geroian_coalition_call.acceptance.friend_or_best_friend
+			scope:recipient = {
+				OR = {
+					has_relation_friend = scope:actor
+					has_relation_best_friend = scope:actor
+				}
+			}
+		}
+		modifier = { #Uniting against the Empire # +50
+			add = 50
+			desc = geroian_coalition_call.acceptance.empire
+			exists = title:e_calradian_empire.holder
+			scope:actor = {
+				is_at_war_with = title:e_calradian_empire.holder
+			}
+		}
+		modifier = { #Traits # +20
+			add = 20
+			desc = geroian_coalition_call.acceptance.general_traits_accept
+			scope:recipient = {
+				OR = {
+					has_trait = brave
+					has_trait = ambitious
+					has_trait = loyal
+					has_trait = compassionate
+					has_trait = zealous
+				}
+			}
+		}
+		modifier = { #Opinion above 50 # +20
+			add = 20
+			desc = geroian_coalition_call.acceptance.good_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value >= 50
+				}
+			}
+		}
+		modifier = { #Neighbour # +20
+			add = 20
+			desc = geroian_coalition_call.acceptance.neighbour
+			scope:recipient = {
+				NOT = {
+					is_vassal_or_below_of = scope:actor
+				}
+				any_sub_realm_title = {
+					is_neighbor_to_realm = scope:actor
+				}
+			}
+		}
+		modifier = { #Military more powerful than sender # +15
+			add = 15
+			desc = geroian_coalition_call.acceptance.military_powerful
+			scope:recipient = {
+				current_military_strength > scope:actor.current_military_strength
+			}
+		}
+		modifier = { #Weaker military than sender # -10
+			add = -10
+			desc = geroian_coalition_call.acceptance.military_weak
+			scope:recipient = {
+				current_military_strength < scope:actor.current_military_strength
+			}
+		}
+		modifier = { #Foreign vassal # -15
+			add = -15
+			desc = geroian_coalition_call.acceptance.vassal
+			scope:recipient = {
+				is_independent_ruler = no
+				NOT = {
+					is_vassal_or_below_of = scope:actor
+				}
+			}
+		}
+		modifier = { #Ilegitimate ruler # -20
+			add = -20
+			desc = geroian_coalition_call.acceptance.low_legitimacy
+			scope:actor = {
+				legitimacy_level = 0
+			}
+		}
+		modifier = { #General traits # -25
+			add = -25
+			desc = geroian_coalition_call.acceptance.general_traits_reject
+			scope:recipient = {
+				OR = {
+					has_trait = reclusive
+					has_trait = cynical
+					has_trait = deceitful
+				}
+			}
+		}
+		modifier = { #Negative opinion # -30
+			add = -30
+			desc = geroian_coalition_call.acceptance.negative_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value <= -50
+				}
+			}
+		}
+		modifier = { # Im your vassal/you already take my levies # -30
+			add = -30
+			desc = geroian_coalition_call.acceptance.own_vassal
+			scope:recipient = {
+				is_vassal_or_below_of = scope:actor
+			}
+		}
+		modifier = { #Already at war # -40
+			add = -40
+			desc = geroian_coalition_call.acceptance.at_war
+			scope:recipient = {
+				is_at_war = yes
+			}
+		}
+		modifier = { #Debt # -50
+			add = -50
+			desc = geroian_coalition_call.acceptance.debt
+			scope:recipient = {
+				gold < 0
+			}
+		}
+		modifier = { #Liege at war with sender # -75
+			add = -75
+			desc = geroian_coalition_call.acceptance.liege_at_war
+			scope:recipient = {
+				is_independent_ruler = no
+				top_liege = {
+					is_at_war_with = scope:actor
+				}
+			}
+		}
+		modifier = { #Rival # -100
+			add = -100
+			desc = geroian_coalition_call.acceptance.rival
+			scope:recipient = {
+				OR = {
+					has_relation_rival = scope:actor
+					has_relation_nemesis = scope:actor
+					existing_feud_against_target_trigger = { TARGET = scope:actor }
+				}
+			}
+		}
+		modifier = { #Aekekartel faith # -100
+			add = -100
+			desc = geroian_coalition_call.acceptance.aekekartel
+			scope:recipient = {
+				has_faith = faith:aekekartel
+			}
+		}
+		modifier = { #Craven # -200
+			add = -200
+			desc = geroian_coalition_call.acceptance.craven
+			scope:recipient = {
+				has_trait = craven
+			}
+		}
+		opinion_modifier = { # Opinion positive - factor
+			who = scope:recipient
+			opinion_target = scope:actor
+			multiplier = 0.3
+			max = 49
+			min = 0
+			desc = AI_OPINION_REASON
+		}
+		opinion_modifier = { # Opinion negative - factor
+			who = scope:recipient
+			opinion_target = scope:actor
+			multiplier = 0.4
+			min = -49
+			max = 0
+			desc = AI_OPINION_REASON
+		}
+	}
+	on_accept = {
+		hidden_effect = {
+			scope:actor = {
+				every_character_war = {
+					limit = {
+						has_variable = geroian_invasion_var
+						NOT = {
+							any_war_participant = {
+								this = scope:recipient
+							}
+						}
+					}
+					save_scope_as = called_geroian_war
+				}
+				add_opinion = {
+					modifier = geroian_defence
+					years = 2
+					target = scope:recipient
+				}
+				trigger_event = ck_geroian_events.0003
+			}
+		}
+		scope:called_geroian_war = {
+			add_defender = scope:recipient
+		}
+		scope:recipient = {
+			hidden_effect = {
+				if = {
+					limit = {
+						has_character_modifier = joined_geroian_coalition
+					}
+					remove_character_modifier = joined_geroian_coalition
+				}
+				add_character_modifier = {
+					modifier = joined_geroian_coalition
+					years = 2
+				}
+			}
+		}
+	}
+	on_decline = {
+		scope:recipient = {
+			add_prestige = -200
+		}
+		scope:actor = {
+			add_opinion = {
+				modifier = geroian_didnt_come_to_my_defence
+				years = 4
+				target = scope:recipient
+			}
+			trigger_event = ck_geroian_events.0004
+		}
+	}
+}
