@@ -108,8 +108,10 @@ birth.0001 = {
 					trigger = {
 						allow_naming_on_birth_of_child_trigger = { CHILD = scope:child }
 						scope:child = {
-							exists = father
-							father = { is_ai = yes }
+							father ?= {
+								is_ai = yes
+								is_alive = yes
+							}
 							NOT = { has_trait = twin }
 						}
 					}
@@ -3150,17 +3152,20 @@ birth.8011 = {
 			culture = {
 				has_cultural_parameter = children_can_be_born_in_the_purple
 			}
-			OR = {
-				has_title = title:e_calradian_empire	#Must be the current emperor.
-				AND = {
+			trigger_if = {
+				limit = {
 					is_diarch = yes
-					liege_has_co_emperorship_trigger = yes
-					liege = {
-							has_title = title:e_calradian_empire	#Must be the current emperor.
-					}
+				}
+				liege_has_co_emperorship_trigger = yes
+				liege = {
+					has_title = title:e_calradian_empire	#Must be the current emperor.
+					# capital_county = title:c_lycaron	#Must rule from the Bucoleon Palace.
 				}
 			}
-			capital_county = title:c_lycaron	#Must rule from the Bucoleon Palace.
+			trigger_else = {
+				has_title = title:e_calradian_empire	#Must be the current emperor.
+				# capital_county = title:c_lycaron	#Must rule from the Bucoleon Palace.
+			}
 		}
 		mother = {
 			OR = {

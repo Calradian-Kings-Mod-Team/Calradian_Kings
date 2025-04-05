@@ -226,3 +226,171 @@ namespace = middle_east_decisions
 # 		}
 # 	}
 # }
+
+### Middle East Major Decision Events
+# by Flavio Verna
+
+# 0001 - Forming Outremer
+# 0003 - Restoring Sunni Caliphate
+# 0005 - Creating Israel
+# 0007 - Jewish High Priesthood Restored
+# 0009 - Zoroastrian High Priesthood Restored
+# 0011 - The Saoyshant appears
+# 0014 - Create Sultanate of Rum
+# 1001 - Revive the Armenian Empire
+# 1020 - Found the Empire of Beth Nahrain
+
+##################################################
+
+##################################################
+# Middle Eastern special titles
+##################################################
+
+# Child of Saoshyant's line gains proper trait (fired on creation and on_birth).
+# middle_east_decisions.0012 = {
+# 	type = character_event
+# 	hidden = yes
+
+# 	trigger = {
+# 		OR = {
+# 			AND = {
+# 				exists = mother
+# 				mother = {
+# 					OR = {
+# 						has_trait = saoshyant
+# 						has_trait = saoshyant_descendant
+# 					}
+# 				}
+# 			}
+# 			AND = {
+# 				exists = father
+# 				father = {
+# 					OR = {
+# 						has_trait = saoshyant
+# 						has_trait = saoshyant_descendant
+# 					}
+# 				}
+# 			}
+# 			AND = {
+# 				exists = scope:saoshyant_progenitor
+# 				OR = {
+# 					is_grandchild_of = scope:saoshyant_progenitor
+# 					is_great_grandchild_of = scope:saoshyant_progenitor
+# 				}
+# 			}
+# 		}
+# 		NOR = {
+# 			has_trait = saoshyant # Just in case the tree was horribly tangled...
+# 			has_trait = saoshyant_descendant
+# 		}
+# 	}
+
+# 	immediate = {
+# 		add_trait = saoshyant_descendant
+# 		every_child = {
+# 			trigger_event = middle_east_decisions.0012
+# 		}
+# 	}
+# }
+
+# # Players notified.
+# middle_east_decisions.0013 = {
+# 	type = character_event
+# 	title = middle_east_decisions.0011.t
+# 	desc = {
+# 		first_valid = {
+# 			# Zoroastrian Reaction
+# 			triggered_desc = {
+# 				trigger = {
+# 					root.faith.religion = scope:scoped_ruler.faith.religion
+# 				}
+# 				desc = middle_east_decisions.0013.desc
+# 			}
+# 			# Muslim Reaction
+# 			triggered_desc = {
+# 				trigger = {
+# 					root.faith.religion = faith:ashari.religion
+# 				}
+# 				desc = middle_east_decisions.0013.desc.muslims
+# 			}
+# 			# Everybody else
+# 			triggered_desc = {
+# 				trigger = {
+# 					NOR = {
+# 						root.faith.religion = scope:scoped_ruler.faith.religion
+# 						root.faith.religion = faith:ashari.religion
+# 					}
+# 				}
+# 				desc = middle_east_decisions.0013.desc.others
+# 			}
+# 		}
+# 	}
+# 	theme = faith
+# 	left_portrait = {
+# 		character = scope:scoped_ruler
+# 		animation = personality_bold
+# 	}
+
+# 	immediate = {
+# 		#Zoroastrian characters get some chilled music.
+# 		if = {
+# 			limit = {
+# 				faith = { religion_tag = zoroastrianism_religion }
+# 			}
+# 			play_music_cue = "mx_cue_faith_conversion"
+# 		}
+# 		if = {
+# 			limit = {
+# 				faith = { religion_tag = islam_religion }
+# 			}
+# 			play_music_cue = "mx_cue_combat_2"
+# 		}
+# 		show_as_tooltip = {
+# 			faith:ashari.religion = {
+# 				every_faith = {
+# 					limit = {
+# 						any_independent_ruler = {
+# 							faith = prev
+# 							is_landed = yes
+# 							capital_province = {
+# 								OR = {
+# 									geographical_region = world_middle_east
+# 									geographical_region = world_persian_empire
+# 								}
+# 							}
+# 						}
+# 					}
+# 					change_fervor = {
+# 						value = -15
+# 						desc = fervor_loss_saoshyant
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
+
+# 	option = {
+# 		name = middle_east_decisions.0013.a
+# 		trigger = {
+# 			root.faith.religion = scope:scoped_ruler.faith.religion
+# 		}
+# 	}
+# 	option = {
+# 		name = middle_east_decisions.0013.b
+# 		trigger = {
+# 			NOT = {
+# 				root.faith.religion = scope:scoped_ruler.faith.religion
+# 			}
+# 		}
+# 	}
+# 	option = {
+# 		name = middle_east_decisions.0013.c
+# 		trigger = {
+# 			NOR = {
+# 				root.faith.religion = scope:scoped_ruler.faith.religion
+# 				root.faith.religion = faith:ashari.religion
+# 			}
+# 		}
+# 	}
+# }
+

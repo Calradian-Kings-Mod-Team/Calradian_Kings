@@ -7,7 +7,104 @@ headgear_base = {
 	selection_behavior = weighted_random
 	priority = 1
 
-	## SP3 ## 
+## SP4 Crowns of the World ## 
+
+	sp4_mena_royalty = {
+		dna_modifiers = {
+			accessory = {
+				mode = add
+				gene = headgear
+				template = sp4_mena_royalty
+				range = { 0 1 } # For the randomness to work correctly
+			}
+		}
+		weight = {
+			base = 0
+            modifier = {
+                add = 30
+                has_sp4_dlc_trigger = yes    
+                portrait_royalty_trigger = {
+                    CULTURE_INPUT = mena
+                }           
+            }
+            modifier = {
+                add = 60
+                has_sp4_dlc_trigger = yes    
+                portrait_royalty_trigger = {
+                    CULTURE_INPUT = turkic
+                }           
+            }
+            modifier = {
+                factor = 0 # Should NOT show up if we're not in the right era
+                OR = {
+                    portrait_era1_trigger = yes   
+                    portrait_era2_trigger = yes   
+                }            
+            }
+		}
+	}
+
+	sp4_rus_royalty = {
+		dna_modifiers = {
+			accessory = {
+				mode = add
+				gene = headgear
+				template = sp4_rus_royalty
+				range = { 0 1 } # For the randomness to work correctly
+			}
+		}
+		weight = {
+			base = 0
+            modifier = {
+                add = 100
+                has_sp4_dlc_trigger = yes    
+                portrait_royalty_trigger = {
+                    CULTURE_INPUT = rus
+                }           
+            }
+            modifier = {
+                add = -50
+                has_pol_dlc_trigger = yes    
+                portrait_royalty_trigger = {
+                    CULTURE_INPUT = west_slavic
+                } 
+                OR = {
+                    portrait_era3_trigger = yes   
+                    portrait_era4_trigger = yes   
+                }           
+            }
+		}
+	}
+
+	sp4_western_royalty = {
+		dna_modifiers = {
+			accessory = {
+				mode = add
+				gene = headgear
+				template = sp4_western_royalty
+				range = { 0 1 } # For the randomness to work correctly
+			}
+		}
+		weight = {
+			base = 0
+            modifier = {
+                add = 50
+                has_sp4_dlc_trigger = yes    
+                portrait_royalty_trigger = {
+                    CULTURE_INPUT = western
+                }           
+            }
+            modifier = {
+                factor = 0 # Should NOT show up if we're not in the right era
+                OR = {
+                    portrait_era1_trigger = yes   
+                    portrait_era2_trigger = yes   
+                }            
+            }
+		}
+	}
+
+## SP3 ## 
 
 	sp3_western_royalty_era3 = {
 		dna_modifiers = {
@@ -1990,21 +2087,25 @@ headgear_base = {
 			base = 0
 			court_fashion_level_4_headgear_modifier = { INPUT_PARAMETER = mena } 
 			modifier = {
-				add = 50
+				add = {
+					value = 50
+					if = {
+						limit = {
+							OR = {
+								portrait_low_nobles_clothing_trigger = { 
+									CULTURE_INPUT = fp3_iranian
+								}
+								portrait_low_nobles_clothing_trigger = { 
+									CULTURE_INPUT = afr_berber
+								}
+							}
+						}
+						add = -36 # Slightly lower if iranian or north african is valid
+					}
+				}
                 portrait_low_nobles_clothing_trigger = {
                     CULTURE_INPUT = mena
                 }
-			}
-			modifier = {
-				add = -36 # Slightly lower if iranian or north african is valid
-				OR = {
-					portrait_low_nobles_clothing_trigger = { 
-						CULTURE_INPUT = fp3_iranian
-					}
-					portrait_low_nobles_clothing_trigger = { 
-						CULTURE_INPUT = afr_berber
-					}
-				}
 			}
 		}
 	}
@@ -2700,6 +2801,14 @@ headgear_base = {
                 portrait_royalty_trigger = {
                     CULTURE_INPUT = west_slavic
                 }
+			}
+			modifier = {
+				factor = 0
+                has_sp4_dlc_trigger = yes
+                OR = {
+                    portrait_era1_trigger = yes   
+                    portrait_era2_trigger = yes   
+                }                  
 			}
 		}
 	}

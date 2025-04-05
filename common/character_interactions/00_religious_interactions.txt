@@ -2413,6 +2413,7 @@ lift_excommunication_interaction = {
 request_excommunication_interaction = {
 	category = interaction_category_hostile
 	icon = excommunication
+	interface_priority = 30
 
 	desc = request_excommunication_interaction_desc
 	redirect = {
@@ -3396,7 +3397,7 @@ send_to_holy_order_interaction = {
 #Ask to take the vows for a monastery
 #by Linnéa Thimrén & Bianca Savazzi
 take_vows_interaction = {
-	category = interaction_category_friendly
+	category = interaction_category_vassal
 	icon = religious
 
 	ai_maybe = yes
@@ -3418,10 +3419,7 @@ take_vows_interaction = {
 
 	is_shown = {
 		scope:recipient = {
-			OR = {
-				is_courtier_of = scope:actor
-				is_child_of = scope:actor
-			}
+			is_courtier_of = scope:actor
 			NOR = { 
 				has_trait = devoted 
 				has_trait = order_member 
@@ -3510,6 +3508,7 @@ take_vows_interaction = {
 			else_if = {
 				limit = {
 					scope:recipient = { is_child_of = scope:actor }
+					has_legitimacy = yes
 				}
 				add_legitimacy = {
 					value = miniscule_legitimacy_loss
@@ -4311,7 +4310,15 @@ take_vows_interaction = {
 
 temporal_condemnation_interaction = {
 	category = interaction_category_religion
-	desc = temporal_condemnation_interaction_desc
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:actor.faith = faith:quranist }
+				desc = temporal_condemnation_interaction_desc_fasiq
+			}
+			desc = temporal_condemnation_interaction_desc
+		}
+	}
 	icon = religious
 
 	is_shown = {
@@ -5258,6 +5265,7 @@ hof_ask_for_gold_interaction = {
 hof_ask_for_claim_interaction = {
 	category = interaction_category_diplomacy
 	icon = religious_claim
+	interface_priority = 35
 
 	desc = hof_ask_for_claim_interaction_desc
 	target_type = title
@@ -6289,6 +6297,13 @@ select_ghw_beneficiary_interaction = {
 						is_ruler = yes
 					}
 				}
+			}
+		}
+		custom_tooltip = {
+			text = ghw_devoted_to_their_faith
+			NOR = { # not dedicated to a religious career
+				has_trait = devoted
+				has_trait = order_member
 			}
 		}
 	}

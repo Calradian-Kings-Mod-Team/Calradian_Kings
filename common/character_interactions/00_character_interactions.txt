@@ -413,6 +413,11 @@ offer_vassalization_interaction = {
 						has_purchased_truce_with_char = { TARGET = scope:recipient }
 					}
 				}
+				scope:recipient = {
+					NOT = {
+						has_purchased_truce_with_char = { TARGET = scope:actor }
+					}
+				}
 			}
 			add = -50
 		}
@@ -1731,6 +1736,38 @@ set_primary_spouse_interaction = {
 			}
 		}
 		scope:actor = {
+			if = {
+				limit = {
+					scope:actor.primary_spouse = {
+						is_lowborn = no
+					}
+					scope:recipient = {
+						is_lowborn = yes
+					}
+				}
+				add_legitimacy = {
+					value = medium_legitimacy_loss
+					multiply = scope:actor.primary_title.tier
+				}
+				every_vassal_or_below = {
+					limit = { has_vassal_stance = courtly }
+					custom = every_courtly_vassal
+					add_opinion = {
+						modifier = married_lowborn_opinion
+						target = scope:actor
+						opinion = -50
+					}
+				}
+				every_vassal_or_below = {
+					limit = { has_vassal_stance = glory_hound }
+					custom = every_glory_hound_vassal
+					add_opinion = {
+						modifier = married_lowborn_opinion
+						target = scope:actor
+						opinion = -30
+					}
+				}	
+			}
 			set_primary_spouse = scope:recipient
 			hidden_effect = {
 				send_interface_toast = {
@@ -1789,20 +1826,18 @@ set_primary_spouse_interaction = {
 	}
 
 	ai_will_do = {
-		base = 100
+		base = 0
 
-		modifier = { #AI only does it if current primary_spouse is hated and another spouse is preferred.
-			factor = 0
-			NOT = {
-				scope:actor = {
-					opinion = {
-						target = scope:actor.primary_spouse
-						value < -50
-					}
-					opinion = {
-						target = scope:recipient
-						value >= 50
-					}
+		modifier = {
+			add = 100
+			scope:recipient = {
+				is_lowborn = no
+				sum_of_all_skills_value > scope:actor.primary_spouse.sum_of_all_skills_value
+			}
+			scope:actor = {
+				NOR = {
+					has_relation_friend = scope:actor.primary_spouse
+					has_relation_lover = scope:actor.primary_spouse
 				}
 			}
 		}
@@ -1815,6 +1850,7 @@ grant_independence_interaction = {
 	greeting = positive
 	notification_text = GRANT_INDEPENDENCE_INTERACTION_NOTIFICATION
 	icon = independence
+	interface_priority = 120
 
 	desc = grant_independence_interaction_desc
 
@@ -2139,6 +2175,61 @@ expose_secret_interaction = {
 	}
 
 	on_accept = {
+		scope:actor = {
+			if = {
+				limit = {
+					is_landless_adventurer = yes
+					has_perk = court_of_shadows_perk
+				}
+				add_prestige = {
+					value = 100
+					multiply = {
+						value = scope:recipient.highest_held_title_tier
+						add = 1
+					}
+					min = 50
+				}
+			}
+			if = {
+				limit = {
+					exists = scope:target
+				}
+				scope:target = {
+					expose_secret = scope:actor
+				}
+			}
+			else = {
+				every_known_secret = {
+					limit = {
+						secret_owner = scope:recipient
+					}
+					expose_secret = scope:actor
+				}
+			}
+
+			stress_impact = {
+				honest = minor_stress_impact_loss
+				just = minor_stress_impact_loss
+				shy = miniscule_stress_impact_gain
+			}
+		}
+
+		scope:recipient = {
+			stress_impact = {
+				honest = minor_stress_impact_loss
+				just = minor_stress_impact_loss
+				deceitful = minor_stress_impact_gain
+			}
+		}
+
+		# If we're a clan this interaction affects unity
+		add_clan_unity_interaction_effect = {
+			CHARACTER = scope:actor
+			TARGET = scope:recipient
+			VALUE = major_unity_loss
+			DESC = clan_unity_secret_exposure.desc
+			REVERSE_NON_HOUSE_TARGET = no
+		}
 	}
 
 	auto_accept = yes

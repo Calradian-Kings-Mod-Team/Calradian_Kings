@@ -1025,7 +1025,7 @@ challenge_to_2p_chess_interaction = {
 	icon = icon_gaming
 	category = interaction_category_friendly
 	desc = challenge_to_2p_chess_interaction_desc
-	common_interaction = yes
+	common_interaction = no
 
 	greeting = positive
 	notification_text = CHALLENGE_TO_2P_CHESS_INTERACTION_NOTIFICATION
@@ -1996,7 +1996,14 @@ purchase_truce_interaction = {
 		# Scope:actor needs to either be involved in certain struggle types or else have a specific perk.
 		scope:actor = {
 			is_landless_adventurer = no
-			has_perk = defensive_measures_perk
+			OR = {
+				# any_character_struggle = {
+				# 	involvement = involved
+				# 	has_struggle_phase_parameter = unlocks_truce_purchasing_interaction
+				# }
+				has_perk = defensive_measures_perk
+				culture = { has_cultural_parameter = unlocks_purchase_truce }
+			}
 
 			# if you are not independent you should not be able to purchase truce with other fellow vassals only
 			trigger_if = {
@@ -2016,7 +2023,10 @@ purchase_truce_interaction = {
 
 	is_valid_showing_failures_only = {
 		# Scope:actor must be an available (adult or child).
-		scope:actor = { is_available = yes }
+		scope:actor = {
+			gold >= pt_sum_small_value
+			is_available = yes
+		}
 		# Scope:recipient must be at least available.
 		scope:recipient = { is_available = yes }
 		# Make sure that scope:actor is going into this with a clean, no-recent/active/forbidden hostilities mindset.
@@ -3120,7 +3130,14 @@ incite_revolts_interaction = {
 # 	is_shown = {
 # 		# Actor is Involved in Struggle
 # 		scope:actor = {
-# 			is_landless_adventurer = yes
+# 			OR = {
+# 				# any_character_struggle = {
+# 				# 	involvement = involved
+# 				# 	has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+# 				# }
+# 				culture = { has_cultural_parameter = unlocks_contract_assistance }
+# 				is_landless_adventurer = yes
+# 			}
 # 		}
 # 		# Recipient is Involved in Struggle, at war, and not at war with Actor
 # 		scope:recipient = {
@@ -3146,67 +3163,67 @@ incite_revolts_interaction = {
 # 		}
 # 	}
 
-# # 	has_valid_target = {
-# # 		exists = scope:target
-# # 	}
+# # # 	has_valid_target = {
+# # # 		exists = scope:target
+# # # 	}
 
-# # 	has_valid_target_showing_failures_only = {
-# # 		scope:target = { is_war_leader = scope:recipient }
-# # 	}
+# # # 	has_valid_target_showing_failures_only = {
+# # # 		scope:target = { is_war_leader = scope:recipient }
+# # # 	}
 
-# 	is_valid_showing_failures_only = {
-# 		scope:recipient = {
-# 			# Cannot demand gold from allies
-# 			NOT = { is_allied_to = scope:actor }
-# 			# Cannot rejoin a war you decided to leave
-# 			trigger_if = {
-# 				limit = {
-# 					any_character_war = {
-# 						has_variable_list = left_voluntarily
-# 					}
-# 				}
-# 				custom_tooltip = {
-# 					text = laamp_war_change_sides_interaction.left_voluntarily
-# 					is_target_in_variable_list = {
-# 						name = left_voluntarily
-# 						target = scope:actor	
-# 					}
-# 				}
-# 			}
-# 		}
-
-# # 		# Recipient is not in (any) war against your liege(s)
-# # 		trigger_if = {
-# # 			limit = { exists = scope:actor.liege }
-# # 			custom_description = {
-# # 				text = join_war_interaction_recipient_warring_with_my_liege
-# # 				subject = scope:recipient
-# # 				scope:actor = {
-# # 					NOT = { any_liege_or_above = { is_at_war_with = scope:recipient } }
+# # 	is_valid_showing_failures_only = {
+# # 		scope:recipient = {
+# # 			# Cannot demand gold from allies
+# # 			NOT = { is_allied_to = scope:actor }
+# # 			# Cannot rejoin a war you decided to leave
+# # 			trigger_if = {
+# # 				limit = {
+# # 					any_character_war = {
+# # 						has_variable_list = left_voluntarily
+# # 					}
+# # 				}
+# # 				custom_tooltip = {
+# # 					text = laamp_war_change_sides_interaction.left_voluntarily
+# # 					is_target_in_variable_list = {
+# # 						name = left_voluntarily
+# # 						target = scope:actor	
+# # 					}
 # # 				}
 # # 			}
 # # 		}
 
-# 		# Cannot join wars with raised armies
-# 		scope:actor = {
-# 			has_raised_armies = no
-			
-# 			trigger_if = {
-# 				limit = {
-# 					is_landless_adventurer = yes
-# 				}
-# 				custom_tooltip = {
-# 					text = reinforce_soldiers_any_regiment_tt
-# 					maa_regiments_count >= 1
-# 				}
-# 			}
-# 		}
+# # # 		# Recipient is not in (any) war against your liege(s)
+# # # 		trigger_if = {
+# # # 			limit = { exists = scope:actor.liege }
+# # # 			custom_description = {
+# # # 				text = join_war_interaction_recipient_warring_with_my_liege
+# # # 				subject = scope:recipient
+# # # 				scope:actor = {
+# # # 					NOT = { any_liege_or_above = { is_at_war_with = scope:recipient } }
+# # # 				}
+# # # 			}
+# # # 		}
 
-# 		# Can only contract one war at a time
-# 		custom_tooltip = {
-# 			text = contract_assistance_war_already_contracted_tt
-# 			scope:actor = { NOT = { has_variable = owed_contract_assistance_war } }
-# 		}
+# # 		# Cannot join wars with raised armies
+# # 		scope:actor = {
+# # 			has_raised_armies = no
+			
+# # 			trigger_if = {
+# # 				limit = {
+# # 					is_landless_adventurer = yes
+# # 				}
+# # 				custom_tooltip = {
+# # 					text = reinforce_soldiers_any_regiment_tt
+# # 					maa_regiments_count >= 1
+# # 				}
+# # 			}
+# # 		}
+
+# # 		# Can only contract one war at a time
+# # 		custom_tooltip = {
+# # 			text = contract_assistance_war_already_contracted_tt
+# # 			scope:actor = { NOT = { has_variable = owed_contract_assistance_war } }
+# # 		}
 
 # 		# Adventurers can't join wars in places they're exiled from.
 # 		custom_tooltip = {
@@ -3217,6 +3234,21 @@ incite_revolts_interaction = {
 # 					LAAMP = scope:actor
 # 				}
 # 			}
+# 		}
+
+# 		# Sensible restrictions to keep CulTrads from making this OP.
+# 		scope:recipient = {
+# 			custom_tooltip = {
+# 				text = contract_assistance_tier_too_high_tt
+# 				OR = {
+# 					highest_held_title_tier = tier_county
+# 					highest_held_title_tier >= scope:actor.highest_held_title_tier
+# 					sub_realm_size >= scope:actor.sub_realm_size
+# 				}
+# 			}
+# 		}
+# 		scope:actor = {
+# 			NOT = { highest_held_title_tier >= tier_empire }
 # 		}
 # 	}
 	

@@ -1,4 +1,6 @@
 ﻿default_tax_collector = {
+	tax_factor = 0.2
+	levies_factor = 0.2
 	ai_will_do = {
 		value = default_tax_obligation_ai_will_do
 
@@ -7,11 +9,16 @@
 			limit = { scope:num_slots_with_obligation = 0 }
 			add = 100
 		}
+		if = {
+			limit = { scope:liege.culture = { has_cultural_parameter = unlock_tax_obligation_deqhan } }
+			add = -1000
+		}
 	}
 }
 
 strict_taxation_tax_collector = {
-	tax_factor = 0.25
+	tax_factor = 0.4
+	levies_factor = 0.2
 
 	liege_modifier = {
 		domain_tax_mult = 0.01
@@ -33,6 +40,10 @@ strict_taxation_tax_collector = {
 			}
 			add = 2
 		}
+		if = {
+			limit = { scope:liege.culture = { has_cultural_parameter = unlock_tax_obligation_deqhan } }
+			add = -1
+		}
 	}
 }
 
@@ -51,7 +62,7 @@ jizya_special_rights_tax_collector = {
 		}
 	}
 
-	tax_factor = 0.5
+	tax_factor = 1
 	levies_factor = -0.75
 
 	vassal_modifier = {
@@ -91,8 +102,7 @@ jizya_special_rights_tax_collector = {
 }
 
 iqta_special_rights_tax_collector = {
-	tax_factor = -0.2
-	levies_factor = -0.2
+	levies_factor = 0.1
 
 	liege_modifier = {
 		#men_at_arms_maintenance = -0.01
@@ -155,6 +165,8 @@ iqta_special_rights_tax_collector = {
 }
 
 ghazi_special_rights_tax_collector = {
+	tax_factor = 0.1
+	
 	is_vassal_valid = {
 		custom_description = {
 			text = vassal_has_the_wrong_faith
@@ -163,21 +175,26 @@ ghazi_special_rights_tax_collector = {
 		}
 	}
 
-	levies_factor = -0.2
-
 	liege_modifier = {
 		monthly_piety_gain_mult = 0.02
-		monthly_war_income_mult = 0.01
+		zealot_opinion = 1
 	}
 
 	vassal_modifier = {
-		monthly_piety_gain_mult = 0.1
-		monthly_war_income_mult = 0.05
-		#levy_size = 0.1
+		monthly_piety = 0.5
+		monthly_war_income_mult = 0.1
+		monthly_county_control_growth_add = 0.25
+		army_siege_value_mult = 0.15
+		raid_speed = 0.15
+		ai_war_cooldown = -0.5
+		ai_war_chance = 1
+		ai_zeal = 50
+		ai_energy = 25
 	}
 
 	flag = vassal_contract_cheaper_religious_war
 	flag = vassal_contract_increase_prestige_cb_cost
+	flag = vassal_contract_allow_raiding
 
 	ai_will_do = {
 		value = tax_obligation_base_ai_will_do
@@ -210,11 +227,11 @@ deqhan_special_rights_tax_collector = {
 	is_valid = {
 		scope:liege.culture = { has_cultural_parameter = unlock_tax_obligation_deqhan }
 	}
-	tax_factor = 0.15
-	levies_factor = 0.15
+	tax_factor = 0.35
+	levies_factor = 0.35
 
 	liege_modifier = {
-		monthly_prestige_gain_mult = -0.02
+		legitimacy_gain_mult = 0.01
 	}
 
 	vassal_modifier = {
@@ -223,7 +240,7 @@ deqhan_special_rights_tax_collector = {
 
 	ai_will_do = {
 		value = tax_obligation_base_ai_will_do
-		add = 2
+		add = 3
 	}
 }
 
@@ -240,10 +257,15 @@ maguh_special_rights_tax_collector = {
 		}
 	}
 
-	tax_factor = -0.1
-
 	liege_modifier = {
 		development_growth_factor = 0.01
+	}
+	
+	vassal_modifier = {
+		character_capital_county_monthly_development_growth_add = 0.1
+		holding_build_gold_cost = -0.1
+		build_gold_cost = -0.1
+		opinion_of_liege = 15
 	}
 
 	ai_will_do = {
@@ -257,16 +279,16 @@ muqata_special_rights_tax_collector = {
 		has_fp3_dlc_trigger = yes
 	}
 
-	tax_factor = -0.3
-	levies_factor = -0.3
-
 	liege_modifier = {
 		monthly_prestige = 0.1
 	}
 
 	vassal_modifier = {
 		development_growth_factor = 0.1
+		county_opinion_add = 10
 		opinion_of_liege = 30
+		epidemic_resistance = 10
+		travel_danger = -5
 	}
 
 	ai_will_do = {
