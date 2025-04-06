@@ -10,11 +10,15 @@ Includes = {
 	"jomini/jomini_fog_of_war.fxh"
 	"jomini/jomini_water.fxh"
 	"jomini/jomini_mapobject.fxh"
+	"jomini/translucency.fxh"
 	"constants.fxh"
 	"standardfuncsgfx.fxh"
 	"lowspec.fxh"
 	"dynamic_masks.fxh"
 	"liquid.fxh"
+	# MOD(map-skybox)
+	"SKYX_skybox.fxh"
+	# END MOD
 }
 
 PixelShader =
@@ -172,21 +176,6 @@ PixelShader =
 		SampleModeU = "Wrap"
 		SampleModeV = "Wrap"
 	}
-
-	# MOD(map-skybox)
-	TextureSampler SkyboxSample
-	{
-		Index = 12
-		MagFilter = "Linear"
-		MinFilter = "Linear"
-		MipFilter = "Linear"
-		SampleModeU = "Clamp"
-		SampleModeV = "Clamp"
-		Type = "Cube"
-		File = "gfx/map/environment/SkyBox.dds"
-		srgb = yes
-	}
-	# END MOD
 }
 
 VertexStruct VS_OUTPUT
@@ -368,7 +357,7 @@ PixelShader =
 			else if ( UV.y > 1.0 ) UV.y = 2.0 - UV.y;
 			return UV;
 		}
-
+		
 		float3 ApplyLightingDecal( in float3 Color, in float2 UV )
 		{
 			float LightingDecalValue = PdxTex2D( LightingMap, UV ).a;
@@ -381,7 +370,7 @@ PixelShader =
 			return Color * BakedLightingValue;
 		}
 	]]
-
+	
 	# MOD(map-skybox)
 	MainCode SKYX_PS_sky
 	{
@@ -391,10 +380,7 @@ PixelShader =
 		[[
 			PDX_MAIN
 			{
-				float3 FromCameraDir = normalize(Input.WorldSpacePos - CameraPosition);
-				float4 CubemapSample = PdxTexCube(SkyboxSample, FromCameraDir);
-
-				return CubemapSample;
+				return SKYX_GetSkyboxCubemapSample(Input.WorldSpacePos);
 			}
 		]]
 	}
@@ -406,17 +392,19 @@ PixelShader =
 		Output = "PDX_COLOR"
 		Code
 		[[
-			void DebugReturn( inout float3 Out, SMaterialProperties MaterialProps, SLightingProperties LightingProps, PdxTextureSamplerCube EnvironmentMap, float3 SssColor, float SssMask )
+			void DebugReturn( inout float3 Out, SMaterialProperties MaterialProps, SLightingProperties LightingProps, PdxTextureSamplerCube EnvironmentMap, float3 ScatteringColor, float ScatteringMask, float3 DiffuseTranslucency )
 			{
-				#if defined(PDX_DEBUG_SSS_MASK)
-				Out = SssMask;
-				#elif defined(PDX_DEBUG_SSS_COLOR)
-				Out = SssColor;
+				#if defined( PDX_DEBUG_SCATTERING_MASK )
+					Out = ScatteringMask;
+				#elif defined( PDX_DEBUG_SCATTERING_COLOR )
+					Out = ScatteringColor;
+				#elif defined( PDX_DEBUG_TRANSLUCENCY )
+					Out = DiffuseTranslucency;
 				#else
-				DebugReturn( Out, MaterialProps, LightingProps, EnvironmentMap );
+					DebugReturn( Out, MaterialProps, LightingProps, EnvironmentMap );
 				#endif
 			}
-			
+
 			#if defined( ATLAS )
 				#ifndef DIFFUSE_UV_SET
 					#define DIFFUSE_UV_SET Input.UV1
@@ -476,7 +464,7 @@ PixelShader =
 					float3x3 TBN = Create3x3( normalize( Input.Tangent ), normalize( Input.Bitangent ), normalize( Input.Normal ) );
 					float3 Normal = normalize( mul( NormalSample, TBN ) );
 				#endif
-				
+
 				#if defined( DETAIL_TILING ) && !defined( LOW_SPEC_SHADERS )
 					float DetailRoughness = PdxTex2D( DetailMap, ( PROPERTIES_UV_SET * DETAIL_TILING.xy ) + DETAIL_TILING.zw ).b;
 					DetailRoughness -= 0.5;
@@ -495,7 +483,7 @@ PixelShader =
 					#endif
 				#endif
 
-				float3 UserColor = float3( 1.0f, 1.0f, 1.0f );				
+				float3 UserColor = float3( 1.0f, 1.0f, 1.0f );
 				
 				#if defined( USER_COLOR )
 					float3 UserColor1 = GetUserData( Input.InstanceIndex, USER_DATA_PRIMARY_COLOR ).rgb;
@@ -526,37 +514,41 @@ PixelShader =
 				#if defined( APPLY_WINTER )
 					Diffuse.rgb = ApplyDynamicMasksDiffuse( Diffuse.rgb, Normal, ColorMapCoords );
 				#endif
-
-				// Colormap blend, pre light
-				#if defined( COLORMAP )
-					float3 ColorMap = PdxTex2D( ColorTexture, float2( ColorMapCoords.x, 1.0 - ColorMapCoords.y ) ).rgb;
-					Diffuse.rgb = SoftLight( Diffuse.rgb, ColorMap, ( 1 - Properties.r ) * COLORMAP_OVERLAY_STRENGTH );
-				#endif
 				
 				SMaterialProperties MaterialProps = GetMaterialProperties( Diffuse.rgb, Normal, Properties.a, Properties.g, Properties.b );
+				float3 DiffuseTranslucency = vec3( 0.0f );
 				#if defined( LOW_SPEC_SHADERS )
 					SLightingProperties LightingProps = GetSunLightingProperties( Input.WorldSpacePos, 1.0 );
 					float3 Color = CalculateSunLightingLowSpec( MaterialProps, LightingProps );
 				#else
 					SLightingProperties LightingProps = GetSunLightingProperties( Input.WorldSpacePos, ShadowTexture );
 					float3 Color = CalculateSunLighting( MaterialProps, LightingProps, EnvironmentMap );
-				#endif
-				
-				float3 SssColor = vec3(0.0f);
-				float SssMask = Properties.r;
-				#ifdef FAKE_SSS_EMISSIVE
-					float3 HSVColor = RGBtoHSV( Diffuse.rgb );
-					HSVColor.z = 1.0f;
-					SssColor = HSVtoRGB(HSVColor) * SssMask * 0.5f * MaterialProps._DiffuseColor;
-					Color += SssColor;
+					#ifdef TRANSLUCENCY
+						float ThicknessValue = 0.5f;
+						#ifdef THICKNESS_MAP 
+							ThicknessValue = Properties.r;
+						#endif
+						STranslucencyProperties TranslucencyProps = GetTranslucencyProperties( 0.3f, 1.5f, 1.0f, 1.0f, 0.2f, ThicknessValue, Diffuse.rgb );
+						float3 DiffuseIBL = vec3( 0.0f );
+						DiffuseTranslucency =  CalculateLightingTranslucent( MaterialProps , LightingProps, TranslucencyProps, DiffuseIBL );
+						Color += DiffuseTranslucency;
+					#endif
 				#endif
 
-				
+				float3 ScatteringColor = vec3(0.0f);
+				float ScatteringMask = Properties.r;
+				#ifdef FAKE_SCATTERING_EMISSIVE
+					float3 HSVColor = RGBtoHSV( Diffuse.rgb );
+					HSVColor.z = 1.0f;
+					ScatteringColor = HSVtoRGB(HSVColor) * ScatteringMask * 0.5f * MaterialProps._DiffuseColor;
+					Color += ScatteringColor;
+				#endif
+
 				#if !defined( UNDERWATER ) && !defined( NO_FOG )
 					Color = ApplyFogOfWar( Color, Input.WorldSpacePos, FogOfWarAlpha );
 					Color = ApplyDistanceFog( Color, Input.WorldSpacePos );
 				#endif
-				
+
 				#if defined( BAKED_LIGHTING )
 					Color = ApplyBakedLighting( Color, Input.UV0 );
 				#endif
@@ -572,7 +564,7 @@ PixelShader =
 					Alpha = CompressWorldSpace( Input.WorldSpacePos );
 				#endif
 				
-				DebugReturn( Color, MaterialProps, LightingProps, EnvironmentMap );
+				DebugReturn( Color, MaterialProps, LightingProps, EnvironmentMap, ScatteringColor, ScatteringMask, DiffuseTranslucency );
 				
 				return float4( Color, Alpha );
 			}
@@ -705,7 +697,7 @@ BlendState alpha_to_coverage
 DepthStencilState DepthStencilState
 {
 	StencilEnable = yes
-	
+
 	# These settings make map objects be above names and borders
 	FrontStencilPassOp = replace
 	StencilRef = 1
@@ -1076,32 +1068,6 @@ Effect snap_to_terrain_alpha_to_coverageShadow
 	RasterizerState = ShadowRasterizerState
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
 }
-Effect snap_to_terrain_alpha_to_coverage_colormap
-{
-	VertexShader = "VS_standard"
-	PixelShader = "PS_standard"
-	BlendState = "alpha_to_coverage"
-	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "COLORMAP" "ALPHA_TO_COVERAGE" "APPLY_WINTER" }
-}
-Effect snap_to_terrain_alpha_to_coverage_colormapShadow
-{
-	VertexShader = "VertexPdxMeshStandardShadow"
-	PixelShader = "PixelPdxMeshAlphaBlendShadow"
-	RasterizerState = ShadowRasterizerState
-	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "ALPHA_TO_COVERAGE" }
-}
-Effect standard_colormap
-{
-	VertexShader = "VS_standard"
-	PixelShader = "PS_standard"
-	Defines = { "COLORMAP" "APPLY_WINTER" }
-}
-Effect standard_colormapShadow
-{
-	VertexShader = "VertexPdxMeshStandardShadow"
-	PixelShader = "PixelPdxMeshAlphaBlendShadow"
-	RasterizerState = ShadowRasterizerState
-}
 Effect snap_to_terrain_atlas
 {
 	VertexShader = "VS_standard"
@@ -1245,32 +1211,6 @@ Effect snap_to_terrain_alpha_to_coverageShadow_mapobject
 	
 	RasterizerState = ShadowRasterizerState
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
-}
-Effect snap_to_terrain_alpha_to_coverage_colormap_mapobject
-{
-	VertexShader = "VS_mapobject"
-	PixelShader = "PS_standard"
-	BlendState = "alpha_to_coverage"
-	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "COLORMAP" "ALPHA_TO_COVERAGE" "APPLY_WINTER" }
-}
-Effect snap_to_terrain_alpha_to_coverage_colormapShadow_mapobject
-{
-	VertexShader = "VS_jomini_mapobject_shadow"
-	PixelShader = "PS_jomini_mapobject_shadow_alphablend"
-	RasterizerState = ShadowRasterizerState
-	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "ALPHA_TO_COVERAGE" }
-}
-Effect standard_colormap_mapobject
-{
-	VertexShader = "VS_mapobject"
-	PixelShader = "PS_standard"
-	Defines = { "COLORMAP" "APPLY_WINTER" }
-}
-Effect standard_colormapShadow_mapobject
-{
-	VertexShader = "VS_jomini_mapobject_shadow"
-	PixelShader = "PS_jomini_mapobject_shadow_alphablend"
-	RasterizerState = ShadowRasterizerState
 }
 Effect snap_to_terrain_atlas_mapobject
 {
