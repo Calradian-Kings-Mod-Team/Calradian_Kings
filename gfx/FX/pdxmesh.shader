@@ -514,6 +514,12 @@ PixelShader =
 				#if defined( APPLY_WINTER )
 					Diffuse.rgb = ApplyDynamicMasksDiffuse( Diffuse.rgb, Normal, ColorMapCoords );
 				#endif
+
+				// Colormap blend, pre light
+				#if defined( COLORMAP )
+					float3 ColorMap = PdxTex2D( ColorTexture, float2( ColorMapCoords.x, 1.0 - ColorMapCoords.y ) ).rgb;
+					Diffuse.rgb = SoftLight( Diffuse.rgb, ColorMap, ( 1 - Properties.r ) * COLORMAP_OVERLAY_STRENGTH );
+				#endif
 				
 				SMaterialProperties MaterialProps = GetMaterialProperties( Diffuse.rgb, Normal, Properties.a, Properties.g, Properties.b );
 				float3 DiffuseTranslucency = vec3( 0.0f );
@@ -1068,6 +1074,32 @@ Effect snap_to_terrain_alpha_to_coverageShadow
 	RasterizerState = ShadowRasterizerState
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
 }
+Effect snap_to_terrain_alpha_to_coverage_colormap
+{
+	VertexShader = "VS_standard"
+	PixelShader = "PS_standard"
+	BlendState = "alpha_to_coverage"
+	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "COLORMAP" "ALPHA_TO_COVERAGE" "APPLY_WINTER" }
+}
+Effect snap_to_terrain_alpha_to_coverage_colormapShadow
+{
+	VertexShader = "VertexPdxMeshStandardShadow"
+	PixelShader = "PixelPdxMeshAlphaBlendShadow"
+	RasterizerState = ShadowRasterizerState
+	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "ALPHA_TO_COVERAGE" }
+}
+Effect standard_colormap
+{
+	VertexShader = "VS_standard"
+	PixelShader = "PS_standard"
+	Defines = { "COLORMAP" "APPLY_WINTER" }
+}
+Effect standard_colormapShadow
+{
+	VertexShader = "VertexPdxMeshStandardShadow"
+	PixelShader = "PixelPdxMeshAlphaBlendShadow"
+	RasterizerState = ShadowRasterizerState
+}
 Effect snap_to_terrain_atlas
 {
 	VertexShader = "VS_standard"
@@ -1211,6 +1243,32 @@ Effect snap_to_terrain_alpha_to_coverageShadow_mapobject
 	
 	RasterizerState = ShadowRasterizerState
 	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" }
+}
+Effect snap_to_terrain_alpha_to_coverage_colormap_mapobject
+{
+	VertexShader = "VS_mapobject"
+	PixelShader = "PS_standard"
+	BlendState = "alpha_to_coverage"
+	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "COLORMAP" "ALPHA_TO_COVERAGE" "APPLY_WINTER" }
+}
+Effect snap_to_terrain_alpha_to_coverage_colormapShadow_mapobject
+{
+	VertexShader = "VS_jomini_mapobject_shadow"
+	PixelShader = "PS_jomini_mapobject_shadow_alphablend"
+	RasterizerState = ShadowRasterizerState
+	Defines = { "PDX_MESH_SNAP_VERTICES_TO_TERRAIN" "ALPHA_TO_COVERAGE" }
+}
+Effect standard_colormap_mapobject
+{
+	VertexShader = "VS_mapobject"
+	PixelShader = "PS_standard"
+	Defines = { "COLORMAP" "APPLY_WINTER" }
+}
+Effect standard_colormapShadow_mapobject
+{
+	VertexShader = "VS_jomini_mapobject_shadow"
+	PixelShader = "PS_jomini_mapobject_shadow_alphablend"
+	RasterizerState = ShadowRasterizerState
 }
 Effect snap_to_terrain_atlas_mapobject
 {
