@@ -1930,21 +1930,7 @@ scripted_effect admin_confirmation_liege_reward_effect = {
 }
 
 scripted_effect admin_confirmation_vassal_reward_effect = {
-	scope:confirmation_vassal = {
-		dynasty ?= { add_dynasty_prestige = minor_dynasty_prestige_gain }
-		if = {
-			limit = {
-				scope:confirmation_liege = { is_ai = yes }
-			}
-			reverse_add_opinion = {
-				target = scope:confirmation_liege
-				modifier = respect_opinion
-				opinion = 20
-			}
-		}
-		add_prestige = major_prestige_gain
-		change_influence = major_influence_gain
-	}
+	scope:confirmation_vassal = { admin_confirmation_vassal_reward_guts_effect = yes }
 	admin_confirmation_clear_variable_effect = yes
 }
 
@@ -3461,7 +3447,7 @@ scripted_effect send_help_from_called_effect = {
 			levies = 4000
 			men_at_arms = {
 				type = armored_horsemen
-				men = 200
+				men = 400
 			}
 			location = scope:caller.capital_province
 			origin = scope:called.capital_province
@@ -5489,17 +5475,11 @@ ep3_decisions_event.7000 = {
 		save_scope_as = camp_owner
 		location = { save_scope_as = forage_province }
 		court_position:chief_forager_camp_officer ?= {
-			if = {
-				limit = { is_available = yes }
-				save_scope_as = chief_forager
-			}
+			save_scope_as = chief_forager
 			save_scope_as = portrait
 		}
 		court_position:huntperson_camp_officer ?= {
-			if = {
-				limit = { is_available = yes }
-				save_scope_as = huntperson
-			}
+			save_scope_as = huntperson
 			if = {
 				limit = { NOT = { exists = scope:portrait } }
 				save_scope_as = portrait
@@ -5530,7 +5510,28 @@ ep3_decisions_event.7000 = {
 		duel = {
 			skill = learning
 			value = decent_skill_rating
-			10 = {
+			1 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = 1
+				}
+				desc = ep3_decisions_event.7000.a.crit_success
+				send_interface_toast = {
+					type = event_toast_effect_good
+					title = ep3_decisions_event.7000.a.crit_success
+					left_icon = root
+					domicile ?= {
+						change_provisions = {
+							value = {
+								value = scope:forage_province.gather_provisions_forage_base_value
+								multiply = 1.5
+							}
+						}
+					}
+				}
+			}
+			9 = {
 				compare_modifier = {
 					value = scope:duel_value
 					multiplier = 3.5
@@ -5540,6 +5541,7 @@ ep3_decisions_event.7000 = {
 				send_interface_toast = {
 					type = event_toast_effect_good
 					title = ep3_decisions_event.7000.a.success
+					left_icon = root
 					domicile ?= {
 						change_provisions = {
 							value = {
@@ -5549,7 +5551,7 @@ ep3_decisions_event.7000 = {
 					}
 				}
 			}
-			10 = {
+			8 = {
 				compare_modifier = {
 					value = scope:duel_value
 					multiplier = -3.5
@@ -5559,7 +5561,58 @@ ep3_decisions_event.7000 = {
 				send_interface_toast = {
 					type = event_toast_effect_bad
 					title = ep3_decisions_event.7000.a.failure
+					left_icon = root
 					custom_tooltip = ep3_decisions_event.7000.no_provisions_tt
+				}
+			}
+			2 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = -3.5
+					min = 1
+				}
+				desc = ep3_decisions_event.7000.a.crit_failure
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = ep3_decisions_event.7000.a.failure
+					left_icon = root
+					if = {
+						limit = {
+							location = {
+								OR = {
+									has_province_modifier = winter_mild_modifier
+									has_province_modifier = winter_normal_modifier
+									has_province_modifier = winter_harsh_modifier
+								}
+							}
+							NOR = {
+								has_character_modifier = travel_mild_frostbite_modifier
+								has_character_modifier = travel_severe_frostbite_modifier
+							}
+						}
+						add_character_modifier = {
+							modifier = travel_mild_frostbite_modifier
+							years = 3
+						}
+					}
+					else_if = {
+						limit = {
+							NOT = { has_trait = ill } 
+							location = {
+								OR = {
+									terrain = floodplains
+									terrain = wetlands
+									terrain = oasis
+									terrain = farmlands
+									terrain = plains
+								}
+							}
+						}
+						contract_disease_effect = { DISEASE = ill TREATMENT_EVENT = yes }
+					}
+					else = {
+						increase_wounds_effect = { REASON = wild_animal }
+					}
 				}
 			}
 		}
@@ -5575,7 +5628,28 @@ ep3_decisions_event.7000 = {
 		duel = {
 			skill = prowess
 			value = decent_skill_rating
-			10 = {
+			1 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = 1
+				}
+				desc = ep3_decisions_event.7000.a.crit_success
+				send_interface_toast = {
+					type = event_toast_effect_good
+					title = ep3_decisions_event.7000.a.crit_success
+					left_icon = root
+					domicile ?= {
+						change_provisions = {
+							value = {
+								value = scope:forage_province.gather_provisions_hunt_base_value
+								multiply = 1.5
+							}
+						}
+					}
+				}
+			}
+			9 = {
 				compare_modifier = {
 					value = scope:duel_value
 					multiplier = 3.5
@@ -5585,6 +5659,7 @@ ep3_decisions_event.7000 = {
 				send_interface_toast = {
 					type = event_toast_effect_good
 					title = ep3_decisions_event.7000.a.success
+					left_icon = root
 					domicile ?= {
 						change_provisions = {
 							value = {
@@ -5594,7 +5669,7 @@ ep3_decisions_event.7000 = {
 					}
 				}
 			}
-			10 = {
+			8 = {
 				compare_modifier = {
 					value = scope:duel_value
 					multiplier = -3.5
@@ -5604,7 +5679,22 @@ ep3_decisions_event.7000 = {
 				send_interface_toast = {
 					type = event_toast_effect_bad
 					title = ep3_decisions_event.7000.a.failure
+					left_icon = root
 					custom_tooltip = ep3_decisions_event.7000.no_provisions_tt
+				}
+			}
+			2 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = -3.5
+					min = 1
+				}
+				desc = ep3_decisions_event.7000.a.crit_failure
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = ep3_decisions_event.7000.a.crit_failure
+					left_icon = root
+					increase_wounds_effect = { REASON = wild_animal }
 				}
 			}
 		}
@@ -5631,7 +5721,30 @@ ep3_decisions_event.7000 = {
 			duel = {
 				skill = learning
 				value = decent_skill_rating
-				10 = {
+				2 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3.5
+						min = 1
+					}
+					desc = ep3_decisions_event.7000.c.crit_success
+					scope:camp_owner = {
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ep3_decisions_event.7000.c.crit_success
+							left_icon = scope:chief_forager
+							domicile ?= {
+								change_provisions = {
+									value = {
+										value = scope:forage_province.gather_provisions_forage_base_value
+										multiply = 1.75
+									}
+								}
+							}
+						}
+					}
+				}
+				8 = {
 					compare_modifier = {
 						value = scope:duel_value
 						multiplier = 3.5
@@ -5654,7 +5767,7 @@ ep3_decisions_event.7000 = {
 						}
 					}
 				}
-				10 = {
+				9 = {
 					compare_modifier = {
 						value = scope:duel_value
 						multiplier = -3.5
@@ -5670,11 +5783,68 @@ ep3_decisions_event.7000 = {
 						}
 					}
 				}
+				1 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3.5
+						min = 1
+					}
+					desc = ep3_decisions_event.7000.c.crit_failure
+					scope:camp_owner = {
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ep3_decisions_event.7000.c.crit_failure
+							left_icon = scope:chief_forager
+							scope:chief_forager = {
+								if = {
+									limit = {
+										location = {
+											OR = {
+												has_province_modifier = winter_mild_modifier
+												has_province_modifier = winter_normal_modifier
+												has_province_modifier = winter_harsh_modifier
+											}
+										}
+										NOR = {
+											has_character_modifier = travel_mild_frostbite_modifier
+											has_character_modifier = travel_severe_frostbite_modifier
+										}
+									}
+									add_character_modifier = {
+										modifier = travel_mild_frostbite_modifier
+										years = 3
+									}
+								}
+								else_if = {
+									limit = {
+										NOT = { has_trait = ill }
+										location = {
+											OR = {
+												terrain = floodplains
+												terrain = wetlands
+												terrain = oasis
+												terrain = farmlands
+												terrain = plains
+											}
+										}
+									}
+									contract_disease_effect = { DISEASE = ill TREATMENT_EVENT = yes }
+								}
+								else = {
+									increase_wounds_effect = { REASON = wild_animal }
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		ai_chance = {
 			base = 1
-			modifier = { add = scope:chief_forager.learning }
+			modifier = {
+				exists = court_position:chief_forager_camp_officer
+				add = court_position:chief_forager_camp_officer.learning
+			}
 		}
 	}
 
@@ -5695,7 +5865,30 @@ ep3_decisions_event.7000 = {
 			duel = {
 				skill = prowess
 				value = decent_skill_rating
-				10 = {
+				2 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3.5
+						min = 1
+					}
+					desc = ep3_decisions_event.7000.d.crit_success
+					scope:camp_owner = {
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ep3_decisions_event.7000.d.crit_success
+							left_icon = scope:huntperson
+							domicile ?= {
+								change_provisions = {
+									value = {
+										value = scope:forage_province.gather_provisions_hunt_base_value
+										multiply = 1.75
+									}
+								}
+							}
+						}
+					}
+				}
+				8 = {
 					compare_modifier = {
 						value = scope:duel_value
 						multiplier = 3.5
@@ -5718,7 +5911,7 @@ ep3_decisions_event.7000 = {
 						}
 					}
 				}
-				10 = {
+				9 = {
 					compare_modifier = {
 						value = scope:duel_value
 						multiplier = -3.5
@@ -5734,11 +5927,32 @@ ep3_decisions_event.7000 = {
 						}
 					}
 				}
+				1 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3.5
+						min = 1
+					}
+					desc = ep3_decisions_event.7000.d.crit_failure
+					scope:camp_owner = {
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ep3_decisions_event.7000.d.crit_failure
+							left_icon = scope:huntperson
+							scope:huntperson = {
+								increase_wounds_effect = { REASON = wild_animal }
+							}
+						}
+					}
+				}
 			}
 		}
 		ai_chance = {
 			base = 1
-			modifier = { add = scope:huntperson.prowess }
+			modifier = {
+				exists = court_position:huntperson_camp_officer
+				add = court_position:huntperson_camp_officer.prowess
+			}
 		}
 	}
 	after = {
@@ -5924,7 +6138,7 @@ ep3_decisions_event.5001 = {
 			trigger = {
 				has_trait = arrogant
 			}
-			animation = hero
+			animation = hero_flex
 		}
 		triggered_animation = {
 			trigger = {
@@ -6383,8 +6597,8 @@ ep3_decisions_event.5010 = {
 				location = root.capital_province
 				gender_female_chance = 0
 				age = { 16 65 }
-				culture = root.location.culture
-				faith = root.location.faith
+				culture = root.culture
+				faith = root.faith
 				random_traits_list = {
 					count = 1
 					education_diplomacy_3 = {}
