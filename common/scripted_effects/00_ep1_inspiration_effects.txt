@@ -335,6 +335,24 @@ set_adventure_location_effect = {
 							value = flag:middle_east_persia
 						}
 					}
+					10 = {
+						# India
+						trigger = {
+							trigger_if = {
+								limit = { exists = location }
+								location = {
+									NOT = { geographical_region = world_india }
+								}
+								adventurer_potential_destination_distance_check = {
+									REGION = world_india
+								}
+							}
+						}
+						set_variable = {
+							name = adventure_destination
+							value = flag:india
+						}
+					}
 					5 = {
 						# The Steppe
 						trigger = {
@@ -351,6 +369,21 @@ set_adventure_location_effect = {
 						set_variable = {
 							name = adventure_destination
 							value = flag:steppe
+						}
+					}
+					5 = {
+						# The Steppe - West
+						trigger = {
+							trigger_if = {
+								limit = { exists = location }
+								adventurer_potential_destination_distance_check = {
+									REGION = world_steppe_west
+								}
+							}
+						}
+						set_variable = {
+							name = adventure_destination
+							value = flag:steppe_west
 						}
 					}
 					5 = {
@@ -457,6 +490,12 @@ get_adventure_inspiration_start_location = {
 				flag:middle_east_persia = { # Middle East - Persia
 					random_county_in_region = {
 						region = region_darshi_west
+						title_province = { save_scope_as = location }
+					}
+				}
+				flag:india = { # India
+					random_county_in_region = {
+						region = world_india
 						title_province = { save_scope_as = location }
 					}
 				}
@@ -650,6 +689,90 @@ inspiration_adventure_create_artifact_effect = {
 										}
 										create_artifact_pedestal_branch_relic_slavic_effect = {
 											OWNER = root
+										}
+									}
+									100 = { #Hinduism
+										trigger = {
+											scope:location ?= {
+												OR = {
+													religion = religion:ghavati_religion
+													geographical_region = world_india
+													geographical_region = world_himalaya
+												}
+											}
+										}
+										modifier = {
+											NOT = { scope:location.religion = religion:ghavati_religion }
+											add = -75
+										}
+										random_list = {
+											10 = {
+												trigger = {
+													any_artifact = {
+														count < 8
+														has_variable = aruval
+													}
+													scope:location ?= {
+														OR = {
+															geographical_region = world_india
+															geographical_region = world_tibet
+															religion = religion:ghavati_religion
+														}
+													}
+												}
+												create_artifact_aruval_effect = { OWNER = root }
+											}
+											10 = {
+												trigger = {
+													any_artifact = {
+														count < 12
+														has_variable = conch
+													}
+													scope:location ?= {
+														OR = {
+															geographical_region = world_india
+															geographical_region = world_tibet
+															religion = religion:ghavati_religion
+														}
+													}
+												}
+												create_artifact_pedestal_shankha_conch_effect = { OWNER = root }
+											}
+											10 = { #Ancient Khanda
+												trigger = {
+													any_artifact = {
+														count < 8
+														has_variable = khanda
+													}
+													scope:location ?= {
+														OR = {
+															geographical_region = world_india
+															geographical_region = world_tibet
+															religion = religion:ghavati_religion
+														}
+													}
+												}
+												create_artifact_khanda_effect = { OWNER = root }
+											}
+											10 = { #Cintamani stone
+												trigger = {
+													any_artifact = {
+														count < 3
+														has_variable = cintamani_hindu
+													}
+													scope:location ?= {
+														OR = {
+															geographical_region = world_india
+															geographical_region = world_tibet
+															religion = religion:ghavati_religion
+														}
+													}
+												}
+												create_artifact_cintamani_hindu_effect = { OWNER = root }
+											}
+											25 = {
+												create_artifact_pedestal_branch_relic_hinduism_effect = { OWNER = root }
+											}
 										}
 									}
 									100 = { #Finno-Ugric
