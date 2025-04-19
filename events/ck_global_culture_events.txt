@@ -159,7 +159,7 @@ ck_global_culture.1000 = { ### Vlandia renamed to Swadia
 }
 ck_global_culture.1001 = { ### Vlandian split informational event
 	type = character_event
-	title = ck_global_culture.1001.title
+	title = ck_global_culture.1001.t
 	desc = ck_global_culture.1001.desc ### PLACEHOLDER
 	theme = culture_change
 	right_portrait = {
@@ -173,7 +173,7 @@ ck_global_culture.1001 = { ### Vlandian split informational event
 }
 ck_global_culture.1002 = { ### Pre-split info
 	type = character_event
-	title = ck_global_culture.1002.title
+	title = ck_global_culture.1002.t
 	desc = ck_global_culture.1002.desc
 	override_background = { reference = farmland }
 	theme = culture_change
@@ -195,7 +195,18 @@ ck_global_culture.1002 = { ### Pre-split info
 ck_global_culture.0003 = { ### Choosing culture
     type = character_event
 	title = ck_global_culture.0003.t
-	desc = ck_global_culture.0003.desc
+	desc = {
+		# Base Desc
+		desc = ck_global_culture.0003.desc
+		first_valid = { # If player is Vlandian
+			triggered_desc = {
+				trigger = {
+					root.culture = culture:vlandian
+				}
+				desc = k_global_culture.0003.desc.vlandian
+			}
+		}
+	}
 	theme = culture_change
 	override_background = { reference = study }
 	right_portrait = {
@@ -355,7 +366,7 @@ ck_global_culture.0003 = { ### Choosing culture
 		}
 	}
 }
-ck_global_culture.0004 = {
+ck_global_culture.0004 = { # New Rhodok courtier
     type = character_event
 	title = ck_global_culture.0004.t
 	desc = ck_global_culture.0004.desc
@@ -493,7 +504,15 @@ ck_global_culture.0005 = { ###Rhodoks appeared in your county
 			}
 		}
 		ai_chance = { #Placeholder
-			base = 100
+			base = 50
+			modifier = {
+				add = 10
+				OR = {
+					has_trait = shy
+					has_trait = craven
+					has_trait = lazy
+				}
+			}
 		}
 	}
 	option = { #Encourage conversion
@@ -506,9 +525,17 @@ ck_global_culture.0005 = { ###Rhodoks appeared in your county
 				}
 			}
 		}
-		#ai_chance = {
-		#	base = #???
-		#}
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = 15
+				OR = {
+					has_trait = compassionate
+					has_trait = generous
+					has_trait = gregarious
+				}
+			}
+		}
 	}
 	option = { #Discourage conversion ### Add some kind of debuff modifier maybe
 		name = ck_global_culture.0005.c
@@ -525,9 +552,17 @@ ck_global_culture.0005 = { ###Rhodoks appeared in your county
 			}
 			7 = { }
 		}
-		#ai_chance = {
-		#	base = #???
-		#}
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = 22
+				OR = {
+					has_trait = callous
+					has_trait = vengeful
+					has_trait = arrogant
+				}
+			}
+		}
 	}
 }
 ck_global_culture.0006 = {
@@ -1432,6 +1467,59 @@ ck_global_culture.0016 = { ## Local unrest - Swadian nobles in Rhodokia
 			modifier = {
 				add = 55
 				has_trait = vengeful
+			}
+		}
+	}
+}
+
+### Rhodok Council Events ###
+ck_global_culture.0017 = {
+	type = character_event
+	title = ck_global_culture.0017.t
+	desc = ck_global_culture.0017.desc
+	theme = culture_change
+	override_background = { reference = council_chamber }
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+
+	trigger = {
+		capital_province = { geographical_region = region_rhodok_culture }
+		current_date >= 1107.1.1
+		has_culture = culture:rhodok
+		is_vassal_or_below_of = title:k_vlandia.holder
+	}
+
+	immediate = {
+	}
+
+	option = {
+		name = ck_global_culture.0017.a
+		custom_tooltip = ck_global_culture.0017.a.tt
+		hidden_effect = {
+			add_character_flag = {
+				flag = rhodok_council_available
+				years = 20
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+
+	option = {
+		name = ck_global_culture.0017.b
+		
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = 55
+				has_trait = shy
+			}
+			modifier = {
+				add = 55
+				has_trait = content
 			}
 		}
 	}
