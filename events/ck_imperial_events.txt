@@ -2665,34 +2665,207 @@ ck_imperial_events.0030 = { ### Poverty of <county> / Starving plebeians
 	}
 	
 }
-#ck_imperial_events.0031 = { ### Magisterial Corruption ### PLACEHOLDER ### Arberian Disciple
-#	type = character_event
-#	title = ck_imperial_events.0031.t
-#	desc = ck_imperial_events.0031.desc
-#	theme = ck_imperial
-#	right_portrait = {
-#		character = root
-#		animation = thinking
-#	}
-#	
-#	override_background = { reference = ck_senate }
-#	
-#	trigger = {
-#		NOT = {
-#			has_character_flag = recent_senate_event
-#		}
-#	}
-#	
-#	immediate = {
-#		add_character_flag = {
-#			flag = recent_senate_event
-#			years = 1
-#		}
-#	}
-#	
-#	
-#	
-#}
+ck_imperial_events.0031 = { ### Magisterial Corruption
+	type = character_event
+	title = ck_imperial_events.0031.t
+	desc = ck_imperial_events.0031.desc
+	theme = ck_imperial
+	right_portrait = {
+		character = root
+		animation = thinking
+	}
+	
+	override_background = { reference = ck_senate }
+	
+	trigger = {
+		NOT = {
+			has_character_flag = recent_senate_event
+		}
+	}
+	
+	immediate = {
+		add_character_flag = {
+			flag = recent_senate_event
+			years = 1
+		}
+	}
+	
+	option = { # Death is the only just answer for corruption
+		name = ck_imperial_events.0031.a
+
+		add_legitimacy = 15
+		custom_tooltip = {
+            text = will_please_royalists
+            every_vassal_or_below = {
+                limit = {
+                    has_trait = ck_royalist
+                }
+                add_opinion = {
+                    modifier = expedition_pleased_minor
+                    target = root
+                    years = 2
+                }
+            }
+        }
+		custom_tooltip = {
+            text = will_upset_oligarchs
+            every_vassal_or_below = {
+                limit = {
+                    has_trait = ck_oligarch
+                }
+                add_opinion = {
+                    modifier = expedition_upset_minor
+                    target = root
+                    years = 2
+                }
+            }
+        }
+		stress_impact = {
+			forgiving = medium_stress_impact_gain
+			compassionate = medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 20
+			modifier = {
+				add = -50
+				has_trait = ck_oligarch
+			}
+			modifier = {
+				add = 50
+				has_trait = ck_royalist
+			}
+			modifier = {
+				add = 30
+				OR = {
+					has_trait = sadistic
+					has_trait = vengeful
+					has_trait = just
+					has_trait = callous
+				}
+			}
+			modifier = {
+				add = -100
+				OR = {
+					has_trait = forgiving
+					has_trait = compassionate
+				}
+			}
+			modifier = {
+				add = -15
+				has_trait = arbitrary
+			}
+		}
+	}
+
+	option = { # Grant him pardon
+		name = ck_imperial_events.0031.b
+
+		add_legitimacy = -15
+		custom_tooltip = {
+            text = will_please_oligarchs
+            every_vassal_or_below = {
+                limit = {
+                    has_trait = ck_oligarch
+                }
+                add_opinion = {
+                    modifier = expedition_pleased_minor
+                    target = root
+                    years = 2
+                }
+            }
+        }
+		custom_tooltip = {
+            text = will_upset_royalists
+            every_vassal_or_below = {
+                limit = {
+                    has_trait = ck_royalist
+                }
+                add_opinion = {
+                    modifier = expedition_upset_minor
+                    target = root
+                    years = 2
+                }
+            }
+        }
+		stress_impact = {
+			just = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 20
+			modifier = {
+				add = -50
+				has_trait = ck_royalist
+			}
+			modifier = {
+				add = 50
+				has_trait = ck_oligarch
+			}
+			modifier = {
+				add = 10
+				has_trait = forgiving
+			}
+			modifier = {
+				add = -100
+				has_trait = just
+			}
+		}
+	}
+	option = { # Grant him pardon... for a price
+		name = ck_imperial_events.0031.c
+
+		add_tyranny = 10
+		add_gold = 280
+		add_legitimacy = -30
+		custom_tooltip = {
+            text = will_please_oligarchs
+            every_vassal_or_below = {
+                limit = {
+                    has_trait = ck_oligarch
+                }
+                add_opinion = {
+                    modifier = expedition_pleased_minor
+                    target = root
+                    years = 2
+                }
+            }
+        }
+		custom_tooltip = {
+            text = will_upset_royalists.m
+            every_vassal_or_below = {
+                limit = {
+                    has_trait = ck_royalist
+                }
+                add_opinion = {
+                    modifier = expedition_upset_major
+                    target = root
+                    years = 2
+                }
+            }
+        }
+		stress_impact = {
+			just = medium_stress_impact_gain
+			temperate = major_stress_impact_gain
+			greedy = medium_stress_impact_loss
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = -100
+				has_trait = ck_royalist
+			}
+			modifier = {
+				add = 100
+				has_trait = greedy
+			}
+			modifier = {
+				add = -100
+				has_trait = just
+			}
+		}
+
+	}
+	
+}
 ck_imperial_events.0032 = { ### Brawl in the Senate
 	type = character_event
 	title = ck_imperial_events.0032.t
