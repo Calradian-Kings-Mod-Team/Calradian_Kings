@@ -232,24 +232,32 @@ form_transtanaesic_kingdom_decision = {
 		base = 100
 	}
 }
-call_rhodok_council_decision = {
+
+## Rhodok Council Decision ##
+rhodok_council_decision = {
+	ai_check_interval = 0
 	picture = {
-		reference = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds" ### PLACEHOLDER
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
 	}
 	decision_group_type = major
-	
-	ai_check_interval = 0
+	desc = rhodok_council_decision_desc
 	
 	is_shown = {
 		is_ai = no
 		is_landed = yes
 		is_vassal_or_below_of = title:k_vlandia.holder
-		has_culture = culture:rhodok
 		culture:rhodok = {
 			has_variable = rhodok_council_possibility_var
 		}
+		culture = {
+			OR = {
+				this = culture:rhodok
+				any_parent_culture_or_above = {
+					this = culture:rhodok
+				}
+			}
+		}
 	}
-	
 	
 	is_valid_showing_failures_only = {
 		is_capable_adult = yes
@@ -257,23 +265,37 @@ call_rhodok_council_decision = {
 		is_at_war = no
 		is_in_an_activity = no
 	}
-	
+
 	is_valid = {
+		custom_tooltip = {
+			text = rhodok_culture_tt
+			culture = {
+				OR = {
+					this = culture:rhodok
+					any_parent_culture_or_above = {
+						this = culture:rhodok
+					}
+				}
+			}
+		}
 		custom_tooltip = {
 			text = is_vassal_of_vlandian_king_tt
 			is_vassal_or_below_of = title:k_vlandia.holder
 		}
-		prestige_level >= 1
+		capital_province = { geographical_region = region_rhodok_culture }
 		NOT = {
 			has_trait = loyal
 		}
+		prestige_level >= 1
 	}
-	
+
 	effect = {
-		culture:rhodok = {
-			remove_variable = rhodok_council_possibility_var
+		custom_tooltip = {
+			text = rhodok_council_decision_tt
+			culture:rhodok = {
+				remove_variable = rhodok_council_possibility_var
+			}
 		}
-		trigger_event = #####
 	}
 	
 	
