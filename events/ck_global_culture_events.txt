@@ -495,11 +495,15 @@ ck_global_culture.0005 = { ###Rhodoks appeared in your county
 	option = { #Don't bother, culture will convert as normal
 		name = ck_global_culture.0005.a
 		
-		scope:rhodok_conversion_county = {
-			holder = {
-				trigger_event = {
-					id = ck_global_culture.0007
-					months = { 10 23 }
+		custom_tooltip = {
+			text = culture_will_convert_months
+			scope:rhodok_conversion_county = {
+				holder = {
+					trigger_event = {
+						id = ck_global_culture.0007
+						months = { 10 23 }
+					}
+					add_character_flag = ignored_rhodok_culture
 				}
 			}
 		}
@@ -517,11 +521,15 @@ ck_global_culture.0005 = { ###Rhodoks appeared in your county
 	}
 	option = { #Encourage conversion
 		name = ck_global_culture.0005.b
-		scope:rhodok_conversion_county = {
-			holder = {
-				trigger_event = {
-					id = ck_global_culture.0007
-					months = { 5 11 }
+		custom_tooltip = {
+			text = culture_will_convert_faster
+			scope:rhodok_conversion_county = {
+				holder = {
+					trigger_event = {
+						id = ck_global_culture.0007
+						months = { 5 11 }
+					}
+					add_character_flag = encouraged_rhodok_culture
 				}
 			}
 		}
@@ -539,13 +547,28 @@ ck_global_culture.0005 = { ###Rhodoks appeared in your county
 	}
 	option = { #Discourage conversion ### Add some kind of debuff modifier maybe
 		name = ck_global_culture.0005.c
+		trigger = {
+			culture = {
+				OR = {
+					this = culture:swadian
+					this = culture:vlandian
+					NOT = {
+						has_cultural_pillar = heritage_balian
+					}
+				}
+
+			}
+		}
 		random_list = {
 			3 = {
-				scope:rhodok_conversion_county = {
-					holder = {
-						trigger_event = {
-							id = ck_global_culture.0007
-							months = { 14 23 }
+				custom_tooltip = {
+					text = culture_might_convert
+					scope:rhodok_conversion_county = {
+						holder = {
+							trigger_event = {
+								id = ck_global_culture.0007
+								months = { 14 23 }
+							}
 						}
 					}
 				}
@@ -591,11 +614,43 @@ ck_global_culture.0006 = {
         	}
         	save_scope_as = rhodok_conversion_county
         }
-		scope:rhodok_conversion_county = {
-			holder = {
-				trigger_event = {
-					id = ck_global_culture.0005
-					days = 1
+		if = {
+			limit = {
+				scope:rhodok_conversion_county = {
+					holder = {
+						has_character_flag = ignored_rhodok_culture
+					}
+				}
+			}
+			trigger_event = {
+				id = ck_global_culture.0007
+				months = { 10 23 }
+			}
+		}
+		else_if = {
+			limit = {
+				scope:rhodok_conversion_county = {
+					holder = {
+						has_character_flag = encouraged_rhodok_culture
+					}
+				}
+			}
+			scope:rhodok_conversion_county = {
+				holder = {
+					trigger_event = {
+						id = ck_global_culture.0007
+						months = { 5 11 }
+					}
+				}
+			}
+		}
+		else = {
+			scope:rhodok_conversion_county = {
+				holder = {
+					trigger_event = {
+						id = ck_global_culture.0005
+						days = 1
+					}
 				}
 			}
 		}
@@ -646,9 +701,8 @@ ck_global_culture.0008 = { ###Start of Rhodok rebellion
 			outfit_tags = { military_outfit }
 		}
 	}
-
 	immediate = {
-		play_music_cue = mx_ck_calradian_war
+		play_music_cue = "mx_cue_crusade_starts"
 		title:k_vlandia.holder = {
 			save_scope_as = vlandiaking
 		}
@@ -723,6 +777,9 @@ ck_global_culture.0008 = { ###Start of Rhodok rebellion
 					NOT = {
 						this = root
 					}
+					NOT = {
+						has_character_flag = rejected_rhodok_war
+					}
 				}
 				trigger_event = {
 					id = ck_global_culture.0009 # Asking other non-swadian vassals to join
@@ -780,7 +837,7 @@ ck_global_culture.1008 = { ### Grunwalder and his host join the rebellion
 			location = capital_province
 			faith = faith:western_calradic
 			culture = culture:massa
-			dynasty_house = house:dynn_grunwalder
+			dynasty = dynn_grunwalder
 			save_scope_as = grunwalder
 			after_creation = { 
 				add_character_flag = is_grunwalder
@@ -843,6 +900,7 @@ ck_global_culture.0009 = { ###Decision for other rhodok nobles to join the rebel
 	}
 
 	immediate = {
+		play_music_cue = "mx_cue_crusade_starts"
 		title:k_vlandia = {
 			holder = {
 				every_character_war = { # Co za spierdolony kod, czemu nie można stworzyć scope'a przy rozpoczęciu wojny?
@@ -1519,4 +1577,184 @@ ck_global_culture.0017 = {
 		}
 	}
 }
-## Start of the Council ##
+## Start of the Council - Instigated ##
+ck_global_culture.0018 = {
+	type = character_event
+	title = ck_global_culture.0018.t
+	desc = {
+		first_valid = {
+			triggered_desc = { 
+				trigger = {
+					root = {
+						has_character_flag = rhodok_instigator_flag
+					}
+				}
+				desc = ck_global_culture.0018.desc
+			}
+			desc = ck_global_culture.0018.desc.non_instigator
+		}
+	}
+	theme = culture_change
+	override_background = { reference = council_chamber }
+
+	right_portrait = {
+		character = root
+		animation = chancellor ###PLACEHOLDER
+	}
+
+	trigger = {
+		capital_province = { geographical_region = region_rhodok_culture }
+		is_vassal_or_below_of = title:k_vlandia.holder
+	}
+
+	immediate = {
+		remove_rhodok_council_var_effect = yes
+	}
+
+	option = { # Accept rebellion
+		name = ck_global_culture.0018.a
+		trigger = {
+			NOT = {
+				has_character_flag = rhodok_instigator_flag
+			}
+		}
+		root = {
+			add_character_flag = {
+				flag = accepted_rhodok_war
+				years = 50
+			}
+			add_to_list = rhodok_accepted_war_list
+		}
+		ai_chance = {
+			base = 5
+			modifier = {
+				add = 11
+				OR = {
+					has_trait = vengeful
+					has_trait = greedy
+				}
+			}
+			modifier = {
+				add = 4
+				OR = {
+					has_trait = brave
+					has_trait = ambitious
+				}
+			}
+		}
+	}
+
+	option = { # Reject rebellion
+		name = ck_global_culture.0018.b
+		trigger = {
+			NOT = {
+				has_character_flag = rhodok_instigator_flag
+			}
+		}
+		root = {
+			add_character_flag = {
+				flag = rejected_rhodok_war
+				years = 50
+			}
+			save_scope_as = rhodok_rejected_war
+			add_to_list = rhodok_rejected_war_list
+		}
+		ai_chance = {
+			base = 3
+			modifier = {
+				add = 12
+				OR = {
+					has_trait = shy
+					has_trait = reclusive
+					has_trait = content
+				}
+			}
+			modifier = {
+				add = 5
+				OR = {
+					has_trait = just
+					has_trait = stubborn
+				}
+			}
+		}
+	}
+
+	option = { # Only option for instigator
+		name = ck_global_culture.0018.c
+		trigger = {
+			has_character_flag = rhodok_instigator_flag
+		}
+		ai_chance = {
+			base = 10
+		}
+	}
+
+	# after = {
+	# 	hidden_effect = {
+	# 		trigger_event = {
+	# 			id = ck_global_culture.0020
+	# 			days = 10
+	# 		}
+	# 	}
+	# }
+}
+## Invitation to Council from Instigator ## 
+ck_global_culture.0019 = {
+	type = letter_event
+	opening = {
+		desc = feast.1501.opening
+	}
+	desc = ck_global_culture.0019.desc
+	sender = scope:rhodok_instigator
+
+	trigger = {	}
+	on_trigger_fail = {	}
+	immediate = { }
+
+	option = {
+		name = ck_council_invite.a
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 40
+				has_relation_friend = scope:rhodok_instigator
+			}
+		}
+		stress_impact = {
+			shy = medium_stress_gain
+			gregarious = minor_stress_impact_loss
+			ambitious = minor_stress_impact_loss
+			vengeful = medium_stress_impact_loss
+		}
+		add_character_flag = {
+			flag = accepted_rhodok_council
+			years = 20
+		}
+	}
+
+	option = {
+		name = ck_council_invite.b
+		ai_chance = {
+			base = 5
+			modifier = {
+				add = 20
+				OR = {
+					has_trait = shy
+					has_trait = reclusive
+					has_trait = content
+				}
+			}
+		}
+		stress_impact = {
+			shy = major_stress_impact_loss
+			gregarious = minor_stress_impact_gain
+			ambitious = medium_stress_impact_gain
+			vengeful = medium_stress_impact_gain
+		}
+		add_character_flag = {
+			flag = rejected_rhodok_council
+			years = 20
+		}
+	}
+}
+# Vote on Rebellion Results #
