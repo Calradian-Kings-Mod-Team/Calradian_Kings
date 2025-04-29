@@ -216,9 +216,13 @@ yearly_global_pulse = {
 		if = {
 			limit = {
 				culture:rhodok = {
-					has_variable = rhodok_emergence_var
 					NOT = {
-						has_variable = rhodok_council_established # Keep it from repeating
+						has_variable = rhodok_council_available # Keep it from repeating
+					}
+					has_variable = rhodok_emergence_var
+					NOR = {
+						has_variable = rhodok_council_established
+						has_variable = council_invitation_cooldown
 					}
 				}
 				current_date >= 1107.1.1
@@ -228,13 +232,14 @@ yearly_global_pulse = {
 					has_culture = culture:rhodok
 					is_vassal_or_below_of = title:k_vlandia.holder
 				}
-				culture:rhodok = {
-					set_variable = rhodok_council_possibility_var
-				}
 				trigger_event = { ############## PLACEHOLDER - ADD PROPER EVENT - Rhodok council possible
 					id = ck_global_culture.0017
 					days = { 25 45 }
 				}
+			}
+			culture:rhodok = {
+				set_variable = rhodok_council_possibility_var
+				set_variable = rhodok_council_available
 			}
 			
 		}
@@ -242,14 +247,18 @@ yearly_global_pulse = {
 			limit = {
 				culture:rhodok = {
 					has_variable = rhodok_council_possibility_var
+					NOR = {
+						has_variable = council_invitation_cooldown
+						has_variable = independence_war_available_rk
+					}
 				}
-				current_date >= 1108.1.1
+				current_date >= 1108.3.11
 			}
 			random = {
 				chance = 25
 				modifier = {
 					add = 100
-					current_date >= 1110.1.1
+					current_date >= 1110.3.11
 				}
 				if = {
 					limit = {
@@ -266,6 +275,10 @@ yearly_global_pulse = {
 							has_culture = culture:rhodok
 							is_vassal_or_below_of = title:k_vlandia.holder
 							capital_province = { geographical_region = region_rhodok_culture }
+							NOR = {
+								has_character_flag = rejected_rhodok_council
+								has_character_flag = rejected_rhodok_war
+							}
 						}
 						save_scope_as = rhodok_instigator
 						add_character_flag = rhodok_instigator_flag
@@ -277,7 +290,10 @@ yearly_global_pulse = {
 					remove_rhodok_council_var_effect = yes
 					culture:rhodok = {
 						set_variable = rhodok_council_established
+						set_variable = rhodok_council_available
 					}
+					send_rhodok_council_invitation_effect = yes
+					send_rhodok_council_invitation_swadian_effect = yes
 				}
 				else_if = {
 					limit = {
@@ -286,6 +302,10 @@ yearly_global_pulse = {
 							NOT = { has_culture = culture:swadian }
 							is_vassal_or_below_of = title:k_vlandia.holder
 							capital_province = { geographical_region = region_rhodok_culture }
+							NOR = {
+								has_character_flag = rejected_rhodok_council
+								has_character_flag = rejected_rhodok_war
+							}
 						}
 					}
 					random_ruler = {
@@ -302,9 +322,12 @@ yearly_global_pulse = {
 							days = 30
 						}
 					}
+					send_rhodok_council_invitation_effect = yes
+					send_rhodok_council_invitation_swadian_effect = yes
 					remove_rhodok_council_var_effect = yes
 					culture:rhodok = {
 						set_variable = rhodok_council_established
+						set_variable = rhodok_council_available
 					}
 				}
 			}
@@ -312,12 +335,13 @@ yearly_global_pulse = {
 		# Rhodok rebellion started by AI
 		if = {
 			limit = {
-				current_date <= 1114.1.1
-				current_date >= 1112.1.1
+				current_date <= 1117.1.1
+				current_date >= 1114.1.1
 				exists = title:k_vlandia.holder
-				NOT = {
-					culture:rhodok = {
+				culture:rhodok = {
+					NOR = {
 						has_variable = rhodok_rebellion_var
+						has_variable = rhodok_war_possible
 					}
 				}
 			}
@@ -331,7 +355,9 @@ yearly_global_pulse = {
 						is_at_war = no
 						is_in_an_activity = no
 						government_has_flag = government_is_feudal
-						#gold = 20000 ##### TEST - REMOVE IT LATER
+						NOT = {
+							has_character_flag = can_declare_rhodok_war
+						}
 					}
 				}
 				random_ruler = {
@@ -345,6 +371,7 @@ yearly_global_pulse = {
 						government_has_flag = government_is_feudal
 					}
 					trigger_event = ck_global_culture.0008
+					save_scope_as = rhodok_war_leader
 				}
 			}
 			else = {
@@ -369,8 +396,9 @@ yearly_global_pulse = {
 					location = title:c_jaculan.title_province
 					faith = faith:western_calradic
 					culture = culture:massa
-					dynasty = dynn_grunwalder
+					dynasty_house = house:house_grunwalder
 					save_scope_as = grunwalder
+					save_scope_as = rhodok_war_leader
 					after_creation = { 
 						add_character_flag = is_grunwalder
 						copy_inheritable_appearance_from = character:grunwalder_dummy

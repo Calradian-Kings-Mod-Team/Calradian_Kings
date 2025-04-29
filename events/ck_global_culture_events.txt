@@ -494,7 +494,11 @@ ck_global_culture.0005 = { ###Rhodoks appeared in your county
 	
 	option = { #Don't bother, culture will convert as normal
 		name = ck_global_culture.0005.a
-		
+		trigger = {
+			NOT = {
+				has_title = title:k_rhodok
+			}
+		}
 		custom_tooltip = {
 			text = culture_will_convert_months
 			scope:rhodok_conversion_county = {
@@ -754,6 +758,24 @@ ck_global_culture.0008 = { ###Start of Rhodok rebellion
 				set_variable = rhodok_rebellion_var
 			}
 			add_character_flag = ai_should_not_transfer
+			save_scope_as = rhodok_war_leader
+		}
+		every_ruler = {
+			limit = {
+				capital_province = {
+					geographical_region = region_rhodokia
+				}
+				is_vassal_or_below_of = scope:vlandiaking
+				NOR = {
+					culture = culture:rhodok
+					is_at_war_with = scope:rhodok_war_leader
+					has_character_flag = accepted_rhodok_war
+				}
+			}
+			trigger_event = {
+				id = ck_global_culture.0026 # Warns Swadian players
+				days = 1
+			}
 		}
 	}
 	option = { ###Start of rebellion 
@@ -817,27 +839,9 @@ ck_global_culture.1008 = { ### Grunwalder and his host join the rebellion
 	
 	immediate = {
 		create_character = {
+			template = grunwalder_character_template
 			name = "Rhenald" ## placeholder?
-			age = 45
-			gender = male
-			trait = education_martial_4
-			trait = organizer
-			trait = rough_terrain_expert
-			trait = unyielding_defender
-			trait = education_martial_prowess_3
-			trait = brave
-			trait = diligent
-			trait = gregarious
-			martial = { 20 24 }
-			stewardship = { 7 13 }
-			diplomacy = { 14 19 }
-			intrigue = { 12 15 }
-			prowess = { 18 25 }
-			learning = { 5 14 }
 			location = capital_province
-			faith = faith:western_calradic
-			culture = culture:massa
-			dynasty = dynn_grunwalder
 			save_scope_as = grunwalder
 			after_creation = { 
 				add_character_flag = is_grunwalder
@@ -856,7 +860,7 @@ ck_global_culture.1008 = { ### Grunwalder and his host join the rebellion
 	}
 	
 	option = { # 
-		name = ck_global_culture.1008
+		name = ck_global_culture.1008.a
 		add_courtier = scope:grunwalder
 		spawn_army = {
 			levies = 700
@@ -941,6 +945,10 @@ ck_global_culture.0009 = { ###Decision for other rhodok nobles to join the rebel
 				resolve_title_and_vassal_change = scope:control_change
 			}
 			add_character_flag = ai_should_not_transfer
+			add_character_flag = {
+				flag = joined_rhodok_war
+				days = 3
+			}
 		}
 		
 		ai_chance = {
@@ -948,6 +956,10 @@ ck_global_culture.0009 = { ###Decision for other rhodok nobles to join the rebel
 			modifier = {
 				add = -100
 				has_trait = craven
+			}
+			modifier = {
+				add = 1000
+				has_character_flag = accepted_rhodok_war
 			}
 		}
 	}
@@ -961,6 +973,10 @@ ck_global_culture.0009 = { ###Decision for other rhodok nobles to join the rebel
 			modifier = {
 				add = 100
 				has_trait = craven
+			}
+			modifier = {
+				add = 100
+				has_character_flag = rejected_rhodok_war
 			}
 		}
 	}
@@ -1017,6 +1033,7 @@ ck_global_culture.0011 = { ###Fate of independent Rhodokia #remember about pushi
 				remove_character_flag = ai_should_not_transfer
 			}
 			remove_character_flag = ai_should_not_transfer
+			save_scope_as = rhodokking
 		}
 	}
 
@@ -1219,7 +1236,7 @@ ck_global_culture.0014 = { ## Locals refusing taxes - Swadian nobles in Rhodokia
 		}
 		add_character_flag = {
 			flag = locals_debuff_event
-			months = 10
+			months = 12
 		}
 	}
 	
@@ -1342,7 +1359,7 @@ ck_global_culture.0015 = { ## Local levies deserting - Swadian nobles in Rhodkia
 		}
 		add_character_flag = {
 			flag = locals_debuff_event
-			months = 10
+			months = 12
 		}
 	}
 	
@@ -1465,7 +1482,7 @@ ck_global_culture.0016 = { ## Local unrest - Swadian nobles in Rhodokia
 		}
 		add_character_flag = {
 			flag = locals_debuff_event
-			months = 10
+			months = 12
 		}
 	}
 	
@@ -1563,7 +1580,7 @@ ck_global_culture.0017 = {
 
 	option = {
 		name = ck_global_culture.0017.b
-		
+		custom_tooltip = ck_global_culture.0017.a.tt
 		ai_chance = {
 			base = 50
 			modifier = {
@@ -1598,13 +1615,21 @@ ck_global_culture.0018 = {
 	override_background = { reference = council_chamber }
 
 	right_portrait = {
-		character = root
+		character = scope:rhodok_instigator
 		animation = chancellor ###PLACEHOLDER
 	}
 
 	trigger = {
-		capital_province = { geographical_region = region_rhodok_culture }
+		NOT = {
+			has_character_flag = rejected_rhodok_council
+		}
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
 		is_vassal_or_below_of = title:k_vlandia.holder
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
 	}
 
 	immediate = {
@@ -1614,17 +1639,12 @@ ck_global_culture.0018 = {
 	option = { # Accept rebellion
 		name = ck_global_culture.0018.a
 		trigger = {
-			NOT = {
+			NOR = {
 				has_character_flag = rhodok_instigator_flag
+				has_character_flag = rejected_rhodok_war
 			}
 		}
-		root = {
-			add_character_flag = {
-				flag = accepted_rhodok_war
-				years = 50
-			}
-			add_to_list = rhodok_accepted_war_list
-		}
+		add_character_flag = accepted_rhodok_war
 		ai_chance = {
 			base = 5
 			modifier = {
@@ -1647,18 +1667,12 @@ ck_global_culture.0018 = {
 	option = { # Reject rebellion
 		name = ck_global_culture.0018.b
 		trigger = {
-			NOT = {
+			NOR = {
 				has_character_flag = rhodok_instigator_flag
+				has_character_flag = accepted_rhodok_war
 			}
 		}
-		root = {
-			add_character_flag = {
-				flag = rejected_rhodok_war
-				years = 50
-			}
-			save_scope_as = rhodok_rejected_war
-			add_to_list = rhodok_rejected_war_list
-		}
+		add_character_flag = rejected_rhodok_war
 		ai_chance = {
 			base = 3
 			modifier = {
@@ -1689,32 +1703,58 @@ ck_global_culture.0018 = {
 		}
 	}
 
-	# after = {
-	# 	hidden_effect = {
-	# 		trigger_event = {
-	# 			id = ck_global_culture.0020
-	# 			days = 10
-	# 		}
-	# 	}
-	# }
+	after = {
+		hidden_effect = {
+			trigger_event = {
+				id = ck_global_culture.0020
+				days = 10
+			}
+			trigger_event = {
+				id = ck_global_culture.0021
+				days = 25
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_character_flag = rejected_rhodok_war
+					}
+				}
+				trigger_event = {
+					id = ck_global_culture.0022
+					months = { 2 3 }
+				}
+			}
+		}
+	}
 }
-## Invitation to Council from Instigator ## 
-ck_global_culture.0019 = {
+
+ck_global_culture.0019 = { ## Invitation to Council from Instigator ## 
 	type = letter_event
 	opening = {
-		desc = feast.1501.opening
+		desc = ck_global_culture.0019.opening
 	}
 	desc = ck_global_culture.0019.desc
 	sender = scope:rhodok_instigator
-
-	trigger = {	}
-	on_trigger_fail = {	}
-	immediate = { }
-
+	trigger = {
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
+		NOT = {
+			has_character_flag = rejected_rhodok_council
+		}
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
+	}
+	immediate = {
+		root = {
+			save_scope_as = rhodok_recipient
+		}
+	}
 	option = {
 		name = ck_council_invite.a
 		ai_chance = {
-			base = 10
+			base = 15
 			modifier = {
 				add = 40
 				has_relation_friend = scope:rhodok_instigator
@@ -1730,6 +1770,10 @@ ck_global_culture.0019 = {
 			flag = accepted_rhodok_council
 			years = 20
 		}
+		trigger_event = {
+			id = ck_global_culture.0018
+			days = 20
+		}
 	}
 
 	option = {
@@ -1737,7 +1781,7 @@ ck_global_culture.0019 = {
 		ai_chance = {
 			base = 5
 			modifier = {
-				add = 20
+				add = 5
 				OR = {
 					has_trait = shy
 					has_trait = reclusive
@@ -1757,4 +1801,691 @@ ck_global_culture.0019 = {
 		}
 	}
 }
-# Vote on Rebellion Results #
+
+ck_global_culture.0020 = { # Supporter Speaks Up #
+	type = character_event
+	title = ck_global_culture.0020.t
+
+	desc = {
+		first_valid = {
+			triggered_desc = { 
+				trigger = {
+					this = scope:rhodok_accepted_war
+				}
+				desc = ck_global_culture.0020.desc.me
+			}
+			triggered_desc = {
+				trigger = {
+					NOT = {
+						exists = scope:rhodok_accepted_war
+					}
+				}
+				desc = ck_global_culture.0020.a3 # No proponents
+			}
+			desc = ck_global_culture.0020.desc
+		}
+		
+	}
+	theme = realm
+	override_background = {
+		reference = council_chamber
+	}
+
+	right_portrait = {
+		trigger = {
+			exists = scope:rhodok_accepted_war
+		}
+		character = scope:rhodok_accepted_war
+		animation = storyteller
+	}
+
+	trigger = {
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
+	}
+	immediate = {
+		title:k_vlandia.holder = {
+			random_vassal_or_below = {
+				limit = {
+					has_character_flag = accepted_rhodok_war
+				}
+				save_scope_as = rhodok_accepted_war
+			}
+		}
+	}
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							has_character_flag = rhodok_rejected_war
+						}
+						desc = ck_global_culture.0020.a2 # Not a proponent 
+					}
+					triggered_desc = {
+						trigger = {
+							OR = {
+								has_character_flag = rhodok_instigator_flag
+								has_character_flag = accepted_rhodok_war
+							}
+						}
+						desc = ck_global_culture.0020.a # Is a proponent
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:rhodok_accepted_war
+			}
+			custom_tooltip = ck_global_culture.0020.a.tt
+		}
+	}
+
+	# after = {
+	# 	scope:rhodok_accepted_war = {
+	# 		remove_character_flag = accepted_rhodok_war
+	# 	}
+	# }
+}
+ck_global_culture.0021 = { # Opponent Speaks Up #
+	type = character_event
+	title = ck_global_culture.0021.t
+	desc = {
+		triggered_desc = { 
+			trigger = {
+				exists = scope:rhodok_rejected_war
+				this = scope:rhodok_rejected_war
+			}
+			desc = ck_global_culture.0021.desc.me
+		}
+		triggered_desc = {
+			trigger = {
+				NOT = {
+					exists = scope:rhodok_rejected_war
+				}
+			}
+			desc = ck_global_culture.0021.a3 # No opponents
+		}
+		triggered_desc = { 
+			trigger = {
+				exists = scope:rhodok_rejected_war
+				NOT = {
+					this = scope:rhodok_rejected_war
+				}
+			}
+			desc = ck_global_culture.0021.desc
+		}
+	}
+
+	theme = realm
+	override_background = {
+		reference = council_chamber
+	}
+
+	right_portrait = {
+		trigger = {
+			exists = scope:rhodok_rejected_war
+		}
+		character = scope:rhodok_rejected_war
+		animation = rage
+	}
+
+	trigger = {
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
+	}
+	immediate = {
+		title:k_vlandia.holder = {
+			random_vassal_or_below = {
+				limit = {
+					has_character_flag = rejected_rhodok_war
+				}
+				save_scope_as = rhodok_rejected_war
+			}
+		}
+	}
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							NOT = {
+								has_character_flag = rhodok_rejected_war
+							}
+						}
+						desc = ck_global_culture.0021.a # Not the opponent
+					}
+					triggered_desc = {
+						trigger = {
+							has_character_flag = rhodok_rejected_war
+						}
+						desc = ck_global_culture.0021.a2 # Is an opponent
+					}
+					triggered_desc = {
+						trigger = {
+							NOT = {
+								exists = scope:rhodok_rejected_war
+							}
+						}
+						desc = ck_global_culture.0021.a4 # No opponents
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:rhodok_rejected_war
+			}
+			custom_tooltip = ck_global_culture.0021.a.tt
+		}
+	}
+
+	# after = {
+	# 	scope:rhodok_accepted_war = {
+	# 		remove_character_flag = rejected_rhodok_war
+	# 	}
+	# }
+} 
+ck_global_culture.0022 = { # Propose Black Bear CoA #
+	type = character_event
+	title = ck_global_culture.0022.t
+	desc = ck_global_culture.0022.desc
+
+	theme = realm
+	override_background = {
+		reference = council_chamber
+	}
+
+	right_portrait = {
+		character = root
+		animation = personality_rational
+	}
+	trigger = {
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
+	}
+	option = {
+		name = ck_global_culture.0022.a
+	}
+	option = {
+		name = ck_global_culture.0022.b
+	}
+	after = {
+		trigger_event = {
+			id = ck_global_culture.0023
+			days = { 20 40 }
+		}
+	}
+}
+# Grunwalder Envoy Attends #
+ck_global_culture.0023 = {
+	type = character_event
+	title = ck_global_culture.0023.t
+	desc = ck_global_culture.0023.desc
+
+	theme = realm
+	override_background = {
+		reference = council_chamber
+	}
+	right_portrait = {
+		character = root
+		animation = personality_rational
+	}
+	trigger = {
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
+	}
+	option = {
+		name = ck_global_culture.0023.a
+	}
+	option = {
+		name = ck_global_culture.0023.b
+	}
+	option = {
+		name = ck_global_culture.0023.c
+		trigger = {
+			has_trait = arrogant
+		}
+	}
+	after = {
+		if = {
+			limit = {
+				scope:rhodok_instigator = {
+					is_ai = yes
+					is_alive = yes
+				}
+			}
+			trigger_event = {
+				id = ck_global_culture.0024
+				months = { 13 29 }
+			}
+		}
+		else_if = {
+			limit = {
+				scope:rhodok_instigator = {
+					is_ai = no
+					is_alive = yes
+				}
+			}
+			trigger_event = {
+				id = ck_global_culture.0024
+				days = { 20 40 }
+			}
+		}
+	}
+}
+# Unlocked Decision to Declare War #
+ck_global_culture.0024 = {
+	type = character_event
+	title = ck_global_culture.0024.t
+	desc = ck_global_culture.0024.desc
+
+	theme = war
+	override_background = {
+		reference = council_chamber
+	}
+	immediate = {
+		culture:rhodok = {
+			set_variable = independence_war_available_rk
+		}
+	}
+	right_portrait = {
+		character = root
+		animation = marshal
+	}
+	trigger = {
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
+	}
+	option = {
+		name = ck_global_culture.0024.a
+	}
+
+	after = {
+		scope:rhodok_instigator = {
+			add_character_flag = can_declare_rhodok_war
+		}
+		culture:rhodok = {
+			set_variable = rhodok_war_possible
+		}
+	}
+}
+# Swadians hear about a secret meeting #
+ck_global_culture.0025 = {
+	type = character_event
+	title = ck_global_culture.0025.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { exists = cp:councillor_spymaster }
+				desc = ck_global_culture.0025.desc.sm
+			}
+			desc = ck_global_culture.0025.desc
+		}
+	}
+	trigger = {
+		NOR = {
+			culture = culture:rhodok
+			has_character_flag = heard_about_rhodok_council
+		}
+		scope:rhodok_instigator = {
+			is_alive = yes
+		}
+	}
+
+	theme = intrigue
+
+	override_background = {
+		reference = council_chamber
+	}
+
+	left_portrait = {
+		character = root
+		animation = personality_rational
+	}
+	right_portrait = {
+		trigger = {
+			exists = scope:spymaster
+		}
+		character = scope:spymaster
+		animation = spymaster
+	}
+
+	immediate = {
+		if = {
+			limit = {
+				exists = cp:councillor_spymaster
+			}
+			cp:councillor_spymaster = {
+				save_scope_as = spymaster
+			}
+		}
+	}
+
+	option = {
+		name = ck_global_culture.0025.a
+		trigger = {
+			NOT = {
+				this = title:k_vlandia.holder
+			}
+		}
+		hidden_effect = {
+			add_character_flag = heard_about_rhodok_council
+		}
+	}
+
+	option = {
+		name = ck_global_culture.0025.b
+		trigger = {
+			this = title:k_vlandia.holder
+		}
+		hidden_effect = {
+			add_character_flag = heard_about_rhodok_council
+		}
+	}
+}
+# Swadians hear about the war #
+ck_global_culture.0026 = {
+	type = character_event
+	title = ck_global_culture.0026.t
+	desc = ck_global_culture.0026.desc
+
+	theme = war
+
+	right_portrait = {
+		trigger = {
+			exists = scope:rhodok_war_leader
+		}
+		character = scope:rhodok_war_leader
+		animation = celebrate_sword
+        outfit_tags = { military_outfit }
+	}
+
+	trigger = {
+		NOR = {
+			culture = culture:rhodok
+			is_at_war_with = scope:rhodok_war_leader
+			has_character_flag = rhodok_accepted_war
+		}
+		is_vassal_or_below_of = title:k_vlandia.holder
+	}
+
+	option = {
+		name = ck_global_culture.0026.a
+		trigger = {
+			is_ai = no
+		}
+		if = {
+			limit = {
+				root.capital_county = {
+					title_province = { geographical_region = region_rhodok_culture }
+				}
+			}
+			custom_tooltip = ck_global_culture.0026.b.tt
+		}
+		custom_tooltip = {
+			text = join_the_rebellion.tt
+			title:k_vlandia = {
+				holder = {
+					every_character_war = { # Co za spierdolony kod, czemu nie można stworzyć scope'a przy rozpoczęciu wojny?
+						limit = {
+							using_cb = rhodok_war
+						}
+						hidden_effect = {
+							set_called_to = root
+						}
+						add_defender = root
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			play_music_cue = "mx_cue_crusade_starts"
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+
+	option = {
+		name = ck_global_culture.0026.b
+
+		if = {
+			limit = {
+				root.capital_county = {
+					title_province = { geographical_region = region_rhodok_culture }
+				}
+			}
+			custom_tooltip = ck_global_culture.0026.b.tt
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}
+
+ck_global_culture.3000 = { #Rhodok titles handout
+    type = character_event
+	hidden = yes
+	
+	option = {
+		while = { ### Giving out duchy titles to adequate counts
+			limit = {
+				any_vassal = {
+					primary_title = {
+						tier = tier_county
+					}
+					capital_county.duchy = {
+						holder = title:k_rhodok.holder
+						NOR = {
+							this = title:d_neurval
+							has_variable = untouchable_title_var
+							any_de_jure_county = {
+								has_variable = untouchable_title_var
+							}
+						}
+					}
+				}
+			}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+			}
+			random_vassal = {
+				limit = {
+					primary_title = {
+						tier = tier_county
+					}
+					capital_county.duchy = {
+						holder = title:k_rhodok.holder
+						NOR = {
+							this = title:d_neurval
+							has_variable = untouchable_title_var
+							any_de_jure_county = {
+								has_variable = untouchable_title_var
+							}
+						}
+					}
+				}
+				save_scope_as = rhodok_random_vassal_county
+				capital_county.duchy = {
+					change_title_holder = {
+						holder = scope:rhodok_random_vassal_county
+						change = scope:change
+					}
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		while = { ### Giving out random counties to other rebels
+			limit = {
+				any_vassal = {
+					NOT = {
+						has_character_flag = received_rhodok_gift
+					}
+					has_character_flag = joined_rhodok_war
+					domain_limit_available >= 1
+					any_held_title = {
+						tier = tier_county
+						any_neighboring_county = {
+							holder = title:k_rhodok.holder
+							NOR = {
+								has_variable = untouchable_title_var
+								this = title:c_jaculan
+								this = title:c_charas
+							}
+						}
+					}
+				}
+			}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+			}
+			random_vassal = {
+				limit = {
+					NOT = {
+						has_character_flag = received_rhodok_gift
+					}
+					has_character_flag = joined_rhodok_war
+					domain_limit_available >= 1
+					any_held_title = {
+						tier = tier_county
+						any_neighboring_county = {
+							holder = title:k_rhodok.holder
+							NOR = {
+								has_variable = untouchable_title_var
+								this = title:c_jaculan
+								this = title:c_charas
+							}
+						}
+					}
+				}
+				save_scope_as = rhodok_gift_receiver
+			}
+			random_held_title = {
+				limit = {
+					tier = tier_county
+					is_neighbor_to_realm = scope:rhodok_gift_receiver
+					NOR = {
+						has_variable = untouchable_title_var
+						this = title:c_jaculan
+						this = title:c_charas
+					}
+				}
+				change_title_holder = {
+					holder = scope:rhodok_gift_receiver
+					change = scope:change
+				}
+			}
+			scope:rhodok_gift_receiver = {
+				add_character_flag = {
+					flag = received_rhodok_gift
+					days = 2
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		while = { ### Giving out counties to courtiers
+			limit = {
+				domain_limit_available <= -1
+				any_courtier = {
+					NOR = {
+						is_spouse_of = root
+						is_child_of = root
+						has_relation_rival = root
+						has_trait = devoted
+					}
+					is_capable_adult = yes
+					is_imprisoned = no
+					has_faith = root.faith
+				}
+			}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+			}
+			random_courtier = {
+				limit = {
+					NOR = {
+						is_spouse_of = root
+						is_child_of = root
+						has_relation_rival = root
+						has_trait = devoted
+					}
+					is_capable_adult = yes
+					is_imprisoned = no
+					has_faith = root.faith
+				}
+				save_scope_as = courtier_rhodok_character
+			}
+			random_held_title = {
+				limit = {
+					tier = tier_county
+					NOR = {
+						has_variable = untouchable_title_var
+						this = title:c_jaculan
+					}
+				}
+				save_scope_as = surplus_county
+			}
+			scope:surplus_county = {
+				change_title_holder = {
+					holder = scope:courtier_rhodok_character
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		while = { ### Giving out counties to random generated rulers
+			limit = { 
+				domain_limit_available <= -1
+			}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+			}
+			random_held_title = {
+				limit = {
+					tier = tier_county
+					NOR = {
+						has_variable = untouchable_title_var
+						this = title:c_jaculan
+					}
+				}
+				save_scope_as = surplus_county
+			}
+			scope:surplus_county = {
+				create_character = {
+					gender = male
+					age = { 20 45 }
+					random_traits = yes
+					faith = root.faith
+					culture = scope:surplus_county.culture
+					location = scope:surplus_county.title_province
+					dynasty = generate
+					save_scope_as = new_rhodok_character
+				}
+				change_title_holder = {
+					holder = scope:new_rhodok_character
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		every_held_title = {
+			limit = {
+				has_variable = untouchable_title_var
+			}
+			remove_variable = untouchable_title_var
+		}
+	}
+}

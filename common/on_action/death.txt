@@ -1646,6 +1646,68 @@ on_death = {
 			}
 		}
 
+		## Rhodok, if council leader dies before end of council ##
+		if = {
+			limit = {
+				AND = {
+					has_character_flag = rhodok_instigator_flag
+					culture:rhodok = {
+						has_variable = independence_war_available_rk
+					}
+				}
+			}
+			culture:rhodok = {
+				set_variable = dead_leader_can_declare_rk
+			}
+		}
+		if = {
+			limit = {
+				has_character_flag = rhodok_instigator_flag
+			}
+			culture:rhodok = {
+				set_variable = rhodok_council_possibility_var
+				set_variable = {
+					name = council_invitation_cooldown
+					value = yes
+					days = 60
+				}
+				remove_variable = rhodok_council_established
+			}
+			remove_character_flag = rhodok_instigator_flag
+		}
+		if = {
+			limit = {
+				has_character_flag = accepted_rhodok_war
+				exists = primary_heir
+			}
+			save_scope_as = dead_rhodok_supporter
+			primary_heir = {
+				add_character_flag = accepted_rhodok_war
+				save_scope_as = dead_rhodok_heir
+			}
+			remove_character_flag = accepted_rhodok_war
+			
+			every_ruler = {
+				limit = {
+					NOR = {
+						exists = title:k_rhodok.holder
+						this = scope:dead_rhodok_heir
+						this = scope:dead_rhodok_supporter
+					}
+					is_vassal_or_below_of = title:k_vlandia.holder
+					has_character_flag = accepted_rhodok_war
+					current_year <= 1130
+				}
+				send_interface_toast = {
+					type = msg_rhodok_heir_event
+					title = rhodok_death.heir.t
+					custom_tooltip = rhodok_death.heir.desc
+					left_icon = scope:dead_rhodok_supporter
+					right_icon = scope:dead_rhodok_heir
+				}
+			}
+		}
+
 		# Additional Flavor Titles
 		additional_flavor_check_death_effect = yes
 	}
