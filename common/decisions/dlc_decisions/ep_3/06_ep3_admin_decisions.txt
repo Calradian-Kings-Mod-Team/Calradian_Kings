@@ -1131,10 +1131,8 @@ renounce_governorship_decision = {
 		}
 		custom_tooltip = { # The Emperor is your liege
 			text = admin_confirmation_liege_tt
-			AND = {
-				top_liege ?= { highest_held_title_tier = tier_empire }
-				liege ?= top_liege
-			}
+			top_liege ?= { highest_held_title_tier >= tier_kingdom }
+			liege ?= top_liege
 		}
 	}
 
@@ -1208,3 +1206,199 @@ renounce_governorship_decision = {
 }
 
 
+# 	desc = change_imperial_aspirations_decision_desc ### CK_COMPATCH - REVIEW THIS. MISSING TOP BRACKET FROM MERGE
+# 	selection_tooltip = change_imperial_aspirations_decision_tooltip
+# 	decision_group_type = admin
+
+# 	is_shown = {
+# 		has_ep3_dlc_trigger = yes
+# 		is_playable_character = yes
+# 		government_has_flag = government_is_administrative
+# 		liege ?= {
+# 			has_realm_law = acclamation_succession_law
+# 		}
+# 	}
+
+# 	is_valid = {
+# 		custom_tooltip = {
+# 			text = has_admin_government
+# 			government_has_flag = government_is_administrative
+# 		}
+# 		trigger_if = { # Unavailable if you are the top liege - Unless you have either modifier, so you may remove it.
+# 			limit = {
+# 				is_independent_ruler = yes
+# 			}
+# 			OR = {
+# 				has_character_modifier = ep3_admin_renounce_throne_personal
+# 				house ?= { has_house_modifier = ep3_admin_renounce_throne_house }
+# 			}
+# 		}
+# 		trigger_else = {
+# 			custom_tooltip = { # The Emperor is your liege
+# 				text = admin_confirmation_liege_tt
+# 				top_liege ?= { highest_held_title_tier >= tier_kingdom }
+# 				liege ?= top_liege
+# 				liege != root
+# 			}
+# 		}
+# 		liege ?= {
+# 			has_realm_law = acclamation_succession_law
+# 		}
+# 	}
+
+# 	is_valid_showing_failures_only = {
+# 		is_available_adult = yes
+# 		is_at_war_with_liege = no
+# 		NOT = { top_liege ?= root }
+# 	}
+	
+# 	widget = {
+# 		gui = "decision_view_widget_generic_multichoice_with_effects"
+# 		controller = decision_option_list_controller
+# 		decision_to_second_step_button = "SELECT_ACTION"
+# 		#show_from_start = yes
+
+# 		### Remove yourself from competing for the throne
+# 		item = {
+# 			value = admin_renounce_throne_personal
+# 			is_valid = {
+# 				NOR = {
+# 					has_character_modifier = ep3_admin_renounce_throne_personal
+# 					house ?= { has_house_modifier = ep3_admin_renounce_throne_house }
+# 				}
+# 				NOT = { top_liege ?= root }
+# 				is_diarch = no
+# 			}
+# 			current_description = admin_renounce_throne_personal_desc
+# 			localization = admin_renounce_throne_personal_name
+# 			icon = "gfx/interface/icons/character_interactions/icon_liege.dds"
+# 			ai_chance = {
+# 				value = 0
+# 				if = {
+# 					limit = {
+# 						has_trait = content
+# 					}
+# 					add = 100
+# 				}
+# 			}
+# 		}
+# 		### Make yourself available to compete for the throne
+# 		item = {
+# 			value = admin_desire_throne_personal
+# 			is_valid = {
+# 				has_character_modifier = ep3_admin_renounce_throne_personal
+# 			}
+# 			current_description = admin_desire_throne_personal_desc
+# 			localization = admin_desire_throne_personal_name
+# 			icon = "gfx/interface/icons/character_interactions/icon_liege.dds"
+# 			ai_chance = {
+# 				value = 0
+# 				if = {
+# 					limit = {
+# 						has_character_modifier = ep3_admin_renounce_throne_personal
+# 						NOT = { has_trait = content }
+# 					}
+# 					add = 100
+# 				}
+# 			}
+# 		}
+# 		### Remove your house from competing for the throne
+# 		item = {
+# 			value = admin_renounce_throne_house
+# 			is_valid = {
+# 				house ?= {
+# 					custom_tooltip = {
+# 						text = HOF_INTERACTION_IS_HOUSE_HEAD
+# 						house_head ?= root
+# 					}
+# 					NOT = { has_house_modifier = ep3_admin_renounce_throne_house }
+# 				}
+# 				NOT = { top_liege.house ?= root.house }
+# 			}
+# 			current_description = admin_renounce_throne_house_desc
+# 			localization = admin_renounce_throne_house_name
+# 			icon = "gfx/interface/icons/character_interactions/icon_dynasty.dds"
+# 			ai_chance = {
+# 				value = 0
+# 			}
+# 		}
+# 		### Make your house available to compete for the throne
+# 		item = {
+# 			value = admin_desire_throne_house
+# 			is_valid = {
+# 				house ?= {
+# 					custom_tooltip = {
+# 						text = HOF_INTERACTION_IS_HOUSE_HEAD
+# 						house_head ?= root
+# 					}
+# 					has_house_modifier = ep3_admin_renounce_throne_house
+# 				}
+# 			}
+# 			current_description = admin_desire_throne_house_desc
+# 			localization = admin_desire_throne_house_name
+# 			icon = "gfx/interface/icons/character_interactions/icon_dynasty.dds"
+# 			ai_chance = {
+# 				value = 0
+# 				if = {
+# 					limit = {
+# 						house ?= { has_house_modifier = ep3_admin_renounce_throne_house }
+# 					}
+# 					add = 100
+# 				}
+# 			}
+# 		}
+# 	}
+
+# 	effect = {
+# 		if = {
+# 			limit = {
+# 				scope:admin_renounce_throne_personal = yes
+# 			}
+# 			add_character_modifier = {
+# 				modifier = ep3_admin_renounce_throne_personal
+# 			}
+# 		}
+# 		else_if = {
+# 			limit = {
+# 				scope:admin_desire_throne_personal = yes
+# 			}
+# 			remove_character_modifier = ep3_admin_renounce_throne_personal
+# 		}
+# 		else_if = {
+# 			limit = {
+# 				scope:admin_renounce_throne_house = yes
+# 			}
+# 			house ?= {
+# 				add_house_modifier = ep3_admin_renounce_throne_house
+# 			}
+# 		}
+# 		else_if = {
+# 			limit = {
+# 				scope:admin_desire_throne_house = yes
+# 			}
+# 			house ?= {
+# 				remove_house_modifier = ep3_admin_renounce_throne_house
+# 			}
+# 		}
+# 	}
+
+# 	ai_potential = {
+# 		OR = {
+# 			has_character_modifier = ep3_admin_renounce_throne_personal
+# 			house ?= { has_house_modifier = ep3_admin_renounce_throne_house }
+# 			has_trait = content
+# 		}
+# 	}
+
+# 	ai_will_do = {
+# 		base = 20
+# 		modifier = {
+# 			add = 80
+# 			OR = {
+# 				has_character_modifier = ep3_admin_renounce_throne_personal
+# 				house ?= { has_house_modifier = ep3_admin_renounce_throne_house }
+# 			}
+# 			NOT = { has_trait = content }
+# 		}
+# 	}
+# }

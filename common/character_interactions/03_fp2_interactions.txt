@@ -1993,16 +1993,17 @@ purchase_truce_interaction = {
 
 	is_shown = {
 		NOT = { scope:actor = scope:recipient }
-		# Scope:actor needs to either be involved in certain struggle types or else have a specific perk.
 		scope:actor = {
 			is_landless_adventurer = no
-			OR = {
-				# any_character_struggle = {
-				# 	involvement = involved
-				# 	has_struggle_phase_parameter = unlocks_truce_purchasing_interaction
-				# }
-				has_perk = defensive_measures_perk
-				culture = { has_cultural_parameter = unlocks_purchase_truce }
+
+			# If scope:recipient is a nomad and the actor is not, this is always available; otherwise,
+			# scope:actor needs to either be involved in certain struggle types or else have a specific perk.
+			OR = {	
+				AND = {
+					scope:recipient = { government_has_flag = government_is_nomadic }
+					NOT = { government_has_flag = government_is_nomadic }
+				}
+				fp2_purchase_truce_interaction_soft_requirements_trigger = yes
 			}
 
 			# if you are not independent you should not be able to purchase truce with other fellow vassals only
@@ -3127,41 +3128,42 @@ incite_revolts_interaction = {
 
 # 	cooldown_against_recipient = { years = 5 }
 
-# 	is_shown = {
-# 		# Actor is Involved in Struggle
-# 		scope:actor = {
-# 			OR = {
-# 				# any_character_struggle = {
-# 				# 	involvement = involved
-# 				# 	has_struggle_phase_parameter = unlocks_contract_assistance_interaction
-# 				# }
-# 				culture = { has_cultural_parameter = unlocks_contract_assistance }
-# 				is_landless_adventurer = yes
-# 			}
-# 		}
-# 		# Recipient is Involved in Struggle, at war, and not at war with Actor
-# 		scope:recipient = {
-# 			trigger_if = {
-# 				limit = {
-# 					scope:actor = {
-# 						any_character_struggle = {
-# 							involvement = involved
-# 							has_struggle_phase_parameter = unlocks_contract_assistance_interaction
-# 						}
-# 					}
-# 				}
-# 				any_character_struggle = {
-# 					involvement = involved
-# 					has_struggle_phase_parameter = unlocks_contract_assistance_interaction
-# 				}
-# 			}
-# 			is_at_war = yes
-# 			NOR = {
-# 				this = scope:actor
-# 				is_at_war_with = scope:actor
-# 			}
-# 		}
-# 	}
+	# is_shown = {
+	# 	# Actor is Involved in Struggle
+	# 	scope:actor = {
+	# 		NOT = { government_has_flag = government_is_herder }
+	# 		OR = {
+	# 			any_character_struggle = {
+	# 				involvement = involved
+	# 				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+	# 			}
+	# 			culture = { has_cultural_parameter = unlocks_contract_assistance }
+	# 			is_landless_adventurer = yes
+	# 		}
+	# 	}
+	# 	# Recipient is Involved in Struggle, at war, and not at war with Actor
+	# 	scope:recipient = {
+	# 		trigger_if = {
+	# 			limit = {
+	# 				scope:actor = {
+	# 					any_character_struggle = {
+	# 						involvement = involved
+	# 						has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+	# 					}
+	# 				}
+	# 			}
+	# 			any_character_struggle = {
+	# 				involvement = involved
+	# 				has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+	# 			}
+	# 		}
+	# 		is_at_war = yes
+	# 		NOR = {
+	# 			this = scope:actor
+	# 			is_at_war_with = scope:actor
+	# 		}
+	# 	}
+	# }
 
 # # # 	has_valid_target = {
 # # # 		exists = scope:target
@@ -3604,15 +3606,16 @@ incite_revolts_interaction = {
 	# 	# }
 	# }
 
-# 	ai_potential = {
-# 		is_imprisoned = no
-# 		is_at_war = no
-# 		ai_boldness >= -25
-# 	}
-# 	ai_target_quick_trigger = { adult = yes }
-# 	ai_targets = {
-# 		ai_recipients = neighboring_rulers
-# 	}
+	# ai_potential = {
+	# 	is_imprisoned = no
+	# 	is_at_war = no
+	# 	ai_boldness >= -25
+	# 	current_military_strength >= 500
+	# }
+	# ai_target_quick_trigger = { adult = yes }
+	# ai_targets = {
+	# 	ai_recipients = neighboring_rulers
+	# }
 
 # 	ai_set_target = {
 # 		scope:recipient = {

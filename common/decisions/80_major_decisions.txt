@@ -94,6 +94,10 @@ convert_to_feudalism_liege_converted_decision = {
 			text = recent_conversion_to_tribalism
 			NOT = { has_character_flag = just_converted_to_tribalism }
 		}
+		custom_description = {
+			text = permafrost_feudal_ban
+			NOT = { culture = { has_cultural_parameter = permafrost_cannot_become_feudal } }
+		}
 	}
 
 	cost = {
@@ -351,6 +355,11 @@ convert_whole_realm_to_feudalism_decision = {
 				}
 			}
 		}
+
+		custom_description = {
+			text = permafrost_feudal_ban
+			NOT = { culture = { has_cultural_parameter = permafrost_cannot_become_feudal } }
+		}
 	}
 
 	cost = {
@@ -374,7 +383,10 @@ convert_whole_realm_to_feudalism_decision = {
 	}
 
 	ai_potential = {
-		NOT = { has_title = title:e_khuzait_khanate } #Stop the Khuzaits from slowing their conquest.
+		OR = {
+			NOT = { has_title = title:e_khuzait_khanate } #Stop the Khuzaits from slowing their conquest.
+			NOT = { mpo_has_gok_mongol_empire_trigger = yes } #Stop the Mongols from slowing their conquest. ## CK_COMPATCH - REVIEW THIS TRIGGER
+		}
 	}
 
 	ai_will_do = {
@@ -607,6 +619,7 @@ declare_bloodline_holy_decision = {
 				NOT = { root = root.faith.religious_head }
 			}
 		}
+		faith = { NOT = { has_doctrine_parameter = unreformed } }
 	}
 
 	is_valid = {
@@ -860,8 +873,11 @@ found_kingdom_decision = {
 
 	is_shown = {
 		highest_held_title_tier = tier_duchy
-		NOT = { has_game_rule = off_custom_kingdoms }
+		NOT = { 
+			has_game_rule = off_custom_kingdoms 
+		}
 		is_landed_or_landless_administrative = yes
+		is_confederation_member = no
 	}
 
 	is_valid = {
@@ -877,6 +893,16 @@ found_kingdom_decision = {
 			}
 			sub_realm_size >= 30
 		}
+		trigger_if = {
+			limit = {
+				government_has_flag = government_is_nomadic
+			}
+			OR = {
+				has_realm_law = nomadic_authority_5
+				has_realm_law = nomadic_authority_4
+				has_realm_law = nomadic_authority_3
+			}
+		}
 	}
 
 	is_valid_showing_failures_only = {
@@ -885,9 +911,25 @@ found_kingdom_decision = {
 	}
 
 	cost = {
-		gold = 300
+		gold = {
+			value = 300
+			if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				multiply = 0
+			}
+		}
 		prestige = 500
-		piety = 200
+		piety = {
+			value = 200
+			if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				multiply = 0
+			}
+		}
 	}
 
 	effect = {
@@ -946,21 +988,52 @@ found_empire_decision = {
 			}
 		}
 		is_landed_or_landless_administrative = yes
+		is_confederation_member = no
 	}
 
 	is_valid = {
 		prestige_level >= 4
-		OR = {
-			sub_realm_size >= 120
-			AND = {
-				custom_description = {
-					text = found_empire_decision_three_kingdoms_held
-					any_held_title = {
-						count >= 3
-						tier = tier_kingdom
+		trigger_if = {
+			limit = {
+				government_has_flag = government_is_nomadic
+			}
+			OR = {
+				sub_realm_size >= 60
+				AND = {
+					custom_description = {
+						text = found_empire_decision_three_kingdoms_held
+						any_held_title = {
+							count >= 2
+							tier = tier_kingdom
+						}
 					}
+					sub_realm_size >= 40
 				}
-				sub_realm_size >= 80
+			}
+		}
+		trigger_else = {
+			OR = {
+				sub_realm_size >= 120
+				AND = {
+					custom_description = {
+						text = found_empire_decision_three_kingdoms_held
+						any_held_title = {
+							count >= 3
+							tier = tier_kingdom
+						}
+					}
+					sub_realm_size >= 80
+				}
+			}
+		}
+		
+		trigger_if = {
+			limit = {
+				government_has_flag = government_is_nomadic
+			}
+			OR = {
+				has_realm_law = nomadic_authority_5
+				has_realm_law = nomadic_authority_4
 			}
 		}
 
@@ -974,16 +1047,37 @@ found_empire_decision = {
 	}
 
 	cost = {
-		gold = 1200
+		gold = {
+			value = 1200
+			if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				multiply = 0
+			}
+		}
 		prestige = 2000
-		piety = 600
+		piety = {
+			value = 600
+			if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				multiply = 0
+			}
+		}
 	}
 
 	effect = {
-		create_custom_empire_effect = yes
-		gain_heroic_legend_seed_tooltip_effect = yes
-		hidden_effect = {
-			legend_seed_new_title_effect = yes
+		if = {
+			limit = {
+				NOT = { government_has_flag = government_is_nomadic }
+			}
+			create_custom_empire_effect = yes
+			gain_heroic_legend_seed_tooltip_effect = yes
+			hidden_effect = {
+				legend_seed_new_title_effect = yes
+			}
 		}
 		if = {
 			limit = {
@@ -1234,7 +1328,10 @@ tribal_challenge_ruler_decision = {
 			add = -5000
 			liege = {
 				is_ai = yes
-				has_title = title:e_khuzait_khanate
+				OR = {
+					has_title = title:e_khuzait_khanate
+					mpo_has_gok_mongol_empire_trigger = yes
+				}
 			}
 		}
 	}
@@ -1969,7 +2066,10 @@ found_duchy_decision = {
 			}
 			has_game_rule = on_custom_duchies
 		}
-		NOT = { government_allows = administrative }
+		NOR = { 
+			government_allows = administrative 
+			government_has_flag = government_is_nomadic
+		}
 	}
 
 	is_valid = {
@@ -2014,6 +2114,15 @@ found_duchy_decision = {
 
 # Expand Duchy Decision
 expand_duchy_decision = {
+	picture = {
+		trigger = {
+			OR = {
+				government_has_flag = government_is_nomadic
+				government_has_flag = government_is_clan
+			}
+		}
+		reference = "gfx/interface/illustrations/decisions/fp3/fp3_decision_sunder.dds"
+	}
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/decision_destiny_goal.dds"
 	}
@@ -2241,6 +2350,12 @@ expand_duchy_decision = {
 
 # Set De Jure Capital Decision
 set_de_jure_capital_decision = {
+	picture = {
+		trigger = {
+			government_has_flag = government_is_nomadic
+		}
+		reference = "gfx/interface/illustrations/event_scenes/mpo_city_steppe.dds"
+	}
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/ep3_decision_city.dds"
 	}

@@ -365,11 +365,7 @@ create_landless_adventurer_title_effect = {
 				}
 			}
 		}
-		create_title_and_vassal_change = {
-			type = created
-			save_scope_as = change
-			add_claim_on_loss = no
-		}
+
 		scope:new_title ?= {
 			create_landless_adventurer_title_history_effect = yes
 			set_variable = {
@@ -380,12 +376,8 @@ create_landless_adventurer_title_effect = {
 				name = adventurer_flavor_char
 				value = scope:adventurer_flavor_char
 			}
-			change_title_holder = {
-				holder = scope:new_landless_adventurer
-				change = scope:change
-			}
 		}
-		resolve_title_and_vassal_change = scope:change
+
 		scope:new_title = { save_scope_as = new_landless_adventurer_title }
 		scope:new_landless_adventurer = {
 			if = {
@@ -677,7 +669,10 @@ destroy_laamp_effect = {
 		# Ironically, we only want to use this effect if you're _not_ admin — it'll reset you nicely to the best government for you, but if you're admin, you should stay admin.
 		if = {
 			limit = {
-				NOT = { government_has_flag = government_is_administrative }
+				NOR = {
+					government_has_flag = government_is_administrative
+					government_has_flag = government_is_nomadic
+				}
 			}
 			admin_government_reset_effect = yes
 		}
@@ -811,6 +806,9 @@ ep3_become_landed_transfer_no_ennobled_modifier_effect = {
 				government_is_tribal = {
 					save_scope_value_as = { name = old_government value = flag:tribal }
 				}
+				government_is_nomadic = {
+					save_scope_value_as = { name = old_government value = flag:nomad }
+				}
 			}
 		}
 	}
@@ -851,8 +849,25 @@ ep3_become_landed_transfer_no_ennobled_modifier_effect = {
 	resolve_title_and_vassal_change = scope:title_change2
 	$TITLE_RECEIVER$ = {
 		# Change our government according to the government of our liege.
-		## Administrative.
+		## Nomad.
 		if = {
+			limit = {
+				OR = {
+					government_has_flag = government_is_nomadic
+					scope:new_liege ?= { government_has_flag = government_is_nomadic }
+					scope:old_government ?= flag:nomad
+					scope:new_capital.capital_province = {
+						OR = {
+							has_holding_type = nomad_holding
+							has_holding_type = herder_holding
+						}
+					}
+				}
+			}
+			change_government = nomad_government
+		}
+		## Administrative.
+		else_if = {
 			limit = {
 				OR = {
 					scope:new_liege ?= { government_has_flag = government_is_administrative }
@@ -917,6 +932,9 @@ ep3_become_landed_transfer_effect = {
 			government_is_tribal = {
 				save_scope_value_as = { name = old_government value = flag:tribal }
 			}
+			government_is_nomadic = {
+				save_scope_value_as = { name = old_government value = flag:nomad }
+			}
 		}
 	}
 	every_in_list = {
@@ -960,8 +978,8 @@ ep3_become_landed_transfer_effect = {
 		}
 	}
 	if = {
-		limit = { 
-			exists = scope:new_liege 
+		limit = {
+			exists = scope:new_liege
 			trigger_if = {
 				limit = {
 					exists = scope:ascended_throne_value
@@ -983,8 +1001,25 @@ ep3_become_landed_transfer_effect = {
 	resolve_title_and_vassal_change = scope:title_change
 	$TITLE_RECEIVER$ = {
 		# Change our government according to the government of our liege.
-		## Administrative.
+		## Nomad.
 		if = {
+			limit = {
+				OR = {
+					government_has_flag = government_is_nomadic
+					scope:new_liege ?= { government_has_flag = government_is_nomadic }
+					scope:old_government ?= flag:nomad
+					scope:new_capital.title_province = {
+						OR = {
+							has_holding_type = nomad_holding
+							has_holding_type = herder_holding
+						}
+					}
+				}
+			}
+			change_government = nomad_government
+		}
+		## Administrative.
+		else_if = {
 			limit = {
 				scope:new_primary_title = { tier > tier_duchy }
 				OR = {
@@ -1068,7 +1103,7 @@ ep3_become_landed_transfer_effect = {
 			limit = {
 				calc_true_if = {
 					amount = 1
-					prestige_level <= 3 
+					prestige_level <= 3
 					scope:new_capital.culture ?= {
 						NOR = {
 							$TITLE_RECEIVER$.culture ?= this
@@ -1147,7 +1182,7 @@ purchase_land_interaction_effect = {
 	# scope:actor = adventurer
 	# scope:recipient = seller
 	# purchased_titles = titles
-	
+
 	hidden_effect = {
 		scope:actor = {
 			if = {
@@ -1259,7 +1294,7 @@ purchase_land_interaction_shortened_effect = {
 			limit = {
 				calc_true_if = {
 					amount = 3
-					prestige_level <= 3 
+					prestige_level <= 3
 					OR = {
 						scope:new_primary_title.culture != culture
 						primary_spouse ?= {
@@ -1283,7 +1318,7 @@ purchase_land_interaction_shortened_effect = {
 			limit = {
 				calc_true_if = {
 					amount = 2
-					prestige_level <= 3 
+					prestige_level <= 3
 					OR = {
 						scope:new_primary_title.culture != culture
 						primary_spouse ?= {
@@ -1308,7 +1343,7 @@ purchase_land_interaction_shortened_effect = {
 			limit = {
 				calc_true_if = {
 					amount = 1
-					prestige_level <= 3 
+					prestige_level <= 3
 					OR = {
 						scope:new_primary_title.culture != culture
 						primary_spouse ?= {
@@ -1506,7 +1541,7 @@ negotiate_settlement_interaction_effect = {
 	# scope:actor = offerer
 	# scope:recipient = adventurer
 	# offered_titles = titles
-	
+
 	hidden_effect = {
 		scope:recipient = {
 			if = {
@@ -1621,8 +1656,7 @@ create_landed_ruler_message_effect = {
 					this = scope:landed
 					this = scope:landed_flavor_char
 				}
-				save_temporary_scope_as = informee
-				scope:landed = { in_diplomatic_range = scope:informee }
+				top_liege = scope:landed.top_liege
 			}
 			send_interface_message = {
 				type = msg_landless_adventurer_nearby
@@ -1743,7 +1777,7 @@ ep3_laamp_support_variable_cleanup_effect = {
 seize_realm_scheme_success_effect = {
 	# scope:target = ruler
 	# scope:owner = adventurer
-	
+
 	hidden_effect = {
 		scope:owner = {
 			if = {
@@ -2152,16 +2186,8 @@ adventurer_realm_destabilisation_list_effect = {
 							}
 						}
 					}
-					modifier = { # Vassals with capitals outside the de jure more likely
-						factor = 1.25
-						capital_county = {
-							NOT = {
-								target_is_de_jure_liege_or_above = scope:title
-							}
-						}
-					}
 					### PERSONALITY
-					ai_value_modifier = { 
+					ai_value_modifier = {
 						ai_boldness = 0.15
 						ai_energy = 0.15
 						ai_greed = 0.15
@@ -2253,13 +2279,6 @@ adventurer_realm_destabilisation_list_effect = {
 					modifier = {
 						factor = 1.25
 						scope:ruler.primary_title.tier = tier_kingdom
-					}
-					### ADMIN
-					modifier = { # Noble Families should never leave admin realms
-						factor = 0
-						any_held_title = {
-							is_noble_family_title = yes
-						}
 					}
 					max = 95
 					add_to_list = independent_vassals
@@ -2677,7 +2696,7 @@ points_of_interest_tracker_effect = {
 		if = {
 			limit = {
 				NOT = {
-					has_variable = poi_visited 
+					has_variable = poi_visited
 				}
 			}
 			set_variable = {
@@ -2698,7 +2717,7 @@ zealous_missionary_conversion_effect = {
 	if = {
 		limit = {
 			exists = location.barony.holder
-			government_has_flag = government_is_landless_adventurer 
+			government_has_flag = government_is_landless_adventurer
 			has_character_flag = zealous_missionary_timer
 			location.county ?= { hasan_evangelize_province_trigger = yes }
 		}
@@ -2729,7 +2748,7 @@ war_contracts_completed_tracker_effect = {
 }
 
 bandit_king_maa_spawn_effect = {
-	
+
 	save_scope_as = bandit_king
 	if = {
 		limit = {
@@ -3106,7 +3125,7 @@ increase_governance_effect = {
 					exists = scope:task_contract
 				}
 				multiply = governance_task_contract_tier_value
-				
+
 				if = {
 					limit = {
 						$VALUE$ > 0
@@ -3671,7 +3690,7 @@ spawn_governance_contract_effect = {
 				random_county_province = {
 					limit = {
 						has_holding = yes
-						province_owner != scope:governor 
+						province_owner != scope:governor
 					}
 					save_scope_as = target_province
 				}
@@ -3998,7 +4017,7 @@ spawn_governance_contract_effect = {
 	}
 
 	play_sound_effect = "event:/DLC/EP3/SFX/Stingers/Byzantine_Flavor/ep3_mx_sting_byzantineflavor_become_governor"
-	
+
 	if = {
 		limit = { exists = scope:target_province }
 		if = {
@@ -4026,7 +4045,7 @@ spawn_governance_contract_effect = {
 generate_governance_outcome_effect = {
 	# INFO: We use this effect to randomize the options you get when doing a governor contract.
 	# $OPTIONS$ is the number of options the event has - Never use less than four, and try to have six if possible.
-	
+
 	# Unlock a bonus option if you have enough exp in the Governor trait - We do this here (and not in the option) to avoid blocking the option due to exp decay (if game is unpaused).
 	if = {
 		limit = {
@@ -4341,7 +4360,7 @@ add_influence_attacker_defeat_effect = {
 admin_change_government_effect = {
 	# Make sure you only use this effect on characters you are sure should change government! Since we don't do any extended triggers here.
 	# For a consistent behaviour, this effect is based on "convert_whole_realm_to_feudalism_effect"
-	
+
 	# First, let's see if the character only has their noble family title - then we don't bother changing their government
 	# We only destroy the family title to make sure it doesn't linger
 	if = {
@@ -4364,7 +4383,7 @@ admin_change_government_effect = {
 			prev = { destroy_title = scope:family_title }
 		}
 	}
-	
+
 	# If not, let's change the government type
 	# If liege has clan - Become clan!
 	else_if = {
@@ -4404,7 +4423,7 @@ admin_change_government_effect = {
 	}
 	# If you're an independent ruler with anything else - Become feudal!
 	else = { change_government = feudal_government }
-	
+
 	# Finally, let's double-check and see if there are any remaining family titles we should destroy
 	if = {
 		limit = {
@@ -5841,7 +5860,7 @@ disburse_chariot_race_activity_host_rewards = {
 						}
 					}
 				}
-				
+
 				# Rewards for employing a charioteer who wins/places/shows
 				if = {
 					limit = { employs_court_position = charioteer_court_position }
@@ -7448,7 +7467,7 @@ ep3_send_akolouthos_message_loyal = {
 		type = msg_akolouthos_steels_varangians
 		title = ep3_akolouthos_events.1000
 		desc =  ep3_akolouthos_events.1000_loyal_notification_tooltip
-		
+
 		left_icon = scope:trait_getter
 		scope:trait_getter = {
 			add_trait = loyal
@@ -7467,7 +7486,7 @@ ep3_send_akolouthos_message_varangian = {
 		type = msg_akolouthos_steels_varangians
 		title = ep3_akolouthos_events.1000
 		desc =  ep3_akolouthos_events.1000_varangian_notification_tooltip
-		
+
 		left_icon = scope:trait_getter
 		scope:trait_getter = {
 			add_trait = varangian
@@ -8407,7 +8426,19 @@ ep3_pick_random_maa_regiment_effect = {
 			}
 			1 = {
 				trigger = {
-					culture = { has_cultural_parameter = unlock_maa_horse_archers }
+					culture = { has_cultural_parameter = unlock_maa_maturkan_warriors }
+				}
+				save_scope_value_as = {
+					name = maa_to_create
+					value = flag:maturkan_warriors
+				}
+			}
+			1 = {
+				trigger = {
+					OR = {
+						culture = { culture_has_archer_cavalry_maa = yes }
+						mpo_can_recruit_nomad_maa_trigger = yes
+					}
 				}
 				save_scope_value_as = {
 					name = maa_to_create
@@ -8500,7 +8531,7 @@ ep3_pick_random_maa_regiment_effect = {
 					exists = dynasty
 					dynasty = {
 						has_dynasty_perk = fp3_khvarenah_legacy_4
-					}	
+					}
 				}
 				save_scope_value_as = {
 					name = maa_to_create
@@ -8548,7 +8579,7 @@ ep3_pick_random_maa_regiment_effect = {
 			}
 			1 = {
 				trigger = {
-					any_active_accolade = { 
+					any_active_accolade = {
 						primary_type = {
 							this = accolade_type:archer_attribute
 						}
@@ -8565,7 +8596,7 @@ ep3_pick_random_maa_regiment_effect = {
 					any_active_accolade = {
 						primary_type = {
 							this = accolade_type:skirmisher_attribute
-						} 
+						}
 						accolade_rank >= 3
 					}
 				}
@@ -8579,7 +8610,7 @@ ep3_pick_random_maa_regiment_effect = {
 					any_active_accolade = {
 						primary_type = {
 							this = accolade_type:pike_attribute
-						} 
+						}
 						accolade_rank >= 3
 					}
 				}
@@ -8593,7 +8624,7 @@ ep3_pick_random_maa_regiment_effect = {
 					any_active_accolade = {
 						primary_type = {
 							this = accolade_type:outrider_attribute
-						}  
+						}
 						accolade_rank >= 3
 					}
 				}
@@ -8649,7 +8680,7 @@ ep3_pick_random_maa_regiment_effect = {
 					any_active_accolade = {
 						primary_type = {
 							this = accolade_type:camelry_attribute
-						} 
+						}
 						accolade_rank >= 3
 					}
 				}
@@ -8663,7 +8694,7 @@ ep3_pick_random_maa_regiment_effect = {
 					any_active_accolade = {
 						primary_type = {
 							this = accolade_type:elephantry_attribute
-						} 
+						}
 						accolade_rank >= 3
 					}
 				}
@@ -8715,6 +8746,15 @@ ep3_pick_random_maa_regiment_effect = {
 			}
 			1 = {
 				trigger = {
+					mpo_can_recruit_nomad_maa_trigger = yes
+				}
+				save_scope_value_as = {
+					name = maa_to_create
+					value = flag:steppe_raiders
+				}
+			}
+			1 = {
+				trigger = {
 					exists = scope:title
 					scope:title = title:e_calradian_empire
 				}
@@ -8722,7 +8762,7 @@ ep3_pick_random_maa_regiment_effect = {
 					name = maa_to_create
 					value = flag:varangian_guards
 				}
-			} 
+			}
 			1 = {
 				trigger = {
 			   		domicile ?= { has_domicile_parameter = camp_unlocks_handpicked_faithful_maa_type }
@@ -9087,79 +9127,79 @@ ep3_create_random_maa_regiment_effect = {
 	$OWNER$ = {
 		switch = {
 			trigger = scope:maa_to_create
-			flag:light_footmen = {	
+			flag:light_footmen = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = light_footmen
 					SIZE = $SIZE$
 				}
 			}
-			flag:bowmen = {	
+			flag:bowmen = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = bowmen
 					SIZE = $SIZE$
 				}
 			}
-			flag:light_horsemen = {	
+			flag:light_horsemen = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = light_horsemen
 					SIZE = $SIZE$
 				}
 			}
-			flag:pikemen_unit = {	
+			flag:pikemen_unit = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = pikemen_unit
 					SIZE = $SIZE$
 				}
 			}
-			flag:war_elephant = {	
+			flag:war_elephant = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = war_elephant
 					SIZE = $SIZE$
 				}
 			}
-			flag:camel_rider = {	
+			flag:camel_rider = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = camel_rider
 					SIZE = $SIZE$
 				}
 			}
-			flag:armored_horsemen = {	
+			flag:armored_horsemen = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = armored_horsemen
 					SIZE = $SIZE$
 				}
 			}
-			flag:onager = {	
+			flag:onager = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = onager
 					SIZE = $SIZE$
 				}
 			}
-			flag:armored_footmen = {	
+			flag:armored_footmen = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = armored_footmen
 					SIZE = $SIZE$
 				}
 			}
-			flag:mangonel = {	
+			flag:mangonel = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = mangonel
 					SIZE = $SIZE$
 				}
 			}
-			flag:trebuchet = {	
+			flag:trebuchet = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = trebuchet
 					SIZE = $SIZE$
 				}
 			}
-			flag:crossbowmen = {	
+			flag:crossbowmen = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = crossbowmen
 					SIZE = $SIZE$
 				}
 			}
-			flag:bombard = {	
+			flag:bombard = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = bombard
 					SIZE = $SIZE$
@@ -9171,19 +9211,19 @@ ep3_create_random_maa_regiment_effect = {
 					SIZE = $SIZE$
 				}
 			}
-			flag:goedendag = {	
+			flag:goedendag = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = goedendag
 					SIZE = $SIZE$
 				}
 			}
-			flag:gendarme = {	
+			flag:gendarme = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = gendarme
 					SIZE = $SIZE$
 				}
 			}
-			flag:picchieri = {	
+			flag:picchieri = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = picchieri
 					SIZE = $SIZE$
@@ -9201,7 +9241,7 @@ ep3_create_random_maa_regiment_effect = {
 					SIZE = $SIZE$
 				}
 			}
-			flag:schiltron = {	
+			flag:schiltron = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = schiltron
 					SIZE = $SIZE$
@@ -9243,31 +9283,37 @@ ep3_create_random_maa_regiment_effect = {
 					SIZE = $SIZE$
 				}
 			}
-			flag:horse_archers = {	
+			flag:maturkan_warriors = {
+				create_maa_or_upgrade_regiment_effect = {
+					TYPE = maturkan_warriors
+					SIZE = $SIZE$
+				}
+			}
+			flag:horse_archers = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = horse_archers
 					SIZE = $SIZE$
 				}
 			}
-			flag:ayyar = {	
+			flag:ayyar = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = ayyar
 					SIZE = $SIZE$
 				}
 			}
-			flag:mubarizun = {	
+			flag:mubarizun = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = mubarizun
 					SIZE = $SIZE$
 				}
 			}
-			flag:mulaththamun = {	
+			flag:mulaththamun = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = mulaththamun
 					SIZE = $SIZE$
 				}
 			}
-			flag:archers_of_the_nile = {	
+			flag:archers_of_the_nile = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = archers_of_the_nile
 					SIZE = $SIZE$
@@ -9285,7 +9331,7 @@ ep3_create_random_maa_regiment_effect = {
 					SIZE = $SIZE$
 				}
 			}
-			flag:mountaineer = {	
+			flag:mountaineer = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = mountaineer
 					SIZE = $SIZE$
@@ -9297,7 +9343,7 @@ ep3_create_random_maa_regiment_effect = {
 					SIZE = $SIZE$
 				}
 			}
-			flag:zbrojnosh = {	
+			flag:zbrojnosh = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = zbrojnosh
 					SIZE = $SIZE$
@@ -9309,105 +9355,111 @@ ep3_create_random_maa_regiment_effect = {
 					SIZE = $SIZE$
 				}
 			}
-			flag:tarkhan = {	
+			flag:tarkhan = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = tarkhan
 					SIZE = $SIZE$
 				}
 			}
-			flag:zupin_warrior = {	
+			flag:zupin_warrior = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = zupin_warrior
 					SIZE = $SIZE$
 				}
 			}
-			flag:tawashi = {	
+			flag:tawashi = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = tawashi
 					SIZE = $SIZE$
 				}
 			}
-			flag:house_guard = {	
+			flag:house_guard = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = house_guard
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_archers = {	
+			flag:accolade_maa_archers = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_archers
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_skirmishers = {	
+			flag:accolade_maa_skirmishers = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_skirmishers
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_pikes = {	
+			flag:accolade_maa_pikes = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_pikes
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_outriders = {	
+			flag:accolade_maa_outriders = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_outriders
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_vanguards = {	
+			flag:accolade_maa_vanguards = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_vanguards
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_lancers = {	
+			flag:accolade_maa_lancers = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_lancers
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_crossbowers = {	
+			flag:accolade_maa_crossbowers = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_crossbowers
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_cameliers = {	
+			flag:accolade_maa_cameliers = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_cameliers
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_elephantiers = {	
+			flag:accolade_maa_elephantiers = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_elephantiers
 					SIZE = $SIZE$
 				}
 			}
-			flag:accolade_maa_horse_archers = {	
+			flag:accolade_maa_horse_archers = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = accolade_maa_horse_archers
 					SIZE = $SIZE$
 				}
 			}
-			flag:vigmen = {	
+			flag:vigmen = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = vigmen
 					SIZE = $SIZE$
 				}
 			}
-			flag:bondi = {	
+			flag:bondi = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = bondi
 					SIZE = $SIZE$
 				}
 			}
-			flag:varangian_veterans = {	
+			flag:varangian_veterans = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = varangian_veterans
+					SIZE = $SIZE$
+				}
+			}
+			flag:steppe_raiders = {
+				create_maa_or_upgrade_regiment_effect = {
+					TYPE = steppe_raiders
 					SIZE = $SIZE$
 				}
 			}
@@ -9423,7 +9475,7 @@ ep3_create_random_maa_regiment_effect = {
 					SIZE = $SIZE$
 				}
 			}
-			flag:handpicked_faithful = {	
+			flag:handpicked_faithful = {
 				create_maa_or_upgrade_regiment_effect = {
 					TYPE = handpicked_faithful
 					SIZE = $SIZE$
@@ -9739,7 +9791,7 @@ reinforce_soldiers_regiment_effect = {
 		every_maa_regiment = {
 			limit = { maa_regiments_valid_for_cheap_reinforcement_trigger = yes }
 			change_maa_troops_count = reinforce_soldiers_regiment_soldiers_value
-		}	
+		}
 	}
 }
 
@@ -9809,6 +9861,21 @@ refill_maa_with_gold_effect = {
 admin_government_reset_effect = {
 	if = {
 		limit = { is_landed = yes } # error suppression
+		### NOMADIC
+		if = {
+			limit = {
+				OR = {
+					government_has_flag = government_is_nomadic
+					capital_province = {
+						OR = {
+							has_holding_type = nomad_holding
+							has_holding_type = herder_holding
+						}
+					}
+				}
+			}
+			change_government = nomad_government
+		}
 		### TRIBAL - are all of your holdings Tribal?
 		if = {
 			limit = {
@@ -10135,7 +10202,7 @@ ep3_governor_yearly_3010_war_aid_effect = {
 		scope:war = {
 			add_attacker = scope:governor
 		}
-		
+
 	}
 	if = {
 		limit = {
@@ -10333,7 +10400,7 @@ governor_resignation_title_transfer_effect = {
 			save_temporary_scope_as = liege_title
 			NOT = {
 				scope:resigner = {
-					any_held_title = { is_de_jure_liege_or_above_target = scope:liege_title } 
+					any_held_title = { is_de_jure_liege_or_above_target = scope:liege_title }
 				}
 			}
 		}
@@ -10784,7 +10851,7 @@ noble_family_adoption_effect = {
 			limit = {
 				$ADOPTER$ = {
 					NOT = { is_in_the_same_court_as = $ADOPTEE$ }
-				} 
+				}
 			}
 			$ADOPTER$ = { add_courtier = $ADOPTEE$ }
 		}
@@ -10809,7 +10876,7 @@ create_artifact_court_icon_large_effect = {
 				limit = {
 					exists = scope:inspiration_owner
 				}
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_wall_court_icon_large_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:painter
@@ -10825,7 +10892,7 @@ create_artifact_court_icon_large_effect = {
 				limit = {
 					exists = scope:adventurer
 				}
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_wall_court_icon_large_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:adventurer
@@ -10844,7 +10911,7 @@ create_artifact_court_icon_large_effect = {
 				}
 			}
 			else = {
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_wall_court_icon_large_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:painter
@@ -10892,7 +10959,7 @@ create_artifact_court_icon_small_effect = {
 				limit = {
 					exists = scope:inspiration_owner
 				}
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_wall_court_icon_small_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:painter
@@ -10908,7 +10975,7 @@ create_artifact_court_icon_small_effect = {
 				limit = {
 					exists = scope:adventurer
 				}
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_wall_court_icon_small_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:adventurer
@@ -10927,7 +10994,7 @@ create_artifact_court_icon_small_effect = {
 				}
 			}
 			else = {
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_wall_court_icon_small_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:painter
@@ -10975,7 +11042,7 @@ create_artifact_trinket_icon_effect = {
 				limit = {
 					exists = scope:inspiration_owner
 				}
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_trinket_icon_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:painter
@@ -10991,7 +11058,7 @@ create_artifact_trinket_icon_effect = {
 				limit = {
 					exists = scope:adventurer
 				}
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_trinket_icon_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:adventurer
@@ -11010,7 +11077,7 @@ create_artifact_trinket_icon_effect = {
 				}
 			}
 			else = {
-				create_artifact = {	
+				create_artifact = {
 					name = artifact_trinket_icon_name
 					description = placeholder # Will be regenerated in the post-creation effects
 					creator = scope:painter
@@ -11053,7 +11120,7 @@ create_artifact_trinket_icon_ancient_effect = {
 		get_artifact_wealth_effect = yes
 		# Create the artifact
 		scope:owner = {
-			create_artifact = {	
+			create_artifact = {
 				name = artifact_trinket_icon_name
 				description = placeholder # Will be regenerated in the post-creation effects
 				visuals = trinket_icon
@@ -11739,7 +11806,7 @@ disburse_camp_party_reward_effect = {
 		#100 Carousing
 		if = {
 			limit = { var:activity_special_type_progression >= 100 }
-			
+
 			#Stress Loss
 			every_attending_character = {
 				custom = every_attending_guest
@@ -11860,7 +11927,7 @@ disburse_camp_party_reward_effect = {
 						SPAWN_CONTRACTS = 2
 					}
 				}
- 
+
 				#Provisions
 				domicile = {
 					change_provisions = massive_provisions_gain
@@ -11882,7 +11949,7 @@ disburse_camp_party_reward_effect = {
 				var:activity_special_type_progression < 100
 				var:activity_special_type_progression >= 75
 			}
-			
+
 			#Stress Loss
 			every_attending_character = {
 				custom = every_attending_guest
@@ -12554,10 +12621,7 @@ depose_effect = {
 		save_scope_as = winner
 	}
 	every_held_title = { add_to_list = target_titles }
-	trigger_event = {
-		id = ep3_laamps.0002
-		days = 1
-	}
+	trigger_event = ep3_laamps.0002
 }
 
 # Effect for handling players and AI continuing as landless if banished
@@ -12799,7 +12863,7 @@ governor_contract_invalidated_message_effect = {
 			title = admin_contract_invalidated_title
 			left_icon = scope:task_contract_character
 			desc = admin_contract_invalidated_desc
-			
+
 			current_travel_plan ?= { cancel_travel_plan = yes }
 		}
 	}
@@ -12855,7 +12919,7 @@ assign_favourite_child_effect = {
 					modifier = is_favorite_opinion
 				}
 			}
-		} 
+		}
 	}
 }
 

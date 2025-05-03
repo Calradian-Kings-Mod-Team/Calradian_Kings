@@ -2,7 +2,7 @@
 	icon = peasant_war
 	group = civil_war
 	ai_only_against_liege = yes
-	target_titles = claim
+	target_titles = none
 	allowed_for_character =	{
 		scope:attacker = {
 			is_leading_faction_type = peasant_faction
@@ -13,11 +13,17 @@
 	}
 
 	allowed_against_character = {
-		any_in_list = {
-			list = target_titles
-			OR = {
-				NOT = { exists = holder }
-				holder = scope:defender
+		scope:attacker = {
+			joined_faction = {
+				faction_leader = scope:attacker
+				any_faction_county_member = {
+					holder = {
+						OR = {
+							is_vassal_or_below_of = scope:defender
+							this = scope:defender
+						}
+					}
+				}
 			}
 		}
 	}
