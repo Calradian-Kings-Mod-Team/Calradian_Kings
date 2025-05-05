@@ -34,13 +34,6 @@ offer_vassalization_interaction = {
 				government_has_flag = government_is_herder
 			}
 		}
-		# Temujin cannot make Jamukha his subject once he leaves him
-		NOT = {
-			scope:actor = {
-				has_variable = had_mpo_temujin_flavor_0010
-				var:had_mpo_temujin_flavor_0010 ?= scope:recipient
-			}
-		}
 	}
 
 	is_valid_showing_failures_only = {
@@ -147,7 +140,7 @@ offer_vassalization_interaction = {
 		# 	trigger = {
 		# 		AND = { 
 		# 			scope:actor = { dynasty ?={ has_dynasty_modifier = fp3_rekindler_of_iran_modifier } }
-		# 			scope:recipient = { culture = { has_cultural_pillar = heritage_iranian } }
+		# 			scope:recipient = { culture = { has_cultural_pillar = heritage_darshi } }
 		# 		}
 		# 	}
 		# 	add = 20
@@ -252,6 +245,7 @@ offer_vassalization_interaction = {
 				}
 			}
 			add = -60
+		}
 		# OBEDIENCE
 		modifier = {
 			desc = obedient_interaction_reason
@@ -1629,19 +1623,19 @@ offer_fealty_interaction = {
 		}
 
 		#Greatest of Khans and Mongol Emperor would prefer submission with tribute
-		modifier = {
-			add = -150
-			desc = GOK_PREFER_SUBMISSION
-			scope:recipient = {
-				highest_held_title_tier >= tier_empire
-				any_owned_story = {
-					OR = {
-						story_type = story_mongol_invasion
-						story_type = story_greatest_of_khans
-					}
-				}
-			}
-		}
+		# modifier = {
+		# 	add = -150
+		# 	desc = GOK_PREFER_SUBMISSION
+		# 	scope:recipient = {
+		# 		highest_held_title_tier >= tier_empire
+		# 		any_owned_story = {
+		# 			OR = {
+		# 				story_type = story_mongol_invasion
+		# 				story_type = story_greatest_of_khans
+		# 			}
+		# 		}
+		# 	}
+		# }
 	}
 
 	# Low starting obligations
@@ -1789,6 +1783,32 @@ offer_fealty_interaction = {
 						target = scope:actor
 					}
 				}
+			}
+		}
+		scope:recipient = {
+			if = {
+				limit = {
+					has_imprisonment_reason = scope:actor
+				}
+				consume_imprisonment_reasons = scope:actor
+			}
+			if = {
+				limit = {
+					has_revoke_title_reason = scope:actor
+				}
+				consume_revoke_title_reason = scope:actor
+			}
+			if = {
+				limit = {
+					has_banish_reason = scope:actor
+				}
+				consume_banish_reasons = scope:actor
+			}
+			if = {
+				limit = {
+					has_execute_reason = scope:actor
+				}
+				consume_execute_reasons = scope:actor
 			}
 		}
 	}
@@ -2065,10 +2085,19 @@ grant_independence_interaction = {
 		custom_description = {
 			text = is_de_jure_vassal_check
 			object = scope:recipient
-			NOT = { #Cannot be used against de jure vassals
-				scope:recipient.primary_title = {
-					any_this_title_or_de_jure_above = {
-						holder = scope:actor
+			trigger_if = { # Admin rulers can grant tribal vassals independence regardless of de jure
+				limit = {
+					scope:actor = { government_has_flag = government_is_administrative }
+					scope:recipient = { government_has_flag = government_is_tribal }
+				}
+				# Always possible
+			}
+			trigger_else = {
+				NOT = { #Cannot be used against de jure vassals
+					scope:recipient.primary_title = {
+						any_this_title_or_de_jure_above = {
+							holder = scope:actor
+						}
 					}
 				}
 			}
@@ -2076,17 +2105,6 @@ grant_independence_interaction = {
 		custom_tooltip = {
 			text = can_only_remove_diarch_by_elevating_them.tt
 			NOT = { scope:recipient ?= scope:actor.diarch }
-		}
-		trigger_if = {
-			limit = {
-				scope:recipient = { government_has_flag = government_is_administrative }
-			}
-			custom_tooltip = {
-				text = has_admin_gov
-				NOT = {
-					scope:recipient = { government_has_flag = government_is_administrative }
-				}
-			}
 		}
 	}
 

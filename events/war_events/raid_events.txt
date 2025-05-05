@@ -1239,3 +1239,166 @@ raiding.0023 = {
 # by Nick Meredith
 #################################
 
+raiding.0040 = {
+	hidden = yes
+	scope = army
+
+	immediate = {
+		if = {
+			limit = {
+				raid_intent = raze_intent
+				has_raid_intent_immunity = no
+			}
+			scope:barony.title_province ?= {
+				random_list = {
+					10 = {
+						modifier = {
+							has_raid_intent_protection = yes
+							add = 10
+						}
+					} # Nothing happens
+					5 = {
+						scope:raider = {
+							send_interface_message = {
+								type = event_raid_good
+								title = raze_intent_message
+
+								left_icon = scope:barony.holder
+								right_icon = root.army_commander
+								show_as_tooltip = {
+									scope:barony.title_province = {
+										add_province_modifier = {
+											modifier = shattered_defenses_modifier
+											years = 5
+										}
+									}
+								}
+							}
+						}
+						scope:barony.holder = {
+							send_interface_message = {
+								type = event_raid_bad
+								title = raze_intent_message
+
+								left_icon = scope:barony.holder
+								right_icon = root.army_commander
+								scope:barony.title_province = {
+									add_province_modifier = {
+										modifier = shattered_defenses_modifier
+										years = 5
+									}
+								}
+							}
+						}
+					}
+					5 = {
+						trigger = {
+							county = { development_level > 0 }
+						}
+						scope:raider = {
+							send_interface_message = {
+								type = event_raid_good
+								title = raze_intent_message
+
+								left_icon = scope:barony.holder
+								right_icon = root.army_commander
+								show_as_tooltip = {
+									scope:county = { change_development_level = -1 }
+								}
+							}
+						}
+						scope:barony.holder = {
+							send_interface_message = {
+								type = event_raid_bad
+								title = raze_intent_message
+
+								left_icon = scope:barony.holder
+								right_icon = root.army_commander
+								scope:county = { change_development_level = -1 }
+							}
+						}
+					}
+					5 = {
+						trigger = {
+							num_buildings > 1
+						}
+						destroy_random_building_variable_effect = yes
+						scope:raider = {
+							send_interface_message = {
+								type = event_raid_good
+								title = raze_intent_message
+
+								left_icon = scope:barony.holder
+								right_icon = root.army_commander
+								show_as_tooltip = {
+									scope:barony.title_province = {
+										destroy_random_building_effect = yes
+									}
+								}
+							}
+						}
+						scope:barony.holder = {
+							send_interface_message = {
+								type = event_raid_bad
+								title = raze_intent_message
+
+								left_icon = scope:barony.holder
+								right_icon = root.army_commander
+								scope:barony.title_province = {
+									destroy_random_building_effect = yes
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				raid_intent = plunder_intent_nomadic
+				scope:raider.culture = { can_get_innovation_from = scope:county.culture }
+				has_raid_intent_immunity = no
+			}
+			random = {
+				chance = {
+					value = 2
+					if = {
+						limit = {
+							has_raid_intent_protection = yes
+						}
+						divide = 2
+					}
+				}
+				scope:raider = {
+					send_interface_message = {
+						type = event_raid_good
+						title = raze_intent_message
+
+						left_icon = scope:barony.holder
+						right_icon = root.army_commander
+						scope:raider.culture = {
+							get_random_innovation_from = scope:county.culture
+						}
+					}
+				}	
+			}
+		}
+		scope:barony.holder ?= {
+			if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				send_interface_message = {
+					type = event_raid_bad
+					title = raid_herd_message
+
+					left_icon = scope:barony.holder
+					right_icon = root.army_commander
+					scope:barony.holder.domicile ?= {
+						change_herd = -100
+					}
+				}
+			}
+		}
+	}
+}

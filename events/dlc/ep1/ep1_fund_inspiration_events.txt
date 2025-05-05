@@ -15401,7 +15401,108 @@ fund_inspiration.6001 = {
 
 #Postcard from India
 
-# No India
+fund_inspiration.6002 = {
+	type = letter_event
+	opening = { desc = fund_inspiration.6002.t }
+	desc = fund_inspiration.6002.desc
+	sender = scope:inspiration_owner
+	
+	cooldown = { years = 5 }
+
+	trigger = {
+		exists = scope:inspiration
+		location = {#We can't have an adventurer writing home about what a region is like that we belong to
+			NOT = {
+				geographical_region = world_india
+			}
+		}
+		NOT = {
+			any_character_artifact = {
+				has_variable = animal_ring
+			}
+		}
+		is_ai = no
+		scope:inspiration_owner = {
+			exists = var:adventure_destination
+			exists = var:adventure_type
+			NOT = {  has_character_flag = had_event_fund_inspiration_6002 }
+			has_no_inspiration_event_cooldown = yes
+			OR = {
+				var:adventure_destination = flag:india
+				var:adventure_destination = flag:india_deccan
+				var:adventure_destination = flag:india_bengal
+				var:adventure_destination = flag:india_rajastan
+			}
+			NOT = {
+				any_character_artifact = {
+					has_variable = animal_ring
+				}
+			}
+		}
+	}
+
+	immediate = {
+		save_scope_as = owner #for loc
+		scope:inspiration_owner = {
+			add_character_flag = {
+				flag = had_event_fund_inspiration_6002
+				years = 5
+			}
+			#To stagger any following events
+			add_character_flag = {
+				flag = fund_adventure_inspiration_event_cooldown
+				days = { 30 60 }
+			}
+		}
+		create_artifact = {
+			name = animal_ring_name
+			description = animal_ring_description
+			type = miscellaneous
+			visuals = ring
+			modifier = artifact_scheme_resistance_add_2_modifier
+			creator = scope:inspiration_owner
+			save_scope_as = animal_ring
+			history = {
+				type = discovered
+				actor = scope:inspiration_owner
+				recipient = root
+				location = scope:inspiration_owner.location
+			}
+		}
+		hidden_effect_new_object = {
+			scope:animal_ring = {
+				flag_as_trash_artifact = yes
+				set_variable = {
+					name = animal_ring
+					value = yes
+				}
+			}
+		}
+	}
+	#Keep the ring
+	option = {
+		name = fund_inspiration.6002.a
+		ai_chance = {
+			base = 50
+			ai_value_modifier = {
+				ai_greed = 0.5
+			}
+		}
+	}
+	#Sell the ring for gold
+	option = {
+		name = fund_inspiration.6002.b
+		destroy_artifact = scope:animal_ring
+		add_gold = minor_gold_value
+		ai_chance = {
+			base = 200
+			ai_value_modifier = {
+				ai_honor = -0.5
+				ai_greed = 0.5
+			}
+		}
+	}
+}
 
 #Postcard from Africa
 

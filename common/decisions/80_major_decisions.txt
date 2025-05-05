@@ -384,8 +384,11 @@ convert_whole_realm_to_feudalism_decision = {
 
 	ai_potential = {
 		OR = {
-			NOT = { has_title = title:e_khuzait_khanate } #Stop the Khuzaits from slowing their conquest.
-			NOT = { mpo_has_gok_mongol_empire_trigger = yes } #Stop the Mongols from slowing their conquest. ## CK_COMPATCH - REVIEW THIS TRIGGER
+			NAND = { 
+				current_date <= 1300.1.1
+				has_title = title:e_khuzait_khanate # Avoid the Khuzaits from feudalizing too soon
+			} #Stop the Khuzaits from slowing their conquest.
+			NOT = { mpo_has_gok_mongol_empire_trigger = yes } #Stop the Great Horde from slowing their conquest
 		}
 	}
 
@@ -599,7 +602,6 @@ declare_bloodline_holy_decision = {
 			has_trait = paragon
 			has_trait = consecrated_blood
 			faith.religion = faith:aserai_faith.religion #Uses Sayyid mechanics already.
-			# faith.religion = faith:aserai_faith.religion #Must aim to become Saoshyant instead.
 			dynasty = {
 				exists = var:variable_made_bloodline_holy
 			}
@@ -981,7 +983,9 @@ found_empire_decision = {
 				tier = tier_kingdom
 			}
 		}
-		NOT = { has_game_rule = off_custom_kingdoms }
+		NOT = { 
+			has_game_rule = off_custom_kingdoms
+		}
 		NOT = { 
 			primary_title = {
 				empire = title:e_calradian_empire
@@ -1321,7 +1325,15 @@ tribal_challenge_ruler_decision = {
 
 		modifier = { #Unlikely towards players since it can be such a disruptive force
 			add = -50
-			liege = { is_ai = no }
+			liege = { 
+				OR = {
+					AND = {
+						has_title = title:e_khuzait_khanate
+						current_date >= 1200.1.1
+					}
+					is_ai = no 
+				}
+			}
 		}
 
 		modifier = {
@@ -2473,10 +2485,8 @@ set_de_jure_capital_decision = {
 		has_title = scope:current_de_jure
 		custom_tooltip = {
 			text = set_de_jure_not_de_jure_tooltip
-			NOT = {
-				scope:title_check = {
-					is_de_jure_liege_or_above_target = scope:current_capital
-				}
+			scope:current_de_jure = {
+				is_de_jure_liege_or_above_target = scope:current_capital
 			}
 		}
 		custom_tooltip = {

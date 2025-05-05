@@ -512,7 +512,10 @@ PixelShader =
 
 				float2 ColorMapCoords =  Input.WorldSpacePos.xz *  WorldSpaceToTerrain0To1;
 				#if defined( APPLY_WINTER )
-					Diffuse.rgb = ApplyDynamicMasksDiffuse( Diffuse.rgb, Normal, ColorMapCoords );
+					float SnowHighlight = 0.0;
+					EffectIntensities ConditionData;
+					SampleProvinceEffectsMask( ColorMapCoords, ConditionData );
+					ApplySnowMaterialMesh( ConditionData, Diffuse.rgb, Properties, Normal, Input.WorldSpacePos.xz, SnowHighlight );
 				#endif
 
 				// Colormap blend, pre light
@@ -531,7 +534,7 @@ PixelShader =
 					float3 Color = CalculateSunLighting( MaterialProps, LightingProps, EnvironmentMap );
 					#ifdef TRANSLUCENCY
 						float ThicknessValue = 0.5f;
-						#ifdef THICKNESS_MAP 
+						#ifdef THICKNESS_MAP
 							ThicknessValue = Properties.r;
 						#endif
 						STranslucencyProperties TranslucencyProps = GetTranslucencyProperties( 0.3f, 1.5f, 1.0f, 1.0f, 0.2f, ThicknessValue, Diffuse.rgb );

@@ -568,7 +568,7 @@ tradition_horse_lords = {
 
 	is_shown = {
 		# OR = {
-			# has_cultural_pillar = heritage_mongolic
+			# has_cultural_pillar = heritage_khiindai
 			has_cultural_pillar = heritage_khuzic
 		# }
 		NOT = {
@@ -642,8 +642,8 @@ tradition_horse_lords = {
 			#if = {
 			#	limit = {
 			#		NOR = {
-			#			has_cultural_pillar = heritage_turkic
-			#			has_cultural_pillar = heritage_mongolic
+			#			has_cultural_pillar = heritage_khuzic
+			#			has_cultural_pillar = heritage_khiindai
 			#		}
 			#	}
 			#	add = {
@@ -659,7 +659,7 @@ tradition_horse_lords = {
 	}
 }
 
-tradition_saharan_nomads = {
+tradition_nahasan_nomads = {
 	category = regional
 
 	layers = {
@@ -744,13 +744,13 @@ tradition_saharan_nomads = {
 				}
 				add = {
 					value = tradition_unfulfilled_criteria_penalty
-					desc = sahara_percentage_desc
+					desc = nahasa_percentage_desc
 				}
 			}
 
 			if = {
 				limit = {
-					culture_tradition_reduction_trigger = { TRADITION = tradition_saharan_nomads }
+					culture_tradition_reduction_trigger = { TRADITION = tradition_nahasan_nomads }
 				}
 				multiply = {
 					value = 0.5
@@ -867,7 +867,128 @@ tradition_visigothic_codes = {
 	ai_will_do = { value = 200 }
 }
 
-# No Himalayas
+
+
+
+tradition_himalayan_settlers = {
+	category = regional
+
+	layers = {
+		0 = learning
+		1 = indian
+		4 = mountain.dds
+	}
+
+	is_shown = { #Replaces Mountain Homes
+		OR = {
+			# has_cultural_pillar = heritage_tibetan
+			has_cultural_pillar = heritage_khangay
+			any_culture_county = {
+				title_province = {
+					geographical_region = world_himalaya
+				}
+			}
+		}
+	}
+	can_pick = {
+		OR = {
+			has_cultural_pillar = heritage_khangay
+			any_culture_county = {
+				title_province = {
+					geographical_region = world_himalaya
+				}
+			}
+		}
+	}
+
+	parameters = {
+		unlock_maa_mountaineer = yes
+		rough_terrain_expert_trait_more_common = yes
+		mountain_trait_bonuses = yes
+		can_recruit_mountain_specialist = yes
+		resistant_to_mountain_privation = yes
+	}
+
+	character_modifier = {
+		mountains_development_growth_factor = 0.2
+		mountains_travel_danger = mountains_high_danger_reduction
+		movement_speed_land_raiding = 0.15
+		hostile_county_attrition_raiding = -0.2
+	}
+	province_modifier = {
+		mountains_construction_gold_cost = -0.1
+		mountains_holding_construction_gold_cost = -0.1
+	}
+
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_spiritual = { is_in_list = traits }
+						culture_pillar:ethos_communal = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_communal_or_spiritual_desc
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						any_culture_county = {
+							percent >= 0.3
+							title_province = {
+								geographical_region = world_himalaya
+							}
+						}
+					}
+				}
+				add = {
+					value = tradition_unfulfilled_criteria_penalty
+					desc = culture_in_himalaya_desc
+				}
+			}
+
+			if = {
+				limit = {
+					culture_tradition_reduction_trigger = { TRADITION = tradition_himalayan_settlers }
+				}
+				multiply = {
+					value = 0.5
+					desc = inspired_by_culture_desc
+				}
+			}
+
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+
+	ai_will_do = {
+		value = 400
+		if = {
+			limit = {
+				NOT = {
+					scope:character = {
+						any_sub_realm_county = {
+							percent >= 0.4
+							title_province = {
+								geographical_region = world_himalaya
+							}
+						}
+					}
+				}
+			}
+			multiply = 0
+		}
+	}
+}
 
 tradition_desert_nomads = {
 	category = regional
@@ -880,6 +1001,10 @@ tradition_desert_nomads = {
 
 	is_shown = {
 		OR = {
+			this = culture:tamari
+			any_parent_culture_or_above = {
+				this = culture:tamari
+			}
 			this = culture:nahrawi
 			any_parent_culture_or_above = {
 				this = culture:nahrawi
@@ -979,115 +1104,6 @@ tradition_desert_nomads = {
 							percent >= 0.5
 							any_county_province = {
 								geographical_region = world_innovation_camels
-							}
-						}
-					}
-				}
-			}
-			multiply = 0
-		}
-	}
-}
-
-tradition_himalayan_settlers = {
-	category = regional
-
-	layers = {
-		0 = learning
-		1 = indian
-		4 = mountain.dds
-	}
-
-	is_shown = { #Replaces Mountain Homes
-		OR = {
-			# has_cultural_pillar = heritage_tibetan
-			has_cultural_pillar = heritage_khangay
-			any_culture_county = {
-				title_province = {
-					geographical_region = world_india
-				}
-			}
-		}
-	}
-	can_pick = {
-		OR = {
-			has_cultural_pillar = heritage_khangay
-			any_culture_county = {
-				title_province = {
-					geographical_region = world_india
-				}
-			}
-		}
-	}
-
-	parameters = {
-		unlock_maa_mountaineer = yes
-		rough_terrain_expert_trait_more_common = yes
-		mountain_trait_bonuses = yes
-		can_recruit_mountain_specialist = yes
-	}
-
-	character_modifier = {
-		mountains_development_growth_factor = 0.2
-		mountains_travel_danger = mountains_high_danger_reduction
-		movement_speed_land_raiding = 0.15
-		hostile_county_attrition_raiding = -0.2
-	}
-	province_modifier = {
-		mountains_construction_gold_cost = -0.1
-		mountains_holding_construction_gold_cost = -0.1
-	}
-
-	cost = {
-		prestige = {
-			add = {
-				value = tradition_base_cost
-				desc = BASE
-				format = "BASE_VALUE_FORMAT"
-			}
-			if = {
-				limit = {
-					NOR = {
-						culture_pillar:ethos_spiritual = { is_in_list = traits }
-						culture_pillar:ethos_communal = { is_in_list = traits }
-					}
-				}
-				add = {
-					value = tradition_incompatible_ethos_penalty
-					desc = not_communal_or_spiritual_desc
-				}
-			}
-			if = {
-				limit = {
-					NOT = {
-						any_culture_county = {
-							percent >= 0.3
-							title_province = {
-								geographical_region = world_india
-							}
-						}
-					}
-				}
-				add = {
-					value = tradition_unfulfilled_criteria_penalty
-					desc = culture_in_himalaya_desc
-				}
-			}
-
-			multiply = tradition_replacement_cost_if_relevant
-		}
-	}
-
-	ai_will_do = {
-		value = 100
-		if = {
-			limit = {
-				NOT = {
-					scope:character = {
-						any_sub_realm_county = {
-							percent >= 0.4
-							title_province = {
-								geographical_region = world_india
 							}
 						}
 					}
@@ -1255,11 +1271,11 @@ tradition_steppe_tolerance = {
 	is_shown = {
 		NOT = {
 			culture_tradition:tradition_african_tolerance = { is_in_list = traits }
-			# culture_tradition:tradition_religion_blending = { is_in_list = traits }
+			culture_tradition:tradition_religion_blending = { is_in_list = traits }
 		}
 		# OR = {
 			has_cultural_pillar = heritage_khuzic
-			# has_cultural_pillar = heritage_turkic
+			# has_cultural_pillar = heritage_khiindai
 		# }
 	}
 	can_pick = {

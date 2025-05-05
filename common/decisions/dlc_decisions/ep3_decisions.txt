@@ -1169,15 +1169,11 @@ found_varangian_guard_decision = {
 
 	is_shown = {
 		has_ep3_dlc_trigger = yes
-		has_title = title:e_calradian_empire
-		NOR = {
-			# already created
-			is_target_in_global_variable_list = {
-				name = unavailable_unique_decisions
-				target = flag:found_varangian_guard_decision
-			}
-			# already existed at game start
-			title:e_calradian_empire = { has_variable = founded_varangian_guard }
+		culture = { has_cultural_parameter = unlock_maa_varangian_guards }
+		primary_title.tier >= tier_empire
+		NOT = {
+			# You have not already founded it for your current title
+			primary_title = { has_variable = founded_varangian_guard }
 		}
 	}
 	
@@ -1223,11 +1219,7 @@ found_varangian_guard_decision = {
 	}
 
 	effect = {
-		add_to_global_variable_list = {
-			name = unavailable_unique_decisions
-			target = flag:found_varangian_guard_decision
-		}
-		title:e_calradian_empire = { set_variable = founded_varangian_guard }
+		primary_title = { set_variable = founded_varangian_guard }
 		send_interface_toast = {
 			title = unlocked_varangian_guard_desc_tt
 			type = event_toast_effect_neutral
@@ -1867,19 +1859,25 @@ adopt_state_faith = {
 
 	is_shown = {
 		has_ep3_dlc_trigger = yes
-		government_allows = state_faith
+		top_liege = { government_allows = state_faith }
 		exists = top_liege.primary_title.state_faith
 		NOT = { faith ?= top_liege.primary_title.state_faith }
 	}
 
 	is_valid = {
-		government_allows = state_faith
+		top_liege = { government_allows = state_faith }
 		NOT = { faith ?= top_liege.primary_title.state_faith }
 	}
 
 	is_valid_showing_failures_only = {
-		NOT = { exists = involved_activity }
+		NOT = {
+			custom_description = {
+				text = "is_in_an_activity"
+				exists = involved_activity
+			}
+		}
 		is_imprisoned = no
+		NOT = { faith.religious_head ?= root }
 	}
 
 	cost = {}
@@ -1909,7 +1907,10 @@ adopt_state_faith = {
 
 		if = {
 			limit = { NOT = { has_character_flag = adopted_state_faith } }
-			change_influence = monumental_influence_gain
+			if = {
+				limit = { government_allows = administrative }
+				change_influence = monumental_influence_gain
+			}
 			add_piety = massive_piety_gain
 			top_liege = {
 				if = {
@@ -1939,12 +1940,13 @@ adopt_state_faith = {
 
 	ai_potential = {
 		government_has_flag = government_is_administrative
+		NOT = { has_trait = zealous } # A zealous vassal would presumably not want to change their faith
 		exists = top_liege.primary_title.state_faith
 		faith != top_liege.primary_title.state_faith
 	}
 
 	ai_will_do = {
-		base = 50
+		base = 20
 		modifier = {
 			is_governor = yes
 			add = 40
@@ -1982,13 +1984,43 @@ adopt_state_faith = {
 			has_trait = stubborn
 			add = -50
 		}
-		modifier = {
-			has_trait = zealous
-			factor = 0.6
+		
+		# Faith
+		modifier = { # More likely to switch away from an unreformed faith
+			faith ?= { has_doctrine_parameter = unreformed }
+			add = 20
 		}
+		modifier = { # Communal Identity make it more likely to adopt faith if they share same culture with the top liege
+			faith ?= { has_doctrine_parameter = same_culture_conversion_bonus_active }
+			culture ?= top_liege.culture
+			add = 10
+		}
+		modifier = { # Some faith are more likely to be abandoned
+			faith ?= { has_doctrine_parameter = unattractive_for_character_conversions }
+			add = 10
+		}
+		modifier = { # Don't adopt the state faith if you have the same faith as the top liege (if the emperor can have this faith, so can we!)
+			faith = top_liege.faith
+			is_independent_ruler = no
+			factor = 0
+		}
+		
+		# Other
 		modifier = {
 			has_vassal_stance = zealot
 			factor = 0.3
+		}
+		
+		# Non-admin vassals only consider converting if their faith hostility is low enough
+		modifier = {
+			NOT = { government_has_flag = government_is_administrative }
+			faith ?= {
+				faith_hostility_level = {
+					target = root.top_liege.primary_title.state_faith
+					value >= faith_hostile_level
+				}
+			}
+			factor = 0
 		}
 	}
 }
@@ -3618,4 +3650,3 @@ go_fishing_decision = {
 		base = 100
 	}
 }
-
