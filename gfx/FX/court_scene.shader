@@ -678,14 +678,8 @@ PixelShader =
 					float OuterAngle = RemapClamped( Light_InnerCone_OuterCone_ShadowToUse[i].y, 0.0f, 1.0f, 0.0f, PI / 2.0f );
 					LightColorIntensity *= GetAngleAttenuation( normalize( PosToLight ), -LightDirection, InnerAngle, OuterAngle );
 
-					// TODO: Could be cleaned up better
-					SLightingProperties LightingProps;
-					LightingProps._ToCameraDir = ViewVector;
 					LightingProps._ToLightDir = normalize( PosToLight );
 					LightingProps._LightIntensity = LightColorIntensity;
-					LightingProps._ShadowTerm = LightShadowTerm;
-					LightingProps._CubemapIntensity = 0.0;
-					LightingProps._CubemapYRotation = Float4x4Identity();
 					CalculateLightingFromLight( MaterialProps, LightingProps, DiffuseLight, SpecularLight );
 
 					#ifdef TRANSLUCENCY
@@ -698,14 +692,8 @@ PixelShader =
 					float Attenuation = CalculatePointLightAttenuation( PosToLight, ScaledRadius );
 					float3 LightColorIntensity = Light_Color_Intensity[i].xyz * Light_Color_Intensity[i].w * 1000.0f * Attenuation;
 
-					// TODO: Could be cleaned up better
-					SLightingProperties LightingProps;
-					LightingProps._ToCameraDir = ViewVector;
 					LightingProps._ToLightDir = normalize( PosToLight );
 					LightingProps._LightIntensity = LightColorIntensity;
-					LightingProps._ShadowTerm = LightShadowTerm;
-					LightingProps._CubemapIntensity = 0.0;
-					LightingProps._CubemapYRotation = Float4x4Identity();
 					CalculateLightingFromLight( MaterialProps, LightingProps, DiffuseLight, SpecularLight );
 
 					#ifdef TRANSLUCENCY
@@ -714,13 +702,8 @@ PixelShader =
 				}
 				else if( Light_Direction_Type[i].w == LIGHT_TYPE_DIRECTIONAL )
 				{
-					SLightingProperties LightingProps;
-					LightingProps._ToCameraDir = ViewVector;
 					LightingProps._ToLightDir = -Light_Direction_Type[i].xyz;
 					LightingProps._LightIntensity = ColorIntensity.rgb;
-					LightingProps._ShadowTerm = LightShadowTerm;
-					LightingProps._CubemapIntensity = 0.0f;
-					LightingProps._CubemapYRotation = Float4x4Identity();
 					CalculateLightingFromLight( MaterialProps, LightingProps, DiffuseLight, SpecularLight );
 
 					#ifdef TRANSLUCENCY
@@ -745,14 +728,8 @@ PixelShader =
 					float3 ClosestPoint = CalcDiscSpecMRP( Light_Position_Radius[i].xyz, Light_Position_Radius[i].w, WorldSpacePos, ViewVectorR, LightDirection );
 					ClosestPoint = normalize( ClosestPoint );
 
-					// TODO: Could be cleaned up better
-					SLightingProperties LightingProps;
-					LightingProps._ToCameraDir = ViewVector;
 					LightingProps._ToLightDir = normalize( PosToLight );
 					LightingProps._LightIntensity = LightColorIntensity;
-					LightingProps._ShadowTerm = LightShadowTerm;
-					LightingProps._CubemapIntensity = 0.0;
-					LightingProps._CubemapYRotation = Float4x4Identity();
 					CalculateLightingFromAreaLight( MaterialProps, LightingProps, DiffuseLight, SpecularLight, ClosestPoint );
 
 					#ifdef TRANSLUCENCY
@@ -768,14 +745,8 @@ PixelShader =
 					float3 ClosestPoint = CalcSphereSpecMRP( Light_Position_Radius[i].xyz, Light_Position_Radius[i].w, WorldSpacePos, ViewVectorR );
 					ClosestPoint = normalize( ClosestPoint );
 
-					// TODO: Could be cleaned up better
-					SLightingProperties LightingProps;
-					LightingProps._ToCameraDir = ViewVector;
 					LightingProps._ToLightDir = normalize( PosToLight );
 					LightingProps._LightIntensity = LightColorIntensity;
-					LightingProps._ShadowTerm = LightShadowTerm;
-					LightingProps._CubemapIntensity = 0.0;
-					LightingProps._CubemapYRotation = Float4x4Identity();
 					CalculateLightingFromAreaLight( MaterialProps, LightingProps, DiffuseLight, SpecularLight, ClosestPoint );
 
 					#ifdef TRANSLUCENCY
