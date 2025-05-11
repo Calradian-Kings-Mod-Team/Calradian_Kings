@@ -1882,23 +1882,23 @@ task_promote_culture = {
 		# 	}
 		# 	add = -250
 		# }
-		# if = {
-		# 	# Don't do this too often
-		# 	limit = {
-		# 		scope:councillor_liege = {
-		# 			has_character_flag = no_ai_culture_convert
-		# 			NAND = { # ignore it if in Hostility with escalation
-		# 				has_character_flag = agenda_towards_escalation
-		# 				any_character_struggle = {
-		# 					involvement = involved
-		# 					is_struggle_type = iberian_struggle
-		# 					is_struggle_phase = struggle_iberia_phase_hostility
-		# 				}
-		# 			}
-		# 		}
-		# 	}
-		# 	multiply = 0
-		# }
+		if = {
+			# Don't do this too often
+			limit = {
+				scope:councillor_liege = {
+					has_character_flag = no_ai_culture_convert
+					# NAND = { # ignore it if in Hostility with escalation
+					# 	has_character_flag = agenda_towards_escalation
+					# 	any_character_struggle = {
+					# 		involvement = involved
+					# 		is_struggle_type = iberian_struggle
+					# 		is_struggle_phase = struggle_iberia_phase_hostility
+					# 	}
+					# }
+				}
+			}
+			multiply = 0
+		}
 		if = {
 			# Interrupt this task if you're bankrupt
 			limit = {
@@ -2222,6 +2222,23 @@ task_accept_culture = {
 			trigger_if = {
 				limit = {
 					scope:councillor_liege = { is_ai = yes }
+				}
+				NAND = {
+					# Scottish rulers should convert counties of 'old' cultures to the new one.
+					scope:councillor_liege.culture = culture:swadian
+					OR = {
+						scope:county.culture = culture:vlandian
+						scope:county.culture = culture:bithic
+					}
+				}
+				NAND = {
+					# English rulers should convert counties of 'old' cultures to the new one.
+					scope:councillor_liege.culture = culture:rhodok
+					OR = {
+						scope:county.culture = culture:kassen
+						scope:county.culture = culture:rhoyd
+						scope:county.culture = culture:jendea
+					}
 				}
 				OR = {
 					scope:councillor_liege = {

@@ -187,12 +187,66 @@ on_game_start = {
 		}
 		
 		### CALRADIC KINGS - UNIVERSITIES ###
-		title:b_charas.title_province = { add_special_building_slot = generic_university }
-		title:b_ortysia.title_province = { add_special_building_slot = generic_university }
-		title:b_pravend.title_province = { add_special_building_slot = generic_university }
-		title:b_lycaron.title_province = { add_special_building_slot = generic_university }
-		title:b_sanala.title_province = { add_special_building_slot = generic_university }
-		title:b_razih.title_province = { add_special_building_slot = generic_university }
+		title:b_charas.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_ortysia.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_pravend.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_lycaron.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_sanala.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_razih.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
 		
 		## Non-Standard COAs at 976 game start ##
 		# Vlandian CoAs #
@@ -335,7 +389,6 @@ on_game_start = {
 			title:c_vasantina = { add_county_modifier = backwater_county_modifier }
 			title:c_monatys = { add_county_modifier = backwater_county_modifier }
 			title:c_morgathys = { add_county_modifier = backwater_county_modifier }
-			title:c_aetolia = { add_county_modifier = backwater_county_modifier }
 			title:c_atrion = { add_county_modifier = backwater_county_modifier }
 			title:c_lipathos = { add_county_modifier = backwater_county_modifier }
 			title:c_agalmon = { add_county_modifier = backwater_county_modifier }
@@ -739,51 +792,282 @@ on_game_start_after_lobby = {
 				}
 			}
 		}
-
-		# Extra Nomad Regions
-		#Sami
+		# Non-Canon Nomads Rule (region = khuzait_non_canon_nomads )
 		if = {
-		    limit = {
+			limit = {
 				has_mpo_dlc_trigger = yes
-				has_game_rule = sami_nomad_region_on
+				has_game_rule = ck_non_canon_nomads
 			}
-			start_situation = {
-				type = game_rule_extra_nomads_sami
-				start_phase = situation_steppe_abundant_grazing_season
-				save_scope_as = my_situation
-			}
-			scope:my_situation = {
+			situation:the_great_steppe ?= {
 				every_situation_county = {
-					limit = {
-						holder = {
-							OR = {
-								culture = culture:anburian
-								culture = culture:musarti
-							}
-						}
-					}
-					holder = {
-						set_variable = {
-							name = steppe_game_start_var
-							years = 1
-						}
-						every_held_title = {
-							if = {
-								limit = {
-									title_province = {
-										has_holding_type = tribal_holding
+					if = {
+						limit = {
+							geographical_region = khuzait_non_canon_nomads
+							holder = {
+								highest_held_title_tier = tier_county
+								government_has_flag = government_is_tribal
+								culture = {
+									OR = {
+										has_cultural_pillar = heritage_lir_ovus
+										has_cultural_pillar = heritage_khuzic
 									}
 								}
-								title_province = {
-									set_holding_type = nomad_holding
-								}
 							}
 						}
-						change_government = nomad_government
+						holder = {
+							set_variable = {
+								name = steppe_game_start_var
+								years = 1
+							}
+							every_held_title = {
+								if = {
+									limit = {
+										title_province = {
+											has_holding_type = tribal_holding
+										}
+									}
+									title_province = {
+										set_holding_type = nomad_holding
+									}
+								}
+							}
+							change_government = nomad_government
+						}
 					}
 				}
 			}
 		}
+		# Duchy Nomads Rule
+		if = {
+			limit = {
+				has_mpo_dlc_trigger = yes
+				has_game_rule = ck_duchy_nomads
+			}
+			situation:the_great_steppe ?= {
+				every_situation_county = {
+					if = {
+						limit = {
+							holder = {
+								capital_county = {
+									any_county_situation = {
+										# NOT = {
+											situation:the_great_steppe ?= this
+										# }
+									}
+								}
+								highest_held_title_tier <= tier_duchy
+								government_has_flag = government_is_tribal
+								culture = {
+									OR = {
+										has_cultural_pillar = heritage_lir_ovus
+										has_cultural_pillar = heritage_khuzic
+									}
+								}
+							}
+						}
+						holder = {
+							set_variable = {
+								name = steppe_game_start_var
+								years = 1
+							}
+							every_held_title = {
+								if = {
+									limit = {
+										title_province = {
+											has_holding_type = tribal_holding
+										}
+									}
+									title_province = {
+										set_holding_type = nomad_holding
+									}
+								}
+							}
+							change_government = nomad_government
+						}
+					}
+				}
+			}
+		}
+		## Whole Khanate
+		if = {
+			limit = {
+				has_mpo_dlc_trigger = yes
+				has_game_rule = ck_whole_khuzait
+			}
+			situation:the_great_steppe = {
+				situation_sub_region:steppe_west = {
+					add_geographical_region = ck_steppe_expansion_tanesis
+					add_geographical_region = ck_steppe_expansion_south_khuzait
+					add_geographical_region = ck_steppe_expansion_southeast_khuzait
+				}
+				every_situation_county = {
+					if = {
+						limit = {
+							holder = {
+								highest_held_title_tier >= tier_county
+								government_has_flag = government_is_tribal
+								culture = {
+									OR = {
+										has_cultural_pillar = heritage_lir_ovus
+										has_cultural_pillar = heritage_khuzic
+									}
+								}
+							}
+						}
+						holder = {
+							set_variable = {
+								name = steppe_game_start_var
+								years = 1
+							}
+							every_held_title = {
+								if = {
+									limit = {
+										title_province = {
+											has_holding_type = tribal_holding
+										}
+									}
+									title_province = {
+										set_holding_type = nomad_holding
+									}
+								}
+							}
+							change_government = nomad_government
+						}
+					}
+				}
+			}
+		}
+		## Damar River
+		if = {
+		    limit = {
+				has_mpo_dlc_trigger = yes
+				has_game_rule = the_damar_river_situation_toggle_on
+			}
+		    start_situation = { 
+				type = the_damar_river_situation
+				start_phase = situation_steppe_abundant_grazing_season
+				save_scope_as = my_situation
+				sub_region = {
+					key = damariun_nomads_central
+					start_phase = situation_steppe_abundant_grazing_season
+					map_color = { 155 62 0 }
+					geographical_regions = { damariun_nahasan_nomad }
+				}
+				sub_region = {
+					key = damariun_nomads_north
+					start_phase = situation_steppe_abundant_grazing_season
+					map_color = { 24 155 76 }
+					geographical_regions = { damariun_nahasan_nomad_north }
+				}
+				# sub_region = {
+				# 	key = damariun_nomads_north
+				# 	start_phase = situation_steppe_abundant_grazing_season
+				# 	map_color = { 24 155 76 }
+				# 	geographical_regions = { damariun_nahasan_nomad }
+				# }
+			}
+			scope:my_situation = {
+				every_situation_county = {
+					if = {
+						limit = {
+							holder = {
+								government_has_flag = government_is_tribal
+								OR = {
+									culture = { has_cultural_pillar = heritage_nahasi }
+									culture = culture:tamari
+									culture = culture:nahrawi
+								}
+							}
+						}
+						holder = {
+							set_variable = {
+								name = damar_start_var
+								years = 1
+							}
+							every_held_title = {
+								if = {
+									limit = {
+										title_province = {
+											has_holding_type = tribal_holding
+										}
+									}
+									title_province = {
+										set_holding_type = nomad_holding
+									}
+								}
+							}
+							change_government = nomad_government
+						}
+					}
+					else_if = {
+						limit = {
+							holder = {
+								NOT = {
+									government_has_flag = government_is_tribal
+								}
+								OR = {
+									culture = { has_cultural_pillar = heritage_nahasi }
+									culture = culture:tamari
+									culture = culture:nahrawi
+								}
+							}
+						}
+						holder = {
+							set_variable = {
+								name = damar_start_var
+								years = 1
+							}
+						}
+					}
+				}
+			}
+		}
+
+
+		# Extra Nomad Regions
+		#Sami
+		# if = {
+		#     limit = {
+		# 		has_mpo_dlc_trigger = yes
+		# 		has_game_rule = sami_nomad_region_on
+		# 	}
+		# 	start_situation = {
+		# 		type = game_rule_extra_nomads_sami
+		# 		start_phase = situation_steppe_abundant_grazing_season
+		# 		save_scope_as = my_situation
+		# 	}
+		# 	scope:my_situation = {
+		# 		every_situation_county = {
+		# 			limit = {
+		# 				holder = {
+		# 					OR = {
+		# 						culture = culture:anburian
+		# 						culture = culture:musarti
+		# 					}
+		# 				}
+		# 			}
+		# 			holder = {
+		# 				set_variable = {
+		# 					name = steppe_game_start_var
+		# 					years = 1
+		# 				}
+		# 				every_held_title = {
+		# 					if = {
+		# 						limit = {
+		# 							title_province = {
+		# 								has_holding_type = tribal_holding
+		# 							}
+		# 						}
+		# 						title_province = {
+		# 							set_holding_type = nomad_holding
+		# 						}
+		# 					}
+		# 				}
+		# 				change_government = nomad_government
+		# 			}
+		# 		}
+		# 	}
+		# }
 		#Arabia
 		if = {
 		    limit = {
@@ -804,7 +1088,7 @@ on_game_start_after_lobby = {
 					key = egypt_nomads
 					start_phase = situation_steppe_abundant_grazing_season
 					map_color = { 24 155 76 }
-					geographical_regions = { damariun_nahasan_nomad }
+					geographical_regions = { nahasan_desert_nomad_east }
 				}
 			}
 			scope:my_situation = {
@@ -841,70 +1125,7 @@ on_game_start_after_lobby = {
 			title:c_askar = {
 				change_county_fertility = { 30 65 }
 			}
-		}
-		#Sahel
-		# if = {
-		#     limit = {
-		# 		has_mpo_dlc_trigger = yes
-		# 		has_game_rule = sahel_nomad_region_on
-		# 	}
-		#     start_situation = { 
-		# 		type = game_rule_extra_nomads_sahel
-		# 		start_phase = situation_steppe_severe_drought_season
-		# 		save_scope_as = my_situation
-		# 		sub_region = {
-		# 			key = north_africa_nomads
-		# 			start_phase = situation_steppe_abundant_grazing_season
-		# 			map_color = { 155 62 0 }
-		# 			geographical_regions = { sahel_north_africa_nomad_area }
-		# 		}
-		# 		sub_region = {
-		# 			key = sahara_nomads
-		# 			start_phase = situation_steppe_severe_drought_season
-		# 			map_color = { 255 232 100 }
-		# 			geographical_regions = { sahel_desert_nomad_area }
-		# 		}
-		# 		sub_region = {
-		# 			key = sahel_nomads
-		# 			start_phase = situation_steppe_abundant_grazing_season
-		# 			map_color = { 100 46 92 }
-		# 			geographical_regions = { sahel_sub_saharan_africa_nomad_area }
-		# 		}
-		# 	}
-		# 	scope:my_situation = {
-		# 		every_situation_county = {
-		# 			limit = {
-		# 				holder = {
-		# 					government_has_flag = government_is_tribal
-		# 					OR = {
-		# 						culture = { has_cultural_pillar = heritage_berber }
-		# 						culture = culture:tamari
-		# 						culture = culture:nahrawi
-		# 					}
-		# 				}
-		# 			}
-		# 			holder = {
-		# 				set_variable = {
-		# 					name = steppe_game_start_var
-		# 					years = 1
-		# 				}
-		# 				every_held_title = {
-		# 					if = {
-		# 						limit = {
-		# 							title_province = {
-		# 								has_holding_type = tribal_holding
-		# 							}
-		# 						}
-		# 						title_province = {
-		# 							set_holding_type = nomad_holding
-		# 						}
-		# 					}
-		# 				}
-		# 				change_government = nomad_government
-		# 			}
-		# 		}
-		# 	}
-		# }	
+		}	
 		# #Horn of Africa
 		# if = {
 		#     limit = {
@@ -1033,25 +1254,25 @@ on_game_start_after_lobby = {
 						save_scope_as = new_nomad_title
 					}
 				}
-				# if = {
-				# 	limit = {
-				# 		exists = situation:the_great_steppe
-				# 		any_character_situation = {
-				# 			this = situation:the_great_steppe
-				# 		}
-				# 	}
-				# 	add_trait = nomadic_philosophy
-				# 	dynasty ?= {
-				# 		every_dynasty_member = {
-				# 			limit = {
-				# 				top_liege ?= {
-				# 					government_has_flag = government_is_nomadic
-				# 				}
-				# 			}
-				# 			add_trait = nomadic_philosophy
-				# 		}
-				# 	}
-				# }
+				if = {
+					limit = {
+						exists = situation:the_great_steppe
+						any_character_situation = {
+							this = situation:the_great_steppe
+						}
+					}
+					add_trait = nomadic_philosophy
+					dynasty ?= {
+						every_dynasty_member = {
+							limit = {
+								top_liege ?= {
+									government_has_flag = government_is_nomadic
+								}
+							}
+							add_trait = nomadic_philosophy
+						}
+					}
+				}
 				every_pool_guest = {
 					death = {
 						death_reason = death_vanished
@@ -1291,6 +1512,13 @@ on_game_start_after_lobby = {
 				end_situation = yes
 			}
 		}
+		situation:the_damar_river_situation ?= {
+			if = {
+				limit = { has_game_rule = the_damar_river_situation_toggle_off }
+				end_situation = yes
+			}
+		}
+
 
 		### GAME RULE: RULER OF MUNSTER
 		# if = {
