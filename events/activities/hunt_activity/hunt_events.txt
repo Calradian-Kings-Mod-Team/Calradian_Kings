@@ -1194,7 +1194,10 @@ hunt.0500 = {
 				trigger = {
 					scope:activity = {
 						activity_location.county = { has_county_modifier = hunt_sighting_dangerous_modifier }
-						has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+						OR = {
+							has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+							government_has_flag = government_is_nomadic
+						}
 					}
 				}
 				desc = hunt_opening_entourage_many_dangerous
@@ -1218,7 +1221,10 @@ hunt.0500 = {
 			triggered_desc = {
 				trigger = {
 					scope:activity = {
-						has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+						OR = {
+							has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+							government_has_flag = government_is_nomadic
+						}
 					}
 				}
 				desc = hunt_opening_entourage_many
@@ -1350,11 +1356,6 @@ hunt.0500 = {
 	right_portrait = {
 		character = scope:hunt_participant
 		animation = hunting_knife_start
-	}
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
 	}
 
 	trigger = {
@@ -1697,15 +1698,13 @@ hunt.1337 = {
 		animation = chancellor
 	}
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	trigger = {
 	}
 
 	immediate = {
+		capital_province = {
+			save_scope_as = home
+		}
 		if = {
 			limit = {
 				has_variable_list = allowed_hunting_baronies
@@ -1890,14 +1889,25 @@ hunt.1337 = {
 
 	option = { # Back out
 		name = hunt.1337.d
-		
+
+		add_character_flag = no_claims_to_land
 		scope:activity = {
+			set_variable = {
+				name = hunt_invalidated
+				value = flag:landless
+			}
 			set_variable = {
 				name = hunt_invalidated_flavor
 				value = root
 			}
+			set_variable = {
+				name = hunt_invalidated_culprit
+				value = scope:barony_holder
+			}
 		}
-		custom_tooltip = hunt_ends_tt
+		hunt_invalidation_event_effect = yes
+
+		#custom_tooltip = hunt_ends_tt
 		ai_chance = {
 			base = 10
 		}
@@ -1967,7 +1977,10 @@ hunt.0510 = {
 			triggered_desc = {
 				trigger = {
 					scope:activity = {
-						has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+						OR = {
+							has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+							government_has_flag = government_is_nomadic
+						}
 					}
 				}
 				desc = hunt_opening_entourage_many
@@ -1983,11 +1996,6 @@ hunt.0510 = {
 	right_portrait = {
 		character = scope:hunt_participant
 		animation = admiration
-	}
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
 	}
 
 	trigger = {
@@ -2134,7 +2142,10 @@ hunt.0530 = {
 			triggered_desc = {
 				trigger = {
 					scope:activity = {
-						has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+						OR = {
+							has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+							government_has_flag = government_is_nomadic
+						}
 					}
 				}
 				desc = hunt_opening_entourage_many_falconry
@@ -2149,11 +2160,6 @@ hunt.0530 = {
 	right_portrait = {
 		character = scope:hunt_participant
 		animation = admiration
-	}
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
 	}
 
 	trigger = {
@@ -2918,6 +2924,20 @@ hunt.0550 = {
 	desc = {
 		first_valid = {
 			triggered_desc = {
+				trigger = {
+					scope:activity ?= { hunt_is_nerge_type = yes }
+					this = scope:host
+				}
+				desc = hunt.0550.nerge.host.desc
+			}
+			triggered_desc = {
+				trigger = {
+					scope:activity ?= { hunt_is_nerge_type = yes }
+					NOT = { this = scope:host }
+				}
+				desc = hunt.0550.nerge.guest.desc
+			}
+			triggered_desc = {
 				trigger = { this = scope:host }
 				desc = hunt.0550.host
 			}
@@ -2952,6 +2972,14 @@ hunt.0550 = {
 				}
 				desc = hunt.0550.legendary
 			}
+			triggered_desc = {
+				trigger = {
+					scope:activity = {
+						has_activity_option = { category = special_type option = hunt_type_nerge }
+					}
+				}
+				desc = hunt.0550.nerge
+			}
 			desc = hunt.0550.standard
 		}
 		first_valid = {
@@ -2970,6 +2998,14 @@ hunt.0550 = {
 	theme = hunt_activity_camp
 	left_portrait = {
 		character = root
+		triggered_animation = {
+			trigger = {
+				scope:activity = {
+					hunt_is_nerge_type = yes
+				}
+			}
+			animation = hunting_shortbow_aim_arrow_default
+		}
 		animation = hunting_knife_start
 	}
 	right_portrait = {
@@ -3502,11 +3538,6 @@ hunt.1003 = {
 		character = scope:intentee
 	}
 	cooldown = { weeks = 1 }
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = {		
 		hunt_story_trigger = { STORY = chase }
@@ -4512,11 +4543,6 @@ hunt.1005 = {
 		animation = shock
 	}
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	trigger = {
 
 	}
@@ -4581,11 +4607,6 @@ hunt.1006 = {
 	}
 	right_portrait = scope:participant_to_blame
 	
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	immediate = {
 		hunt_participant_to_blame_effect = yes
 		scope:murder_target = {
@@ -4668,11 +4689,6 @@ hunt.1007 = {
 			NOT = { scope:hunt_participant = scope:murder_target }
 		}
 		animation = shock
-	}
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
 	}
 
 	immediate = {
@@ -4930,11 +4946,6 @@ hunt.1008 = {
 		animation = happiness
 	}
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	immediate = {
 		every_in_list = {
 			list = animal_slayers
@@ -5154,12 +5165,12 @@ hunt.1011 = {
 					}
 				}
 			}
-			stress_impact = {
-				shy = medium_stress_impact_gain
-				sadistic = medium_stress_impact_gain
-				callous = medium_stress_impact_gain
-				craven = medium_stress_impact_gain
-			}
+		}
+		stress_impact = {
+			shy = medium_stress_impact_gain
+			sadistic = medium_stress_impact_gain
+			callous = medium_stress_impact_gain
+			craven = medium_stress_impact_gain
 		}
 		ai_chance = {
 			base = 50
@@ -5287,11 +5298,6 @@ hunt.1012 = {
 		animation = thinking
 	}
 	
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	trigger = { #Either a continuation from 1011 or someone you have a murder scheme against
 		NOT = {
 			hunt_story_trigger = { STORY = chase }
@@ -5484,11 +5490,6 @@ hunt.1013 = {
 		animation = shock
 	}
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	immediate = {
 		play_music_cue = "mx_cue_stress"
 		unknown_murder_effect = {
@@ -5578,11 +5579,6 @@ hunt.1014 = {
 		animation = shock
 	}
 	
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	immediate = {
 		hunt_participant_to_blame_effect = yes
 		scope:murder_target = {
@@ -5654,13 +5650,8 @@ hunt.1015 = {
 		animation = shock
 	}
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
-	immediate = {
-		scope:murder_target = {
+	immediate = {		
+	scope:murder_target = {
 			increase_wounds_effect = { REASON = hunting_mistakenly_shot }
 		}
 		hunt_activity_random_interest_participant_effect = {
@@ -5895,11 +5886,6 @@ hunt.1016 = {
 		animation = paranoia
 	}
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	option = {
 		name = hunt.1016.a
 		stress_impact = {
@@ -5950,6 +5936,16 @@ hunt.1021 = {
 		NOR = {
 			has_sexuality = asexual
 			has_trait = celibate
+		}
+		scope:activity.activity_location.county = {
+			NOT = {
+				any_county_province = { # Doesn't make narrative sense
+					OR = {
+						has_holding_type = nomad_holding
+						has_holding_type = herder_holding
+					}
+				}
+			}
 		}
 	}
 
@@ -6572,7 +6568,10 @@ hunt.1030 = {
 		modifier = {
 			factor = 2
 			scope:activity = {
-				has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+				OR = {
+					has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+					activity_host = { government_has_flag = government_is_nomadic }
+				}
 			}
 		}
 		modifier = {
@@ -7619,11 +7618,6 @@ hunt.1062 = { # Falconry success
 	}
 	cooldown = { weeks = 1 }
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	trigger = {
 		has_dlc_feature = tours_and_tournaments
 		hunt_story_trigger = { STORY = falconry }
@@ -7727,11 +7721,6 @@ hunt.1063 = { # Falconry fails
 		animation = worry
 	}
 	cooldown = { weeks = 1 }
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = {		
 		has_dlc_feature = tours_and_tournaments
@@ -9392,6 +9381,13 @@ hunt.1200 = {
 	cooldown = { weeks = 1 }
 
 	immediate = {
+		if = {
+			limit = {
+				hunt_animal_type_herbivore_trigger = { VAR = scope:activity.var:animal_type }
+			}
+			play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_beast_struggle"
+		}
+		else = { play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_beast_roar" }
 		play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_arrow_impact_hit"
 		hunt_save_outcome_summary_scope_effect = yes
 		show_as_tooltip = {
@@ -9613,6 +9609,13 @@ hunt.1201 = {
 		triggered_animation = {
 			trigger = {
 				scope:animal_slayer = this
+				exists = scope:melee_failure
+			}
+			animation = pain
+		}
+		triggered_animation = {
+			trigger = {
+				scope:animal_slayer = this
 				exists = scope:melee_kill
 			}
 			animation = throne_room_two_handed_passive_1
@@ -9703,11 +9706,18 @@ hunt.1201 = {
 	}
 
 	immediate = {
+		if = {
+			limit = {
+				hunt_animal_type_herbivore_trigger = { VAR = scope:activity.var:animal_type }
+			}
+			play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_beast_struggle"
+		}
+		else = { play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_beast_roar" }
 		hunt_save_outcome_summary_scope_effect = yes
 		show_as_tooltip = {
 			switch = {
 				trigger = exists
-				scope:melee_kill = {
+				scope:melee_success = {
 					scope:animal_slayer = {
 						add_prestige = hunt_prestige_melee_value
 						if = {
@@ -10110,7 +10120,13 @@ hunt.1202 = {
 	}
 
 	immediate = {
-		play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_beast_roar"
+		if = {
+			limit = {
+				hunt_animal_type_herbivore_trigger = { VAR = scope:activity.var:animal_type }
+			}
+			play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_beast_struggle"
+		}
+		else = { play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_beast_roar" }
 		hunt_save_outcome_summary_scope_effect = yes
 		show_as_tooltip = {
 			scope:host = {
@@ -10601,7 +10617,7 @@ hunt.2001 = {
 			modifier = peregrine_falcon
 			years = 7
 		}		
-		remove_courtier_or_guest = scope:falcon_salesman
+		scope:falcon_salesman = { move_to_pool = yes }
 		ai_chance = {
 			base = 50
 			modifier = {
@@ -10645,7 +10661,7 @@ hunt.2001 = {
 
 	option = { # Send away
 		name = hunt.2001.d
-		remove_courtier_or_guest = scope:falcon_salesman
+		scope:falcon_salesman = { move_to_pool = yes }
 		ai_chance = {
 			base = 50
 			modifier = {
@@ -10763,6 +10779,14 @@ hunt.2500 = {
 	}
 
 	trigger = {
+		trigger_if = {
+			limit = {
+				exists = scope:master_of_the_hunt_from_task
+			}
+			scope:master_of_the_hunt_from_task = {
+				has_court_position = master_of_hunt_court_position
+			}
+		}
 		# Must be available, and a hunter/employ one
 		hunt_sighting_event_trigger = yes
 		# Must be a valid place for a new sighting
@@ -10787,7 +10811,7 @@ hunt.2500 = {
 			# Create new sighting
 			hunt_create_sighting_effect = {
 				TYPE = standard
-				ANIMAL = var:animal_type
+				ANIMAL = flag:deer
 				OWNER = root
 			}
 		}
@@ -10812,6 +10836,9 @@ hunt.2500 = {
 
 	option = { # Bother me not
 		name = hunt.2500.b
+		trigger = {
+			NOT = { exists = scope:master_of_the_hunt_from_task }
+		}
 		add_character_flag = disabled_hunt_sightings_flag
 		custom_tooltip = hunt.2000.b.tt
 		stress_impact = {
@@ -10920,6 +10947,14 @@ hunt.2510 = {
 	}
 
 	trigger = {
+		trigger_if = {
+			limit = {
+				exists = scope:master_of_the_hunt_from_task
+			}
+			scope:master_of_the_hunt_from_task = {
+				has_court_position = master_of_hunt_court_position
+			}
+		}
 		# Must be available, and a hunter/employ one
 		hunt_sighting_event_trigger = yes
 		# Must be a valid place for a new sighting
@@ -10941,6 +10976,12 @@ hunt.2510 = {
 		modifier = {
 			add = 5
 			dynasty ?= { has_dynasty_perk = ep2_activities_legacy_4 }
+		}
+		modifier = {
+			add = 5
+			any_held_county ?= {
+				any_county_province = { has_building_or_higher = legendary_hunting_lodge }
+			}
 		}
 		modifier = {
 			add = 75
@@ -11033,6 +11074,9 @@ hunt.2510 = {
 
 	option = { # Bother me not
 		name = hunt.2510.b
+		trigger = {
+			NOT = { exists = scope:master_of_the_hunt_from_task }
+		}
 		add_character_flag = disabled_hunt_sightings_flag
 		custom_tooltip = hunt.2000.b.tt
 		stress_impact = {
@@ -11115,6 +11159,14 @@ hunt.2520 = {
 	}
 
 	trigger = {
+		trigger_if = {
+			limit = {
+				exists = scope:master_of_the_hunt_from_task
+			}
+			scope:master_of_the_hunt_from_task = {
+				has_court_position = master_of_hunt_court_position
+			}
+		}
 		# Must be available, and a hunter/employ one
 		hunt_sighting_event_trigger = yes
 		# Must be a valid place for a new sighting
@@ -11163,6 +11215,9 @@ hunt.2520 = {
 
 	option = { # Bother me not
 		name = hunt.2500.b
+		trigger = {
+			NOT = { exists = scope:master_of_the_hunt_from_task }
+		}
 		add_character_flag = disabled_hunt_sightings_flag
 		custom_tooltip = hunt.2000.b.tt
 		stress_impact = {
@@ -11252,6 +11307,14 @@ hunt.2530 = {
 	}
 
 	trigger = {
+		trigger_if = {
+			limit = {
+				exists = scope:master_of_the_hunt_from_task
+			}
+			scope:master_of_the_hunt_from_task = {
+				has_court_position = master_of_hunt_court_position
+			}
+		}
 		# Falconry DLC feature
 		has_dlc_feature = tours_and_tournaments
 		# Must be available, and a hunter/employ one
@@ -11303,6 +11366,9 @@ hunt.2530 = {
 
 	option = { # Bother me not
 		name = hunt.2500.b
+		trigger = {
+			NOT = { exists = scope:master_of_the_hunt_from_task }
+		}
 		add_character_flag = disabled_hunt_sightings_flag
 		custom_tooltip = hunt.2000.b.tt
 		stress_impact = {
@@ -11329,25 +11395,6 @@ hunt.2530 = {
 #	Sighting Moves
 #	by Joe Parkin
 #######################
-
-scripted_trigger hunt_ongoing_sighting_trigger = {
-	OR = {
-		has_county_modifier = hunt_sighting_standard_modifier
-		has_county_modifier = hunt_sighting_dangerous_modifier
-		has_county_modifier = hunt_sighting_legendary_modifier	
-	}
-	exists = var:animal_type
-	var:sighting_owner ?= root
-	any_neighboring_county = {
-		trigger_if = {
-			limit = {
-				root = { is_landed = yes }
-			}
-			holder.top_liege = root.top_liege
-		}
-		hunt_activity_recent_hunt_sighting_trigger = no
-	}
-}
 
 hunt.2540 = {
 	type = character_event
@@ -11419,6 +11466,14 @@ hunt.2540 = {
 	cooldown = { years = 5 }
 
 	trigger = {
+		trigger_if = {
+			limit = {
+				exists = scope:master_of_the_hunt_from_task
+			}
+			scope:master_of_the_hunt_from_task = {
+				has_court_position = master_of_hunt_court_position
+			}
+		}
 		hunt_sighting_event_trigger = yes
 		trigger_if = {
 			limit = { is_landed = no }
@@ -11563,6 +11618,9 @@ hunt.2540 = {
 
 	option = { # Bother me not
 		name = hunt.2540.b
+		trigger = {
+			NOT = { exists = scope:master_of_the_hunt_from_task }
+		}
 		add_character_flag = disabled_hunt_sightings_flag
 		custom_tooltip = hunt.2000.b.tt
 		stress_impact = {
@@ -12075,7 +12133,10 @@ hunt.3020 = {
 							modifier = { add = scope:integer_range_value }
 							modifier = {
 								scope:activity = {
-									has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+									OR = {
+										has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
+										government_has_flag = government_is_nomadic
+									}
 								}
 								factor = 2
 							}
@@ -12650,7 +12711,15 @@ hunt.4003 = {
 			has_court_position = huntperson_camp_officer
 		}
 		scope:activity.activity_location.county = {
-			NOT = { has_county_modifier = hunt_punished_locals_modifier }
+			NOR = {
+				has_county_modifier = hunt_punished_locals_modifier
+				any_county_province = { # Doesn't make narrative sense
+					OR = {
+						has_holding_type = nomad_holding
+						has_holding_type = herder_holding
+					}
+				}
+			}
 		}
 	}
 
@@ -13138,11 +13207,6 @@ hunt.4004 = {
 				scope:host ?= this
 			}
 		}
-	}
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
 	}
 
 	immediate = {
@@ -13782,6 +13846,19 @@ hunt.4006 = {
 		animation = worry
 	}
 	cooldown = { years = 1 }
+	
+	trigger = {
+		scope:activity.activity_location.county = {
+			NOT = {
+				any_county_province = { # Doesn't make narrative sense
+					OR = {
+						has_holding_type = nomad_holding
+						has_holding_type = herder_holding
+					}
+				}
+			}
+		}
+	}
 
 	immediate = {
 		hunt_activity_random_subordinate_participant_effect = {
@@ -14201,6 +14278,7 @@ hunt.4007 = {
 							5 = { # Aurochs
 								trigger = {
 									scope:activity.activity_location = { hunt_animal_aurochs_trigger = yes }
+									NOT = { scope:host.religion = religion:ghavati_religion }
 								}
 								set_variable = { name = animal_type value = flag:aurochs }
 							}
@@ -15225,6 +15303,11 @@ hunt.4008 = {
 		scope:activity = {
 			any_attending_character = { hunt_4008_trigger = yes }
 		}
+		scope:host = { # Nomads don't care / peasants are not in the steppe
+			NOT = {
+				government_has_flag = government_is_nomadic
+			}
+		}
 	}
 
 	weight_multiplier = {
@@ -15635,7 +15718,8 @@ scripted_trigger hunt_4009_scheme_trigger = {
 		scheme_type = abduct
 	}
 	scheme_target_character = root
-	scheme_progress > 3
+	save_temporary_scope_as = scheme
+	scheme_progress > scheme_progress_33
 	OR = {
 		scheme_owner = { is_participant_in_activity = scope:activity }
 		any_scheme_agent_character = { is_participant_in_activity = scope:activity }
@@ -16546,7 +16630,8 @@ scripted_trigger hunt_4010_scheme_trigger = {
 		scheme_owner = { is_participant_in_activity = scope:activity }
 		any_scheme_agent_character = { is_participant_in_activity = scope:activity }
 	}
-	scheme_progress > 3
+	save_temporary_scope_as = scheme
+	scheme_progress > scheme_progress_33
 	# Scheme target is a close relative/spouse.
 	scheme_target_character = {
 		NOT = { this = root }
@@ -18779,9 +18864,26 @@ hunt.4911 = { # Host accident
 #######################
 
 scripted_trigger hunt_4015_basic_check_trigger = {
-	NOT = { this = root }
+	NOR = {
+		this = root
+		has_relation_lover = root
+		has_relation_soulmate = root
+		is_consort_of = root
+		is_close_or_extended_family_of = root
+		has_trait = chaste
+		has_trait = celibate
+	}
 	is_adult = yes
 	is_ai = yes
+	trigger_if = {
+		limit = {
+			OR = {
+				is_married = yes
+				is_concubine = yes
+			}
+		}
+		might_cheat_on_every_partner_trigger = yes
+	}
 }
 
 scripted_trigger hunt_4015_secret_trigger = {
@@ -18818,7 +18920,11 @@ hunt.4015 = {
 				}
 				any_attending_character = {
 					hunt_4015_basic_check_trigger = yes
-					has_trait = lustful
+					OR = {
+						has_trait = lustful
+						has_trait = rakish
+						has_trait = seducer
+					}
 					save_temporary_scope_as = lover_check
 					scope:activity = {
 						any_attending_character = {
@@ -18827,6 +18933,7 @@ hunt.4015 = {
 							save_temporary_scope_as = lover_check_2
 							matching_gender_and_sexuality_trigger = { CHARACTER_1 = scope:lover_check_2 CHARACTER_2 = scope:lover_check }
 							can_set_relation_lover_trigger = { CHARACTER = scope:lover_check }
+							scope:lover_check.attraction >= medium_positive_attraction
 						}
 					}
 				}
@@ -18835,9 +18942,9 @@ hunt.4015 = {
 	}
 
 	weight_multiplier = {
-		base = 0.75
+		base = 0.50
 		modifier = { #more likely to fire if two participants already are lovers
-			add = 0.5
+			add = 0.75
 			scope:activity = {
 				any_attending_character = {
 					hunt_4015_basic_check_trigger = yes
@@ -18907,7 +19014,11 @@ hunt.4015 = {
 				random_attending_character = { #Find your vassal
 					limit = {
 						hunt_4015_basic_check_trigger = yes
-						has_trait = lustful
+						OR = {
+							has_trait = lustful
+							has_trait = rakish
+							has_trait = seducer
+						}
 						save_temporary_scope_as = lover_check
 						scope:activity = {
 							any_attending_character = {
@@ -18916,6 +19027,7 @@ hunt.4015 = {
 								save_temporary_scope_as = lover_check_2
 								matching_gender_and_sexuality_trigger = { CHARACTER_1 = scope:lover_check_2 CHARACTER_2 = scope:lover_check }
 								can_set_relation_lover_trigger = { CHARACTER = scope:lover_check }
+								scope:lover_check.attraction >= medium_positive_attraction
 							}
 						}
 					}
@@ -19971,14 +20083,6 @@ hunt.4019 = {
 				}
 			}
 		}
-		ai_chance = {
-			base = 50
-			ai_value_modifier = {
-				ai_boldness = 0.5
-				ai_energy = 0.5
-				ai_greed = 0.5
-			}
-		}
 		scope:activity = {
 			set_variable = {
 				name = hunt_success
@@ -20586,6 +20690,7 @@ hunt.5002 = {
 					list = flower_people
 					NOT = { this = scope:hunt_participant }
 				}
+				exists = scope:hunt_participant
 			}
 			hidden_effect = {
 				random = {
@@ -23231,11 +23336,6 @@ hunt.7020 = {
 	}
 	cooldown = { years = 15 }
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	trigger = {
 		has_dlc_feature = tours_and_tournaments
 		scope:activity = {
@@ -24599,11 +24699,6 @@ hunt.7103 = {
 	
 	override_background = { reference = wilderness_activity }
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	trigger = { exists = scope:woo_approach }
 
 	option = {
@@ -24664,11 +24759,6 @@ hunt.7104 = {
 		animation = eyeroll
 	}
 	theme = seduce_scheme
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = { exists = scope:woo_approach }
 
@@ -25816,17 +25906,16 @@ hunt.7303 = {
 		}
 		desc = hunt.7303.desc
 	}	
-	left_portrait = {
+	center_portrait = {
 		character = scope:befriend_target
 		animation = admiration
 	}
+	right_portrait = {
+		character = root
+		animation = storyteller
+	}
 	theme = befriend_scheme
 	override_background = { reference = wilderness_activity }
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = { exists = scope:befriend_approach }
 
@@ -25893,11 +25982,6 @@ hunt.7304 = {
 	}
 	theme = befriend_scheme
 	override_background = { reference = wilderness_activity }
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = { exists = scope:befriend_approach }
 
@@ -27499,11 +27583,6 @@ hunt.9001 = {
 	}
 	theme = hunt_activity
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	immediate = {
 		play_sound_effect = "event:/DLC/EP2/SFX/Events/Grand_Activities/Hunts/ConstructionKits/ep2_event_grand_hunt_ck_dogs_bark"
 		if = {
@@ -27935,11 +28014,6 @@ hunt.9002 = {
 		character = root
 	}
 	theme = hunt_activity
-
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = {
 		scope:activity = {

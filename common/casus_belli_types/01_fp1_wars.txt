@@ -744,12 +744,29 @@ fp1_varangian_adventurer_conquest = {
 					scope:attacker = { set_realm_capital = scope:new_capital }
 				}
 			}
+			### If nomadic, they will prefer county fertility
+			else_if = {
+				limit = {
+					any_in_list = {
+						list = target_titles
+						tier = tier_county
+						uses_county_fertility = yes 
+					}
+				}
+				ordered_in_list = {
+					list = target_titles
+					limit = { tier = tier_county }
+					order_by =  county_fertility
+					save_temporary_scope_as = new_capital
+					scope:attacker = { set_realm_capital = scope:new_capital }
+				}
+			}
 			### Everyone else prefers the highest development.
 			else = {
 				ordered_in_list = {
 					list = target_titles
 					limit = { tier = tier_county }
-					order_by = { add = development_level }
+					order_by = development_level
 					save_temporary_scope_as = new_capital
 					scope:attacker = { set_realm_capital = scope:new_capital }
 				}
@@ -1049,7 +1066,10 @@ fp1_varangian_adventurer_conquest = {
 			## If scope:attacker wasn't an adventurer before, make them one.
 			if = {
 				limit = {
-					NOT = { has_trait = adventurer }
+					NOR = { 
+						has_trait = adventurer 
+						government_has_flag = government_is_nomadic
+					}
 				}
 				add_trait = adventurer
 			}
@@ -1076,12 +1096,16 @@ fp1_varangian_adventurer_conquest = {
 			# 		has_trait = dwarf
 			# 		NOT = {
 			# 			capital_county = {
-			# 				title_province = { geographical_region = world_calradia } 
+			# 				title_province = { geographical_region = world_europe } 
 			# 			}
 			# 		}
 			# 	}
 			# 	add_achievement_flag_effect = { FLAG = a_dangerous_business_achievement_flag }
 			# }
+			# Finally, courtiers are sometimes going walk about, so make sure they're all in the right spot.
+			hidden_effect = {
+				every_courtier = { set_location_to_default = yes }
+			}
 		}
 
 		# Prestige Progress for the Attacker
@@ -1120,11 +1144,24 @@ fp1_varangian_adventurer_conquest = {
 			}
 		}
 
+		# If part of a confederation
+		if = {
+			limit = {
+				exists = scope:attacker.confederation
+			}
+			scope:attacker.confederation = {
+				remove_confederation_member = scope:attacker
+			}
+		}
+
 		# Truce
 		add_truce_attacker_victory_effect = yes
 
 		# FP1: note the victory for future memorialisation via stele (if applicable).
 		scope:attacker = { fp1_remember_recent_conquest_victory_effect = yes }
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -1169,6 +1206,9 @@ fp1_varangian_adventurer_conquest = {
 		}
 
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -1231,6 +1271,9 @@ fp1_varangian_adventurer_conquest = {
 		}
 
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer

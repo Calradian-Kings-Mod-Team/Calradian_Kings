@@ -20,7 +20,6 @@ become_landless_adventurer_decision = {
 	ai_check_interval = 120
 
 	desc = become_landless_adventurer_decision_desc
-	decision_group_type = major
 	selection_tooltip = become_landless_adventurer_decision_tooltip
 
 	is_shown = {
@@ -36,6 +35,7 @@ become_landless_adventurer_decision = {
 		OR = {
 			culture = { has_cultural_parameter = unlock_voluntary_laampdom }
 			faith = { has_doctrine_parameter = unlock_voluntary_laampdom_faith }
+			has_trait = nomadic_philosophy
 		}
 		save_temporary_scope_as = potential_laamp_temp
 		can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = scope:potential_laamp_temp } # Registered fighting license
@@ -63,6 +63,12 @@ become_landless_adventurer_decision = {
 		OR = {
 			culture = { has_cultural_parameter = unlock_voluntary_laampdom }
 			faith = { has_doctrine_parameter = unlock_voluntary_laampdom_faith }
+			has_trait = nomadic_philosophy
+			custom_tooltip = {
+				text = nomadic_government_tt
+				government_has_flag = government_is_nomadic
+			}
+			
 		}
 	}
 
@@ -785,8 +791,29 @@ treasure_hunting_contract_decision = {
 					}
 				}
 			}
-			localization = treasure_hunting_contract_decision_option_search_middle_east_persia
+			localization = treasure_hunting_contract_decision_option_search_middle_east_persia ## CK_DARSHI CK_EAST - update this to the inner regions of Darshi
 			icon = "gfx/interface/icons/terrain_types/desert_mountains.dds"
+			ai_chance = {
+				value = 50
+			}
+		}
+		item = {
+			value = search_india_rajastan
+			is_valid = {
+				custom_description = {
+					text = treasure_hunting_contract_decision_limit
+					capital_province = {
+						OR = {
+							geographical_region = world_middle_east
+							geographical_region = world_india
+							geographical_region = world_steppe_west
+							geographical_region = world_burma
+						}
+					}
+				}
+			}
+			localization = treasure_hunting_contract_decision_option_search_india_rajastan
+			icon = "gfx/interface/icons/terrain_types/desert.dds"
 			ai_chance = {
 				value = 50
 			}
@@ -1029,6 +1056,15 @@ treasure_hunting_contract_decision = {
 					ADVENTURER = root
 				}
 			}
+			scope:search_india_rajastan = {
+				set_variable = {
+					name = adventure_destination
+					value = flag:india_rajastan
+				}
+				get_adventure_inspiration_start_location = {
+					ADVENTURER = root
+				}
+			}
 			scope:search_steppe_west = {
 				set_variable = {
 					name = adventure_destination
@@ -1197,7 +1233,8 @@ visit_local_settlement_decision = {
 			#Add on castle holding-specific effects
 			custom_tooltip = visit_local_settlement_city_holding_decision_tt
 		}
-		set_variable = ep3_laamp_decision_1000_is_visiting
+		#To prevent the character, for whatever reason, managing to not have the variable be removed when exiting VS
+		temporarily_lock_visit_settlement_effect = yes
 		trigger_event =  ep3_laamp_decision_event.1000
 		close_view = {
 			view = decisions
@@ -2012,24 +2049,8 @@ seasoned_visitor_decision = {
 	}
 
 	cost = {
-		prestige = { 
-			value = 1500
-			if = {
-				limit = {
-					has_character_flag = s3.5
-				}
-				multiply = 0.3
-			}
-		}
-		gold = { 
-			value = 500
-			if = {
-				limit = {
-					has_character_flag = s3.5
-				}
-				multiply = 0.3
-			}
-		}
+		prestige = 1500
+		gold = 500
 	}
 
 	effect = {
@@ -2175,11 +2196,8 @@ zealous_missionary_start_decision = {
 		has_ep3_dlc_trigger = yes
 		government_has_flag = government_is_landless_adventurer
 		has_character_flag = zealous_missionary_prep
-		NOT = {
+		NOR = {
 			has_character_flag = zealous_missionary_start
-
-		}
-		NOT = {
 			is_ai = yes
 			any_player = {
 				OR = {
@@ -2191,12 +2209,7 @@ zealous_missionary_start_decision = {
 	}
 
 	is_valid = {
-		custom_tooltip = {
-			text = zealous_missionary_start_decision_other_faith_location
-			NOT = {
-				location.county.faith = root.faith
-			} 
-		}	
+		location.county = { hasan_evangelize_province_trigger = yes }
 	}
 
 	is_valid_showing_failures_only = {

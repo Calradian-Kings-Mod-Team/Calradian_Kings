@@ -4,8 +4,6 @@ convert_to_administrative_from_feudalism_effect = {
 
 	change_to_administrative_effect = yes
 
-	save_scope_as = administrative_liege
-
 	#Direct Vassals who fulfill the ep3_vassal_will_become_admin criteria are converted. Vassals above 25 opinion always accept
 	#Vassals are converted as a hierarchy. If a king is converted we convert all who are valid below that king (so his dukes, their counts, and their barons) are all converted.
 	#If a vassal does not convert (because of not accepting or because they are outside of the de jure empire, etc) then the vassals below them are _not_ converted either.
@@ -159,12 +157,6 @@ convert_to_administrative_from_feudalism_effect = {
 	}
 	
 	change_influence = admin_convert_influence_value
-	if = {
-		limit = {
-			is_independent_ruler = yes
-		}
-		add_legitimacy_effect = { LEGITIMACY = admin_convert_legitimacy_value } #One Time Legitimacy Boost
-	}
 
 	custom_description_no_bullet = {
 		text = vassals_can_become_administrative
@@ -219,11 +211,11 @@ apply_historic_administrative_game_rule_effect = {
 	# Darshi
 	if = {
 		limit = {
-			NOT = { has_game_rule = historicity_extra_admin_egypt_gameplay_not_administrative }
+			NOT = { has_game_rule = historicity_extra_admin_darshi_gameplay_not_administrative }
 			exists = title:e_darshi
 		}
 		if = {
-			limit = { has_game_rule = historicity_extra_admin_egypt_historic_always }
+			limit = { has_game_rule = historicity_extra_admin_darshi_historic_always }
 			title:e_darshi.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
 		}
 	}
@@ -320,14 +312,20 @@ convert_to_feudalism_from_administrative_effect = {
 			limit = {
 				any_vassal = {
 					primary_title.tier >= tier_kingdom
-					NOT = { government_has_flag = government_is_clan }
+					NOR = {
+						government_has_flag = government_is_clan
+						government_has_flag = government_is_theocracy
+					}
 				}
 			}
 			custom_tooltip = kings_become_clan
 			every_vassal = {
-				limit = { 
+				limit = {
 					primary_title.tier >= tier_kingdom
-					NOT = { government_has_flag = government_is_clan }
+					NOR = {
+						government_has_flag = government_is_clan
+						government_has_flag = government_is_theocracy
+					}
 				}
 				hidden_effect = { change_government = clan_government }
 			}
@@ -341,14 +339,20 @@ convert_to_feudalism_from_administrative_effect = {
 			limit = {
 				any_vassal = {
 					primary_title.tier >= tier_kingdom
-					NOT = { government_has_flag = government_is_feudal }
+					NOR = {
+						government_has_flag = government_is_feudal
+						government_has_flag = government_is_theocracy
+					}
 				}
 			}
 			custom_tooltip = kings_become_feudal
 			every_vassal = {
-				limit = { 
+				limit = {
 					primary_title.tier >= tier_kingdom
-					NOT = { government_has_flag = government_is_feudal }
+					NOR = {
+						government_has_flag = government_is_feudal
+						government_has_flag = government_is_theocracy
+					}
 				}
 				hidden_effect = { change_government = feudal_government }
 			}
@@ -472,4 +476,20 @@ humiliate_stooge_reward_effect = {
 			}
 		}
 	}
+}
+
+admin_confirmation_vassal_reward_guts_effect = {
+	dynasty ?= { add_dynasty_prestige = minor_dynasty_prestige_gain }
+	if = {
+		limit = {
+			scope:confirmation_liege = { is_ai = yes }
+		}
+		reverse_add_opinion = {
+			target = scope:confirmation_liege
+			modifier = respect_opinion
+			opinion = 20
+		}
+	}
+	add_prestige = major_prestige_gain
+	change_influence = major_influence_gain
 }

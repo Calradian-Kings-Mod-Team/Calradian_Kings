@@ -50,14 +50,31 @@ challenge_to_chess_stress_stake_value = { value = medium_stress_gain }
 challenge_to_chess_gold_change_value = {
 	value = 0
 
-	# To keep this balanced, we want to use the lowest income of scope:actor & scope:recipient.
+	#Guess you don't have a monthly income, most of the time
 	if = {
-		limit = { scope:actor.monthly_character_income >= scope:recipient.monthly_character_income }
-		add = scope:recipient.monthly_character_income
+		limit = {
+			scope:actor = {
+				monthly_character_income <= 0
+				is_landless_adventurer = yes
+			}
+		}
+		if = {
+			limit = { scope:actor.gold > scope:recipient.gold }
+			add = scope:recipient.monthly_character_income
+			multiply = 9
+		}
+		else = { add = scope:actor.gold }
 	}
-	else = { add = scope:actor.monthly_character_income }
-	# And, because month-to-month income isn't much, we take it up to a significant fraction of a year's earnings.
-	multiply = 9
+	else = {
+		# To keep this balanced, we want to use the lowest income of scope:actor & scope:recipient.
+		if = {
+			limit = { scope:actor.monthly_character_income >= scope:recipient.monthly_character_income }
+			add = scope:recipient.monthly_character_income
+		}
+		else = { add = scope:actor.monthly_character_income }
+		# And, because month-to-month income isn't much, we take it up to a significant fraction of a year's earnings.
+		multiply = 9
+	}
 }
 
 bg_stake_land_evaluate_appropriate_county_ordering_value = {
@@ -309,7 +326,15 @@ saved_contribution_value = {
 		}
 	}
 	max = 2000
-	min = 100	
+	min = 100
+	if = {
+		limit = {
+			scope:laamp_temp ?= {
+				has_character_flag = joined_as_mercenary
+			}
+		}
+		value = 1
+	}
 }
 
 ##################################################
@@ -587,7 +612,7 @@ fp2_urbanism_legacy_1_bonus_value_percentage = {
 struggle_iberia_ending_ending_decision_region_total_value = {
 	value = 0
 	every_county_in_region = {
-		region = region_perassic
+		region = world_europe_west_iberia
 		add = 1
 	}
 }
@@ -692,7 +717,7 @@ fp2_struggle_hostility_region_percent_decimal_value = {
 struggle_iberia_ending_compromise_decision_region_owned_value = {
 	value = 0
 	every_county_in_region = {
-		region = region_perassic
+		region = world_europe_west_iberia
 		limit = { holder.top_liege = root }
 		add = 1
 	}
@@ -912,7 +937,7 @@ fp2_struggle_secure_iberian_foothold_faith_percent_value = {
 fp2_struggle_secure_iberian_foothold_religion_total_value = {
 	value = 0
 	every_county_in_region = {
-		region = region_perassic
+		region = world_europe_west_iberia
 		limit = { religion = root.religion }
 		add = 1
 	}
@@ -922,7 +947,7 @@ fp2_struggle_secure_iberian_foothold_religion_total_value = {
 fp2_struggle_secure_iberian_foothold_religion_owned_value = {
 	value = 0
 	every_county_in_region = {
-		region = region_perassic
+		region = world_europe_west_iberia
 		limit = {
 			religion = root.religion
 			holder.top_liege = root
@@ -974,7 +999,7 @@ fp2_struggle_secure_iberian_foothold_outsider_percent_value = {
 fp2_struggle_secure_iberian_foothold_outsider_total_value = {
 	value = 0
 	every_county_in_region = {
-		region = region_perassic
+		region = world_europe_west_iberia
 		add = 1
 	}
 }
@@ -982,7 +1007,7 @@ fp2_struggle_secure_iberian_foothold_outsider_total_value = {
 fp2_struggle_secure_iberian_foothold_outsider_value = {
 	value = 0
 	every_county_in_region = {
-		region = region_perassic
+		region = world_europe_west_iberia
 		limit = { holder.top_liege = root }
 		add = 1
 	}
@@ -1044,7 +1069,7 @@ pt_sum_small_value = {
 		# Otherwise, we take scope:recipient.
 		else = { add = scope:recipient.purchase_truce_interaction_small_sum }
 	}
-	# # Struggle Reduction
+	# Struggle Reduction
 	# if = {
 	# 	limit = {
 	# 		any_character_struggle = {
@@ -1057,6 +1082,10 @@ pt_sum_small_value = {
 	# 	}
 	# 	multiply = 0.5
 	# }
+	if = { # double the cost if you're just buying off a nomad without any prerequisites
+		limit = { fp2_purchase_truce_interaction_soft_requirements_trigger = no }
+		multiply = 2
+	}
 }
 
 pt_sum_medium_value = {
@@ -1082,6 +1111,10 @@ pt_sum_medium_value = {
 	# 	}
 	# 	multiply = 0.5
 	# }
+	if = { # double the cost if you're just buying off a nomad without any prerequisites
+		limit = { fp2_purchase_truce_interaction_soft_requirements_trigger = no }
+		multiply = 2
+	}
 }
 
 pt_sum_large_value = {
@@ -1107,4 +1140,8 @@ pt_sum_large_value = {
 	# 	}
 	# 	multiply = 0.5
 	# }
+	if = { # double the cost if you're just buying off a nomad without any prerequisites
+		limit = { fp2_purchase_truce_interaction_soft_requirements_trigger = no }
+		multiply = 2
+	}
 }

@@ -81,6 +81,10 @@ heavy_cavalry_high_maint_cost = @[heavy_cavalry_high_maint_cost]
 
 
 ### Siege Weapons MAA
+torch_bearers_recruitment_cost = @[siege_weapons_recruitment_cost * 0.5]
+torch_bearers_low_maint_cost = @[siege_weapons_low_maint_cost * 0.5]
+torch_bearers_high_maint_cost = @[siege_weapons_high_maint_cost * 0.5]
+
 onager_recruitment_cost = @[siege_weapons_recruitment_cost]
 onager_low_maint_cost = @[siege_weapons_low_maint_cost]
 onager_high_maint_cost = @[siege_weapons_high_maint_cost]
@@ -322,19 +326,49 @@ handpicked_faithful_recruitment_cost = @[heavy_infantry_recruitment_cost * 0.75]
 handpicked_faithful_low_maint_cost = @[heavy_infantry_low_maint_cost * 0.75]
 handpicked_faithful_high_maint_cost = @[heavy_infantry_high_maint_cost * 0.75]
 
+#MPO
+
+ steppe_raiders_recruitment_cost = @[light_cavalry_recruitment_cost * 0.9]
+ steppe_raiders_low_maint_cost = @[light_cavalry_low_maint_cost * 0.9]
+ steppe_raiders_high_maint_cost = @[light_cavalry_high_maint_cost * 0.9]
+
+ heavy_horse_archers_recruitment_cost = @[skirmisher_recruitment_cost * 3.5]
+ heavy_horse_archers_low_maint_cost = @[skirmisher_low_maint_cost * 3.5]
+ heavy_horse_archers_high_maint_cost = @[skirmisher_high_maint_cost * 3.5]
+
+ nomad_lancers_recruitment_cost = @[heavy_cavalry_recruitment_cost * 0.95]
+ nomad_lancers_low_maint_cost = @[heavy_cavalry_low_maint_cost * 0.95]
+ nomad_lancers_high_maint_cost = @[heavy_cavalry_high_maint_cost * 0.95]
+
+ kheshig_recruitment_cost = @[skirmisher_recruitment_cost * 5]
+ kheshig_veterans_low_maint_cost = @[skirmisher_low_maint_cost * 5]
+ kheshig_veterans_high_maint_cost = @[skirmisher_high_maint_cost * 5]
+
+ mangudai_recruitment_cost = @[skirmisher_recruitment_cost * 2.2]
+ mangudai_low_maint_cost = @[skirmisher_low_maint_cost * 2.2]
+ mangudai_high_maint_cost = @[skirmisher_high_maint_cost * 2.2]
+
+ cataphract_archers_recruitment_cost = @[heavy_cavalry_recruitment_cost * 1.3]
+ cataphract_archers_low_maint_cost = @[heavy_cavalry_low_maint_cost * 1.3]
+ cataphract_archers_high_maint_cost = @[heavy_cavalry_high_maint_cost * 1.3]
+
+ maturkan_warriors_recruitment_cost = @[archers_recruitment_cost * 1.05]
+ maturkan_warriors_low_maint_cost = @[archers_low_maint_cost * 1.05]
+ maturkan_warriors_high_maint_cost = @[archers_high_maint_cost * 1.05]
+
 ##############
 # AI Weights #
 ##############
 
 culture_ai_weight_skirmishers = {
-	value = 0
+	value = -10
 	
 	if = { # Cultures that favours skirmishers
 		limit = {
 			culture = {
 				OR = {
 					has_cultural_pillar = heritage_nahasi
-					has_cultural_pillar = heritage_chertygic
+					has_cultural_pillar = heritage_chertygic ## CK_NORTHEAST CK_VAKKEN CK_UPDATE - Do not replace, but rather add the new heritage
 					has_cultural_pillar = heritage_darshi
 					has_cultural_pillar = heritage_gottic
 					has_cultural_pillar = heritage_battanian
@@ -389,9 +423,11 @@ culture_ai_weight_toptier_archers = {
 			culture = {
 				OR = {
 					has_cultural_pillar = heritage_nahasi
-					has_cultural_pillar = heritage_battanian
+					has_cultural_pillar = heritage_battanian ## CK_NORTHEAST CK_VAKKEN CK_UPDATE - Do not replace, but rather add the new heritage
 					has_cultural_pillar = heritage_darshi
 					has_cultural_pillar = heritage_khuzic
+					has_cultural_pillar = heritage_khiindai
+					has_cultural_pillar = heritage_east_nahasan
 				}
 			}
 		}
@@ -432,9 +468,11 @@ culture_ai_weight_archers = {
 			culture = {
 				OR = {
 					has_cultural_pillar = heritage_nahasi
-					has_cultural_pillar = heritage_battanian
+					has_cultural_pillar = heritage_battanian ## CK_NORTHEAST CK_VAKKEN CK_UPDATE - Do not replace, but rather add the new heritage
 					has_cultural_pillar = heritage_darshi
 					has_cultural_pillar = heritage_khuzic
+					has_cultural_pillar = heritage_khiindai
+					has_cultural_pillar = heritage_east_nahasan
 				}
 			}
 		}
@@ -504,6 +542,7 @@ culture_ai_weight_heavy_infantry = {
 				culture = { has_cultural_pillar = heritage_nahasi }
 				culture = { has_cultural_pillar = heritage_darshi }
 				culture = { has_cultural_pillar = heritage_gottic }
+				culture = { has_cultural_pillar = heritage_east_nahasan }
 			}
 		}
 		add = -50
@@ -539,24 +578,25 @@ culture_ai_weight_heavy_infantry = {
 culture_ai_weight_pikemen = {
 	value = 0
 	
-	#if = { # Cultures that favours spearmen
-	#	limit = {
-	#		OR = {
-	#			culture = { has_cultural_pillar = heritage_balian }
-	#			culture = { has_cultural_pillar = heritage_battanian }
-	#		}
-	#	}
-	#	add = 40
-	#}
+	if = { # Cultures that favours spearmen
+		limit = {
+			OR = {
+				culture = { has_cultural_pillar = heritage_balian }
+			#	culture = { has_cultural_pillar = heritage_battanian }
+				culture = { has_cultural_pillar = heritage_east_nahasan }
+			}
+		}
+		add = 40
+	}
 	
-	#if = { # Cultures with a special MaA of that type should avoid the base version of the unit
-	#	limit = {
-	#		culture = {
-	#			culture_has_pikemen_maa = yes
-	#		}
-	#	}
-	#	add = -500
-	#}
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				culture_has_pikemen_maa = yes
+			}
+		}
+		add = -500
+	}
 }
 
 culture_ai_weight_shock = {
@@ -592,6 +632,7 @@ culture_ai_weight_light_cavalry = {
 				culture = { has_cultural_pillar = heritage_darshi }
 				# Steppe cultures
 				culture = { has_cultural_pillar = heritage_khuzic }
+				culture = { has_cultural_pillar = heritage_khiindai }
 			}
 		}
 		add = 80
@@ -627,27 +668,27 @@ culture_ai_weight_light_cavalry = {
 		add = -40
 	}
 	
-	#if = { # Cultures with a special MaA of that type should avoid the base version of the unit
-	#	limit = {
-	#		culture = {
-	#			culture_has_light_cavalry_maa = yes
-	#		}
-	#	}
-	#	add = -500
-	#}
-	#
-	#if = { # Cultures with a preference for Camel Riders should buy those over normal light cavalry
-	#	limit = {
-	#		culture = {
-	#			has_innovation = innovation_war_camels
-	#		}
-	#		OR = {
-	#			culture = { has_cultural_pillar = heritage_nahasi }
-	#			culture = { has_cultural_pillar = heritage_darshi }
-	#		}
-	#	}
-	#	add = -200
-	#}
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				culture_has_light_cavalry_maa = yes
+			}
+		}
+		add = -500
+	}
+	
+	if = { # Cultures with a preference for Camel Riders should buy those over normal light cavalry
+		limit = {
+			culture = {
+				has_innovation = innovation_war_camels
+			}
+			OR = {
+				culture = { has_cultural_pillar = heritage_nahasi }
+				culture = { has_cultural_pillar = heritage_darshi }
+			}
+		}
+		add = -200
+	}
 }
 
 culture_ai_weight_heavy_cavalry = {
@@ -738,6 +779,7 @@ culture_ai_weight_elephants = {
 		limit = {
 			OR = {
 				culture = { has_cultural_pillar = heritage_darshi }
+				culture = { has_cultural_pillar = heritage_khangay }
 			}
 		}
 		add = 60

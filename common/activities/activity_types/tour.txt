@@ -251,23 +251,6 @@
         	    desc = "Plague in Realm"
         	}
     	}
-    	else_if = {
-    	    limit = {
-    	        any_realm_county = {
-    	            any_county_province = {
-    	                any_province_epidemic = {
-    	                    count >= 1
-    	                    outbreak_intensity < apocalyptic
-    	                }
-    	            }
-    	        }
-    	        would_follow_social_distancing_value >= -1
-    	    }
-    	    add = {
-    	        value = -40
-    	        desc = "Plague in Top Realm"
-    	    }
-    	}
     	if = {
     	    limit = {
     	        any_sub_realm_county = {
@@ -282,22 +265,6 @@
     	    add = {
     	        value = -200
     	        desc = "Apocalyptic Plague in Realm"
-    	    }
-    	}
-    	else_if = {
-    	    limit = {
-    	        any_realm_county = {
-    	            any_county_province = {
-    	                any_province_epidemic = {
-    	                    count >= 1
-    	                    outbreak_intensity = apocalyptic
-    	                }
-    	            }
-    	        }
-    	    }
-    	    add = {
-    	        value = -100
-    	        desc = "Apocalyptic Plague in Top Realm"
     	    }
     	}
 	}
@@ -554,7 +521,7 @@
 	# PARAMETERS
 	###################
 
-	is_grand_activity = yes
+	activity_group_type = grand
 
 	province_filter = realm
 	is_single_location = no
@@ -2933,8 +2900,10 @@
 	background = {	#FP2
 		trigger = {
 			has_current_phase = tour_phase_tour_grounds
-			activity_location = { geographical_region = region_perassic }
-		}
+			OR = {
+				activity_location.culture ?= { has_building_gfx = iberian_building_gfx }
+				activity_location = { geographical_region = region_perassic }
+			}		}
 		texture = "gfx/interface/illustrations/event_scenes/fp2_courtyard.dds"
 		environment = "environment_event_fp2_courtyard" 
 		ambience = "event:/DLC/FP2/SFX/Events/courtyard" 
@@ -2998,6 +2967,7 @@
 			OR = {
 				activity_location.culture = { has_building_gfx = arabic_group_building_gfx }
 				activity_location.culture = { has_building_gfx = berber_group_building_gfx }
+				activity_location.culture = { has_building_gfx = iberian_building_gfx }
 			}
 		}
 		texture = "gfx/interface/illustrations/event_scenes/ep2_feast_mena.dds"
@@ -3087,7 +3057,10 @@
 	# Tour end/conclusion
 	background = {	#FP2
 		trigger = {
-			activity_location = { geographical_region = region_perassic }
+			OR = {
+				activity_location.culture ?= { has_building_gfx = iberian_building_gfx }
+				activity_location = { geographical_region = region_perassic }
+			}
 		}
 		texture = "gfx/interface/illustrations/event_scenes/fp2_throneroom.dds"
 		environment = "environment_event_fp2_throneroom"
@@ -3230,7 +3203,7 @@
 		}
 		
 		travel_tour_host = {
-			camera = camera_activity_horse
+			camera = camera_event_horse_left
 			
 			effect = {
 				if = {

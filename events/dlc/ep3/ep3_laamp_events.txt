@@ -61,7 +61,7 @@ scripted_trigger ep3_laamp_conquest_title_trigger = {
 		recent_history = { type = conquest_claim days = 1 }
 		recent_history = { type = conquest_populist days = 1 }
 	}
-	previous_holder = root
+	previous_holder ?= scope:adventurer
 }
 
 # Conquest loser event
@@ -151,6 +151,15 @@ ep3_laamps.0001 = {
 		name = ep3_laamps.0001.a
 		add_unpressed_claim = scope:lost_primary_title
 		add_internal_flag = special
+		if = {
+			limit = {
+				NOT = { has_relation_rival = scope:winner }
+			}
+			set_relation_rival = {
+				target = scope:winner
+				reason = rival_conquered_me
+			}
+		}
 		scope:winner = { trigger_event = ep3_laamps.0003 }
 	}
 	option = {
@@ -197,45 +206,48 @@ ep3_laamps.0002 = {
 		save_scope_as = adventurer
 		# AI chance
 		if = {
-			limit = { is_ai = yes }
+			limit = {
+				is_ai = yes
+				ai_can_valid_to_create_laamp_trigger = yes
+			}
 			if = {
 				limit = { is_landed = yes }
 				depose = yes
 			}
-			if = {
-				limit = { ai_can_valid_to_create_laamp_trigger = yes }
-				random = {
-					chance = 0
-					modifier = { add = ep3_laamp_chance_score_value }
-					# Plus for our memory variable.
-					ordered_in_list = {
-						list = target_titles
-						order_by = tier
-						position = 0
-						save_scope_as = lost_primary_title
-					}
-					if = {
-						limit = { exists = var:deposed_primary_title }
-						create_landless_adventurer_title_effect = {
-							REASON = flag:deposition
-							FLAVOR_CHAR = scope:attacker
-						}
-					}
-					else = {
-						create_landless_adventurer_title_effect = {
-							REASON = flag:conquest
-							FLAVOR_CHAR = scope:attacker
-						}
-					}
-					scope:winner = { trigger_event = ep3_laamps.0003 }
+			save_scope_value_as = {
+				name = ai_laamp_chance
+				value = ep3_laamp_chance_score_value
+			}
+			random = {
+				chance = scope:ai_laamp_chance
+				# Plus for our memory variable.
+				ordered_in_list = {
+					list = target_titles
+					order_by = tier
+					position = 0
+					save_scope_as = lost_primary_title
 				}
+				if = {
+					limit = { exists = var:deposed_primary_title }
+					create_landless_adventurer_title_effect = {
+						REASON = flag:deposition
+						FLAVOR_CHAR = scope:attacker
+					}
+				}
+				else = {
+					create_landless_adventurer_title_effect = {
+						REASON = flag:conquest
+						FLAVOR_CHAR = scope:attacker
+					}
+				}
+				scope:winner = { trigger_event = ep3_laamps.0003 }
 			}
 		}
 		# Player event
 		else = {
 			if = {
 				limit = {
-					scope:attacker = {
+					scope:new_holder ?= {
 						any_held_title = { ep3_laamp_conquest_title_trigger = yes }
 					}
 				}
@@ -262,6 +274,17 @@ ep3_laamps.0003 = {
 	trigger = { is_ai = no }
 
 	immediate = {
+		if = {
+			limit = {
+				NOT = { has_relation_rival = scope:adventurer }
+			}
+			scope:adventurer = {
+				set_relation_rival = {
+					target = root
+					reason = rival_conquered_me
+				}
+			}
+		}		
 		scope:adventurer = { create_landless_adventurer_title_tooltip_effect = yes }
 	}
 
@@ -448,7 +471,7 @@ ep3_laamps.0005 = {
 			create_title_and_vassal_change = {
 				type = conquest
 				save_scope_as = change
-				add_claim_on_loss = no
+				add_claim_on_loss = yes
 			}
 			every_held_title = {
 				limit = { tier >= tier_county }
@@ -1029,7 +1052,10 @@ ep3_laamps.0030 = {
 		# Transfer landed titles
 		every_held_title = {
 			limit = {
-				is_landless_type_title = no
+				OR = {
+					is_landless_type_title = no
+					is_nomad_title = yes
+				}
 				tier > tier_barony
 			}
 			add_to_list = target_titles
@@ -1220,6 +1246,15 @@ ep3_laamps.0041 = {
 			limit = {
 				is_ai = yes
 				ai_can_valid_to_create_laamp_trigger = yes
+				trigger_if = { # Don't fill the adventurer pool with revoked counts
+					limit = {
+						scope:lost_primary_title.tier <= tier_county
+					}
+					global_variable_list_size = {
+						name = laamps_tally
+						value < seventyfive_percent_of_max_desired_laamps_value
+					}
+				}
 			}
 			random = {
 				chance = 0
@@ -3579,44 +3614,32 @@ ep3_laamps.1001 = {
 		if = {
 			limit = { is_ai = no }
 			if = {
-				limit = { 
-					exists = scope:diplomacy_char 
-				}
+				limit = { exists = scope:diplomacy_char }
 				ep3_laamps_1001_generate_diplomacy_char_effect = yes
 				ep3_laamps_1001_boost_courtier_opinion_effect = { SKILL = diplomacy }
 			}
 			if = {
-				limit = { 
-					exists = scope:martial_char 
-				}
+				limit = { exists = scope:martial_char }
 				ep3_laamps_1001_generate_martial_char_effect = yes
 				ep3_laamps_1001_boost_courtier_opinion_effect = { SKILL = martial }
 			}
 			if = {
-				limit = { 
-					exists = scope:stewardship_char 
-				}
+				limit = { exists = scope:stewardship_char }
 				ep3_laamps_1001_generate_stewardship_char_effect = yes
 				ep3_laamps_1001_boost_courtier_opinion_effect = { SKILL = stewardship }
 			}
 			if = {
-				limit = { 
-					exists = scope:intrigue_char 
-				}
+				limit = { exists = scope:intrigue_char }
 				ep3_laamps_1001_generate_intrigue_char_effect = yes
 				ep3_laamps_1001_boost_courtier_opinion_effect = { SKILL = intrigue }
 			}
 			if = {
-				limit = { 
-					exists = scope:learning_char 
-				}
+				limit = { exists = scope:learning_char }
 				ep3_laamps_1001_generate_learning_char_effect = yes
 				ep3_laamps_1001_boost_courtier_opinion_effect = { SKILL = learning }
 			}
 			if = {
-				limit = { 
-					exists = scope:prowess_char
-				}
+				limit = { exists = scope:prowess_char }
 				ep3_laamps_1001_generate_prowess_char_effect = yes
 				ep3_laamps_1001_boost_courtier_opinion_effect = { SKILL = prowess }
 			}
@@ -4072,161 +4095,276 @@ ep3_laamps.1021 = {
 	immediate = {
 		if = {
 			limit = {
-				domicile = { has_domicile_building = supply_tent_reserve_provisions }
+				domicile = { 
+					OR = {
+						has_domicile_building = supply_tent_reserve_provisions
+						has_domicile_construction = supply_tent_reserve_provisions
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_supply_tent_reserve_provisions }
 			}
 			domicile = { remove_domicile_building = supply_tent_reserve_provisions }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = supply_tent_reserve_water }
+				domicile = { 
+					OR = {
+						has_domicile_building = supply_tent_reserve_water
+						has_domicile_construction = supply_tent_reserve_water
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_supply_tent_reserve_water }
 			}
 			domicile = { remove_domicile_building = supply_tent_reserve_water }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = supply_tent_climbing_gear }
+				domicile = {
+					OR = {
+						has_domicile_building = supply_tent_climbing_gear
+						has_domicile_construction = supply_tent_climbing_gear
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_supply_tent_climbing_gear }
 			}
 			domicile = { remove_domicile_building = supply_tent_climbing_gear }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = supply_tent_subdued_gear }
+				domicile = {
+					OR = {
+						has_domicile_building = supply_tent_subdued_gear
+						has_domicile_construction = supply_tent_subdued_gear
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_supply_tent_subdued_gear }
 			}
 			domicile = { remove_domicile_building = supply_tent_subdued_gear }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = barber_tent_reference_corpus }
+				domicile = {
+					OR = {
+						has_domicile_building = barber_tent_reference_corpus
+						has_domicile_construction = barber_tent_reference_corpus
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_barber_tent_reference_corpus }
 			}
 			domicile = { remove_domicile_building = barber_tent_reference_corpus }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = barber_tent_morticians_tools }
+				domicile = {
+					OR = {
+						has_domicile_building = barber_tent_morticians_tools
+						has_domicile_construction = barber_tent_morticians_tools
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_barber_tent_morticians_tools }
 			}
 			domicile = { remove_domicile_building = barber_tent_morticians_tools }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = baggage_train_siege_engineers }
+				domicile = {
+					OR = {
+						has_domicile_building = baggage_train_siege_engineers
+						has_domicile_construction = baggage_train_siege_engineers
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_baggage_train_siege_engineers }
 			}
 			domicile = { remove_domicile_building = baggage_train_siege_engineers }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = baggage_train_scribes }
+				domicile = {
+					OR = {
+						has_domicile_building = baggage_train_scribes
+						has_domicile_construction = baggage_train_scribes
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_baggage_train_scribes }
 			}
 			domicile = { remove_domicile_building = baggage_train_scribes }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = baggage_train_proof_of_claims }
+				domicile = {
+					OR = {
+						has_domicile_building = baggage_train_proof_of_claims
+						has_domicile_construction = baggage_train_proof_of_claims
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_baggage_train_proof_of_claims }
 			}
 			domicile = { remove_domicile_building = baggage_train_proof_of_claims }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = baggage_train_ransom_cages }
+				domicile = {
+					OR = {
+						has_domicile_building = baggage_train_ransom_cages
+						has_domicile_construction = baggage_train_ransom_cages
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_baggage_train_ransom_cages }
 			}
 			domicile = { remove_domicile_building = baggage_train_ransom_cages }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = baggage_train_negotiators }
+				domicile = {
+					OR = {
+						has_domicile_building = baggage_train_negotiators
+						has_domicile_construction = baggage_train_negotiators
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_baggage_train_negotiators }
 			}
 			domicile = { remove_domicile_building = baggage_train_negotiators }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = baggage_train_ascetics }
+				domicile = {
+					OR = {
+						has_domicile_building = baggage_train_ascetics
+						has_domicile_construction = baggage_train_ascetics
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_baggage_train_ascetics }
 			}
 			domicile = { remove_domicile_building = baggage_train_ascetics }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = camp_fire_local_hangers_on }
+				domicile = {
+					OR = {
+						has_domicile_building = camp_fire_local_hangers_on
+						has_domicile_construction = camp_fire_local_hangers_on
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_camp_fire_local_hangers_on }
 			}
 			domicile = { remove_domicile_building = camp_fire_local_hangers_on }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = camp_fire_future_dreams }
+				domicile = {
+					OR = {
+						has_domicile_building = camp_fire_future_dreams
+						has_domicile_construction = camp_fire_future_dreams
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_camp_fire_future_dreams }
 			}
 			domicile = { remove_domicile_building = camp_fire_future_dreams }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = camp_fire_nightly_debates }
+				domicile = {
+					OR = {
+						has_domicile_building = camp_fire_nightly_debates
+						has_domicile_construction = camp_fire_nightly_debates
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_camp_fire_nightly_debates }
 			}
 			domicile = { remove_domicile_building = camp_fire_nightly_debates }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = camp_fire_juicy_rumors }
+				domicile = {
+					OR = {
+						has_domicile_building = camp_fire_juicy_rumors
+						has_domicile_construction = camp_fire_juicy_rumors
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_camp_fire_juicy_rumors }
 			}
 			domicile = { remove_domicile_building = camp_fire_juicy_rumors }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = proving_grounds_lockwagon }
+				domicile = {
+					OR = {
+						has_domicile_building = proving_grounds_lockwagon
+						has_domicile_construction = proving_grounds_lockwagon
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_proving_grounds_lockwagon }
 			}
 			domicile = { remove_domicile_building = proving_grounds_lockwagon }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = proving_grounds_martial_study }
+				domicile = {
+					OR = {
+						has_domicile_building = proving_grounds_martial_study
+						has_domicile_construction = proving_grounds_martial_study
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_proving_grounds_martial_study }
 			}
 			domicile = { remove_domicile_building = proving_grounds_martial_study }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = proving_grounds_the_stick_game }
+				domicile = {
+					OR = {
+						has_domicile_building = proving_grounds_the_stick_game
+						has_domicile_construction = proving_grounds_the_stick_game
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_proving_grounds_the_stick_game }
 			}
 			domicile = { remove_domicile_building = proving_grounds_the_stick_game }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = proving_grounds_bodyguard_drills }
+				domicile = {
+					OR = {
+						has_domicile_building = proving_grounds_bodyguard_drills
+						has_domicile_construction = proving_grounds_bodyguard_drills
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_proving_grounds_bodyguard_drills }
 			}
 			domicile = { remove_domicile_building = proving_grounds_bodyguard_drills }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = camp_perimeter_extra_watch }
+				domicile = {
+					OR = {
+						has_domicile_building = camp_perimeter_extra_watch
+						has_domicile_construction = camp_perimeter_extra_watch
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_camp_perimeter_extra_watch }
 			}
 			domicile = { remove_domicile_building = camp_perimeter_extra_watch }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = camp_perimeter_palisade }
+				domicile = {
+					OR = {
+						has_domicile_building = camp_perimeter_palisade
+						has_domicile_construction = camp_perimeter_palisade
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_camp_perimeter_palisade }
 			}
 			domicile = { remove_domicile_building = camp_perimeter_palisade }
 		}
 		if = {
 			limit = {
-				domicile = { has_domicile_building = camp_perimeter_ditch }
+				domicile = {
+					OR = {
+						has_domicile_building = camp_perimeter_ditch
+						has_domicile_construction = camp_perimeter_ditch
+					}
+				}
 				NOT = { has_realm_law_flag = unlocks_camp_perimeter_ditch }
 			}
 			domicile = { remove_domicile_building = camp_perimeter_ditch }
@@ -6534,7 +6672,7 @@ ep3_laamps.5040 = {
 			}
 			# Plus give 'em a nickname.
 			hidden_effect = {
-				scope:guide = { assign_random_nickname_effect = yes }
+				scope:merchant = { assign_random_nickname_effect = yes }
 			}
 		}
 	}
@@ -6703,6 +6841,7 @@ ep3_laamps.5045 = {
 					highest_held_title_tier > tier_duchy
 					any_held_title = {
 						tier = tier_county
+						is_landless_type_title = no
 						count >= 1
 					}
 				}
@@ -6712,6 +6851,7 @@ ep3_laamps.5045 = {
 					limit = {
 						tier = tier_county
 						holder = scope:local_lord
+						is_landless_type_title = no
 					}
 					#Least developed county as a rough approximation of backwaters
 					order_by = {

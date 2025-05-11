@@ -50,6 +50,8 @@
 
 		# AI in struggles act insularly for wars that don't have a familial or legal basis.
 		multiply = struggle_wars_prioritise_struggle_targets_value
+		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
+		multiply = byzantium_conquests_ai_score_value
 		#Declaring war on the frankokratia leader can really ruin the whole thing
 		# if = {
 		# 	limit = {
@@ -197,6 +199,9 @@
 
 		# FP1: note the victory for future memorialisation via stele (if applicable).
 		scope:attacker = { fp1_remember_recent_conquest_victory_effect = yes }
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -239,6 +244,9 @@
 		}
 
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -302,6 +310,9 @@
 			save_temporary_scope_as = loser
 		}
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer
@@ -391,7 +402,8 @@ duchy_expansion_cb = {
 
 		# AI in struggles act insularly for wars that don't have a familial or legal basis.
 		multiply = struggle_wars_prioritise_struggle_targets_value
-
+		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
+		multiply = byzantium_conquests_ai_score_value
 		#Declaring war on the frankokratia leader can really ruin the whole thing
 		# if = {
 		# 	limit = {
@@ -522,7 +534,6 @@ duchy_expansion_cb = {
 		# If applicable, take the target title (i.e. duchy) as well
 		every_in_list = {
 			list = target_title_taken
-			#custom_tooltip = expansion_take_target_title_tt
 			change_title_holder = {
 				holder = scope:attacker
 				change = scope:change
@@ -586,21 +597,17 @@ duchy_expansion_cb = {
 				}
 				custom_tooltip = conquest_title_not_transferred_tt
 			}
-			else = {
-				custom_tooltip = expansion_take_target_title_tt
-			}
 		}
 		else = {
 			if = {
 				limit = {
 					any_in_list = {
 						list = target_titles
-						tier = tier_duchy
+						tier >= scope:attacker.highest_held_title_tier
 						is_title_created = yes
 						holder = {
 							NOT = {
 								any_sub_realm_county = {
-									#tier = tier_county
 									NOT = { target_is_de_jure_liege_or_above = scope:de_jure_target }
 								}
 							}
@@ -613,14 +620,35 @@ duchy_expansion_cb = {
 				limit = {
 					any_in_list = {
 						list = target_titles
-						tier = tier_duchy
+						tier >= scope:attacker.highest_held_title_tier
 						is_title_created = yes
 					}
 				}
 				custom_tooltip = conquest_title_usurp_tt
 			}
-			#else = { custom_tooltip = expansion_create_target_title_tt }
+			else_if = {
+				limit = {
+					any_in_list = {
+						list = target_titles
+						tier >= scope:attacker.highest_held_title_tier
+						is_title_created = no
+						any_de_jure_county = {
+							percent > 0.5
+							holder ?= {
+								OR = {
+									this = scope:defender
+									any_liege_or_above = { this = scope:defender }
+								}
+							}
+						}
+					}
+				}
+				custom_tooltip = expansion_create_target_title_tt
+			}
 		}
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -658,6 +686,9 @@ duchy_expansion_cb = {
 
 
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -724,6 +755,9 @@ duchy_expansion_cb = {
 			save_temporary_scope_as = loser
 		}
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer
@@ -803,7 +837,8 @@ naval_expansion_cb = {
 
 		# AI in struggles act insularly for wars that don't have a familial or legal basis.
 		multiply = struggle_wars_prioritise_struggle_targets_value
-
+		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
+		multiply = byzantium_conquests_ai_score_value
 		#Declaring war on the frankokratia leader can really ruin the whole thing
 		# if = {
 		# 	limit = {
@@ -960,6 +995,9 @@ naval_expansion_cb = {
 
 		# FP1: note the victory for future memorialisation via stele (if applicable).
 		scope:attacker = { fp1_remember_recent_conquest_victory_effect = yes }
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -1002,6 +1040,9 @@ naval_expansion_cb = {
 		}
 
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -1065,6 +1106,9 @@ naval_expansion_cb = {
 			save_temporary_scope_as = loser
 		}
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer
@@ -1157,7 +1201,8 @@ naval_duchy_expansion_cb = {
 
 		# AI in struggles act insularly for wars that don't have a familial or legal basis.
 		multiply = struggle_wars_prioritise_struggle_targets_value
-
+		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
+		multiply = byzantium_conquests_ai_score_value
 		#Declaring war on the frankokratia leader can really ruin the whole thing
 		# if = {
 		# 	limit = {
@@ -1278,7 +1323,7 @@ naval_duchy_expansion_cb = {
 			add_claim_on_loss = yes
 		}
 
-		# go through the dejure hierarchy under target titles, transfer eligible vassals and sieze counties from ineligible ones
+		# Go through the dejure hierarchy under target titles, transfer eligible vassals and sieze counties from ineligible ones
 		every_in_list = {
 			list = target_titles
 			custom_tooltip = CONQUEST_CB_TITLE
@@ -1300,6 +1345,15 @@ naval_duchy_expansion_cb = {
 				holder = scope:attacker
 				change = scope:change
 				take_baronies = yes
+			}
+		}
+		
+		# If applicable, take the target title (i.e. duchy) as well
+		every_in_list = {
+			list = target_title_taken
+			change_title_holder = {
+				holder = scope:attacker
+				change = scope:change
 			}
 		}
 
@@ -1360,21 +1414,58 @@ naval_duchy_expansion_cb = {
 				}
 				custom_tooltip = conquest_title_not_transferred_tt
 			}
-			else = { custom_tooltip = conquest_title_destroyed_tt }
 		}
 		else = {
 			if = {
 				limit = {
 					any_in_list = {
 						list = target_titles
-						tier = tier_duchy
+						tier >= scope:attacker.highest_held_title_tier
+						is_title_created = yes
+						holder = {
+							NOT = {
+								any_sub_realm_county = {
+									NOT = { target_is_de_jure_liege_or_above = scope:de_jure_target }
+								}
+							}
+						}
+					}
+				}
+				custom_tooltip = expansion_take_target_title_tt
+			}
+			else_if = {
+				limit = {
+					any_in_list = {
+						list = target_titles
+						tier >= scope:attacker.highest_held_title_tier
 						is_title_created = yes
 					}
 				}
 				custom_tooltip = conquest_title_usurp_tt
 			}
-			else = { custom_tooltip = conquest_title_create_tt }
+			else_if = {
+				limit = {
+					any_in_list = {
+						list = target_titles
+						tier >= scope:attacker.highest_held_title_tier
+						is_title_created = no
+						any_de_jure_county = {
+							percent > 0.5
+							holder ?= {
+								OR = {
+									this = scope:defender
+									any_liege_or_above = { this = scope:defender }
+								}
+							}
+						}
+					}
+				}
+				custom_tooltip = expansion_create_target_title_tt
+			}
 		}
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -1412,6 +1503,9 @@ naval_duchy_expansion_cb = {
 
 
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -1478,6 +1572,9 @@ naval_duchy_expansion_cb = {
 			save_temporary_scope_as = loser
 		}
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer
@@ -1738,6 +1835,9 @@ influence_war_cb = {
 			}
 			#else = { custom_tooltip = expansion_create_target_title_tt }
 		}
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -1775,6 +1875,9 @@ influence_war_cb = {
 
 
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -1838,6 +1941,9 @@ influence_war_cb = {
 			save_temporary_scope_as = loser
 		}
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer

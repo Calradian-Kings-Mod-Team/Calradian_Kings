@@ -19,6 +19,16 @@
 				top_liege = scope:defender.top_liege
 				liege = scope:defender
 			}
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				scope:defender = {
+					NOT = {
+						government_has_flag = government_is_nomadic
+					}
+				}
+			}
 		}
 	}
 	target_titles = all
@@ -225,6 +235,9 @@
 
 		# FP1: note the victory for future memorialisation via stele (if applicable).
 		scope:attacker = { fp1_remember_recent_conquest_victory_effect = yes }
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -267,6 +280,9 @@
 		}
 
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -330,6 +346,9 @@
 			save_temporary_scope_as = loser
 		}
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer
@@ -376,34 +395,42 @@ duchy_conquest_cb = {
 	allowed_for_character_display_regardless = {
 		trigger_if = {
 			limit = {
-				government_has_flag = government_is_clan
-				house ?= {
-					has_house_unity_stage = antagonistic
-				}
-				culture = {
-					has_cultural_parameter = cb_lower_prestige_level_requirement
-				}
+				highest_held_title_tier >= tier_kingdom
 			}
-			prestige_level >= 1
+			prestige_level > -1
 		}
-		trigger_else_if = {
-			limit = {
-				OR = {
-					AND = {
-						government_has_flag = government_is_clan
-						house ?= {
-							has_house_unity_stage = antagonistic
-						}
+		trigger_else = {
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_clan
+					house ?= {
+						has_house_unity_stage = antagonistic
 					}
 					culture = {
 						has_cultural_parameter = cb_lower_prestige_level_requirement
 					}
 				}
+				prestige_level >= 1
 			}
-			prestige_level >= 2
-		}
-		trigger_else = {
-			prestige_level >= 3
+			trigger_else_if = {
+				limit = {
+					OR = {
+						AND = {
+							government_has_flag = government_is_clan
+							house ?= {
+								has_house_unity_stage = antagonistic
+							}
+						}
+						culture = {
+							has_cultural_parameter = cb_lower_prestige_level_requirement
+						}
+					}
+				}
+				prestige_level >= 2
+			}
+			trigger_else = {
+				prestige_level >= 3
+			}
 		}
 
 		# Struggle constraint
@@ -418,6 +445,16 @@ duchy_conquest_cb = {
 			ALL_FALSE = {
 				top_liege = scope:defender.top_liege
 				liege = scope:defender
+			}
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				scope:defender = {
+					NOT = {
+						government_has_flag = government_is_nomadic
+					}
+				}
 			}
 		}
 	}
@@ -739,6 +776,9 @@ duchy_conquest_cb = {
 			}
 			else = { custom_tooltip = conquest_title_create_tt }
 		}
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -774,8 +814,10 @@ duchy_conquest_cb = {
 			LOSER_ALLY_FAME_SCALE = 1
 		}
 
-
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -839,6 +881,9 @@ duchy_conquest_cb = {
 			save_temporary_scope_as = loser
 		}
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer
@@ -878,8 +923,9 @@ ducal_conquest_cb = {
 	allowed_for_character = {
 		has_perk = ducal_conquest_perk
 		can_use_conquest_cbs_trigger = no
-		NOT = {
+		NOR = {
 			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_nomadic
 		}
 	}
 
@@ -1107,6 +1153,9 @@ ducal_conquest_cb = {
 
 		# FP1: note the victory for future memorialisation via stele (if applicable).
 		scope:attacker = { fp1_remember_recent_conquest_victory_effect = yes }
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_white_peace_desc = {
@@ -1139,6 +1188,9 @@ ducal_conquest_cb = {
 		}
 
 		add_truce_white_peace_effect = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -1202,6 +1254,9 @@ ducal_conquest_cb = {
 			save_temporary_scope_as = loser
 		}
 		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	transfer_behavior = transfer

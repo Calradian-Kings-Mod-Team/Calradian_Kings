@@ -18,7 +18,7 @@
 # 			triggered_desc = {
 # 				trigger = {
 # 					scope:county = title:c_antiocheia
-# 					faith.religion = religion:christianity_religion
+# 					faith.religion = religion:calradian_religion
 # 				}
 # 				desc = ep3_emperor_yearly.2000.desc_antioch
 # 			}
@@ -31,7 +31,7 @@
 # 			triggered_desc = {
 # 				trigger = {
 # 					scope:county = title:c_jerusalem
-# 					faith.religion = religion:christianity_religion
+# 					faith.religion = religion:calradian_religion
 # 				}
 # 				desc = ep3_emperor_yearly.2000.desc_jerusalem
 # 			}
@@ -44,7 +44,7 @@
 # 			triggered_desc = {
 # 				trigger = {
 # 					scope:county = title:c_alexandria
-# 					faith.religion = religion:christianity_religion
+# 					faith.religion = religion:calradian_religion
 # 				}
 # 				desc = ep3_emperor_yearly.2000.desc_alexandria_not_christ
 # 			}
@@ -64,7 +64,7 @@
 # 			triggered_desc = {
 # 				trigger = {
 # 					scope:county = title:c_edessa
-# 					faith.religion = religion:christianity_religion
+# 					faith.religion = religion:calradian_religion
 # 				}
 # 				desc = ep3_emperor_yearly.2000.desc_edessa
 # 			}
@@ -1533,7 +1533,7 @@ ep3_emperor_yearly.2050 = {
 	}
 }
 
-# Hold Court event: Councillor/court position asks you to organize a large celebration for the anniversary of the foundation of Constantinople (11 May)
+# Hold Court event: Councillor/court position asks you to organize a large celebration for the anniversary of the foundation of Constantinople (21 June)
 scripted_trigger valid_date_foundation_constantinople_trigger = {
 	OR = {
 		AND = {
@@ -1611,6 +1611,9 @@ ep3_emperor_yearly.2060 = {
 			root.primary_title = title:e_northern_empire
 			root.primary_title = title:e_southern_empire
 			root.primary_title = title:e_western_empire
+			root = {
+				has_trait = claimant_emperor
+			}
 		}
 		OR = {
 			cp:councillor_chancellor ?= {
@@ -4025,11 +4028,16 @@ ep3_emperor_yearly.2151 = {
 	}
 	right_portrait = {
 		character = scope:chaplain
-		animation = scepter
+		triggered_animation = {
+			trigger = { religion = religion:calradian_religion }
+			animation = scepter # anim uses crucifix scepter
+		}
+		animation = war_over_tie
 	}
 	lower_right_portrait = scope:saint
 
 	trigger = {
+		scope:saint = { is_alive = yes }
 		OR = {
 			valid_for_byz_governor_content_trigger = yes
 			valid_for_byz_emperor_content_trigger = yes
@@ -4107,7 +4115,7 @@ scripted_trigger ep3_2160_valid_neighbor_trigger = {
 		culture = {
 			OR = {
 				has_cultural_tradition = tradition_horse_lords
-				has_cultural_tradition = tradition_saharan_nomads
+				has_cultural_tradition = tradition_nahasan_nomads
 				has_cultural_tradition = tradition_desert_nomads
 			}
 		}
@@ -5168,7 +5176,10 @@ ep3_emperor_yearly.2210 = {
 		# candidate to a governorship (or the empire)
 		any_heir_title = {
 			tier > tier_county
-			holder ?= { government_allows = administrative }
+			holder ?= {
+				government_allows = administrative
+				has_realm_law_flag = appointment_type_succession
+			}
 		}
 		is_landed = no
 	}
@@ -5207,7 +5218,10 @@ ep3_emperor_yearly.2210 = {
 		random_heir_title = {
 			limit = {
 				exists = holder
-				holder = { government_allows = administrative }
+				holder = {
+					government_allows = administrative
+					has_realm_law_flag = appointment_type_succession
+				}
 				tier > tier_county
 			}
 			save_scope_as = potential_title
@@ -5505,32 +5519,21 @@ ep3_emperor_yearly.2211 = {
 scripted_trigger ep3_2220_valid_county_trigger = {
 	faith = { has_doctrine = tenet_monasticism }
 	any_county_province = {
-		OR = {
+		# OR = {
 			has_holding_type = church_holding
-			ep3_2220_famous_monastery_trigger = yes
-		}
+			# ep3_2220_famous_monastery_trigger = yes
+		# }
 	}
 	any_county_province = {
-		NOR = { 
+		NOT = { 
 			has_holding_type = church_holding
-			ep3_2220_famous_monastery_trigger = yes
+			# ep3_2220_famous_monastery_trigger = yes
 		}
 		OR = {
 			has_building_or_higher = hill_farms_01
 			has_building_or_higher = pastures_01
 			has_building_or_higher = farm_estates_01
 		}
-	}
-}
-
-scripted_trigger ep3_2220_famous_monastery_trigger = {
-	OR = {
-		this = province:678 #Sumela
-		this = province:3796 #Meteora
-		this = province:3776 #Mt.Athos
-		this = province:6032 #St.Catherine
-		this = province:5764 #Jvari
-		this = province:3729 #Hosios Loukas
 	}
 }
 
@@ -5560,62 +5563,62 @@ ep3_emperor_yearly.2220 = {
 		}
 	}
 
-	weight_multiplier = {
-		base = 1
-		modifier = {
-			any_sub_realm_county = {
-				ep3_2220_valid_county_trigger = yes
-				any_county_province = {
-					ep3_2220_famous_monastery_trigger = yes
-				}
-			}
-			add = 2
-		}
-	}
+	# weight_multiplier = {
+	# 	base = 1
+	# 	modifier = {
+	# 		any_sub_realm_county = {
+	# 			ep3_2220_valid_county_trigger = yes
+	# 			any_county_province = {
+	# 				ep3_2220_famous_monastery_trigger = yes
+	# 			}
+	# 		}
+	# 		add = 2
+	# 	}
+	# }
 
 	immediate = {
-		random_sub_realm_county = {
-			limit = {
-				ep3_2220_valid_county_trigger = yes
-				any_county_province = {
-					ep3_2220_famous_monastery_trigger = yes
-				}
-			}
-			alternative_limit = {
-				ep3_2220_valid_county_trigger = yes
-			}
-			random_county_province = {
-				limit = {
-					ep3_2220_famous_monastery_trigger = yes
-				}
-				alternative_limit = {
-					has_holding_type = church_holding
-					OR = {
-						has_building_or_higher = scriptorium_01
-						has_building_or_higher = monastic_schools_01
-					}
-				}
-				alternative_limit = {
-					has_holding_type = church_holding
-				}
-				save_scope_as = monastery
-			}
-			random_county_province = {
-				limit = {
-					NOR = { 
-						has_holding_type = church_holding
-						ep3_2220_famous_monastery_trigger = yes
-					}
-					OR = {
-						has_building_or_higher = hill_farms_01
-						has_building_or_higher = pastures_01
-						has_building_or_higher = farm_estates_01
-					}
-				}
-				save_scope_as = shepherd_province
-			}
-			save_scope_as = interested_county
-		}
+		# random_sub_realm_county = {
+		# 	limit = {
+		# 		ep3_2220_valid_county_trigger = yes
+		# 		any_county_province = {
+		# 			ep3_2220_famous_monastery_trigger = yes
+		# 		}
+		# 	}
+		# 	alternative_limit = {
+		# 		ep3_2220_valid_county_trigger = yes
+		# 	}
+		# 	random_county_province = {
+		# 		limit = {
+		# 			ep3_2220_famous_monastery_trigger = yes
+		# 		}
+		# 		alternative_limit = {
+		# 			has_holding_type = church_holding
+		# 			OR = {
+		# 				has_building_or_higher = scriptorium_01
+		# 				has_building_or_higher = monastic_schools_01
+		# 			}
+		# 		}
+		# 		alternative_limit = {
+		# 			has_holding_type = church_holding
+		# 		}
+		# 		save_scope_as = monastery
+		# 	}
+		# 	random_county_province = {
+		# 		limit = {
+		# 			NOR = { 
+		# 				has_holding_type = church_holding
+		# 				ep3_2220_famous_monastery_trigger = yes
+		# 			}
+		# 			OR = {
+		# 				has_building_or_higher = hill_farms_01
+		# 				has_building_or_higher = pastures_01
+		# 				has_building_or_higher = farm_estates_01
+		# 			}
+		# 		}
+		# 		save_scope_as = shepherd_province
+		# 	}
+		# 	save_scope_as = interested_county
+		# }
 		cp:councillor_court_chaplain = { save_scope_as = chaplain }
 	}
 

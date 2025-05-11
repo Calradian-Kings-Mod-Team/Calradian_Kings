@@ -151,7 +151,6 @@
 	# PARAMETERS
 	###################
 
-	is_grand_activity = no
 	is_single_location = yes
 
 	wait_time_before_start = {
@@ -176,22 +175,25 @@
 		gold = {
 			add = {
 				add = {
-					value = tournament_base_cost
-					multiply = 2
-					desc = tournament_base_cost
+					value = chariot_race_base_cost_value
+					desc = chariot_race_base_cost_desc
 				}
 				if = {
 					limit = { employs_court_position = bookmaker_court_position }
 					subtract = {
-						value = tournament_base_cost
-						divide = 10
+						value = chariot_race_base_cost_value
+						multiply = {
+							value = 0.1 # Reduces cost by 10% (of the base cost) per level of aptitude
+							multiply = court_position:bookmaker_court_position.aptitude:bookmaker_court_position
+							add = 0.1 # Since aptitude starts at 0
+						}
 						desc = bookmaker_court_position
 					}
 				}
 				add = {
-					value = tournament_base_cost
+					value = chariot_race_base_cost_value
 					multiply = activity_cost_scale_by_era
-					subtract = tournament_base_cost
+					subtract = chariot_race_base_cost_value
 					desc = activity_cost_scale_by_era_desc
 				}
 				# ep3_emperor_yearly.2060
@@ -220,13 +222,13 @@
 		gold = {
 			# Base Cost
 			add = {
-				value = tournament_base_cost
-				desc = tournament_base_cost
+				value = chariot_race_base_cost_value
+				desc = chariot_race_base_cost_desc
 			}
 			if = {
 				limit = { employs_court_position = bookmaker_court_position }
 				subtract = {
-					value = tournament_base_cost
+					value = chariot_race_base_cost_value
 					divide = 10
 					desc = bookmaker_court_position
 				}
@@ -389,6 +391,28 @@
 					}
 					# Add all the charioteers and spectators to guest subsets so we can keep track of them
 					gather_charioteers_effect = yes
+					scope:activity = {
+						every_attending_character = {
+							# Pay your entrance fee if you have the money
+							if = {
+								limit = {
+									OR = {
+										short_term_gold >= chariot_race_entrance_fee
+										is_ai = no
+									}
+									NOT = { this = scope:host }
+								}
+								remove_short_term_gold = chariot_race_entrance_fee
+							}
+							# we add some money to the pot either way to offset the gains in case a bunch of people make good bets
+							scope:activity = {
+								change_variable = {
+									name = chariot_race_pot
+									add = prev.chariot_race_entrance_fee
+								}
+							}
+						}
+					}
 					# Calculate the odds and payout rates for all the competitors 
 					calculate_chariot_race_odds_effect = yes
 					calculate_chariot_payout_effect = yes
@@ -595,9 +619,12 @@
 
 		defaults = {
 			1 = activity_invite_rule_vassals_and_below
+			1 = activity_invite_rule_tributaries
 			1 = activity_invite_rule_charioteers
 			2 = activity_invite_rule_friends
+			2 = activity_invite_rule_potential_friends
 			2 = activity_invite_rule_lovers
+			2 = activity_invite_rule_potential_lovers
 			2 = activity_invite_rule_close_family
 			2 = activity_invite_rule_extended_family
 			2 = activity_invite_rule_guests
@@ -714,23 +741,6 @@
 		set_variable = {
 			name = chariot_race_pot
 			value = 0
-		}
-		# TODO_CD_EP3_CU: TIT-55678 Add a notification for players that they will be paying an entrance fee
-		every_attending_character = {
-			# Pay your entrance fee if you have the money
-			if = {
-				limit = {
-					short_term_gold >= chariot_race_entrance_fee
-				}
-				remove_short_term_gold = chariot_race_entrance_fee
-			}
-			# we add some money to the pot either way to offset the gains in case a bunch of people make good bets
-			scope:activity = {
-				change_variable = {
-					name = chariot_race_pot
-					add = prev.chariot_race_entrance_fee
-				}
-			}
 		}
 		# Opening event/invalidation if not enough people are present
 		scope:host = {
@@ -1575,9 +1585,18 @@
 				}
 				triggered_animation = {
 					trigger = {
+						scope:host = {
+							has_activity_intent = increase_influence_intent
+							religion = religion:calradian_religion
+						}
+					}
+					animation = { acknowledging scepter } # anims use crucifix scepter
+				}
+				triggered_animation = {
+					trigger = {
 						scope:host = { has_activity_intent = increase_influence_intent }
 					}
-					animation = { toast_goblet personality_honorable acknowledging happiness scepter }
+					animation = { toast_goblet personality_honorable happiness }
 				}
 				#Fallback
 				animation = personality_honorable
@@ -1585,7 +1604,7 @@
 		}
 		
 		travel_host = {
-			camera = camera_activity_horse
+			camera = camera_event_horse_left
 			
 			effect = {
 				if = {
@@ -1617,7 +1636,7 @@
 		}
 
 		chariot_race_honorary_guest_traveling = {
-			camera = camera_activity_horse
+			camera = camera_event_horse_left
 			
 			effect = {
 				if = {

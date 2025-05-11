@@ -15,8 +15,7 @@ VertexStruct VS_OUTPUT_PDX_BORDER
 	float4 Position : PDX_POSITION;
 	float3 WorldSpacePos : TEXCOORD0;
 	float2 UV : TEXCOORD1;
-	float4 ShadowProj		: TEXCOORD2;
-
+    float4 ShadowProj		: TEXCOORD2;
 };
 
 
@@ -39,9 +38,9 @@ VertexShader =
 				Out.WorldSpacePos = position;
 				Out.Position = FixProjectionAndMul( ViewProjectionMatrix, float4( position, 1.0 ) );
 				Out.UV = Input.UV;
-			
+
 				Out.ShadowProj = mul( ShadowMapTextureMatrix, float4( Out.WorldSpacePos, 1.0 ) );
-			
+
 				return Out;
 			}
 		]]
@@ -90,7 +89,7 @@ PixelShader =
 		SampleModeV = "Clamp"
 		Type = "Cube"
 	}
-	
+
 	MainCode PixelShader
 	{
 		Input = "VS_OUTPUT_PDX_BORDER"
@@ -105,6 +104,10 @@ PixelShader =
 				Diffuse.rgb = ApplyDistanceFog( Diffuse.rgb, Input.WorldSpacePos );
 				Diffuse.a *= _Alpha;
 
+				// MOD(map-skybox)
+				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
+				// END MOD
+
 				// Apply shadows, only if we're fully in flat-map mode
  				if ( HasFlatMapLightingEnabled == 1 && FlatMapLerp > 0.0 )
 				{
@@ -113,10 +116,6 @@ PixelShader =
 					SLightingProperties LightingProps = GetSunLightingProperties( Input.WorldSpacePos, ShadowTerm );
 					Diffuse.rgb = CalculateSunLighting( MaterialProps, LightingProps, EnvironmentMap );
 				}
-
-				// MOD(map-skybox)
-				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
-				// END MOD
 
 				return Diffuse;
 			}
@@ -140,6 +139,10 @@ PixelShader =
 				Diffuse.rgb = ApplyDistanceFog( Diffuse.rgb, Input.WorldSpacePos );
 				Diffuse.a *= _Alpha;
 
+				// MOD(map-skybox)
+				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
+				// END MOD
+
 				// Apply shadows, only if we're fully in flat-map mode
  				if ( HasFlatMapLightingEnabled == 1 && FlatMapLerp > 0.0 )
 				{
@@ -149,10 +152,6 @@ PixelShader =
 					Diffuse.rgb = CalculateSunLighting( MaterialProps, LightingProps, EnvironmentMap );
 				}
 
-				// MOD(map-skybox)
-				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
-				// END MOD
-				
 				return Diffuse;
 			}
 		]]
@@ -180,6 +179,10 @@ PixelShader =
 				Diffuse.rgb = ApplyDistanceFog( Diffuse.rgb, Input.WorldSpacePos );
 				Diffuse.a *= _Alpha;
 
+				// MOD(map-skybox)
+				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
+				// END MOD
+
 				// Apply shadows, only if we're fully in flat-map mode
  				if ( HasFlatMapLightingEnabled == 1 && FlatMapLerp > 0.0 )
 				{
@@ -188,10 +191,6 @@ PixelShader =
 					SLightingProperties LightingProps = GetSunLightingProperties( Input.WorldSpacePos, ShadowTerm );
 					Diffuse.rgb = CalculateSunLighting( MaterialProps, LightingProps, EnvironmentMap );
 				}
-				
-				// MOD(map-skybox)
-				Diffuse.a *= GH_GetDefaultCameraPitchAlphaMultiplier();
-				// END MOD
 
 				return Diffuse;
 			}

@@ -26,16 +26,28 @@ peasant_faction = {
 	requires_character = no
 
 	is_valid = {
-		has_valid_faction_members_trigger = yes
+		always = yes
 	}
 
 	is_county_valid = {
 		# Peasants can only join a faction against their direct liege. Unless their liege is Byzantium trying to restore the Roman Empire, then they go for the emperor
+		# trigger_if = {
+		# 	limit = { 
+		# 		scope:faction.faction_target = { ep3_restored_rome_hard_mode_trigger = yes }
+		# 	}
+		# 	holder.top_liege = scope:faction.faction_target
+		# }
 		holder = scope:faction.faction_target
+		title_province = {
+			NOR = {
+				has_holding_type = nomad_holding
+				has_holding_type = herder_holding
+			}
+		}
 	}
 
 	is_character_valid = {
-		always = yes
+		has_valid_faction_members_trigger = yes
 	}
 
 	demand = {
@@ -223,6 +235,30 @@ peasant_faction = {
 			add = -100
 			has_game_rule = extreme_realm_stability
 		}
+		modifier = {
+			desc = "FACTION_REASON_GAME_RULE_REALM_STABILITY_LESSER"
+			add = 25
+			has_game_rule = lesser_realm_stability_ai_only
+			scope:faction.faction_target = {
+				is_ai = yes
+			}
+		}
+		modifier = {
+			desc = "FACTION_REASON_GAME_RULE_REALM_STABILITY_HIGHER"
+			add = -50
+			has_game_rule = higher_realm_stability_ai_only
+			scope:faction.faction_target = {
+				is_ai = yes
+			}
+		}
+		modifier = {
+			desc = "FACTION_REASON_GAME_RULE_REALM_STABILITY_EXTREME"
+			add = -100
+			has_game_rule = extreme_realm_stability_ai_only
+			scope:faction.faction_target = {
+				is_ai = yes
+			}
+		}
 		
 		# Conquerors
 		modifier = {
@@ -335,6 +371,31 @@ peasant_faction = {
 			has_game_rule = extreme_realm_stability
 		}
 		
+		modifier = {
+			desc = "FACTION_REASON_GAME_RULE_REALM_STABILITY_LESSER"
+			add = 25
+			has_game_rule = lesser_realm_stability_ai_only
+			scope:target = {
+				is_ai = yes
+			}
+		}
+		modifier = {
+			desc = "FACTION_REASON_GAME_RULE_REALM_STABILITY_HIGHER"
+			add = -50
+			has_game_rule = higher_realm_stability_ai_only
+			scope:target = {
+				is_ai = yes
+			}
+		}
+		modifier = {
+			desc = "FACTION_REASON_GAME_RULE_REALM_STABILITY_EXTREME"
+			add = -100
+			has_game_rule = extreme_realm_stability_ai_only
+			scope:target = {
+				is_ai = yes
+			}
+		}
+		
 		# Conquerors
 		modifier = {
 			add = -100
@@ -355,7 +416,15 @@ peasant_faction = {
 
 	can_county_join = {
 		# Peasants can only join a faction against their direct liege. Unless their liege is Byzantium trying to restore the Roman Empire, then they go for the emperor
+		
 		holder = scope:faction.faction_target
+		
+		title_province = {
+			NOR = {
+				has_holding_type = nomad_holding
+				has_holding_type = herder_holding
+			}
+		}
 	}
 
 	can_county_create = {
@@ -363,8 +432,12 @@ peasant_faction = {
 		holder = scope:target
 		
 		scope:target = {
-			NOT = {
+			NAND = {
 				is_ai = yes
+				OR = {
+					has_trait = greatest_of_khans
+					has_character_modifier = the_great_khan_modifier
+				}
 			}
 		}
 		
@@ -376,6 +449,13 @@ peasant_faction = {
 			text = character_is_immune_to_factions
 			subject = scope:target
 			NOT = { scope:target = { immune_to_factions_trigger = yes } }
+		}
+		
+		title_province = {
+			NOR = {
+				has_holding_type = nomad_holding
+				has_holding_type = herder_holding
+			}
 		}
 	}
 

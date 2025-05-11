@@ -170,7 +170,10 @@ can_be_combatant_based_on_gender_trigger = {
 				has_trait = shieldmaiden
 			}
 			# Event-based special exceptions
-			has_character_modifier = ignores_gender_army_rules
+			OR = {
+				has_character_modifier = ignores_gender_army_rules
+				has_character_modifier = mpo_destined_leader_modifier
+			}
 			AND = {
 				$ARMY_OWNER$ = { culture = { has_cultural_parameter = high_prowess_ignores_knight_restrictions } }
 				NOT = { $ARMY_OWNER$ = { culture = { has_cultural_parameter = minimum_prowess_for_knights } } }
@@ -808,6 +811,7 @@ is_preferred_heresy = {
 				faiths_are_in_western_christianity_group = { FAITH_1 = $ORIGIN_FAITH$ FAITH_2 = $HERETICAL_FAITH$ }
 				faiths_are_in_orthodox_christianity_group = { FAITH_1 = $ORIGIN_FAITH$ FAITH_2 = $HERETICAL_FAITH$ }
 				faiths_are_in_eastern_christianity_group = { FAITH_1 = $ORIGIN_FAITH$ FAITH_2 = $HERETICAL_FAITH$ }
+				faiths_are_in_vlandian_christianity_group = { FAITH_1 = $ORIGIN_FAITH$ FAITH_2 = $HERETICAL_FAITH$ }
 			}
 		}
 
@@ -823,10 +827,10 @@ is_preferred_heresy = {
 		#If we're Zoroastrian, we don't want Sogdian faith in Armenia and vice versa 
 		# AND = {
 		# 	religion_tag = darshi_religion
-		# 	OR = {
-		# 		faiths_are_eastern_zoroastrian = { FAITH_1 = $ORIGIN_FAITH$ FAITH_2 = $HERETICAL_FAITH$}
+		# 	# OR = {
+		# 		# faiths_are_eastern_zoroastrian = { FAITH_1 = $ORIGIN_FAITH$ FAITH_2 = $HERETICAL_FAITH$}
 		# 		faiths_are_western_zoroastrian = { FAITH_1 = $ORIGIN_FAITH$ FAITH_2 = $HERETICAL_FAITH$}
-		# 	}
+		# 	# }
 		# }
 
 		#Otherwise, we don't have any special preferences.
@@ -839,7 +843,6 @@ is_preferred_heresy = {
 		}
 	}
 }
-
 
 is_valid_heresy = {
 	#The origin faith can never be its own heresy.
@@ -856,25 +859,27 @@ is_valid_heresy = {
 	#Depending on the origin faith's religion/religion group, there may have additional requirements for a heresy to be considered valid.
 	OR = {
 		#For Christian Faiths, the origin and heretical faiths must not both be Ecumenical (excepting the faiths which aren't technically ecumenical).
-		# AND = {
-		# 	religion_tag = calradian_religion
-		# 	NAND = {
-		# 		$ORIGIN_FAITH$ = {
-		# 			has_doctrine = special_doctrine_ecumenical_christian
-		# 			OR = {
-		# 				this = faith: # FUTURE FAITHS HERE. CK_UPDATE
-		# 			}
-		# 		}
-		# 		$HERETICAL_FAITH$ = {
-		# 			has_doctrine = special_doctrine_ecumenical_christian
-		# 			OR = {
-		# 				this = faith: # FUTURE FAITHS HERE. CK_UPDATE
-		# 			}
-		# 		}
-		# 	}
-		# }
+		AND = {
+			religion_tag = calradian_religion
+			NAND = {
+				$ORIGIN_FAITH$ = {
+					has_doctrine = special_doctrine_ecumenical_christian
+					OR = {
+						this = faith:krevmetiqstvo
+						this = faith:western_calradic
+					}
+				}
+				$HERETICAL_FAITH$ = {
+					has_doctrine = special_doctrine_ecumenical_christian
+					OR = {
+						this = faith:krevmetiqstvo
+						this = faith:western_calradic
+					}
+				}
+			}
+		}
 		# AND = { #FP3: for Zoroastrianism, Bedhin faiths are never heresies of each other 
-		# 	religion_tag = zoroastrianism_religion
+		# 	religion_tag = darshi_religion
 		# 	NAND = {
 		# 		$ORIGIN_FAITH$ = {
 		# 			has_doctrine = doctrine_major_branch_behdin
@@ -925,7 +930,7 @@ no_heretical_hof_faith_trigger = { #Head of Faith shouldn't convert.
 }
 
 #Christian Heresy Groups
-faiths_are_in_western_christianity_group = { ### EXPAND ON WITH FUTURE FAITHS. CK_UPDATE
+faiths_are_in_vlandian_christianity_group = { ### EXPAND ON WITH FUTURE FAITHS. CK_UPDATE
 	OR = {
 		$FAITH_1$ = faith:western_calradic
 		$FAITH_1$ = faith:darusan
@@ -979,7 +984,7 @@ faiths_are_in_orthodox_christianity_group = {
 		$FAITH_1$ = faith:aren
 		AND = {
 			$FAITH_1$ = faith:kholradya
-			scope:heretic_capital.title_province = { geographical_region = world_steppe }
+			scope:heretic_capital.title_province = { geographical_region = world_steppe_west }
 		}
 	}
 	OR = {
@@ -989,7 +994,7 @@ faiths_are_in_orthodox_christianity_group = {
 		$FAITH_2$ = faith:aren
 		AND = {
 			$FAITH_2$ = faith:kholradya
-			scope:heretic_capital.title_province = { geographical_region = world_steppe }
+			scope:heretic_capital.title_province = { geographical_region = world_steppe_west }
 		}
 	}
 }
@@ -1018,7 +1023,16 @@ faiths_are_in_eastern_christianity_group = {
 # 		$FAITH_1$ = faith:khurmazta
 # 	}
 # }
-
+# faiths_are_western_zoroastrian = { #FP3 update - CK_UPDATE CK_DARSHI - When more faiths are added, let's add them and uncomment this trigger
+# 	OR = {
+# 		$FAITH_1$ = faith:parivashite_faith
+# 		$FAITH_1$ = faith:darshi_faith
+# 	}
+# 	OR = {
+# 		$FAITH_1$ = faith:parivashite_faith
+# 		$FAITH_1$ = faith:darshi_faith
+# 	}
+# }
 
 refusing_conversion_is_crime_trigger = {
 	faith = {
@@ -1159,6 +1173,12 @@ valid_demand_conversion_conditions_trigger = {
 			}
 		}
 	}
+	scope:actor = {
+		NAND = {
+			has_trait = nomadic_philosophy
+			has_trait = zealous
+		}
+	}
 
 	custom_description = {
 		text = "is_head_of_religion"
@@ -1277,6 +1297,25 @@ is_reincarnation_trigger = {
 
 # Used in faith scope, COUNT is number of faiths to at least have and CHARACTER is who must own them
 num_realm_holy_sites_faithful_holders = {
+	$CHARACTER$ = { save_temporary_scope_as = root_scope }
+	trigger_if = {
+		limit = {
+			exists = $CHARACTER$.confederation
+		}
+		custom_description = {
+			text = direct_realm_holy_sites_held_by_faithful_confederation
+			subject = $CHARACTER$
+			object = this
+			value = 1
+			any_holy_site = {
+				county = {
+					save_temporary_scope_as = current_holy_site
+					is_holy_site_controlled_by = $CHARACTER$
+					holder.faith = $CHARACTER$.faith
+				}
+			}
+		}
+	}
 	custom_description = {
 		text = number_realm_holy_sites_held_by_faithful
 		subject = $CHARACTER$
@@ -1285,7 +1324,17 @@ num_realm_holy_sites_faithful_holders = {
 		any_holy_site = {
 			count >= $COUNT$
 			county = {
-				is_holy_site_controlled_by = $CHARACTER$
+				save_temporary_scope_as = current_holy_site
+				OR = {
+					is_holy_site_controlled_by = $CHARACTER$
+					$CHARACTER$.confederation ?= {
+						any_confederation_member = {
+							scope:current_holy_site = {
+								is_holy_site_controlled_by = prev
+							}
+						}
+					}
+				}
 				holder.faith = $CHARACTER$.faith
 			}
 		}
@@ -1311,15 +1360,19 @@ can_create_temporal_head_of_faith_title_trigger = {
 }
 
 can_create_spiritual_head_of_faith_title_trigger = {
-	num_realm_holy_sites_faithful_holders = {
-		COUNT = holy_sites_to_create_spiritual_head_of_faith
-		CHARACTER = ROOT
-	}
-	root = { piety_level >= medium_piety_level }
-	trigger_if = {
-		limit = { has_doctrine = special_doctrine_not_allowed_to_hof }
-		NOT = { has_doctrine = special_doctrine_not_allowed_to_hof }
-	}
+    num_realm_holy_sites_faithful_holders = {
+        COUNT = holy_sites_to_create_spiritual_head_of_faith
+        CHARACTER = ROOT
+    }
+    root = { piety_level >= medium_piety_level }
+    trigger_if = {
+        limit = { has_doctrine = special_doctrine_not_allowed_to_hof }
+        NOT = { has_doctrine = special_doctrine_not_allowed_to_hof }
+    }
+    NAND = {
+        exists = religious_head
+        has_doctrine_parameter = maintains_head_of_faith_on_creation
+    }
 }
 
 # this = Person trying to create the title
@@ -1564,6 +1617,7 @@ has_tolerant_faith_or_culture_trigger = {
 	OR = {
 		faith = { has_doctrine = doctrine_pluralism_pluralistic }
 		culture = { has_cultural_parameter = less_likely_to_force_conversion }
+		has_trait = nomadic_philosophy
 	}
 }
 

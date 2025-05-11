@@ -3196,21 +3196,21 @@ tournament_versus_dead_qualifier_effect = {
 		tournament_phase_wrestling = {
 			add_to_guest_subset = {
 				name = $SUBSET$
-				phase = tournament_phase_duel
+				phase = tournament_phase_wrestling
 				target = scope:versus_match
 			}
 		}
 		tournament_phase_board_game = {
 			add_to_guest_subset = {
 				name = $SUBSET$
-				phase = tournament_phase_duel
+				phase = tournament_phase_board_game
 				target = scope:versus_match
 			}
 		}
 		tournament_phase_joust = {
 			add_to_guest_subset = {
 				name = $SUBSET$
-				phase = tournament_phase_duel
+				phase = tournament_phase_joust
 				target = scope:versus_match
 			}
 		}
@@ -3636,7 +3636,22 @@ tournament_bet_on_other_stress_effect = {
 	}
 }
 
-# Effects for aserai breaking their gambling laws
+# Info on potential effects for breaking islamic gambling laws
+tournament_contest_maysir_tooltip_effect = {
+	if = {
+		limit = {
+			religion = religion:aserai_religion
+			scope:activity = {
+				NOR = {
+					has_current_phase = tournament_phase_archery
+					has_current_phase = tournament_phase_horse_race
+				}
+			}
+		}
+		custom_description = { text = ep2_tournament_aserai_tt }
+	}
+}
+
 tournament_contest_maysir_effect = {
 	if = {
 		limit = {
@@ -3653,21 +3668,6 @@ tournament_contest_maysir_effect = {
 		stress_impact = {
 			zealous = medium_stress_impact_gain
 		}
-	}
-}
-
-tournament_contest_maysir_tooltip_effect = {
-	if = {
-		limit = {
-			religion = religion:aserai_religion
-			scope:activity = {
-				NOR = {
-					has_current_phase = tournament_phase_archery
-					has_current_phase = tournament_phase_horse_race
-				}
-			}
-		}
-		custom_description = { text = ep2_tournament_aserai_tt }
 	}
 }
 
@@ -4893,6 +4893,32 @@ tournament_horse_race_fetch_horse_effect = {
 							5 = { set_variable = { name = contest_horse_race_name value = flag:faith_wealth_god } }
 						}
 					}
+					# HINDUISM
+					300 = {
+						trigger = { religion = religion:ghavati_religion }
+						random_list = {
+							5 = { # Dadhi-krā - Dawn
+								set_variable = { name = contest_horse_race_name value = flag:dadhi_kra }
+								set_variable = { name = contest_horse_race_gender value = flag:male }
+							}
+							5 = { # Devadatta - Vishnu's
+								set_variable = { name = contest_horse_race_name value = flag:devadatta }
+								set_variable = { name = contest_horse_race_gender value = flag:male }
+							}
+							5 = { # Dyaus Pita - Sky Father
+								set_variable = { name = contest_horse_race_name value = flag:dyauspitar }
+								set_variable = { name = contest_horse_race_gender value = flag:male }
+							}
+							5 = { # Keshi - Kalki's
+								set_variable = { name = contest_horse_race_name value = flag:keshi }
+								set_variable = { name = contest_horse_race_gender value = flag:male }
+							}
+							5 = { # Uhchaihshravas - Horse King
+								set_variable = { name = contest_horse_race_name value = flag:uchchaihshravas }
+								set_variable = { name = contest_horse_race_gender value = flag:male }
+							}
+						}
+					}
 					# ISLAM
 					300 = {
 						trigger = { religion = religion:aserai_religion }
@@ -4916,10 +4942,6 @@ tournament_horse_race_fetch_horse_effect = {
 							5 = { set_variable = { name = contest_horse_race_name value = flag:buraq } } # Buraq - Islam
 							5 = { # Habdan - Muhammad's mares
 								set_variable = { name = contest_horse_race_name value = flag:hadban }
-								set_variable = { name = contest_horse_race_gender value = flag:female }
-							}
-							5 = { # Haizum - Gabriel's
-								set_variable = { name = contest_horse_race_name value = flag:haizum }
 								set_variable = { name = contest_horse_race_gender value = flag:female }
 							}
 							5 = { # Hamdani - Muhammad's mares
@@ -4950,12 +4972,7 @@ tournament_horse_race_fetch_horse_effect = {
 					}
 					# NORDIC/STURGIAN
 					300 = {
-						trigger = { 
-							OR = {
-								religion = religion:jumne_religion 
-								religion = religion:northern_gods_religion
-							}
-						}
+						trigger = { religion = religion:jumne_religion }
 						random_list = {
 							5 = { # Alsviðr - Sól's
 								set_variable = { name = contest_horse_race_name value = flag:alsvidr }
@@ -5042,7 +5059,7 @@ tournament_horse_race_fetch_horse_effect = {
 							}
 						}
 					}
-					# # CHINESE
+					# # CHINESE ## CK_CHINA
 					# 300 = {
 					# 	trigger = {
 					# 		culture = {
@@ -5155,7 +5172,12 @@ tournament_horse_race_fetch_horse_effect = {
 					300 = {
 						trigger = {
 							culture = {
-								any_parent_culture_or_above = { has_cultural_pillar = heritage_khuzic }
+								any_parent_culture_or_above = { 
+									# OR = {
+										has_cultural_pillar = heritage_khuzic 
+										# has_cultural_pillar = heritage_khiindai
+									# }
+								}
 							}
 						}
 						random_list = {
@@ -5184,9 +5206,7 @@ tournament_horse_race_fetch_horse_effect = {
 					}
 					# SLAVIC
 					300 = {
-						trigger = {
-							culture = culture:sturgian
-						}
+						trigger = { religion = religion:northern_gods_religion }
 						random_list = {
 							5 = { # Sivko-Burko - Ivan the Fool's
 								set_variable = { name = contest_horse_race_name value = flag:sivko_burko }
@@ -5802,6 +5822,7 @@ disburse_xp_and_liege_prestige_effect = {
 				OR = {
 					exists = scope:melee_winner
 					exists = scope:joust_winner
+					exists = scope:horse_race_winner
 				}
 			}
 			add_trait_xp = {
@@ -5834,6 +5855,18 @@ disburse_xp_and_liege_prestige_effect = {
 						}
 						if = {
 							limit = { scope:joust_winner ?= this }
+							add = tournament_hastiludes_xp_gain_massive_value
+						}
+						else = { add = tournament_hastiludes_xp_gain_medium_value }
+					}
+					if = { # Horse Race
+						limit = {
+							scope:activity = {
+								any_guest_subset = { name = qualified phase = tournament_phase_horse_race this = root }
+							}	
+						}
+						if = {
+							limit = { scope:horse_race_winner ?= this }
 							add = tournament_hastiludes_xp_gain_massive_value
 						}
 						else = { add = tournament_hastiludes_xp_gain_medium_value }
@@ -8011,7 +8044,7 @@ add_random_tourney_participant_level_effect = {
 					culture = {
 						OR = {
 							has_cultural_tradition = tradition_metal_craftsmanship
-							has_cultural_tradition = tradition_imperial_military_tradition
+							has_cultural_pillar = heritage_calradian
 							has_cultural_tradition = tradition_mountain_homes
 							has_cultural_tradition = tradition_polders
 							has_cultural_tradition = tradition_republican_legacy
@@ -8068,7 +8101,7 @@ add_random_tourney_participant_level_effect = {
 					culture = {
 						OR = {
 							has_cultural_tradition = tradition_metal_craftsmanship
-							has_cultural_tradition = tradition_imperial_military_tradition
+							has_cultural_pillar = heritage_calradian
 							has_cultural_tradition = tradition_mountain_homes
 							has_cultural_tradition = tradition_polders
 							has_cultural_tradition = tradition_republican_legacy
@@ -8125,7 +8158,7 @@ add_random_tourney_participant_level_effect = {
 					culture = {
 						OR = {
 							has_cultural_tradition = tradition_metal_craftsmanship
-							has_cultural_tradition = tradition_imperial_military_tradition
+							has_cultural_pillar = heritage_calradian
 							has_cultural_tradition = tradition_mountain_homes
 							has_cultural_tradition = tradition_polders
 							has_cultural_tradition = tradition_republican_legacy
@@ -8167,13 +8200,13 @@ add_random_tourney_participant_level_effect = {
 					add = 40
 					culture = {
 						OR = {
-							has_cultural_tradition = tradition_imperial_military_tradition
+							has_cultural_pillar = heritage_calradian
 							has_cultural_tradition = tradition_horse_breeder
 							has_cultural_tradition = tradition_chivalry
 							has_cultural_tradition = tradition_desert_ribat
 							has_cultural_tradition = tradition_desert_nomads
 							has_cultural_tradition = tradition_horse_lords
-							has_cultural_tradition = tradition_saharan_nomads
+							has_cultural_tradition = tradition_nahasan_nomads
 							# has_cultural_tradition = tradition_ep3_indomitable_azatani
 							has_cultural_tradition = tradition_ep3_imperial_tagmata
 						}
@@ -8210,14 +8243,14 @@ add_random_tourney_participant_level_effect = {
 					add = 30
 					culture = {
 						OR = {
-							has_cultural_tradition = tradition_imperial_military_tradition
+							has_cultural_pillar = heritage_calradian
 							has_cultural_tradition = tradition_horse_breeder
 							has_cultural_tradition = tradition_chivalry
 							has_cultural_tradition = tradition_desert_ribat
 							has_cultural_tradition = tradition_desert_nomads
 							has_cultural_tradition = tradition_horse_lords
 							has_cultural_tradition = tradition_lords_of_the_elephant
-							has_cultural_tradition = tradition_saharan_nomads
+							has_cultural_tradition = tradition_nahasan_nomads
 							# has_cultural_tradition = tradition_ep3_indomitable_azatani
 							has_cultural_tradition = tradition_ep3_imperial_tagmata
 						}
@@ -8253,14 +8286,14 @@ add_random_tourney_participant_level_effect = {
 					add = 20
 					culture = {
 						OR = {
-							has_cultural_tradition = tradition_imperial_military_tradition
+							has_cultural_pillar = heritage_calradian
 							has_cultural_tradition = tradition_horse_breeder
 							has_cultural_tradition = tradition_chivalry
 							has_cultural_tradition = tradition_desert_ribat
 							has_cultural_tradition = tradition_desert_nomads
 							has_cultural_tradition = tradition_horse_lords
 							has_cultural_tradition = tradition_lords_of_the_elephant
-							has_cultural_tradition = tradition_saharan_nomads
+							has_cultural_tradition = tradition_nahasan_nomads
 							# has_cultural_tradition = tradition_ep3_indomitable_azatani
 							has_cultural_tradition = tradition_ep3_imperial_tagmata
 						}
