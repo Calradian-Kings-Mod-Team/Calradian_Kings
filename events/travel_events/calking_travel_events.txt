@@ -568,3 +568,215 @@ ck_travel_events.0002 = { ### Encounter sea raiders
 		}
 	}
 }
+
+## Visiting Important Monuments / Cities ##
+# Visiting Cities #
+# Visiting Monuments #
+
+scripted_trigger ck_travel_events.1002_is_foe_trigger = {
+	#every kind of personality which wouldn't mind or self-delude about the river being a bit icky
+	 OR = {
+		faith = {
+			faith_hostility_level = {
+				target = scope:lords_liege.faith
+				value >= faith_hostile_level
+			}
+		}
+		is_at_war_with = scope:lord_of_geroian_citadel
+		liege ?= {
+			is_at_war_with = scope:lord_of_geroian_citadel
+		}
+		top_liege ?= {
+			is_at_war_with = scope:lord_of_geroian_citadel
+		}
+		scope:lord_of_geroian_citadel = {
+			liege ?= {
+				is_at_war_with = root
+			}
+		}
+		scope:lord_of_geroian_citadel = {
+			top_liege ?= {
+				is_at_war_with = root
+			}
+		}
+	}
+}
+
+
+ck_travel_events.1002 = {
+	type = character_event
+	title = ck_travel_events.1002.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					location = {
+						has_building = geroian_citadel_ruined
+					}
+				}
+				desc = ck_travel_events.1002.intro_ruined
+			}
+			desc = ck_travel_events.1002.intro
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					culture = { has_cultural_pillar = language_geroian }
+					ck_travel_events.1002_is_foe_trigger = no
+				}
+				desc = ck_travel_events.1002.geroian
+			}
+			triggered_desc = {
+				trigger = {
+					ck_travel_events.1002_is_foe_trigger = no
+				}
+				desc = ck_travel_events.1002.friend
+			}
+			desc = ck_travel_events.1002.foe
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					ck_travel_events.1002_is_foe_trigger = no
+				}
+				desc = ck_travel_events.1002.praise_outro
+			}
+			triggered_desc = {
+				trigger = {
+					ck_travel_events.1002_is_foe_trigger = yes
+				}
+				desc = ck_travel_events.1002.distrust_outro
+			}
+		}
+	}
+	theme = travel
+
+	override_background = {
+		reference = ep2_travel_settlement_mountains
+	}
+	left_portrait = {
+		character = root 
+	   	animation = jockey_walk
+		camera = camera_event_horse_left
+	}
+
+	trigger = {
+		age >= 12
+		is_available_travelling = yes
+        is_playable_character = yes
+		is_location_valid_for_travel_event_on_land = yes
+		location = {
+			barony = title:b_potenzam
+			is_occupied = no
+		}
+		NOT = { location.county.holder = root } #If I own it then it does not make sense to visit it.
+		NOT = { has_character_flag = had_ck_travel_events.1002 }
+	}
+
+	immediate = {
+		#Make sure the same person doesn't get this twice
+		add_character_flag = had_ck_travel_events.1002
+		location = {
+			save_scope_as = current_location
+		}
+		location.county.holder = {
+			save_scope_as = lord_of_geroian_citadel
+		}
+		if = {
+			limit = {
+				exists = scope:lord_of_geroian_citadel.top_liege
+			}
+			scope:lord_of_geroian_citadel.top_liege = {
+				save_scope_as = lords_liege
+			}
+		}
+		else = {
+			scope:lord_of_geroian_citadel = {
+				save_scope_as = lords_liege
+			}
+		}
+		show_as_tooltip = {
+			add_martial_lifestyle_xp = travel_medium_xp
+		}
+	}
+
+	# These are our defenders and I am proud
+	option = {
+		trigger = {
+			ck_travel_events.1002_is_foe_trigger = no
+		}
+		name = {
+			trigger = {
+				culture = { has_cultural_pillar = language_geroian }
+			}
+			text = ck_travel_events.1002.a_geroian
+		}
+		name = {
+			trigger = {
+				NOT = { culture = { has_cultural_pillar = language_geroian } }
+			}
+			text = ck_travel_events.1002.a_non_geroian
+		}
+		if = {
+			limit = {
+				faith = {
+					faith_hostility_level = {
+						target = scope:lord_of_geroian_citadel.faith
+						value < faith_hostile_level
+					}
+				}
+				NOT = {
+					is_at_war_with = scope:lord_of_geroian_citadel
+				}
+				#Need to be in same realm
+				OR = {
+					liege ?= {
+						OR = {
+							AND = {
+								exists = scope:lord_of_geroian_citadel.liege
+								this = scope:lord_of_geroian_citadel.liege
+							}
+							this = scope:lord_of_geroian_citadel
+						}
+					}
+					scope:lord_of_geroian_citadel = {
+						is_vassal_of = root
+					}
+				}
+				culture = { has_cultural_pillar = language_geroian }
+			}
+			add_opinion = {
+				target = scope:lord_of_geroian_citadel
+				opinion = 10
+				modifier = impressed_opinion
+			}
+		}
+		stress_impact = {
+			trusting = minor_stress_impact_loss
+			zealous = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+
+	# These are our foes and it's ominous
+	option = {
+		trigger = {
+			ck_travel_events.1002_is_foe_trigger = yes
+		}
+		name = ck_travel_events.1002.b
+		add_character_modifier = {
+			modifier = haunted_by_hostile_troops_modifier_ck
+			years = 1
+		}
+		
+		stress_impact = {
+			paranoid = miniscule_stress_impact_gain
+			craven = miniscule_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+}

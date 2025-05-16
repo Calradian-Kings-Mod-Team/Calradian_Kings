@@ -138,7 +138,7 @@ PixelShader =
 		float4 GetFlatMapSurround( float2 UV )
 		{				
 			float Mask = PdxTex2D( SurroundMask, UV ).b;
-			
+
 			// We no longer use the surround 'woodgrain' tiling (keeping this here for some mods backward compat hint)
 			// float3 Tile = PdxTex2D( SurroundTile, UV * TileFactor ).rgb;
 			float3 Tile = float3(0, 0, 0);
@@ -216,10 +216,6 @@ PixelShader =
 			
 			return Offset * ParallaxScale;
 		}
-
-		// MOD(map-skybox)
-		static const float GH_SURROUNDMAP_ALPHA_MULTIPLIER_EPSILON = 0.001f;
-		// END MOD
 	]]
 
 	MainCode PS_surroundmap
@@ -232,7 +228,7 @@ PixelShader =
 			{
 				// MOD(map-skybox)
 				float GH_AlphaMultiplier = GH_GetDefaultCameraPitchAlphaMultiplier();
-				if (GH_AlphaMultiplier < GH_SURROUNDMAP_ALPHA_MULTIPLIER_EPSILON)
+				if (GH_AlphaMultiplier < 0.001f)
 					return float4(0.0f, 0.0f, 0.0f, 0.0f);
 				// END MOD
 
@@ -274,6 +270,12 @@ PixelShader =
 				
 				Color = ApplyDistanceFog( Color, Input.WorldSpacePos );
 				
+				// MOD(agot)
+				// TODO, this should only be enabled in the fade out step
+				float4 ZoomedOut = GetFlatMapSurround( Input.uv );
+				Color = lerp( Color, ZoomedOut.rgb, FlatMapLerp );
+				// END MOD
+
 				DebugReturn( Color, MaterialProps, LightingProps, EnvironmentMap );
 				
 				Color *= 0.25;
@@ -284,11 +286,7 @@ PixelShader =
 				BlackUV += float2( 0.125, 0.125);
 				float3 Black = PdxTex2D( BlackMask, BlackUV ).rgb;
 				Color *= vec3( Black.g * ( 1 - FlatMapLerp ) );
-
-				// MOD(map-skybox)
-				FinalAlpha *= GH_AlphaMultiplier;
-				// END MOD
-
+				
 				return float4( Color, saturate( FinalAlpha ) );
 			}
 		]]
@@ -304,7 +302,7 @@ PixelShader =
 			{
 				// MOD(map-skybox)
 				float GH_AlphaMultiplier = GH_GetDefaultCameraPitchAlphaMultiplier();
-				if (GH_AlphaMultiplier < GH_SURROUNDMAP_ALPHA_MULTIPLIER_EPSILON)
+				if (GH_AlphaMultiplier < 0.001f)
 					return float4(0.0f, 0.0f, 0.0f, 0.0f);
 				// END MOD
 
@@ -347,6 +345,12 @@ PixelShader =
 				
 				Color = ApplyDistanceFog( Color, Input.WorldSpacePos );
 				
+				// MOD(agot)
+				// TODO, this should only be enabled in the fade out step
+				float4 ZoomedOut = GetFlatMapSurround( Input.uv );
+				Color = lerp( Color, ZoomedOut.rgb, FlatMapLerp );
+				// END MOD
+
 				DebugReturn( Color, MaterialProps, LightingProps, EnvironmentMap );
 				
 				Color *= 0.25;
@@ -357,11 +361,7 @@ PixelShader =
 				BlackUV += float2( 0.125, 0.125);
 				float3 Black = PdxTex2D( BlackMask, BlackUV ).rgb;
 				Color *= vec3( Black.g * ( 1 - FlatMapLerp ) );
-
-				// MOD(map-skybox)
-				FinalAlpha *= GH_AlphaMultiplier;
-				// END MOD
-
+				
 				return float4( Color, saturate( FinalAlpha ) );
 			}
 		]]
@@ -377,17 +377,14 @@ PixelShader =
 			{
 				// MOD(map-skybox)
 				float GH_AlphaMultiplier = GH_GetDefaultCameraPitchAlphaMultiplier();
-				if (GH_AlphaMultiplier < GH_SURROUNDMAP_ALPHA_MULTIPLIER_EPSILON)
+				if (GH_AlphaMultiplier < 0.001f)
 					return float4(0.0f, 0.0f, 0.0f, 0.0f);
 				// END MOD
 
 				float2 UV = Input.uv;
 				float Mask = PdxTex2D( SurroundMask, UV ).r;
 			
-				// MOD(map-skybox)
-				//return float4( ShadowColor, Mask * ( 1.0 - FlatMapLerp ) );
-				return float4( ShadowColor, Mask * ( 1.0 - FlatMapLerp ) * GH_AlphaMultiplier);
-				// END MOD
+				return float4( ShadowColor, Mask * ( 1.0 - FlatMapLerp ) );
 			}
 		]]
 	}

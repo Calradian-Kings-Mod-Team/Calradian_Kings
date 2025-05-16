@@ -4,7 +4,10 @@
 
 building_requirement_tribal = {
 	scope:holder ?= {
-		government_has_flag = government_is_tribal
+		OR = {
+			government_has_flag = government_is_tribal
+			government_has_flag = government_is_nomadic
+		}
 	}
 }
 
@@ -13,6 +16,38 @@ building_requirement_tribal_holding_in_county = {
 		county = {
 			any_county_province = {
 				has_holding_type = tribal_holding
+			}
+		}
+	}
+}
+
+building_requirement_nomad = {
+	scope:holder ?= {
+		government_has_flag = government_is_nomadic
+	}
+}
+
+building_requirement_nomad_holding_in_county = {
+	NOT = {
+		county = {
+			any_county_province = {
+				has_holding_type = nomad_holding
+			}
+		}
+	}
+}
+
+building_requirement_herder = {
+	scope:holder ?= {
+		government_has_flag = government_is_herder
+	}
+}
+
+building_requirement_herder_holding_in_county = {
+	NOT = {
+		county = {
+			any_county_province = {
+				has_holding_type = herder_holding
 			}
 		}
 	}
@@ -53,8 +88,9 @@ building_hall_of_heroes_requirement = {
 		has_variable = hall_of_heroes
 		scope:holder = {
 			OR = {
-				has_religion = religion:vakken_religion
+				has_religion = religion:vakken_religion ## ADD NEW EAST UGRO RELIGION IN NORTHEAST CK_UPDATE CK_NORTHEAST CK_VAKKEN
 				has_religion = religion:northern_gods_religion
+				has_religion = religion:paganism_religion
 			}
 		}
 	}
@@ -258,7 +294,10 @@ building_hill_farms_requirement_terrain = {
 
 building_elephant_pens_requirement_terrain = {
 	terrain = jungle
-	geographical_region = world_innovation_elephants
+	OR = {
+		geographical_region = world_innovation_elephants
+		culture = { has_cultural_parameter = elephant_pens_building_bonuses }
+	}
 }
 
 building_horse_pastures_requirement_terrain = {
@@ -281,21 +320,22 @@ building_quarries_requirement_terrain = {
 	OR = {
 		terrain = mountains
 		terrain = desert_mountains
-		AND = {
-			culture = {
-				has_cultural_parameter = can_build_quarries_in_hills
-			}
-		}
+		culture = { has_cultural_parameter = can_build_quarries_everywhere }
 	}
 }
 
 building_warrior_lodges_requirement_terrain = {
 	OR = {
-		terrain = mountains
-		terrain = desert_mountains
-		terrain = hills
+		AND = {
+			OR = {
+				terrain = mountains
+				terrain = desert_mountains
+				terrain = hills
+			}
+			NOT = { geographical_region = world_horse_buildings_in_hills_and_mountains }
+		}
+		culture = { has_cultural_parameter = warrior_lodges_lift_restrictions }
 	}
-	NOT = { geographical_region = world_horse_buildings_in_hills_and_mountains }
 }
 
 building_hillside_grazing_requirement_terrain = {
@@ -309,26 +349,26 @@ building_hillside_grazing_requirement_terrain = {
 
 building_wind_furnace_requirement_terrain = {
 	geographical_region = world_india
-	# OR = {
+	OR = {
 		is_coastal = yes
-	# 	AND = {
-	# 		scope:holder.top_liege = {
-	# 			any_realm_county = {
-	# 				any_county_province = {
-	# 					has_building_or_higher = konasamudram_mines_01
-	# 				}
-	# 			}
-	# 		}
-	# 		duchy = {
-	# 			any_de_jure_county = {
-	# 				any_county_province = {
-	# 					has_building_or_higher = konasamudram_mines_01
-	# 				}
-	# 			}
-	# 		}
-	# 	}
+		AND = {
+			scope:holder.top_liege = {
+				any_realm_county = {
+					any_county_province = {
+						has_building_or_higher = konasamudram_mines_01
+					}
+				}
+			}
+			duchy = {
+				any_de_jure_county = {
+					any_county_province = {
+						has_building_or_higher = konasamudram_mines_01
+					}
+				}
+			}
+		}
 		
-	# }
+	}
 	
 	scope:holder.culture = { has_innovation = innovation_wootz_steel }
 }
@@ -389,7 +429,7 @@ building_caravanserai_requirement_terrain = {
 }
 
 building_qanats_requirement_terrain = {
-	county ?= {
+ 	county ?= {
 		any_county_province = {
 			OR = {
 				terrain = hills
@@ -398,6 +438,7 @@ building_qanats_requirement_terrain = {
 				terrain = desert
 				terrain = drylands
 			}
+			culture = { has_cultural_parameter = unlocks_qanat_building }
 		}
 	}
 }
@@ -443,26 +484,15 @@ has_any_special_mine_trigger = {
 ######################################################################
 
 barony_cannot_construct_holding = {
-	OR = {
-		barony = title:b_aljum
-		barony = title:b_airas
-		barony = title:b_mifan
-		barony = title:b_sharqan
-		barony = title:b_wahyari
-		barony = title:b_zumarqi
-		barony = title:b_thaqafi
-		barony = title:b_qasrani
-		barony = title:b_qudari
-		barony = title:b_tahiri
-		barony = title:b_khayratun
-		barony = title:b_zawqiyun
-		# barony.title_province = {
-		# 	OR = {
-		# 		terrain = desert
-		# 		terrain = desert_mountains
-		# 	}
-		# 	geographical_region = custom_nahasa_inhabitable ## CK_ASERAI CK_NAHASA CK_UPDATE - Need to make this region so we can stop barony constructed on literal desert wastelands
-		# }
+	custom_tooltip = {
+		text = barony_cannot_construct_holding_nahasa
+		barony.title_province = {
+			OR = {
+				terrain = desert
+				terrain = desert_mountains
+			}
+			geographical_region = custom_nahasa_inhabitable
+		}
 	}
 }
 
@@ -649,7 +679,7 @@ islamic_special_building_trigger = {
 
 christian_special_building_trigger = {
 	# OR = {
-	# 	has_building = holy_site_cologne_cathedral_01
+	 	has_building = charas_library
 	# 	has_building = holy_site_canterbury_cathedral_01
 	# 	has_building = holy_site_canterbury_cathedral_02
 	# 	has_building = holy_site_canterbury_cathedral_03
@@ -681,6 +711,7 @@ religious_special_building_exclusion_trigger = { # checks if any special buildin
 				has_building = holy_site_cathedral_01
 				has_building = holy_site_mosque_01
 				has_building = holy_site_pagan_grand_temple_01
+				has_building = holy_site_indian_grand_temple_01
 				has_building = holy_site_other_grand_temple_01
 				islamic_special_building_trigger = yes
 				christian_special_building_trigger = yes
@@ -696,8 +727,8 @@ religious_special_building_exclusion_trigger = { # checks if any special buildin
 		}
 		AND = { # Eastern family
 			NOR = {
-				ROOT.religion = religion:khuzait_religion
 				ROOT.religion = religion:darshi_religion
+				ROOT.religion = religion:ghavati_religion
 			}
 			eastern_special_building_trigger = yes
 		}
@@ -718,7 +749,10 @@ building_breweries_requirement = {
 	OR = {
 		AND = {
 			has_building_or_higher = temple_$NUMBER$
-			faith = { has_doctrine_parameter = allows_brewery }
+			OR = {
+				faith = faith:western_calradic
+				faith = { has_doctrine_parameter = allows_brewery }
+			}
 		}
 		AND = {
 			has_building_or_higher = city_$NUMBER$

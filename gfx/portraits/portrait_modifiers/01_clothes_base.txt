@@ -19,6 +19,10 @@
 
 # CULTURE_INPUT = afr_berber
 
+# CULTURE_INPUT = west_slavic
+
+# CULTURE_INPUT = sami
+# CULTURE_INPUT = ugro_permian
 
 clothes_effect = { # Gene modifers to apply for characters wearing or not wearing clothes
     usage = game
@@ -1175,22 +1179,26 @@ clothes_base = { # The lowest priority group of clothes with triggers based on r
             base = 0
             court_fashion_level_4_modifier = { INPUT_PARAMETER = dde_abbasid }
             modifier = {
-                add = 50
+                add = {
+					value = 50
+					if = {
+						limit = {
+							OR = {
+								portrait_low_nobles_clothing_trigger = { 
+									CULTURE_INPUT = fp3_iranian
+								}
+								portrait_low_nobles_clothing_trigger = { 
+									CULTURE_INPUT = afr_berber
+								}
+							}
+						}
+						add = -36 # Slightly lower if iranian or north african is valid
+					}
+				}
                 portrait_low_nobles_clothing_trigger = { 
                     CULTURE_INPUT = dde_abbasid
                 }   
             }
-			modifier = {
-				add = -36 # Slightly lower if iranian or north african is valid
-				OR = {
-					portrait_low_nobles_clothing_trigger = { 
-						CULTURE_INPUT = fp3_iranian
-					}
-					portrait_low_nobles_clothing_trigger = { 
-						CULTURE_INPUT = afr_berber
-					}
-				}
-			}
         }
     }
 
@@ -1295,22 +1303,26 @@ clothes_base = { # The lowest priority group of clothes with triggers based on r
             base = 0
             court_fashion_level_4_modifier = { INPUT_PARAMETER = mena } 
             modifier = {
-                add = 50
+                add = {
+					value = 50
+					if = {
+						limit = {
+							OR = {
+								portrait_low_nobles_clothing_trigger = { 
+									CULTURE_INPUT = fp3_iranian
+								}
+								portrait_low_nobles_clothing_trigger = { 
+									CULTURE_INPUT = afr_berber
+								}
+							}
+						}
+						add = -36 # Slightly lower if iranian or north african is valid
+					}
+				}
                 portrait_low_nobles_clothing_trigger = { 
                     CULTURE_INPUT = mena
                 }  
             }
-			modifier = {
-				add = -36 # Slightly lower if iranian or north african is valid
-				OR = {
-					portrait_low_nobles_clothing_trigger = { 
-						CULTURE_INPUT = fp3_iranian
-					}
-					portrait_low_nobles_clothing_trigger = { 
-						CULTURE_INPUT = afr_berber
-					}
-				}
-			}
         }
     }
 
@@ -1371,6 +1383,27 @@ clothes_base = { # The lowest priority group of clothes with triggers based on r
         }
     }
 
+    mpo_mongol_commoners = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = clothes
+                template = mpo_mongol_commoner_clothes
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            modifier = {
+                add = 80
+                portrait_commoner_clothing_trigger = {
+                    CULTURE_INPUT = steppe
+                }
+                has_mpo_dlc_trigger = yes
+            }
+        }
+    }
+
     steppe_low_nobles = {
         dna_modifiers = {
             accessory = {
@@ -1389,6 +1422,48 @@ clothes_base = { # The lowest priority group of clothes with triggers based on r
                 portrait_low_nobles_clothing_trigger = { 
                     CULTURE_INPUT = steppe
                 }  
+            }
+            modifier = {
+                factor = 0
+                portrait_low_nobles_clothing_trigger = {
+                    CULTURE_INPUT = fp3_turkic
+                }
+                OR = {
+					has_fp3_dlc_trigger = yes
+					has_mpo_dlc_trigger = yes        
+				}
+            }
+        }
+    }
+
+    mpo_mongol_low_nobles = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = clothes
+                template = mpo_mongol_low_nobility_clothes
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            court_fashion_level_4_modifier = { INPUT_PARAMETER = steppe } 
+            modifier = {
+                add = 50
+                portrait_low_nobles_clothing_trigger = { 
+                    CULTURE_INPUT = steppe
+                } 
+                has_mpo_dlc_trigger = yes
+            }
+            modifier = {
+                factor = 0
+                portrait_low_nobles_clothing_trigger = {
+                    CULTURE_INPUT = fp3_turkic
+                }
+                OR = {
+					has_fp3_dlc_trigger = yes
+					has_mpo_dlc_trigger = yes        
+				}
             }
         }
     }
@@ -1411,8 +1486,114 @@ clothes_base = { # The lowest priority group of clothes with triggers based on r
                     CULTURE_INPUT = steppe
                 } 
             }
+            modifier = {
+                factor = 0
+                portrait_high_nobles_clothing_trigger = {
+                    CULTURE_INPUT = fp3_turkic
+                }
+                OR = {
+					has_fp3_dlc_trigger = yes
+					has_mpo_dlc_trigger = yes        
+				}
+            }
         }
     }
+
+    mpo_mongol_high_nobles = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = clothes
+                template = mpo_mongol_high_nobility_clothes
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }       
+        weight = {
+            base = 0
+            court_fashion_level_5_modifier = { INPUT_PARAMETER = steppe } 
+            modifier = {
+                add = 50
+                portrait_high_nobles_clothing_trigger = { 
+                    CULTURE_INPUT = steppe
+                }
+                has_mpo_dlc_trigger = yes 
+            }
+            modifier = {
+                factor = 0
+                portrait_high_nobles_clothing_trigger = {
+                    CULTURE_INPUT = fp3_turkic
+                }
+                OR = {
+					has_fp3_dlc_trigger = yes
+					has_mpo_dlc_trigger = yes        
+				}
+            }
+        }
+    }
+
+    mpo_mongol_royalty = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = clothes
+                template = mpo_mongol_royalty_clothes
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            modifier = {
+                add = 105
+                portrait_royalty_clothing_trigger = { 
+                    CULTURE_INPUT = steppe
+                }                 
+                has_mpo_dlc_trigger = yes        
+            }
+            modifier = {
+                factor = 0
+                portrait_royalty_clothing_trigger = {
+                    CULTURE_INPUT = fp3_turkic
+                }
+                OR = {
+					has_fp3_dlc_trigger = yes
+					has_mpo_dlc_trigger = yes        
+				}
+            }
+        }
+    }
+
+    mpo_mongol_imperial = {
+        dna_modifiers = {
+            accessory = {
+                mode = add
+                gene = clothes
+                template = mpo_mongol_imperial_clothes
+                range = { 0 1 } # For the randomness to work correctly
+            }
+        }   
+        weight = {
+            base = 0
+            modifier = {
+                add = 105
+                portrait_imperial_clothing_trigger = { 
+                    CULTURE_INPUT = steppe
+                }                 
+                has_mpo_dlc_trigger = yes        
+            }
+            modifier = {
+                factor = 0
+                portrait_imperial_clothing_trigger = {
+                    CULTURE_INPUT = fp3_turkic
+                }
+				OR = {
+					has_fp3_dlc_trigger = yes
+					has_mpo_dlc_trigger = yes        
+				}
+            }
+        }
+    }
+
+
 
 ## Northern Pagans ##
 
@@ -1644,6 +1825,143 @@ clothes_base = { # The lowest priority group of clothes with triggers based on r
             }
         }
 	}
+## CCP4 SAMI ##
+
+ccp4_sami_commoners = {
+    dna_modifiers = {
+        accessory = {
+            mode = add
+            gene = clothes
+            template = ccp4_sami_commoner_clothes
+            range = { 0 1 } # For the randomness to work correctly
+        }
+    }
+    weight = {
+        base = 0
+        modifier = {
+            add = 100
+            portrait_commoner_no_mayors_trigger = {
+                CULTURE_INPUT = sami
+            }
+        }
+    }
+}
+
+ccp4_sami_low_nobles = {
+    dna_modifiers = {
+        accessory = {
+            mode = add
+            gene = clothes
+            template = ccp4_sami_low_nobility_clothes
+            range = { 0 1 } # For the randomness to work correctly
+        }
+    }
+    weight = {
+        base = 0
+        court_fashion_level_4_modifier = { INPUT_PARAMETER = sami }
+        modifier = {
+            add = 100
+            OR = {
+                portrait_low_nobles_clothing_trigger = {
+                    CULTURE_INPUT = sami
+                }
+                portrait_mayor_trigger = {
+                    CULTURE_INPUT = sami
+                }
+            }
+        }
+    }
+}
+
+ccp4_sami_high_nobles = {
+    dna_modifiers = {
+        accessory = {
+            mode = add
+            gene = clothes
+            template = ccp4_sami_high_nobility_clothes
+            range = { 0 1 } # For the randomness to work correctly
+        }
+    }
+    weight = {
+        base = 0
+        court_fashion_level_5_modifier = { INPUT_PARAMETER = sami } 
+        modifier = {
+            add = 100
+            portrait_high_nobles_clothing_trigger = { 
+                CULTURE_INPUT = sami
+            } 
+        }
+    }
+}
+
+## CCP4 KHANTY / UGRO-PERMIAN ##
+
+ccp4_ugro_permian_commoners = {
+    dna_modifiers = {
+        accessory = {
+            mode = add
+            gene = clothes
+            template = ccp4_khanty_commoner_clothes
+            range = { 0 1 } # For the randomness to work correctly
+        }
+    }
+    weight = {
+        base = 0
+        modifier = {
+            add = 100
+            portrait_commoner_no_mayors_trigger = {
+                CULTURE_INPUT = ugro_permian
+            }
+        }
+    }
+}
+
+ccp4_ugro_permian_low_nobles = {
+    dna_modifiers = {
+        accessory = {
+            mode = add
+            gene = clothes
+            template = ccp4_khanty_low_nobility_clothes
+            range = { 0 1 } # For the randomness to work correctly
+        }
+    }
+    weight = {
+        base = 0
+        court_fashion_level_4_modifier = { INPUT_PARAMETER = ugro_permian }
+        modifier = {
+            add = 100
+            OR = {
+                portrait_low_nobles_clothing_trigger = {
+                    CULTURE_INPUT = ugro_permian
+                }
+                portrait_mayor_trigger = {
+                    CULTURE_INPUT = ugro_permian
+                }
+            }
+        }
+    }
+}
+
+ccp4_ugro_permian_high_nobles = {
+    dna_modifiers = {
+        accessory = {
+            mode = add
+            gene = clothes
+            template = ccp4_khanty_high_nobility_clothes
+            range = { 0 1 } # For the randomness to work correctly
+        }
+    }
+    weight = {
+        base = 0
+        court_fashion_level_5_modifier = { INPUT_PARAMETER = ugro_permian } 
+        modifier = {
+            add = 100
+            portrait_high_nobles_clothing_trigger = { 
+                CULTURE_INPUT = ugro_permian
+            } 
+        }
+    }
+}   
 
 ## FP3 IRANIAN ##
 
@@ -1659,10 +1977,17 @@ fp3_iranian_low_nobles = {
     weight = {
         base = 0
         court_fashion_level_4_modifier = { INPUT_PARAMETER = fp3_iranian }
+        court_fashion_level_4_modifier = { INPUT_PARAMETER = fp3_turkic }
         modifier = {
             add = 51 # Slightly higher
             portrait_low_nobles_clothing_trigger = { 
                 CULTURE_INPUT = fp3_iranian
+            }
+        }
+        modifier = {
+            add = 51 
+            portrait_low_nobles_clothing_trigger = { 
+                CULTURE_INPUT = fp3_turkic
             }
         }
     }
@@ -1680,11 +2005,18 @@ fp3_iranian_high_nobles = {
     weight = {
         base = 0
         court_fashion_level_5_modifier = { INPUT_PARAMETER = fp3_iranian } 
+        court_fashion_level_5_modifier = { INPUT_PARAMETER = fp3_turkic } 
         modifier = {
             add = 51 # Slightly higher
             portrait_high_nobles_clothing_trigger = { 
                 CULTURE_INPUT = fp3_iranian
             } 
+        }
+        modifier = {
+            add = 51 
+            portrait_high_nobles_clothing_trigger = { 
+                CULTURE_INPUT = fp3_turkic
+            }
         }
     }
 }

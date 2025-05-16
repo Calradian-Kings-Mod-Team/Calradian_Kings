@@ -319,6 +319,52 @@ ai_agent_join_chance_basic_suite_modifier = {
 		desc = BASE_RELUCTANCE
 	}
 
+	# Nomad Yurt
+	modifier = {
+		add = {
+			value = 0
+			if = {
+				limit = {
+					scope:owner.domicile ?= {
+						has_domicile_parameter = realm_agent_acceptance_lvl_3
+					}
+				}
+				add = 30
+			}
+			else_if = {
+				limit = {
+					scope:owner.domicile ?= {
+						has_domicile_parameter = realm_agent_acceptance_lvl_3
+					}
+				}
+				add = 20
+			}
+			else_if = {
+				limit = {
+					scope:owner.domicile ?= {
+						has_domicile_parameter = realm_agent_acceptance_lvl_3
+					}
+				}
+				add = 20
+			}
+		}
+		trigger_if = {
+			limit = {
+				scope:owner = {
+					government_has_flag = government_is_nomadic
+				}
+			}
+			scope:owner.domicile ?= {
+				has_domicile_building_or_higher = agent_dread_yurt_01
+			}
+			OR = {
+				top_liege = scope:owner
+				host = scope:owner
+			}
+		}
+		desc = agent_dread_yurt_01_domicile_building
+	}
+
 	# Don't scheme easily against people in other realms.
 	modifier = {
 		add = -25
@@ -604,6 +650,27 @@ ai_agent_join_chance_basic_suite_modifier = {
 		scope:piety ?= yes
 		exists = scope:recipient
 		desc = SCHEME_WITH_PIETY
+	}
+	## Offer Herd
+	modifier = {
+		add = {
+			value = 20
+			scope:recipient = {
+				# A bit more for ambitious chars.
+				if = {
+					limit = { has_trait = ambitious }
+					add = 10
+				}
+				# A bit less for content ones.
+				if = {
+					limit = { has_trait = content }
+					add = -10
+				}
+			}
+		}
+		scope:herd ?= yes
+		exists = scope:recipient
+		desc = SCHEME_WITH_HERD
 	}
 	## Released them from prison in exchange for scheme support (ep3_emperor_yearly.2130)
 	modifier = {
@@ -2118,12 +2185,75 @@ ai_agent_join_chance_political_suite_modifier = {
 	}
 	# Relative House Power Modifier 
 	modifier = {
-		trigger = { exists = house }
+		trigger = {
+			exists = house
+			exists = scope:owner.house
+			NOR = {
+				AND = {
+					scope:owner.house = { is_dominant_family = yes }
+					house = { is_dominant_family = yes }
+				}
+				AND = {
+					scope:owner.house = { is_powerful_family = yes }
+					house = { is_powerful_family = yes }
+				}
+				AND = {
+					scope:owner.house = {
+						is_dominant_family = no
+						is_powerful_family = no
+					}
+					house = {
+						is_dominant_family = no
+						is_powerful_family = no
+					}
+				}
+			}
+		}
 		add = {
-			value = scope:owner.house.house_power_score
-			subtract = house.house_power_score
-			max = 50 
-			min = -50
+			if = {
+				limit = {
+					scope:owner.house = {
+						OR = {
+							is_dominant_family = yes
+							is_powerful_family = yes
+						}
+					}
+					house = {
+						is_dominant_family = no
+						is_powerful_family = no
+					}
+				}
+				add = 50
+			}
+			else_if = {
+				limit = {
+					scope:owner.house = { is_dominant_family = yes }
+					house = { is_powerful_family = yes }
+				}
+				add = 25
+			}
+			else_if = {
+				limit = {
+					house = {
+						OR = {
+							is_dominant_family = yes
+							is_powerful_family = yes
+						}
+					}
+					scope:owner.house = {
+						is_dominant_family = no
+						is_powerful_family = no
+					}
+				}
+				add = -50
+			}
+			else_if = {
+				limit = {
+					house = { is_dominant_family = yes }
+					scope:owner.house = { is_powerful_family = yes }
+				}
+				add = -25
+			}
 		}
 		desc = ai_agent_join_political_relative_house_power
 	}

@@ -1,0 +1,950 @@
+﻿namespace = ck_geroian_events
+
+ck_geroian_events.0001 = { ### Coalition info for invader
+	type = character_event
+	title = ck_geroian_events.0001.t
+	desc = ck_geroian_events.0001.desc
+	theme = war
+	right_portrait = {
+		character = root
+		animation = worry
+	}
+	override_background = { reference = study }
+	
+	immediate = {
+		scope:defender = {
+			save_scope_as = geroiandefenderloc
+		}
+	}
+	
+	option = {
+		name = ck_geroian_events.0001.a
+		custom_tooltip = ck_geroian_events.0001.a.tt
+	}
+}
+ck_geroian_events.0002 = { ### Coalition info for defender
+	type = character_event
+	title = ck_geroian_events.0002.t
+	desc = ck_geroian_events.0002.desc
+	theme = war
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	override_background = { reference = wilderness }
+	
+	immediate = {
+		scope:attacker = {
+			save_scope_as = geroianattackerloc
+		}
+	}
+	
+	
+	option = {
+		name = ck_geroian_events.0002.a
+		custom_tooltip = ck_geroian_events.0002.a.tt
+	}
+}
+ck_geroian_events.0003 = { ### Joined Geroian Coalition
+	type = letter_event
+	opening = ck_geroian_events.0003.opening
+	sender = scope:recipient
+	desc = ck_geroian_events.0003.desc
+	option = {
+		name = ck_geroian_events.0003.a
+	}
+}
+ck_geroian_events.0004 = { ### Declined Geroian Coalition
+	type = letter_event
+	opening = ck_geroian_events.0004.opening
+	sender = scope:recipient
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:recipient = {
+						scope:recipient = {
+							opinion = {
+								target = scope:actor
+								value >= -10
+							}
+						}
+					}
+				}
+				desc = ck_geroian_events.0004.desc.a
+			}
+			desc = ck_geroian_events.0004.desc.b
+		}
+	}
+	immediate = {
+		scope:actor = {
+			capital_county = {
+				save_scope_as = defendercapitalloc
+			}
+		}
+	}
+	
+	option = {
+		name = ck_geroian_events.0004.a
+	}
+}
+ck_geroian_events.0005 = { ### Geroian support randomizer #REMINDER - DISABLE IT FOR AEKEKARTALS
+	type = character_event
+	hidden = yes
+	
+	immediate = {
+		random_list = {
+			2 = {
+				modifier = {
+					factor = 0
+					any_courtier = {
+						has_character_flag = geroian_commoners_leader
+					}
+				}
+				trigger_event = {
+					id = ck_geroian_events.0006 # Commoners host join the fight
+					days = { 2 7 }
+				}
+				every_character_war = {
+					limit = {
+						has_variable = geroian_invasion_var
+						NOT = {
+							has_variable = geroian_assistance_decided_var
+						}
+					}
+					set_variable = geroian_assistance_yet_to_decide_var
+				}
+			}
+			2 = {
+				modifier = {
+					factor = 0
+					has_character_modifier = extorted_burghers_modifier
+				}
+				trigger_event = {
+					id = ck_geroian_events.0007 # Burghers sponsor a host
+					days = { 2 7 }
+				}
+				every_character_war = {
+					limit = {
+						has_variable = geroian_invasion_var
+						NOT = {
+							has_variable = geroian_assistance_decided_var
+						}
+					}
+					set_variable = geroian_assistance_yet_to_decide_var
+				}
+			}
+			2 = {
+				modifier = {
+					factor = 0
+					has_character_modifier = extorted_minor_nobility_modifier
+				}
+				trigger_event = {
+					id = ck_geroian_events.0008 # Landowners sponsor a host
+					days = { 2 7 }
+				}
+				every_character_war = {
+					limit = {
+						has_variable = geroian_invasion_var
+						NOT = {
+							has_variable = geroian_assistance_decided_var
+						}
+					}
+					set_variable = geroian_assistance_yet_to_decide_var
+				}
+			}
+			2 = {
+				modifier = {
+					factor = 0
+					any_courtier = {
+						has_character_flag = geroian_warrior_monk
+					}
+				}
+				trigger_event = {
+					id = ck_geroian_events.0009 # Warrior monk arrives with a host
+					days = { 2 7 }
+				}
+				every_character_war = {
+					limit = {
+						has_variable = geroian_invasion_var
+						NOT = {
+							has_variable = geroian_assistance_decided_var
+						}
+					}
+					set_variable = geroian_assistance_yet_to_decide_var
+				}
+			}
+			2 = {
+				modifier = {
+					factor = 0
+					has_character_modifier = extorted_burghers_modifier
+				}
+				trigger_event = {
+					id = ck_geroian_events.0010 # Burghers give monetary assitance
+					days = { 2 7 }
+				}
+				every_character_war = {
+					limit = {
+						has_variable = geroian_invasion_var
+						NOT = {
+							has_variable = geroian_assistance_decided_var
+						}
+					}
+					set_variable = geroian_assistance_yet_to_decide_var
+				}
+			}
+			2 = {
+				trigger_event = {
+					id = ck_geroian_events.0011 # Commoners rally up
+					days = { 2 7 }
+				}
+				every_character_war = {
+					limit = {
+						has_variable = geroian_invasion_var
+						NOT = {
+							has_variable = geroian_assistance_decided_var
+						}
+					}
+					set_variable = geroian_assistance_yet_to_decide_var
+				}
+			}
+			2 = { 
+				every_character_war = { # Nothing ever happens
+					limit = {
+						has_variable = geroian_invasion_var
+						NOR = {
+							has_variable = geroian_assistance_decided_var
+							has_variable = geroian_assistance_yet_to_decide_var
+						}
+					}
+					set_variable = geroian_assistance_decided_var
+				}
+			}
+		}
+	}
+}
+ck_geroian_events.0006 = { ### Commoners host join the fight
+	type = character_event
+	title = ck_geroian_events.0006.t
+	desc = ck_geroian_events.0006.desc
+	theme = war
+	left_portrait = {
+		character = scope:geroian_commoner
+		animation = marshal_axe
+	}
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	override_background = { reference = farmland }
+	
+	immediate = {
+		every_character_war = {
+			limit = {
+				has_variable = geroian_assistance_yet_to_decide_var
+			}
+			save_scope_as = geroian_war
+		}
+		create_character = {
+			age = { 30 50 }
+			gender = male
+			trait = brave
+			trait = organizer
+			trait = peasant_leader
+			random_traits_list = {
+				education_martial_3 = { }
+				education_martial_2 = { }
+			}
+			faith = root.faith
+			culture = root.culture
+			location = root.capital_province
+			dynasty = none
+			prowess = { 12 15 }
+			martial = { 8 12 }
+			save_scope_as = geroian_commoner
+		}
+		random_held_title = {
+			limit = {
+				tier = tier_county
+				title_province = {
+					geographical_region = region_geroia
+				}
+			}
+			save_scope_as = commoners_county
+		}
+	}
+	option = { # Accept their help
+		name = ck_geroian_events.0006.a
+		
+		custom_tooltip = {
+			text = geroian_commoner_host_tt
+			spawn_army = {
+				war = scope:geroian_war
+				men_at_arms = {
+					type = geroian_pikemen_1
+					men = 400
+				}
+				men_at_arms = {
+					type = geroian_light_infantry
+					men = 300
+				}
+				location = root.capital_province
+				inheritable = no
+				name = geroian_commoner_host_army
+			}
+		}
+		add_courtier = scope:geroian_commoner
+		scope:geroian_commoner = {
+			add_character_flag = geroian_commoners_leader
+		}
+		scope:commoners_county = {
+			add_county_modifier = {
+				modifier = commoners_fight_modifier
+				years = 3
+			}
+		}
+		stress_impact = {
+			arrogant = medium_stress_impact_gain
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -10 
+				has_trait = arrogant
+			}
+		}
+	}
+	option = { #I don't need your help
+		name = ck_geroian_events.0006.b
+		
+		add_prestige = 100
+		scope:geroian_commoner = {
+			silent_disappearance_effect = yes
+		}
+		stress_impact = {
+			arrogant = medium_stress_loss
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10 
+				has_trait = arrogant
+			}
+		}
+	}
+}
+ck_geroian_events.0007 = { ### Burghers sponsor a host
+	type = character_event
+	title = ck_geroian_events.0007.t
+	desc = ck_geroian_events.0007.desc
+	theme = war
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	override_background = { reference = market_west }
+	
+	immediate = {
+		every_character_war = {
+			limit = {
+				has_variable = geroian_assistance_yet_to_decide_var
+			}
+			save_scope_as = geroian_war
+		}
+		random_held_title = {
+			limit = {
+				tier = tier_county
+				title_province = {
+					geographical_region = region_geroia
+				}
+			}
+			save_scope_as = burghers_county
+		}
+	}
+	option = { # Accept their help
+		name = ck_geroian_events.0007.a
+		
+		custom_tooltip = {
+			text = geroian_burgher_host_tt
+			spawn_army = {
+				war = scope:geroian_war
+				men_at_arms = {
+					type = geroian_pikemen_2
+					men = 200
+				}
+				men_at_arms = {
+					type = geroian_crossbowmen_2
+					men = 200
+				}
+				location = root.capital_province
+				inheritable = no
+				name = geroian_burgher_host_army
+			}
+		}
+		scope:burghers_county = {
+			add_county_modifier = {
+				modifier = burghers_tax_cut_modifier
+				years = 3
+			}
+		}
+		stress_impact = {
+			arrogant = medium_stress_impact_gain
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -10 
+				has_trait = arrogant
+			}
+		}
+	}
+	option = { # You will help me, whether you like it or not
+		name = ck_geroian_events.0007.c
+		
+		add_tyranny = 10
+		custom_tooltip = {
+			text = geroian_burgher_host_tt
+			spawn_army = {
+				war = scope:geroian_war
+				men_at_arms = {
+					type = geroian_pikemen_2
+					men = 200
+				}
+				men_at_arms = {
+					type = geroian_crossbowmen_2
+					men = 200
+				}
+				location = root.capital_province
+				inheritable = no
+				name = geroian_burgher_host_army
+			}
+		}
+		add_prestige = major_prestige_loss
+		add_dread = 15
+		add_character_modifier = {
+			modifier = extorted_burghers_modifier
+			years = 5
+		}
+		
+		stress_impact = {
+			wrathful = medium_stress_loss
+			greedy = minor_stress_loss
+		}
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 20 
+				has_trait = wrathful
+				NOR = {
+					has_trait = just
+					has_trait = temperate
+					has_trait = compassionate
+					has_trait = patient
+				}
+			}
+			modifier = {
+				add = 7 
+				has_trait = greedy
+				NOR = {
+					has_trait = just
+					has_trait = temperate
+					has_trait = compassionate
+					has_trait = patient
+				}
+			}
+		}
+	}
+	option = { #I don't need your help
+		name = ck_geroian_events.0007.b
+		
+		add_prestige = 100
+		stress_impact = {
+			arrogant = medium_stress_loss
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10 
+				has_trait = arrogant
+			}
+		}
+	}
+}
+ck_geroian_events.0008 = { ### Landowners sponsor a host
+	type = character_event
+	title = ck_geroian_events.0008.t
+	desc = ck_geroian_events.0008.desc
+	theme = war
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	override_background = { reference = farmland }
+	
+	immediate = {
+		every_character_war = {
+			limit = {
+				has_variable = geroian_assistance_yet_to_decide_var
+			}
+			save_scope_as = geroian_war
+		}
+		random_held_title = {
+			limit = {
+				tier = tier_county
+				title_province = {
+					geographical_region = region_geroia
+				}
+			}
+			save_scope_as = landowners_county
+		}
+	}
+	option = { # Accept their help
+		name = ck_geroian_events.0008.a
+		
+		custom_tooltip = {
+			text = geroian_landowner_host_tt
+			spawn_army = {
+				war = scope:geroian_war
+				men_at_arms = {
+					type = geroian_light_cavalry
+					men = 300
+				}
+				men_at_arms = {
+					type = geroian_horse_archers
+					men = 200
+				}
+				location = root.capital_province
+				inheritable = no
+				name = geroian_landowner_host_army
+			}
+		}
+		scope:landowners_county = {
+			add_county_modifier = {
+				modifier = landowners_privileges_modifier
+				years = 3
+			}
+		}
+		stress_impact = {
+			arrogant = medium_stress_impact_gain
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -10 
+				has_trait = arrogant
+			}
+		}
+	}
+	option = { #You will help me whether you like it or not
+		name = ck_geroian_events.0008.c
+		
+		add_tyranny = 10
+		custom_tooltip = {
+			text = geroian_landowner_host_tt
+			spawn_army = {
+				war = scope:geroian_war
+				men_at_arms = {
+					type = geroian_light_cavalry
+					men = 300
+				}
+				men_at_arms = {
+					type = geroian_horse_archers
+					men = 200
+				}
+				location = root.capital_province
+				inheritable = no
+				name = geroian_landowner_host_army
+			}
+		}
+		add_prestige = major_prestige_loss
+		add_dread = 15
+		add_character_modifier = {
+			modifier = extorted_minor_nobility_modifier
+			years = 5
+		}
+		
+		stress_impact = {
+			wrathful = medium_stress_loss
+			greedy = minor_stress_loss
+		}
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 20 
+				has_trait = wrathful
+				NOR = {
+					has_trait = just
+					has_trait = temperate
+					has_trait = compassionate
+					has_trait = patient
+				}
+			}
+			modifier = {
+				add = 7 
+				has_trait = greedy
+				NOR = {
+					has_trait = just
+					has_trait = temperate
+					has_trait = compassionate
+					has_trait = patient
+				}
+			}
+		}
+	}
+	option = { #I don't need your help
+		name = ck_geroian_events.0008.b
+		
+		add_prestige = 100
+		stress_impact = {
+			arrogant = medium_stress_loss
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10 
+				has_trait = arrogant
+			}
+		}
+	}
+}
+ck_geroian_events.0009 = { ### Warrior monk arrives with his host
+	type = character_event
+	title = ck_geroian_events.0009.t
+	desc = ck_geroian_events.0009.desc
+	theme = war
+	left_portrait = {
+		character = scope:geroian_monk
+		animation = marshal_mace
+	}
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	override_background = { reference = wilderness_mountains }
+	
+	immediate = {
+		every_character_war = {
+			limit = {
+				has_variable = geroian_assistance_yet_to_decide_var
+			}
+			save_scope_as = geroian_war
+		}
+		create_character = {
+			age = { 40 60 }
+			gender = male
+			trait = brave
+			trait = organizer
+			trait = zealous
+			trait = order_member
+			random_traits_list = {
+				education_martial_3 = { }
+				education_martial_4 = { }
+			}
+			faith = root.faith
+			culture = root.culture
+			location = root.capital_province
+			dynasty = none
+			prowess = { 11 17 }
+			martial = { 9 12 }
+			save_scope_as = geroian_monk
+		}
+	}
+	option = { # Accept his help
+		name = ck_geroian_events.0009.a
+		
+		custom_tooltip = {
+			text = geroian_monk_host_tt
+			spawn_army = {
+				war = scope:geroian_war
+				men_at_arms = {
+					type = geroian_pikemen_2
+					men = 500
+				}
+				men_at_arms = {
+					type = geroian_light_infantry
+					men = 500
+				}
+				location = root.capital_province
+				inheritable = no
+				name = geroian_monk_host_army
+			}
+		}
+		add_courtier = scope:geroian_monk
+		scope:geroian_monk = {
+			add_character_flag = geroian_warrior_monk
+		}
+		stress_impact = {
+			arrogant = medium_stress_impact_gain
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -10 
+				has_trait = arrogant
+			}
+		}
+	}
+	option = { #I don't need your help
+		name = ck_geroian_events.0009.b
+		
+		add_prestige = 100
+		add_piety = -100
+		scope:geroian_commoner = {
+			silent_disappearance_effect = yes
+		}
+		stress_impact = {
+			arrogant = medium_stress_loss
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10 
+				has_trait = arrogant
+			}
+		}
+	}
+}
+ck_geroian_events.0010 = { ### Burghers give monetary assitance
+	type = character_event
+	title = ck_geroian_events.0010.t
+	desc = ck_geroian_events.0010.desc
+	theme = war
+	right_portrait = {
+		character = root
+		animation = interested
+	}
+	override_background = { reference = council_chamber }
+	
+	immediate = {
+		every_character_war = {
+			limit = {
+				has_variable = geroian_assistance_yet_to_decide_var
+			}
+			save_scope_as = geroian_war
+		}
+	}
+	option = { # Accept their help
+		name = ck_geroian_events.0010.a
+		
+		add_gold = 200
+		add_character_modifier = {
+			modifier = burghers_aid_modifier
+			months = 9
+		}
+		
+		stress_impact = {
+			arrogant = medium_stress_impact_gain
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -10 
+				has_trait = arrogant
+			}
+		}
+	}
+	option = { #I don't need your help
+		name = ck_geroian_events.0010.b
+		
+		add_prestige = 100
+		stress_impact = {
+			arrogant = medium_stress_loss
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10 
+				has_trait = arrogant
+			}
+		}
+	}
+}
+ck_geroian_events.0011 = { ### Commoners rally up
+	type = character_event
+	title = ck_geroian_events.0011.t
+	desc = ck_geroian_events.0011.desc
+	theme = war
+	right_portrait = {
+		character = root
+		animation = war_over_win
+	}
+	override_background = { reference = farmland }
+	
+	immediate = {
+		every_character_war = {
+			limit = {
+				has_variable = geroian_assistance_yet_to_decide_var
+			}
+			save_scope_as = geroian_war
+		}
+	}
+	option = { # Accept their help
+		name = ck_geroian_events.0011.a
+		
+		add_character_modifier = {
+			modifier = commoners_rally_up_modifier
+			months = 9
+		}
+		
+		stress_impact = {
+			arrogant = medium_stress_impact_gain
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -10 
+				has_trait = arrogant
+			}
+		}
+	}
+	option = { #I don't need your help
+		name = ck_geroian_events.0011.b
+		
+		add_prestige = 100
+		stress_impact = {
+			arrogant = medium_stress_loss
+		}
+		
+		scope:geroian_war = {
+			remove_variable = geroian_assistance_yet_to_decide_var
+			set_variable = geroian_assistance_decided_var
+		}
+		
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 10 
+				has_trait = arrogant
+			}
+		}
+	}
+}
+ck_geroian_events.0012 = { ### Unification of Thonians - unifier pov
+	type = character_event
+	title = ck_geroian_events.0012.t
+	desc = ck_geroian_events.0012.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	override_background = { reference = wilderness_mountains }
+	
+	option = {
+		name = ck_geroian_events.0012.a
+		
+		add_prestige = 400
+		add_legitimacy = 50
+		give_nickname = nick_the_unifier_ck
+		
+		save_scope_as = thonian_king
+		every_player = {
+			limit = {
+				NOT = {
+					this = root
+				}
+				OR = {
+					capital_province ?= {
+						geographical_region = region_wineyards
+					}
+					location = {
+						geographical_region = region_wineyards
+					}
+				}
+			}
+			trigger_event = ck_geroian_events.0013
+		}
+	}
+}
+ck_geroian_events.0013 = { ### Unification of Thonians - outsider pov
+	type = character_event
+	title = ck_geroian_events.0013.t
+	desc = ck_geroian_events.0013.desc
+	theme = realm
+	right_portrait = {
+		character = scope:thonian_king
+		animation = personality_bold
+	}
+	override_background = { reference = wilderness_mountains }
+	
+	option = {
+		name = ck_geroian_events.0013.a
+		
+	}
+}

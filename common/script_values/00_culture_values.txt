@@ -166,6 +166,17 @@ hybridization_threshold_value = {
 		}
 		multiply = 0.5
 	}
+	else_if = {
+		limit = {
+			root = {
+				has_trait = nomadic_philosophy
+				NOT = {
+					government_has_flag = government_is_nomadic
+				}
+			}
+		}
+		multiply = 0.5
+	}
 	if = {
 		limit = {
 			root.culture = {
@@ -213,6 +224,19 @@ hybridization_threshold_value = {
 			}
 		}
 		multiply = 0.75
+	}
+	# Council Position
+	if = {
+		limit = {
+			root = {
+				has_variable = kurultai_culture_variable_value
+			}
+		}
+		multiply = {
+			value = 100
+			subtract = root.var:kurultai_culture_variable_value
+			divide = 100
+		}
 	}
 	max = 100
 	min = 0
@@ -268,15 +292,75 @@ culture_hybrid_cooldown = {
 		multiply = 0
 	}
 }
-add_tradition_cooldown = 50
 
-tradition_base_cost = 2000
+add_tradition_cooldown = {
+	value = 50
+	if = {
+		limit = {
+			culture_head ?= {
+				has_variable = kurultai_culture_variable_value
+			}
+		}
+		multiply = {
+			value = 100
+			subtract = culture_head.var:kurultai_culture_variable_value
+			divide = 100
+		}
+	}
+}
+
+tradition_base_cost = {
+	value = 2000
+	if = {
+		limit = {
+			culture_head ?= {
+				has_variable = kurultai_culture_variable_value
+			}
+		}
+		multiply = {
+			value = 100
+			subtract = culture_head.var:kurultai_culture_variable_value
+			divide = 100
+		}
+	}
+}
+
 tradition_double_base_cost = {
 	value = tradition_base_cost
 	multiply = 2
 }
-tradition_incompatible_ethos_penalty = 2000
-tradition_unfulfilled_criteria_penalty = 3000
+tradition_incompatible_ethos_penalty = {
+	value = 2000
+	if = {
+		limit = {
+			culture_head ?= {
+				has_variable = kurultai_culture_variable_value
+			}
+		}
+		multiply = {
+			value = 100
+			subtract = culture_head.var:kurultai_culture_variable_value
+			divide = 100
+		}
+	}
+}
+
+tradition_unfulfilled_criteria_penalty = {
+	value = 3000
+	if = {
+		limit = {
+			culture_head ?= {
+				has_variable = kurultai_culture_variable_value
+			}
+		}
+		multiply = {
+			value = 100
+			subtract = culture_head.var:kurultai_culture_variable_value
+			divide = 100
+		}
+	}
+}
+
 tradition_replacement_cost_factor = 1.5
 tradition_replacement_cost_factor_tooltip = {
 	value = tradition_replacement_cost_factor
@@ -473,6 +557,13 @@ language_soft_cap = {
 	}
 	if = {
 		limit = {
+			government_has_flag = government_is_nomadic
+			domicile ?= { has_domicile_parameter = nomad_yurt_language_cap }
+		}
+		add = 1
+	}
+	if = {
+		limit = {
 			exists = dynasty
 			dynasty = {
 				has_dynasty_perk = ep1_culture_legacy_1
@@ -622,8 +713,16 @@ court_language_ai_score = {
 		}
 		else_if = {	#Eastern Faiths
 			limit = {
-				faith.religion = religion:darshi_religion
-				scope:target.faith.religion = religion:darshi_religion
+				#OR = {
+					faith.religion = religion:ghavati_religion
+				#	faith.religion = religion:buddhism_religion
+				#	faith.religion = religion:jainism_religion
+				#}
+				#OR = {
+					scope:target.faith.religion = religion:ghavati_religion
+				#	scope:target.faith.religion = religion:buddhism_religion
+				#	scope:target.faith.religion = religion:jainism_religion
+				#}
 			}
 			add = {
 				value = scope:target.court_grandeur_current
@@ -634,6 +733,21 @@ court_language_ai_score = {
 					divide = 2
 				}
 			}
+		}
+		else_if = { #Eastern religion matching vs non Eastern religion - CGV Ignored
+			limit = {
+				#OR = {
+					faith.religion = religion:ghavati_religion
+				#	faith.religion = religion:buddhism_religion
+				#	faith.religion = religion:jainism_religion
+				#}
+				NOT = {
+					scope:target.faith.religion = religion:ghavati_religion
+				#	scope:target.faith.religion = religion:buddhism_religion
+				#	scope:target.faith.religion = religion:jainism_religion
+				}
+			}
+			#Add nothing
 		}
 		else = { #Everyone else just cares about the Grandeur directly
 			add = scope:target.court_grandeur_current
@@ -679,6 +793,14 @@ court_language_ai_score = {
 						capital_province = { geographical_region = region_darshi_west }
 						NOT = { scope:target.capital_province = { geographical_region = region_darshi_west } }
 					}
+					AND = {
+						capital_province = { geographical_region = world_himalaya }
+						NOT = { scope:target.capital_province = { geographical_region = world_himalaya } }
+					}
+					AND = {
+						capital_province = { geographical_region = world_middle_east }
+						NOT = { scope:target.capital_province = { geographical_region = world_middle_east } }
+					}
 					#Africa
 					AND = {
 						capital_province = { geographical_region = region_north_nahasa_coast }
@@ -700,6 +822,10 @@ court_language_ai_score = {
 					AND = {
 						capital_province = { geographical_region = world_steppe_east }
 						NOT = { scope:target.capital_province = { geographical_region = world_steppe_east } }
+					}
+					AND = {
+						capital_province = { geographical_region = world_tibet }
+						NOT = { scope:target.capital_province = { geographical_region = world_tibet } }
 					}
 				}
 			}

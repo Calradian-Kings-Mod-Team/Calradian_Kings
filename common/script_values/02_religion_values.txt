@@ -689,13 +689,17 @@ great_holy_war_target_kingdom_weight = {
 	if = {
 		limit = {
 			scope:the_faith.religion = religion:calradian_religion
-			scope:the_faith = { not_non_calradian_standard_christian_faith_trigger = yes }
-					title_capital_county.title_province = {
-						OR = {
-							geographical_region = region_vlandia
-							geographical_region = region_imperial_calradia
-						}
+			AND = {
+				scope:the_faith = { 
+					not_non_calradian_standard_christian_faith_trigger = yes 
+				}
+				title_capital_county.title_province = {
+					OR = {
+						geographical_region = region_vlandia
+						geographical_region = region_imperial_calradia
 					}
+				}
+			}
 		}
 		add = ghw_target_heartlands
 	}
@@ -703,13 +707,15 @@ great_holy_war_target_kingdom_weight = {
 	else_if = {
 		limit = {
 			scope:the_faith.religion = religion:calradian_religion
-			scope:the_faith = {
-				not_non_calradian_standard_christian_faith_trigger = yes
-			}
-			title_capital_county.title_province = {
-				OR = {
-					geographical_region = region_perassic
-					geographical_region = region_laconis
+			AND = {
+				scope:the_faith = {
+					not_non_calradian_standard_christian_faith_trigger = yes
+				}
+				title_capital_county.title_province = {
+					OR = {
+						geographical_region = region_perassic
+						geographical_region = region_laconis
+					}
 				}
 			}
 		}
@@ -719,11 +725,13 @@ great_holy_war_target_kingdom_weight = {
 	else_if = {
 		limit = {
 			scope:the_faith.religion = religion:calradian_religion
-			scope:the_faith = { 
-				not_non_calradian_standard_christian_faith_trigger = yes 
-			}
-			title_capital_county.title_province = {
-				geographical_region = region_calradia_elk
+			AND = {
+				scope:the_faith = {
+					not_non_calradian_standard_christian_faith_trigger = yes
+				}
+				title_capital_county.title_province = {
+					geographical_region = region_calradia_elk
+				}
 			}
 		}
 		add = ghw_target_fringe
@@ -765,10 +773,10 @@ great_holy_war_target_kingdom_weight = {
 	else_if = {
 		limit = {
 			scope:the_faith.religion = {
-				OR = {
+				# OR = {
 					this = religion:darshi_religion
 					
-				}
+				# }
 			}
 			title_capital_county.title_province = { geographical_region = region_darshi_west }
 		}
@@ -778,10 +786,10 @@ great_holy_war_target_kingdom_weight = {
 	else_if = {
 		limit = {
 			scope:the_faith.religion = {
-				OR = {
+				# OR = {
 					this = religion:darshi_religion
 					
-				}
+				# }
 			}
 			title_capital_county.title_province = {
 				geographical_region = region_darshi_west
@@ -793,10 +801,10 @@ great_holy_war_target_kingdom_weight = {
 	else_if = {
 		limit = {
 			scope:the_faith.religion = {
-				OR = {
+				# OR = {
 					this = religion:darshi_religion
 					
-				}
+				# }
 			}
 			title_capital_county.title_province = {
 				OR = {
@@ -809,7 +817,7 @@ great_holy_war_target_kingdom_weight = {
 	}
 	
 	### Pagans
-	# Norse heartlands
+	# Norse heartlands ## CK_NORD CK_UPDATE CK_RELIGION - change this to the Nord lands to the north when expanded upon
 	else_if = {
 		limit = {
 			scope:the_faith.religion = religion:northern_gods_religion
@@ -1939,60 +1947,6 @@ faith_conversion_cost_mult = {
 			}
 		}
 	}
-	### MUCH MORE DIFFICULT FOR AI TO CONVERT TO NON-RELIGIOUS FAMILY RELIGION / Pagan - CALRADIAN KINGS
-	if = {
-		limit = {
-			scope:new_faith = {
-				religion = { 
-					NOR = { 
-						is_in_family = rf_eastern 
-						is_in_family = rf_pagan
-					}
-				}
-			}
-			scope:character = {
-				is_ai = yes
-				faith = {
-					religion = { is_in_family = rf_pagan }
-				}
-			}
-		}
-		multiply = {
-			value = 1
-			add = {
-				desc = faith_conversion_cost_other_religion_family
-				format = "BREAKDOWN_FORMAT_PIETY_PERCENTAGE_POSITIVE_IS_BAD"
-				value = 17
-			}
-		}
-	}
-	### MUCH MORE DIFFICULT FOR AI TO CONVERT TO NON-RELIGIOUS FAMILY RELIGION / Eastern - CALRADIAN KINGS
-	if = {
-		limit = {
-			scope:new_faith = {
-				religion = { 
-					NOR = { 
-						is_in_family = rf_eastern 
-						is_in_family = rf_pagan
-					}
-				}
-			}
-			scope:character = {
-				is_ai = yes
-				faith = {
-					religion = { is_in_family = rf_eastern }
-				}
-			}
-		}
-		multiply = {
-			value = 1
-			add = {
-				desc = faith_conversion_cost_other_religion_family
-				format = "BREAKDOWN_FORMAT_PIETY_PERCENTAGE_POSITIVE_IS_BAD"
-				value = 17
-			}
-		}
-	}
 	
 	# Unreformed Faiths have an easier way converting to Organized faiths
 	if = {
@@ -2638,9 +2592,77 @@ faith_conversion_cost_mult = {
 		multiply = {
 			value = 1
 			subtract = {
-				desc = faith_conversion_cost_witch_event
+				desc = faith_conversion_cost_event
 				format = "BREAKDOWN_FORMAT_PIETY_PERCENTAGE_POSITIVE_IS_BAD"
 				value = 0.5
+			}
+		}
+	}
+	if = {
+		limit = {
+			scope:character = {
+				has_character_modifier = mpo_islam_conversion_modifier
+			}
+			scope:new_faith = { religion = religion:aserai_religion }
+		}
+		multiply = {
+			value = 1
+			subtract = {
+				desc = faith_conversion_cost_mpo_islam_event
+				format = "BREAKDOWN_FORMAT_PIETY_PERCENTAGE_POSITIVE_IS_BAD"
+				value = 0.25
+			}
+		}
+	}
+	### MUCH MORE DIFFICULT FOR AI TO CONVERT TO NON-RELIGIOUS FAMILY RELIGION / Pagan - CALRADIAN KINGS
+	if = {
+		limit = {
+			scope:new_faith = {
+				religion = { 
+					NOT = { 
+						is_in_family = rf_pagan
+					}
+				}
+			}
+			scope:character = {
+				is_ai = yes
+				faith = {
+					religion = { is_in_family = rf_pagan }
+				}
+			}
+		}
+		multiply = {
+			value = 1
+			add = {
+				desc = faith_conversion_cost_other_religion_family_ck
+				format = "BREAKDOWN_FORMAT_PIETY_PERCENTAGE_POSITIVE_IS_BAD"
+				value = 60
+			}
+		}
+	}
+	### MUCH MORE DIFFICULT FOR AI TO CONVERT TO NON-RELIGIOUS FAMILY RELIGION / Eastern - CALRADIAN KINGS
+	if = {
+		limit = {
+			scope:new_faith = {
+				religion = { 
+					NOT = { 
+						is_in_family = rf_eastern 
+					}
+				}
+			}
+			scope:character = {
+				is_ai = yes
+				faith = {
+					religion = { is_in_family = rf_eastern }
+				}
+			}
+		}
+		multiply = {
+			value = 1
+			add = {
+				desc = faith_conversion_cost_other_religion_family
+				format = "BREAKDOWN_FORMAT_PIETY_PERCENTAGE_POSITIVE_IS_BAD"
+				value = 60
 			}
 		}
 	}
@@ -2742,9 +2764,10 @@ great_holy_war_target_kingdom_weight_simplified = {
 					# Orthodox sphere.
 					scope:the_faith = { not_non_orthodox_standard_christian_faith_trigger = yes }
 					title_capital_county.title_province = {
-						# OR = {
+						OR = {
 							geographical_region = region_imperial_calradia
-						# }
+							geographical_region = region_perassic_isles
+						}
 					}
 				}
 				AND = {
@@ -2952,5 +2975,30 @@ great_holy_war_target_kingdom_weight_simplified = {
 			}
 		}
 		multiply = ghw_target_religious_vengeance
+	}
+}
+
+holy_site_reform_tracker_value = {
+	value = 0
+	faith = {
+		every_holy_site = {
+			limit = {
+				county = {
+					save_temporary_scope_as = current_holy_site
+					OR = {
+						is_holy_site_controlled_by = root
+						root.confederation ?= {
+							any_confederation_member = {
+								scope:current_holy_site = {
+									is_holy_site_controlled_by = prev
+								}
+							}
+						}
+					}
+					holder.faith = root.faith
+				}
+			}
+			add = 1
+		}
 	}
 }

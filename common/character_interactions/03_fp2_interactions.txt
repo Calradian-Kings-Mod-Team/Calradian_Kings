@@ -1025,7 +1025,7 @@ challenge_to_2p_chess_interaction = {
 	icon = icon_gaming
 	category = interaction_category_friendly
 	desc = challenge_to_2p_chess_interaction_desc
-	common_interaction = yes
+	common_interaction = no
 
 	greeting = positive
 	notification_text = CHALLENGE_TO_2P_CHESS_INTERACTION_NOTIFICATION
@@ -1878,7 +1878,10 @@ challenge_to_2p_chess_interaction = {
 		is_imprisoned = no
 	}
 	ai_target_quick_trigger = { adult = yes } # AI will only challenge adults
-	ai_targets = { ai_recipients = scripted_relations }
+	ai_targets = {
+		ai_recipients = scripted_relations
+		max = 5
+	}
 	ai_targets = {
 		ai_recipients = family
 		max = 10
@@ -1886,9 +1889,10 @@ challenge_to_2p_chess_interaction = {
 	ai_targets = {
 		ai_recipients = neighboring_rulers
 		ai_recipients = peer_vassals
+		max = 10
 	}
 	## Frequency
-	ai_frequency = 84
+	ai_frequency = 100
 	ai_will_do = {
 		base = -50
 
@@ -1993,10 +1997,18 @@ purchase_truce_interaction = {
 
 	is_shown = {
 		NOT = { scope:actor = scope:recipient }
-		# Scope:actor needs to either be involved in certain struggle types or else have a specific perk.
 		scope:actor = {
 			is_landless_adventurer = no
-			has_perk = defensive_measures_perk
+
+			# If scope:recipient is a nomad and the actor is not, this is always available; otherwise,
+			# scope:actor needs to either be involved in certain struggle types or else have a specific perk.
+			OR = {	
+				AND = {
+					scope:recipient = { government_has_flag = government_is_nomadic }
+					NOT = { government_has_flag = government_is_nomadic }
+				}
+				fp2_purchase_truce_interaction_soft_requirements_trigger = yes
+			}
 
 			# if you are not independent you should not be able to purchase truce with other fellow vassals only
 			trigger_if = {
@@ -2016,7 +2028,10 @@ purchase_truce_interaction = {
 
 	is_valid_showing_failures_only = {
 		# Scope:actor must be an available (adult or child).
-		scope:actor = { is_available = yes }
+		scope:actor = {
+			gold >= pt_sum_small_value
+			is_available = yes
+		}
 		# Scope:recipient must be at least available.
 		scope:recipient = { is_available = yes }
 		# Make sure that scope:actor is going into this with a clean, no-recent/active/forbidden hostilities mindset.
@@ -2058,7 +2073,7 @@ purchase_truce_interaction = {
 			}
 			show_as_tooltip = { purchase_truce_interaction_work_out_purchase_cost_effect = yes }
 			# Outside of the notification, since we'll send a separate one anyway, we want to point out the catalyst activation (if relevant).
-			show_as_tooltip = { purchase_truce_interaction_activate_catalyst_effect = yes }
+			# show_as_tooltip = { purchase_truce_interaction_activate_catalyst_effect = yes }
 		}
 		scope:recipient = {
 			send_interface_toast = {
@@ -2074,7 +2089,7 @@ purchase_truce_interaction = {
 		hidden_effect = {
 			scope:actor = {
 				purchase_truce_interaction_work_out_truce_days_effect = { TARGET = scope:recipient }
-				purchase_truce_interaction_activate_catalyst_effect = yes
+				# purchase_truce_interaction_activate_catalyst_effect = yes
 				# Variable used for checking if we should apply the "Recently Waged War" ai behavior in ai_acceptance modifiers, specifically in the Offer Vassalization interaction
 				if = {
 					limit = { always = scope:pt_sum_small }
@@ -2665,14 +2680,44 @@ incite_revolts_interaction = {
 
 	is_shown = {
 		NOT = { scope:recipient = scope:actor }
-		scope:actor = {
-			is_landless_adventurer = yes
-			OR = {
-				any_claim = {
-					holder = scope:recipient
-				}
-				has_relation_rival = scope:recipient
-			}					
+		OR = {
+			scope:actor = {
+				is_landless_adventurer = yes
+				OR = {
+					any_claim = {
+						holder = scope:recipient
+					}
+					has_relation_rival = scope:recipient
+				}					
+			}
+			# AND = {
+			# 	has_dlc_feature = the_fate_of_iberia
+			# 	# Only available during Opportunity, Hostility and Tension phases
+			# 	scope:actor = {
+			# 		any_character_struggle = {
+			# 			involvement = involved
+			# 			has_struggle_phase_parameter = unlocks_incite_revolts_interaction
+			# 			# Can only target involved
+			# 			is_secondary_character_involvement_involved_trigger = { CHAR = scope:recipient }
+			# 		}
+			# 	}
+			# }
+			# AND = {
+			# 	has_fp3_dlc_trigger = yes
+			# 	scope:actor = {
+			# 		has_trait = fp3_struggle_detractor
+			# 		any_character_struggle = {
+			# 			involvement = involved
+			# 			is_struggle_type = persian_struggle
+			# 		}
+			# 	}
+			# 	scope:recipient = {
+			# 		any_character_struggle = {
+			# 			is_struggle_type = persian_struggle
+			# 			involvement = involved
+			# 		}
+			# 	}
+			# }
 		}
 	}
 
@@ -3120,7 +3165,15 @@ incite_revolts_interaction = {
 # 	is_shown = {
 # 		# Actor is Involved in Struggle
 # 		scope:actor = {
-# 			is_landless_adventurer = yes
+# 			NOT = { government_has_flag = government_is_herder }
+# 			OR = {
+# 				any_character_struggle = {
+# 					involvement = involved
+# 					has_struggle_phase_parameter = unlocks_contract_assistance_interaction
+# 				}
+# 				culture = { has_cultural_parameter = unlocks_contract_assistance }
+# 				is_landless_adventurer = yes
+# 			}
 # 		}
 # 		# Recipient is Involved in Struggle, at war, and not at war with Actor
 # 		scope:recipient = {
@@ -3146,13 +3199,13 @@ incite_revolts_interaction = {
 # 		}
 # 	}
 
-# # 	has_valid_target = {
-# # 		exists = scope:target
-# # 	}
+# 	has_valid_target = {
+# 		exists = scope:target
+# 	}
 
-# # 	has_valid_target_showing_failures_only = {
-# # 		scope:target = { is_war_leader = scope:recipient }
-# # 	}
+# 	has_valid_target_showing_failures_only = {
+# 		scope:target = { is_war_leader = scope:recipient }
+# 	}
 
 # 	is_valid_showing_failures_only = {
 # 		scope:recipient = {
@@ -3175,17 +3228,17 @@ incite_revolts_interaction = {
 # 			}
 # 		}
 
-# # 		# Recipient is not in (any) war against your liege(s)
-# # 		trigger_if = {
-# # 			limit = { exists = scope:actor.liege }
-# # 			custom_description = {
-# # 				text = join_war_interaction_recipient_warring_with_my_liege
-# # 				subject = scope:recipient
-# # 				scope:actor = {
-# # 					NOT = { any_liege_or_above = { is_at_war_with = scope:recipient } }
-# # 				}
-# # 			}
-# # 		}
+# 		# Recipient is not in (any) war against your liege(s)
+# 		trigger_if = {
+# 			limit = { exists = scope:actor.liege }
+# 			custom_description = {
+# 				text = join_war_interaction_recipient_warring_with_my_liege
+# 				subject = scope:recipient
+# 				scope:actor = {
+# 					NOT = { any_liege_or_above = { is_at_war_with = scope:recipient } }
+# 				}
+# 			}
+# 		}
 
 # 		# Cannot join wars with raised armies
 # 		scope:actor = {
@@ -3218,38 +3271,53 @@ incite_revolts_interaction = {
 # 				}
 # 			}
 # 		}
+
+# 		# Sensible restrictions to keep CulTrads from making this OP.
+# 		scope:recipient = {
+# 			custom_tooltip = {
+# 				text = contract_assistance_tier_too_high_tt
+# 				OR = {
+# 					highest_held_title_tier = tier_county
+# 					highest_held_title_tier >= scope:actor.highest_held_title_tier
+# 					sub_realm_size >= scope:actor.sub_realm_size
+# 				}
+# 			}
+# 		}
+# 		scope:actor = {
+# 			NOT = { highest_held_title_tier >= tier_empire }
+# 		}
 # 	}
 	
-# # 	can_be_picked = {
-# # 		# Recipient is war leader in chosen war
-# # 		scope:target = {
-# # 			is_war_leader = scope:recipient
-# # 			# Cannot contract against allies
-# # 			trigger_if = {
-# # 				limit = {
-# # 					any_war_attacker = { this = scope:recipient }
-# # 				}
-# # 				NOT = {
-# # 					any_war_defender = { is_allied_to = scope:actor }
-# # 				}
-# # 			}
-# # 			trigger_else = {
-# # 				NOT = {
-# # 					any_war_attacker = { is_allied_to = scope:actor }
-# # 				}
-# # 			}
-# # 			# not already in target war
-# # 			custom_description = {
-# # 				text = join_war_interaction_already_in_target_war
-# # 				NOR = {
-# # 					any_war_attacker = { this = scope:actor }
-# # 					any_war_defender = { this = scope:actor }
-# # 				}
-# # 			}
-# # 		}
-# # 		# Liege checks
-# # 		can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:recipient JOINER = scope:actor }
-# # 	}
+# 	can_be_picked = {
+# 		# Recipient is war leader in chosen war
+# 		scope:target = {
+# 			is_war_leader = scope:recipient
+# 			# Cannot contract against allies
+# 			trigger_if = {
+# 				limit = {
+# 					any_war_attacker = { this = scope:recipient }
+# 				}
+# 				NOT = {
+# 					any_war_defender = { is_allied_to = scope:actor }
+# 				}
+# 			}
+# 			trigger_else = {
+# 				NOT = {
+# 					any_war_attacker = { is_allied_to = scope:actor }
+# 				}
+# 			}
+# 			# not already in target war
+# 			custom_description = {
+# 				text = join_war_interaction_already_in_target_war
+# 				NOR = {
+# 					any_war_attacker = { this = scope:actor }
+# 					any_war_defender = { this = scope:actor }
+# 				}
+# 			}
+# 		}
+# 		# Liege checks
+# 		can_join_war_liege_vassal_check_trigger = { WARRIOR = scope:recipient JOINER = scope:actor }
+# 	}
 
 # 	is_highlighted = {
 # 		scope:actor = {
@@ -3287,31 +3355,31 @@ incite_revolts_interaction = {
 # 			}
 
 # 			# Struggle Catalyst
-# 			# if = {
-# 			# 	limit = {
-# 			# 		# Verify if vassal used to be independent
-# 			# 		any_character_struggle = {
-# 			# 			involvement = involved
-# 			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
-# 			# 				CATALYST = catalyst_join_war_as_assisant
-# 			# 				CHAR = scope:recipient
-# 			# 			}
-# 			# 		}
-# 			# 	}
-# 			# 	every_character_struggle = {
-# 			# 		involvement = involved
-# 			# 		limit = {
-# 			# 			activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
-# 			# 				CATALYST = catalyst_join_war_as_assisant
-# 			# 				CHAR = scope:recipient
-# 			# 			}
-# 			# 		}
-# 			# 		activate_struggle_catalyst = {
-# 			# 			catalyst = catalyst_join_war_as_assisant
-# 			# 			character = scope:actor
-# 			# 		}
-# 			# 	}
-# 			# }
+# 			if = {
+# 				limit = {
+# 					# Verify if vassal used to be independent
+# 					any_character_struggle = {
+# 						involvement = involved
+# 						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+# 							CATALYST = catalyst_join_war_as_assisant
+# 							CHAR = scope:recipient
+# 						}
+# 					}
+# 				}
+# 				every_character_struggle = {
+# 					involvement = involved
+# 					limit = {
+# 						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+# 							CATALYST = catalyst_join_war_as_assisant
+# 							CHAR = scope:recipient
+# 						}
+# 					}
+# 					activate_struggle_catalyst = {
+# 						catalyst = catalyst_join_war_as_assisant
+# 						character = scope:actor
+# 					}
+# 				}
+# 			}
 # 		}
 # 		# Recipient effects
 # 		scope:recipient = {
@@ -3515,7 +3583,10 @@ incite_revolts_interaction = {
 # 			add = -300
 # 			exists = scope:target
 # 			scope:target = {
-# 				using_cb = peasant_war
+# 				OR = {
+# 					using_cb = peasant_war
+# 					using_cb = fp2_border_raid
+# 				}
 # 			}
 # 			desc = OA_AI_UNINTERESTED_WAR_REASON
 # 		}
@@ -3558,24 +3629,25 @@ incite_revolts_interaction = {
 # 			desc = AI_VALUE_MODIFIER_BOLDNESS
 # 		}
 
-	# 	modifier = {
-	# 		add = 50
-	# 		desc = camp_purpose_mercenaries_reason
-  	# 		scope:actor = {
-  	# 			has_realm_law = camp_purpose_mercenaries
-   	# 		}
-	# 	}
-	# 	# Allegiances
-	# 	# fp2_contracting_ally_modifier = {
-	# 	# 	WARMONGER = scope:recipient
-	# 	# 	WARJOINER = scope:actor
-	# 	# }
-	# }
+# 		modifier = {
+# 			add = 50
+# 			desc = camp_purpose_mercenaries_reason
+#   			scope:actor = {
+#   				has_realm_law = camp_purpose_mercenaries
+#    			}
+# 		}
+# 		# Allegiances
+# 		# fp2_contracting_ally_modifier = {
+# 		# 	WARMONGER = scope:recipient
+# 		# 	WARJOINER = scope:actor
+# 		# }
+# 	}
 
 # 	ai_potential = {
 # 		is_imprisoned = no
 # 		is_at_war = no
 # 		ai_boldness >= -25
+# 		current_military_strength >= 500
 # 	}
 # 	ai_target_quick_trigger = { adult = yes }
 # 	ai_targets = {
@@ -4295,7 +4367,7 @@ incite_revolts_interaction = {
 # 			}
 # 			trigger_else = {
 # 				scope:recipient = {
-# 					capital_county.title_province = { geographical_region = region_rhodokia }
+# 					capital_county.title_province = { geographical_region = region_perassic_isles }
 # 				}
 # 			}
 

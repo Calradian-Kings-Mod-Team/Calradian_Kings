@@ -221,7 +221,10 @@
 # 						}
 # 					}
 # 					every_player = {
-# 						trigger_event = mongol_invasion.1001
+# 						trigger_event = {
+# 							id = mongol_invasion.1001
+# 							days = 1
+# 						}
 # 					}
 # 				}
 # 				else_if = {
@@ -249,7 +252,10 @@
 # 						}
 # 					}
 # 					every_player = {
-# 						trigger_event = mongol_invasion.1001
+# 						trigger_event = {
+# 							id = mongol_invasion.1001
+# 							days = 1
+# 						}
 # 					}
 # 				}
 # 				else_if = { # If the empire passes out of the original dynasty, the story will automatically end
@@ -266,7 +272,10 @@
 # 						save_scope_as = new_khan
 # 					}
 # 					every_player = {
-# 						trigger_event = mongol_invasion.1001
+# 						trigger_event = {
+# 							id = mongol_invasion.1001
+# 							days = 1
+# 						}
 # 					}
 # 				}
 # 			}
@@ -328,25 +337,35 @@
 # 			}
 # 		}
 
-# 		triggered_effect = {
-# 			trigger = {
-# 				story_owner = {
-# 					is_ai = yes
-# 				}
-# 			}
-# 			effect = {
-# 				story_owner = {
-# 					mongol_war_target_evaluation_and_declaration_effect = yes
-# 				}
-# 				debug_log = "The story started a new war for the Mongols"
-# 				debug_log_date = yes
-# 				story_owner = {
-# 					save_scope_as = owner
-# 				}
-# 				debug_log_scopes = yes
-# 			}
-# 		}
-# 	}
+	# 	triggered_effect = {
+	# 		trigger = {
+	# 			story_owner = {
+	# 				is_ai = yes
+	# 			}
+	# 		}
+	# 		effect = {
+	# 			if = {
+	# 				limit = {
+	# 					has_mpo_dlc_trigger = yes
+	# 				}
+	# 				story_owner = {
+	# 					gok_war_target_evaluation_and_declaration_effect = yes
+	# 				}
+	# 			}
+	# 			else = {
+	# 				story_owner = {
+	# 					mongol_war_target_evaluation_and_declaration_effect = yes
+	# 				}
+	# 			}
+	# 			debug_log = "The story started a new war for the Mongols"
+	# 			debug_log_date = yes
+	# 			story_owner = {
+	# 				save_scope_as = owner
+	# 			}
+	# 			debug_log_scopes = yes
+	# 		}
+	# 	}
+	# }
 
 # 	# Story handling in case of succession weirdness
 # 	effect_group = {
@@ -393,7 +412,24 @@
 
 # 		trigger = {
 # 			NOT = { exists = var:has_updated_mongolia_de_jure }
-# 			title:e_mongolia = {
+# 			trigger_if = {
+# 				limit = {
+# 					title:e_mongolia = {
+# 						any_de_jure_county = {
+# 							count >= 3
+# 						}
+# 					}
+# 				}
+# 				title:e_mongolia = {
+# 					any_in_de_jure_hierarchy = {
+# 						continue = { tier > tier_county }
+# 						tier = tier_county
+# 						holder.top_liege = scope:story.story_owner
+# 						count > 3
+# 					}
+# 				}
+# 			}	
+# 			story_owner.capital_county.empire = {
 # 				any_in_de_jure_hierarchy = {
 # 					continue = { tier > tier_county }
 # 					tier = tier_county
@@ -403,10 +439,10 @@
 # 			}
 # 		}
 
-# 		triggered_effect = {
-# 			trigger = {
-# 				always = yes
-# 			}
+# # 		triggered_effect = {
+# # 			trigger = {
+# # 				always = yes
+# # 			}
 
 # 			effect = {
 # 				title:e_mongolia = {
@@ -425,12 +461,32 @@
 # 						destroy_title = title:e_mongolia
 # 					}
 # 				}
-
-# 				set_variable = {
-# 					name = has_updated_mongolia_de_jure
-# 					value = yes
+# 				if = {
+# 					limit = {
+# 						story_owner.capital_county.empire = {
+# 							NOT = {
+# 								this = title:e_mongol_empire
+# 							}
+# 						}
+# 					}
+# 					story_owner.capital_county.empire = {
+# 						save_scope_as = new_de_jure
+# 					}
+# 					scope:new_de_jure = {
+# 						every_in_de_jure_hierarchy = {
+# 							limit = {
+# 								tier = tier_kingdom
+# 							}
+# 							set_de_jure_liege_title = title:e_mongol_empire
+# 						}
+# 					}
 # 				}
-# 			}
-# 		}
-# 	}
-# }
+
+# # 				set_variable = {
+# # 					name = has_updated_mongolia_de_jure
+# # 					value = yes
+# # 				}
+# # 			}
+# # 		}
+# # 	}
+# # }

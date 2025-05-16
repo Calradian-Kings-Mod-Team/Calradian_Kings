@@ -357,7 +357,10 @@ stewardship_wealth.1011 = {
 	trigger = {
 		is_independent_ruler = yes
 		is_landed = yes
-		NOT = { has_character_flag = had_event_stewardship_wealth_1011 }	
+		NOR = {
+			has_character_flag = had_event_stewardship_wealth_1011
+			government_has_flag = government_is_nomadic
+		}	
 	}
 
 	weight_multiplier = {
@@ -505,7 +508,17 @@ stewardship_wealth.1021 = {
 	desc = stewardship_wealth.1021.desc
 	left_portrait = {
 		character = root
-		animation = idle
+		animation = worry
+	}
+	right_portrait = {
+		trigger = {
+			exists = root.cp:councillor_steward
+			root.cp:councillor_steward = {
+				is_available_healthy_ai_adult = yes
+			}
+		}
+		character = cp:councillor_steward
+		animation = writing
 	}
 	theme = stewardship_wealth_focus
 	
@@ -516,6 +529,11 @@ stewardship_wealth.1021 = {
 		is_landed = yes
 		monthly_character_income < monthly_character_expenses
 		NOT = { has_character_flag = had_event_stewardship_wealth_1021 }
+		OR = {
+			government_has_flag = government_is_clan
+			government_has_flag = government_is_feudal
+			government_has_flag = government_is_administrative
+		}
 	}
 
 	weight_multiplier = {
@@ -548,6 +566,9 @@ stewardship_wealth.1021 = {
 		}
 		random_primary_war_enemy = {
 			save_scope_as = war_enemy_for_faith_check
+		}
+		random_character_war = {
+			save_scope_as = current_war
 		}
 	}
 
@@ -1338,8 +1359,9 @@ stewardship_wealth.5001 = {
 	theme = stewardship_wealth_focus
 	left_portrait = {
 		character = root
-		animation = idle
+		animation = shepherd_with_sheep
 	}
+	override_background = { reference = market }
 	
 	trigger = {
 		NOT = { has_character_flag = had_purchase_livestock_event }
@@ -1944,6 +1966,11 @@ stewardship_wealth.6001 = {
 		}
 		any_held_county = {
 			holder = root
+			NOT = {
+				title_province = {
+					has_holding_type = nomad_holding
+				}
+			}
 		}
 	}
 

@@ -1845,7 +1845,7 @@ foreign_county_expansion_cb = {
 	
 	ai_score_mult = {
 		value = 1
-		if = { ### So Calradians won't swallow Geroia immediately - we'll add geroian coalition later
+		if = { ### So Calradians won't swallow Geroia immediately
 			limit = {
 				current_date <= 1100.1.1
 				scope:attacker = {
@@ -1864,6 +1864,23 @@ foreign_county_expansion_cb = {
 				}
 			}
 			multiply = 0
+		}
+		if = { ### So Calradians take into account coalition possibility
+			limit = {
+				scope:attacker = {
+					has_game_rule = ck_geroian_coalition_enabled
+					is_independent_ruler = no
+					NOT = {
+						capital_province = {
+							geographical_region = region_geroia
+						}
+					}
+				}
+				scope:defender = {
+					culture = { has_cultural_pillar = heritage_geroian }
+				}
+			}
+			multiply = 0.3
 		}
 	}
 
@@ -3450,7 +3467,7 @@ geroian_consolidation_cb = {
 	max_attacker_score_from_occupation = 150
 }
 #####
-# FUCKING RHODOK CB
+# RHODOK CB
 #####
 rhodok_war = {
 	icon = independence_faction_war
@@ -3490,6 +3507,12 @@ rhodok_war = {
 		on_declared_war = yes
 		scope:attacker = {
 			add_character_flag = rhodok_leader
+			every_held_title = {
+				limit = {
+					tier >= tier_county
+				}
+				set_variable = untouchable_title_var
+			}
 		}
 	}	
 
@@ -3513,6 +3536,13 @@ rhodok_war = {
 
 		#EP2 accolade glory gain for winning against higher ranked enemy
 		scope:attacker = { accolade_attacker_war_end_glory_gain_high_effect = yes }
+
+		scope:attacker = {
+			trigger_event = {
+				id = ck_global_culture.3000
+				days = 1
+			}
+		}
 
 		create_title_and_vassal_change = {
 			type = conquest

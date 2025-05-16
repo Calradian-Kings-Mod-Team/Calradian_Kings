@@ -138,7 +138,7 @@ bp1_yearly.2000 = {
 		}
 	}
 	immediate = {
-		play_music_cue = "mx_cue_low_key_positive"
+		#play_music_cue = "mx_cue_low_key_positive"
 		#Set up the cooldown
 		add_character_flag = {
 			flag = had_event_bp1_yearly_2000
@@ -714,7 +714,7 @@ bp1_yearly.2001 = {
 		animation = personality_content
 	}
 	immediate = {
-		play_music_cue = "mx_cue_seduction"
+		#play_music_cue = "mx_cue_seduction"
 		#If we have more than one partner, randomize which one gets picked first
 		random_list = {
 			50 = {
@@ -1094,15 +1094,6 @@ bp1_yearly.2010 = {
 			}
 			animation = ecstasy
 		}
-		triggered_outfit = {
-			trigger = {
-				OR = {
-					has_trait = lustful
-					has_trait = rakish
-				}
-			}
-			outfit_tags = { no_clothes }
-		}
 		animation = love
 	}
 	right_portrait = {
@@ -1116,17 +1107,9 @@ bp1_yearly.2010 = {
 			}
 			animation = happiness
 		}
-		triggered_outfit = {
-			trigger = {
-				OR = {
-					has_trait = lustful
-					has_trait = rakish
-				}
-			}
-			outfit_tags = { no_clothes }
-		}
 		animation = ecstasy
 	}
+
 	trigger = {
 		#DLC check
 		has_bp1_dlc_trigger = yes
@@ -1150,7 +1133,7 @@ bp1_yearly.2010 = {
 		}
 	}
 	immediate = {
-		play_music_cue = "mx_cue_secret"
+		#play_music_cue = "mx_cue_secret"
 		add_character_flag = {
 			flag = had_event_bp1_yearly_2010
 			years = 5
@@ -1307,6 +1290,32 @@ bp1_yearly.2010 = {
 			}
 			add_character_flag = bp1_yearly_2010_correct_circumstances
 		}
+		if = {
+			limit = {
+				scope:bp1_yearly_2010_first_partner = {
+					OR = {
+						has_trait = lustful
+						has_trait = rakish
+					}
+				}
+			}
+			scope:bp1_yearly_2010_first_partner = {
+				add_character_flag = is_naked
+			}
+		}
+		if = {
+			limit = {
+				scope:bp1_yearly_2010_second_partner = {
+					OR = {
+						has_trait = lustful
+						has_trait = rakish
+					}
+				}
+			}
+			scope:bp1_yearly_2010_second_partner = {
+				add_character_flag = is_naked
+			}
+		}
 	}
 	#Do nothing, get their secret
 	option = {
@@ -1433,6 +1442,26 @@ bp1_yearly.2010 = {
 	}
 	after = {
 		remove_character_flag = bp1_yearly_2010_correct_circumstances
+		if = {
+			limit = {
+				scope:bp1_yearly_2010_first_partner = {
+					has_character_flag = is_naked
+				}
+			}
+			scope:bp1_yearly_2010_first_partner = {
+				remove_character_flag = is_naked
+			}
+		}
+		if = {
+			limit = {
+				scope:bp1_yearly_2010_second_partner = {
+					has_character_flag = is_naked
+				}
+			}
+			scope:bp1_yearly_2010_second_partner = {
+				remove_character_flag = is_naked
+			}
+		}
 	}
 }
 
@@ -2581,19 +2610,19 @@ bp1_yearly.5601 = {
 		}
 		reference = drylands
 	}
-	# override_background = {
-	# 	trigger = {
-	# 		root.capital_county = {
-	# 			title_province = {
-	# 				OR = {
-	# 					geographical_region = world_tibet
-	# 					geographical_region = world_burma
-	# 				}
-	# 			}
-	# 		}
-	# 	}
-	# 	reference = market_east
-	# }
+	override_background = {
+		trigger = {
+			root.capital_county = {
+				title_province = {
+					OR = {
+						geographical_region = world_tibet
+						geographical_region = world_burma
+					}
+				}
+			}
+		}
+		reference = market_east
+	}
 	override_background = {
 		trigger = {
 			root.capital_county = {
@@ -2608,6 +2637,8 @@ bp1_yearly.5601 = {
 				title_province = {
 					NOT = {
 						geographical_region = world_nahasa
+						geographical_region = world_tibet
+						geographical_region = world_burma
 						geographical_region = world_india
 						geographical_region = region_darshi_west
 						geographical_region = world_calradia
@@ -2867,8 +2898,10 @@ bp1_yearly.5602 = {
 	option = {
 		name = bp1_yearly.5602.b
 
-		trigger = { #Available for All
-			always = yes
+		trigger = { #Unavailable for Aserai
+			NOT = {
+				root.religion = religion:aserai_religion
+			}
 		}
 
 		add_character_modifier = {
@@ -3482,14 +3515,6 @@ bp1_yearly.5707 = {
 	left_portrait = {
 		character = root
 		animation = laugh
-		triggered_outfit = {
-			trigger = {
-				root = { #I'm so proud of this pun below, you'd better appreciate it
-					has_character_flag = in_flagrante
-				}
-			}
-			outfit_tags = { no_clothes }
-		}
 	}
 	right_portrait = {
 		character = scope:rival_parent
@@ -3531,6 +3556,7 @@ bp1_yearly.5707 = {
 			flag = in_flagrante
 			days = 1
 		}
+		add_character_flag = is_naked
 
 		random_relation = {
 			type = rival
@@ -4037,6 +4063,7 @@ bp1_yearly.5707 = {
 
 	after = { #Just in case
 		remove_character_flag = in_flagrante
+		remove_character_flag = is_naked
 	}
 }
 
@@ -6164,11 +6191,11 @@ bp1_yearly.5720 = {
 	theme = rival_relation
 	left_portrait = {
 		character = root
-		animation = rage
+		animation = dismissal
 	}
 	right_portrait = {
 		character = scope:rival_challenger
-		animation = anger
+		animation = rage
 	}
 
 	override_background = { reference = feast }
@@ -6192,6 +6219,7 @@ bp1_yearly.5720 = {
 			drinks_alcohol_trigger = yes
 			is_available_ai_adult = yes
 			top_liege = root.top_liege
+			location ?= root.location
 		}
 	}
 
@@ -6202,6 +6230,7 @@ bp1_yearly.5720 = {
 				drinks_alcohol_trigger = yes
 				is_available_ai_adult = yes
 				top_liege = root.top_liege
+				location ?= root.location
 			}
 			save_scope_as = rival_challenger
 		}
@@ -13029,7 +13058,12 @@ bp1_yearly.8131 = {
 		custom_tooltip = bp1_yearly.8131.tt
 		scope:sycophant_scheme = {
 			expose_scheme = yes
-			hidden_effect = { add_scheme_progress = -10 }
+			hidden_effect = {
+				add_scheme_progress = {
+					value = scope:sycophant_scheme.scheme_phase_duration
+					multiply = -1
+				}
+			}
 			every_scheme_agent_character = { add_to_list = sycophant_scheme_agents }
 		}
 		scope:sycophant_scope = {
@@ -13220,7 +13254,7 @@ bp1_yearly.8132 = {
 		custom_tooltip = bp1_yearly.8130.progress
 		hidden_effect = {
 			scope:sycophant_scheme = {
-				add_scheme_progress = 10
+				add_scheme_progress = scope:sycophant_scheme.scheme_phase_duration
 				add_scheme_modifier = { type = sycophant_story_failed_scheme_detection_modifier }
 			}
 		}
@@ -13447,7 +13481,7 @@ bp1_yearly.8140 = {
 				disable_exposure_by = root
 			}
 		}
-		scope:sycophant_scheme = { add_scheme_progress = 10 }
+		scope:sycophant_scheme = { add_scheme_progress = scope:sycophant_scheme.scheme_phase_duration }
 		stress_impact = {
 			just = medium_stress_impact_gain
 			compassionate = medium_stress_impact_gain

@@ -249,17 +249,7 @@ proclaim_the_empire = {
 	}
 	decision_group_type = major
 	ai_check_interval = 18
-	desc = {
-		first_valid = {
-			triggered_desc = {
-				trigger = {
-					is_female = yes
-				}
-				desc = proclaim_the_empire_desc_woman
-			}
-			desc = proclaim_the_empire_desc
-		}
-	}
+	desc = proclaim_the_empire_desc
 	
 	is_shown = {
 		OR = { 
@@ -417,38 +407,39 @@ proclaim_the_empire = {
 					2 = { set_coa = imperial_coa_20 }
 				}
 			}
-			scope:new_title = { #Predefined empires
-				if = {
-					limit = {
-						scope:new_title.title_capital_county = {
-							title_province = {
-								geographical_region = region_empire_predefined_name_eastern
-							}
-						}
-						NOT = {
-							has_global_variable = eastern_empire_spawned
-						}
+			# Predefined Empires
+			if = { # Eastern Empire
+				limit = {
+					scope:empire_capital_county.title_province = {
+						geographical_region = region_empire_predefined_name_eastern
 					}
-					set_title_name = EASTERN_EMPIRE
-					set_global_variable = {
-						name = eastern_empire_spawned
-						value = yes
+					NOT = {
+						exists = global_var:eastern_empire_spawned
 					}
 				}
-				if = { #Easter egg
-					limit = {
-						scope:new_title.title_capital_county = {
-							kingdom = title:k_vlandia
-						}
-						NOT = {
-							has_global_variable = holy_calradian_empire_spawned
-						}
+				scope:new_title = {
+					set_title_name = EASTERN_EMPIRE
+				}
+				set_global_variable = {
+					name = eastern_empire_spawned
+					value = yes
+				}
+			}
+			if = { # HCE
+				limit = {
+					scope:empire_capital_county = {
+						kingdom = title:k_vlandia
 					}
+					NOT = {
+						exists = global_var:holy_calradian_empire_spawned
+					}
+				}
+				scope:new_title = {
 					set_title_name = HOLY_CALRADIAN_EMPIRE
-					set_global_variable = {
-						name = holy_calradian_empire_spawned
-						value = yes
-					}
+				}
+				set_global_variable = {
+					name = holy_calradian_empire_spawned
+					value = yes
 				}
 			}
 		}

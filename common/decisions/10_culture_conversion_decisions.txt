@@ -25,7 +25,19 @@
 			text = can_only_change_culture_once
 			NOT = { has_character_flag = converted_culture_this_lifetime }
 		}
+		custom_description = {
+			text = swadian_king_rhodok_land_tt
+			NAND = {
+				primary_title = {
+					this = title:k_vlandia
+				}
+				capital_province.culture = {
+					this = culture:rhodok
+				}
+			}
+		}
 	}
+	
 
 	cost = {
 		prestige = {
@@ -92,6 +104,15 @@
 				}
 				multiply = 0.25
 			}
+			else_if = {
+				limit = {
+					NOT = {
+						government_has_flag = government_is_nomadic
+					}
+					has_trait = nomadic_philosophy
+				}
+				multiply = 0.25
+			}
 			# Account for struggle phase.
 			# if = {
 			# 	limit = { is_struggle_parameter_active_cheaper_to_convert_to_struggle_culture_trigger = yes }
@@ -129,28 +150,46 @@
 			add_stress = major_stress_gain
 		}
 		# Struggle Catalysts
+		# if = {
+		# 	limit = {
+		# 		any_character_struggle = {
+		# 			involvement = involved
+		# 			phase_has_catalyst = catalyst_convert_local_culture_faith
+		# 			is_culture_involved_in_struggle = root.capital_province.culture
+		# 		}
+		# 	}
+		# 	every_character_struggle = {
+		# 		involvement = involved
+		# 		activate_struggle_catalyst = {
+		# 			catalyst = catalyst_convert_local_culture_faith
+		# 			character = root
+		# 		}
+		# 	}
+		# }
+		
 		if = {
 			limit = {
-				any_character_struggle = {
-					involvement = involved
-					phase_has_catalyst = catalyst_convert_local_culture_faith
-					is_culture_involved_in_struggle = root.capital_province.culture
+				has_game_rule = aserai_house_names_rule
+				culture = {
+					has_cultural_pillar = heritage_nahasi
+				}
+				primary_title = {
+					has_variable = aserai_named_title_var
 				}
 			}
-			every_character_struggle = {
-				involvement = involved
-				activate_struggle_catalyst = {
-					catalyst = catalyst_convert_local_culture_faith
-					character = root
-				}
+			primary_title = {
+				remove_variable = aserai_named_title_var
+				reset_title_name = yes
+				set_definitive_form = no
 			}
 		}
-
+		
 		convert_family_culture_and_notify_vassals_effect = {
 			CONVERTER = root
 			OLD_CULTURE = root.culture
 			NEW_CULTURE = capital_province.culture
 		}
+		
 	}
 	
 	ai_check_interval = 60
@@ -443,3 +482,4 @@ assimilate_local_traditions_decision = {
 		}
 	}
 }
+

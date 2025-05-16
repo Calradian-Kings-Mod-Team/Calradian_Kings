@@ -15,8 +15,8 @@ PixelShader
 
 		float GH_GetDefaultCameraPitchAlphaMultiplier()
 		{
-			static const float FULL_CAMERA_PITCH_COS = 0.7f;
-			static const float MAX_CAMERA_PITCH_COS  = 0.77f;
+			static const float FULL_CAMERA_PITCH_COS = 0.65f;
+			static const float MAX_CAMERA_PITCH_COS  = 0.75f;
 
 			return GH_GetCameraPitchAlphaMultiplier(FULL_CAMERA_PITCH_COS, MAX_CAMERA_PITCH_COS);
 		}

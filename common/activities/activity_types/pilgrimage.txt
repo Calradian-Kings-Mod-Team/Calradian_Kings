@@ -294,7 +294,7 @@
 							county = title:c_razih # Razih
 							county = title:c_sahel # Sahel
 							county = title:c_sanala # Sanala
-							#county = title:c_ashabi # Ashabi (Asera's Home)
+							county = title:c_sahel # Ashabi (Asera's Home)
 						}
 					}
 					#Battanian
@@ -574,54 +574,74 @@
 		}
 		# Plague
 		if = {
-			limit = {
-				any_realm_county = {
-					any_county_province = {
-						any_province_epidemic = {
-							count >= 1
-							outbreak_intensity < apocalyptic
-						}
-					}
-				}
-				would_follow_social_distancing_value >= -1
-			}
-			add = {
-				value = -40
-				desc = "Plague in Top Realm"
-			}
-		}
-		if = {
-			limit = {
-				any_sub_realm_county = {
-					any_county_province = {
-						any_province_epidemic = {
-							count >= 1
-						}
-					}
-				}
-				would_follow_social_distancing_value >= -1
-			}
-			add = {
-				value = -60
-				desc = "Plague in Realm"
-			}
-		}
-		if = {
-			limit = {
-				any_realm_county = {
-					any_county_province = {
-						any_province_epidemic = {
-							count >= 1
-							outbreak_intensity = apocalyptic
-						}
-					}
-				}
-			}
-			add = {
-				value = -200
-				desc = "Apocalyptic Plague"
-			}
-		}
+        	limit = {
+        	    any_held_title = {
+					tier = tier_county
+        	        any_county_province = {
+        	            any_province_epidemic = {
+        	                count >= 1
+        	                outbreak_intensity < apocalyptic
+        	            }
+        	        }
+        	    }
+        	    would_follow_social_distancing_value >= -1
+        	}
+        	add = {
+        	    value = -60
+        	    desc = "Plague in Domain"
+        	}
+    	}
+    	else_if = {
+    	    limit = {
+    	        any_realm_county = {
+    	            any_county_province = {
+    	                any_province_epidemic = {
+    	                    count >= 1
+    	                    outbreak_intensity < apocalyptic
+    	                }
+    	            }
+    	        }
+    	        would_follow_social_distancing_value >= -1
+    	    }
+    	    add = {
+    	        value = -20
+    	        desc = "Plague in Top Realm"
+    	    }
+    	}
+    	if = {
+    	    limit = {
+    	        any_held_title = {
+					tier = tier_county
+    	            any_county_province = {
+    	                any_province_epidemic = {
+    	                    count >= 1
+    	                    outbreak_intensity = apocalyptic
+    	                }
+    	            }
+    	        }
+    	    }
+    	    add = {
+    	        value = -200
+    	        desc = "Apocalyptic Plague in Domain"
+    	    }
+    	}
+    	else_if = {
+    	    limit = {
+    	        any_held_title = {
+					tier = tier_county
+    	            any_county_province = {
+    	                any_province_epidemic = {
+    	                    count >= 1
+    	                    outbreak_intensity = apocalyptic
+    	                }
+    	            }
+    	        }
+    	    }
+    	    add = {
+    	        value = -40
+    	        desc = "Apocalyptic Plague in Top Realm"
+    	    }
+    	}
 	}
 
 	ai_check_interval = 60
@@ -723,58 +743,15 @@
 			}
 		}
 		# Plague
-		if = {
-        	limit = {
-        	    any_province_epidemic = {
-        	   	    count >= 1
-        	   	    outbreak_intensity < apocalyptic
-        	   	}
-        	   	scope:host = {
-        	    	would_follow_social_distancing_value >= -1
-        	   	}
-        	}
-        	add = {
-        	    value = -60
-        	    desc = "Plague in Realm"
-        	}
-    	}
-    	else_if = {
-    	    limit = {
-    	        any_province_epidemic = {
-    	            count >= 1
-    	            outbreak_intensity < apocalyptic
-    	        }
-    	        scope:host = {
-    	        	would_follow_social_distancing_value >= -1
-    	        }
-    	    }
-    	    add = {
-    	        value = -40
-    	        desc = "Plague in Top Realm"
-    	    }
-    	}
     	if = {
 			limit = {
 				any_province_epidemic = {
     	            count >= 1
-    	            outbreak_intensity = apocalyptic
     	        }
     	    }
     	    add = {
     	        value = -200
-    	        desc = "Apocalyptic Plague in Realm"
-    	    }
-    	}
-    	else_if = {
-    	    limit = {
-    	       any_province_epidemic = {
-    	            count >= 1
-    	            outbreak_intensity = major
-    	        }
-    	    }
-    	    add = {
-    	        value = -100
-    	        desc = "Major Plague in Realm"
+    	        desc = "Plague in Destination"
     	    }
     	}
 	}
@@ -782,8 +759,6 @@
 	###################
 	# PARAMETERS
 	###################
-
-	is_grand_activity = no
 
 	is_single_location = yes
 
@@ -855,10 +830,13 @@
 						desc = court_event_discount_desc
 					}
 				}
-				#Adventurer
+				#Adventurer & Nomads
 				if = {
 					limit = {
-						is_landless_adventurer = yes
+						OR = {
+							is_landless_adventurer = yes
+							government_has_flag = government_is_nomadic
+						}
 						has_perk = clerical_justifications_perk
 					}
 					multiply = {
@@ -1060,7 +1038,9 @@
 				is_valid = {
 					# No hajjaj in Calradia
 					# Otherwise, you can always do this.
-					trigger_if = { always = yes }
+					#trigger_if = { 
+						always = yes 
+					#}
 				}
 				ai_will_do = {
 					value = 50
@@ -1091,7 +1071,9 @@
 			pilgrimage_type_worldly = {
 				is_valid = {
 					# Removed hajj
-					trigger_if = { always = yes }
+					#trigger_if = { 
+						always = yes 
+					#}
 				}
 				ai_will_do = {
 					value = 50
@@ -2364,6 +2346,20 @@
 	# 	ambience = "event:/DLC/EP3/SFX/Events/Event_Images/ep3_evn_eventimage_hagia_sophia"
 	# }
 	#Generic holy sites
+	background = {
+		trigger = {
+			scope:host = {
+				# OR = {
+					religion = religion:khuzait_religion
+					# religion = religion:magyar_religion
+					# religion = religion:siberian_religion
+				# }
+			}
+		}
+		texture = "gfx/interface/illustrations/event_scenes/mpo_temple_steppe.dds"
+		environment = "environment_mpo_temple_steppe" 
+		ambience = "event:/DLC/CE2/Events/Event_Images/mpo_temple_steppe"
+	}
 	background = {
 		trigger = { scope:host.religion = religion:darshi_religion }
 		texture = "gfx/interface/illustrations/event_scenes/fp3_temple.dds"

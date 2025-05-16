@@ -5,6 +5,13 @@
 	task_type = task_type_general
 	task_progress = task_progress_infinite
 
+	asset = {
+		icon = "gfx/interface/icons/council_task_types/task_religious_relations.dds"
+		background = "gfx/interface/buttons/button_round_bg.dds"
+		frame = "gfx/interface/buttons/button_round_frame.dds"
+		glow = "gfx/particles/halo.dds"
+	}
+
 	effect_desc = {
 		### Piety tooltip
 		desc = task_religious_relations_piety_effect_desc
@@ -196,6 +203,13 @@ task_conversion = {
 	task_progress = task_progress_percentage
 	highlight_own_realm = yes
 
+	asset = {
+		icon = "gfx/interface/icons/council_task_types/task_conversion.dds"
+		background = "gfx/interface/buttons/button_round_bg.dds"
+		frame = "gfx/interface/buttons/button_round_frame.dds"
+		glow = "gfx/particles/halo.dds"
+	}
+
 	effect_desc = {
 		desc = task_conversion_effect_desc
 		triggered_desc = {
@@ -316,6 +330,43 @@ task_conversion = {
 		### No FP3 Persian
 
 		## No FP3 struggle
+		
+		# Court events
+		if = {	#court.6010
+			limit = {
+				scope:councillor.liege = {
+					var:6010_harsh_conversion ?= scope:county.faith
+				}
+			}
+			multiply = {
+				value = 1.2
+				desc = court_6010_harsh_conversions
+			}
+		}
+		if = {	#court.6010
+			limit = {
+				scope:councillor.liege = {
+					var:6010_tolerant_conversion ?= scope:county.faith
+				}
+			}
+			multiply = {
+				value = 0.8
+				desc = court_6010_tolerant_conversions
+			}
+		}
+		# State Faith Boost
+		if = {
+			limit = {
+				scope:councillor.top_liege.primary_title.state_faith ?= {
+					NOT = { this = scope:county.faith }
+					this = scope:councillor.top_liege.faith
+				}
+			}
+			multiply = {
+				value = ep3_state_faith_conversion_mult_value
+				desc = ep3_convert_county_to_state_faith
+			}
+		}
 
 		
 		# Conversion speed game rules
@@ -569,7 +620,10 @@ task_conversion = {
 					scope:councillor_liege = {
 						is_ai = yes
 						faith = {
+							OR = {
 							has_doctrine = tenet_tax_nonbelievers
+							has_doctrine = special_doctrine_jizya
+							}
 						}
 					}
 					OR = {
@@ -745,6 +799,13 @@ task_fabricate_claim = {
 	ai_county_target = neighbor_land
 	task_progress = task_progress_percentage
 	restart_on_finish = yes
+
+	asset = {
+		icon = "gfx/interface/icons/council_task_types/task_fabricate_claim.dds"
+		background = "gfx/interface/buttons/button_round_bg.dds"
+		frame = "gfx/interface/buttons/button_round_frame.dds"
+		glow = "gfx/particles/halo.dds"
+	}
 
 	effect_desc = {
 		desc = task_fabricate_claim_effect_desc
@@ -955,6 +1016,18 @@ task_fabricate_claim = {
 		}
 		# Misc Bonus
 		## CK EDIT: Removed struggle reference
+		if = {
+			limit = {
+				scope:councillor_liege = {
+					has_title = title:c_lycaron
+					title:c_lycaron = { has_county_modifier = pandidakterion_university_modifier }
+				}
+			}
+			multiply = {
+				value = 1.3
+				desc = pandidakterion_university_modifier
+			}
+		}
 	}
 
 	potential_county = {
@@ -972,12 +1045,6 @@ task_fabricate_claim = {
 	}
 
 	on_start_task_county = {
-		# Message for vassals
-		scope:county = { save_scope_as = set_county }
-		trigger_event = {
-			id = court_chaplain_task.8000
-			days = 2 # To ensure it fires after the halted message
-		}
 		#spawn a task contract to counter the missionary, if a nearby adventurer has the same faith as the county
 		if = {
 			limit = {

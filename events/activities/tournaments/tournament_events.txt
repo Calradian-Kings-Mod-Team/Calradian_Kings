@@ -958,6 +958,36 @@ tournament_events.0150 = {
 			}
 			add_character_flag = tournament_won_legend
 		}
+		# We change your extra cool thing to be a Tournament Win
+		if = {
+			limit = {
+				has_legend_chapter_trigger = { CHAPTER = extra_deed }	
+				NOT = {
+					promoted_legend = { has_legend_chronicle = tournament_won }
+				}
+				NOT = {
+					promoted_legend ?= {
+						has_legend_chapter = {
+							name = extra_deed
+							localization_key = legend_chapter_extra_deed_recent_tournament
+						}
+					}
+				}
+			}
+			random = {
+				chance = 50
+				send_interface_toast = {
+					title = legend_chapter_change_toast
+					left_icon = root
+					promoted_legend = {
+						set_legend_chapter = {
+							name = extra_deed
+							localization_key = legend_chapter_extra_deed_recent_tournament
+						}
+					}
+				}
+			}
+		}
 		# LEGITIMACY GAIN FOR GRAND ACTIVITY PARTICIPATION - TOURNAMENT
 		grand_activity_participation_legitimacy_effect = yes
 	}
@@ -1960,6 +1990,7 @@ tournament_events.1000 = { # Select wager
 		name = tournament_events.1000.h
 		if = {
 			limit = {
+				religion = religion:surrani_religion
 				scope:activity = {
 					NOR = {
 						has_current_phase = tournament_phase_archery
@@ -2007,7 +2038,10 @@ tournament_events.1000 = { # Select wager
 
 scripted_trigger tournament_pas_darmes_era_trigger = {
 	scope:host = {
-		NOT = { government_has_flag = government_is_tribal }
+		NOR = {
+			government_has_flag = government_is_tribal
+			government_has_flag = government_is_nomadic
+		}
 	}
 	culture = { has_cultural_era_or_later = culture_era_early_medieval }
 }
@@ -2222,7 +2256,10 @@ tournament_events.1101 = { # Start - Exotic
 		
 		#Standard checks.
 		tournament_pas_darmes_era_trigger = yes
-		NOT = { government_has_flag = government_is_tribal }
+		NOR = {
+			government_has_flag = government_is_tribal
+			government_has_flag = government_is_nomadic
+		}
 		NOT = {
 			scope:activity = {
 				any_in_list = { variable = pas_darmes_instigators }
@@ -4493,11 +4530,6 @@ tournament_events.1230 = {
 	lower_right_portrait = { character = scope:old_holder }
 	cooldown = { years = 10 }
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
-
 	trigger = {
 		#DLC check.
 		#has_ep2_dlc_trigger = yes
@@ -4544,14 +4576,6 @@ tournament_events.1230 = {
 				type = champion_court_position
 				save_scope_as = old_holder
 			}
-		}
-	}
-
-	weight_multiplier = {
-		base = 1
-		modifier = {
-			factor = 2
-			has_activity_intent = recruit_knights_intent
 		}
 	}
 
@@ -5626,7 +5650,9 @@ tournament_events.1251 = {
 				hidden_effect = {
 					if = {
 						limit = { exists = scope:favor_scheme }
-						add_scheme_modifier = { type = tournament_favor_scheme_modifier }
+						scope:favor_scheme = {
+							add_scheme_modifier = { type = tournament_favor_scheme_modifier }
+						}
 					}
 				}
 			}
@@ -6964,7 +6990,10 @@ tournament_events.1280 = {
 			exists = dynasty.var:tournament_1280_cooldown
 			has_character_flag = tournament_host_disaster_cooldown
 		}
-		NOT = { government_has_flag = government_is_tribal }
+		NOR = {
+			government_has_flag = government_is_tribal
+			government_has_flag = government_is_nomadic
+		}
 		culture = { has_cultural_era_or_later = culture_era_high_medieval }
 	}
 
@@ -9657,6 +9686,7 @@ tournament_events.1332 = {
 	trigger = {
 		this = scope:host
 		any_powerful_vassal = {
+			is_ai = yes
 			involved_activity = scope:activity
 			activity_is_competing_trigger = yes
 		}
@@ -9665,6 +9695,7 @@ tournament_events.1332 = {
 	immediate = {
 		random_powerful_vassal = {
 			limit = {
+				is_ai = yes
 				involved_activity = scope:activity
 				activity_is_competing_trigger = yes
 			}
@@ -12733,10 +12764,6 @@ tournament_events.6000 = { # Setup for contest murder attempts
 	}
 	override_background = { reference = tavern } # TODO_CD_EP2: replace with proper art
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = {
 		#DLC check.
@@ -12943,10 +12970,7 @@ tournament_events.6001 = { # Sabotage Outcome
 		character = scope:murder_match
 	}
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
+
 
 	override_background = { reference = armory } # TODO_CD_EP2: replace with proper art
 
@@ -13020,10 +13044,7 @@ tournament_events.6010 = {
 		}
 	}
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
+
 
 	trigger = {
 		#DLC check.
@@ -13354,10 +13375,7 @@ tournament_events.6011 = { # Murderer event
 		}
 		reference = tavern
 	}
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
+
 
 	immediate = {
 		scope:murder_target = {
@@ -13737,10 +13755,7 @@ tournament_events.6013 = { # Second chance - Murderer event
 	}
 	override_background = { reference = alley_night }
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
+
 
 	immediate = {
 		scope:murder_target = {
@@ -14060,10 +14075,6 @@ tournament_events.6050 = { # Setup
 	lower_left_portrait = { character = scope:sabotage_target_3 }
 	cooldown = { years = 1 }
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = {
 		#DLC check.
@@ -14951,10 +14962,6 @@ tournament_events.6500 = {
 	}
 	cooldown = { years = 5 }
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = {
 		#DLC check.
@@ -15069,10 +15076,6 @@ tournament_events.6510 = {
 	}
 	cooldown = { years = 1 }
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = {
 		#DLC check.
@@ -15490,10 +15493,7 @@ tournament_events.6514 = {
 	}
 	theme = seduce_scheme
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
+
 
 	trigger = { exists = scope:woo_approach }
 
@@ -15543,10 +15543,6 @@ tournament_events.6900 = {
 	
 	override_background = { reference = army_camp } # TODO_CD_EP2: replace with proper art
 
-	widget = {
-		gui = "event_window_widget_activity_intent"
-		container = "custom_widgets_container"
-	}
 
 	trigger = {
 		#DLC check.
@@ -15593,6 +15589,11 @@ tournament_events.6900 = {
 				50 = {
 					scope:activity = {
 						random_attending_character = {
+							limit = {
+								culture = {
+									any_culture_county = { count >= 1 }
+								}
+							}
 							culture = { save_scope_as = attending_culture }
 						}
 					}
