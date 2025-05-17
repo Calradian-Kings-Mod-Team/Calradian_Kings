@@ -486,10 +486,19 @@ on_game_start = {
 					has_dlc_feature = khans_of_the_steppe
 				}
 			}
-			culture:khergit = { add_culture_tradition = tradition_horse_lords add_culture_tradition = tradition_steppe_tolerance }
-			culture:arkits = { add_culture_tradition = tradition_horse_lords }
-			culture:khuzait = { add_culture_tradition = tradition_horse_lords }
-			culture:nachagan = { add_culture_tradition = tradition_horse_lords }
+			culture:khergit = { 
+				add_culture_tradition = tradition_horse_lords 
+				add_culture_tradition = tradition_steppe_tolerance 
+			}
+			culture:arkits = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
+			culture:khuzait = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
+			culture:nachagan = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
 			#culture:turkish = { add_culture_tradition = tradition_horse_lords }
 		}
 
@@ -2564,6 +2573,14 @@ on_game_start_after_lobby = {
 				name = fully_landlocked_nomad_cultures
 				target = culture:nachagan
 			}
+			add_to_global_variable_list = {
+				name = fully_landlocked_nomad_cultures
+				target = culture:akbeqs
+			}
+			add_to_global_variable_list = {
+				name = fully_landlocked_nomad_cultures
+				target = culture:us_darshi
+			}
 		}
 
 		# Nomad setup
@@ -2886,6 +2903,88 @@ on_game_start_after_lobby = {
 		# 		}
 		# 		create_story = story_conqueror
 		# 	}
+		
+		every_player = {
+			limit = {
+				is_landed = yes
+			}
+			while = {
+				count = 7
+				limit = {
+					any_courtier = {
+						count < 7
+						is_adult = yes
+					}
+				}
+				save_scope_as = player_scope
+				random_list = {
+					1 = {
+						create_character = {
+							employer = scope:player_scope
+							age = { 20 30 }
+							random_traits = yes
+							gender_female_chance = scope:player_scope.marriage_gender_adjusted_female_chance
+							culture = scope:player_scope.culture
+							faith = scope:player_scope.faith
+							after_creation = {
+								random_list = {
+									200 = {
+										# Character is of average weight, nothing happens	
+									}
+									25 = {
+										change_current_weight = -25
+									}
+									25 = {
+										change_current_weight = -75
+									}
+									25 = {
+										change_current_weight = 25
+									}
+									25 = {
+										change_current_weight = 75
+									}
+									5 = {
+										change_current_weight = 150
+									}
+								}
+							}
+						}
+					}
+					4 = {
+						create_character = {
+							employer = scope:player_scope
+							age = { 20 40 }
+							random_traits = yes
+							gender_female_chance = 15
+							culture = scope:player_scope.culture
+							faith = scope:player_scope.faith
+							after_creation = {
+								random_list = {
+									200 = {
+										# Character is of average weight, nothing happens	
+									}
+									25 = {
+										change_current_weight = -25
+									}
+									25 = {
+										change_current_weight = -75
+									}
+									25 = {
+										change_current_weight = 25
+									}
+									25 = {
+										change_current_weight = 75
+									}
+									5 = {
+										change_current_weight = 150
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		# }
 
 		# Sanity check the setup if in debug mode
