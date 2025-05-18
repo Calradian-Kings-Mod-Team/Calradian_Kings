@@ -851,41 +851,47 @@ on_game_start_after_lobby = {
 				has_mpo_dlc_trigger = yes
 				has_game_rule = ck_non_canon_nomads
 			}
-			situation:the_great_steppe ?= {
-				every_situation_county = {
-					if = {
-						limit = {
-							geographical_region = khuzait_non_canon_nomads
-							holder = {
-								highest_held_title_tier = tier_county
-								government_has_flag = government_is_tribal
-								culture = {
-									OR = {
-										has_cultural_pillar = heritage_lir_ovus
-										has_cultural_pillar = heritage_khuzic
-									}
-								}
-							}
-						}
+			every_county_in_region = {
+				region = khuzait_non_canon_nomads
+
+				if = {
+					limit = {
 						holder = {
-							set_variable = {
-								name = steppe_game_start_var
-								years = 1
-							}
-							every_held_title = {
-								if = {
-									limit = {
-										title_province = {
-											has_holding_type = tribal_holding
-										}
-									}
-									title_province = {
-										set_holding_type = nomad_holding
-									}
+							capital_county = {
+								any_county_situation = {
+									# NOT = {
+										situation:the_great_steppe ?= this
+									# }
 								}
 							}
-							change_government = nomad_government
+							highest_held_title_tier = tier_county
+							government_has_flag = government_is_tribal
+							culture = {
+								OR = {
+									has_cultural_pillar = heritage_lir_ovus
+									has_cultural_pillar = heritage_khuzic
+								}
+							}
 						}
+					}
+					holder = {
+						set_variable = {
+							name = steppe_game_start_var
+							years = 1
+						}
+						every_held_title = {
+							if = {
+								limit = {
+									title_province = {
+										has_holding_type = tribal_holding
+									}
+								}
+								title_province = {
+									set_holding_type = nomad_holding
+								}
+							}
+						}
+						change_government = nomad_government
 					}
 				}
 			}
