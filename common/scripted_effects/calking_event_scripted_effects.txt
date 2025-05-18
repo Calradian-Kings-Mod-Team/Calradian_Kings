@@ -1568,6 +1568,53 @@ shatter_khanate_duchies_effect = {
 		destroy_title = title:d_usek
 	}
 }
+ck_geo_region_effect = {
+	if = {
+		limit = {
+			has_mpo_dlc_trigger = yes
+		}
+		every_county_in_region = {
+			region = $CK_REGION$
+
+			limit = {
+				uses_county_fertility = yes
+			}
+
+			if = {
+				limit = {
+					holder = {
+						government_has_flag = government_is_nomadic
+					}
+					county_fertility > 20
+					county_fertility <= 90
+				}
+				switch = {
+					trigger = holder.primary_title.tier
+					tier_empire = {
+						change_county_fertility = { 16 32 }
+					}
+					tier_kingdom = {
+						change_county_fertility = { 12 16 }
+					}
+					tier_duchy = {
+						change_county_fertility = { 8 12 }
+					}
+					tier_county = {
+						change_county_fertility = { 2 8 }
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					holder = {
+						government_has_flag = government_is_herder
+					}
+				}
+				change_county_fertility = { 44 64 }
+ 			}
+		}
+	}
+}
 make_khuzait_khanate_nomadic_effect = {
 		if = {
 			limit = {
@@ -1620,5 +1667,8 @@ make_khuzait_khanate_nomadic_effect = {
 					}
 				}
 			}
+			ck_geo_region_effect = { CK_REGION = ck_steppe_expansion_tanesis }
+			ck_geo_region_effect = { CK_REGION = ck_steppe_expansion_south_khuzait }
+			ck_geo_region_effect = { CK_REGION = ck_steppe_expansion_southeast_khuzait }
 		}
 }
