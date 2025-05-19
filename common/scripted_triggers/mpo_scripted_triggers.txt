@@ -117,6 +117,7 @@ confederation_foe_trigger = {
 
 confederation_neighboring_foe_trigger = {
 	save_temporary_scope_as = confederate
+	is_confederation_member = no
 	OR = {
 		#Threat borders you or your tributaries
 		any_land_neighboring_realm_with_tributaries_owner = {
@@ -735,9 +736,9 @@ mpo_valid_widow_marrier_trigger = {
 	
 	OR = {
 		has_trait = nomadic_philosophy
-		# culture = {
-		# 	has_cultural_pillar = heritage_khiindai
-		# }
+		culture = {
+			has_cultural_pillar = heritage_khiindai
+		}
 		culture = {
 			has_cultural_pillar = heritage_khuzic
 		}
@@ -799,7 +800,7 @@ mpo_nomads_sheep_culture_trigger = {
 			# has_cultural_tradition = tradition_caucasian_wolves
 			has_cultural_tradition = tradition_fp3_irrigation_experts
 			has_cultural_tradition = tradition_mountain_herding
-			has_cultural_tradition = tradition_horn_mountain_skirmishing
+			has_cultural_tradition = tradition_horn_mountain_skirmishing_ck
 			has_cultural_tradition = tradition_mountaineer_ruralism
 			# has_cultural_tradition = tradition_upland_skirmishing
 		}
@@ -1029,6 +1030,43 @@ mpo_can_be_blood_brothers_trigger = {
 					any_war_enemy = {
 						is_allied_to = $CHARACTER_1$
 					}
+				}
+			}
+		}
+	}
+	#Can only do intergender if gender laws are equal or both are rulers
+	trigger_if = {
+		limit = {
+			OR = {
+				AND = {
+					$CHARACTER_1$ = {
+						is_male = yes
+					}
+					$CHARACTER_2$ = {
+						is_female = yes
+					}
+				}
+				AND = {
+					$CHARACTER_2$ = {
+						is_male = yes
+					}
+					$CHARACTER_1$ = {
+						is_female = yes
+					}
+				}
+			}
+			$CHARACTER_1$.faith = {
+				NOT = { has_doctrine_parameter = gender_equal_law }
+			}
+		}
+		custom_tooltip = {
+			text = make_blood_brother_interaction_intergender_req
+			AND = {
+				$CHARACTER_1$ = {
+					is_ruler = yes
+				}
+				$CHARACTER_2$ = {
+					is_ruler = yes
 				}
 			}
 		}
