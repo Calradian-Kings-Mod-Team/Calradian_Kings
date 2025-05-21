@@ -952,21 +952,126 @@ ck_geroian_events.0013 = { ### Unification of Thonians - outsider pov
 }
 
 ### Flavor Events ###
-# "The Melancholic Ransom Broker" 
-ck_geroian_events.1000 = {
+# "The Melancholic Ransom Broker" - Broker w/ a bounty on his head
+ck_geroian_events.0016 = {
 	type = character_event
-	title = ck_geroian_events.1000.t
-	desc = ck_geroian_events.1000.desc
+	title = ck_geroian_events.0016.t
+	desc = ck_geroian_events.0016.desc
 	theme = realm
-	right_portrait = {
-		character = scope:thonian_king
-		animation = personality_bold
+
+	left_portrait = {
+		character = scope:root
+		animation = personality_rational
 	}
-	override_background = { reference = wilderness_mountains }
-	
+	right_portrait = {
+		character = scope:geroian_1000_zarminner
+		animation = beg
+	}
+	lower_center_portrait = {
+		character = scope:ck_notable_geroia_target
+		animation = anger
+	}
+
+	override_background = { reference = council_chamber }
+	trigger = {
+		root.capital_province = {
+			geographical_region = region_geroia
+		}
+		culture = {
+			has_cultural_pillar = heritage_geroian
+		}
+		NOT = { has_global_variable = spawned_zarminner }
+	}
+	immediate = {
+		create_character = {
+			template = geroian_events_1000_template
+			name = "Zarminner"
+			location = root.capital_province
+			save_scope_as = geroian_1000_zarminner
+			after_creation = {
+				add_prestige = 200
+				add_gold = 150
+			}
+		}
+		random_ruler = {
+			limit = {
+				capital_province = {
+					geographical_region = region_perassic
+				}
+				is_ai = yes
+				highest_held_title_tier <= tier_duchy
+				is_capable_adult = yes
+				short_term_gold >= major_gold_value
+			}
+			add_opinion = {
+				target = scope:geroian_1000_zarminner
+				modifier = geroian_ransomed_my_family_member
+			}
+			save_scope_as = ck_notable_geroia_target
+		}
+		set_global_variable = {
+			name = spawned_zarminner
+			value = yes
+		}
+	}
+
 	option = {
-		name = ck_geroian_events.0013.a
-		
+		name = ck_geroian_events.0016.a
+		add_character_modifier = {
+			modifier = assisted_ransom_broker
+			years = 5
+		}
+		pay_short_term_gold = {
+			target = scope:ck_notable_geroia_target
+			gold = calking_geroian_diplo_cost_check
+		}
+		scope:geroian_1000_zarminner = {
+			if = {
+				limit = {
+					short_term_gold >= 100
+				}
+				pay_short_term_gold = {
+					target = root
+					gold = { 25 50 }
+				}
+			}
+			add_opinion = {
+				target = root
+				modifier = grateful_opinion
+				opinion = 50
+			}
+		}
+		custom_tooltip = ck_geroian_events.0016.a_tooltip
+	}
+	option = {
+		name = ck_geroian_events.0016.b
+		add_character_modifier = {
+			modifier = captured_ransom_broker
+			years = 10
+		}
+		scope:ck_notable_geroia_target = {
+			pay_short_term_gold = {
+				target = root
+				gold = { 100 200 }
+			}
+			add_opinion = {
+				target = root
+				modifier = grateful_opinion
+				opinion = 40
+			}
+		}
+		scope:geroian_1000_zarminner = {
+			add_opinion = {
+				target = root
+				modifier = respect_opinion
+				opinion = -100
+			}
+		}
+		hard_imprison_character_effect = {
+			TARGET = scope:geroian_1000_zarminner
+			IMPRISONER = scope:ck_notable_geroia_target
+		}
+		custom_tooltip = ck_geroian_events.0016.b_tooltip
 	}
 
 }
