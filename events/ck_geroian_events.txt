@@ -1075,3 +1075,312 @@ ck_geroian_events.0016 = {
 	}
 
 }
+# ck_geroian_events.0017 = { # Merchant of Men (Commented out while WIP
+
+# }
+ck_geroian_events.0018 = { # Piracy Infestation - Caused from unresolved pirate in coastal county after 1.5 years
+	type = character_event
+	title = ck_geroian_events.0018.t
+	desc = ck_geroian_events.0018.desc
+	theme = realm
+
+	left_portrait = {
+		character = root
+		animation = war_over_loss
+	}
+	right_portrait = {
+		character = cp:councillor_marshal
+		animation = shame
+	}
+
+	override_background = { reference = fp1_beached_longships }
+	trigger = {
+		root.capital_province = {
+			geographical_region = region_geroia
+		}
+		exists = cp:councillor_marshal
+		scope:councillor = cp:councillor_marshal
+		NOT = {
+			has_character_flag = had_geroian_event_0018_recently
+		}
+		random_sub_realm_county ?= {
+			limit = {
+				AND = {
+					has_county_modifier = geroian_0018_pirate_activity
+					any_county_province = {
+						is_coastal = yes
+					}
+				}
+			}
+		}
+	}
+	immediate = {
+		cp:councillor_marshal = {
+			save_scope_as = marshal
+		}
+		random_sub_realm_county ?= {
+			limit = {
+				AND = {
+					has_county_modifier = geroian_0018_pirate_activity
+					any_county_province = {
+						is_coastal = yes
+					}
+				}
+			}
+			save_scope_as = pirate_county_geroia
+		}
+		random_neighboring_county = {
+			limit = {
+				any_county_province = {
+					AND = {
+						is_coastal = yes
+						geographical_region = region_geroia
+					}
+				}
+				holder = {
+					NAND = { 
+						top_liege = root.top_liege
+						this = root 
+					}
+				}
+			}
+			save_scope_as = neighboring_county_geroian
+		}
+	}
+
+	option = {
+		name = ck_geroian_events.0018.a
+		custom_tooltip = had_geroian_event_0018_tt
+		duel = {
+			skill = martial
+			value = high_skill_rating
+			50 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				custom_tooltip = {
+					text = freed_of_pirates_tt
+					add_character_flag = {
+						flag = had_geroian_event_0018_recently
+						years = 30
+					}
+				}
+				custom_tooltip = {
+					text = earned_pirate_loot
+					add_gold = 70
+				}
+				scope:pirate_county_geroia = {
+					change_county_control = 30
+					remove_county_modifier = geroian_0018_pirate_activity
+				}
+			}
+			50 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				custom_tooltip = {
+					text = rampaging_pirates_tt
+					add_character_flag = {
+						flag = had_geroian_event_0018_recently
+						years = 30
+					}
+					trigger_event = {
+						id = ck_geroian_events.1002
+						days = 60
+					}
+				}
+				scope:pirate_county_geroia = {
+					change_county_control = -15
+					change_development_level = {
+						value = scope:pirate_county_geroia.development_level
+						multiply = -0.2
+						round = yes
+					}
+				}
+			}
+		}
+
+	}
+
+	option = {
+		name = ck_geroian_events.0018.b
+		custom_tooltip = had_geroian_event_0018_tt.2
+		add_prestige = -50
+		duel = {
+			skill = stewardship
+			value = 15
+			50 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				remove_short_term_gold = 25
+				add_character_modifier = {
+					modifier = encouraged_piracy_modifier
+				}
+				scope:neighboring_county_geroian = {
+					add_county_modifier = {
+						modifier = geroian_0018_pirate_activity
+					}
+					holder = {
+						add_opinion = {
+							target = root
+							modifier = geroian_encouraged_piracy
+						}
+					}
+					if = {
+						limit = {
+							exists = holder.top_liege
+						}
+						holder.top_liege = {
+							add_opinion = {
+								target = root
+								modifier = geroian_encouraged_piracy
+							}
+						}
+					}
+				}
+			}
+			50 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				custom_tooltip = {
+					text = rampaging_pirates_tt
+					add_character_flag = {
+						flag = had_geroian_event_0018_recently
+						years = 30
+					}
+					trigger_event = {
+						id = ck_geroian_events.1002
+						days = 60
+					}
+				}
+				scope:pirate_county_geroia = {
+					change_county_control = -15
+					change_development_level = {
+						value = scope:pirate_county_geroia.development_level
+						multiply = -0.2
+						round = yes
+					}
+				}
+				remove_short_term_gold = 50
+			}
+		}
+	}
+}
+
+# Misc/Background Events #
+ck_geroian_events.1001 = { # Collect Taxes Side Effect - Is the Task That Creates the Pirates 
+	hidden = yes
+
+	trigger = {
+		exists = cp:councillor_steward
+		scope:councillor = cp:councillor_steward
+		scope:councillor = {
+			stewardship < high_skill_rating
+		}
+		any_sub_realm_county = {
+			steward_task_county_corruption_county_trigger = yes
+		}
+		NOR = {
+			has_character_flag = geroian_event_0018_cooldown
+			has_character_flag = had_geroian_event_0018_recently
+		}
+	}
+
+	weight_multiplier = {
+		base = 1
+		compare_modifier = {
+			target = scope:councillor
+			value = stewardship
+			multiplier = -0.2
+			offset = inverted_high_skill_rating
+		}
+	}
+
+	immediate = {
+		cp:councillor_steward = {
+			save_scope_as = active_councillor
+		}
+		set_variable = {
+			name = had_steward_task_side_effect
+			value = yes
+			days = steward_task_side_effect_cooldown
+		}
+		random_sub_realm_county = {
+			limit = {
+				steward_task_county_corruption_county_trigger = yes
+				any_county_province = {
+					is_coastal = yes
+				}
+			}
+			weight = {
+				base = 1
+				modifier = {
+					add = 5
+					holder = root
+				}
+			}
+			save_scope_as = county
+		}
+
+		send_interface_message = {
+			type = msg_steward_task_bad
+			title = steward_task.1001.notification
+			desc = {
+				triggered_desc = {
+					trigger = {
+						scope:active_councillor = { stewardship <= average_skill_level }
+					}
+					desc = task_stewardship_bad_unskilled_notification_tooltip
+				}
+				triggered_desc = {
+					trigger = {
+						scope:active_councillor = { stewardship > average_skill_level }
+					}
+					desc = task_stewardship_bad_skilled_notification_tooltip
+				}
+			}
+			
+			left_icon = scope:county
+			right_icon = scope:councillor
+			tooltip = task_collect_taxes_notification_tooltip
+
+			scope:county = {
+				add_county_modifier = {
+					modifier = geroian_0018_pirate_activity
+					days = steward_task_modifier_duration
+				}
+				holder = {
+					trigger_event = {
+						id = ck_geroian_events.0018
+						months = { 17 24 }
+					}
+				}
+			}
+		}
+	}
+}
+ck_geroian_events.1002 = { # Modifier cleanup
+	hidden = yes
+
+	trigger = {
+		scope:pirate_county_geroia = {
+			has_county_modifier = geroian_0018_pirate_activity
+		}
+	}
+
+	immediate = {
+		scope:pirate_county_geroia = {
+			remove_county_modifier = geroian_0018_pirate_activity
+		}
+	}
+}
