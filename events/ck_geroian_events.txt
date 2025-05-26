@@ -1089,7 +1089,35 @@ ck_geroian_events.0016 = {
 ck_geroian_events.0018 = { # Warrior Monk visits
 	type = character_event
 	title = ck_geroian_events.0018.t
-	desc = ck_geroian_events.0018.desc
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					OR = {
+						has_character_flag = pissed_off_monk
+						has_character_flag = happy_monk
+					}
+				}
+				desc = ck_geroian_events.0018.desc.revisit_a
+			}
+			desc = ck_geroian_events.0018.desc
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					has_character_flag = pissed_off_monk
+				}
+				desc = ck_geroian_events.0018.desc.revisit.3
+			}
+			triggered_desc = {
+				trigger = {
+					has_character_flag = happy_monk
+				}
+				desc = ck_geroian_events.0018.desc.revisit.1
+			}
+		}
+	}
+	
 	theme = faith
 
 	left_portrait = {
@@ -1139,7 +1167,7 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 			}
 		}
 		NOR = {
-			has_variable = geroian_0018_cooldown_var
+			has_character_flag = geroian_0018_cooldown_var
 			has_character_flag = geroian_events_0018_unavailable
 		}
 	}
@@ -1226,19 +1254,29 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 			root.culture = {
 				change_cultural_acceptance = {
 					target = scope:geroian_monk_0018.culture
-					value = medium_positive_cultural_acceptance
+					value = low_positive_culture_acceptance
 					desc = cultural_acceptance_welcomed_geroian_monk
 				}
 			}
-			add_character_modifier = {
-				modifier = respected_senija_non_geroian
-				years = 5
+			if = {
+				limit = {
+					NOT = {
+						has_character_modifier = respected_senija_non_geroian
+					}
+				}
+				add_character_modifier = {
+					modifier = respected_senija_non_geroian
+					years = 5
+				}
 			}
 		}
 		else_if = {
 			limit = {
 				root.culture = {
 					has_cultural_pillar = heritage_geroian
+				}
+				NOT = {
+					has_character_modifier = respected_senija_geroian
 				}
 			}
 			add_character_modifier = {
@@ -1265,6 +1303,9 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 		# County Modifiers
 		every_sub_realm_county = {
 			custom = geroian_counties_tt
+			custom_tooltip = {
+				text = geroian_events_0018_superstitious
+			}
 			limit = {
 				culture = {
 					AND = {
@@ -1277,6 +1318,9 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 						religion_tag = calradian_religion
 						has_doctrine = special_doctrine_ascensionist
 					}
+				}
+				NOT = {
+					has_county_modifier = respected_senija_county
 				}
 			}
 			add_county_modifier = {
@@ -1329,11 +1373,26 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 		hidden_effect = {
 			random_list = {
 				50 = {
-					set_variable = can_hire_monk
+					add_character_flag = can_hire_monk
 				}
 				50 = {
 					# Nothing
 				}
+			}
+			# Proper Flags
+			if = {
+				limit = {
+					NOT = {
+						has_character_flag = happy_monk
+					}
+				}
+				add_character_flag = happy_monk
+			}
+			if = {
+				limit = {
+					has_character_flag = pissed_off_monk
+				}
+				remove_character_flag = pissed_off_monk
 			}
 		}
 	}
@@ -1352,11 +1411,18 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 				zealous = major_stress_impact_gain
 				cynical = medium_stress_impact_loss
 			}
-			add_character_modifier = {
-				modifier = disrespected_senija_geroian
-				years = 5
+			if = {
+				limit = {
+					NOT = {
+						has_character_modifier = disrespected_senija_geroian
+					}
+				}
+				add_character_modifier = {
+					modifier = disrespected_senija_geroian
+					years = 5
+				}
 			}
-			add_piety = -250
+			add_piety = -150
 		}
 		else_if = {
 			limit = {
@@ -1386,6 +1452,9 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 		# County Modifiers
 		every_sub_realm_county = {
 			custom = geroian_counties_tt
+			custom_tooltip = {
+				text = geroian_events_0018_superstitious
+			}
 			limit = {
 				culture = {
 					has_cultural_pillar = heritage_geroian
@@ -1403,33 +1472,10 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 				years = 10
 			}
 		}
-		# Shown as tooltip (resolved in next event)
-		random_list = {
-			# Chances of Monk declaring a challenge to duel (base of 30). Increases if you share faiths
-			25 = {
-				custom_tooltip = {
-					text = geroian_events_0018_duel_tt
-					trigger_event = ck_geroian_events.0102
-				}
-				modifier = {
-					add = 10
-					root.faith = {
-						has_doctrine = special_doctrine_ascensionist
-					}
-				}
-			}
-			75 = {
-				custom_tooltip = {
-					text = geroian_events_0018_cooldown_tt
-					trigger_event = ck_geroian_events.0101
-				}
-				modifier = {
-					add = -10
-					root.faith = {
-						has_doctrine = special_doctrine_ascensionist
-					}
-				}
-			}
+		# Shown as tooltip
+		custom_tooltip = {
+			text = geroian_events_0018_cooldown_tt
+			trigger_event = ck_geroian_events.0101
 		}
 
 		# Every zealous courtier gains/loss opinion depending on their Mandatist stance
@@ -1465,6 +1511,23 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 				target = root
 				modifier = respect_opinion
 				opinion = -30
+			}
+		}
+		hidden_effect = {
+			# Proper Flags
+			if = {
+				limit = {
+					NOT = {
+						has_character_flag = pissed_off_monk
+					}
+				}
+				add_character_flag = pissed_off_monk
+			}
+			if = {
+				limit = {
+					has_character_flag = happy_monk
+				}
+				remove_character_flag = happy_monk
 			}
 		}
 	}
@@ -1722,7 +1785,7 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 		first_valid = {
 			triggered_desc = {
 				trigger = {
-					has_variable = can_hire_monk
+					has_character_flag = can_hire_monk
 				}
 				desc = ck_geroian_events.0100.desc.canhire
 			}
@@ -1730,7 +1793,7 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 		first_valid = {
 			triggered_desc = {
 				trigger = {
-					has_variable = can_hire_monk
+					has_character_flag = can_hire_monk
 				}
 			desc = ck_geroian_events.0100.desc.epilogue.canhire
 			}
@@ -1767,7 +1830,7 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 					triggered_desc = {
 						trigger = {
 							root = {
-								has_variable = can_hire_monk
+								has_character_flag = can_hire_monk
 							}
 						}
 						desc = ck_geroian_events.0100.a.canhire
@@ -1776,7 +1839,7 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 						trigger = {
 							root = {
 								NOT = {
-									has_variable = can_hire_monk
+									has_character_flag = can_hire_monk
 								}
 							}
 						}
@@ -1787,22 +1850,28 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 		}
 		custom_tooltip = {
 			text = geroian_events_0018_cooldown_tt_2
-			if = {
-				limit = {
-					NOT = {
-						has_variable = geroian_0018_cooldown_var
-					}
-				}
-				set_variable = {
-					name = geroian_0018_cooldown_var
-					years = 15
-				}
+			add_character_flag = {
+				name = geroian_0018_cooldown_var
+				years = 15
 			}
-			else = {
-				change_variable = {
-					name = geroian_0018_cooldown_var
-					years = 15
-				}
+		}
+		scope:geroian_monk_0018 = {
+			add_opinion = {
+				target = root
+				modifier = respect_opinion
+				opinion = 20
+			}
+			set_location = scope:monk_citadel_title
+		}
+		custom_tooltip = {
+			text = monk_returns_to_citadel
+			title:b_potenzam.holder = {
+				add_courtier = scope:geroian_monk_0018
+			}
+			scope:geroian_monk_0018 = {
+				set_location = title:b_potenzam
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
 			}
 		}
 		hidden_effect = {
@@ -1818,7 +1887,7 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 	option = {
 		name = ck_geroian_events.0100.b
 		trigger = {
-			has_variable = can_hire_monk
+			has_character_flag = can_hire_monk
 		}
 		add_courtier = scope:geroian_monk_0018
 		hidden_effect = {
@@ -1847,6 +1916,13 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 					modifier = disappointed_opinion
 					opinion = -10
 				}
+			}
+		}
+		scope:geroian_monk_0018 = {
+			add_opinion = {
+				target = root
+				modifier = respect_opinion
+				opinion = 30
 			}
 		}
 		if = {
@@ -1887,10 +1963,7 @@ ck_geroian_events.0101 = { # You refuse to entertain the monk and kick him out. 
 		first_valid = {
 			triggered_desc = {
 				trigger = {
-					scope:geroian_monk_0018 = {
-						exists = var:visited_ruler_geroian
-						var:visited_ruler_geroian = root
-					}
+					has_character_flag = pissed_off_monk
 				}
 				desc = ck_geroian_events.0101.desc.revisit
 			}
@@ -1934,22 +2007,9 @@ ck_geroian_events.0101 = { # You refuse to entertain the monk and kick him out. 
 
 		custom_tooltip = {
 			text = geroian_events_0101_cooldown_tt_2
-			if = {
-				limit = {
-					NOT = {
-						has_variable = geroian_0018_cooldown_var
-					}
-				}
-				set_variable = {
-					name = geroian_0018_cooldown_var
-					years = 15
-				}
-			}
-			else = {
-				change_variable = {
-					name = geroian_0018_cooldown_var
-					years = 15
-				}
+			add_character_flag = {
+				name = geroian_0018_cooldown_var
+				years = 15
 			}
 		}
 		hidden_effect = {
@@ -1959,13 +2019,16 @@ ck_geroian_events.0101 = { # You refuse to entertain the monk and kick him out. 
 					value = root
 				}
 			}
-			if = {
-				limit = {
-					NOT = {
-						has_character_flag = pissed_off_monk
-					}
-				}
-				add_character_flag = pissed_off_monk
+		}
+		custom_tooltip = {
+			text = monk_returns_to_citadel
+			title:b_potenzam.holder = {
+				add_courtier = scope:geroian_monk_0018
+			}
+			scope:geroian_monk_0018 = {
+				set_location = title:b_potenzam
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
 			}
 		}
 	}
@@ -1989,15 +2052,12 @@ ck_geroian_events.0101 = { # You refuse to entertain the monk and kick him out. 
 		}
 		if = {
 			limit = {
-				NOT = {
-					has_character_flag = pissed_off_monk
-				}
+				NOT = { has_character_modifier = imprisoned_holy_warrior }
 			}
-			add_character_flag = pissed_off_monk
-		}
-		add_character_modifier = {
-			modifier = imprisoned_holy_warrior
-			years = 15
+			add_character_modifier = {
+				modifier = imprisoned_holy_warrior
+				years = 15
+			}
 		}
 		custom_tooltip = {
 			text = no_more_monks_geroia
@@ -2005,529 +2065,6 @@ ck_geroian_events.0101 = { # You refuse to entertain the monk and kick him out. 
 		}
 	}
 }
-
-ck_geroian_events.0102 = { # Monk challenges you to a duel. Can either accept to have guards kill him (he will not go away w/o a fight)
-	type = character_event
-	title = ck_geroian_events.0102.t
-	desc = ck_geroian_events.0102.desc
-	theme = faith
-
-	left_portrait = {
-		character = root
-		animation = shock
-	}
-	right_portrait = {
-		character = scope:geroian_monk_0018
-		animation = aggressive_unarmed
-	}
-
-	override_background = { reference = council_chamber }
-
-	option = { # Fuck off and get the guards instead / Imprisons the monk
-		name = ck_geroian_events.0102.a
-
-		
-
-		custom_tooltip = {
-			text = ck_geroian_events.0102.imprison_or_kill_monk
-			random_list = {
-				60 = {
-					send_interface_toast = {
-						title = ck_geroian_events.0102.a.imprison
-						left_icon = scope:geroian_monk_0018
-						hard_imprison_character_effect = {
-							TARGET = scope:geroian_monk_0018
-							IMPRISONER = root
-						}
-					}
-					add_character_modifier = {
-						modifier = imprisoned_holy_warrior
-						years = 15
-					}
-				}
-				40 = {
-					send_interface_toast = {
-						title = ck_geroian_events.0102.a.dies
-						left_icon = scope:geroian_monk_0018
-						scope:geroian_monk_0018 = {
-							death = {
-								death_reason = death_slaughtered_by_guards
-							}
-						}
-					}
-					add_character_flag = geroian_events_0018_unavailable
-					
-					send_interface_toast = {
-						title = ck_geroian_events.0102.dead_monk_counties
-						left_icon = scope:geroian_monk_0018
-						# County Modifiers
-						every_sub_realm_county = {
-							custom = geroian_counties_tt
-							limit = {
-								culture = {
-									has_cultural_pillar = heritage_geroian
-									has_cultural_tradition = tradition_warrior_monks
-								}
-								faith = {
-									AND = {
-										religion_tag = calradian_religion
-										has_doctrine = special_doctrine_ascensionist
-									}
-								}
-							}
-							add_county_modifier = {
-								modifier = killed_holy_warrior_county
-								years = 10
-							}
-						}
-					}
-				}
-			}
-		}
-		if = {
-			limit = {
-				root.faith = {
-					NOT = {
-						has_doctrine = special_doctrine_ascensionist
-					}
-				}
-			}
-			add_piety = 200
-		}
-		if = {
-			limit = {
-				NOT = {
-					has_character_flag = pissed_off_monk
-				}
-			}
-			add_character_flag = pissed_off_monk
-		}
-		custom_tooltip = {
-			text = no_more_monks_geroia
-			add_character_flag = geroian_events_0018_unavailable
-		}
-	}
-
-	option = { # Time to d-d-d-d-dueeeeel
-		name = ck_geroian_events.0102.b
-		custom_tooltip = ck_geroian_events.0102.b.tt
-		configure_start_single_combat_effect = {
-			SC_INITIATOR = root
-			SC_ATTACKER = scope:geroian_monk_0018
-			SC_DEFENDER = root
-			FATALITY = default
-			FIXED = no
-			LOCALE = throne_room
-			OUTPUT_EVENT = ck_geroian_events.0103 # Win or Lose
-			INVALIDATION_EVENT = single_combat.1006
-		}
-	}
-}
-
-ck_geroian_events.0103 = { # Monk duel outcome
-	hidden = yes
-
-	immediate = {
-		if = {
-			limit = {
-				root = scope:sc_victor
-			}
-			scope:sc_victor = {
-				send_interface_toast = {
-					title = bp1_yearly.5718.t.win
-					left_icon = root
-					right_icon = scope:5717_nemesis
-
-					add_prestige = minor_prestige_value
-				}
-				trigger_event = {
-					id = ck_geroian_events.0104
-					days = 1
-				}
-			}
-			
-		}
-		else = {
-			send_interface_toast = {
-				title = bp1_yearly.5718.t.lose
-				left_icon = root
-				right_icon = scope:5717_nemesis
-
-				add_prestige = minor_prestige_loss
-			}
-			trigger_event = {
-				id = ck_geroian_events.0105
-				days = 1
-			}
-		}
-	}
-}
-
-ck_geroian_events.0104 = { # Duel Won
-	type = character_event
-	title = ck_geroian_events.0103.t
-	desc = {
-		first_valid = {
-			triggered_desc = {
-				trigger = {
-					root = {
-						exists = var:number_of_victories
-						var:number_victories = 1
-					}
-				}
-				desc = ck_geroian_events.0103.desc.victories
-			}
-			desc = ck_geroian_events.0103.desc
-		}
-	}
-	left_portrait = {
-		character = root
-		animation = celebrate_sword
-	}
-	right_portrait = {
-		character = scope:geroian_monk_0018
-		animation = beg
-	}
-
-	immediate = {
-		hidden_effect = {
-			root = {
-				if = {
-					limit = {
-						NOT = {
-							exists = var:number_of_victories
-						}
-					}
-					set_variable = {
-						name = number_of_victories
-						value = 1
-					}
-				}
-				else_if = {
-					limit = {
-						exists = var:number_of_victories
-						var:number_victories = 0
-					}
-					set_variable = {
-						name = number_of_victories
-						value = 1
-					}
-				}
-			}
-		}
-	}
-
-	theme = faith
-
-	option = { # Let the Monk leave
-		name = ck_geroian_events.0103.a
-
-		custom_tooltip = {
-			text = geroian_events_0018_cooldown_tt_2
-			if = {
-				limit = {
-					NOT = {
-						has_variable = geroian_0018_cooldown_var
-					}
-				}
-				set_variable = {
-					name = geroian_0018_cooldown_var
-					years = 15
-				}
-			}
-			else = {
-				change_variable = {
-					name = geroian_0018_cooldown_var
-					years = 15
-				}
-			}
-		}
-		hidden_effect = {
-			scope:geroian_monk_0018 = { # Variable to track if the Monk revisits in the future
-				set_variable = {
-					name = visited_ruler_geroian
-					value = root
-				}
-			}
-		}
-	}
-
-	option = {
-		name = ck_geroian_events.0103.b
-		
-		scope:geroian_monk_0018 = {
-			death = {
-				death_reason = death_ck_piteously_cut_down
-				killer = root
-			}
-		}
-
-		custom_tooltip = {
-			text = no_more_monks_geroia
-			add_character_flag = geroian_events_0018_unavailable
-		}
-		# County Modifiers
-		every_sub_realm_county = {
-			custom = geroian_counties_tt
-			limit = {
-				culture = {
-					has_cultural_pillar = heritage_geroian
-					has_cultural_tradition = tradition_warrior_monks
-				}
-				faith = {
-					AND = {
-						religion_tag = calradian_religion
-						has_doctrine = special_doctrine_ascensionist
-					}
-				}
-			}
-			add_county_modifier = {
-				modifier = killed_holy_warrior_county
-				years = 10
-			}
-		}
-	}
-}
-ck_geroian_events.0105 = { # Duel Lost
-	type = character_event
-	title = ck_geroian_events.0104.t
-	desc = {
-		first_valid = {
-			triggered_desc = { 
-				trigger = {
-					var:body_part_removed = flag:no_more_parts
-				}
-				desc = ck_geroian_events.0104.desc.no_more
-			}
-			desc = ck_geroian_events.0104.desc
-		}
-	}
-	theme = faith
-	
-	left_portrait = {
-		character = root
-		animation = beg
-	}
-	right_portrait = {
-		character = scope:geroian_monk_0018
-		animation = celebrate_sword
-	}
-
-	immediate = {
-		hidden_effect = {
-			root = {
-				if = {
-					limit = {
-						exists = var:number_of_victories
-					}
-					change_variable = {
-						name = number_of_victories
-						value = 0
-					}
-				}
-				if = {
-					limit = {
-						has_trait = one_eyed
-						has_character_flag = geroian_0018_lost_eye
-						NOR = {
-							has_trait = blind
-							has_character_flag = geroian_0018_lost_eyes
-						}
-					}
-					change_variable = {
-						name = body_part_removed
-						value = flag:lost_eyes
-					}
-				}
-			}
-			random_list = {
-				30 = {
-					trigger = {
-						NOR = {
-							has_trait = disfigured
-							NOT = { has_character_flag = geroian_0018_lost_nose }
-						}
-					}
-					root = {
-						change_variable = {
-							name = body_part_removed
-							value = flag:lost_nose
-						}
-					}
-				}
-				30 = {
-					trigger = {
-						NOT = { has_character_flag = geroian_0018_lost_eye }
-						NOR = {
-							has_trait = blind
-							has_trait = one_eyed
-						}
-					}
-					root = {
-						change_variable = {
-							name = body_part_removed
-							value = flag:lost_eye
-						}
-					}
-				}
-				20 = {
-					trigger = {
-						NOT = { has_character_flag = geroian_0018_lost_leg }
-						NOT = {
-							has_trait = one_legged
-						}
-					}
-					root = {
-						change_variable = {
-							name = body_part_removed
-							value = flag:lost_leg
-						}
-					}
-				}
-				10 = {
-					trigger = {
-						NOT = { has_character_flag = geroian_0018_lost_arm }
-						NOT = {
-							has_trait = maimed
-						}
-					}
-					root = {
-						change_variable = {
-							name = body_part_removed
-							value = flag:lost_arm
-						}
-					}
-				}
-			}
-			if = {
-				limit = {
-					AND = {
-						has_trait = blind
-						has_trait = maimed
-						has_trait = one_legged
-						has_trait = disfigured
-					}
-				}
-				root = {
-					change_variable = {
-						name = body_part_removed
-						value = flag:no_more_parts
-					}
-				}
-			}
-		}
-		add_trait = wounded_2
-	}
-	option = {
-		name = ck_geroian_events.0104.a
-
-		geroian_monk_body_part_effect = yes
-
-		if = {
-			limit = {
-				AND = {
-					has_variable = body_part_removed
-					var:body_part_removed = flag:no_more_parts
-				}
-			}
-			custom_tooltip = {
-				text = no_more_monks_geroia
-				add_character_flag = geroian_events_0018_unavailable
-			}
-		}
-		if = {
-			limit = {
-				root = {
-					faith = scope:geroian_0018_county.faith
-				}
-			}
-			add_piety = -50
-		}
-	}
-	option = {
-		name = ck_geroian_events.0104.b
-		trigger = {
-			NAND = {
-				has_variable = body_part_removed
-				var:body_part_removed = flag:no_more_parts
-			}
-		}
-		if = {
-			limit = {
-				root = {
-					faith = scope:geroian_0018_county.faith
-				}
-			}
-			add_piety = -100
-		}
-		duel = {
-			skill = martial
-			value = 18
-			40 = {
-				compare_modifier = {
-					value = scope:duel_value
-					multiplier = 3.5
-					min = -49
-				}
-				custom_tooltip = {
-					text = monk_close_call
-					if = {
-						limit = {
-							NOT = {
-								has_character_flag = monk_close_call
-							}
-						}
-						add_character_flag = monk_close_call
-					}
-				}
-				scope:geroian_monk_0018 = {
-					death = {
-						death_reason = death_slaughtered_by_guards
-					}
-				}
-				custom_tooltip = {
-					text = no_more_monks_geroia
-					add_character_flag = geroian_events_0018_unavailable
-				}
-				if = {
-					limit = {
-						
-					}
-				}
-				# County Modifiers
-				every_sub_realm_county = {
-					custom = geroian_counties_tt
-					limit = {
-						culture = {
-							has_cultural_pillar = heritage_geroian
-							has_cultural_tradition = tradition_warrior_monks
-						}
-						faith = {
-							AND = {
-								religion_tag = calradian_religion
-								has_doctrine = special_doctrine_ascensionist
-							}
-						}
-					}
-					add_county_modifier = {
-						modifier = killed_holy_warrior_county
-						years = 10
-					}
-				}
-			}
-			60 = {
-				compare_modifier = {
-					value = scope:duel_value
-					multiplier = 3.5
-					min = -49
-				}
-				custom_tooltip = ck_geroian_events.0104.b.loss
-				geroian_monk_body_part_effect = yes
-			}
-		}
-	}
-}
-
 
 # Misc/Background Events #
 ck_geroian_events.1001 = { # Collect Taxes Side Effect - Is the Task That Creates the Pirates 
