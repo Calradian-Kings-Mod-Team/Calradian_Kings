@@ -1193,17 +1193,53 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 		}
 		# Create the Monk
 		create_character = {
-			template = geroian_monk
+			age = { 25 60 }
+			trait = devoted
 			dynasty = none
 			location = root.location
 			culture = scope:geroian_0018_county.culture
 			faith = scope:geroian_0018_county.faith
 			gender_female_chance = root_faith_clergy_gender_female_chance
+			after_creation = {
+				random_list = {
+					15 = {
+						add_trait = education_martial_5
+					}
+					65 = {
+						add_trait = education_martial_4
+					}
+					20 = {
+						add_trait = education_martial_3
+					}
+				}
+				random_list = {
+					10 = {
+						add_trait = physique_good_2
+					}
+					25 = {
+						add_trait = physique_good_1
+					}
+					65 = {
+						add_trait = strong
+					}
+				}
+				add_trait = lifestyle_blademaster
+				add_trait_xp = {
+					trait = lifestyle_blademaster
+					value = {
+						integer_range = {
+							min = medium_lifestyle_random_xp_low
+							max = medium_lifestyle_random_xp_high
+						}
+					}
+				}
+			}
 			save_scope_as = geroian_monk_0018
 		}
 		scope:geroian_monk_0018 = {
-			set_location = root.location
-			add_trait = devoted
+			set_location = {
+				location = root.location
+			}
 		}
 	}
 	# Welcome them in
@@ -1211,6 +1247,10 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 		name = ck_geroian_events.0018.a
 
 		# Stress impact for those of the faith (First 'if' statement) / Not of the faith ('else_if' statement)
+		stress_impact = {
+			just = minor_stress_impact_loss
+			gregarious = medium_stress_impact_loss
+		}
 		if = {
 			limit = {
 				root = {
@@ -1221,10 +1261,6 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 				zealous = minor_stress_impact_loss
 				cynical = medium_stress_impact_gain
 			}
-		}
-		stress_impact = {
-			just = minor_stress_impact_loss
-			gregarious = medium_stress_impact_loss
 		}
 		else_if = {
 			limit = {
@@ -1557,13 +1593,11 @@ ck_geroian_events.0019 = { # Piracy Infestation - Caused from unresolved pirate 
 		NOT = {
 			has_character_flag = had_geroian_event_0018_recently
 		}
-		random_sub_realm_county ?= {
-			limit = {
-				AND = {
-					has_county_modifier = geroian_0018_pirate_activity
-					any_county_province = {
-						is_coastal = yes
-					}
+		any_sub_realm_county = {
+			AND = {
+				has_county_modifier = geroian_0018_pirate_activity
+				any_county_province = {
+					is_coastal = yes
 				}
 			}
 		}
@@ -1572,7 +1606,7 @@ ck_geroian_events.0019 = { # Piracy Infestation - Caused from unresolved pirate 
 		cp:councillor_marshal = {
 			save_scope_as = marshal
 		}
-		random_sub_realm_county ?= {
+		random_sub_realm_county = {
 			limit = {
 				AND = {
 					has_county_modifier = geroian_0018_pirate_activity
@@ -1583,22 +1617,25 @@ ck_geroian_events.0019 = { # Piracy Infestation - Caused from unresolved pirate 
 			}
 			save_scope_as = pirate_county_geroia
 		}
-		random_neighboring_county = {
-			limit = {
-				any_county_province = {
-					AND = {
-						is_coastal = yes
-						geographical_region = region_geroia
+		random_county_in_region = {
+			region = region_geroia
+			random_neighboring_county = {
+				limit = {
+					any_county_province = {
+						AND = {
+							is_coastal = yes
+							has_holding = yes
+						}
+					}
+					holder = {
+						NAND = { 
+							top_liege = root.top_liege
+							this = root 
+						}
 					}
 				}
-				holder = {
-					NAND = { 
-						top_liege = root.top_liege
-						this = root 
-					}
-				}
+				save_scope_as = neighboring_county_geroian
 			}
-			save_scope_as = neighboring_county_geroian
 		}
 	}
 
@@ -1851,7 +1888,7 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 		custom_tooltip = {
 			text = geroian_events_0018_cooldown_tt_2
 			add_character_flag = {
-				name = geroian_0018_cooldown_var
+				flag = geroian_0018_cooldown_var
 				years = 15
 			}
 		}
@@ -1861,7 +1898,6 @@ ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe hav
 				modifier = respect_opinion
 				opinion = 20
 			}
-			set_location = scope:monk_citadel_title
 		}
 		custom_tooltip = {
 			text = monk_returns_to_citadel
@@ -2008,7 +2044,7 @@ ck_geroian_events.0101 = { # You refuse to entertain the monk and kick him out. 
 		custom_tooltip = {
 			text = geroian_events_0101_cooldown_tt_2
 			add_character_flag = {
-				name = geroian_0018_cooldown_var
+				flag = geroian_0018_cooldown_var
 				years = 15
 			}
 		}
@@ -2173,5 +2209,3 @@ ck_geroian_events.1002 = { # Modifier cleanup
 		}
 	}
 }
-
-
