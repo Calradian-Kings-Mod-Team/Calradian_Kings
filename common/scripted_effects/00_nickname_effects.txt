@@ -27,17 +27,10 @@ chance_for_random_nickname_effect = {
 }
 
 flag_random_nickname_as_taken_in_batch_effect = {
-	if = {
-		limit = {
-			NOT = {
-				exists = scope:nickname_override
-			}
-		}
 		save_scope_value_as = {
 			name = had_$NICK$
 			value = yes
 		}
-	}
 }
 
 assign_random_nickname_effect = {
@@ -106,7 +99,6 @@ assign_random_nickname_effect = {
 				trigger = {
 					NOR = {
 						has_trait = crusader_king
-						has_title = title:e_great_horde
 						mpo_has_gok_mongol_empire_trigger = yes
 					}
 					has_personality_extroverted_trigger = yes
@@ -576,7 +568,7 @@ assign_random_nickname_effect = {
 				trigger = {
 					has_trait = drunkard
 					prestige_level <= 2
-					faith = faith:jumne
+					faith.religion = religion:jumne_religion
 					NOT = { exists = scope:had_nick_ale_lover }
 				}
 				modifier = {
@@ -640,12 +632,34 @@ assign_random_nickname_effect = {
 			}
 			100 = {
 				trigger = {
+					culture = { has_cultural_pillar = heritage_gottic }
+					is_male = yes
+					OR = {
+						has_trait = greedy
+						has_trait = avaricious
+						has_trait = gluttonous
+					}
+					ai_greed >= 50
+					gold >= 200
+					NOT = { exists = scope:had_nick_pennyfather }
+				}
+				modifier = {
+					has_trait = greedy
+					factor = 2
+				}
+				give_nickname = nick_pennyfather
+				# Flag this as having been spat out already, in case we're applying several nicknames in quick succession.
+				flag_random_nickname_as_taken_in_batch_effect = { NICK = nick_pennyfather }
+				trigger_event = lifestyle_nicknames.1000
+			}
+			100 = {
+				trigger = {
 					OR = {
 						has_trait = comfort_eater
 						has_trait = gluttonous
 					}
 					has_personality_introverted_trigger = no
-					faith = faith:jumne
+					faith.religion = religion:jumne_religion
 					NOT = { exists = scope:had_nick_foul_fart }
 				}
 				modifier = {
@@ -2483,7 +2497,7 @@ assign_random_nickname_effect = {
 			}
 			100 = {
 				trigger = {
-					culture = { has_cultural_pillar = heritage_balian }
+					culture = { has_cultural_pillar = heritage_gottic }
 					current_weight >= 50
 					OR = {
 						loves_food_trigger = yes
@@ -3585,7 +3599,7 @@ assign_random_nickname_effect = {
 			100 = {
 				trigger = {
 					is_male = yes
-					culture = { has_cultural_pillar = heritage_balian }
+					culture = { has_cultural_pillar = heritage_gottic }
 					prowess <= 4
 					fertility <= 0.4
 					NOT = {
@@ -4567,7 +4581,7 @@ set_random_negative_nickname_effect = {
 			100 = {
 				trigger = {
 					has_trait = drunkard
-					faith = faith:jumne
+					faith.religion = religion:jumne_religion
 				}
 				modifier = {
 					prestige_level <= 1
@@ -4591,7 +4605,7 @@ set_random_negative_nickname_effect = {
 			}
 			100 = {
 				trigger = {
-					culture = { has_cultural_pillar = heritage_balian }
+					culture = { has_cultural_pillar = heritage_gottic }
 					is_male = yes
 					ai_greed >= 50
 					gold >= 100
@@ -5454,7 +5468,7 @@ set_random_negative_nickname_effect = {
 			}
 			100 = {
 				trigger = {
-					culture = { has_cultural_pillar = heritage_balian }
+					culture = { has_cultural_pillar = heritage_gottic }
 					OR = {
 						loves_food_trigger = yes
 						has_trait = lifestyle_reveler
@@ -5997,7 +6011,7 @@ set_random_negative_nickname_effect = {
 			100 = {
 				trigger = {
 					is_male = yes
-					culture = { has_cultural_pillar = heritage_balian }
+					culture = { has_cultural_pillar = heritage_gottic }
 					prowess <= 6
 					fertility <= 0.4
 					NOT = {

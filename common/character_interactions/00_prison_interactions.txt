@@ -3819,6 +3819,7 @@ ransom_me_interaction = {
 				scope:gold = yes
 				scope:extortionate_gold = yes
 				scope:current_gold = yes
+				scope:herd_send_option = yes
 				AND = {
 					scope:actor = {
 						gold >= 25
@@ -3984,8 +3985,9 @@ release_from_prison_interaction = {
 					if = {
 						limit = {
 							this.gold > 0
-							NOT = {
+							NOR = {
 								has_character_flag = realm_priest
+								has_character_flag = was_bookmaker
 							}
 						}
 						pay_short_term_gold = { target = scope:actor gold = this.gold }
@@ -5731,10 +5733,6 @@ execute_prisoner_interaction = {
 					any_heir_title = { # Execute rulers you can inherit land from
 						exists = holder
 						holder = scope:recipient
-						place_in_line_of_succession = {
-							target = scope:actor
-							value = 1
-						}
 					}
 					has_trait = lunatic # Self explanatory
 				}
@@ -6163,6 +6161,52 @@ execute_prisoner_interaction = {
 							TRACK = marauder
 							XP_MAX = 2
 							XP_MIN = 2
+						}
+					}
+				}
+			}
+				scope:actor = {
+				# Free House Member CB target executed during war
+				if = {
+					limit = {
+						exists = scope:recipient.house
+						any_character_war = {
+							using_cb = fp3_free_house_member_cb
+							is_defender = scope:actor
+							primary_attacker.house = scope:recipient.house
+						}
+					}
+					random_character_war = {
+						limit = {
+							using_cb = fp3_free_house_member_cb
+							is_defender = scope:actor
+							primary_attacker.house = scope:recipient.house
+						}
+						primary_attacker = {
+							add_opinion = {
+								target = scope:actor
+								modifier = executed_close_relation_opinion
+							}
+						}
+					}
+					add_prestige = {
+						value = medium_piety_loss
+						multiply = {
+							value = ai_honor
+							add = 1
+						}
+					}
+					every_vassal = {
+						limit = {
+							OR = {
+								has_vassal_stance = courtly
+								has_vassal_stance = glory_hound
+								ai_honor > 0.48
+							}
+						}
+						add_opinion = {
+							target = scope:actor
+							modifier = executed_valuable_prisoner_modifier
 						}
 					}
 				}

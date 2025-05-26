@@ -2599,6 +2599,17 @@ migration_interaction = {
 					migration_set_obedient_vassal_effect = yes
 				}
 			}
+			# Player and non obedient vassals get turned into Tributaries instead
+			every_vassal = {
+				limit = {
+					exists = scope:target_title
+					OR = {
+						NOT = { is_obedient_to = scope:actor }
+						is_ai = no
+					}
+				}
+				break_subject_contract_and_establish_tributary_effect = { SUZERAIN = scope:actor TRIBUTARY = prev }
+			}
 			# Migration travel is handled by code
 		}
 	}
@@ -3789,7 +3800,7 @@ mpo_interaction_ask_for_paiza = {
 
 	desc = mpo_interaction_ask_for_paiza_desc
 
-	ai_frequency = 8
+	ai_frequency = 12
 	popup_on_receive = yes
 	pause_on_receive = yes
 
@@ -3913,9 +3924,11 @@ mpo_interaction_ask_for_paiza = {
 	}
 
 	on_decline = {
-		add_character_flag = {
-			flag = paiza_recently_granted
-			years = 4
+		scope:recipient = {
+			add_character_flag = {
+				flag = paiza_recently_granted
+				years = 4
+			}
 		}
 	}
 
@@ -3989,12 +4002,16 @@ mpo_interaction_ask_for_paiza = {
 			opinion_target = scope:actor
 			who = scope:recipient
 			multiplier = 0.4
-		}
-		
+		}	
+	}
+
+	ai_potential = {
+		is_adult = yes
+		highest_held_title_tier >= tier_duchy
 	}
 
 	ai_will_do = {
-		base = 10
+		base = 0
 
 		modifier = {
 			add = 100
@@ -9983,12 +10000,12 @@ join_confederation_interaction = {
 							}
 							has_trait = conqueror
 							has_trait = greatest_of_khans
-							# any_owned_story = {
-							# 	OR = {
-							# 		story_type = story_greatest_of_khans
-							# 		story_type = story_mongol_invasion
-							# 	}
-							# }
+							any_owned_story = {
+								OR = {
+									story_type = story_greatest_of_khans
+									story_type = story_mongol_invasion
+								}
+							}
 						}
 					}
 				}
