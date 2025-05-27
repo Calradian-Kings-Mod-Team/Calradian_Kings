@@ -348,6 +348,73 @@ on_game_start = {
 				}
 			}
 		}
+		### Setting up dynamic colours - For Bannerlord startdate ###
+		if = {
+			limit = {
+				current_year = 1084
+			}
+			title:e_calradian_empire = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						OR = {
+							tier = tier_duchy
+							tier = tier_kingdom
+						}
+					}
+					set_variable = dynamic_title_colors_var
+				}
+				every_in_de_jure_hierarchy = {
+					limit = {
+						OR = {
+							tier = tier_duchy
+							tier = tier_kingdom
+						}
+						NOR = {
+							this = title:d_weyard
+							this = title:d_charas
+							this = title:d_contiere
+						}
+					}
+					set_variable = original_calradian_title_colors_var
+				}
+			}
+			title:k_battania = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						OR = {
+							tier = tier_duchy
+							tier = tier_kingdom
+						}
+					}
+					set_variable = dynamic_title_colors_var
+				}
+			}
+			title:k_vlandia = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						OR = {
+							tier = tier_duchy
+							tier = tier_kingdom
+						}
+					}
+					set_variable = dynamic_title_colors_var
+					set_variable = original_vlandian_title_colors_var
+				}
+			}
+			title:k_wempire_k_3 = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						tier = tier_duchy
+						OR = {
+							this = title:d_weyard
+							this = title:d_charas
+							this = title:d_contiere
+						}
+					}
+					set_variable = original_vlandian_title_colors_var
+				}
+			}
+		}
 		### GRANDEUR ###
 		#Royal Court: Set starting Grandeur to be the same as Expected
 		if = {
@@ -1093,7 +1160,7 @@ on_game_start_after_lobby = {
 		if = {
 		    limit = {
 				has_mpo_dlc_trigger = yes
-				has_game_rule = arabia_nomad_region_on
+				has_game_rule = nahasa_nomad_region_on
 			}
 			start_situation = {
 				type = game_rule_extra_nomads_arabs
@@ -1117,8 +1184,11 @@ on_game_start_after_lobby = {
 					limit = {
 						holder = {
 							government_has_flag = government_is_tribal
-							NOT = {
-								government_has_flag = government_is_clan
+							OR = {
+								culture = { has_cultural_pillar = heritage_nahasi }
+								culture = culture:nahrawi
+								culture = culture:tamari
+								is_ai = no
 							}
 						}
 					}
@@ -1143,13 +1213,10 @@ on_game_start_after_lobby = {
 					}
 				}
 			}
-			title:c_askar = {
-				change_county_fertility = { 30 65 }
-			}
 		}	
-		# #Horn of Africa
+		#Horn of Africa
 		# if = {
-		#     limit = {
+		# 	limit = {
 		# 		has_mpo_dlc_trigger = yes
 		# 		has_game_rule = horn_of_africa_nomad_region_on
 		# 	}
@@ -1164,8 +1231,19 @@ on_game_start_after_lobby = {
 		# 				holder = {
 		# 					government_has_flag = government_is_tribal
 		# 					OR = {
-		# 						culture = culture:tamari
-		# 						culture = culture:nahrawi
+		# 						culture = culture:somali
+		# 						culture = culture:beja
+		# 						culture = culture:afar
+		# 						culture = culture:bedouin
+		# 						AND = {
+		# 							is_ai = no
+		# 							NOR = {
+		# 								culture = culture:welayta
+		# 								culture = culture:ethiopian
+		# 								culture = culture:nubian
+		# 								culture = culture:daju
+		# 							}
+		# 						}
 		# 					}
 		# 				}
 		# 			}
@@ -1190,74 +1268,13 @@ on_game_start_after_lobby = {
 		# 			}
 		# 		}
 		# 	}
-		# }		
-		# Make sure that Realm Priests are landed theocrats where it makes sense
+		# }
 		every_ruler = {
-			limit = {
-				highest_held_title_tier >= tier_duchy
-			}
-			if = {
-				limit = {
-					exists = cp:councillor_court_chaplain
-					cp:councillor_court_chaplain = {
-						is_ruler = no
-					}
-					faith = { has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment }
-					any_vassal = {
-						is_physically_able_adult = yes
-						is_councillor = no
-						government_has_flag = government_is_theocracy
-						can_be_court_chaplain_trigger = { COURT_OWNER = liege }
-						faith = liege.faith
-					}
-				}
-				random_vassal = {
-					limit = {
-						is_physically_able_adult = yes
-						is_councillor = no
-						government_has_flag = government_is_theocracy
-						can_be_court_chaplain_trigger = { COURT_OWNER = liege }
-						faith = liege.faith
-					}
-					weight = {
-						base = 1
-						modifier = {
-							add = 1000
-							faith.religious_head ?= this
-						}
-						modifier = {
-							add = learning
-						}
-						modifier = {
-							add = primary_title.tier
-						}
-					}
-					liege = {
-						assign_councillor_type = {
-							type = councillor_court_chaplain
-							remove_existing_councillor = yes
-							target = prev
-						}
-					}
-				}
-			}
-			if = {
-				limit = {
-					is_landless_adventurer = yes
-				}
-				if = { limit = { has_realm_law = crown_authority_0 } remove_realm_law = crown_authority_0 }
-			}
-		}
-
 		### Every nomad in the Steppe Region gets their yurt domicile goodies ###
 		if = {
 			limit = {
-				has_mpo_dlc_trigger = yes
-			}
-			every_ruler = {
-				limit = {
-					is_landed = yes
 					government_has_flag = government_is_nomadic
+					is_landed = yes
 				}
 				save_scope_as = holder
 				if = {
@@ -1294,12 +1311,6 @@ on_game_start_after_lobby = {
 						}
 					}
 				}
-				every_pool_guest = {
-					death = {
-						death_reason = death_vanished
-					}
-				}
-				save_scope_as = nickname_override
 				switch = {
 					trigger = primary_title.tier
 					tier_county = {
@@ -1308,18 +1319,6 @@ on_game_start_after_lobby = {
 								value = 0
 								add = { 25 40 }
 								multiply = gold_value_scale_by_era
-							}
-						}
-						random_list = {
-							10 = {
-								recruit_three_nomadic_capital_characters_effect = {
-									NOMAD_TEMPLATE_CHARACTER = nomadic_hunter_template
-								}
-							}
-							10 = {
-								recruit_three_nomadic_capital_characters_effect = {
-									NOMAD_TEMPLATE_CHARACTER = nomadic_knight_template
-								}
 							}
 						}
 					}
@@ -1338,21 +1337,6 @@ on_game_start_after_lobby = {
 							add_random_yurt_external_building_effect = yes
 							upgrade_random_yurt_external_building_effect = yes
 						}
-						recruit_three_nomadic_capital_characters_effect = {
-							NOMAD_TEMPLATE_CHARACTER = nomadic_bride_template
-						}
-						random_list = {
-							10 = {
-								recruit_three_nomadic_capital_characters_effect = {
-									NOMAD_TEMPLATE_CHARACTER = nomadic_hunter_template
-								}
-							}
-							10 = {
-								recruit_three_nomadic_capital_characters_effect = {
-									NOMAD_TEMPLATE_CHARACTER = nomadic_knight_template
-								}
-							}
-						}
 					}
 					tier_kingdom = {
 						add_gold = {
@@ -1370,15 +1354,6 @@ on_game_start_after_lobby = {
 							add_random_yurt_external_building_effect = yes
 							upgrade_random_yurt_external_building_effect = yes
 							upgrade_random_yurt_external_building_effect = yes
-						}
-						recruit_three_nomadic_capital_characters_effect = {
-							NOMAD_TEMPLATE_CHARACTER = nomadic_bride_template
-						}
-						recruit_three_nomadic_capital_characters_effect = {
-							NOMAD_TEMPLATE_CHARACTER = nomadic_hunter_template
-						}
-						recruit_three_nomadic_capital_characters_effect = {
-							NOMAD_TEMPLATE_CHARACTER = nomadic_knight_template
 						}
 					}
 					tier_empire = {
@@ -1405,15 +1380,6 @@ on_game_start_after_lobby = {
 							upgrade_random_yurt_external_building_effect = yes
 							upgrade_random_yurt_external_building_effect = yes
 							upgrade_random_yurt_external_building_effect = yes
-						}
-						recruit_three_nomadic_capital_characters_effect = {
-							NOMAD_TEMPLATE_CHARACTER = nomadic_bride_template
-						}
-						recruit_three_nomadic_capital_characters_effect = {
-							NOMAD_TEMPLATE_CHARACTER = nomadic_hunter_template
-						}
-						recruit_three_nomadic_capital_characters_effect = {
-							NOMAD_TEMPLATE_CHARACTER = nomadic_knight_template
 						}
 					}
 				}
