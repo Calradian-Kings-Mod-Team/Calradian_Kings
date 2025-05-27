@@ -974,7 +974,7 @@ ck_geroian_events.0016 = {
 
 	override_background = { reference = council_chamber }
 	trigger = {
-		root.capital_province = {
+		capital_province = {
 			geographical_region = region_geroia
 		}
 		culture = {
@@ -1152,7 +1152,7 @@ ck_geroian_events.0018 = { # Warrior Monk visits
 	override_background = { reference = council_chamber }
 
 	trigger = {
-		root.capital_province = {
+		capital_province = {
 			geographical_region = region_geroia
 		}
 		is_landed = yes
@@ -1585,7 +1585,7 @@ ck_geroian_events.0019 = { # Piracy Infestation - Caused from unresolved pirate 
 
 	override_background = { reference = fp1_beached_longships }
 	trigger = {
-		root.capital_province = {
+		capital_province = {
 			geographical_region = region_geroia
 		}
 		exists = cp:councillor_marshal
@@ -1768,6 +1768,89 @@ ck_geroian_events.0019 = { # Piracy Infestation - Caused from unresolved pirate 
 	}
 }
 
+scripted_effect ck_geroian_event_0020_effect = {
+	random_county_in_region = {
+		region = region_geroian_merchant
+		limit = {
+			exists = culture
+			holder = {
+				highest_held_title_tier >= tier_duchy
+
+			}
+			culture = {
+				NOT = {
+					this = root.culture
+				}
+			}
+		}
+		holder = {
+			save_scope_as = ck_geroian_0020_holder
+		}
+	}
+}
+ck_geroian_events.0020 = { # Merchants arrives and trades a luxurious resource (CK_RESOURCES CK_HOLDINGS) - Will be later integrated into a resource system
+	type = character_event
+	title = ck_geroian_events.0020.t
+	desc = ck_geroian_events.0020.desc # Two localizations = one for returning merchant and the other for first time
+
+	theme = stewardship
+
+	trigger = {
+		capital_province = {
+			geographical_region = region_geroia
+		}
+		NOT = {
+			has_character_flag = ck_geroian_0020_recently
+		}
+	}
+
+	immediate = {
+		ck_geroian_event_0020_effect = yes
+		create_character = {
+			age = { 28 50 }
+			gender_female_chance = {
+				if = {
+					limit = { scope:ck_geroian_0020_holder.faith = { has_doctrine = doctrine_gender_male_dominated } }
+					add = 20
+				}
+				else_if = {
+					limit = { scope:ck_geroian_0020_holder.faith = { has_doctrine = doctrine_gender_female_dominated } }
+					add = 80
+				}
+				else = {
+					add = 50
+				}
+			}
+			trait = greedy
+			trait = diligent
+			trait = humble
+			random_traits_list = {
+				education_stewardship_3 = { }
+				education_stewardship_4 = { }
+				education_stewardship_5 = { }
+			}
+			faith = scope:ck_geroian_0020_holder.faith
+			culture = scope:ck_geroian_0020_holder.culture
+			location = root.capital_province
+			dynasty = none
+			diplomacy = { 7 15 }
+			stewardship = { 12 20 }
+			save_scope_as = geroian_merchant
+		}
+	}
+
+	option = { # Let us cut a deal then? - Stewardship duel / Success upped if 
+		name = ck_geroian_events.0020.a
+	}
+
+	option = { # What goods have you come to peddle? Opens new event with list of goods. Random list of 3 options w/ a fourth one unique to the merchant's culture
+		name = ck_geroian_events.0020.b
+	}
+
+	option = { # I have no time for this right now - ends event and activates cooldown
+		name = ck_geroian_events.0020.c
+	}
+}
 ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe have a small chance of employing them as a decent stat knight
 	type = character_event
 	title = ck_geroian_events.0100.t
