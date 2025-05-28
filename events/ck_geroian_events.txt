@@ -1834,21 +1834,345 @@ ck_geroian_events.0020 = { # Merchants arrives and trades a luxurious resource (
 			location = root.capital_province
 			dynasty = none
 			diplomacy = { 7 15 }
-			stewardship = { 12 20 }
+			stewardship = { 15 21 }
 			save_scope_as = geroian_merchant
 		}
 	}
 
 	option = { # Let us cut a deal then? - Stewardship duel / Success upped if 
 		name = ck_geroian_events.0020.a
+		name = {
+			trigger = {
+				OR = {
+					has_trait = education_stewardship_4
+					has_trait = education_stewardship_5
+				}
+			}
+			text = ck_geroian_events.0020.a.stewardship
+		}
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_geroian_0020_recently
+				years = 15
+			}
+		}
+
+		duel = {
+			skill = stewardship
+			target = scope:geroian_merchant
+			10 = {
+				desc = ck_geroian_events.0020.a.critical_success
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				add_prestige = 100
+				send_interface_toast = {
+					title = ck_geroian_events.0020.a.critical_success_it
+					left_icon = scope:geroian_merchant
+					right_icon = scope:ck_geroian_0020_holder
+					add_character_modifier = {
+						modifier = receieved_great_trade_deal_ck
+						years = 10
+					}
+					capital_county = {
+						add_county_modifier = {
+							modifier = receieved_great_trade_deal_ck_county
+							years = 10
+						}
+					}
+					scope:ck_geroian_0020_holder = {
+						add_opinion = {
+							target = root
+							modifier = favorable_trade_deal_opinion
+						}
+					}
+				}
+
+			}
+			30 = {
+				desc = ck_geroian_events.0020.a.success
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				send_interface_toast = {
+					title = ck_geroian_events.0020.a.success_it
+					left_icon = scope:geroian_merchant
+					add_character_modifier = {
+						modifier = received_okay_trade_deal
+						years = 10
+					}
+					add_prestige = 50
+					if = {
+						limit = {
+							AND = {
+								gold >= 150
+								gold <= 200
+							}
+						}
+						remove_short_term_gold = 25
+					}
+					else_if = {
+						limit = {
+							gold > 200
+						}
+						remove_short_term_gold = 50
+					}
+					else_if = {
+						limit = {
+							AND = {
+								gold >= 100
+								gold < 150
+							}
+						}
+						remove_short_term_gold = 15
+					}
+					else_if = {
+						limit = {
+							AND = {
+								gold >= 30
+								gold < 100
+							}
+						}
+						remove_short_term_gold = 5
+					}
+				}
+
+			}
+			40 = {
+				desc = ck_geroian_events.0020.a.failure
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = -3.5
+					min = -49
+				}
+				send_interface_toast = {
+					title = ck_geroian_events.0020.a.failure_it
+					left_icon = scope:geroian_merchant
+					add_character_modifier = {
+						modifier = received_okay_trade_deal
+						years = 3
+					}
+					add_prestige = -50
+					if = {
+						limit = {
+							AND = {
+								gold >= 150
+								gold <= 200
+							}
+						}
+						remove_short_term_gold = 50
+					}
+					else_if = {
+						limit = {
+							gold > 200
+						}
+						remove_short_term_gold = 100
+					}
+					else_if = {
+						limit = {
+							AND = {
+								gold >= 100
+								gold < 150
+							}
+						}
+						remove_short_term_gold = 30
+					}
+					else_if = {
+						limit = {
+							AND = {
+								gold >= 30
+								gold < 100
+							}
+						}
+						remove_short_term_gold = 10
+					}
+				}
+
+			}
+			20 = {
+				desc = ck_geroian_events.0020.a.critical_failure
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = -3.5
+					min = -49
+				}
+				send_interface_toast = {
+					title = ck_geroian_events.0020.a.critical_failure_it
+					left_icon = scope:geroian_merchant
+					add_prestige = -100
+				}
+				every_vassal_or_below = {
+					limit = {
+						government_has_flag = government_is_republic
+					}
+					add_opinion = {
+						target = root
+						modifier = bungled_a_trade_deal_opinion
+					}
+				}
+				if = {
+					limit = {
+						AND = {
+							gold >= 150
+							gold <= 200
+						}
+					}
+					remove_short_term_gold = 100
+				}
+				else_if = {
+					limit = {
+						gold > 200
+					}
+					remove_short_term_gold = 150
+				}
+				else_if = {
+					limit = {
+						AND = {
+							gold >= 100
+							gold < 150
+						}
+					}
+					remove_short_term_gold = 50
+				}
+				else_if = {
+					limit = {
+						AND = {
+							gold >= 30
+							gold < 100
+						}
+					}
+					remove_short_term_gold = 15
+				}
+
+			}
+		}
 	}
 
 	option = { # What goods have you come to peddle? Opens new event with list of goods. Random list of 3 options w/ a fourth one unique to the merchant's culture
 		name = ck_geroian_events.0020.b
+		custom_tooltip = ck_geroian_events.0020.b.tt
+		trigger_event = {
+			id = ck_geroian_events.0021
+			days = 1
+		}
 	}
 
 	option = { # I have no time for this right now - ends event and activates cooldown
 		name = ck_geroian_events.0020.c
+		custom_tooltip = ck_geroian_events.0020.c.tt
+		custom_tooltip = ck_geroian_events.0020.c.tt2
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_geroian_0020_recently
+				years = 15
+			}
+		}
+	}
+}
+ck_geroian_events.0021 = { # Buying a REFINED resource from the merchant's ruler
+	type = character_event
+	title = ck_geroian_events.0021.t
+	desc = ck_geroian_events.0021.desc 
+
+	immediate = {
+		# First Resource / Construction-based
+		random_list = {
+			1 = { # Simple Mortar Mix
+
+			}
+			1 = { # Marble Slabs / Imperial Calradia region + any subrealm barony is mountain
+
+			}
+			1 = { # Lumber / Any subrealm barony is forest
+
+			}
+			1 = { # Iron Tools 
+
+			}
+		}
+		# Second Resource / Martial-based
+		random_list = {
+			1 = { # Iron Ingots / any subrealm barony is mountain or hill / Increased weight if have mines
+
+			}
+			1 = { # Leather Lamellar
+
+			}
+			1 = { # Oil
+
+			}
+			1 = { # Bodkin arrows
+
+			}
+		}
+		# Third Resource / Mix of Luxury & Development
+		random_list = {
+			1 = { # Fragant Wine
+
+			}
+			1 = { # Ivory Ornaments / ck_geroian_0020_holder is in material_hsb_ivory_imported 
+
+			}
+			1 = { # Linen / material_cloth_cotton
+
+			}
+			1 = { # Decorative Decanter Vessels
+
+			}
+			1 = { # Pearls / material_hsb_mother_of_pearl
+
+			}
+			1 = { # Exotic Perfumes
+
+			}
+		}
+		# Fourth Resource - dependent on cultural heritage of lord/lady / Luxury-based
+		random_list = {
+			# 1 = { # Indigo Dye / from West Nahasa, South Nahasa, or "India" / Commented out until those regions are added
+
+			# }
+			1 = { # Battanian Woad
+
+			}
+			1 = { # Makhanian Incense Stones / From "Makhania/India" but available if ruler is from far east Nahasa
+
+			}
+			1 = { # Calradoi Purple Dye Powder / Purple dye that is highly coveted by imperials + high prestige boost
+
+			}
+			1 = { # Thamaskene Steel / ruler is from East Nahasa (material_metal_damascus) / Improvements to prestige & MAA damage
+
+			}
+			1 = { # Sturgian Pine Pitch / used as source of heat, lighting - could help with county control (keeping criminals out of the light)
+
+			}
+			1 = { # Imperial Palmatian Horses / Cavalry bonuses
+
+			}
+			# Food-related (Feasts & Health Modifiers)
+			1 = { # Danari Salt Lumps / decreased cost to Court Amenities, increase in feast quality, decrease in cost
+
+			}
+			1 = { # Vlandian cheese wheels / gives small health boost, maybe a reduction in feast cost
+
+			}
+			1 = { # Nahasan Dates / gives small health boost, maybe a reduction in feast cost
+
+			}
+			1 = { # Battanian Barley - Battanian Wild Barley Sheaves / decent increase in feast quality
+
+			}
+			1 = { # Imperial Grape Clusters / Tiny health boost, monthly prestige
+
+			}
+			5 = { # Vlandian/Swadian butter / gives tiny health malus and a decent reduction in feast cost
+
+			}
+		}
 	}
 }
 ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe have a small chance of employing them as a decent stat knight
