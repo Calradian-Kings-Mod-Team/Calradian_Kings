@@ -26,6 +26,319 @@ random_yearly_playable_pulse = {
 		10 = ck_geroian_events
 	}
 }
+yearly_global_pulse = { ## MOVED TO NEW FILE TO UNBLOAT THE BASE GAME ON_ACTION FILE
+	effect = {
+		## Vlandian pre-split info
+		if = {
+			limit = {
+				NOT = {
+					culture:vlandian = {
+						has_variable = info_split_var
+					}
+				}
+				current_date >= 1085.6.12
+			}
+			every_player = {
+				limit = {
+					OR = {
+						culture = { has_cultural_pillar = heritage_balian }
+						culture = { has_cultural_pillar = heritage_gottic }
+					}
+					NOT = {
+						has_culture = culture:sudican
+					}
+				}
+				trigger_event = ck_global_culture.1002
+			}
+			culture:vlandian = {
+				set_variable = info_split_var
+			}
+		}
+		## Rhodok emergence
+		if = {
+			limit = {
+				NOT = {
+					culture:rhodok = {
+						has_variable = rhodok_emergence_var
+					}
+				}
+				current_date >= 1098.1.1 #1099
+			}
+			random = {
+				chance = 25 #20
+				modifier = {
+					add = 100
+					current_date >= 1104.1.1
+				}
+				trigger_event = {
+					id = ck_global_culture.0001
+					days = { 30 90 }
+				}
+			}
+		}
+		if = {
+			limit = {
+				culture:rhodok = {
+					has_variable = rhodok_emergence_var
+				}
+				current_date <= 1124.1.1
+				any_county_in_region = {
+					region = region_rhodok_culture
+					count <= 2 
+					has_county_modifier = rhodok_conversion_modifier
+				}
+			}
+			trigger_event = {
+				id = ck_global_culture.0006
+				days = { 20 60 }
+			}
+		}
+		# Rhodok council
+		if = {
+			limit = {
+				culture:rhodok = {
+					NOT = {
+						has_variable = rhodok_council_available # Keep it from repeating
+					}
+					has_variable = rhodok_emergence_var
+					NOR = {
+						has_variable = rhodok_council_established
+						has_variable = council_invitation_cooldown
+					}
+				}
+				current_date >= 1107.1.1
+			}
+			every_player = {
+				limit = {
+					has_culture = culture:rhodok
+					is_vassal_or_below_of = title:k_vlandia.holder
+				}
+				trigger_event = { ############## PLACEHOLDER - ADD PROPER EVENT - Rhodok council possible
+					id = ck_global_culture.0017
+					days = { 25 45 }
+				}
+			}
+			culture:rhodok = {
+				set_variable = rhodok_council_possibility_var
+				set_variable = rhodok_council_available
+			}
+			
+		}
+		if = {
+			limit = {
+				culture:rhodok = {
+					has_variable = rhodok_council_possibility_var
+					NOR = {
+						has_variable = council_invitation_cooldown
+						has_variable = independence_war_available_rk
+					}
+				}
+				current_date >= 1108.3.11
+			}
+			random = {
+				chance = 25
+				modifier = {
+					add = 100
+					current_date >= 1110.3.11
+				}
+				if = {
+					limit = {
+						any_ruler = {
+							is_ai = yes
+							has_culture = culture:rhodok
+							is_vassal_or_below_of = title:k_vlandia.holder
+							capital_province = { geographical_region = region_rhodok_culture }
+						}
+					}
+					random_ruler = {
+						limit = {
+							is_ai = yes
+							has_culture = culture:rhodok
+							is_vassal_or_below_of = title:k_vlandia.holder
+							capital_province = { geographical_region = region_rhodok_culture }
+							NOR = {
+								has_character_flag = rejected_rhodok_council
+								has_character_flag = rejected_rhodok_war
+							}
+						}
+						save_scope_as = rhodok_instigator
+						add_character_flag = rhodok_instigator_flag
+						trigger_event = {
+							id = ck_global_culture.0018
+							days = 30
+						}
+					}
+					remove_rhodok_council_var_effect = yes
+					if = {
+						limit = {
+							culture:rhodok = {
+								NOT = {
+									has_variable = rhodok_council_available
+								}
+							}
+						}
+						culture:rhodok = {
+							set_variable = rhodok_council_available
+						}
+					}
+					culture:rhodok = {
+						set_variable = rhodok_council_established
+					}
+					send_rhodok_council_invitation_effect = yes
+					send_rhodok_council_invitation_swadian_effect = yes
+				}
+				else_if = {
+					limit = {
+						any_ruler = {
+							is_ai = yes
+							NOT = { has_culture = culture:swadian }
+							is_vassal_or_below_of = title:k_vlandia.holder
+							capital_province = { geographical_region = region_rhodok_culture }
+							NOR = {
+								has_character_flag = rejected_rhodok_council
+								has_character_flag = rejected_rhodok_war
+							}
+						}
+					}
+					random_ruler = {
+						limit = {
+							is_ai = yes
+							NOT = { has_culture = culture:swadian }
+							is_vassal_or_below_of = title:k_vlandia.holder
+							capital_province = { geographical_region = region_rhodok_culture }
+						}
+						save_scope_as = rhodok_instigator
+						add_character_flag = rhodok_instigator_flag
+						trigger_event = {
+							id = ck_global_culture.0018
+							days = 30
+						}
+					}
+					send_rhodok_council_invitation_effect = yes
+					send_rhodok_council_invitation_swadian_effect = yes
+					remove_rhodok_council_var_effect = yes
+					culture:rhodok = {
+						set_variable = rhodok_council_established
+						set_variable = rhodok_council_available
+					}
+				}
+			}
+		}
+		# Rhodok rebellion started by AI
+		if = {
+			limit = {
+				current_date <= 1120.1.1
+				current_date >= 1115.1.1
+				exists = title:k_vlandia.holder
+				culture:rhodok = {
+					NOR = {
+						has_variable = rhodok_rebellion_var
+						has_variable = rhodok_war_possible
+					}
+				}
+			}
+			if = {
+				limit = {
+					any_ruler = {
+						is_vassal_or_below_of = title:k_vlandia.holder
+						has_culture = culture:rhodok
+						is_adult = yes
+						is_imprisoned = no
+						is_at_war = no
+						NOT = { exists = involved_activity }
+						government_has_flag = government_is_feudal
+						NOT = {
+							has_character_flag = can_declare_rhodok_war
+						}
+					}
+				}
+				random_ruler = {
+					limit = {
+						is_vassal_or_below_of = title:k_vlandia.holder
+						has_culture = culture:rhodok
+						is_adult = yes
+						is_imprisoned = no
+						is_at_war = no
+						NOT = { exists = involved_activity }
+						government_has_flag = government_is_feudal
+					}
+					trigger_event = ck_global_culture.0008
+					save_scope_as = rhodok_war_leader
+				}
+			}
+			else = {
+				create_character = { # Grunwalder will start the rebellion if no rhodok lord available
+					name = "Rhenald"
+					age = 45
+					gender = male
+					trait = education_martial_4
+					trait = organizer
+					trait = rough_terrain_expert
+					trait = unyielding_defender
+					trait = education_martial_prowess_3
+					trait = brave
+					trait = diligent
+					trait = gregarious
+					martial = { 20 24 }
+					stewardship = { 7 13 }
+					diplomacy = { 14 19 }
+					intrigue = { 12 15 }
+					prowess = { 18 25 }
+					learning = { 5 14 }
+					location = title:c_jaculan.title_province
+					faith = faith:western_calradic
+					culture = culture:massa
+					dynasty_house = house:house_grunwalder
+					save_scope_as = grunwalder
+					save_scope_as = rhodok_war_leader
+					after_creation = { 
+						add_character_flag = is_grunwalder
+						copy_inheritable_appearance_from = character:grunwalder_dummy
+						add_prestige = 3000
+					}
+				}
+				create_dynamic_title = {
+					tier = duchy
+					name = GRUNWALDER_HOST
+					adj = GRUNWALDER_HOST_ADJ
+				}
+				create_title_and_vassal_change = {
+					type = created
+					save_scope_as = change
+					add_claim_on_loss = no
+				}
+				scope:new_title = {
+					set_capital_county = title:c_jaculan
+					set_landless_title = yes
+					set_no_automatic_claims = yes
+					set_definitive_form = yes
+					change_title_holder = {
+						holder = scope:grunwalder
+						change = scope:change
+					}
+				}
+				resolve_title_and_vassal_change = scope:change
+				scope:grunwalder = {
+					add_gold = 200
+					add_prestige = 2000
+					add_legitimacy = 150
+					trigger_event = ck_global_culture.0008
+					spawn_army = {
+						levies = 2000
+						men_at_arms = {
+							type = rhodok_crossbowmen_2
+							men = 1000
+						}
+						location = title:b_asvel.title_province
+						inheritable = no
+						uses_supply = no
+						name = grunwalder_host_army
+					}
+				}
+			}
+		}
+	}
+}
 ck_game_start = {
 	effect = {
 		### CALRADIC KINGS - GAMERULES ###
