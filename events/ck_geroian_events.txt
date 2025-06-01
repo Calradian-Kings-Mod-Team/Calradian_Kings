@@ -1770,7 +1770,7 @@ ck_geroian_events.0019 = { # Piracy Infestation - Caused from unresolved pirate 
 
 scripted_effect ck_geroian_event_0020_effect = {
 	random_county_in_region = {
-		region = region_geroian_merchant
+		region = geroian_event_0021_region
 		limit = {
 			exists = culture
 			holder = {
@@ -1808,45 +1808,66 @@ ck_geroian_events.0020 = { # Merchants arrives and trades a luxurious resource (
 		NOT = {
 			has_character_flag = ck_geroian_0020_recently
 		}
+		highest_held_title_tier >= tier_duchy
 	}
-
+	left_portrait = {
+		character = scope:geroian_merchant
+		animation = steward
+	}
 	immediate = {
-		ck_geroian_event_0020_effect = yes
-		create_character = {
-			age = { 28 50 }
-			gender_female_chance = {
-				if = {
-					limit = { scope:ck_geroian_0020_holder.faith = { has_doctrine = doctrine_gender_male_dominated } }
-					add = 20
-				}
-				else_if = {
-					limit = { scope:ck_geroian_0020_holder.faith = { has_doctrine = doctrine_gender_female_dominated } }
-					add = 80
-				}
-				else = {
-					add = 50
+		if = {
+			limit = {
+				NOT = {
+					has_character_flag = returned_from_geroian_0021
 				}
 			}
-			trait = greedy
-			trait = diligent
-			trait = humble
-			random_traits_list = {
-				education_stewardship_3 = { }
-				education_stewardship_4 = { }
-				education_stewardship_5 = { }
+			ck_geroian_event_0020_effect = yes
+			# Create the Monk
+			create_character = {
+				age = { 28 50 }
+				trait = greedy
+				trait = diligent
+				trait = humble
+				dynasty = none
+				location = root.capital_province
+				faith = scope:ck_geroian_0020_holder.faith
+				culture = scope:ck_geroian_0020_holder.culture
+				gender_female_chance = {
+					if = {
+						limit = { scope:ck_geroian_0020_holder.faith = { has_doctrine = doctrine_gender_male_dominated } }
+						add = 20
+					}
+					else_if = {
+						limit = { scope:ck_geroian_0020_holder.faith = { has_doctrine = doctrine_gender_female_dominated } }
+						add = 80
+					}
+					else = {
+						add = 50
+					}
+				}
+				diplomacy = { 7 15 }
+				stewardship = { 6 11 }
+				after_creation = {
+					random_list = {
+						15 = {
+							add_trait = education_stewardship_5
+						}
+						65 = {
+							add_trait = education_stewardship_4
+						}
+						20 = {
+							add_trait = education_stewardship_3
+						}
+					}
+				}
+				save_scope_as = geroian_merchant
 			}
-			faith = scope:ck_geroian_0020_holder.faith
-			culture = scope:ck_geroian_0020_holder.culture
-			location = root.capital_province
-			dynasty = none
-			diplomacy = { 7 15 }
-			stewardship = { 15 21 }
-			save_scope_as = geroian_merchant
 		}
 	}
 
 	option = { # Let us cut a deal then? - Stewardship duel / Success upped if 
 		name = ck_geroian_events.0020.a
+		custom_tooltip = ck_geroian_events.0020.c.tt2
 		name = {
 			trigger = {
 				OR = {
@@ -1860,6 +1881,20 @@ ck_geroian_events.0020 = { # Merchants arrives and trades a luxurious resource (
 			add_character_flag = {
 				flag = ck_geroian_0020_recently
 				years = 15
+			}
+			scope:ck_geroian_0020_holder = {
+				add_courtier = scope:geroian_merchant
+			}
+			scope:geroian_merchant = {
+				set_location = scope:ck_geroian_0020_holder.capital_province
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
+			}
+			if = {
+				limit = {
+					has_character_flag = returned_from_geroian_0021
+				}
+				remove_character_flag = returned_from_geroian_0021
 			}
 		}
 
@@ -1897,7 +1932,7 @@ ck_geroian_events.0020 = { # Merchants arrives and trades a luxurious resource (
 				}
 
 			}
-			30 = {
+			40 = {
 				desc = ck_geroian_events.0020.a.success
 				compare_modifier = {
 					value = scope:duel_value
@@ -1948,7 +1983,7 @@ ck_geroian_events.0020 = { # Merchants arrives and trades a luxurious resource (
 				}
 
 			}
-			40 = {
+			30 = {
 				desc = ck_geroian_events.0020.a.failure
 				compare_modifier = {
 					value = scope:duel_value
@@ -2070,19 +2105,54 @@ ck_geroian_events.0020 = { # Merchants arrives and trades a luxurious resource (
 	option = { # I have no time for this right now - ends event and activates cooldown
 		name = ck_geroian_events.0020.c
 		custom_tooltip = ck_geroian_events.0020.c.tt
-		custom_tooltip = ck_geroian_events.0020.c.tt2
+		custom_tooltip = ck_geroian_events.0020.c.tt3
 		hidden_effect = {
 			add_character_flag = {
 				flag = ck_geroian_0020_recently
-				years = 15
+				years = 5
+			}
+			scope:ck_geroian_0020_holder = {
+				add_courtier = scope:geroian_merchant
+			}
+			scope:geroian_merchant = {
+				set_location = scope:ck_geroian_0020_holder.capital_province
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
+			}
+			if = {
+				limit = {
+					has_character_flag = returned_from_geroian_0021
+				}
+				remove_character_flag = returned_from_geroian_0021
 			}
 		}
 	}
 }
-scripted_effect ck_geroian_events_0021_effect = {
+scripted_effect ck_geroian_events_0021_effect_1 = {
 	add_character_flag = trading_$RESOURCE$_modifier
 	set_variable = {
-		name = event_resource_value
+		name = ck_resource_value_1
+		value = $RESOURCE_VALUE$
+	}
+}
+scripted_effect ck_geroian_events_0021_effect_2 = {
+	add_character_flag = trading_$RESOURCE$_modifier
+	set_variable = {
+		name = ck_resource_value_2
+		value = $RESOURCE_VALUE$
+	}
+}
+scripted_effect ck_geroian_events_0021_effect_3 = {
+	add_character_flag = trading_$RESOURCE$_modifier
+	set_variable = {
+		name = ck_resource_value_3
+		value = $RESOURCE_VALUE$
+	}
+}
+scripted_effect ck_geroian_events_0021_effect_4 = {
+	add_character_flag = trading_$RESOURCE$_modifier
+	set_variable = {
+		name = ck_resource_value_4
 		value = $RESOURCE_VALUE$
 	}
 }
@@ -2091,404 +2161,628 @@ ck_geroian_events.0021 = { # Buying a REFINED resource from the merchant's ruler
 	type = character_event
 	title = ck_geroian_events.0021.t
 	desc = ck_geroian_events.0021.desc 
+	theme = stewardship
 
+	right_portrait = {
+		character = scope:geroian_merchant
+		animation = writing
+	}
 	immediate = { ## CK_HOLDING CK_UPDATE CK_REWORK - when we rework holdings and add resources, let's revamp these lists
-		# First Resource / Construction-based
-		random_list = {
-			1 = { # Simple Mortar Mix
-				ck_geroian_events_0021_effect = {
-					RESOURCE = simple_mortar
-					RESOURCE_VALUE = 50
+		
+			# First Resource / Construction-based
+			random_list = {
+				1 = { # Simple Mortar Mix
+					ck_geroian_events_0021_effect_1 = {
+						RESOURCE = simple_mortar
+						RESOURCE_VALUE = 50
+					}
 				}
-			}
-			1 = { # Marble Slabs / Imperial Calradia region + any subrealm barony is mountain
-				ck_geroian_events_0021_effect = {
-					RESOURCE = simple_marble
-					RESOURCE_VALUE = 75
-				}
-			}
-			1 = { # Lumber / Any subrealm barony is forest
-				ck_geroian_events_0021_effect = {
-					RESOURCE = lumber_resource
-					RESOURCE_VALUE = 35
-				}
-			}
-			1 = { # Iron Tools 
-				ck_geroian_events_0021_effect = {
-					RESOURCE = iron_tools_resource
-					RESOURCE_VALUE = 50
-				}
-			}
-		}
-		# Second Resource / Martial-based
-		random_list = {
-			1 = { # Iron Ingots / any subrealm barony is mountain or hill / Increased weight if have mines
-				ck_geroian_events_0021_effect = {
-					RESOURCE = iron_ingots_resource
-					RESOURCE_VALUE = 40
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						any_sub_realm_barony = {
-							title_province = {
-								OR = {
+				1 = { # Marble Slabs / Imperial Calradia region + any subrealm barony is mountain
+					ck_geroian_events_0021_effect_1 = {
+						RESOURCE = simple_marble
+						RESOURCE_VALUE = 75
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							capital_province = { geographical_region = region_imperial_calradia }
+							any_sub_realm_barony = {
+								title_province = {
 									terrain = mountains
-									terrain = desert_mountains
-									terrain = hills
 								}
 							}
 						}
 					}
 				}
-			}
-			1 = { # Leather Lamellar
-				ck_geroian_events_0021_effect = {
-					RESOURCE = leather_lamellar_resource
-					RESOURCE_VALUE = 70
-				}
-			}
-			1 = { # Oil
-				ck_geroian_events_0021_effect = {
-					RESOURCE = oil_resource
-					RESOURCE_VALUE = 75
-				}
-
-			}
-			1 = { # Bodkin arrows
-				ck_geroian_events_0021_effect = {
-					RESOURCE = bodkin_arrows_resource
-					RESOURCE_VALUE = 35
-				}
-
-			}
-		}
-		# Third Resource / Mix of Luxury & Development
-		random_list = {
-			1 = { # Fragrant Wine
-				ck_geroian_events_0021_effect = {
-					RESOURCE = fragrant_wine_resource
-					RESOURCE_VALUE = 50
-				}
-			}
-			1 = { # Ivory Ornaments / ck_geroian_0020_holder is in material_hsb_ivory_imported 
-				ck_geroian_events_0021_effect = {
-					RESOURCE = ivory_ornaments_resource
-					RESOURCE_VALUE = 70
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						capital_province = { geographical_region = material_hsb_ivory_imported }
+				1 = { # Lumber / Any subrealm barony is forest
+					ck_geroian_events_0021_effect_1 = {
+						RESOURCE = lumber_resource
+						RESOURCE_VALUE = 35
 					}
-				}
-			}
-			1 = { # Linen / material_cloth_cotton
-				ck_geroian_events_0021_effect = {
-					RESOURCE = linen_resource
-					RESOURCE_VALUE = 40
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						capital_province = { geographical_region = material_cloth_cotton }
-					}
-				}
-			}
-			1 = { # Decorative Decanter Vessels
-				ck_geroian_events_0021_effect = {
-					RESOURCE = decanter_vessels_resource
-					RESOURCE_VALUE = 60
-				}
-			}
-			1 = { # Pearls / material_hsb_mother_of_pearl
-				ck_geroian_events_0021_effect = {
-					RESOURCE = mother_pearls_resource
-					RESOURCE_VALUE = 100
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						capital_province = { geographical_region = material_hsb_mother_of_pearl }
-					}
-				}
-			}
-			1 = { # Exotic Perfumes
-				ck_geroian_events_0021_effect = {
-					RESOURCE = exotic_perfumes_resource
-					RESOURCE_VALUE = 65
-				}
-			}
-		}
-		# Fourth Resource - dependent on cultural heritage of lord/lady / Luxury-based
-		random_list = {
-			1 = { # Indigo Dye / from West Nahasa, South Nahasa, or "India" / Ruler region is world_india currently
-				ck_geroian_events_0021_effect = {
-					RESOURCE = indigo_dye_resource
-					RESOURCE_VALUE = 75
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						OR = {
-							culture = {
-								has_cultural_pillar = heritage_khangay
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							any_sub_realm_barony = {
+								title_province = {
+									terrain = forest
+								}
 							}
-							capital_province = { geographical_region = world_india }
 						}
 					}
 				}
-			}
-			1 = { # Battanian Woad
-				ck_geroian_events_0021_effect = {
-					RESOURCE = battanian_woad_resource
-					RESOURCE_VALUE = 20
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						culture = {
-							has_cultural_pillar = heritage_battanian
-						}
+				1 = { # Iron Tools 
+					ck_geroian_events_0021_effect_1 = {
+						RESOURCE = iron_tools_resource
+						RESOURCE_VALUE = 50
 					}
 				}
 			}
-			1 = { # Makhanian Incense Stones / From "Makhania/India" but available if ruler is from far east Nahasa
-				ck_geroian_events_0021_effect = {
-					RESOURCE = makhanian_incense_stones_resource
-					RESOURCE_VALUE = 65
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						OR = {
-							culture = {
-								has_cultural_pillar = heritage_khangay
+			# Second Resource / Martial-based
+			random_list = {
+				1 = { # Iron Ingots / any subrealm barony is mountain or hill / Increased weight if have mines
+					ck_geroian_events_0021_effect_2 = {
+						RESOURCE = iron_ingots_resource
+						RESOURCE_VALUE = 40
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							any_sub_realm_barony = {
+								title_province = {
+									OR = {
+										terrain = mountains
+										terrain = desert_mountains
+										terrain = hills
+									}
+								}
 							}
-							capital_province = { geographical_region = world_india }
-							capital_province = { geographical_region = region_darshi_west }
 						}
 					}
 				}
-
-			}
-			1 = { # Calradoi Purple Dye Powder / Purple dye that is highly coveted by imperials + high prestige boost
-				ck_geroian_events_0021_effect = {
-					RESOURCE = calradoi_dye_resource
-					RESOURCE_VALUE = 100
+				1 = { # Leather Lamellar
+					ck_geroian_events_0021_effect_2 = {
+						RESOURCE = leather_lamellar_resource
+						RESOURCE_VALUE = 70
+					}
 				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						culture = {
-							has_cultural_pillar = heritage_calradian
+				1 = { # Oil
+					ck_geroian_events_0021_effect_2 = {
+						RESOURCE = oil_resource
+						RESOURCE_VALUE = 75
+					}
+
+				}
+				1 = { # Bodkin arrows
+					ck_geroian_events_0021_effect_2 = {
+						RESOURCE = bodkin_arrows_resource
+						RESOURCE_VALUE = 35
+					}
+
+				}
+			}
+			# Third Resource / Mix of Luxury & Development
+			random_list = {
+				1 = { # Fragrant Wine
+					ck_geroian_events_0021_effect_3 = {
+						RESOURCE = fragrant_wine_resource
+						RESOURCE_VALUE = 50
+					}
+				}
+				1 = { # Ivory Ornaments / ck_geroian_0020_holder is in material_hsb_ivory_imported 
+					ck_geroian_events_0021_effect_3 = {
+						RESOURCE = ivory_ornaments_resource
+						RESOURCE_VALUE = 70
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							capital_province = { geographical_region = material_hsb_ivory_imported }
 						}
 					}
 				}
-
-			}
-			1 = { # Thamaskene Steel / ruler is from East Nahasa (material_metal_damascus) / Improvements to prestige & MAA damage
-				ck_geroian_events_0021_effect = {
-					RESOURCE = thamaskene_resource
-					RESOURCE_VALUE = 90
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						capital_province = { geographical_region = material_metal_damascus }
+				1 = { # Linen / material_cloth_cotton
+					ck_geroian_events_0021_effect_3 = {
+						RESOURCE = linen_resource
+						RESOURCE_VALUE = 40
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							capital_province = { geographical_region = material_cloth_cotton }
+						}
 					}
 				}
-
-			}
-			1 = { # Sturgian Pine Pitch / used as source of heat, lighting - could help with county control (keeping criminals out of the light)
-				ck_geroian_events_0021_effect = {
-					RESOURCE = sturgian_pitch_resource
-					RESOURCE_VALUE = 25
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						capital_province = { geographical_region = region_longships }
+				1 = { # Decorative Decanter Vessels
+					ck_geroian_events_0021_effect_3 = {
+						RESOURCE = decanter_vessels_resource
+						RESOURCE_VALUE = 60
 					}
 				}
-
-			}
-			1 = { # Imperial Palmatian Horses / Cavalry bonuses
-				ck_geroian_events_0021_effect = {
-					RESOURCE = imperial_palmatian_resource
-					RESOURCE_VALUE = 80
+				1 = { # Pearls / material_hsb_mother_of_pearl
+					ck_geroian_events_0021_effect_3 = {
+						RESOURCE = mother_pearls_resource
+						RESOURCE_VALUE = 100
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							capital_province = { geographical_region = material_hsb_mother_of_pearl }
+						}
+					}
 				}
-				trigger = {
+				1 = { # Exotic Perfumes
+					ck_geroian_events_0021_effect_3 = {
+						RESOURCE = exotic_perfumes_resource
+						RESOURCE_VALUE = 65
+					}
+				}
+			}
+			# Fourth Resource - dependent on cultural heritage of lord/lady / Luxury-based
+			random_list = {
+				1 = { # Indigo Dye / from West Nahasa, South Nahasa, or "India" / Ruler region is world_india currently
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = indigo_dye_resource
+						RESOURCE_VALUE = 75
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							OR = {
+								culture = {
+									has_cultural_pillar = heritage_khangay
+								}
+								capital_province = { geographical_region = world_india }
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+				}
+				1 = { # Battanian Woad
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = battanian_woad_resource
+						RESOURCE_VALUE = 20
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							culture = {
+								has_cultural_pillar = heritage_battanian
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+				}
+				1 = { # Makhanian Incense Stones / From "Makhania/India" but available if ruler is from far east Nahasa
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = makhanian_incense_stones_resource
+						RESOURCE_VALUE = 65
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							OR = {
+								culture = {
+									has_cultural_pillar = heritage_khangay
+								}
+								capital_province = { geographical_region = world_india }
+								capital_province = { geographical_region = region_darshi_west }
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Calradoi Purple Dye Powder / Purple dye that is highly coveted by imperials + high prestige boost
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = calradoi_dye_resource
+						RESOURCE_VALUE = 100
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							culture = {
+								has_cultural_pillar = heritage_calradian
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Thamaskene Steel / ruler is from East Nahasa (material_metal_damascus) / Improvements to prestige & MAA damage
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = thamaskene_resource
+						RESOURCE_VALUE = 90
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							capital_province = { geographical_region = material_metal_damascus }
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Sturgian Pine Pitch / used as source of heat, lighting - could help with county control (keeping criminals out of the light)
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = sturgian_pitch_resource
+						RESOURCE_VALUE = 25
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							capital_province = { geographical_region = region_longships }
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Imperial Palmatian Horses / Cavalry bonuses
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = imperial_palmatian_resource
+						RESOURCE_VALUE = 80
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							AND = {
+								culture = {
+									has_cultural_pillar = heritage_calradian
+								}
+								capital_province = { geographical_region = world_calradia_east }
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Calradoi Silk / Higher quality luxury good, EXPENSIVE!
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = calradoi_silk_resource
+						RESOURCE_VALUE = 110
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							culture = {
+								has_cultural_pillar = heritage_calradian
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				# Food-related (Feasts & Health Modifiers)
+				1 = { # Danari Salt Lumps / decreased cost to Court Amenities, increase in feast quality, decrease in cost
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = danari_salt_resource
+						RESOURCE_VALUE = 30
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							capital_province = { geographical_region = region_kohi_rohini }
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Sturgic Mead / decent reduction in feast cost
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = sturgic_mead_resource
+						RESOURCE_VALUE = 40
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							OR = {
+								culture = {
+									has_cultural_pillar = heritage_sturgic
+								}
+								capital_province = { geographical_region = region_longships }
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+				}
+				1 = { # Calradoi Wine / Higher quality than Fragrant Wine (above)
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = calradoi_wine_resource
+						RESOURCE_VALUE = 85
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							OR = {
+								culture = {
+									has_cultural_pillar = heritage_calradian
+								}
+								capital_province = { geographical_region = region_imperial_calradia }
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Vlandian cheese wheels / gives small health boost, maybe a reduction in feast cost
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = vlandian_cheese_resource
+						RESOURCE_VALUE = 40
+					}
+					trigger = {
+						culture:rhodok = {
+							NOT = {
+								has_variable = rhodok_emergence_var
+							}
+						}
+						scope:ck_geroian_0020_holder = {
+							OR = {
+								culture = {
+									has_cultural_pillar = heritage_balian
+								}
+								capital_province = { geographical_region = region_vlandia }
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Nahasan Dates / gives small health boost, maybe a reduction in feast cost
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = nahasa_dates_resource
+						RESOURCE_VALUE = 30
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							capital_province = { geographical_region = region_north_nahasa_coast }
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Battanian Ale / decent increase in feast quality
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = battanian_barley_resource
+						RESOURCE_VALUE = 35
+					}
+					trigger = {
+						scope:ck_geroian_0020_holder = {
+							culture = {
+								has_cultural_pillar = heritage_battanian
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+
+				}
+				1 = { # Imperial Grape Clusters / Tiny health boost, monthly prestige
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = imperial_grapes_resource
+						RESOURCE_VALUE = 30
+					}
 					scope:ck_geroian_0020_holder = {
 						AND = {
 							culture = {
 								has_cultural_pillar = heritage_calradian
 							}
-							capital_province = { geographical_region = world_calradia_east }
+							capital_province = { geographical_region = region_wineyards }
 						}
 					}
-				}
+					add_character_flag = ck_geroian_available_fourth_option
 
-			}
-			1 = { # Calradoi Silk / Higher quality luxury good, EXPENSIVE!
-				ck_geroian_events_0021_effect = {
-					RESOURCE = calradoi_silk_resource
-					RESOURCE_VALUE = 110
 				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						culture = {
-							has_cultural_pillar = heritage_calradian
-						}
+				1 = { # Vlandian butter / gives tiny health malus and a decent reduction in feast cost
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = vlandian_butter_resource
+						RESOURCE_VALUE = 25
 					}
-				}
-
-			}
-			# Food-related (Feasts & Health Modifiers)
-			1 = { # Danari Salt Lumps / decreased cost to Court Amenities, increase in feast quality, decrease in cost
-				ck_geroian_events_0021_effect = {
-					RESOURCE = danari_salt_resource
-					RESOURCE_VALUE = 30
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						capital_province = { geographical_region = region_kohi_rohini }
-					}
-				}
-
-			}
-			1 = { # Sturgic Mead / decent reduction in feast cost
-				ck_geroian_events_0021_effect = {
-					RESOURCE = sturgic_mead_resource
-					RESOURCE_VALUE = 40
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						OR = {
-							culture = {
-								has_cultural_pillar = heritage_sturgic
+					trigger = {
+						culture:rhodok = {
+							NOT = {
+								has_variable = rhodok_emergence_var
 							}
-							capital_province = { geographical_region = region_longships }
 						}
-					}
-				}
-			}
-			1 = { # Calradoi Wine / Higher quality than Fragrant Wine (above)
-				ck_geroian_events_0021_effect = {
-					RESOURCE = calradoi_wine_resource
-					RESOURCE_VALUE = 85
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						OR = {
-							culture = {
-								has_cultural_pillar = heritage_calradian
-							}
-							capital_province = { geographical_region = region_imperial_calradia }
-						}
-					}
-				}
-
-			}
-			1 = { # Vlandian cheese wheels / gives small health boost, maybe a reduction in feast cost
-				ck_geroian_events_0021_effect = {
-					RESOURCE = vlandian_cheese_resource
-					RESOURCE_VALUE = 40
-				}
-				trigger = {
-					culture:rhodok = {
-						NOT = {
-							has_variable = rhodok_emergence_var
-						}
-					}
-					scope:ck_geroian_0020_holder = {
-						OR = {
-							culture = {
-								has_cultural_pillar = heritage_balian
-							}
-							capital_province = { geographical_region = region_vlandia }
-						}
-					}
-				}
-
-			}
-			1 = { # Nahasan Dates / gives small health boost, maybe a reduction in feast cost
-				ck_geroian_events_0021_effect = {
-					RESOURCE = nahasa_dates_resource
-					RESOURCE_VALUE = 30
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						capital_province = { geographical_region = region_north_nahasa_coast }
-					}
-				}
-
-			}
-			1 = { # Battanian Ale / decent increase in feast quality
-				ck_geroian_events_0021_effect = {
-					RESOURCE = battanian_barley_resource
-					RESOURCE_VALUE = 35
-				}
-				trigger = {
-					scope:ck_geroian_0020_holder = {
-						culture = {
-							has_cultural_pillar = heritage_battanian
-						}
-					}
-				}
-
-			}
-			1 = { # Imperial Grape Clusters / Tiny health boost, monthly prestige
-				ck_geroian_events_0021_effect = {
-					RESOURCE = imperial_grapes_resource
-					RESOURCE_VALUE = 30
-				}
-				scope:ck_geroian_0020_holder = {
-					AND = {
-						culture = {
-							has_cultural_pillar = heritage_calradian
-						}
-						capital_province = { geographical_region = region_wineyards }
-					}
-				}
-
-			}
-			1 = { # Vlandian butter / gives tiny health malus and a decent reduction in feast cost
-				ck_geroian_events_0021_effect = {
-					RESOURCE = vlandian_butter_resource
-					RESOURCE_VALUE = 25
-				}
-				trigger = {
-					culture:rhodok = {
-						NOT = {
-							has_variable = rhodok_emergence_var
-						}
-					}
-					scope:ck_geroian_0020_holder = {
-						OR = {
-							culture = {
-								has_cultural_pillar = heritage_balian
-							}
-							capital_province = { geographical_region = region_vlandia }
-						}
-					}
-				}
-			}
-			1 = { # Swadian butter / gives tiny health malus and a decent reduction in feast cost
-				ck_geroian_events_0021_effect = {
-					RESOURCE = swadian_butter_resource
-					RESOURCE_VALUE = 25
-				}
-				trigger = {
-					culture:rhodok = {
-						has_variable = rhodok_emergence_var
-					}
-					scope:ck_geroian_0020_holder = {
-						OR = {
-							culture = {
-								OR = {
+						scope:ck_geroian_0020_holder = {
+							OR = {
+								culture = {
 									has_cultural_pillar = heritage_balian
-									has_cultural_pillar = heritage_esbalian
 								}
+								capital_province = { geographical_region = region_vlandia }
 							}
-							capital_province = { geographical_region = region_swadia_heartland }
 						}
 					}
+					add_character_flag = ck_geroian_available_fourth_option
 				}
+				1 = { # Swadian butter / gives tiny health malus and a decent reduction in feast cost
+					ck_geroian_events_0021_effect_4 = {
+						RESOURCE = swadian_butter_resource
+						RESOURCE_VALUE = 25
+					}
+					trigger = {
+						culture:rhodok = {
+							has_variable = rhodok_emergence_var
+						}
+						scope:ck_geroian_0020_holder = {
+							OR = {
+								culture = {
+									OR = {
+										has_cultural_pillar = heritage_balian
+										has_cultural_pillar = heritage_esbalian
+									}
+								}
+								capital_province = { geographical_region = region_swadia_heartland }
+							}
+						}
+					}
+					add_character_flag = ck_geroian_available_fourth_option
+				}
+			}
+	}
+
+	option = { # Resource 1
+		name = ck_geroian_events.0021.a
+		custom_tooltip = ck_geroian_events.0020.c.tt2
+		pay_short_term_gold = {
+			target = scope:ck_geroian_0020_holder
+			gold = var:ck_resource_value_1
+		}
+		ck_resource_1_effect = yes
+		hidden_effect = {
+			remove_variable = ck_resource_value_1
+			remove_variable = ck_resource_value_2
+			remove_variable = ck_resource_value_3
+			remove_variable = ck_resource_value_4
+			remove_all_character_flags_0021 = yes
+			add_character_flag = {
+				flag = ck_geroian_0020_recently
+				years = 15
+			}
+			scope:ck_geroian_0020_holder = {
+				add_courtier = scope:geroian_merchant
+			}
+			scope:geroian_merchant = {
+				set_location = scope:ck_geroian_0020_holder.capital_province
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
+			}
+			if = {
+				limit = {
+					has_character_flag = returned_from_geroian_0021
+				}
+				remove_character_flag = returned_from_geroian_0021
+			}
+		}
+	}
+
+	option = { # Resource 2
+		name = ck_geroian_events.0021.b
+		custom_tooltip = ck_geroian_events.0020.c.tt2
+		pay_short_term_gold = {
+			target = scope:ck_geroian_0020_holder
+			gold = var:ck_resource_value_2
+		}
+		ck_resource_2_effect = yes
+		hidden_effect = {
+			remove_variable = ck_resource_value_1
+			remove_variable = ck_resource_value_2
+			remove_variable = ck_resource_value_3
+			remove_variable = ck_resource_value_4
+			remove_all_character_flags_0021 = yes
+			add_character_flag = {
+				flag = ck_geroian_0020_recently
+				years = 15
+			}
+			if = {
+				limit = {
+					has_character_flag = returned_from_geroian_0021
+				}
+				remove_character_flag = returned_from_geroian_0021
+			}
+			scope:ck_geroian_0020_holder = {
+				add_courtier = scope:geroian_merchant
+			}
+			scope:geroian_merchant = {
+				set_location = scope:ck_geroian_0020_holder.capital_province
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
+			}
+		}
+	}
+
+	option = { # Resource 3
+		name = ck_geroian_events.0021.c
+		custom_tooltip = ck_geroian_events.0020.c.tt2
+		pay_short_term_gold = {
+			target = scope:ck_geroian_0020_holder
+			gold = var:ck_resource_value_3
+		}
+		ck_resource_3_effect = yes
+		hidden_effect = {
+			remove_variable = ck_resource_value_1
+			remove_variable = ck_resource_value_2
+			remove_variable = ck_resource_value_3
+			remove_variable = ck_resource_value_4
+			remove_all_character_flags_0021 = yes
+			add_character_flag = {
+				flag = ck_geroian_0020_recently
+				years = 15
+			}
+			if = {
+				limit = {
+					has_character_flag = returned_from_geroian_0021
+				}
+				remove_character_flag = returned_from_geroian_0021
+			}
+			scope:ck_geroian_0020_holder = {
+				add_courtier = scope:geroian_merchant
+			}
+			scope:geroian_merchant = {
+				set_location = scope:ck_geroian_0020_holder.capital_province
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
+			}
+		}
+
+	}
+
+	option = { # Resource 4
+		name = ck_geroian_events.0021.d
+		custom_tooltip = ck_geroian_events.0020.c.tt2
+		trigger = {
+			has_character_flag = ck_geroian_available_fourth_option
+		}
+		pay_short_term_gold = {
+			target = scope:ck_geroian_0020_holder
+			gold = var:ck_resource_value_4
+		}
+		ck_resource_4_effect = yes
+		hidden_effect = {
+			remove_variable = ck_resource_value_1
+			remove_variable = ck_resource_value_2
+			remove_variable = ck_resource_value_3
+			if = {
+				limit = {
+					has_variable = ck_resource_value_4
+				}
+				remove_variable = ck_resource_value_4
+			}
+			remove_all_character_flags_0021 = yes
+			add_character_flag = {
+				flag = ck_geroian_0020_recently
+				years = 15
+			}
+			if = {
+				limit = {
+					has_character_flag = returned_from_geroian_0021
+				}
+				remove_character_flag = returned_from_geroian_0021
+			}
+			scope:ck_geroian_0020_holder = {
+				add_courtier = scope:geroian_merchant
+			}
+			scope:geroian_merchant = {
+				set_location = scope:ck_geroian_0020_holder.capital_province
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
+			}
+		}
+	}
+	option = { # Nevermind
+		name = ck_geroian_events.0021.e
+		custom_tooltip = ck_geroian_events.0021.return_tt
+		custom_tooltip = {
+			text = ck_geroian_events.0020.c.tt3
+			add_character_flag = {
+				flag = ck_geroian_0020_recently
+				years = 5
+			}
+		}
+		hidden_effect = {
+			remove_variable = ck_resource_value_1
+			remove_variable = ck_resource_value_2
+			remove_variable = ck_resource_value_3
+			if = {
+				limit = {
+					has_variable = ck_resource_value_4
+				}
+				remove_variable = ck_resource_value_4
+			}
+			remove_all_character_flags_0021 = yes
+			scope:ck_geroian_0020_holder = {
+				add_courtier = scope:geroian_merchant
+			}
+			scope:geroian_merchant = {
+				set_location = scope:ck_geroian_0020_holder.capital_province
+				set_variable = was_hired_by_ruler
+				return_to_court = yes
 			}
 		}
 	}
 }
+
+
 ck_geroian_events.0100 = { # You invite the Monk in for a small feast. Maybe have a small chance of employing them as a decent stat knight
 	type = character_event
 	title = ck_geroian_events.0100.t
