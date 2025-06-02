@@ -1,0 +1,583 @@
+﻿namespace = ck_rhodok
+
+# Appearance of Grunwalder #
+ck_rhodok.0001 = {
+	title = ck_rhodok.0001.t
+	desc = ck_rhodok.0001.desc
+	theme = culture_change
+	trigger = {
+		culture:rhodok = {
+			has_variable = rhodok_emergence_var
+		}
+		AND = {
+			current_date >= 1102.1.1
+			culture:rhodok = {
+				NOT = {
+					has_variable = rhodok_council_available # Keep it from repeating
+				}
+			}
+		}
+		capital_province = { geographical_region = region_rhodok_culture }
+	}
+	right_portrait = {
+		character = character:grunwalder_dummy
+		animation = throne_room_one_handed_passive_3
+		hide_info = yes
+	}
+	immediate = {
+		set_global_variable = grunwalder_events_start
+	}
+	option = {
+		name = ck_rhodok.0001.a
+	}
+	# option = { # Play as Grunwalder / set global variable of grunwalder to root so that the Rhodok events can find Grunwalder (you)
+	# 	name = ck_rhodok.0001.b # Commented out until this feature can be added and integrated seamlessly into the larger rebellion
+	# }
+}
+ck_rhodok.0002 = {
+	title = ck_rhodok.0002.t
+	desc = ck_rhodok.0001.desc
+	theme = realm
+	left_portrait = {
+		character = root
+		animation = war_over_loss
+	}
+	right_portrait = {
+		character = scope:marshal
+		animation = throne_room_one_handed_passive_3
+	}
+	trigger = {
+		AND = {
+			current_date >= 1103.1.1
+			culture:rhodok = {
+				NOT = {
+					has_variable = rhodok_council_available # Keep it from repeating
+				}
+			}
+		}
+		has_global_variable = grunwalder_events_start
+		NOR = {
+			has_character_flag = ran_rhodok_0002
+			has_character_flag = repreive_from_grunwalder
+		}
+		capital_province = {
+			geographical_region = biscanian_hills
+		}
+		exists = cp:councillor_marshal
+		scope:councillor = cp:councillor_marshal
+		culture = {
+			OR = {
+				this = culture:vlandian
+				this = culture:swadian
+			}
+		}
+	}
+	immediate = {
+		cp:councillor_marshal = {
+			save_scope_as = marshal
+		}
+		random_county_in_region = {
+			region = biscanian_hills
+			limit = {
+				culture = {
+					NOR = {
+						this = culture:swadian
+						this = culture:vlandian
+					}
+				}
+				holder = root
+			}
+			save_scope_as = grunwalder_county_0002
+		}
+		if = {
+			limit = {
+				NOT = {
+					has_character_flag = ran_rhodok_0002
+				}
+			}
+			add_character_flag = ran_rhodok_0002
+		}
+	}
+
+	option = {
+		name = ck_rhodok.0002.a
+		scope:grunwalder_county_0002 = {
+			add_county_modifier = ignored_angry_peasants
+			
+			hidden_effect = {
+				add_character_modifier = {
+					modifier = ignored_angry_peasants_character
+				}
+			}
+		}
+		add_prestige = -100
+
+		ai_chance = {
+			base = 5
+			modifier = {
+				add = 5
+				has_trait = shy
+			}
+			modifier = {
+				add = 15
+				has_trait = lazy
+			}
+			modifier = {
+				add = 10
+				has_trait = craven
+			}
+		}
+	}
+	option = {
+		name = ck_rhodok.0002.b
+		scope:marshal = {
+			duel = {
+				skill = martial
+				value = 15
+				50 = { # Successfully pushed out Grunwalder (cannot capture him) & stop his insurrection
+					send_interface_toast = {
+						title = ck_rhodok.0002.b.crit_success
+						type = event_generic_good_text
+						left_icon = scope:marshal
+						scope:grunwalder_county_0002 = {
+							add_county_modifier = {
+								modifier = squashed_rebel_peasants
+								months = 16
+							}
+						}
+						scope:marshal = {
+							add_prestige = 150
+						}
+					}
+					hidden_effect = {
+						add_character_flag = {
+							flag = repreive_from_grunwalder
+							months = 18
+						}
+						add_character_modifier = {
+							modifier = squashed_rebel_peasants_character
+						}
+					}
+				}
+				30 = { # Succeed but only diminishes the modifier
+					send_interface_toast = {
+						title = ck_rhodok.0002.b.success
+						type = event_generic_good_text
+						left_icon = scope:marshal
+						scope:grunwalder_county_0002 = {
+							add_county_modifier = {
+								modifier = fought_rebel_peasants
+								months = 6
+							}
+						}
+					}
+					random_in_list = {
+						95 = {
+							scope:marshal = {
+								add_prestige = 100
+							}
+						}
+						5 = {
+							scope:marshal = {
+								death = {
+									death_reason = death_torn_to_pieces_by_mob
+								}
+							}
+						}
+					}
+					hidden_effect = {
+						add_character_flag = {
+							flag = repreive_from_grunwalder
+							months = 8
+						}
+						add_character_modifier = {
+							modifier = fought_rebel_peasants_character
+						}
+					}
+				}
+				20 = { # Critical failure - Grunwalder and his partisans persist to cause trouble / tiny chance of marshal being killed
+					send_interface_toast = {
+						title = ck_rhodok.0002.b.failure
+						type = event_generic_bad_text
+						left_icon = scope:marshal
+						scope:grunwalder_county_0002 = {
+							add_county_modifier = {
+								modifier = ignored_angry_peasants
+								months = 12
+							}
+						}
+					}
+					random_in_list = {
+						75 = {
+							scope:marshal = {
+								add_prestige = -100
+							}
+						}
+						25 = {
+							send_interface_toast = {
+								title = ck_rhodok.0002.b.death
+								type = event_generic_bad_text
+								left_icon = scope:marshal
+								scope:marshal = {
+									death = {
+										death_reason = death_torn_to_pieces_by_mob
+									}
+								}
+							}
+						}
+					}
+					add_prestige = -100
+					hidden_effect = {
+						add_character_modifier = {
+							modifier = ignored_angry_peasants_character
+						}
+					}
+				}
+			}
+		}
+
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = -15
+				scope:marshal = {
+					martial < 13
+				}
+			}
+			modifier = {
+				add = 25
+				scope:marshal = {
+					martial >= 15
+				}
+			}
+			modifier = {
+				add = 10
+				has_trait = craven
+			}
+		}
+	}
+	option = { # "Fine, I will do it myself."
+		name = ck_rhodok.0002.c
+		duel = {
+			skill = martial
+			value = 15
+			50 = { # Successfully pushed out Grunwalder (cannot capture him) & stop his insurrection
+				send_interface_toast = {
+					title = ck_rhodok.0002.b.crit_success.me
+					type = event_generic_good_text
+					left_icon = scope:marshal
+					scope:grunwalder_county_0002 = {
+						add_county_modifier = {
+							modifier = squashed_rebel_peasants
+							months = 16
+						}
+					}
+					add_prestige = 150
+				}
+				hidden_effect = {
+					add_character_flag = {
+						flag = repreive_from_grunwalder
+						months = 18
+					}
+					add_character_modifier = {
+						modifier = squashed_rebel_peasants_character
+					}
+				}
+			}
+			30 = { # Succeed but only diminishes the modifier
+				send_interface_toast = {
+					title = ck_rhodok.0002.b.success.me
+					type = event_generic_good_text
+					left_icon = scope:marshal
+					scope:grunwalder_county_0002 = {
+						add_county_modifier = {
+							modifier = fought_rebel_peasants
+							months = 6
+						}
+					}
+				}
+				random_in_list = {
+					95 = {
+						add_prestige = 100
+					}
+					5 = {
+						death = {
+							death_reason = death_torn_to_pieces_by_mob
+						}
+					}
+				}
+				hidden_effect = {
+					add_character_flag = {
+						flag = repreive_from_grunwalder
+						months = 8
+					}
+					add_character_modifier = {
+						modifier = fought_rebel_peasants_character
+					}
+				}
+			}
+			20 = { # Critical failure - Grunwalder and his partisans persist to cause trouble / tiny chance of marshal being killed
+				send_interface_toast = {
+					title = ck_rhodok.0002.b.failure.me
+					type = event_generic_bad_text
+					left_icon = scope:marshal
+					scope:grunwalder_county_0002 = {
+						add_county_modifier = {
+							modifier = ignored_angry_peasants
+							months = 12
+						}
+					}
+				}
+				hidden_effect = {
+					add_character_modifier = {
+						modifier = ignored_angry_peasants_character
+					}
+				}
+				random_in_list = {
+					75 = {
+						add_prestige = -100
+					}
+					25 = {
+						send_interface_toast = {
+							title = ck_rhodok.0002.b.death.me
+							type = event_generic_bad_text
+							left_icon = scope:marshal
+							death = {
+								death_reason = death_torn_to_pieces_by_mob
+							}
+						}
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 5
+			modifier = {
+				add = -5
+				martial < high_skill_rating
+			}
+			modifier = {
+				add = 25
+				martial >= high_skill_rating
+			}
+			modifier = {
+				add = -30
+				has_trait = craven
+			}
+		}
+	}
+}
+ck_rhodok.0003 = {
+	title = ck_rhodok.0003.t
+	desc = ck_rhodok.0003.desc
+	theme = realm
+	right_portrait = {
+		character = root
+		animation = war_over_loss
+	}
+
+	trigger = {
+		AND = {
+			current_date >= 1103.1.1
+			culture:rhodok = {
+				NOT = {
+					has_variable = rhodok_council_available # Keep it from repeating
+				}
+			}
+		}
+		has_global_variable = grunwalder_events_start
+		NOR = {
+			has_character_flag = repreive_from_grunwalder
+			has_character_flag = ran_rhodok_0003
+		}
+		capital_province = {
+			geographical_region = region_rhodokia
+		}
+		culture = {
+			OR = {
+				this = culture:vlandian
+				this = culture:swadian
+			}
+		}
+	}
+	immediate = {
+		random_county_in_region = {
+			region = region_rhodokia
+			limit = {
+				culture = {
+					NOR = {
+						this = culture:swadian
+						this = culture:vlandian
+					}
+				}
+				holder = root
+			}
+			weight = {
+				base = 1
+				modifier = {
+					any_county_province = {
+						OR = {
+							terrain = hills
+							terrain = mountains
+						}
+					}
+					add = 2
+				}
+			}
+			save_scope_as = grunwalder_county_0003
+		}
+		if = {
+			limit = {
+				NOT = {
+					has_character_flag = ran_rhodok_0003
+				}
+			}
+			add_character_flag = ran_rhodok_0003
+		}
+	}
+
+	option = { # Damn him!
+		name = ck_rhodok.0003.a
+		scope:grunwalder_county_0003 = {
+			change_county_control = -15
+		}
+		remove_short_term_gold = medium_gold_value
+		ai_chance = {
+			base = 6
+		}
+	}
+	option = { # Doesn't he understand? Compassionate
+		name = ck_rhodok.0003.b
+		remove_short_term_gold = medium_gold_value
+		trigger = {
+			has_trait = generous
+		}
+		stress_impact = {
+			callous = minor_stress_impact_gain
+			compassionate = miniscule_stress_impact_loss
+			generous = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 5
+			ai_value_modifier = {
+				ai_compassion = 0.4
+			}
+		}
+
+	}
+	option = { # SEND MORE GUARDS!
+		name = ck_rhodok.0003.c
+		remove_short_term_gold = tiny_gold_value
+		scope:grunwalder_county_0003 = {
+			change_county_control = -30
+			add_county_modifier = {
+				modifier = clamped_down_on_taxes
+			}
+		}
+		add_dread = medium_dread_gain
+		stress_impact = {
+			callous = minor_stress_impact_loss
+			sadistic = medium_stress_impact_loss
+			compassionate = medium_stress_impact_gain
+			arrogant = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 5
+			ai_value_modifier = {
+				ai_greed = 0.25
+				ai_compassion = -0.5
+				ai_honor = -0.25
+			}
+			modifier = {	#Weight down for stress.
+				add = 30
+				has_trait = callous
+			}
+		}
+	}
+	option = { # I am no Robber Baron!
+		name = ck_rhodok.0003.d
+		trigger = {
+			has_trait = compassionate
+		}
+		add_character_modifier = {
+			modifier = sent_money_to_peasants
+			years = 2
+		}
+		scope:grunwalder_county_0003 = {
+			change_county_control = 15
+		}
+		add_dread = medium_dread_loss
+		remove_short_term_gold = medium_gold_value
+		stress_impact = {
+			callous = minor_stress_impact_gain
+			greedy = medium_stress_impact_gain
+			compassionate = medium_stress_impact_loss
+			generous = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 5
+			ai_value_modifier = {
+				ai_greed = -0.75
+				ai_compassion = 0.5
+			}
+			modifier = {	#Weight down for stress.
+				add = -30
+				has_trait = greedy
+			}
+		}
+	}
+}
+ck_rhodok.0004 = { # Informational info for Vlandian ruler
+	title = ck_rhodok.0004.t
+	desc = ck_rhodok.0004.desc
+
+	trigger = {
+		has_title = title:k_vlandia
+		culture:rhodok = {
+			has_variable = rhodok_emergence_var
+		}
+		AND = {
+			current_date >= 1102.1.1
+			culture:rhodok = {
+				NOT = {
+					has_variable = rhodok_council_available # Keep it from repeating
+				}
+			}
+		}
+		NOT = {
+			has_character_flag = ran_rhodok_0004
+		}
+	}
+	left_portrait = {
+		character = root
+		animation = personality_rational
+	}
+	right_portrait = {
+		character = character:grunwalder_dummy
+		animation = throne_room_one_handed_passive_3
+		hide_info = yes
+	}
+	immediate = {
+		add_character_flag = ran_rhodok_0004
+	}
+	option = {
+		name = ck_rhodok.0004.a
+		ai_chance = {
+			base = 5
+			modifier = {
+				has_trait = arrogant
+				add = 10
+			}
+		}
+	}
+	option = {
+		name = ck_rhodok.0004.b
+		ai_chance = {
+			base = 5
+			modifier = {
+				has_trait = arrogant
+				add = 10
+			}
+		}
+	}
+}
