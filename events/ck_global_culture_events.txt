@@ -1133,13 +1133,29 @@ ck_global_culture.0013 = { ### Swadian king claims new capital
 	override_background = { reference = council_chamber }
 	right_portrait = {
 		character = root
-		animation = chancellor ###PLACEHOLDER
+		animation = war_over_loss ###PLACEHOLDER
 	}
 	
 	immediate = {
 		hidden_effect = {
 			title:k_vlandia = {
 				set_capital_county = title:c_pravend
+			}
+		}
+		if = {
+			limit = {
+				exists = title:d_ocs_hall.holder
+			}
+			title:d_ocs_hall.holder = {
+				save_scope_as = ocs_hall_holder
+			}
+		}
+		if = {
+			limit = {
+				exists = title:d_pravend.holder
+			}
+			title:d_pravend.holder = {
+				save_scope_as = pravend_holder
 			}
 		}
 	}
@@ -1160,6 +1176,18 @@ ck_global_culture.0013 = { ### Swadian king claims new capital
 				get_title = title:d_pravend
 			}
 		}
+		if = {
+			limit = {
+				exists = scope:pravend_holder
+			}
+			scope:pravend_holder = {
+				add_opinion = {
+					target = root
+					modifier = usurped_title
+					opinion = -25
+				}
+			}
+		}
 		ai_chance = {
 			base = 5
 		}
@@ -1177,10 +1205,21 @@ ck_global_culture.0013 = { ### Swadian king claims new capital
 			}
 			if = {
 				limit = {
-					exists = title:d_ocs_hall.holder
-					title:d_ocs_hall.holder ?= { is_ai = yes }
+					exists = scope:ocs_hall_holder
+					scope:ocs_hall_holder ?= { is_ai = yes }
 				}
 				get_title = title:d_ocs_hall
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:ocs_hall_holder
+			}
+			scope:ocs_hall_holder = {
+				add_opinion = {
+					target = root
+					modifier = usurped_title
+				}
 			}
 		}
 		ai_chance = {
