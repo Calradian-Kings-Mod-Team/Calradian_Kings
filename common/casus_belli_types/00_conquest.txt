@@ -29,6 +29,18 @@
 					}
 				}
 			}
+			trigger_if = {
+				limit = {
+					culture = {
+						has_innovation = innovation_swadian_settling
+					}
+				}
+				scope:defender = {
+					culture = {
+						has_cultural_pillar = heritage_battanian
+					}
+				}
+			}
 		}
 	}
 	target_titles = all
@@ -46,11 +58,19 @@
 		value = viking_conquest_ai_score_value
 
 		# As a feudal gov, do not attack owner of tribal holdings  if you have a tribal holding to convert already
+		# Exception for Swadian expansions eastwards
 		add = {
 			every_in_list = {
 				list = target_titles
 				if = {
-					limit = { feudal_clan_tribal_conquest_constraints = yes }
+					limit = {
+						OR = {
+							NOT = {
+								ck_swadian_conquest_of_battania_trigger = yes
+							}
+							feudal_clan_tribal_conquest_constraints = yes 
+						}
+					}
 					add = -1000
 				}
 			}
@@ -89,6 +109,13 @@
 				current_date <= 1127.1.1
 			}
 			multiply = 0
+		}
+		# Slightly Increased chance if Swadians have the eastern expansion innovation / against Battanians
+		if = {
+			limit = {
+				ck_swadian_conquest_of_battania_trigger = yes
+			}
+			add = 5
 		}
 	}
 
@@ -145,6 +172,25 @@
 				}
 			}
 			multiply = common_cb_piety_cost_multiplier
+			if = {
+				limit = {
+					scope:attacker = {
+						culture = {
+							has_innovation = innovation_swadian_settling
+							has_variable = cheaper_conquest_temp
+						}
+					}
+					scope:defender = {
+						culture = {
+							has_cultural_pillar = heritage_battanian
+						}
+					}
+				}
+				multiply = {
+					value = 0.3
+					desc = CB_CONQUEST_DISCOUNT_SWADIAN
+				}
+			}
 		}
 		prestige = {
 			value = 0
@@ -164,6 +210,25 @@
 				}
 			}
 			multiply = common_cb_prestige_cost_multiplier
+			if = {
+				limit = {
+					scope:attacker = {
+						culture = {
+							has_innovation = innovation_swadian_settling
+							has_variable = cheaper_conquest_temp
+						}
+					}
+					scope:defender = {
+						culture = {
+							has_cultural_pillar = heritage_battanian
+						}
+					}
+				}
+				multiply = {
+					value = 0.3
+					desc = CB_CONQUEST_DISCOUNT_SWADIAN
+				}
+			}
 		}
 	}
 
@@ -453,6 +518,20 @@ duchy_conquest_cb = {
 				scope:defender = {
 					NOT = {
 						government_has_flag = government_is_nomadic
+					}
+				}
+			}
+			trigger_if = {
+				limit = {
+					scope:attacker = {
+						culture = {
+							has_innovation = innovation_swadian_settling
+						}
+					}
+				}
+				scope:defender = {
+					culture = {
+						has_cultural_pillar = heritage_battanian
 					}
 				}
 			}
