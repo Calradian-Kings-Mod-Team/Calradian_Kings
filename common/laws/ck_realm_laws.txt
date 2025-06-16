@@ -1,5 +1,4 @@
 ﻿@ck_slave_law_cooldown_years = 2
-@ck_slave_law_cooldown_years = 2
 
 ck_slavery_law = {
 	default = ck_slavery_law_1
@@ -94,6 +93,7 @@ ck_slavery_law = {
 		flag = government_can_raid_rule
 		
 		can_keep = {
+			is_independent_ruler = yes
 			trigger_if = {
 				limit = {
 					is_independent_ruler = yes
@@ -122,22 +122,22 @@ ck_slavery_law = {
 					NOT = { has_variable = ck_slave_law_cooldown }
 				}
 			}
-			trigger_if = {
-				limit = {
-					is_independent_ruler = yes
-				}
-				custom_tooltip = {
-					text = ck_slavery_geroian_desc
-					OR = {
-						capital_province = {
-							geographical_region = region_geroia
-						}
-						culture = {
-							has_cultural_pillar = heritage_geroian
-						}
-					}
-				}
-			}
+			# trigger_if = {
+			# 	limit = {
+			# 		is_independent_ruler = yes
+			# 	}
+			# 	custom_tooltip = {
+			# 		text = ck_slavery_geroian_desc
+			# 		OR = {
+			# 			capital_province = {
+			# 				geographical_region = region_geroia
+			# 			}
+			# 			culture = {
+			# 				has_cultural_pillar = heritage_geroian
+			# 			}
+			# 		}
+			# 	}
+			# }
 		}
 		on_pass = {
 			set_variable = {
@@ -147,4 +147,99 @@ ck_slavery_law = {
 		}
 	}
 
+}
+
+ck_religious_tolerance = { # Independent of Faith / Cultural statuses but cannot downgrade them
+	default = ck_religious_tolerance_1
+
+	cumulative = no
+	flag = CK_REALM_LAWS
+
+	ck_religious_tolerance_0 = { # OUTLAWED - cannot have special tolerance tenets / non-faith vassals get free revocation against them
+		pass_phrase = ck_religious_tolerance_0_pass_phrase
+		confirmation_title = ck_religious_tolerance_0_pass_phrase
+		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
+		can_keep = {
+			faith = {
+				NOR = {
+					has_doctrine = doctrine_pluralism_pluralistic
+					has_doctrine = special_doctrine_jizya
+					has_doctrine = tenet_tax_nonbelievers
+				}
+			}
+			custom_tooltip = {
+				text = "ck_religious_tolerance_0_5"
+				faith = {
+					NOR = {
+						has_doctrine = tenet_eastern_syncretism
+						has_doctrine = tenet_unreformed_syncretism
+						has_doctrine = tenet_islamic_syncretism
+						has_doctrine = tenet_christian_syncretism
+						has_doctrine = special_doctrine_northern_hostility_other_northern
+					}
+				}
+			}
+		}
+		can_pass = {
+		}
+	}
+
+	ck_religious_tolerance_1 = { # Tax / Non-Believers pay higher taxes 
+		pass_phrase = ck_religious_tolerance_1_pass_phrase
+		confirmation_title = ck_religious_tolerance_1_pass_phrase
+		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
+		can_keep = {
+			faith = {
+				NOR = {
+					has_doctrine = doctrine_pluralism_fundamentalist
+					has_doctrine = special_doctrine_jizya
+					has_doctrine = tenet_tax_nonbelievers
+				}
+			}
+		}
+
+	}
+
+	ck_religious_tolerance_2 = { # Tolerated - Step below full rights. Cannot hold positions of office or be given titles
+		pass_phrase = ck_religious_tolerance_2_pass_phrase
+		confirmation_title = ck_religious_tolerance_2_pass_phrase
+		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
+		can_keep = {
+			OR = {
+				trigger_if = {
+					limit = {
+						faith = {
+							AND = {
+								has_doctrine = doctrine_pluralism_fundamentalist
+								OR = {
+									has_doctrine = tenet_eastern_syncretism
+									has_doctrine = tenet_unreformed_syncretism
+									has_doctrine = tenet_islamic_syncretism
+									has_doctrine = tenet_christian_syncretism
+									has_doctrine = special_doctrine_northern_hostility_other_northern
+								}
+							}
+						}
+					}
+					custom_tooltip = {
+						text = "ck_religious_tolerance_0_5"
+					}
+				}
+				faith = {
+					NOT = {
+						has_doctrine = doctrine_pluralism_fundamentalist
+					}
+				}
+			}
+		}
+
+	}
+
+	ck_religious_tolerance_3 = { # Full Acceptance - Can be given titles and positions of power. Different faith opinion increase but same faith opinion decrease
+		pass_phrase = ck_religious_tolerance_3_pass_phrase
+		confirmation_title = ck_religious_tolerance_3_pass_phrase
+		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
+		can_keep = {
+		}
+	}
 }
