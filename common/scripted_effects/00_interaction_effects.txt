@@ -897,14 +897,27 @@ vassal_revocation_tyranny_effect = { #Despite its name this is referenced when _
 	}
 	else_if = {
 		limit = {
-			faith = {
-				OR = {
-					has_doctrine_parameter = pluralism_righteous_revocation_tyranny_reduced
-					has_doctrine_parameter = pluralism_fundamentalist_revocation_tyranny_minimal
+			NOT = {
+				has_realm_law_flag = full_religious_tolerance
+			}
+			OR = {
+				faith = {
+					OR = {
+						has_doctrine_parameter = pluralism_righteous_revocation_tyranny_reduced
+						has_doctrine_parameter = pluralism_fundamentalist_revocation_tyranny_minimal
+					}
+					faith_hostility_level = {
+						target = scope:recipient.faith
+						value >= faith_hostile_level
+					}
 				}
-				faith_hostility_level = {
-					target = scope:recipient.faith
-					value >= faith_hostile_level
+				AND = {
+					has_realm_law_flag = persecuted_tolerance
+					faith = {
+						NOT = {
+							has_doctrine = doctrine_pluralism_pluralistic
+						}
+					}
 				}
 			}
 		}
@@ -1009,6 +1022,9 @@ revocation_tyranny_effect = {
 		}
 		else_if = {
 			limit = {
+				NOT = {
+					has_realm_law_flag = full_religious_tolerance
+				}
 				faith = {
 					OR = {
 						has_doctrine_parameter = pluralism_righteous_revocation_tyranny_reduced

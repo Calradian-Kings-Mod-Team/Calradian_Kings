@@ -284,6 +284,44 @@
 				REVERSE_NON_HOUSE_TARGET = no
 			}
 		}
+		if = { # Imprison Religious Minority from Realm Law - upsets religious minority vassals
+			limit = {
+				AND = {
+					scope:actor = {
+						NOT = {
+							has_imprisonment_reason = scope:recipient
+						}
+						faith = {
+							NOT = {
+								has_doctrine = doctrine_pluralism_pluralistic
+							}
+						}
+						has_realm_law_flag = persecuted_tolerance
+					}
+					scope:recipient = {
+						is_vassal_or_below_of = scope:actor
+						faith = {
+							NOT = {
+								this = scope:actor.faith
+							}
+						}
+					}
+				}
+			}
+			scope:actor = {
+				every_vassal_or_below = {
+					limit = {
+						faith = {
+							this = scope:recipient
+						}
+					}
+					add_opinion = {
+						target = scope:actor
+						modifier = ck_religious_tolerance_imprisoned
+					}
+				}
+			}
+		}
 	}
 
 	on_decline = {
@@ -420,7 +458,44 @@
 				}
 			}
 		}
-
+		if = { # Imprison Religious Minority from Realm Law - upsets religious minority vassals
+			limit = {
+				AND = {
+					scope:actor = {
+						NOT = {
+							has_imprisonment_reason = scope:recipient
+						}
+						faith = {
+							NOT = {
+								has_doctrine = doctrine_pluralism_pluralistic
+							}
+						}
+						has_realm_law_flag = persecuted_tolerance
+					}
+					scope:recipient = {
+						is_vassal_or_below_of = scope:actor
+						faith = {
+							NOT = {
+								this = scope:actor.faith
+							}
+						}
+					}
+				}
+			}
+			scope:actor = {
+				every_vassal_or_below = {
+					limit = {
+						faith = {
+							this = scope:recipient
+						}
+					}
+					add_opinion = {
+						target = scope:actor
+						modifier = ck_religious_tolerance_attempted_imprison
+					}
+				}
+			}
+		}
 		#Remove them as guardian/ward for any courtier (feedback given in char_interaction.0230)
 		scope:actor = {
 			if = {

@@ -1,4 +1,4 @@
-﻿@ck_slave_law_cooldown_years = 2
+﻿@ck_slave_law_cooldown_years = 10
 
 ck_slavery_law = {
 	default = ck_slavery_law_1
@@ -27,7 +27,9 @@ ck_slavery_law = {
 				}
 			}
 		}
-
+		pass_cost = {
+			prestige = 150
+		}
 		on_pass = {
 			set_variable = {
 				name = ck_slave_law_cooldown
@@ -47,6 +49,20 @@ ck_slavery_law = {
 		flag = government_can_raid_rule
 		
 		can_keep = {
+			trigger_if = {
+				limit = {
+					is_independent_ruler = no
+					liege = {
+						NOT = {
+							has_realm_law_flag = ck_no_slavery_flag
+						}
+					}
+				}
+					custom_tooltip = {
+						text = liege_abolished_slavery
+						always = no
+					}
+			}
 		}
 
 		can_pass = {
@@ -62,9 +78,6 @@ ck_slavery_law = {
 			trigger_if = {
 				limit = {
 					is_independent_ruler = yes
-				}
-				custom_tooltip = {
-					text = ck_slavery_geroian_desc_NOT
 					NOR = {
 						capital_province = {
 							geographical_region = region_geroia
@@ -74,7 +87,14 @@ ck_slavery_law = {
 						}
 					}
 				}
+				custom_tooltip = {
+					text = ck_slavery_geroian_desc_NOT
+					# always = no
+				}
 			}
+		}
+		pass_cost = {
+			# prestige = 200
 		}
 		on_pass = {
 			set_variable = {
@@ -93,21 +113,29 @@ ck_slavery_law = {
 		flag = government_can_raid_rule
 		
 		can_keep = {
-			is_independent_ruler = yes
+			custom_tooltip = {
+				text = ck_slavery_geroian_desc
+				OR = {
+					capital_province = {
+						geographical_region = region_geroia
+					}
+					culture = {
+						has_cultural_pillar = heritage_geroian
+					}
+				}
+			}
 			trigger_if = {
 				limit = {
-					is_independent_ruler = yes
-				}
-				custom_tooltip = {
-					text = ck_slavery_geroian_desc
-					OR = {
-						capital_province = {
-							geographical_region = region_geroia
-						}
-						culture = {
-							has_cultural_pillar = heritage_geroian
+					is_independent_ruler = no
+					liege = {
+						NOT = {
+							has_realm_law_flag = ck_no_slavery_flag
 						}
 					}
+				}
+				custom_tooltip = {
+					text = liege_abolished_slavery
+					always = no
 				}
 			}
 		}
@@ -139,6 +167,9 @@ ck_slavery_law = {
 			# 	}
 			# }
 		}
+		pass_cost = {
+			prestige = 250
+		}
 		on_pass = {
 			set_variable = {
 				name = ck_slave_law_cooldown
@@ -155,59 +186,446 @@ ck_religious_tolerance = { # Independent of Faith / Cultural statuses but cannot
 	cumulative = no
 	flag = CK_REALM_LAWS
 
-	ck_religious_tolerance_0 = { # OUTLAWED - cannot have special tolerance tenets / non-faith vassals get free revocation against them
+	ck_religious_tolerance_0 = { # Persecuted - cannot have special tolerance tenets / non-faith vassals get free revocation against them
 		pass_phrase = ck_religious_tolerance_0_pass_phrase
 		confirmation_title = ck_religious_tolerance_0_pass_phrase
 		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
-		can_keep = {
+		flag = persecuted_tolerance
+		should_start_with = {
 			faith = {
-				NOR = {
+				has_doctrine = doctrine_pluralism_fundamentalist
+			}
+			faith = {
+				NOT = {
 					has_doctrine = doctrine_pluralism_pluralistic
-					has_doctrine = special_doctrine_jizya
+				}
+			}
+		}
+		can_keep = {
+			highest_held_title_tier >= tier_duchy
+			faith = { # Cannot persecute AND tax
+				NOR = {
+					has_doctrine_parameter = unlock_jizya_contract
 					has_doctrine = tenet_tax_nonbelievers
 				}
 			}
-			custom_tooltip = {
-				text = "ck_religious_tolerance_0_5"
-				faith = {
-					NOR = {
-						has_doctrine = tenet_eastern_syncretism
-						has_doctrine = tenet_unreformed_syncretism
-						has_doctrine = tenet_islamic_syncretism
-						has_doctrine = tenet_christian_syncretism
-						has_doctrine = special_doctrine_northern_hostility_other_northern
+			trigger_if = {
+				limit = {
+					faith = {
+						NOT = {
+							ck_syncretic_faiths_trigger = yes
+						}
 					}
+				}
+				custom_tooltip = {
+					text = "ck_religious_tolerance_0_5"
+				}
+			}
+			trigger_if = {
+				limit = {
+					is_independent_ruler = no
+					top_liege = {
+						NOT = {
+							has_realm_law_flag = full_religious_tolerance
+						}
+					}
+				}
+				custom_tooltip = {
+					text = ruler_already_passed_full_tolerance
+					always = yes
 				}
 			}
 		}
 		can_pass = {
 		}
-	}
-
-	ck_religious_tolerance_1 = { # Tax / Non-Believers pay higher taxes 
-		pass_phrase = ck_religious_tolerance_1_pass_phrase
-		confirmation_title = ck_religious_tolerance_1_pass_phrase
-		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
-		can_keep = {
-			faith = {
-				NOR = {
-					has_doctrine = doctrine_pluralism_fundamentalist
-					has_doctrine = special_doctrine_jizya
-					has_doctrine = tenet_tax_nonbelievers
+		on_pass = {
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_pluralism_pluralistic
+					}
+				}
+				custom_tooltip = "ck_religious_tolerance_1_pluralistic"
+				custom_tooltip = "ck_religious_tolerance_0_pluralistic_tt"
+			}
+			else = {
+				custom_tooltip = {
+					text = "revocation_causes_ck"
+					always = no
+				}
+			}
+			custom_tooltip = {
+				text = "ck_religious_tolerance_0_tt"
+				every_vassal_or_below = {
+					limit = {
+						NOT = {
+							faith = liege.faith
+						}
+					}
+					add_opinion = {
+						target = liege
+						modifier = ck_religious_tolerance_0_opinion
+					}
+				}
+			}
+			if = {
+				limit = {
+					any_vassal_or_below = {
+						AND = {
+							has_trait = compassionate
+							AND = {
+								faith = liege.faith
+								faith = {
+									NOT = {
+										has_doctrine = doctrine_pluralism_pluralistic
+									}
+								}
+							}
+						}
+					}
+				}
+				custom_tooltip = {
+					text = "ck_religious_tolerance_0_compassionate"
+					every_vassal_or_below = {
+						limit = {
+							AND = {
+								has_trait = compassionate
+								AND = {
+									faith = liege.faith
+									faith = {
+										NOT = {
+											has_doctrine = doctrine_pluralism_pluralistic
+										}
+									}
+								}
+							}
+						}
+						add_opinion = {
+							target = liege
+							modifier = ck_religious_tolerance_0_pluralistic
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					any_vassal_or_below = {
+						AND = {
+							NOT = {
+								has_vassal_stance = zealot
+							}
+							faith = liege.faith
+							faith = {
+								has_doctrine = doctrine_pluralism_pluralistic
+							}
+						}
+					}
+				}
+				custom_tooltip = {
+					text = "ck_religious_tolerance_0_pluralistic_tt_2"
+					every_vassal_or_below = {
+						limit = {
+							AND = {
+								NOT = {
+									has_vassal_stance = zealot
+								}
+								faith = liege.faith
+								faith = {
+									has_doctrine = doctrine_pluralism_pluralistic
+								}
+							}
+						}
+						add_opinion = {
+							target = liege
+							modifier = ck_religious_tolerance_3_opinion_fundamentalist
+						}
+					}
 				}
 			}
 		}
+		pass_cost = {
+			piety = {
+				value = 300
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_pluralistic
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc"
+						value = 1.5
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_fundamentalist
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc_2"
+						value = 0.5
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_righteous
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc_3"
+						value = 0.75
+					}
+				}
+			}
+		}
+		modifier = {
+			minority_different_faith_opinion = -30
+			zealot_same_faith_opinion = 20
+			domain_tax_different_faith_mult = 0.15
+			levy_reinforcement_rate_same_faith = 0.25
+			levy_reinforcement_rate_different_faith = -0.25
+		}
+	}
 
+	ck_religious_tolerance_1 = { # Tax / Non-Believers pay taxes / Unlocks Jizya tax w/o tenet
+		pass_phrase = ck_religious_tolerance_1_pass_phrase
+		confirmation_title = ck_religious_tolerance_1_pass_phrase
+		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
+		flag = can_tax_other_faiths_ck
+		can_keep = {
+			highest_held_title_tier >= tier_duchy
+			trigger_if = {
+				limit = {
+					faith = {
+						NOR = {
+							has_doctrine_parameter = unlock_jizya_contract
+							has_doctrine = tenet_tax_nonbelievers
+						}
+					}
+				}
+				custom_tooltip = {
+					text = cannot_have_jizya_doctrine
+				}
+			}
+			trigger_if = {
+				limit = {
+					is_independent_ruler = no
+					liege = {
+						NOR = {
+							has_realm_law_flag = full_religious_tolerance
+							has_realm_law_flag = persecuted_tolerance
+						}
+					}
+				}
+				custom_tooltip = {
+					text = ruler_already_passed_persecuted_tolerance
+					# always = no
+				}
+			}
+		}
+		can_pass = {
+
+		}
+		on_pass = {
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_pluralism_pluralistic
+					}
+				}
+				custom_tooltip = "ck_religious_tolerance_1_pluralistic"
+			}
+			custom_tooltip = {
+				text = "ck_religious_tolerance_1_compassionate"
+				every_vassal_or_below = {
+					if = {
+						limit = {
+							AND = {
+								faith = liege.faith
+								OR = {
+									has_trait = compassionate
+									has_trait = generous
+								}
+							}
+						}
+						add_opinion = {
+							target = liege
+							modifier = ck_religious_tolerance_1_pluralistic_opinion
+						}
+					}
+				}
+			}
+		}
+		pass_cost = {
+			piety = {
+				value = 250
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_pluralistic
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc"
+						value = 1.5
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_fundamentalist
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc_2"
+						value = 0.75
+					}
+				}
+			}
+		}
+		modifier = {
+			minority_different_faith_opinion = -10
+			zealot_same_faith_opinion = 10
+			domain_tax_different_faith_mult = -0.2
+			levy_reinforcement_rate_same_faith = 0.25
+			levy_reinforcement_rate_different_faith = -0.25
+		}
 	}
 
 	ck_religious_tolerance_2 = { # Tolerated - Step below full rights. Cannot hold positions of office or be given titles
 		pass_phrase = ck_religious_tolerance_2_pass_phrase
 		confirmation_title = ck_religious_tolerance_2_pass_phrase
 		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
+		flag = normal_religious_tolerance
+		should_start_with = {
+			faith = {
+				has_doctrine = doctrine_pluralism_pluralistic
+			}
+		}
 		can_keep = {
-			OR = {
-				trigger_if = {
+			highest_held_title_tier >= tier_duchy
+			trigger_if = {
+				limit = {
+					is_independent_ruler = no
+					liege = {
+						NOT = {
+							has_realm_law_flag = persecuted_tolerance
+						}
+					}
+					NOT = {
+						faith = {
+							AND = {
+								has_doctrine = doctrine_pluralism_fundamentalist
+								OR = {
+									ck_syncretic_faiths_trigger = yes
+								}
+							}
+						}
+					}
+				}
+				custom_tooltip = {
+					text = ruler_already_passed_no_tolerance
+					always = no
+				}
+			}
+			trigger_else_if = {
+				limit = {
+					faith = {
+						NOT = {
+							has_doctrine = doctrine_pluralism_fundamentalist
+						}
+					}
+				}
+			}
+		}
+		on_pass = {
+			every_vassal = {
+				limit = {
+					AND = {
+						has_vassal_stance = zealot
+						faith = liege.faith
+						faith = {
+							NOT = {
+								has_doctrine = doctrine_pluralism_pluralistic
+							}
+						}
+					}
+				}
+				add_opinion = {
+					target = liege
+					modifier = ck_religious_tolerance_2_opinion
+				}
+			}
+			hidden_effect = {
+				remove_jizya_tax_law = yes
+			}
+		}
+		pass_cost = {
+			piety = {
+				value = 200
+				if = {
 					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_pluralistic
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc"
+						value = 0.75
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_fundamentalist
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc_2"
+						value = 1.25
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_righteous
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc_3"
+						value = 1.15
+					}
+				}
+			}
+		}
+		modifier = {
+			minority_different_faith_opinion = 5
+			zealot_same_faith_opinion = -5
+			domain_tax_different_faith_mult = 0.2
+			levy_reinforcement_rate_different_faith = 0.1
+		}
+
+	}
+
+	ck_religious_tolerance_3 = { # Full Acceptance - Can be given titles and positions of power. Different faith opinion increase but same faith opinion decrease
+		pass_phrase = ck_religious_tolerance_3_pass_phrase
+		confirmation_title = ck_religious_tolerance_3_pass_phrase
+		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
+		flag = full_religious_tolerance
+		can_keep = {
+			highest_held_title_tier >= tier_duchy
+			trigger_if = {
+				limit = {
+					is_independent_ruler = no
+					liege = {
+						# NOT = {
+							has_realm_law_flag = persecuted_tolerance
+						# }
+					}
+					NOT = {
 						faith = {
 							AND = {
 								has_doctrine = doctrine_pluralism_fundamentalist
@@ -221,25 +639,116 @@ ck_religious_tolerance = { # Independent of Faith / Cultural statuses but cannot
 							}
 						}
 					}
-					custom_tooltip = {
-						text = "ck_religious_tolerance_0_5"
+				}
+				custom_tooltip = {
+					text = ruler_already_passed_no_tolerance
+					always = no
+				}
+			}
+		}
+		on_pass = {
+			custom_tooltip = {
+				text = "ck_religious_tolerance_1_compassionate"
+				every_vassal = {
+					if = {
+						limit = {
+							AND = {
+								has_vassal_stance = zealot
+								faith = liege.faith
+								faith = {
+									has_doctrine = doctrine_pluralism_righteous
+								}
+							}
+						}
+						add_opinion = {
+							target = liege
+							modifier = ck_religious_tolerance_3_opinion # Pisses off zealots of righteous doctrine
+						}
+					}
+					else_if = {
+						limit = {
+							AND = {
+								has_vassal_stance = zealot
+								faith = liege.faith
+								faith = {
+									has_doctrine = doctrine_pluralism_fundamentalist
+								}
+							}
+						}
+						add_opinion = {
+							target = liege
+							modifier = ck_religious_tolerance_3_opinion_fundamentalist # Really pisses off fundamentalists
+						}
+					}
+					else_if = {
+						limit = {
+							AND = {
+								NOT = {
+									has_vassal_stance = zealot
+								}
+								faith = liege.faith
+								faith = {
+									OR = {
+										has_doctrine = doctrine_pluralism_fundamentalist
+										has_doctrine = doctrine_pluralism_righteous
+									}
+								}
+							}
+						}
+						add_opinion = {
+							target = liege
+							modifier = ck_religious_tolerance_3_opinion_nonzealot # Pisses off normal vassals of righteous and fundamentalist
+						}
 					}
 				}
-				faith = {
-					NOT = {
-						has_doctrine = doctrine_pluralism_fundamentalist
+			}
+			hidden_effect = {
+				remove_jizya_tax_law = yes
+			}
+		}
+		pass_cost = {
+			piety = {
+				value = 300
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_pluralistic
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc"
+						value = 0.5
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_fundamentalist
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc_2"
+						value = 1.5
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_pluralism_righteous
+						}
+					}
+					multiply = {
+						desc = "ck_tolerance_3_desc_3"
+						value = 1.25
 					}
 				}
 			}
 		}
-
-	}
-
-	ck_religious_tolerance_3 = { # Full Acceptance - Can be given titles and positions of power. Different faith opinion increase but same faith opinion decrease
-		pass_phrase = ck_religious_tolerance_3_pass_phrase
-		confirmation_title = ck_religious_tolerance_3_pass_phrase
-		confirmation_button_text = ck_religious_tolerance_confirmation_button_text
-		can_keep = {
+		modifier = {
+			minority_different_faith_opinion = 5
+			zealot_same_faith_opinion = -20
+			domain_tax_different_faith_mult = 0.25
+			levy_reinforcement_rate_different_faith = 0.15
 		}
 	}
 }
