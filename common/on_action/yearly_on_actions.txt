@@ -1,7 +1,7 @@
 ﻿# Called every Jan 1st
 # Root does not exist
 yearly_global_pulse = {
-	effect = {
+		effect = {
 		# Historical character spawner
 		if = {
 			limit = {
@@ -228,6 +228,41 @@ yearly_global_pulse = {
 				days = { 20 60 }
 			}
 		}
+		# Appearance of Grunwalder
+		if = {
+			limit = {
+				culture:rhodok = {
+					has_variable = rhodok_emergence_var
+					NOT = {
+						has_variable = rhodok_council_available # Keep it from repeating
+					}
+				}
+				AND = {
+					current_date >= 1102.1.1
+					current_date < 1107.1.1
+				}
+			}
+			every_ruler = {
+				limit = {
+					primary_title.tier >= tier_duchy
+					is_landed = yes
+					capital_province = {
+						geographical_region = region_rhodok_culture
+					}
+					OR = {
+						primary_title = title:k_vlandia
+						is_vassal_or_below_of = title:k_vlandia.holder
+					}
+				}
+				trigger_event = ck_rhodok.0001
+			}
+			title:k_vlandia.holder = {
+				trigger_event = {
+					id = ck_rhodok.0004
+					months = 6
+				}
+			}
+		}
 		# Rhodok council
 		if = {
 			limit = {
@@ -259,100 +294,111 @@ yearly_global_pulse = {
 			}
 			
 		}
-		if = {
-			limit = {
-				culture:rhodok = {
-					has_variable = rhodok_council_possibility_var
-					NOR = {
-						has_variable = council_invitation_cooldown
-						has_variable = independence_war_available_rk
-					}
-				}
-				current_date >= 1108.3.11
-			}
-			random = {
-				chance = 25
-				modifier = {
-					add = 100
-					current_date >= 1110.3.11
-				}
-				if = {
-					limit = {
-						any_ruler = {
-							is_ai = yes
-							has_culture = culture:rhodok
-							is_vassal_or_below_of = title:k_vlandia.holder
-							capital_province = { geographical_region = region_rhodok_culture }
-						}
-					}
-					random_ruler = {
-						limit = {
-							is_ai = yes
-							has_culture = culture:rhodok
-							is_vassal_or_below_of = title:k_vlandia.holder
-							capital_province = { geographical_region = region_rhodok_culture }
-							NOR = {
-								has_character_flag = rejected_rhodok_council
-								has_character_flag = rejected_rhodok_war
-							}
-						}
-						save_scope_as = rhodok_instigator
-						add_character_flag = rhodok_instigator_flag
-						trigger_event = {
-							id = ck_global_culture.0018
-							days = 30
-						}
-					}
-					remove_rhodok_council_var_effect = yes
-					culture:rhodok = {
-						set_variable = rhodok_council_established
-						set_variable = rhodok_council_available
-					}
-					send_rhodok_council_invitation_effect = yes
-					send_rhodok_council_invitation_swadian_effect = yes
-				}
-				else_if = {
-					limit = {
-						any_ruler = {
-							is_ai = yes
-							NOT = { has_culture = culture:swadian }
-							is_vassal_or_below_of = title:k_vlandia.holder
-							capital_province = { geographical_region = region_rhodok_culture }
-							NOR = {
-								has_character_flag = rejected_rhodok_council
-								has_character_flag = rejected_rhodok_war
-							}
-						}
-					}
-					random_ruler = {
-						limit = {
-							is_ai = yes
-							NOT = { has_culture = culture:swadian }
-							is_vassal_or_below_of = title:k_vlandia.holder
-							capital_province = { geographical_region = region_rhodok_culture }
-						}
-						save_scope_as = rhodok_instigator
-						add_character_flag = rhodok_instigator_flag
-						trigger_event = {
-							id = ck_global_culture.0018
-							days = 30
-						}
-					}
-					send_rhodok_council_invitation_effect = yes
-					send_rhodok_council_invitation_swadian_effect = yes
-					remove_rhodok_council_var_effect = yes
-					culture:rhodok = {
-						set_variable = rhodok_council_established
-						set_variable = rhodok_council_available
-					}
-				}
-			}
-		}
+		# if = {
+		# 	limit = {
+		# 		culture:rhodok = {
+		# 			has_variable = rhodok_council_possibility_var
+		# 			NOR = {
+		# 				has_variable = council_invitation_cooldown
+		# 				has_variable = independence_war_available_rk
+		# 			}
+		# 		}
+		# 		current_date >= 1108.3.11
+		# 	}
+		# 	random = {
+		# 		chance = 25
+		# 		modifier = {
+		# 			add = 100
+		# 			current_date >= 1110.3.11
+		# 		}
+		# 		if = {
+		# 			limit = {
+		# 				any_ruler = {
+		# 					is_ai = yes
+		# 					has_culture = culture:rhodok
+		# 					is_vassal_or_below_of = title:k_vlandia.holder
+		# 					capital_province = { geographical_region = region_rhodok_culture }
+		# 				}
+		# 			}
+		# 			random_ruler = {
+		# 				limit = {
+		# 					is_ai = yes
+		# 					has_culture = culture:rhodok
+		# 					is_vassal_or_below_of = title:k_vlandia.holder
+		# 					capital_province = { geographical_region = region_rhodok_culture }
+		# 					NOR = {
+		# 						has_character_flag = rejected_rhodok_council
+		# 						has_character_flag = rejected_rhodok_war
+		# 					}
+		# 				}
+		# 				save_scope_as = rhodok_instigator
+		# 				add_character_flag = rhodok_instigator_flag
+		# 				trigger_event = {
+		# 					id = ck_global_culture.0018
+		# 					days = 30
+		# 				}
+		# 			}
+		# 			remove_rhodok_council_var_effect = yes
+		# 			if = {
+		# 				limit = {
+		# 					culture:rhodok = {
+		# 						NOT = {
+		# 							has_variable = rhodok_council_available
+		# 						}
+		# 					}
+		# 				}
+		# 				culture:rhodok = {
+		# 					set_variable = rhodok_council_available
+		# 				}
+		# 			}
+		# 			culture:rhodok = {
+		# 				set_variable = rhodok_council_established
+		# 			}
+		# 			send_rhodok_council_invitation_effect = yes
+		# 			send_rhodok_council_invitation_swadian_effect = yes
+		# 		}
+		# 		else_if = {
+		# 			limit = {
+		# 				any_ruler = {
+		# 					is_ai = yes
+		# 					NOT = { has_culture = culture:swadian }
+		# 					is_vassal_or_below_of = title:k_vlandia.holder
+		# 					capital_province = { geographical_region = region_rhodok_culture }
+		# 					NOR = {
+		# 						has_character_flag = rejected_rhodok_council
+		# 						has_character_flag = rejected_rhodok_war
+		# 					}
+		# 				}
+		# 			}
+		# 			random_ruler = {
+		# 				limit = {
+		# 					is_ai = yes
+		# 					NOT = { has_culture = culture:swadian }
+		# 					is_vassal_or_below_of = title:k_vlandia.holder
+		# 					capital_province = { geographical_region = region_rhodok_culture }
+		# 				}
+		# 				save_scope_as = rhodok_instigator
+		# 				add_character_flag = rhodok_instigator_flag
+		# 				trigger_event = {
+		# 					id = ck_global_culture.0018
+		# 					days = 30
+		# 				}
+		# 			}
+		# 			send_rhodok_council_invitation_effect = yes
+		# 			send_rhodok_council_invitation_swadian_effect = yes
+		# 			remove_rhodok_council_var_effect = yes
+		# 			culture:rhodok = {
+		# 				set_variable = rhodok_council_established
+		# 				set_variable = rhodok_council_available
+		# 			}
+		# 		}
+		# 	}
+		# }
 		# Rhodok rebellion started by AI
 		if = {
 			limit = {
-				current_date <= 1117.1.1
-				current_date >= 1114.1.1
+				current_date <= 1120.1.1
+				current_date >= 1115.1.1
 				exists = title:k_vlandia.holder
 				culture:rhodok = {
 					NOR = {
@@ -369,7 +415,7 @@ yearly_global_pulse = {
 						is_adult = yes
 						is_imprisoned = no
 						is_at_war = no
-						is_in_an_activity = no
+						NOT = { exists = involved_activity }
 						government_has_flag = government_is_feudal
 						NOT = {
 							has_character_flag = can_declare_rhodok_war
@@ -383,7 +429,7 @@ yearly_global_pulse = {
 						is_adult = yes
 						is_imprisoned = no
 						is_at_war = no
-						is_in_an_activity = no
+						NOT = { exists = involved_activity }
 						government_has_flag = government_is_feudal
 					}
 					trigger_event = ck_global_culture.0008
@@ -440,6 +486,7 @@ yearly_global_pulse = {
 						holder = scope:grunwalder
 						change = scope:change
 					}
+					set_coa = dynn_grunwalder
 				}
 				resolve_title_and_vassal_change = scope:change
 				scope:grunwalder = {
@@ -458,6 +505,44 @@ yearly_global_pulse = {
 						uses_supply = no
 						name = grunwalder_host_army
 					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				current_year >= 1120.1.1
+				culture:swadian = {
+					has_variable = swadian_lost_war
+					NOR = {
+						has_innovation = innovation_swadian_settling
+						has_variable = innovation_cooldown
+					}
+				}
+				NOT = {
+					exists = global_var:swadian_innovation_unlocked
+				}
+			}
+			culture:swadian = {
+				add_innovation = innovation_swadian_settling
+				set_variable = {
+					name = cheaper_conquest_temp
+					years = 2
+				}
+			}
+			title:k_vlandia.holder = {
+				trigger_event = ck_global_culture.3010
+				every_vassal_or_below = {
+					limit = {
+						culture = {
+							OR = {
+								this = culture:swadian
+								any_parent_culture_or_above = {
+									this = culture:swadian
+								}
+							}
+						}
+					}
+					trigger_event = ck_global_culture.3010
 				}
 			}
 		}
@@ -3356,7 +3441,7 @@ on_yearly_events = {
 		250 = nomad_events.0220 # Spouse scolds you for your low Prowess
 		250 = nomad_events.0230 # Spouse is feeling homesick
 		250 = nomad_events.0240 # Neighbouring Nomad's herd shows up in your capital
-		200 = nomad_events.0250 # Enthusiastic priest asks you to convert
+		100 = nomad_events.0250 # Enthusiastic priest asks you to convert
 		150 = nomad_events.0260 # Distant priest arrives at your court
 		150 = mpo_nomad_events.1050 # A neighboring herder is salty at you
 		300 = mpo_nomad_events.1060 # You trade with non-nomad neighbors

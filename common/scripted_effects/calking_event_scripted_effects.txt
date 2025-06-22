@@ -1540,3 +1540,135 @@ shatter_calradian_empires_effect = {
 		destroy_title = title:k_wempire_k_1
 	}
 }
+
+shatter_khanate_effect = {
+	random_ruler = {
+		destroy_title = title:e_khuzait_khanate
+		destroy_title = title:k_urkhanate
+	}
+}
+shatter_khanate_duchies_effect = {
+	random_ruler = {
+		destroy_title = title:d_tanesis
+		destroy_title = title:d_chaikand
+		destroy_title = title:d_tanesis
+		destroy_title = title:d_akkan
+		destroy_title = title:d_tiagys
+		destroy_title = title:d_kohi_rohini
+		destroy_title = title:d_kohi_ajik
+		destroy_title = title:d_ozu
+		destroy_title = title:d_hakkun
+		destroy_title = title:d_orton
+		destroy_title = title:d_chaikand
+		destroy_title = title:d_sulun_dag
+		destroy_title = title:d_zakhan
+		destroy_title = title:d_karakaz
+		destroy_title = title:d_bars_dag
+		destroy_title = title:d_dinar
+		destroy_title = title:d_usek
+	}
+}
+ck_geo_region_effect = {
+	if = {
+		limit = {
+			has_mpo_dlc_trigger = yes
+		}
+		every_county_in_region = {
+			region = $CK_REGION$
+
+			limit = {
+				uses_county_fertility = yes
+			}
+
+			if = {
+				limit = {
+					holder = {
+						government_has_flag = government_is_nomadic
+					}
+					county_fertility > 20
+					county_fertility <= 90
+				}
+				switch = {
+					trigger = holder.primary_title.tier
+					tier_empire = {
+						change_county_fertility = { 16 32 }
+					}
+					tier_kingdom = {
+						change_county_fertility = { 12 16 }
+					}
+					tier_duchy = {
+						change_county_fertility = { 8 12 }
+					}
+					tier_county = {
+						change_county_fertility = { 2 8 }
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					holder = {
+						government_has_flag = government_is_herder
+					}
+				}
+				change_county_fertility = { 44 64 }
+ 			}
+		}
+	}
+}
+make_khuzait_khanate_nomadic_effect = {
+		if = {
+			limit = {
+				has_mpo_dlc_trigger = yes
+				OR = {
+					has_game_rule = ck_shatter_khanate
+					has_game_rule = ck_whole_khuzait
+					has_game_rule = ck_shatter_khanate_duchies
+				}
+			}
+			situation:the_great_steppe = {
+				situation_sub_region:steppe_west = {
+					add_geographical_region = ck_steppe_expansion_tanesis
+					add_geographical_region = ck_steppe_expansion_south_khuzait
+					add_geographical_region = ck_steppe_expansion_southeast_khuzait
+				}
+				every_situation_county = {
+					if = {
+						limit = {
+							holder = {
+								highest_held_title_tier >= tier_county
+								government_has_flag = government_is_tribal
+								culture = {
+									OR = {
+										has_cultural_pillar = heritage_lir_ovus
+										has_cultural_pillar = heritage_khuzic
+									}
+								}
+							}
+						}
+						holder = {
+							set_variable = {
+								name = steppe_game_start_var
+								years = 1
+							}
+							every_held_title = {
+								if = {
+									limit = {
+										title_province = {
+											has_holding_type = tribal_holding
+										}
+									}
+									title_province = {
+										set_holding_type = nomad_holding
+									}
+								}
+							}
+							change_government = nomad_government
+						}
+					}
+				}
+			}
+			ck_geo_region_effect = { CK_REGION = ck_steppe_expansion_tanesis }
+			ck_geo_region_effect = { CK_REGION = ck_steppe_expansion_south_khuzait }
+			ck_geo_region_effect = { CK_REGION = ck_steppe_expansion_southeast_khuzait }
+		}
+}

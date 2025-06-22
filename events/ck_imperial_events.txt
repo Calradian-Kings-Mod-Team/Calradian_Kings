@@ -2141,17 +2141,7 @@ ck_imperial_events.0023 = { ### Claimant submits
 ck_imperial_events.0024 = { ### Claimant deposed
 	type = character_event
 	title = ck_imperial_events.0024.t
-	desc = {
-		first_valid = {
-			triggered_desc = {
-				trigger = {
-					is_female = yes
-				}
-				desc = ck_imperial_events.0024.desc.f
-			}
-			desc = ck_imperial_events.0024.desc
-		}
-	}
+	desc = ck_imperial_events.0024.desc
 	theme = ck_imperial
 	right_portrait = {
 		character = root
@@ -5027,4 +5017,266 @@ ck_imperial_events.0032 = { ### Brawl in the Senate
 		}
 	}
 
+}
+ck_imperial_events.0033 = { ### Vulgar Festivities
+	type = character_event
+	title = ck_imperial_events.0033.t
+	desc = ck_imperial_events.0033.desc
+	theme = ck_imperial
+
+	trigger = {
+		any_sub_realm_county = {
+			culture = {
+				has_cultural_tradition = tradition_vulgar_calradic
+			}
+		}
+		highest_held_title_tier >= tier_duchy
+		culture = {
+			has_cultural_tradition = tradition_high_calradic
+		}
+		any_sub_realm_county = {
+			NOR = {
+				has_county_modifier = funded_vulgar_festivities
+				has_county_modifier = taxed_vulgar_festivities
+			}
+		}
+		NOR = {
+			has_character_flag = imp_events_0033_cooldown
+			has_character_flag = recent_senate_event
+			has_character_modifier = taxed_vulgar_festivities_character
+		}
+	}
+	immediate = {
+		save_scope_as = root_scope
+		random_sub_realm_county = {
+			limit = {
+				culture = {
+					has_cultural_tradition = tradition_vulgar_calradic
+				}
+			}
+			culture = {
+				save_scope_as = imperial_0033_culture
+			}
+			save_scope_as = imperial_0033_county
+		}
+		add_character_flag = {
+			flag = recent_senate_event
+			years = 1
+		}
+	}
+	option = { # Empire cannot afford this
+		name = ck_imperial_events.0033.a
+
+		add_legitimacy_effect = { LEGITIMACY = minor_legitimacy_loss }
+		add_prestige = minor_prestige_loss
+		hidden_effect = {
+			add_character_flag = {
+				flag = imp_events_0033_cooldown
+				years = 3
+			}
+		}
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_royalist
+			}
+			custom = royalist_approves_of_option
+			add_opinion = {
+				target = root
+				modifier = approval_ck_modifier
+			}
+		}
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_oligarch
+			}
+			custom = oligarch_approves_of_option
+			add_opinion = {
+				target = root
+				modifier = approval_ck_modifier
+			}
+		}
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_populist
+			}
+			custom = populist_disapproves_of_option
+			add_opinion = {
+				target = root
+				modifier = disapproval_opinion
+			}
+		}
+	}
+	option = { # Vulgars are the backbone
+		name = ck_imperial_events.0033.b
+		add_legitimacy_effect = { LEGITIMACY = major_legitimacy_gain }
+		add_prestige = major_prestige_gain
+		remove_short_term_gold = major_gold_value
+		every_sub_realm_county = {
+			limit = {
+				culture = {
+					this = scope:imperial_0033_culture
+				}
+			}
+			add_county_modifier = {
+				modifier = funded_vulgar_festivities
+				years = 3
+			}
+			holder = {
+				add_opinion = {
+					target = root
+					modifier = grateful_opinion
+					opinion = 30
+				}
+				trigger_event = {
+					id = ck_imperial_events.0034
+					days = 1
+				}
+			}
+		}
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_populist
+			}
+			custom = populist_approves_of_option
+			add_opinion = {
+				target = root
+				modifier = greatly_pleased_ck
+			}
+		}
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_royalist
+			}
+			custom = royalist_disapproves_of_option
+			add_opinion = {
+				target = root
+				modifier = disapproval_opinion
+			}
+		}
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_oligarch
+			}
+			custom = oligarch_disapproves_of_option
+			add_opinion = {
+				target = root
+				modifier = disapproval_opinion
+			}
+		}
+	}
+	option = { # Tax em
+		name = ck_imperial_events.0033.c
+
+		add_legitimacy_effect = { LEGITIMACY = medium_legitimacy_loss }
+		add_prestige = medium_prestige_loss
+		add_gold = medium_gold_value
+		add_character_modifier = {
+			modifier = taxed_vulgar_festivities_character
+			years = 3
+		}
+		every_sub_realm_county = {
+			limit = {
+				culture = {
+					this = scope:imperial_0033_culture
+				}
+			}
+			add_county_modifier = {
+				modifier = taxed_vulgar_festivities
+				years = 3
+			}
+			holder = {
+				trigger_event = {
+					id = ck_imperial_events.0035
+					days = 1
+				}
+				add_opinion = {
+					target = root
+					modifier = steward_taxed_me_opinion
+				}
+			}
+		}
+
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_populist
+			}
+			custom = populist_approves_of_option
+			add_opinion = {
+				target = root
+				modifier = greatly_displeased_ck
+			}
+		}
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_oligarch
+			}
+			custom = oligarch_approves_of_option
+			add_opinion = {
+				target = root
+				modifier = approval_ck_modifier
+			}
+		}
+		every_vassal_or_below = {
+			limit = {
+				has_trait = ck_royalist
+			}
+			custom = royalist_approves_of_option
+			add_opinion = {
+				target = root
+				modifier = approval_ck_modifier
+			}
+		}
+	}
+}
+ck_imperial_events.0034 = { ### Vulgar Festivities - Letter 1
+	type = letter_event
+	theme = ck_imperial
+	opening = {
+		desc = feast.1501.opening
+	}
+	desc = ck_imperial_events.0034.desc
+	sender = scope:root_scope
+
+	option = {
+		name = ck_imperial_events.0034.a
+	}
+	option = {
+		name = ck_imperial_events.0034.b
+		trigger = {
+			culture = {
+				has_cultural_tradition = tradition_high_calradic
+			}
+			has_trait = arrogant
+		}
+	}
+}
+ck_imperial_events.0035 = { ### Vulgar Festivities - Letter 2
+	type = letter_event
+	theme = ck_imperial
+	opening = {
+		desc = feast.1501.opening
+	}
+	desc = ck_imperial_events.0035.desc
+	sender = scope:root_scope
+
+	option = {
+		name = ck_imperial_events.0035.a
+	}
+	option = {
+		name = ck_imperial_events.0035.b
+		trigger = {
+			culture = {
+				has_cultural_tradition = tradition_vulgar_calradic
+			}
+		}
+	}
+	option = {
+		name = ck_imperial_events.0035.c
+		trigger = {
+			culture = {
+				has_cultural_tradition = tradition_high_calradic
+			}
+			has_trait = arrogant
+		}
+	}
 }

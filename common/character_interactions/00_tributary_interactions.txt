@@ -132,6 +132,10 @@ become_tributary_interaction = {
 		ai_recipients = neighboring_rulers_including_tributary_borders
 	}
 
+	ai_targets = {
+		ai_recipients = neighboring_top_overlords_connected_by_land
+	}
+
 	ai_frequency = 6 # this might appear fairly frequent but is necessary in order to ensure AI can respond to sudden threats on their borders
 
 	force_notification = yes
@@ -628,6 +632,7 @@ demand_tributary_interaction = {
 		
 		modifier = {
 			scope:actor = { is_gurkhan = yes }
+			scope:recipient = { government_has_flag = government_is_nomadic }
 			add = 20
 			desc = gurkhan_interaction_reason
 		}
@@ -643,6 +648,7 @@ demand_tributary_interaction = {
 					}
 				}
 			}
+			scope:recipient = { government_has_flag = government_is_nomadic }
 			add = 25
 			desc = zud_season_reason
 		}
@@ -659,7 +665,7 @@ demand_tributary_interaction = {
 			trigger = {
 				scope:recipient = { highest_held_title_tier = tier_kingdom }
 			}
-			add = -20
+			add = -100
 		}
 
 		modifier = { # They are an Emperor or greater
@@ -667,7 +673,7 @@ demand_tributary_interaction = {
 			trigger = {
 				scope:recipient = { highest_held_title_tier >= tier_empire }
 			}
-			add = -50
+			add = -200
 		}
 
 		modifier = { # Recipient has higher Dominance than the actor
@@ -681,6 +687,7 @@ demand_tributary_interaction = {
 		modifier = { # Actor has higher Dominance than the recipient
 			desc = demand_tributary_interaction_aibehavior_dominance_tt
 			trigger = {
+				scope:recipient = { government_has_flag = government_is_nomadic }
 				scope:actor.dominance_value > scope:recipient.dominance_value
 			}
 			add = 20
@@ -716,6 +723,26 @@ demand_tributary_interaction = {
 			add = 25
 		}
 
+		# Non-nomadic
+		modifier = {
+			desc = AI_FILTHY_HORSE_LORD_REASON
+			trigger = {
+				scope:actor = { government_has_flag = government_is_nomadic }
+				scope:recipient = {
+					NOT = { government_has_flag = government_is_nomadic }
+				}
+			}
+			add = {
+				value = -50
+				if = {
+					limit = {
+						scope:recipient = { government_has_flag = government_is_tribal }
+					}
+					multiply = 0.5
+				}
+			}
+		}
+
 		# MINOR
 		modifier = { # Rivalry modifier.
 			desc = offer_vassalization_interaction_aibehavior_rival_tt
@@ -725,7 +752,7 @@ demand_tributary_interaction = {
 					NOT = { has_relation_nemesis = scope:actor }
 				}
 			}
-			add = -10
+			add = -100
 		}
 		modifier = { # Nemesis modifier.
 			desc = offer_vassalization_interaction_aibehavior_nemesis_tt
@@ -734,7 +761,7 @@ demand_tributary_interaction = {
 					has_relation_nemesis = scope:actor
 				}
 			}
-			add = -30
+			add = -200
 		}
 		modifier = { # Same Dynasty modifier.
 			desc = offer_vassalization_interaction_aibehavior_dynasty_tt

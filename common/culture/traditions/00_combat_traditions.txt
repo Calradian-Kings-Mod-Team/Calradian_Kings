@@ -252,7 +252,7 @@ tradition_mountaineers = {
 			# 	this = culture:georgian
 			# }
 			# has_cultural_tradition = tradition_caucasian_wolves
-			has_cultural_tradition = tradition_horn_mountain_skirmishing
+			has_cultural_tradition = tradition_horn_mountain_skirmishing_ck
 		}
 	}
 
@@ -1515,9 +1515,9 @@ tradition_malleable_invaders = {
 			}
 			if = {
 				limit = {
-					NOT = {
+					NOR = {
 						culture_pillar:heritage_khuzic = { is_in_list = traits }
-						#culture_pillar:heritage_khiindai = { is_in_list = traits }
+						culture_pillar:heritage_khiindai = { is_in_list = traits }
 					}
 				}
 				add = {
@@ -1649,7 +1649,7 @@ tradition_quarrelsome = {
 			limit = {
 				NOR = {
 					culture_pillar:heritage_khuzic = { is_in_list = traits }
-					#culture_pillar:heritage_khiindai = { is_in_list = traits }
+					culture_pillar:heritage_khiindai = { is_in_list = traits }
 					is_divergent_culture = yes
 				}
 			}
@@ -1757,8 +1757,10 @@ tradition_swords_for_hire = {
 		value = 50
 		if = {
 			limit = {
-				has_cultural_pillar = heritage_balian
-				has_cultural_pillar = heritage_gottic
+				OR = {
+					has_cultural_pillar = heritage_balian
+					has_cultural_pillar = heritage_gottic
+				}
 			}
 			multiply = 2
 		}
@@ -2017,9 +2019,9 @@ tradition_battlefield_looters = {
 						}
 					}
 					trigger_else = {
-						NOT = {
+						NOR = {
 							culture_pillar:heritage_khuzic = { is_in_list = traits }
-							# culture_pillar:heritage_khiindai = { is_in_list = traits }
+							culture_pillar:heritage_khiindai = { is_in_list = traits }
 						}
 					}
 				}
@@ -2049,7 +2051,7 @@ tradition_battlefield_looters = {
 			limit = {
 				NOR = {
 					culture_pillar:heritage_khuzic = { is_in_list = traits }
-					# culture_pillar:heritage_khiindai = { is_in_list = traits }
+					culture_pillar:heritage_khiindai = { is_in_list = traits }
 					scope:character = {
 						government_has_flag = government_is_tribal
 					}
@@ -2199,7 +2201,7 @@ tradition_stand_and_fight = {
 		levy_toughness = 2
 		maa_toughness_mult = 0.1
 		heavy_infantry_toughness_mult = 0.1
-		heavy_cavalry_toughness_mult = 1
+		heavy_cavalry_toughness_mult = 0.1
 		pikemen_toughness_mult = 0.2
 		hard_casualty_modifier = 0.4
 		defender_advantage = 8
@@ -2614,9 +2616,12 @@ tradition_horse_breeder = {
 								type = heavy_cavalry
 								value >= 400
 							}
-							number_maa_soldiers_of_base_type = {
-								type = archer_cavalry
-								value >= 800
+							any_maa_regiment = {
+								OR = {
+									is_maa_type = horse_archers
+									is_maa_type = heavy_horse_archers
+								}
+								maa_size >= 8
 							}
 						}
 					}
@@ -2687,6 +2692,7 @@ tradition_longbow_competitions = {
 	}
 	
 	parameters = {
+		unlock_maa_longbowmen_ck = yes
 		archer_era_improvement = yes
 		battania_archer_era_improvement = yes
 	}

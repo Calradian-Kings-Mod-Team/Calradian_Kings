@@ -180,51 +180,6 @@ on_siege_completion = {
 	}
 	effect = {
 		save_scope_as = occupant
-		scope:barony.title_province = {
-			every_army_in_location = {
-				limit = {
-					OR = {
-						AND = {
-							root = { is_landless_adventurer = yes }
-							army_owner = root
-						}
-						army_owner = {
-							is_landless_adventurer = yes
-							is_at_war = yes
-							any_war_ally = { this = root }
-						}
-					}
-				}
-				every_army_maa_regiment = {
-					limit = {
-						maa_current_troops_count < maa_max_troops_count
-					}
-					change_maa_troops_count = adventurer_siege_replenish_amount
-				}
-			}
-			every_army_in_location = {
-				limit = {
-					OR = {
-						AND = {
-							root = {
-								is_landless_adventurer = yes
-								has_perk = strict_organization_perk
-							}
-							army_owner = root
-						}
-						army_owner = {
-							is_landless_adventurer = yes
-							has_perk = strict_organization_perk
-							is_at_war = yes
-							any_war_ally = { this = root }
-						}
-					}
-				}
-				army_owner = {
-					domicile ?= { change_provisions = adventurer_siege_provisions_amount }
-				}
-			}
-		}
 		scope:barony = {
 			if = {
 				limit = { title_province = holder.capital_province }
@@ -266,7 +221,7 @@ on_siege_completion = {
 		}
 
 		# Commander trait leveling
-		location = {
+		scope:barony.title_province = {
 			every_army_in_location = {
 				army_commander ?= {
 					if = {
@@ -317,15 +272,13 @@ on_siege_completion = {
 					has_building_or_higher = geroian_citadel_good
 				}
 			}
-			hidden_effect = {
-				scope:barony.title_province = {
-					remove_building = geroian_citadel_good
-				}
-			}
 			random = {
 				chance = 10
 				scope:barony.title_province = {
-					remove_building = geroian_citadel_ruined
+					hidden_effect = {
+						remove_building = geroian_citadel_good
+					}
+					add_building = geroian_citadel_ruined
 				}
 				# trigger_event = calking_geroian_
 			}
@@ -344,6 +297,51 @@ on_siege_looting = {
 	}
 
 	effect = {
+		scope:barony.title_province = {
+			every_army_in_location = {
+				limit = {
+					OR = {
+						AND = {
+							root = { is_landless_adventurer = yes }
+							army_owner = root
+						}
+						army_owner = {
+							is_landless_adventurer = yes
+							is_at_war = yes
+							any_war_ally = { this = root }
+						}
+					}
+				}
+				every_army_maa_regiment = {
+					limit = {
+						maa_current_troops_count < maa_max_troops_count
+					}
+					change_maa_troops_count = adventurer_siege_replenish_amount
+				}
+			}
+			every_army_in_location = {
+				limit = {
+					OR = {
+						AND = {
+							root = {
+								is_landless_adventurer = yes
+								has_perk = strict_organization_perk
+							}
+							army_owner = root
+						}
+						army_owner = {
+							is_landless_adventurer = yes
+							has_perk = strict_organization_perk
+							is_at_war = yes
+							any_war_ally = { this = root }
+						}
+					}
+				}
+				army_owner = {
+					domicile ?= { change_provisions = adventurer_siege_provisions_amount }
+				}
+			}
+		}
 		scope:barony.title_province = {
 			add_province_modifier = {
 				modifier = recently_looted_modifier

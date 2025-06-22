@@ -45,6 +45,74 @@ action_can_interrogate = {
 	}
 }
 
+#JOIN TRIBUTARY WAR
+action_join_tributary_war = {
+	priority = 400
+	combine_into_one = yes
+	is_dangerous = yes
+	check_create_action = {
+		if = {
+			limit = {
+				any_tributary = {
+					is_at_war = yes
+					root = {
+						is_character_interaction_valid = {
+							recipient = prev
+							interaction = join_war_interaction
+						}
+					}
+					any_character_war = {
+						NOR = {
+							any_war_attacker = { this = root }
+							any_war_defender = { this = root }
+						}
+						primary_defender = prev
+					}
+				}
+			}
+			every_tributary = {
+				limit = {
+					is_at_war = yes
+					root = {
+						is_character_interaction_valid = {
+							recipient = prev
+							interaction = join_war_interaction
+						}
+					}
+					any_character_war = {
+						NOR = {
+							any_war_attacker = { this = root }
+							any_war_defender = { this = root }
+						}
+						primary_defender = prev
+					}
+				}
+				random_character_war = {
+					limit = {
+						primary_defender = prev
+					}
+					save_scope_as = tributary_war
+					primary_attacker = { save_scope_as = tributary_war_attacker }
+				}
+				save_scope_as = tributary_to_help
+				try_create_important_action = {
+					important_action_type = action_join_tributary_war
+					actor = root
+					recipient = scope:tributary_to_help
+				}
+			}
+		}
+	}
+
+	effect = {
+		open_interaction_window = {
+			interaction = join_war_interaction
+			actor = scope:actor
+			recipient = scope:recipient
+		}
+	}
+}
+
 #HIRE COURT ASTROLOGER
 action_can_hire_court_astrologer = {
 	priority = 250

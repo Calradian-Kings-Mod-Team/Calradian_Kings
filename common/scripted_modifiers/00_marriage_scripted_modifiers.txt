@@ -60,6 +60,8 @@
 		scope:actor = scope:secondary_actor
 		#We need to be in the same realm:
 		scope:recipient.top_liege = scope:actor.top_liege
+		# Not Nomadic
+		government_has_flag = government_is_settled
 		add = surveyor_marriage_perk_self_value
 		desc = SURVEYOR_PERK_REALM_ACCEPTANCE
 	}
@@ -73,6 +75,8 @@
 		#We all need to be in the same realm:
 		scope:secondary_actor.top_liege = scope:actor.top_liege
 		scope:recipient.top_liege = scope:actor.top_liege
+		# Not Nomadic
+		government_has_flag = government_is_settled
 		add = surveyor_marriage_perk_other_value
 		desc = SURVEYOR_PERK_REALM_ACCEPTANCE
 	}
@@ -134,6 +138,24 @@
 	modifier = {
 		add = {
 			value = 40
+			if = {
+				limit = {
+					scope:actor = {
+						is_ai = no
+					}
+					has_game_rule = hard_difficulty
+				}
+				add = -20
+			}
+			else_if = {
+				limit = {
+					scope:actor = {
+						is_ai = no
+					}
+					has_game_rule = very_hard_difficulty
+				}
+				add = -35
+			}
 			if = {
 				limit = {
 					scope:actor = {
@@ -235,6 +257,24 @@
 			if = {
 				limit = {
 					scope:actor = {
+						is_ai = no
+					}
+					has_game_rule = hard_difficulty
+				}
+				add = -50
+			}
+			else_if = {
+				limit = {
+					scope:actor = {
+						is_ai = no
+					}
+					has_game_rule = very_hard_difficulty
+				}
+				add = -90
+			}
+			if = {
+				limit = {
+					scope:actor = {
 						any_ally = {
 							NOR = {
     							target_is_liege_or_above = scope:actor
@@ -280,7 +320,27 @@
 		desc = DESIRES_ALLIANCE
 	}
 	modifier = {
-		add = -100
+		add = {
+			value = -100
+			if = {
+				limit = {
+					scope:actor = {
+						is_ai = no
+					}
+					has_game_rule = hard_difficulty
+				}
+				add = -200
+			}
+			else_if = {
+				limit = {
+					scope:actor = {
+						is_ai = no
+					}
+					has_game_rule = very_hard_difficulty
+				}
+				add = -400
+			}
+		}
 		scope:recipient = {
 			NOT = { is_allied_to = scope:actor }
 			ai_diplomacy_stance = {
@@ -306,16 +366,52 @@
 						}
 					}
 					add = -15
+					if = {
+						limit = {
+							scope:actor = {
+								is_ai = no
+							}
+							has_game_rule = hard_difficulty
+						}
+						add = -45
+					}
+					else_if = {
+						limit = {
+							scope:actor = {
+								is_ai = no
+							}
+							has_game_rule = very_hard_difficulty
+						}
+						add = -90
+					}
 				}
 			}
 		}
 		scope:actor = {
-			any_ally = {
-				NOR = {
-					target_is_vassal_or_below = scope:actor
-					target_is_liege_or_above = scope:actor
+			trigger_if = {
+				limit = {
+					OR = {
+						has_game_rule = hard_difficulty
+						has_game_rule = very_hard_difficulty
+					}
+					is_ai = no
 				}
-				count >= 2
+				any_ally = {
+					NOR = {
+						target_is_vassal_or_below = scope:actor
+						target_is_liege_or_above = scope:actor
+					}
+					count >= 1
+				}
+			}
+			trigger_else = {
+				any_ally = {
+					NOR = {
+						target_is_vassal_or_below = scope:actor
+						target_is_liege_or_above = scope:actor
+					}
+					count >= 2
+				}
 			}
 		}
 		scope:recipient = {
@@ -335,6 +431,24 @@
 	modifier = {
 		add = {
 			value = -50
+			if = {
+				limit = {
+					scope:actor = {
+						is_ai = no
+					}
+					has_game_rule = hard_difficulty
+				}
+				add = -450
+			}
+			else_if = {
+				limit = {
+					scope:actor = {
+						is_ai = no
+					}
+					has_game_rule = very_hard_difficulty
+				}
+				add = -950
+			}
 			scope:recipient = { # If the recipient is busy with their own wars its extra unattractive
 				if = {
 					limit = {
@@ -1539,6 +1653,7 @@
 		scope:recipient = {
 			NOT = { this = scope:secondary_recipient }
 			NOT = { target_is_liege_or_above = scope:actor }
+			exists = top_liege
 			has_dread_level_towards = {
 				target = scope:actor
 				level = 1
@@ -1551,6 +1666,7 @@
 		scope:recipient = {
 			NOT = { this = scope:secondary_recipient }
 			NOT = { target_is_liege_or_above = scope:actor }
+			exists = top_liege
 			has_dread_level_towards = {
 				target = scope:actor
 				level = 2
@@ -1618,6 +1734,7 @@
 		NOT = { scope:actor = scope:secondary_actor }
 		scope:recipient = {
 			this = scope:secondary_recipient
+			exists = top_liege
 			has_dread_level_towards = {
 				target = scope:actor
 				level = 1
@@ -1630,6 +1747,7 @@
 		NOT = { scope:actor = scope:secondary_actor }
 		scope:recipient = {
 			this = scope:secondary_recipient
+			exists = top_liege
 			has_dread_level_towards = {
 				target = scope:actor
 				level = 2
@@ -2055,6 +2173,44 @@
 		}
 		desc = AI_FILTHY_HORSE_LORD_REASON
 	}
+	modifier = {
+		add = {
+			value = 14
+			subtract = scope:actor.prowess
+			multiply = -4
+		}
+		scope:recipient = {
+			government_has_flag = government_is_nomadic
+		}
+		scope:actor = {
+			prowess < 14
+		}
+		desc = AI_REASON_LOW_PROWESS
+	}
+	modifier = {
+		add = -40
+		scope:actor = { has_realm_law = nomadic_authority_1 }
+		scope:recipient = { government_has_flag = government_is_nomadic }
+		desc = AI_REASON_NOMADIC_AUTHORITY_1
+	}
+	modifier = {
+		add = -20
+		scope:actor = { has_realm_law = nomadic_authority_2 }
+		scope:recipient = { government_has_flag = government_is_nomadic }
+		desc = AI_REASON_NOMADIC_AUTHORITY_2
+	}
+	modifier = {
+		add = 10
+		scope:actor = { has_realm_law = nomadic_authority_4 }
+		scope:recipient = { government_has_flag = government_is_nomadic }
+		desc = AI_REASON_NOMADIC_AUTHORITY_4
+	}
+	modifier = {
+		add = 20
+		scope:actor = { has_realm_law = nomadic_authority_5 }
+		scope:recipient = { government_has_flag = government_is_nomadic }
+		desc = AI_REASON_NOMADIC_AUTHORITY_5
+	}
 	#Smaller prejudicial malus for tribals, vassals and obedient tributaries
 	modifier = {
 		add = -50
@@ -2231,6 +2387,73 @@
 	# 	}
 	# 	add = -20
 	# }
+	
+	#On Hard/Very Hard, highly skilled characters are unwilling to marry player courtiers
+	modifier = {
+		desc = "difficulty_skilled_courtier_block"
+		OR = {
+			has_game_rule = hard_difficulty
+			has_game_rule = very_hard_difficulty
+		}
+		scope:actor = {
+			is_ai = no
+		}
+		scope:secondary_actor = {
+			NOR = {
+				is_close_family_of = scope:actor
+				this = scope:actor
+			}
+		}
+		scope:secondary_recipient = {
+			is_ruler = no
+			OR = {
+				diplomacy > 12
+				stewardship > 12
+				martial > 12
+				learning > 12
+				intrigue > 12
+				prowess > 12
+			}
+		}
+		add = -2000
+	}
+	# And slightly less likely to marry player children etc.
+	modifier = {
+		desc = "difficulty_skilled_courtier_block"
+		OR = {
+			has_game_rule = hard_difficulty
+			has_game_rule = very_hard_difficulty
+		}
+		scope:actor = {
+			is_ai = no
+		}
+		scope:secondary_actor = {
+			OR = {
+				is_close_family_of = scope:actor
+				this = scope:actor
+			}
+		}
+		scope:secondary_recipient = {
+			is_ruler = no
+			OR = {
+				diplomacy > 12
+				stewardship > 12
+				martial > 12
+				learning > 12
+				intrigue > 12
+				prowess > 12
+			}
+		}
+		add = {
+			value = -100
+			if = {
+				limit = {
+					scope:secondary_recipient.highest_skill_value >= 20
+				}
+				add = -50
+			}
+		}
+	}
 }
 
 elopment_ai_accept_modifier = { #Should copy marriage_ai_accept_modifier on relevant points, note: there are no secondary targets

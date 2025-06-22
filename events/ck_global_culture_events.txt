@@ -203,7 +203,7 @@ ck_global_culture.0003 = { ### Choosing culture
 				trigger = {
 					root.culture = culture:vlandian
 				}
-				desc = k_global_culture.0003.desc.vlandian
+				desc = ck_global_culture.0003.desc.vlandian
 			}
 		}
 	}
@@ -464,7 +464,8 @@ ck_global_culture.0004 = { # New Rhodok courtier
 			modifier = {
 				add = 60
 				OR = {
-					has_trait = cruel
+					has_trait = sadistic
+					has_trait = callous
 					has_trait = arrogant
 					has_trait = arbitrary
 				}
@@ -706,6 +707,10 @@ ck_global_culture.0008 = { ###Start of Rhodok rebellion
 		}
 	}
 	immediate = {
+		add_to_global_variable_list = {
+			name = unavailable_unique_decisions
+			target = flag:flag_declared_rhodok_war
+		}
 		play_music_cue = "mx_cue_crusade_starts"
 		title:k_vlandia.holder = {
 			save_scope_as = vlandiaking
@@ -847,6 +852,7 @@ ck_global_culture.1008 = { ### Grunwalder and his host join the rebellion
 				add_character_flag = is_grunwalder
 				copy_inheritable_appearance_from = character:grunwalder_dummy
 				add_prestige = 3000
+				add_character_flag = bald_head
 			}
 		}
 		random_character_war = {
@@ -1127,13 +1133,29 @@ ck_global_culture.0013 = { ### Swadian king claims new capital
 	override_background = { reference = council_chamber }
 	right_portrait = {
 		character = root
-		animation = chancellor ###PLACEHOLDER
+		animation = war_over_loss ###PLACEHOLDER
 	}
 	
 	immediate = {
 		hidden_effect = {
 			title:k_vlandia = {
 				set_capital_county = title:c_pravend
+			}
+		}
+		if = {
+			limit = {
+				exists = title:d_ocs_hall.holder
+			}
+			title:d_ocs_hall.holder = {
+				save_scope_as = ocs_hall_holder
+			}
+		}
+		if = {
+			limit = {
+				exists = title:d_pravend.holder
+			}
+			title:d_pravend.holder = {
+				save_scope_as = pravend_holder
 			}
 		}
 	}
@@ -1154,6 +1176,18 @@ ck_global_culture.0013 = { ### Swadian king claims new capital
 				get_title = title:d_pravend
 			}
 		}
+		if = {
+			limit = {
+				exists = scope:pravend_holder
+			}
+			scope:pravend_holder = {
+				add_opinion = {
+					target = root
+					modifier = usurped_title
+					opinion = -25
+				}
+			}
+		}
 		ai_chance = {
 			base = 5
 		}
@@ -1171,10 +1205,21 @@ ck_global_culture.0013 = { ### Swadian king claims new capital
 			}
 			if = {
 				limit = {
-					exists = title:d_ocshall.holder
-					title:d_ocshall.holder ?= { is_ai = yes }
+					exists = scope:ocs_hall_holder
+					scope:ocs_hall_holder ?= { is_ai = yes }
 				}
-				get_title = title:d_ocshall
+				get_title = title:d_ocs_hall
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:ocs_hall_holder
+			}
+			scope:ocs_hall_holder = {
+				add_opinion = {
+					target = root
+					modifier = usurped_title
+				}
 			}
 		}
 		ai_chance = {
@@ -1629,6 +1674,7 @@ ck_global_culture.0018 = {
 		is_vassal_or_below_of = title:k_vlandia.holder
 		scope:rhodok_instigator = {
 			is_alive = yes
+			is_ai = no
 		}
 	}
 
@@ -1744,6 +1790,7 @@ ck_global_culture.0019 = { ## Invitation to Council from Instigator ##
 		}
 		scope:rhodok_instigator = {
 			is_alive = yes
+			is_ai = no
 		}
 	}
 	immediate = {
@@ -2008,6 +2055,7 @@ ck_global_culture.0022 = { # Propose Black Bear CoA #
 	trigger = {
 		scope:rhodok_instigator = {
 			is_alive = yes
+			is_ai = no
 		}
 	}
 	option = {
@@ -2040,6 +2088,7 @@ ck_global_culture.0023 = {
 	trigger = {
 		scope:rhodok_instigator = {
 			is_alive = yes
+			is_ai = no
 		}
 	}
 	option = {
@@ -2213,7 +2262,7 @@ ck_global_culture.0026 = {
 		NOR = {
 			culture = culture:rhodok
 			is_at_war_with = scope:rhodok_war_leader
-			has_character_flag = rhodok_accepted_war
+			has_character_flag = accepted_rhodok_war
 		}
 		is_vassal_or_below_of = title:k_vlandia.holder
 	}
@@ -2486,6 +2535,41 @@ ck_global_culture.3000 = { #Rhodok titles handout
 				has_variable = untouchable_title_var
 			}
 			remove_variable = untouchable_title_var
+		}
+	}
+}
+
+ck_global_culture.3010 = { ## Swadians unlock a new innovation for eastwards expansion
+	title = ck_global_culture.3010.t
+	desc = ck_global_culture.3010.desc
+	theme = ck_swadian
+	right_portrait = {
+		character = scope:swadian_king_scope
+		animation = personality_callous
+	}
+	immediate = {
+		if = {
+			limit = {
+				exists = title:k_vlandia.holder
+			}
+			title:k_vlandia.holder = {
+				save_scope_as = swadian_king_scope
+			}
+		}
+	}
+
+	option = {
+		name = ck_global_culture.3010.a
+		custom_tooltip = ck_global_culture.3010.a.tt
+		custom_tooltip = ck_global_culture.3010.a.tt.2
+		hidden_effect = {
+			set_global_variable = {
+				name = swadian_innovation_unlocked
+				value = 1
+			}
+		}
+		ai_chance = {
+			base = 100
 		}
 	}
 }

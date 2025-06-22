@@ -110,8 +110,8 @@ special_contract = {
 			flag = has_scutage_contract
 			flag = obligation_high_taxes
 
-			ai_liege_desire =  {
-				value = 0
+			ai_liege_desire = {
+				value = @ai_standard_liege_desire
 				if = {
 					limit = {
 						scope:subject = {
@@ -119,13 +119,12 @@ special_contract = {
 								government_has_flag = government_is_clan
 								AND = {
 									government_has_flag = government_is_feudal
-									vassal_contract_obligation_level:feudal_government_taxes > feudal_tax_normal_level
-									vassal_contract_obligation_level:feudal_government_levies < feudal_levies_normal_level
+									vassal_contract_obligation_level:feudal_government_taxes >= feudal_tax_normal_level
 								}
 							}
 						}
 					}
-					add = @ai_standard_liege_desire
+					add = 5
 				}
 				if = {
 					limit = {
@@ -136,6 +135,7 @@ special_contract = {
 					add = 10
 				}
 			}
+			ai_subject_desire = -2
 		}
 		special_contract_march = {
 			is_shown = {
@@ -196,6 +196,7 @@ special_contract = {
 					add = @ai_standard_liege_desire
 				}
 			}
+			ai_subject_desire = @ai_standard_vassal_desire
 		}
 		special_contract_castellan = {
 			is_shown = {
@@ -244,6 +245,7 @@ special_contract = {
 					add = @ai_standard_liege_desire
 				}
 			}
+			ai_subject_desire = @ai_standard_vassal_desire
 		}
 		special_contract_palatinate = {
 			is_shown = { scope:subject = { government_has_flag = government_is_feudal } }
@@ -285,6 +287,7 @@ special_contract = {
 					add = @ai_standard_liege_desire
 				}
 			}
+			ai_subject_desire = @ai_standard_vassal_desire
 		}
 		special_contract_calradian = {
 			is_shown = { 
@@ -316,7 +319,7 @@ special_contract = {
 				monthly_prestige_gain_mult = 0.1
 				fellow_vassal_opinion = 10
 			}
-
+			flag = has_calradian_contract
 			ai_liege_desire =  {
 				value = 0
 				if = {
@@ -618,6 +621,7 @@ religious_rights = {
 
 			ai_liege_desire = 0
 			ai_subject_desire = 10
+			score = 3
 		}
 	}
 }
@@ -784,6 +788,7 @@ council_rights = {
 
 			ai_liege_desire = 0
 			ai_subject_desire = @ai_standard_vassal_desire
+			score = 3
 		}
 	}
 }
@@ -797,6 +802,14 @@ title_revocation_rights = {
 				scope:subject.faith = scope:liege.faith
 				scope:liege.faith = {
 					has_doctrine_parameter = unlock_jizya_contract
+				}
+				scope:liege = {
+					has_realm_law_flag = can_tax_other_faiths_ck
+					NOR = {
+						has_realm_law_flag = persecuted_tolerance
+						has_realm_law_flag = normal_religious_tolerance
+						has_realm_law_flag = full_religious_tolerance
+					}
 				}
 			}
 		}
@@ -818,6 +831,14 @@ title_revocation_rights = {
 						scope:liege.faith = {
 							has_doctrine_parameter = unlock_jizya_contract
 						}
+						scope:liege = {
+							has_realm_law_flag = can_tax_other_faiths_ck
+							NOR = {
+								has_realm_law_flag = persecuted_tolerance
+								has_realm_law_flag = normal_religious_tolerance
+								has_realm_law_flag = full_religious_tolerance
+							}
+						}
 					}
 				}
 			}
@@ -838,10 +859,20 @@ title_revocation_rights = {
 jizya_special_rights = {
 	display_mode = checkbox
 	is_shown = {
-		scope:liege.faith = {
-			OR = {
-				has_doctrine = tenet_tax_nonbelievers
-				has_doctrine = special_doctrine_jizya
+		OR = {
+			scope:liege = {
+				has_realm_law_flag = can_tax_other_faiths_ck
+				NOR = {
+					has_realm_law_flag = persecuted_tolerance
+					has_realm_law_flag = normal_religious_tolerance
+					has_realm_law_flag = full_religious_tolerance
+				}
+			}
+			scope:liege.faith = {
+				OR = {
+					has_doctrine = tenet_tax_nonbelievers
+					has_doctrine = special_doctrine_jizya
+				}
 			}
 		}
 		NOT = {	scope:subject.faith = scope:liege.faith }
@@ -868,10 +899,20 @@ jizya_special_rights = {
 		}
 		jizya_special_rights_granted = {
 			is_valid = {
-				scope:liege.faith = {
-					OR = {
-						has_doctrine = tenet_tax_nonbelievers
-						has_doctrine = special_doctrine_jizya
+				OR = {
+					scope:liege = {
+						has_realm_law_flag = can_tax_other_faiths_ck
+						NOR = {
+							has_realm_law_flag = persecuted_tolerance
+							has_realm_law_flag = normal_religious_tolerance
+							has_realm_law_flag = full_religious_tolerance
+						}
+					}
+					scope:liege.faith = {
+						OR = {
+							has_doctrine = tenet_tax_nonbelievers
+							has_doctrine = special_doctrine_jizya
+						}
 					}
 				}
 				NOT = {	scope:subject.faith = scope:liege.faith }
@@ -890,6 +931,7 @@ jizya_special_rights = {
 			flag = vassal_contract_cannot_revoke_titles
 			flag = religiously_protected
 			flag = obligation_high_taxes
+			flag = has_jizya_contract
 
 			ai_liege_desire = @ai_standard_liege_desire
 			ai_subject_desire = 0

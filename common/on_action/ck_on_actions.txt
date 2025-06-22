@@ -1,13 +1,32 @@
 ﻿on_game_start = {
 	on_actions = {
 		ck_game_start
+		ck_resources
 	}
 	#events = { 
 	#}
 	#effect = {
 	#}
 }
-
+random_yearly_playable_pulse = {
+	trigger = {
+		basic_is_valid_for_yearly_events_trigger = yes
+	}
+	random_on_action = {
+		chance_of_no_event = {
+			value = 0
+			if = {
+				limit = {
+					is_ai = yes
+					highest_held_title_tier < tier_duchy
+				}
+				add = 75 # AI counts aren't particularly important
+			}
+		}
+		50 = ck_geroian_events
+		50 = ck_rhodok_events
+	}
+}
 ck_game_start = {
 	effect = {
 		### CALRADIC KINGS - GAMERULES ###
@@ -30,5 +49,54 @@ ck_game_start = {
 		 	}
 		 	shatter_kingdoms_and_empires_effect = yes
 		}
+	}
+}
+
+ck_resources = {
+	effect = {
+		##### Resource Setup #####
+		# title:c_askar = {
+		# 	add_county_modifier = {
+		# 		modifier = resource_papyrus
+		# 	}
+		# }
+	}
+}
+
+ck_geroian_events = {
+	trigger = {
+		AND = {
+			exists = capital_province
+			capital_province = {
+				geographical_region = region_perassic_isles
+			}
+		}
+	}
+	random_events = {
+		chance_to_happen = 50
+		150 = 0
+		# Foreign Merchant
+		100 = ck_geroian_events.0020
+		# Warrior Monk
+		75 = ck_geroian_events.0018
+		# Melancholic Ransom Broker
+		10 = ck_geroian_events.0016
+	}
+}
+
+ck_rhodok_events = {
+	trigger = {
+		AND = {
+			exists = capital_province
+			capital_province = {
+				geographical_region = region_rhodokia
+			}
+		}
+	}
+	random_events = { 
+		# ck_rhodok.0002-0004 is for pre-war Grunwalder events
+		100 = ck_rhodok.0002
+		100 = ck_rhodok.0003
+		100 = ck_rhodok.0004
 	}
 }

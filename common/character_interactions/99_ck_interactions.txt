@@ -2315,3 +2315,553 @@ geroian_coalition_call = {
 		}
 	}
 }
+
+### Realm Law Interactions ###
+## Religious Tolerance ##
+# No Tolerance #
+demand_realm_law_tolerance = {
+	category = interaction_category_vassal
+	interface_priority = 110
+	icon = council
+	desc = demand_realm_law_tolerance_desc
+	common_interaction = yes
+
+	popup_on_receive = yes
+	pause_on_receive = yes
+
+	ai_min_reply_days = 1
+	ai_max_reply_days = 7
+	
+	cooldown_against_recipient = { months = 12 } 
+
+	is_shown = {
+		scope:recipient = {
+			faith = {
+				this = scope:actor.faith
+			}
+			highest_held_title_tier >= tier_duchy
+		}
+		OR = {
+			AND = {
+				scope:actor = {
+					has_realm_law_flag = persecuted_tolerance
+					is_liege_or_above_of = scope:recipient
+				}
+				scope:recipient = {
+					is_vassal_or_below_of = scope:actor
+					OR = {
+						has_realm_law_flag = normal_religious_tolerance
+						has_realm_law_flag = full_religious_tolerance
+					}
+					faith = {
+						NOT = {
+							ck_syncretic_faiths_trigger = yes
+						}
+					}
+				}
+			}
+			AND = {
+				scope:actor = {
+					has_realm_law_flag = full_religious_tolerance
+					is_liege_or_above_of = scope:recipient
+				}
+				scope:recipient = {
+					is_vassal_or_below_of = scope:actor
+					OR = {
+						has_realm_law_flag = can_tax_other_faiths_ck
+						has_realm_law_flag = persecuted_tolerance
+					}
+				}
+			}
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			NOT = {
+				is_at_war_with = scope:actor
+			}
+			is_imprisoned = no
+			is_vassal_or_below_of = scope:actor
+			faith = {
+				this = scope:actor.faith
+			}
+		}
+	}
+
+	can_be_picked = {
+		NOT = { scope:recipient = root }
+	}
+
+	can_send = {
+		scope:actor = {
+			custom_description = {
+				text = "character_interactions_hostile_actions_disabled_delay"
+				NOT = { has_character_flag = flag_hostile_actions_disabled_delay }
+			}
+		}
+	}
+	send_option = {
+		flag = demanded_for_persecution
+		is_valid = {
+			AND = {
+				scope:actor = {
+					has_realm_law_flag = persecuted_tolerance
+					is_liege_or_above_of = scope:recipient
+				}
+				scope:recipient = {
+					is_vassal_or_below_of = scope:actor
+					OR = {
+						has_realm_law_flag = normal_religious_tolerance
+						has_realm_law_flag = full_religious_tolerance
+					}
+					faith = {
+						this = scope:actor.faith
+					}
+				}
+			}
+		}
+	}
+
+	send_option = {
+		flag = demanded_for_full_rights
+		is_valid = {
+			AND = {
+				scope:actor = {
+					has_realm_law_flag = full_religious_tolerance
+					is_liege_or_above_of = scope:recipient
+				}
+				scope:recipient = {
+					is_vassal_or_below_of = scope:actor
+					OR = {
+						has_realm_law_flag = can_tax_other_faiths_ck
+						has_realm_law_flag = persecuted_tolerance
+					}
+					faith = {
+						this = scope:actor.faith
+					}
+				}
+			}
+		}
+	}
+
+	ai_accept = {
+		base = -25
+
+		modifier = {
+			add = 30
+			desc = invite_to_expedition.acceptance.friend_or_best_friend
+			scope:recipient = {
+				OR = {
+					has_relation_friend = scope:actor
+					has_relation_best_friend = scope:actor
+				}
+			}
+		}
+		modifier = { #Opinion above 50 # +20
+			add = 20
+			desc = invite_to_expedition.acceptance.good_opinion
+			scope:recipient = {
+				opinion = {
+					target = scope:actor
+					value >= 50
+				}
+			}
+		}
+		modifier = { #Is loyal # +20
+			add = 20
+			desc = invite_to_expedition.acceptance.loyal
+			scope:recipient = {
+				has_trait = loyal
+			}
+		}
+
+		## Demand Persecution
+		modifier = {
+			add = 50
+			desc = demand_realm_law_tolerance_zealot_no
+			scope:recipient = {
+				OR = {
+					has_vassal_stance = zealot
+					has_trait = zealous
+				}
+			}
+			scope:demanded_for_persecution?= yes
+		}
+		modifier = {
+			add = -50
+			desc = demand_realm_law_against_doctrine_pluralism
+			scope:recipient = {
+				faith = {
+					has_doctrine = doctrine_pluralism_pluralistic
+				}
+			}
+		}
+		modifier = {
+			add = -20
+			desc = demand_realm_law_tolerance_cynical
+			scope:recipient = {
+				has_trait = cynical
+			}
+			scope:demanded_for_persecution?= yes
+		}
+
+		## Demand Full Rights
+		modifier = {
+			add = -50
+			desc = demand_realm_law_tolerance_zealot_no
+			scope:recipient = {
+				OR = {
+					has_vassal_stance = zealot
+					has_trait = zealous
+				}
+			}
+			scope:demanded_for_full_rights?= yes
+		}
+
+		# Dread
+		## Intimidation
+		modifier = {
+			add = intimidated_halved_reason_value
+			desc = INTIMIDATED_REASON
+			scope:recipient = {
+				has_dread_level_towards = {
+					target = scope:actor
+					level = 1
+				}
+			}
+		}
+		## Cowing
+		modifier = {
+			add = cowed_halved_reason_value
+			desc = COWED_REASON
+			scope:recipient = {
+				has_dread_level_towards = {
+					target = scope:actor
+					level = 2
+				}
+			}
+		}
+		# Comparative military strength.
+		modifier = {
+			add = {
+				value = 1
+					subtract = {
+						value = scope:recipient.max_military_strength
+						divide = { value = scope:actor.max_military_strength min = 1 }
+					}
+				multiply = 50
+				max = 20
+			}
+			desc = offer_vassalization_interaction_aibehavior_power_tt
+			scope:actor = { is_landed_or_landless_administrative = yes }
+		}
+	}
+
+	on_accept = {
+		scope:actor = {
+			switch = {
+				trigger = yes
+				scope:demanded_for_persecution ?= {
+					scope:recipient = {
+						custom_tooltip = {
+							text = will_change_law_to_persecution
+							add_realm_law_skip_effects = ck_religious_tolerance_0
+						}
+						if = {
+							limit = {
+								faith = {
+									has_doctrine = doctrine_pluralism_pluralistic
+								}
+							}
+							add_piety = -50
+						}
+					}
+					scope:actor = {
+						if = {
+							limit = {
+								faith = {
+									has_doctrine = doctrine_pluralism_pluralistic
+								}
+							}
+							add_piety = -100
+						}
+					}
+				}
+				scope:demanded_for_full_rights ?= {
+					scope:recipient = {
+						if = {
+							limit = {
+								has_realm_law_flag = can_tax_other_faiths_ck
+								any_vassal = {
+									vassal_contract_obligation_level_can_be_decreased = jizya_special_rights
+								}
+							}
+							every_vassal = {
+								limit = {
+									vassal_contract_obligation_level_can_be_decreased = jizya_special_rights
+								}
+								vassal_contract_set_obligation_level = { type = jizya_special_rights level = 0 }
+							}
+						}
+						if = {
+							limit = {
+								faith = {
+									has_doctrine = doctrine_pluralism_pluralistic
+								}
+							}
+							custom_tooltip = {
+								text = will_change_law_to_full
+								add_realm_law_skip_effects = ck_religious_tolerance_3
+							}
+						}
+						else_if = {
+							limit = {
+								faith = {
+									NOT = {
+										has_doctrine = doctrine_pluralism_pluralistic
+									}
+								}
+							}
+							custom_tooltip = {
+								text = will_change_law_to_tolerated
+								add_realm_law_skip_effects = ck_religious_tolerance_2
+							}
+						}
+					}
+					scope:actor = {
+						if = {
+							limit = {
+								faith = {
+									has_doctrine = doctrine_pluralism_pluralistic
+								}
+							}
+							add_piety = 50
+						}
+						else_if = {
+							limit = {
+								faith = {
+									OR = {
+										has_doctrine = doctrine_pluralism_fundamentalist
+										has_doctrine = doctrine_pluralism_righteous
+									}
+								}
+							}
+							add_piety = -100
+						}
+					}
+				}
+			}
+		}
+
+	}
+	on_decline = {
+		scope:actor = {
+			switch = {
+				trigger = yes
+				scope:demanded_for_persecution ?= {
+					scope:recipient = {
+						if = {
+							limit = {
+								scope:actor = {
+									faith = {
+										NOT = {
+											has_doctrine = doctrine_pluralism_pluralistic
+										}
+									}
+								}
+								scope:recipient = {
+									NOT = {
+										vassal_contract_has_flag = vassal_contract_cannot_revoke_titles
+									}
+								}
+							}
+							custom_tooltip = {
+								text = demand_realm_law_tolerance_lawful_imprisonment
+								add_opinion = {
+									target = scope:recipient
+									modifier = ck_religious_tolerance_refused_change
+								}
+							}
+						}
+						if = {
+							limit = {
+								faith = {
+									has_doctrine = doctrine_pluralism_pluralistic
+								}
+							}
+							add_piety = 50
+						}
+						add_opinion = {
+							target = scope:actor
+							modifier = ck_religious_tolerance_refused_change_me
+						}
+					}
+					scope:actor = {
+						if = {
+							limit = {
+								faith = {
+									OR = {
+										has_doctrine = doctrine_pluralism_fundamentalist
+										has_doctrine = doctrine_pluralism_righteous
+									}
+								}
+							}
+							add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss }
+						}
+					}
+				}
+				scope:demanded_for_full_rights ?= {
+					scope:recipient = {
+						if = {
+							limit = {
+								faith = {
+									has_doctrine = doctrine_pluralism_pluralistic
+								}
+							}
+							custom_tooltip = {
+								text = will_change_law_to_full
+								add_realm_law_skip_effects = ck_religious_tolerance_3
+							}
+						}
+						else_if = {
+							limit = {
+								faith = {
+									NOT = {
+										has_doctrine = doctrine_pluralism_pluralistic
+									}
+								}
+							}
+							custom_tooltip = {
+								text = will_change_law_to_tolerated
+								add_realm_law_skip_effects = ck_religious_tolerance_2
+							}
+						}
+					}
+					scope:actor = {
+						if = {
+							limit = {
+								faith = {
+									has_doctrine = doctrine_pluralism_pluralistic
+								}
+							}
+							add_piety = -50
+						}
+						else_if = {
+							limit = {
+								faith = {
+									OR = {
+										has_doctrine = doctrine_pluralism_fundamentalist
+										has_doctrine = doctrine_pluralism_righteous
+									}
+								}
+							}
+							add_piety = -100
+						}
+					}
+				}
+			}
+		}
+	}
+
+	ai_potential = {
+		is_adult = yes
+		scope:recipient = {
+			highest_held_title_tier >= tier_duchy
+		}
+	}
+	ai_will_do = {
+		base = 0
+
+		modifier = {
+			add = 100
+			OR = {
+				AND = {
+					scope:actor = {
+						ai_zeal < 30
+						has_realm_law_flag = persecuted_tolerance
+						is_liege_or_above_of = scope:recipient
+						faith = {
+							NOT = {
+								has_doctrine = doctrine_pluralism_pluralistic
+							}
+						}
+					}
+					scope:recipient = {
+						is_vassal_or_below_of = scope:actor
+						OR = {
+							has_realm_law_flag = normal_religious_tolerance
+							has_realm_law_flag = full_religious_tolerance
+						}
+					}
+				}
+				AND = {
+					scope:actor = {
+						ai_zeal < 15
+						has_realm_law_flag = full_religious_tolerance
+						is_liege_or_above_of = scope:recipient
+						faith = {
+							has_doctrine = doctrine_pluralism_pluralistic
+						}
+					}
+					scope:recipient = {
+						is_vassal_or_below_of = scope:actor
+						OR = {
+							has_realm_law_flag = can_tax_other_faiths_ck
+							has_realm_law_flag = persecuted_tolerance
+						}
+					}
+				}
+			}
+		}
+
+		modifier = {
+			add = 15
+			
+			OR = {
+				AND = {
+					scope:actor = {
+						ai_zeal > 20
+						has_realm_law_flag = persecuted_tolerance
+						is_liege_or_above_of = scope:recipient
+						faith = {
+							has_doctrine = doctrine_pluralism_pluralistic
+						}
+					}
+					scope:recipient = {
+						is_vassal_or_below_of = scope:actor
+						OR = {
+							has_realm_law_flag = normal_religious_tolerance
+							has_realm_law_flag = full_religious_tolerance
+						}
+					}
+				}
+				AND = {
+					scope:actor = {
+						ai_zeal > 15
+						has_realm_law_flag = full_religious_tolerance
+						is_liege_or_above_of = scope:recipient
+						faith = {
+							NOT = {
+								has_doctrine = doctrine_pluralism_pluralistic
+							}
+						}
+					}
+					scope:recipient = {
+						is_vassal_or_below_of = scope:actor
+						OR = {
+							has_realm_law_flag = can_tax_other_faiths_ck
+							has_realm_law_flag = persecuted_tolerance
+						}
+					}
+				}
+			}
+		}
+	}
+
+	auto_accept = {
+		scope:demanded_for_persecution = no
+		scope:demanded_for_full_rights = no
+	}
+	ai_frequency = 18
+}
