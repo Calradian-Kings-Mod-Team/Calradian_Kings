@@ -167,9 +167,9 @@ monaspa_recruitment_cost = @[heavy_cavalry_recruitment_cost * 1.25]
 monaspa_low_maint_cost = @[heavy_cavalry_low_maint_cost * 1.25]
 monaspa_high_maint_cost = @[heavy_cavalry_high_maint_cost * 1.25]
 
-hobelar_recruitment_cost = @[light_cavalry_recruitment_cost * 1.1]
-hobelar_low_maint_cost = @[light_cavalry_low_maint_cost * 1.1]
-hobelar_high_maint_cost = @[light_cavalry_high_maint_cost * 1.1]
+hobelar_ck_recruitment_cost = @[light_cavalry_recruitment_cost * 1.1]
+hobelar_ck_low_maint_cost = @[light_cavalry_low_maint_cost * 1.1]
+hobelar_ck_high_maint_cost = @[light_cavalry_high_maint_cost * 1.1]
 
 schiltron_recruitment_cost = @[pikemen_recruitment_cost * 1.5]
 schiltron_low_maint_cost = @[pikemen_low_maint_cost * 1.5]
@@ -384,6 +384,7 @@ culture_ai_weight_skirmishers = {
 					has_cultural_pillar = heritage_balian
 					has_cultural_pillar = heritage_byalic
 					has_cultural_pillar = heritage_palaic
+					has_cultural_pillar = heritage_sturgic
 				}
 			}
 		}
@@ -406,14 +407,14 @@ culture_ai_weight_skirmishers = {
 		add = 20
 	}
 	
-	#if = { # Cultures with a special MaA of that type should avoid the base version of the unit
-	#	limit = {
-	#		culture = {
-	#			culture_has_skirmisher_maa = yes
-	#		}
-	#	}
-	#	add = -500
-	#}
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				culture_has_skirmisher_maa = yes
+			}
+		}
+		add = -500
+	}
 }
 culture_ai_weight_toptier_archers = {
 	value = 0
@@ -451,14 +452,23 @@ culture_ai_weight_toptier_archers = {
 		}
 		add = -30
 	}
-	#if = { # Cultures with a special MaA of that type should avoid the base version of the unit
-	#	limit = {
-	#		culture = {
-	#			culture_has_archer_maa = yes
-	#		}
-	#	}
-	#	add = -500
-	#}
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				AND = {
+					NOR = {
+						has_cultural_pillar = heritage_sturgic
+						has_cultural_pillar = heritage_khangay
+						has_cultural_pillar = heritage_khuzic
+						has_cultural_pillar = heritage_nahasi
+						has_cultural_pillar = heritage_battanian
+					}
+					culture_has_archer_maa = yes
+				}
+			}
+		}
+		add = -500
+	}
 }
 culture_ai_weight_archers = {
 	value = 0
@@ -498,14 +508,23 @@ culture_ai_weight_archers = {
 	}
 	
 	
-	#if = { # Cultures with a special MaA of that type should avoid the base version of the unit
-	#	limit = {
-	#		culture = {
-	#			culture_has_archer_maa = yes
-	#		}
-	#	}
-	#	add = -500
-	#}
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				AND = {
+					NOR = {
+						has_cultural_pillar = heritage_sturgic
+						has_cultural_pillar = heritage_khangay
+						has_cultural_pillar = heritage_khuzic
+						has_cultural_pillar = heritage_nahasi
+						has_cultural_pillar = heritage_battanian
+					}
+					culture_has_archer_maa = yes
+				}
+			}
+		}
+		add = -500
+	}
 }
 culture_ai_weight_crossbowmen = {
 	value = 0
@@ -530,6 +549,7 @@ culture_ai_weight_heavy_infantry = {
 					has_cultural_pillar = heritage_calradian
 					has_cultural_pillar = heritage_palaic
 					has_cultural_pillar = heritage_balian
+					has_cultural_pillar = heritage_sturgic
 				}
 			}
 		}
@@ -565,14 +585,22 @@ culture_ai_weight_heavy_infantry = {
 		}
 		add = -25
 	}
-	#if = { # Cultures with a special MaA of that type should avoid the base version of the unit
-	#	limit = {
-	#		culture = {
-	#			culture_has_heavy_infantry_maa = yes
-	#		}
-	#	}
-	#	add = -500
-	#}
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				AND = {
+					NOR = {
+						has_cultural_pillar = heritage_calradian
+						has_cultural_pillar = heritage_sturgic
+						has_cultural_pillar = heritage_balian
+						has_cultural_pillar = heritage_geroian
+					}
+					culture_has_heavy_infantry_maa = yes
+				}
+			}
+		}
+		add = -500
+	}
 }
 
 culture_ai_weight_pikemen = {
@@ -592,7 +620,12 @@ culture_ai_weight_pikemen = {
 	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
 		limit = {
 			culture = {
-				culture_has_pikemen_maa = yes
+				AND = {
+					NOT = {
+						has_cultural_pillar = heritage_battanian
+					}
+					culture_has_pikemen_maa = yes
+				}
 			}
 		}
 		add = -500
@@ -607,19 +640,25 @@ culture_ai_weight_shock = {
 			OR = {
 				culture = { has_cultural_pillar = heritage_byalic }
 				culture = { has_cultural_pillar = heritage_battanian }
+				culture = { has_cultural_pillar = heritage_sturgic }
 			}
 		}
 		add = 40
 	}
 	
-	#if = { # Cultures with a special MaA of that type should avoid the base version of the unit
-	#	limit = {
-	#		culture = {
-	#			culture_has_pikemen_maa = yes
-	#		}
-	#	}
-	#	add = -500
-	#}
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				AND = {
+					NOT = {
+						has_cultural_pillar = heritage_battanian
+					}
+					culture_has_pikemen_maa = yes
+				}
+			}
+		}
+		add = -500
+	}
 }
 
 culture_ai_weight_light_cavalry = {
@@ -627,6 +666,7 @@ culture_ai_weight_light_cavalry = {
 	
 	if = { # Cultures that REALLY like light cavalry
 		limit = {
+			mpo_can_recruit_nomad_maa_trigger = no
 			OR = {
 				culture = { has_cultural_pillar = heritage_nahasi }
 				culture = { has_cultural_pillar = heritage_darshi }
@@ -639,12 +679,13 @@ culture_ai_weight_light_cavalry = {
 	}
 	if = { # Cultures that favours light cavalry
 		limit = {
+			mpo_can_recruit_nomad_maa_trigger = no
 			culture = {
 				OR = {
 					has_cultural_pillar = heritage_calradian
 					has_cultural_pillar = heritage_balian
-					has_cultural_pillar = heritage_byalic
 					has_cultural_pillar = heritage_palaic
+					has_cultural_pillar = heritage_sturgic
 				}
 			}
 		}
@@ -671,7 +712,13 @@ culture_ai_weight_light_cavalry = {
 	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
 		limit = {
 			culture = {
-				culture_has_light_cavalry_maa = yes
+				AND = {
+					NOR = {
+						has_cultural_pillar = heritage_nahasi
+						has_cultural_pillar = heritage_khuzic
+					}
+					culture_has_light_cavalry_maa = yes
+				}
 			}
 		}
 		add = -500
@@ -696,6 +743,7 @@ culture_ai_weight_heavy_cavalry = {
 	
 	if = { # Cultures that REALLY like heavy cavalry
 		limit = {
+			mpo_can_recruit_nomad_maa_trigger = no
 			OR = {
 				culture = { has_cultural_pillar = heritage_darshi }
 				culture = { has_cultural_pillar = heritage_calradian }
@@ -703,16 +751,18 @@ culture_ai_weight_heavy_cavalry = {
 				culture = { has_cultural_pillar = heritage_balian }
 				# Steppe cultures
 				culture = { has_cultural_pillar = heritage_khuzic }
+				culture = { has_cultural_pillar = heritage_khiindai }
 			}
 		}
 		add = 80
 	}
 	if = { # Cultures that favours heavy cavalry
 		limit = {
+			mpo_can_recruit_nomad_maa_trigger = no
 			OR = {
 				culture = { has_cultural_pillar = heritage_nahasi }
 				culture = { has_cultural_pillar = heritage_palaic }
-				culture = { has_cultural_pillar = heritage_byalic }
+				culture = { has_cultural_pillar = heritage_sturgic }
 			}
 		}
 		add = 40
@@ -747,15 +797,20 @@ culture_ai_weight_heavy_cavalry = {
 		}
 		add = 120
 	}
-	
-	#if = { # Cultures with a special MaA of that type should avoid the base version of the unit
-	#	limit = {
-	#		culture = {
-	#			culture_has_heavy_cavalry_maa = yes
-	#		}
-	#	}
-	#	add = -500
-	#}
+	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+		limit = {
+			culture = {
+				AND = {
+					NOR = {
+						has_cultural_pillar = heritage_calradian
+						has_cultural_pillar = heritage_balian
+					}
+					culture_has_heavy_cavalry_maa = yes
+				}
+			}
+		}
+		add = -500
+	}
 }
 
 culture_ai_weight_camels = {

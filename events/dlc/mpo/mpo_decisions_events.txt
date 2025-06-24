@@ -414,6 +414,7 @@ mpo_decisions_events.0005 = {
 		name = mpo_decisions_events.0005.a
 		add_character_modifier = {
 			modifier = confederate_king_modifier
+			years = 15
 		}
 		every_sub_realm_county = {
 			custom = custom.every_realm_county
@@ -3550,6 +3551,7 @@ scripted_effect send_merchant_on_merry_voyage_effect = {
 }
 
 scripted_effect send_merchant_on_first_voyage_effect = {
+	set_variable = merchant_var
 	set_variable = {
 		name = merchant_employer
 		value = prev
@@ -3627,6 +3629,7 @@ mpo_decisions_events.2140 = {
 	hidden = yes
 
 	immediate = {
+		remove_variable = merchant_var # Used only to send the death notification message
 		save_scope_as = paiza_merchant
 		var:merchant_origin = {
 			save_scope_as = merchant_origin
@@ -3701,7 +3704,7 @@ mpo_decisions_events.2138 = {
 							name = herd_trade_gold_value
 							value = {	
 								value = root.var:herd_trade_herd_value
-								divide = 6
+								divide = 10
 							}
 						}
 					}
@@ -3719,7 +3722,7 @@ mpo_decisions_events.2138 = {
 							name = herd_trade_gold_value
 							value = {	
 								value = root.var:herd_trade_herd_value
-								divide = 4
+								divide = 8
 							}
 						}
 					}
@@ -3737,7 +3740,7 @@ mpo_decisions_events.2138 = {
 							name = herd_trade_gold_value
 							value = {	
 								value = root.var:herd_trade_herd_value
-								divide = 2
+								divide = 6
 							}
 						}
 					}
@@ -3771,41 +3774,6 @@ mpo_decisions_events.2138 = {
 			change_herd = {
 				value = root.var:herd_trade_herd_value
 				multiply = -1
-			}
-		}
-	}
-
-	option = {
-		name = mpo_decisions_events.2138.b
-		domicile ?= {
-			switch = {
-				trigger = has_domicile_parameter
-				nomad_yurt_paiza_herd_gain_lvl_1 = { root = { custom_tooltip = domicile_building_parameter_nomad_merchant_herd_gold_exchange_lvl_1 } }
-				nomad_yurt_paiza_herd_gain_lvl_2 = { root = { custom_tooltip = domicile_building_parameter_nomad_merchant_herd_gold_exchange_lvl_2 } }
-				nomad_yurt_paiza_herd_gain_lvl_3 = { root = { custom_tooltip = domicile_building_parameter_nomad_merchant_herd_gold_exchange_lvl_3 } }
-			}
-		}	
-		hidden_effect = {
-			scope:paiza_merchant = {
-				add_gold = {
-					value = root.var:herd_trade_gold_value
-					multiply = 2	
-				}
-			}
-		}
-		scope:paiza_merchant = {
-			pay_short_term_gold = {
-				target = root
-				gold = {
-					value = root.var:herd_trade_gold_value
-					multiply = 2
-				}
-			}
-		}		
-		domicile ?= {
-			change_herd = {
-				value = root.var:herd_trade_herd_value
-				multiply = -2
 			}
 		}
 	}
@@ -8073,7 +8041,7 @@ mpo_decisions_events.0400 = {
 				holder.dynasty = root.dynasty
 			}
 			random_county_province = {
-				limit = { province_has_no_holding_trigger = yes }
+				limit = { has_holding = no }
 				set_holding_type = city_holding
 			}
 		}

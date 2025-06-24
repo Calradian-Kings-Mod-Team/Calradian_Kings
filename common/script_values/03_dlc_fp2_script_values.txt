@@ -188,154 +188,154 @@ bg_bad_player_threshold_value = 24
 bg_average_player_threshold_value = 36
 bg_good_player_threshold_value = 48
 
-offer_assistance_interaction_gold_value = {
-	value = 0
-	if = {
-		limit = { exists = scope:contract_assistance_helper }
-		add = scope:contract_assistance_helper.max_military_strength
-	}
-	divide = scope:recipient.max_military_strength
-	if = {
-		limit = {
-			exists = scope:contract_assistance_helper
-			scope:contract_assistance_helper.max_military_strength > scope:recipient.max_military_strength
-		}
-		multiply = 120
-	}
-	else = {
-		multiply = 60
-	}
-	multiply = {
-		value = 1
-		if = {
-			limit = { exists = scope:contract_assistance_helper }
-			if = {
-				limit = { scope:contract_assistance_helper = { has_trait = greedy } }
-				add = 0.5
-			}
-			else_if = {
-				limit = { scope:contract_assistance_helper = { has_trait = generous } }
-				subtract = 0.5
-			}
-		}
-	}
-	if = {
-		limit = {
-			scope:contract_assistance_helper.domicile ?= { has_domicile_parameter = camp_improved_mercenary_contract_rewards }
-		}
-		multiply = camp_improved_mercenary_contract_rewards_value
-	}
-	if = {
-		limit = {
-			scope:contract_assistance_helper ?= { has_perk = hard_rule_perk }
-		}
-		multiply = adventurer_hard_rule_contract_rewards_value
-	}
-	round = yes
-	max = gold
-	min = 25
-}
+# offer_assistance_interaction_gold_value = {
+# 	value = 0
+# 	if = {
+# 		limit = { exists = scope:contract_assistance_helper }
+# 		add = scope:contract_assistance_helper.max_military_strength
+# 	}
+# 	divide = scope:recipient.max_military_strength
+# 	if = {
+# 		limit = {
+# 			exists = scope:contract_assistance_helper
+# 			scope:contract_assistance_helper.max_military_strength > scope:recipient.max_military_strength
+# 		}
+# 		multiply = 120
+# 	}
+# 	else = {
+# 		multiply = 60
+# 	}
+# 	multiply = {
+# 		value = 1
+# 		if = {
+# 			limit = { exists = scope:contract_assistance_helper }
+# 			if = {
+# 				limit = { scope:contract_assistance_helper = { has_trait = greedy } }
+# 				add = 0.5
+# 			}
+# 			else_if = {
+# 				limit = { scope:contract_assistance_helper = { has_trait = generous } }
+# 				subtract = 0.5
+# 			}
+# 		}
+# 	}
+# 	if = {
+# 		limit = {
+# 			scope:contract_assistance_helper.domicile ?= { has_domicile_parameter = camp_improved_mercenary_contract_rewards }
+# 		}
+# 		multiply = camp_improved_mercenary_contract_rewards_value
+# 	}
+# 	if = {
+# 		limit = {
+# 			scope:contract_assistance_helper ?= { has_perk = hard_rule_perk }
+# 		}
+# 		multiply = adventurer_hard_rule_contract_rewards_value
+# 	}
+# 	round = yes
+# 	max = gold
+# 	min = 25
+# }
 
-offer_assistance_interaction_gold_modifier_value = {
-	value = scope:recipient.gold
-	divide = 100
-	floor = yes
-	max = 5
-}
+# offer_assistance_interaction_gold_modifier_value = {
+# 	value = scope:recipient.gold
+# 	divide = 100
+# 	floor = yes
+# 	max = 5
+# }
 
-offer_assistance_interaction_already_winning_value = 50
+# offer_assistance_interaction_already_winning_value = 50
 
-offer_assistance_interaction_already_losing_value = 25
+# offer_assistance_interaction_already_losing_value = 25
 
-offer_assistance_interaction_war_contribution_value = {
-	value = 0
-	if = {
-		limit = { exists = scope:contract_assistance_helper }
-		add = scope:contract_assistance_helper.max_military_strength
-	}
-	if = {
-		limit = {
-			scope:recipient ?= {
-				any_war_ally = { #if you are the only war ally, you are the only one contributing to the war participation score, thus you cannot fulfill 
-					count = 1
-				}
-			}
-		}
-		divide = 4
-	}
-	else_if = {
-		limit = {
-			scope:recipient ?= {
-				any_war_ally = {
-					count > 1
-				}
-			}
-		}
-		scope:recipient ?= {
-			every_war_ally = {
-				divide = {
-					value = 4
-					subtract = 1
-					min = 1
-				}
-			}
-		}	
-	}
-	max = 2000
-	round = yes
-}
+# offer_assistance_interaction_war_contribution_value = {
+# 	value = 0
+# 	if = {
+# 		limit = { exists = scope:contract_assistance_helper }
+# 		add = scope:contract_assistance_helper.max_military_strength
+# 	}
+# 	if = {
+# 		limit = {
+# 			scope:recipient ?= {
+# 				any_war_ally = { #if you are the only war ally, you are the only one contributing to the war participation score, thus you cannot fulfill 
+# 					count = 1
+# 				}
+# 			}
+# 		}
+# 		divide = 4
+# 	}
+# 	else_if = {
+# 		limit = {
+# 			scope:recipient ?= {
+# 				any_war_ally = {
+# 					count > 1
+# 				}
+# 			}
+# 		}
+# 		scope:recipient ?= {
+# 			every_war_ally = {
+# 				divide = {
+# 					value = 4
+# 					subtract = 1
+# 					min = 1
+# 				}
+# 			}
+# 		}	
+# 	}
+# 	max = 2000
+# 	round = yes
+# }
 
-saved_contribution_value = {
-	value = 0
-	if = {
-		limit = {
-			exists = scope:contract_assistance_helper
-			exists = scope:contract_assistance_helper.var:owed_contract_assistance_contribution
-		}
-		add = scope:contract_assistance_helper.var:owed_contract_assistance_contribution
-	}
-	else = {
-		add = offer_assistance_interaction_war_contribution_value
-		if = {
-			limit = {
-				scope:recipient ?= {
-					any_war_ally = {
-						count = 0
-					}
-				}
-			}
-			divide = 4
-		}
-		else_if = {
-			limit = {
-				scope:recipient ?= {
-					any_war_ally = {
-						count >= 1
-					}
-				}
-			}
-			scope:recipient ?= {
-				every_war_ally = {
-					divide = {
-						value = 4
-						subtract = 1
-						min = 1
-					}
-				}
-			}
-		}
-	}
-	max = 2000
-	min = 100
-	if = {
-		limit = {
-			scope:laamp_temp ?= {
-				has_character_flag = joined_as_mercenary
-			}
-		}
-		value = 1
-	}
-}
+# saved_contribution_value = {
+# 	value = 0
+# 	if = {
+# 		limit = {
+# 			exists = scope:contract_assistance_helper
+# 			exists = scope:contract_assistance_helper.var:owed_contract_assistance_contribution
+# 		}
+# 		add = scope:contract_assistance_helper.var:owed_contract_assistance_contribution
+# 	}
+# 	else = {
+# 		add = offer_assistance_interaction_war_contribution_value
+# 		if = {
+# 			limit = {
+# 				scope:recipient ?= {
+# 					any_war_ally = {
+# 						count = 0
+# 					}
+# 				}
+# 			}
+# 			divide = 4
+# 		}
+# 		else_if = {
+# 			limit = {
+# 				scope:recipient ?= {
+# 					any_war_ally = {
+# 						count >= 1
+# 					}
+# 				}
+# 			}
+# 			scope:recipient ?= {
+# 				every_war_ally = {
+# 					divide = {
+# 						value = 4
+# 						subtract = 1
+# 						min = 1
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
+# 	max = 2000
+# 	min = 100
+# 	if = {
+# 		limit = {
+# 			scope:laamp_temp ?= {
+# 				has_character_flag = joined_as_mercenary
+# 			}
+# 		}
+# 		value = 1
+# 	}
+# }
 
 ##################################################
 # Decisions

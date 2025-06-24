@@ -202,6 +202,44 @@ common_cb_cost_multiplier_core = {
 
 	if = {
 		limit = {
+			OR = {
+				has_game_rule = hard_difficulty
+				has_game_rule = very_hard_difficulty
+			}
+			scope:attacker = {
+				is_ai = yes
+				prestige > 0
+				prestige_level > 0
+			}
+			scope:defender = {
+				is_ai = no
+			}
+		}
+		multiply = {
+			value = 0
+			desc = hard_difficulty
+		}
+	}
+	else_if = {
+		limit = {
+			OR = {
+				has_game_rule = hard_difficulty
+				has_game_rule = very_hard_difficulty
+			}
+			scope:attacker = {
+				is_ai = yes
+				prestige > 0
+				prestige_level > 0
+			}
+		}
+		multiply = {
+			value = 0.5
+			desc = hard_difficulty
+		}
+	}
+
+	if = {
+		limit = {
 			has_game_rule = no_cost_casus_belli_costs
 		}
 		multiply = {
@@ -266,19 +304,32 @@ common_cb_piety_cost_multiplier_core = {
 		}
 	}
 	# Innovation Piety Discounts
-	# if = {
-	# 	limit = {
-	# 		scope:attacker = {
-	# 			culture = {
-	# 				has_innovation = innovation_reconquista
-	# 			}
-	# 		}
-	# 	}
-	# 	multiply = {
-	# 		value = 0.9
-	# 		desc = CB_RECONQUISTA_COST
-	# 	}
-	# }
+	if = {
+		limit = {
+			AND = {
+				scope:defender = {
+					NOT = {
+						faith.religion = religion:calradian_religion
+					}
+					culture = {
+						has_cultural_pillar = heritage_battanian
+					}
+				}
+			}
+			scope:attacker = {
+				culture = {
+					has_innovation = innovation_swadian_settling
+					NOT = {
+						has_variable = cheaper_conquest_temp
+					}
+				}
+			}
+		}
+		multiply = {
+			value = 0.9
+			desc = CB_RECONQUISTA_COST
+		}
+	}
 	# Vassal contract in-realm cost reduction
 	if = {
 		limit = {
@@ -454,6 +505,19 @@ common_cb_prestige_cost_multiplier_core = {
 					scope:attacker = {
 						culture = {
 							has_innovation = innovation_rightful_ownership
+						}
+					}
+				}
+				add = -0.1
+			}
+			if = {
+				limit = {
+					scope:attacker = {
+						culture = {
+							has_innovation = innovation_swadian_settling
+							NOT = {
+								has_variable = cheaper_conquest_temp
+							}
 						}
 					}
 				}
