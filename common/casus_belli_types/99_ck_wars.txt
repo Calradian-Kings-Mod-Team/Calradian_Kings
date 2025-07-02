@@ -3482,6 +3482,11 @@ rhodok_war = {
 		scope:attacker = {
 			has_character_flag = rhodok_re_leader
 		}
+		NOR = {
+			has_global_variable = rhodok_war_victory_var
+			has_global_variable = rhodok_war_lost_var
+		}
+		game_start_date = 1084.5.1
 	}
 
 	target_titles = all
@@ -3623,6 +3628,12 @@ rhodok_war = {
 		}
 		
 		hidden_effect = {
+			set_global_variable = {
+				name = rhodok_rebellion_faction_cooldown
+				value = yes
+				years = 15 # Time for any children to reach age of 15-16
+			}
+			set_global_variable = rhodok_war_victory_var
 			scope:attacker = {
 				trigger_event = {
 					id = ck_global_culture.0011
@@ -3843,8 +3854,21 @@ rhodok_war = {
 		
 		scope:attacker = {
 			save_temporary_scope_as = loser
+			hard_imprison_character_effect = {
+				TARGET = this
+				IMPRISONER = scope:defender
+			}
+			scope:defender = {
+				add_opinion = {
+					target = prev
+					modifier = vassal_lost_faction_revolt_war
+				}
+			}
 		}
 		on_lost_aggression_war_discontent_loss = yes
+		hidden_effect = {
+			set_global_variable = rhodok_war_lost_var
+		}
 	}
 	
 	transfer_behavior = transfer
