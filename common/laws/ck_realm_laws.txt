@@ -47,10 +47,15 @@ ck_slavery_law = {
 			minority_opinion = -5
 		}
 		flag = ck_full_slavery_flag
-		flag = government_can_raid_rule
 		
 		can_keep = {
 			is_independent_ruler = yes
+			faith = {
+				NOR = {
+					has_doctrine = tenet_communal_possessions
+					has_doctrine = tenet_dharmic_pacifism
+				}
+			}
 		}
 
 		can_pass = {
@@ -96,11 +101,21 @@ ck_slavery_law = {
 		pass_phrase = ck_slavery_law_2_pass_phrase
 		confirmation_title = ck_slavery_law_2_pass_phrase
 		confirmation_button_text = ck_slavery_law_confirmation_button_text
-		modifier = {}
+		modifier = {
+			naval_movement_speed_mult = 0.2
+			embarkation_cost_mult = -0.15
+		}
 		flag = ck_full_slavery_flag
 		flag = government_can_raid_rule
+		flag = geroian_slave_galleys_flag
 		
 		can_keep = {
+			faith = {
+				NOR = {
+					has_doctrine = tenet_communal_possessions
+					has_doctrine = tenet_dharmic_pacifism
+				}
+			}
 			custom_tooltip = {
 				text = ck_slavery_geroian_desc
 				OR = {
@@ -194,8 +209,15 @@ ck_religious_tolerance = { # Independent of Faith / Cultural statuses but cannot
 				}
 			}
 			is_independent_ruler = yes
+			faith = {
+				NOR = {
+					has_doctrine = tenet_communal_possessions
+					has_doctrine = tenet_dharmic_pacifism
+				}
+			}
 		}
 		can_pass = {
+			
 		}
 		on_pass = {
 			if = {
@@ -550,57 +572,94 @@ ck_religious_tolerance = { # Independent of Faith / Cultural statuses but cannot
 			is_independent_ruler = yes
 		}
 		on_pass = {
-			custom_tooltip = {
-				text = "ck_religious_tolerance_3_pass_tt_zealots"
-				every_vassal = {
-					if = {
-						limit = {
-							AND = {
-								has_vassal_stance = zealot
-								faith = liege.faith
-								faith = {
-									has_doctrine = doctrine_pluralism_righteous
-								}
-							}
-						}
-						add_opinion = {
-							target = liege
-							modifier = ck_religious_tolerance_3_opinion # Pisses off zealots of righteous doctrine
-						}
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_pluralism_righteous
 					}
-					else_if = {
-						limit = {
-							AND = {
-								has_vassal_stance = zealot
-								faith = liege.faith
-								faith = {
-									has_doctrine = doctrine_pluralism_fundamentalist
-								}
-							}
-						}
-						add_opinion = {
-							target = liege
-							modifier = ck_religious_tolerance_3_opinion_fundamentalist # Really pisses off fundamentalists
-						}
-					}
-					else_if = {
-						limit = {
-							AND = {
-								NOT = {
+				}
+				custom_tooltip = {
+					text = "ck_religious_tolerance_3_pass_tt_zealots"
+				
+					every_vassal = {
+						if = {
+							limit = {
+								AND = {
 									has_vassal_stance = zealot
-								}
-								faith = liege.faith
-								faith = {
-									OR = {
-										has_doctrine = doctrine_pluralism_fundamentalist
+									faith = liege.faith
+									faith = {
 										has_doctrine = doctrine_pluralism_righteous
 									}
 								}
 							}
+							add_opinion = {
+								target = liege
+								modifier = ck_religious_tolerance_3_opinion # Pisses off zealots of righteous doctrine
+							}
 						}
-						add_opinion = {
-							target = liege
-							modifier = ck_religious_tolerance_3_opinion_nonzealot # Pisses off normal vassals of righteous and fundamentalist
+					}
+				}
+			}
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_pluralism_fundamentalist
+					}
+				}
+				custom_tooltip = {
+					text = "ck_religious_tolerance_3_pass_tt_zealots_2"
+				
+					every_vassal = {
+						if = {
+							limit = {
+								AND = {
+									has_vassal_stance = zealot
+									faith = liege.faith
+									faith = {
+										has_doctrine = doctrine_pluralism_fundamentalist
+									}
+								}
+							}
+							add_opinion = {
+								target = liege
+								modifier = ck_religious_tolerance_3_opinion_fundamentalist # Really pisses off fundamentalists
+							}
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					faith = {
+						OR = {
+							has_doctrine = doctrine_pluralism_fundamentalist
+							has_doctrine = doctrine_pluralism_righteous
+						}
+					}
+				}
+				custom_tooltip = {
+					text = "ck_religious_tolerance_3_pass_tt_zealots_3"
+				
+					every_vassal = {
+						if = {
+							limit = {
+								AND = {
+									NOT = {
+										has_vassal_stance = zealot
+									}
+									faith = liege.faith
+									faith = {
+										OR = {
+											has_doctrine = doctrine_pluralism_fundamentalist
+											has_doctrine = doctrine_pluralism_righteous
+										}
+									}
+								}
+							}
+							add_opinion = {
+								target = liege
+								modifier = ck_religious_tolerance_3_opinion_nonzealot # Pisses off normal vassals of righteous and fundamentalist
+							}
 						}
 					}
 				}
@@ -648,7 +707,7 @@ ck_religious_tolerance = { # Independent of Faith / Cultural statuses but cannot
 			}
 		}
 		modifier = {
-			minority_different_faith_opinion = 5
+			minority_different_faith_opinion = 10
 			zealot_same_faith_opinion = -20
 			domain_tax_different_faith_mult = 0.25
 			levy_reinforcement_rate_different_faith = 0.15
