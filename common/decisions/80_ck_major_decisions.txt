@@ -53,7 +53,7 @@ form_transtanaesic_kingdom_decision = {
 		reference = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds"
 	}
 	decision_group_type = major
-	ai_check_interval = 250
+	ai_check_interval = 240
 
 	title = {
 		first_valid = {
@@ -230,5 +230,230 @@ form_transtanaesic_kingdom_decision = {
 
 	ai_will_do = {
 		base = 100
+	}
+}
+
+## Rhodok Council Decision ##
+rhodok_council_decision = {
+	ai_check_interval = 120
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
+	}
+	decision_group_type = major
+	desc = rhodok_council_decision_desc
+	
+	is_shown = {
+		is_ai = no
+		is_landed = yes
+		is_vassal_or_below_of = title:k_vlandia.holder
+		NOR = {
+			has_character_flag = rejected_rhodok_council
+			has_character_flag = rejected_rhodok_war
+		}
+		culture:rhodok = {
+			has_variable = rhodok_council_possibility_var
+		}
+		culture:rhodok = {
+			NOT = {
+				has_variable = independence_war_available_rk
+			}
+		}
+		culture = {
+			OR = {
+				this = culture:rhodok
+				any_parent_culture_or_above = {
+					this = culture:rhodok
+				}
+			}
+		}
+	}
+	
+	is_valid_showing_failures_only = {
+		is_capable_adult = yes
+		is_imprisoned = no
+		is_at_war = no
+		NOT = { exists = involved_activity }
+		custom_tooltip = {
+			text = rhodok_council_tt
+			culture:rhodok = {
+				NOT = {
+					has_variable = rhodok_council_established
+				}
+			}
+		}
+		custom_tooltip = {
+			text = rhodok_instigiator_died
+			culture = {
+				NOT = {
+					has_variable = council_invitation_cooldown
+				}
+			}
+		}
+	}
+
+	is_valid = {
+		is_adult = yes
+		custom_tooltip = {
+			text = rhodok_culture_tt
+			culture = {
+				OR = {
+					this = culture:rhodok
+					any_parent_culture_or_above = {
+						this = culture:rhodok
+					}
+				}
+			}
+		}
+		custom_tooltip = {
+			text = rhodok_council_not_tt
+			culture:rhodok = {
+				NOT = {
+					has_variable = rhodok_council_established
+				}
+			}
+		}
+		custom_tooltip = {
+			text = is_vassal_of_vlandian_king_tt
+			is_vassal_or_below_of = title:k_vlandia.holder
+		}
+		capital_province = { geographical_region = region_rhodok_culture }
+		NOT = {
+			has_trait = loyal
+		}
+		prestige_level >= 1
+	}
+
+	effect = {
+		save_scope_as = rhodok_instigator
+		add_character_flag = rhodok_instigator_flag
+		custom_tooltip = {
+			text = rhodok_council_decision_tt
+			remove_rhodok_council_var_effect = yes
+			culture:rhodok = {
+				set_variable = rhodok_council_established
+			}
+			trigger_event = {
+				id = ck_global_culture.0018
+				days = 30
+			}
+		}
+		hidden_effect = {
+			send_rhodok_council_invitation_effect = yes
+			send_rhodok_council_invitation_swadian_effect = yes
+		}
+	}
+	
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+
+## Rhodok Declare War ## 
+rhodok_declare_war = {
+	ai_check_interval = 72
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/fp2_decision_struggle_hostility.dds"
+	}
+	decision_group_type = major
+	desc = rhodok_declare_war_desc
+
+	selection_tooltip = rhodok_declare_war_decision_tooltip
+	
+	is_shown = {
+		culture = {
+			OR = {
+				this = culture:rhodok
+				any_parent_culture_or_above = {
+					this = culture:rhodok
+				}
+			}
+		}
+		culture:rhodok = {
+			has_variable = rhodok_war_possible
+		}
+		NOT = {
+			is_target_in_global_variable_list = {
+				name = unavailable_unique_decisions
+				target = flag:flag_declared_rhodok_war
+			}
+		}
+	}
+	
+	confirm_text = ep3_laamps.6000.b.tt
+
+	is_valid_showing_failures_only = {
+		is_capable_adult = yes
+		is_imprisoned = no
+		NOT = { exists = involved_activity }
+	}
+
+	is_valid = {
+		custom_tooltip = {
+			text = rhodok_war_possible_tt
+			culture:rhodok = {
+				has_variable = rhodok_war_possible
+			}
+		}
+		custom_tooltip = {
+			text = rhodok_war_possible_once_tt
+			NOT = {
+				is_target_in_global_variable_list = {
+					name = unavailable_unique_decisions
+					target = flag:flag_declared_rhodok_war
+				}
+			}
+		}
+		OR = {
+			custom_tooltip = {
+				text = can_declare_rhodok_war_tt
+				AND = {
+					is_alive = yes
+					has_character_flag = can_declare_rhodok_war
+				}
+			}
+			custom_tooltip = {
+				text = can_declare_rhodok_war_tt.2
+				culture:rhodok = {
+					has_variable = dead_leader_can_declare_rk
+				}
+			}
+			custom_tooltip = {
+				text = can_declare_rhodok_war_tt.3
+				current_year >= 1120.1.1
+			}
+			
+		}
+	}
+
+	effect = {
+		hidden_effect = {
+			play_music_cue = "mx_cue_crusade_starts"
+			add_to_global_variable_list = {
+				name = unavailable_unique_decisions
+				target = flag:flag_declared_rhodok_war
+			}
+			add_character_flag = rhodok_re_leader
+		}
+		custom_tooltip = {
+			text = rhodok_declare_war_effect.tt
+			trigger_event = ck_global_culture.0008
+			root = {
+				save_scope_as = rhodok_war_leader
+			}
+		}
+	}
+	
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
 	}
 }

@@ -29,6 +29,18 @@
 					}
 				}
 			}
+			trigger_if = {
+				limit = {
+					culture = {
+						has_innovation = innovation_swadian_settling
+					}
+				}
+				scope:defender = {
+					culture = {
+						has_cultural_pillar = heritage_battanian
+					}
+				}
+			}
 		}
 	}
 	target_titles = all
@@ -46,21 +58,53 @@
 		value = viking_conquest_ai_score_value
 
 		# As a feudal gov, do not attack owner of tribal holdings  if you have a tribal holding to convert already
+		# Exception for Swadian expansions eastwards
 		add = {
 			every_in_list = {
 				list = target_titles
 				if = {
-					limit = { feudal_clan_tribal_conquest_constraints = yes }
+					limit = {
+						OR = {
+							NOT = {
+								ck_swadian_conquest_of_battania_trigger = yes
+							}
+							feudal_clan_tribal_conquest_constraints = yes 
+						}
+					}
 					add = -1000
 				}
 			}
 		}
+		
 
 		# AI in struggles act insularly for wars that don't have a familial or legal basis.
 		multiply = struggle_wars_prioritise_struggle_targets_value
 		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
 		multiply = byzantium_conquests_ai_score_value
-		#Declaring war on the frankokratia leader can really ruin the whole thing
+		
+		# So Swadian vassals stop eating rhodokia after rebellion - cooldown for AI held rhodokia
+		if = {
+			limit = {
+				scope:attacker = {
+					is_vassal_or_below_of = title:k_vlandia.holder
+				}
+				scope:defender = { # NOTE TO IRL: Because the global_var's below are created depending on whether the Rhodok king is AI or not, we don't need the extra 'if' statement for if the Rhodok king is AI or not.
+					has_title = title:k_rhodok
+				}
+				OR = {
+					exists = global_var:ck_swadian_rhodok_wars_cooldown # = 10 years (War usually starts in 1120)
+					exists = global_var:ck_swadian_rhodok_wars_cooldown_AI # = 15 years (War usually starts in 1120)
+				}
+			}
+			multiply = 0
+		}
+		# Slightly Increased chance if Swadians have the eastern expansion innovation / against Battanians
+		if = {
+			limit = {
+				ck_swadian_conquest_of_battania_trigger = yes
+			}
+			add = 5
+		}
 	}
 
 	valid_to_start = {
@@ -116,6 +160,25 @@
 				}
 			}
 			multiply = common_cb_piety_cost_multiplier
+			if = {
+				limit = {
+					scope:attacker = {
+						culture = {
+							has_innovation = innovation_swadian_settling
+							has_variable = cheaper_conquest_temp
+						}
+					}
+					scope:defender = {
+						culture = {
+							has_cultural_pillar = heritage_battanian
+						}
+					}
+				}
+				multiply = {
+					value = 0.3
+					desc = CB_CONQUEST_DISCOUNT_SWADIAN
+				}
+			}
 		}
 		prestige = {
 			value = 0
@@ -135,6 +198,25 @@
 				}
 			}
 			multiply = common_cb_prestige_cost_multiplier
+			if = {
+				limit = {
+					scope:attacker = {
+						culture = {
+							has_innovation = innovation_swadian_settling
+							has_variable = cheaper_conquest_temp
+						}
+					}
+					scope:defender = {
+						culture = {
+							has_cultural_pillar = heritage_battanian
+						}
+					}
+				}
+				multiply = {
+					value = 0.3
+					desc = CB_CONQUEST_DISCOUNT_SWADIAN
+				}
+			}
 		}
 	}
 
@@ -427,6 +509,20 @@ duchy_conquest_cb = {
 					}
 				}
 			}
+			trigger_if = {
+				limit = {
+					scope:attacker = {
+						culture = {
+							has_innovation = innovation_swadian_settling
+						}
+					}
+				}
+				scope:defender = {
+					culture = {
+						has_cultural_pillar = heritage_battanian
+					}
+				}
+			}
 		}
 	}
 	target_titles = all
@@ -456,6 +552,23 @@ duchy_conquest_cb = {
 		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
 		multiply = byzantium_conquests_ai_score_value
 		multiply = muslim_invasions_prefer_nonmuslims_ai_score_value
+		
+		# So Swadian vassals stop eating rhodokia after rebellion - cooldown for AI held rhodokia
+		if = {
+			limit = {
+				scope:attacker = {
+					is_vassal_or_below_of = title:k_vlandia.holder
+				}
+				scope:defender = { # NOTE TO IRL: Because the global_var's below are created depending on whether the Rhodok king is AI or not, we don't need the extra 'if' statement for if the Rhodok king is AI or not.
+					has_title = title:k_rhodok
+				}
+				OR = {
+					exists = global_var:ck_swadian_rhodok_wars_cooldown # = 10 years (War usually starts in 1120)
+					exists = global_var:ck_swadian_rhodok_wars_cooldown_AI # = 15 years (War usually starts in 1120)
+				}
+			}
+			multiply = 0
+		}
 
 	}
 

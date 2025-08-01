@@ -1,0 +1,36 @@
+﻿highlight_barony_resources_map = {
+	effect = {
+		if = {
+			limit = { NOT = { global_var:custom_map_mode = flag:highlight_barony_resources_map } }
+			set_global_variable = {
+				name = custom_map_mode_changing
+				value = 1
+			}
+			set_global_variable = {
+				name = custom_map_mode
+				value = flag:highlight_barony_resources_map
+			}
+			every_barony = {
+				if = {
+					limit = { 
+						title_capital_county  = { 
+							has_county_modifier = resource_papyrus
+						}
+					}
+					set_color_from_title = title:d_resource_papyrus # Green where a slot exists
+				}
+				else = {
+					set_color_from_title = title:d_map_base_color # Red where it does not
+				}
+			}
+			remove_global_variable = custom_map_mode_changing
+		}
+	}
+	is_shown = {
+		exists = global_var:custom_map_mode
+		global_var:custom_map_mode = flag:highlight_barony_resources_map
+	}
+	is_valid = {
+		NOT = { exists = global_var:custom_map_mode_changing }
+	}
+}

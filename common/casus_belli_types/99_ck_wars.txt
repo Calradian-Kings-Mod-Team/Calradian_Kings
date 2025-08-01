@@ -1845,7 +1845,7 @@ foreign_county_expansion_cb = {
 	
 	ai_score_mult = {
 		value = 1
-		if = { ### So Calradians won't swallow Geroia immediately - we'll add geroian coalition later
+		if = { ### So Calradians won't swallow Geroia immediately
 			limit = {
 				current_date <= 1100.1.1
 				scope:attacker = {
@@ -1864,6 +1864,23 @@ foreign_county_expansion_cb = {
 				}
 			}
 			multiply = 0
+		}
+		if = { ### So Calradians take into account coalition possibility
+			limit = {
+				scope:attacker = {
+					has_game_rule = ck_geroian_coalition_enabled
+					is_independent_ruler = no
+					NOT = {
+						capital_province = {
+							geographical_region = region_geroia
+						}
+					}
+				}
+				scope:defender = {
+					culture = { has_cultural_pillar = heritage_geroian }
+				}
+			}
+			multiply = 0.3
 		}
 	}
 
@@ -2366,6 +2383,18 @@ imperial_expedition_cb = {
 		scope:attacker = {
 			save_scope_as = emperor_success
 			trigger_event = ck_imperial_events.0014
+			
+			every_vassal_or_below = {
+				if = {
+					limit = {
+						has_character_flag = was_promised_title_expedition
+					}
+					trigger_event = {
+						id = ck_imperial_events.0027
+						months = 6
+					}
+				}
+			}
 		}
 		every_ruler = {
 			limit = {
@@ -3436,4 +3465,455 @@ geroian_consolidation_cb = {
 	
 	max_defender_score_from_occupation = 150
 	max_attacker_score_from_occupation = 150
+}
+#####
+# RHODOK CB
+#####
+rhodok_war = {
+	icon = independence_faction_war
+	group = invasion
+
+	combine_into_one = yes
+	should_show_war_goal_subview = yes
+	mutually_exclusive_titles = { always = yes }
+	allow_hostages = yes
+
+	allowed_for_character = {
+		scope:attacker = {
+			has_character_flag = rhodok_re_leader
+		}
+		NOR = {
+			has_global_variable = rhodok_war_victory_var
+			has_global_variable = rhodok_war_lost_var
+		}
+		game_start_date = 1084.5.1
+	}
+
+	target_titles = all
+	target_title_tier = kingdom
+	target_de_jure_regions_above = yes
+	ignore_effect = change_title_holder
+
+
+#	should_invalidate = {
+#		
+#	}
+
+	on_invalidated_desc = msg_invasion_war_invalidated_message
+	
+#	on_invalidated = {
+#
+#	}
+
+	cost = {
+	}
+	
+	on_declaration = {
+		on_declared_war = yes
+		scope:attacker = {
+			add_character_flag = rhodok_leader
+			every_held_title = {
+				limit = {
+					tier >= tier_county
+				}
+				set_variable = untouchable_title_var
+			}
+		}
+	}	
+
+	on_victory_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:attacker = { is_local_player = yes } }
+				desc = invasion_war_victory_desc_attacker
+			}
+			desc = invasion_war_victory_desc
+		}
+	}
+	
+	on_victory = {
+		scope:attacker = { show_pow_release_message_effect = yes }
+		
+		#scope:attacker = { get_title = title:k_rhodok }
+		
+		# Legitimacy
+		add_legitimacy_attacker_victory_effect = yes
+
+		#EP2 accolade glory gain for winning against higher ranked enemy
+		scope:attacker = { accolade_attacker_war_end_glory_gain_high_effect = yes }
+
+		scope:attacker = {
+			trigger_event = {
+				id = ck_global_culture.3000
+				days = 1
+			}
+		}
+
+		create_title_and_vassal_change = {
+			type = conquest
+			save_scope_as = change
+			add_claim_on_loss = yes
+		}
+		
+		if = { ### In case scope:attacker is landless Grunwalder
+			limit = {
+				scope:attacker = {
+					has_character_flag = is_grunwalder
+				}
+			}
+			scope:attacker.primary_title = {
+				save_scope_as = grunwalder_host
+			}
+			destroy_title = scope:grunwalder_host
+			random_county_in_region = {
+				region = region_rhodok_culture
+				limit = {
+					holder.top_liege = {
+						has_title = title:k_vlandia
+					}
+					holder = {
+						is_ai = yes
+					}
+				}
+				save_scope_as = tempor_capital
+			}
+			scope:attacker = {
+				get_title = scope:tempor_capital
+				get_title = title:k_rhodok
+			}
+		}
+		if = {
+			limit = {
+				scope:attacker = {
+					NOT = {
+						has_character_flag = is_grunwalder
+					}
+				}
+			}
+			scope:attacker = { get_title = title:k_rhodok }
+		}
+		
+		
+		show_as_tooltip = {
+			every_in_list = {
+				list = target_titles
+				every_in_de_jure_hierarchy = {
+					if = {
+						limit = {
+							holder ?= {
+								has_culture = culture:swadian
+							}
+							NOT = {
+								this = title:c_acrion
+							}
+						}
+						change_title_holder = {
+							holder = scope:attacker
+							change = scope:change
+						}
+					}
+				}
+			}
+			scope:defender = {
+				every_sub_realm_county = {
+					limit = {
+						county_controller = scope:attacker
+					}
+					change_title_holder = {
+						holder = scope:attacker
+						change = scope:change
+					}
+				}
+			}
+		}
+		
+		hidden_effect = {
+			if = {
+				limit = {
+					scope:attacker = {
+						NOT = {
+							is_ai = yes
+						}
+					}
+				}
+				set_global_variable = {
+					name = ck_swadian_rhodok_wars_cooldown
+					value = yes
+					years = 10
+				}
+			}
+			else = {
+				set_global_variable = {
+					name = ck_swadian_rhodok_wars_cooldown_AI
+					value = yes
+					years = 15
+				}
+			}
+			set_global_variable = rhodok_war_victory_var
+			scope:attacker = {
+				trigger_event = {
+					id = ck_global_culture.0011
+					days = { 4 10 }
+				}
+			}
+			scope:defender = {
+				trigger_event = ck_global_culture.0013
+			}
+			title:k_vlandia = {
+				holder = {
+					save_scope_as = vlandiaking
+				}
+			}
+			culture:swadian = {
+				set_variable = swadian_lost_war
+				set_variable = {
+					name = innovation_cooldown # To give some reasonable time before the new innovation is unlocked
+					years = 5
+				}
+			}
+			every_in_list = {
+				list = target_titles
+				every_in_de_jure_hierarchy = {
+					if = {
+						limit = {
+							holder ?= {
+								has_culture = culture:swadian
+								any_liege_or_above = {
+									has_title = title:k_vlandia
+								}
+								is_ai = yes
+							}
+						}
+						change_title_holder = {
+							holder = scope:attacker
+							change = scope:change
+						}
+					}
+				}
+			}
+			every_in_list = {
+				list = target_titles
+				every_in_de_jure_hierarchy = {
+					if = {
+						limit = {
+							holder ?= {
+								has_culture = culture:swadian
+								any_liege_or_above = {
+									has_title = title:k_vlandia
+								}
+								is_ai = no
+							}
+						}
+						change_liege = {
+							liege = scope:attacker
+							change = scope:change
+						}
+						holder = {
+							trigger_event = {
+								id = ck_global_culture.0010
+							}
+						}
+					}
+				}
+			}
+			scope:defender = {
+				every_sub_realm_county = {
+					limit = {
+						county_controller = scope:attacker
+					}
+					change_title_holder = {
+						holder = scope:attacker
+						change = scope:change
+					}
+				}
+			}
+			every_ruler = {
+				limit = {	
+					capital_province = {
+						geographical_region = region_rhodokia
+					}
+					is_vassal_or_below_of = scope:vlandiaking
+					NOT = {
+						has_culture = culture:swadian
+					}
+				}
+				change_liege = {
+					liege = scope:attacker
+					change = scope:change
+				}
+			}
+			
+			setup_invasion_cb = {
+				titles = target_titles
+				attacker = scope:attacker
+				defender = scope:defender
+				change = scope:change
+				take_occupied = yes
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+
+		# Attacker gets Prestige Experience, Defender loses Prestige, all other participants gain Prestige based on their war contribution.
+		modify_all_participants_fame_values = {
+			WINNER = scope:attacker
+			LOSER = scope:defender
+			FAME_BASE = scope:cb_prestige_factor # Set by 'setup_invasion_cb'
+			IS_RELIGIOUS_WAR = no
+			WINNER_FAME_SCALE = 10
+			LOSER_FAME_SCALE = -10
+			WINNER_ALLY_FAME_SCALE = 10
+			LOSER_ALLY_FAME_SCALE = 10
+		}
+
+		# Truce
+		add_truce_attacker_victory_effect = yes
+
+		# FP1: note the victory for future memorialisation via stele (if applicable).
+		scope:attacker = { fp1_remember_recent_conquest_victory_effect = yes }
+	}
+
+	on_white_peace_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:defender = { is_local_player = yes } }
+				desc = invasion_war_white_peace_desc_defender
+			}
+			desc = invasion_war_white_peace_desc
+		}
+	}
+	
+	on_white_peace = {
+		scope:attacker = { show_pow_release_message_effect = yes }
+
+		#EP2 accolade glory gain for doing ok against higher ranked enemy
+		scope:attacker = { accolade_attacker_war_end_glory_gain_low_effect = yes }
+		scope:defender = { accolade_defender_war_end_glory_gain_med_effect = yes }
+
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:attacker # Not important as the scales are identical
+			FAME_BASE = major_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+
+		# Truce
+		add_truce_white_peace_effect = yes
+
+		scope:attacker = {
+			add_prestige = mongol_invasion_cb_prestige_white_peace
+			stress_impact = {
+				ambitious = medium_stress_impact_gain
+				arrogant = medium_stress_impact_gain
+			}
+		}
+
+		scope:defender = {
+			stress_impact = {
+				arrogant = medium_stress_impact_gain
+			}
+		}
+	}
+
+	on_defeat_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:defender = { is_local_player = yes } }
+				desc = invasion_war_white_peace_desc_defender
+			}
+			desc = invasion_war_white_peace_desc
+		}
+	}
+	
+	on_defeat = {
+		scope:attacker = { show_pow_release_message_effect = yes }
+		
+		# Legitimacy
+		add_legitimacy_attacker_defeat_effect = yes
+
+		#EP2 accolade glory gain for winning against higher ranked enemy
+		scope:defender = { accolade_defender_war_end_glory_gain_high_effect = yes }
+
+		# Prestige loss for the attacker
+		scope:attacker = {
+			pay_short_term_gold_reparations_effect = {
+				GOLD_VALUE = 5
+			}
+			add_prestige = {
+				value = massive_prestige_value
+				multiply = -1.0
+			}
+		}
+		
+		setup_invasion_cb = {
+			titles = target_titles
+			attacker = scope:attacker
+			defender = scope:defender
+			claimant = scope:claimant
+			victory = no
+		}
+
+		# Attacker loses Prestige, all other war participants gain Prestige (Defender gains full prestige, all allies on both sides gain based on war contribution).
+		modify_all_participants_fame_values = {
+			WINNER = scope:defender
+			LOSER = scope:attacker
+			FAME_BASE = scope:cb_prestige_factor # Set by 'setup_claim_cb'
+			IS_RELIGIOUS_WAR = no
+			WINNER_FAME_SCALE = scale_10_war_defender_win
+			LOSER_FAME_SCALE = -10
+			WINNER_ALLY_FAME_SCALE = 10
+			LOSER_ALLY_FAME_SCALE = 10
+		}
+	
+		add_truce_attacker_defeat_effect = yes
+		
+		scope:attacker = {
+			save_temporary_scope_as = loser
+			hard_imprison_character_effect = {
+				TARGET = this
+				IMPRISONER = scope:defender
+			}
+			scope:defender = {
+				add_opinion = {
+					target = prev
+					modifier = vassal_lost_faction_revolt_war
+				}
+			}
+		}
+		on_lost_aggression_war_discontent_loss = yes
+		hidden_effect = {
+			set_global_variable = rhodok_war_lost_var
+		}
+	}
+	
+	transfer_behavior = transfer
+	
+	on_primary_attacker_death = inherit
+	on_primary_defender_death = inherit
+	
+	attacker_allies_inherit = yes
+	defender_allies_inherit = yes
+	
+	war_name = "RHODOK_WAR_NAME"
+	war_name_base = "RHODOK_WAR_NAME_BASE"
+	cb_name = "RHODOK_CB_NAME"
+	
+	interface_priority = 100
+	
+	use_de_jure_wargoal_only = yes
+	
+	attacker_wargoal_percentage = 0.8
+	
+	max_defender_score_from_occupation = 70
+	max_attacker_score_from_occupation = 200
+	
+	max_attacker_score_from_battles = 150
+	max_defender_score_from_battles = 100
+	
+	attacker_score_from_battles_scale = 225 
+	
+	attacker_score_from_occupation_scale = 200
+	defender_score_from_occupation_scale = 50
+	
 }

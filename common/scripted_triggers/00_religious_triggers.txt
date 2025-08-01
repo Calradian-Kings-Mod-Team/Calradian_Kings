@@ -1035,25 +1035,32 @@ faiths_are_in_eastern_christianity_group = {
 # }
 
 refusing_conversion_is_crime_trigger = {
-	faith = {
-		trigger_if = { # Only apply imprisonment reason if actor's faith is not the state faith
-			limit = {
-				$CHARACTER$ = {
-					top_liege = { government_allows = state_faith }
-					faith = $CHARACTER$.top_liege.primary_title.state_faith
-				}
+	OR = {
+		$CHARACTER$ = {
+			top_liege = {
+				has_realm_law_flag = persecuted_tolerance
 			}
-			always = no
 		}
-		OR = {
-			religion_tag = calradian_religion
-			religion_tag = aserai_religion
-			religion_tag = darshi_religion
-		}
-		NOT = {
-			faith_hostility_level = {
-				target = $CHARACTER$.faith
-				value <= faith_astray_level
+		faith = {
+			trigger_if = { # Only apply imprisonment reason if actor's faith is not the state faith
+				limit = {
+					$CHARACTER$ = {
+						top_liege = { government_allows = state_faith }
+						faith = $CHARACTER$.top_liege.primary_title.state_faith
+					}
+				}
+				always = no
+			}
+			OR = {
+				religion_tag = calradian_religion
+				religion_tag = aserai_religion
+				religion_tag = darshi_religion
+			}
+			NOT = {
+				faith_hostility_level = {
+					target = $CHARACTER$.faith
+					value <= faith_astray_level
+				}
 			}
 		}
 	}
@@ -1198,6 +1205,26 @@ valid_demand_conversion_conditions_trigger = {
 			}
 		}
 	}
+
+	trigger_if = {
+		limit = {
+			scope:actor = {
+				NOT = {
+					has_realm_law_flag = full_religious_tolerance
+				}
+			}
+		}
+		custom_tooltip = {
+			text = "ck_tolerance_3_no_conversions"
+			scope:actor = {
+				NOT = {
+					has_realm_law_flag = full_religious_tolerance
+				}
+			}
+		}
+	}
+
+	
 	
 	trigger_if = {
 		limit = {

@@ -3003,6 +3003,7 @@ types FaithTooltips
 			vbox = {
 				spacing = 5
 				margin = { 10 0 }
+
 				vbox = {
 					layoutpolicy_horizontal = expanding
 
@@ -3572,8 +3573,7 @@ types LawTooltipTypes
 			tintcolor = "[TooltipInfo.GetTintColor]"
 
 			modify_texture = {
-				visible = "[Not( Or( EqualTo_string( LawGroup.GetKey, 'camp_purpose'), EqualTo_string( LawGroup.GetKey, 'nomadic_authority') ) )]"
-
+				visible = "[Not( Or( EqualTo_string( LawGroup.GetKey, 'camp_purpose'), EqualTo_string( LawGroup.GetKey, 'nomadic_authority'), EqualTo_string( LawGroup.GetKey, 'ck_slavery_law') ) )]"
 				texture = "gfx/interface/colors/colors_textured.dds"
 				blend_mode = add
 				framesize = { 96 96 }
@@ -3581,7 +3581,67 @@ types LawTooltipTypes
 			}
 		}
 	}
+	type law_tooltip_header_additions_ck = hbox = {
+		margin_right = 5
 
+		icon = {
+			datacontext = "[Law.GetLawGroup]"
+			visible = "[Law.HasIcon]"
+			size = { 60 60 }
+
+			texture = "[Law.GetIcon]"
+			tintcolor = "[TooltipInfo.GetTintColor]"
+		}
+	}
+	type ck_no_icon_glow_tooltip = container {
+		alwaystransparent = no
+
+		object_tooltip_pop_out = {
+			blockoverride "header_additions" {
+				law_tooltip_header_additions_ck = {}
+			}
+
+			blockoverride "title_text" {
+				margin = { 0 8 }
+				text = "PASS_LAW_TOOLTIP_TITLE"
+			}
+
+			blockoverride "subtitle_text" {
+				text = "LAW_TOOLTIP_SUBTITLE"
+			}
+
+			blockoverride "concept_link" {
+				block "concept_link" {
+					text = "[law|E]"
+				}
+			}
+
+			blockoverride "extra_data" {
+				cooltip_paragraph = {
+					text = "[GuiLaw.GetCanEnactDescription]"
+				}
+
+				cooltip_paragraph = {
+					text = "[Law.GetEffectDescription]"
+				}
+
+				cooltip_paragraph = {
+					text = "[GuiLaw.GetEnactEffectDescription]"
+				}
+
+				cooltip_paragraph = {
+					text = "LAW_COST"
+					visible = "[And( GuiLaw.HasCost, Not( GuiLaw.IsEnacted ) )]"
+					tooltip = "[GuiLaw.GetCostDescription]"
+				}
+
+				cooltip_paragraph = {
+					visible = "[GuiLaw.CanEnact]"
+					text = "CLICK_TO_PASS_LAW"
+				}
+			}
+		}
+	}
 	type pass_law_tooltip = container {
 		alwaystransparent = no
 
@@ -9430,3 +9490,5 @@ template widget_obedience_tooltip {
 				}
 			}
 		}
+	}
+}

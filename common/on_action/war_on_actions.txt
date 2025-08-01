@@ -823,6 +823,258 @@ on_war_started = {
 				}
 			}
 		}
+		### Geroian coalition
+		if = {
+			limit = {
+				has_game_rule = ck_geroian_coalition_enabled
+				OR = {
+					scope:attacker = {
+						NOT = {
+							culture = { 
+								has_cultural_pillar = heritage_geroian
+							}
+						}
+						OR = {
+							capital_province = {
+								NOT = {
+									geographical_region = region_geroia
+								}
+							}
+							AND = {
+								is_independent_ruler = no
+								capital_province = {
+									geographical_region = region_geroia
+								}
+								top_liege.capital_province = {
+									NOT = {
+										geographical_region = region_geroia
+									}
+								}
+							}
+						}
+					}
+					scope:attacker = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+						is_independent_ruler = no
+						top_liege.capital_province = {
+							NOT = {
+								geographical_region = region_geroia
+							}
+						}
+						any_held_title = {
+							percent <= 0.8
+							title_capital_county.title_province = {
+								geographical_region = region_geroia
+							}
+						}
+					}
+				}
+				scope:war = {
+					OR = {
+						using_conquest_cb_trigger = yes
+						using_de_jure_cb_trigger = yes
+						using_hierarchical_cb_trigger = yes
+						using_holy_war_cb_trigger = yes
+					}
+				}
+				scope:defender = {
+					culture = { 
+						has_cultural_pillar = heritage_geroian
+					}
+					is_landed = yes
+				}
+				any_ruler = {
+					culture = { 
+						has_cultural_pillar = heritage_geroian
+					}
+					is_landed = yes
+					any_held_title = {
+						title_capital_county.title_province = {
+							geographical_region = region_geroia
+						}
+					}
+					NOR = {
+						this = scope:defender
+						is_vassal_or_below_of = scope:defender
+						is_vassal_or_below_of = scope:attacker.top_liege
+					}
+				}
+				any_in_list = {
+					list = target_titles
+					title_capital_county.title_province = {
+						geographical_region = region_geroia
+					}
+				}
+			}
+			scope:war = {
+				set_variable = geroian_invasion_var
+			}
+			every_ruler = {
+				limit = {
+					culture = { 
+						has_cultural_pillar = heritage_geroian
+					}
+					is_landed = yes
+					any_held_title = {
+						title_capital_county.title_province = {
+							geographical_region = region_geroia
+						}
+					}
+					NOR = {
+						this = scope:defender
+						is_vassal_or_below_of = scope:defender
+						is_vassal_or_below_of = scope:attacker.top_liege
+					}
+					current_military_strength >= 100
+				}
+				add_to_list = called_geroian_rulers
+			}
+			every_in_list = {
+				list = called_geroian_rulers
+				run_interaction = { 
+					interaction = geroian_coalition_call_AI
+					actor = scope:defender
+					recipient = this
+					send_threshold = decline 
+				}
+				remove_from_list = called_geroian_rulers
+			}
+			if = {
+				limit = {
+					scope:attacker = {
+						is_ai = no
+					}
+					NOT = { 
+						has_global_variable = geroian_attacker_information_var
+					}
+				}
+				scope:attacker = {
+					trigger_event = {
+						id = ck_geroian_events.0001 #Information about coalitions
+						days = 1
+					}
+				}
+				set_global_variable = geroian_attacker_information_var
+			}
+			if = {
+				limit = {
+					scope:defender = {
+						is_ai = no
+					}
+					NOT = { 
+						has_global_variable = geroian_defender_information_var
+					}
+				}
+				scope:defender = {
+					trigger_event = {
+						id = ck_geroian_events.0002 #Information about coalitions
+						days = 1
+					}
+				}
+				set_global_variable = geroian_defender_information_var
+			}
+			if = {
+				limit = {
+					scope:defender = {
+						NOT = {
+							has_faith = faith:aekekartel
+						}
+					}
+				}
+				scope:defender = {
+					trigger_event = {
+						id = ck_geroian_events.0005
+						days = 3
+					}
+				}
+			}
+		}
+		### Geroian aid events
+		if = {
+			limit = {
+				OR = {
+					scope:attacker = {
+						NOT = {
+							culture = { 
+								has_cultural_pillar = heritage_geroian
+							}
+						}
+						OR = {
+							capital_province = {
+								NOT = {
+									geographical_region = region_geroia
+								}
+							}
+							AND = {
+								is_independent_ruler = no
+								capital_province = {
+									geographical_region = region_geroia
+								}
+								top_liege.capital_province = {
+									NOT = {
+										geographical_region = region_geroia
+									}
+								}
+							}
+						}
+					}
+					scope:attacker = {
+						culture = {
+							has_cultural_pillar = heritage_geroian
+						}
+						is_independent_ruler = no
+						top_liege.capital_province = {
+							NOT = {
+								geographical_region = region_geroia
+							}
+						}
+						any_held_title = {
+							percent <= 0.8
+							title_capital_county.title_province = {
+								geographical_region = region_geroia
+							}
+						}
+					}
+				}
+				scope:war = {
+					OR = {
+						using_conquest_cb_trigger = yes
+						using_de_jure_cb_trigger = yes
+						using_hierarchical_cb_trigger = yes
+						using_holy_war_cb_trigger = yes
+					}
+					NOT = {
+						has_variable = geroian_invasion_var
+					}
+				}
+				scope:defender = {
+					culture = { 
+						has_cultural_pillar = heritage_geroian
+					}
+					NOT = {
+						has_faith = faith:aekekartel
+					}
+					is_landed = yes
+				}
+				any_in_list = {
+					list = target_titles
+					title_capital_county.title_province = {
+						geographical_region = region_geroia
+					}
+				}
+			}
+			scope:war = {
+				set_variable = geroian_invasion_var
+			}
+			scope:defender = {
+				trigger_event = {
+					id = ck_geroian_events.0005
+					days = 3
+				}
+			}
+		}
 		#Confederation members automatically join defensive wars
 		scope:defender = {
 			if = {
@@ -1843,3 +2095,4 @@ on_war_invalidated = {
 		mpo_save_potential_blood_brother_war_allies_effect = yes
 	}
 }
+
