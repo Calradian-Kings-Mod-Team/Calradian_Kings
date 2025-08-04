@@ -1076,6 +1076,16 @@ found_cadet_house_decision_effect = {
 		add_achievement_flag_effect = { FLAG = achievement_a_house_of_my_own_flag }
 	}
 
+	## Avoiding duplicate cadet coa
+	if = {
+		limit = {
+			has_game_rule = ck_titles_coa_house_coa
+		}
+		capital_county = {
+			generate_coa = yes
+		}
+	}
+
 	create_cadet_branch = yes
 	add_prestige = $PRESTIGE$
 	hidden_effect = {
@@ -1180,6 +1190,30 @@ found_cadet_house_decision_effect = {
 		# 		log_debug_variable_for_persian_struggle_effect = { VAR = unrest_catalyst_cadet_branch_created }
 		# 	}
 		# }
+
+		## Change new house members title coas
+		if = {
+			limit = {
+				has_game_rule = ck_titles_coa_house_coa
+			}
+			scope:new_house = { 
+				every_house_member = {
+					limit = {
+						is_landed = yes
+					}
+					every_held_title = {
+						limit = {
+							NOR = {
+								tier = tier_empire
+								has_variable = default_coa_var
+							}
+						}
+						set_coa = scope:new_house
+					}
+				}
+			}
+		}
+
 	}
 }
 
