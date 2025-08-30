@@ -1,0 +1,95 @@
+﻿modified_rhodok_elector_voting_pattern_opinion_feudal_elective_modifier = {
+	## Modified it to exclude ruler's opinion (I want to stray away from hereditary succession in Rhodoks)
+	##########################	Elector voting patterns (opinion)	##########################
+	##########################	Raw Opinion bonus towards Candidate	##########################
+	modifier = { #Raw Opinion bonus (negative)
+		desc = tooltip_feudal_elector_vote_opinion_negative
+		NOT = { this = scope:candidate } #Not on yourself.
+		save_temporary_opinion_value_as = {
+			name = opinion_of_candidate
+			target = scope:candidate
+		}
+		scope:opinion_of_candidate <= low_negative_opinion
+		add = {
+			subtract = 15
+			if = { #Even less so if lower opinion.
+				limit = {
+					scope:opinion_of_candidate <= medium_negative_opinion
+				}
+				subtract = 15 #-30 total
+			}
+			if = { #Even less so if lower opinion.
+				limit = {
+					scope:opinion_of_candidate <= high_negative_opinion
+				}
+				subtract = 20 #-50 total
+			}
+			if = { #Even less so if lower opinion.
+				limit = {
+					scope:opinion_of_candidate <= very_high_negative_opinion
+				}
+				subtract = 50 #-100 total
+			}
+			if = { #Even less so if rival.
+				limit = {
+					has_relation_rival = scope:candidate
+				}
+				subtract = 50 #-150 total
+			}
+			if = { #Further increased for Tanistry.
+				limit = {
+					scope:title = { has_title_law = gaelic_elective_succession_law }
+				}
+				multiply = 1.5
+			}
+		}
+	}
+	modifier = { #Raw Opinion bonus (positive)
+		desc = tooltip_feudal_elector_vote_opinion_positive
+		NOT = {
+			has_relation_rival = scope:candidate #Completely removed for rivals.
+		}
+		NOT = { this = scope:candidate } #Not on yourself.
+		save_temporary_opinion_value_as = {
+			name = opinion_of_candidate
+			target = scope:candidate
+		}
+		scope:opinion_of_candidate >= low_positive_opinion
+		add = {
+			value = 15
+			if = { #Even more so if higher opinion.
+				limit = {
+					scope:opinion_of_candidate >= medium_positive_opinion
+				}
+				add = 15 #30 total
+			}
+			if = { #Even more so if higher opinion.
+				limit = {
+					scope:opinion_of_candidate >= high_positive_opinion
+				}
+				add = 20 #50 total
+			}
+			if = { #Even more so if higher opinion.
+				limit = {
+					scope:opinion_of_candidate >= very_high_positive_opinion
+				}
+				add = 20 #70 total
+			}
+			if = { #Even more so if friend/lover.
+				limit = {
+					OR = {
+						has_relation_friend = scope:candidate
+						has_relation_lover = scope:candidate
+					}
+				}
+				add = 30 #100 total
+			}
+			if = { #Further increased for Tanistry.
+				limit = {
+					scope:title = { has_title_law = gaelic_elective_succession_law }
+				}
+				multiply = 1.5
+			}
+		}
+	}
+}

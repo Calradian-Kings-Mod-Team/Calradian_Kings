@@ -1,0 +1,106 @@
+﻿# The entry should be named in the same way that the elective succession law is named to define it's voter's logic.
+# Root scope - Elector, the character voting in the election.
+# scope:candidate scope - Candidate, Character considered for the title.
+# scope:title scope - Title, The title the nomination is for.
+# scope:holder scope - Ruler, The ruler currently holding the title.
+# scope:holder_candidate scope - Favored Candidate, The title owner's candidate.
+# The voter will vote for the top score candidate calculated from this script.
+
+rhodok_elective = { # (Simplified)
+	elector_vote_strength = {
+		base = 1
+		# Every elector has same vote
+	}
+	
+	electors = {
+		add = holder
+		add = {
+			type = holder_direct_vassals
+			limit = {
+				is_vassal_or_below_of = scope:holder
+				is_adult = yes
+				NOT = { has_trait = incapable }
+			}
+		}
+		add = {
+			type = title_dejure_vassals
+			limit = {
+				is_vassal_or_below_of = scope:holder
+				is_adult = yes
+				NOT = { has_trait = incapable }
+			}
+		}
+	}
+
+	candidate_score = {
+		base = 0
+		######################	Elector self-voting pattern	##########################
+		elector_self_voting_pattern_feudal_elective_modifier = yes
+
+		##########################	Holder voting pattern	##########################
+		holder_voting_pattern_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (circumstances)	##########################
+		elector_voting_pattern_circumstances_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (prestige/piety)	##########################
+		elector_voting_pattern_prestige_piety_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (traits)	##########################
+		elector_voting_pattern_traits_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (opinion)	##########################
+		modified_rhodok_elector_voting_pattern_opinion_feudal_elective_modifier = yes
+
+		##########################	Elector voting patterns (misc)	##########################
+		elector_voting_pattern_circumstances_misc_elective_modifier = yes
+
+		############## PLACEHOLDER - DELETE IT LATER / MOVE IT TO RHODOK ###########
+		#modifier = {
+		#	desc = tooltip_rhodok_bribe_gold_election
+		#	scope:candidate = {
+		#		has_variable = election_bribe_gold
+		#	}
+		#	add = {
+		#		value = scope:candidate.var:election_bribe_gold
+		#	}
+		#}
+		#modifier = {
+		#	desc = tooltip_rhodok_bribe_gold_election2
+		#	scope:candidate = {
+		#		
+		#	}
+		#	add = 5000
+		#}
+	}
+	
+	#scope:candidate = Candidate, scope:title = Title, scope:holder_candidate = Candidate currently selected by ruler.
+	candidates = {
+		add = {
+			type = holder_direct_vassals
+			limit = {
+				feudal_elective_potential_landed_candidate_trigger = yes
+			}
+		}
+		add = {
+			type = title_dejure_vassals
+			limit = {
+				is_vassal_or_below_of = scope:holder
+				feudal_elective_potential_landed_candidate_trigger = yes
+			}
+		}
+		add = {
+			type = title_claimants
+			limit = {
+				feudal_elective_potential_landless_claimant_candidate_trigger = yes
+			}
+		}
+		add = {
+			type = holder_close_family
+			limit = {
+				is_close_family_of = scope:holder
+				feudal_elective_potential_landless_dynastic_candidate_trigger = yes
+			}
+		}
+	}
+}
