@@ -611,3 +611,84 @@ tradition_seafaring_kannic = {
 		}
 	}
 }
+tradition_calradian_descent = {
+	category = societal
+
+	layers = {
+		0 = diplo
+		1 = mediterranean
+		4 = laurel_calradia.dds
+	}
+	
+	is_shown = {
+		OR = {
+			has_cultural_pillar = heritage_valanscau
+			has_cultural_pillar = heritage_esvulgeste
+			#has_cultural_pillar = heritage_kholradyan_heritage
+			AND = {
+				NOT = {
+					OR = {
+						has_cultural_pillar = heritage_valanscau
+						has_cultural_pillar = heritage_esvulgeste
+						has_cultural_pillar = heritage_calradian
+					}
+				}
+				scope:character = {
+					has_title = title:e_calradian_empire
+				}
+			}
+		}
+		NOT = {
+			culture_tradition:tradition_eye_for_an_eye = { is_in_list = traits }
+			culture_tradition:tradition_poetry = { is_in_list = traits }
+		}
+	}
+	
+	culture_modifier = {
+		cultural_acceptance_gain_mult = -0.10
+	}
+	
+	parameters = {
+		poet_trait_gives_bonuses = yes
+		poet_trait_more_common = yes
+		characters_are_better_court_poets = yes
+		better_court_poets = yes
+		house_hostility_more_common = yes
+		vengeful_trait_more_common = yes
+		vengeful_positive_forgiving_negative = yes
+	}
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_courtly = { is_in_list = traits }
+						culture_pillar:ethos_communal = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_courtly_or_communal_desc
+				}
+			}
+			
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+	ai_will_do = {
+		value = 200
+		if = {
+			limit = {
+				OR = {
+					culture_tradition:tradition_modest = { is_in_list = traits }
+				}
+			}
+			multiply = 0.1
+		}
+	}
+}
