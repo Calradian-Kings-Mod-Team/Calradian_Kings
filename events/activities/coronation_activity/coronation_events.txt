@@ -206,7 +206,7 @@ coronation_events.0100 = {
 		}
 
 		ai_chance = {
-			base = 10
+			base = 0
 		}
 	}
 
@@ -309,6 +309,15 @@ coronation_events.0100 = {
 		sworn_oath_effect = yes
 
 		scope:host = { 
+			if = {
+				limit = {
+					is_ai = yes
+				}
+				add_character_modifier = {
+					modifier = oath_warlike_ai_modifier
+					years = 20
+				}
+			}
 			coronation_chosen_oath_setup_effect = {
 				VAR = martial_oath_2
 				TIME = 7300
@@ -345,7 +354,7 @@ coronation_events.0100 = {
 		}
 
 		ai_chance = {
-			base = 0
+			base = 10
 		}
 	}
 
@@ -365,10 +374,20 @@ coronation_events.0100 = {
 		sworn_oath_effect = yes
 
 		scope:host = { 
+			if = {
+				limit = {
+					is_ai = yes
+				}
+				add_character_modifier = {
+					modifier = oath_peaceful_ai_modifier
+					years = 20
+				}
+			}
 			coronation_chosen_oath_setup_effect = {
 				VAR = stewardship_oath_1
 				TIME = 18250
 			}
+
 		}
 
 		ai_chance = {
@@ -393,7 +412,7 @@ coronation_events.0100 = {
 		scope:host = { 
 			coronation_chosen_oath_setup_effect = {
 				VAR = stewardship_oath_2
-				TIME = 5475
+				TIME = 7300
 			}
 			set_variable = {
 				name = stewardship_oath_2_buildings
@@ -526,7 +545,7 @@ coronation_events.0100 = {
 		scope:host = { 
 			coronation_chosen_oath_setup_effect = {
 				VAR = greatest_hunter_oath
-				TIME = 7300
+				TIME = 14600
 			}
 			set_variable = {
 				name = greatest_hunter_oath_r_counter
@@ -573,13 +592,7 @@ coronation_events.0100 = {
 		}
 
 		ai_chance = {
-			base = 1
-			modifier = {
-				add = 19
-				primary_heir ?= {
-					age <= 6
-				}
-			}
+			base = 0
 		}
 	}
 
@@ -687,23 +700,12 @@ coronation_events.0100 = {
 		scope:host = { 
 			coronation_chosen_oath_setup_effect = {
 				VAR = provide_for_the_warriors_oath
-				TIME = 3650
+				TIME = 7300
 			}
 		}
 
 		ai_chance = {
-			base = 1
-			modifier = {
-				add = 2
-				martial >= 10
-			}
-			modifier = {
-				factor = 0
-				any_directly_owned_province = {
-					count < 3
-					has_free_building_slot = yes
-				}
-			}
+			base = 0
 		}
 	}
 
@@ -724,27 +726,12 @@ coronation_events.0100 = {
 		scope:host = { 
 			coronation_chosen_oath_setup_effect = {
 				VAR = provide_for_the_faithful_oath
-				TIME = 3650
+				TIME = 7300
 			}
 		}
 
 		ai_chance = {
 			base = 0
-			modifier = {
-				add = 1
-				learning >= 10
-			}
-			modifier = {
-				add = 1
-				ai_zeal > 0
-			}
-			modifier = {
-				factor = 0
-				any_directly_owned_province = {
-					count < 3
-					has_free_building_slot = yes
-				}
-			}
 		}
 	}
 
@@ -766,7 +753,7 @@ coronation_events.0100 = {
 		scope:host = { 
 			coronation_chosen_oath_setup_effect = {
 				VAR = provide_for_the_poor_oath
-				TIME = 3650
+				TIME = 7300
 			}
 		}
 
@@ -793,7 +780,7 @@ coronation_events.0100 = {
 		scope:host = { 
 			coronation_chosen_oath_setup_effect = {
 				VAR = repent_oath
-				TIME = 3650
+				TIME = 7300
 			}
 			set_variable = {
 				name = repent_oath_pilgrimage_counter
@@ -803,14 +790,6 @@ coronation_events.0100 = {
 
 		ai_chance = {
 			base = 0
-			modifier = {
-				add = 10
-				ai_zeal > 0
-			}
-			modifier = {
-				add = 10
-				num_sinful_traits > 1
-			}
 		}
 	}
 
@@ -1123,68 +1102,72 @@ coronation_events.0150 = {
 		highest_held_title_tier >= tier_kingdom
 		calc_true_if = {
 			amount > 0
-			trigger_if = {
-				limit = { has_variable = diplomacy_oath_1 }
+			AND = {
+				has_variable = diplomacy_oath_1
 				NOT = { has_variable = diplomacy_oath_1_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = martial_oath_1 }
+			AND = {
+				has_variable = diplomacy_oath_2
+				NOT = { has_variable = diplomacy_oath_2_timer }
+			}
+			AND = {
+				has_variable = martial_oath_1
 				NOT = { has_variable = martial_oath_1_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = martial_oath_2 }
+			AND = {
+				has_variable = martial_oath_2
 				NOT = { has_variable = martial_oath_2_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = stewardship_oath_1 }
+			AND = {
+				has_variable = stewardship_oath_1
 				NOT = { has_variable = stewardship_oath_1_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = stewardship_oath_2 }
+			AND = {
+				has_variable = stewardship_oath_2
 				NOT = { has_variable = stewardship_oath_2_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = learning_oath_1 }
+			AND = {
+				has_variable = learning_oath_1
 				NOT = { has_variable = learning_oath_1_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = purge_pretenders_oath }
+			AND = {
+				has_variable = purge_pretenders_oath
 				NOT = { has_variable = purge_pretenders_oath_timer }
 			}
 			# trigger_if = {
 			# 	limit = { has_variable = end_the_struggle_oath }
 			# 	NOT = { has_variable = end_the_struggle_oath_timer }
 			# }
-			trigger_if = {
-				limit = { has_variable = greatest_hunter_oath }
+			AND = {
+				has_variable = greatest_hunter_oath
 				NOT = { has_variable = greatest_hunter_oath_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = heir_preparation_oath }
+			AND = {
+				has_variable = heir_preparation_oath
 				NOT = { has_variable = heir_preparation_oath_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = install_claimants_oath }
+			AND = {
+				has_variable = install_claimants_oath
 				NOT = { has_variable = install_claimants_oath_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = mend_the_fracture_oath }
+			AND = {
+				has_variable = mend_the_fracture_oath
 				NOT = { has_variable = mend_the_fracture_oath_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = provide_for_the_warriors_oath }
+			AND = {
+				has_variable = provide_for_the_warriors_oath
 				NOT = { has_variable = provide_for_the_warriors_oath_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = provide_for_the_faithful_oath }
+			AND = {
+				has_variable = provide_for_the_faithful_oath
 				NOT = { has_variable = provide_for_the_faithful_oath_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = provide_for_the_poor_oath }
+			AND = {
+				has_variable = provide_for_the_poor_oath
 				NOT = { has_variable = provide_for_the_poor_oath_timer }
 			}
-			trigger_if = {
-				limit = { has_variable = repent_oath }
+			AND = {
+				has_variable = repent_oath
 				NOT = { has_variable = repent_oath_timer }
 			}
 		}
@@ -2673,6 +2656,14 @@ coronation_events.0300 = {
 		name = coronation_events.0300.d
 
 		custom_tooltip = coronation_events_0300_d_tooltip
+		#No effect if you are head of faith
+		if = {
+			limit = {
+				NAND = {
+					exists = faith.religious_head
+					this = faith.religious_head
+				}
+			}
 		if = {
 			limit = {
 				scope:activity = {
@@ -2686,7 +2677,9 @@ coronation_events.0300 = {
 		}
 		else = {
 			custom_tooltip = coronation_events_0300_d_tooltip_effect
+			}
 		}
+		
 
 		ai_chance = {
 			base = 0

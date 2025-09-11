@@ -107,6 +107,7 @@ coronation_set_oath_alternatives_effect = {
 		# Alliances
 		1 = {
 			trigger = {
+				is_ai = no
 				NOR = { 
 					has_variable = diplomacy_oath_1 
 					has_character_modifier = oath_of_alliances
@@ -177,6 +178,8 @@ coronation_set_oath_alternatives_effect = {
 				NOR = { 
 					has_variable = stewardship_oath_2 
 					has_character_modifier = oath_of_buildings
+					government_has_flag = government_is_nomadic
+					government_has_flag = government_is_tribal
 				}
 			}
 			coronation_set_oath_effect = { OATH = stewardship_oath_2 }
@@ -186,6 +189,7 @@ coronation_set_oath_alternatives_effect = {
 		# University Oath
 		50 = {
 			trigger = {
+				is_ai = no
 				NOT = { has_variable = learning_oath_1 }
 				any_realm_county = {
 					development_level >= 25
@@ -196,6 +200,7 @@ coronation_set_oath_alternatives_effect = {
 		# Purge Pretenders
 		1 = {
 			trigger = {
+				is_ai = no
 				NOR = {
 					has_variable = purge_pretenders_oath
 					has_character_modifier = oath_of_purge_pretenders
@@ -285,6 +290,7 @@ coronation_set_oath_alternatives_effect = {
 		## Greatest Hunter
 		1 = {
 			trigger = {
+				is_ai = no
 				NOR = {
 					has_variable = greatest_hunter_oath
 					has_character_modifier = oath_greatest_hunter
@@ -297,6 +303,7 @@ coronation_set_oath_alternatives_effect = {
 		## Heir Preparation
 		1 = {
 			trigger = {
+				is_ai = no
 				age >= 50
 				NOR = {
 					has_variable = heir_preparation_oath
@@ -312,6 +319,7 @@ coronation_set_oath_alternatives_effect = {
 		## Install Claimants
 		1 = {
 			trigger = {
+				is_ai = no
 				NOR = { 
 					has_variable = install_claimants_oath 
 					has_character_modifier = oath_install_claimants
@@ -323,6 +331,7 @@ coronation_set_oath_alternatives_effect = {
 		## Mend the Fracture
 		1 = {
 			trigger = {
+				always = no # TODO_CD_BP4 - Take a look at this for 1.17.1
 				NOR = { 
 					has_variable = mend_the_fracture_oath 
 					has_character_modifier = oath_mend_the_fracture
@@ -338,13 +347,13 @@ coronation_set_oath_alternatives_effect = {
 						any_culture_county = {
 							count >= 6
 							holder = {
-								target_is_vassal_or_below = root
+								target_is_liege_or_above = root
 							}
 						}
 						any_culture_county = {
 							percent >= 0.6
 							holder = {
-								target_is_vassal_or_below = root
+								target_is_liege_or_above = root
 							}
 						}
 					}
@@ -359,6 +368,8 @@ coronation_set_oath_alternatives_effect = {
 				NOR = { 
 					has_variable = provide_for_the_warriors_oath 
 					has_character_modifier = oath_provide_for_the_warriors
+					government_has_flag = government_is_nomadic
+					government_has_flag = government_is_tribal
 				}
 				any_directly_owned_province = {
 					NOT = {
@@ -375,6 +386,8 @@ coronation_set_oath_alternatives_effect = {
 				NOR = { 
 					has_variable = provide_for_the_faithful_oath 
 					has_character_modifier = oath_provide_for_the_faithful
+					government_has_flag = government_is_nomadic
+					government_has_flag = government_is_tribal
 				}
 				any_directly_owned_province = {
 					NOT = {
@@ -391,6 +404,8 @@ coronation_set_oath_alternatives_effect = {
 				NOR = { 
 					has_variable = provide_for_the_poor_oath 
 					has_character_modifier = oath_provide_for_the_poor
+					government_has_flag = government_is_nomadic
+					government_has_flag = government_is_tribal
 				}
 				any_directly_owned_province = {
 					NOT = {
@@ -404,6 +419,7 @@ coronation_set_oath_alternatives_effect = {
 		## Repent
 		1 = {
 			trigger = {
+				is_ai = no
 				NOR = { 
 					has_variable = repent_oath 
 					has_character_modifier = oath_repent
@@ -2280,6 +2296,11 @@ coronation_save_anointer_effect = {
 		if = {
 			limit = {
 				coronation_living_officiator_trigger = yes
+				NOT = {
+					scope:activity.var:officiator = {
+						this = scope:host
+					}
+				}
 			}
 			scope:activity.var:officiator = {
 				save_scope_as = anointer
@@ -2291,6 +2312,9 @@ coronation_save_anointer_effect = {
 				scope:activity = {
 					any_attending_character = {
 						this = faith.religious_head
+						NOT = {
+							this = scope:host
+						}
 						faith = scope:host.faith
 						is_alive = yes	
 					}
