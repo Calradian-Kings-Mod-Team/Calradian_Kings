@@ -2,7 +2,7 @@
 # Government
 ######################################################################
 
-building_requirement_tribal = {
+building_requirement_tribal = { #we want failure in a castle, success in a tribe
 	OR = {
 		trigger_if = {
 			limit = {
@@ -25,18 +25,26 @@ building_requirement_tribal = {
 			}
 			custom_tooltip = {
 				text = innovation_feudal_upkeep_desc
-				AND = {
-					scope:holder ?= {
+				OR = {
+					NOT = {
 						AND = {
-							government_has_flag = government_is_tribal
-							NOT = {
-								culture = {
-									has_innovation = innovation_feudal_upkeep_tribal
+							scope:holder ?= {
+								AND = {
+									government_has_flag = government_is_tribal
 								}
+							}
+							scope:holder.culture = {
+								has_innovation = innovation_feudal_upkeep_tribal
 							}
 						}
 					}
-					# has_holding_type = castle_holding
+					NOT = { #This is necessary to make tribal holdings suceed the check. Theoretically a tribal holding in a province with a castle holding will fail, so don't do that.
+						county = {
+							any_county_province = {
+								has_holding_type = castle_holding
+							}
+						}
+					}
 				}
 			}
 		}
@@ -44,10 +52,12 @@ building_requirement_tribal = {
 }
 
 building_requirement_tribal_ck_castles = {
-	scope:holder ?= {
-		OR = {
-			government_has_flag = government_is_tribal
-			government_has_flag = government_is_nomadic
+	AND = {
+		scope:holder ?= {
+			OR = {
+				government_has_flag = government_is_tribal
+				government_has_flag = government_is_nomadic
+			}
 		}
 	}
 }
