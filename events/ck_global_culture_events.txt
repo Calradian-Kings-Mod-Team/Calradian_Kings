@@ -2541,6 +2541,108 @@ ck_global_culture.3000 = { #Rhodok titles handout
 			}
 			resolve_title_and_vassal_change = scope:change
 		}
+		while = { # Handing out remaining duchy titles
+			limit = {
+				any_held_title = {
+					count >= 3 
+					tier = tier_duchy
+					NOR = {
+						has_variable = untouchable_title_var
+						this = title:d_neurval
+					}
+					any_in_de_jure_hierarchy = {
+						NOT = {
+							has_variable = untouchable_title_var
+						}
+					}
+				}
+			}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+			}
+			if = {
+				limit = {
+					any_vassal = {
+						has_character_flag = is_grunwalder
+						highest_held_title_tier = tier_county
+						primary_title.duchy = {
+							NOR = { 
+								this = title:d_neurval
+								has_variable = untouchable_title_var
+							}
+							holder = root
+							any_in_de_jure_hierarchy = {
+								NOT = {
+									has_variable = untouchable_title_var
+								}
+							}
+						}
+					}
+				}
+				create_title_and_vassal_change = {
+					type = granted
+					save_scope_as = changegrunwalder
+				}
+				random_vassal = {
+					limit = {
+						has_character_flag = is_grunwalder
+						highest_held_title_tier = tier_county
+						primary_title.duchy = {
+							NOR = { 
+								this = title:d_neurval
+								has_variable = untouchable_title_var
+							}
+							holder = root
+							any_in_de_jure_hierarchy = {
+								NOT = {
+									has_variable = untouchable_title_var
+								}
+							}
+							save_scope_as = grunwalder_handed_duchy
+						}
+					}
+					save_scope_as = grunwalder_vassal_rhodok
+				}
+				scope:grunwalder_handed_duchy = {
+					change_title_holder = {
+						holder = scope:grunwalder_vassal_rhodok
+						change = scope:changegrunwalder
+					}
+				}
+				resolve_title_and_vassal_change = scope:changegrunwalder
+			}
+			random_vassal = {
+				limit = {
+					primary_title = {
+						tier = tier_county
+					}
+					primary_title.duchy = {
+						NOR = { 
+							this = title:d_neurval
+							has_variable = untouchable_title_var
+						}
+						holder = root
+						any_in_de_jure_hierarchy = {
+							NOT = {
+								has_variable = untouchable_title_var
+							}
+						}
+					}
+				}
+				save_scope_as = vassal_rhodok
+				primary_title.duchy = {
+					save_scope_as = handed_duchy
+				}
+			}
+			scope:handed_duchy = {
+				change_title_holder = {
+					holder = scope:vassal_rhodok
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
 		every_held_title = {
 			limit = {
 				has_variable = untouchable_title_var
