@@ -1,0 +1,491 @@
+﻿### Any effects related to heraldry or Coat of Arms ###
+#######################################################
+# Set title coa to house coa of root (which should be a ruler) (use with "has_game_rule = ck_titles_coa_house_coa" trigger)
+set_title_coa_house_coa_effect = {
+	every_held_title = {
+		limit = {
+			NOR = {
+				tier = tier_empire
+				has_variable = default_coa_var
+			}
+		}
+		set_coa = prev.house
+	}
+}
+# Regenerate house and dynasty heraldry - transition from simple to detailed coas
+# Remember to save culture as "heraldry_culture" scope before using this effect
+# I hate coa scripting, I hate this effect, sincerely, Irlfit
+reset_culture_heraldry_effect = {
+	create_character = {
+		name = Painter
+		faith = faith:calradic
+		culture = culture:vlandian
+		dynasty = none
+		save_scope_as = painter
+		after_creation = {
+			get_title = title:d_debug_dna_title
+			add_character_flag = painter_flag
+		}
+	}
+	while = {
+		limit = {
+			any_living_character = {
+				is_lowborn = no
+				has_culture = scope:heraldry_culture
+				is_ai = yes
+				NOT = {
+					house = {
+						any_house_member = {
+							is_ai = no
+						}
+					}
+				}
+				NOT = {
+					house = {
+						any_house_member = {
+							has_character_flag = house_coa_regenerated
+						}
+					}
+				}
+			}
+		}
+		random_living_character = {
+			limit = {
+				is_lowborn = no
+				has_culture = scope:heraldry_culture
+				is_ai = yes
+				NOT = {
+					house = {
+						any_house_member = {
+							is_ai = no
+						}
+					}
+				}
+				NOT = {
+					house = {
+						any_house_member = {
+							has_character_flag = house_coa_regenerated
+						}
+					}
+				}
+			}
+			culture = {
+				save_scope_as = random_coa_culture
+			}
+			faith = {
+				save_scope_as = random_coa_faith
+			}
+			add_character_flag = waiting_for_coa_generation
+		}
+		scope:painter = {
+			set_culture = scope:random_coa_culture
+			set_character_faith = scope:random_coa_faith
+		}
+		title:d_debug_dna_title = {
+			generate_coa = yes
+		}
+		random_living_character = {
+			limit = {
+				has_character_flag = waiting_for_coa_generation
+			}
+			house = {
+				set_coa = title:d_debug_dna_title
+			}
+			remove_character_flag = waiting_for_coa_generation
+			add_character_flag = house_coa_regenerated
+		}
+	}
+	every_living_character = {
+		limit = {
+			is_lowborn = no
+			has_culture = scope:heraldry_culture
+			is_ai = yes
+			NOT = {
+				house = {
+					any_house_member = {
+						is_ai = no
+					}
+				}
+			}
+		}
+		#if = {
+		#	limit = {
+		#		NOT = {
+		#			house = {
+		#				any_house_member = {
+		#					has_character_flag = house_coa_regenerated
+		#				}
+		#			}
+		#		}
+		#	}
+		#	house = {
+		#		generate_coa = yes
+		#	}
+		#	add_character_flag = house_coa_regenerated
+		#}
+		if = {
+			limit = {
+				dynasty.dynast = {
+					this = prev
+				}
+			}
+			dynasty = {
+				set_coa = prev.house
+			}
+		}
+
+		if = {
+			limit = {
+				has_game_rule = ck_titles_coa_house_coa
+				is_landed = yes
+			}
+			set_title_coa_house_coa_effect = yes
+		}
+	}
+	if = { # For Rhodoks
+		limit = {
+			scope:heraldry_culture = {
+				this = culture:rhodok
+			}
+			exists = title:k_rhodok.holder
+			any_ruler = {
+				has_culture = culture:rhodok
+				is_landed = yes
+				is_ai = yes
+				is_lowborn = no
+				NOT = {
+					house = {
+						any_house_member = {
+							is_ai = no
+						}
+					}
+				}
+			}
+		}
+		rhodok_coa_distribution_effect = yes
+	}
+	if = {
+		limit = {
+			has_game_rule = ck_titles_coa_house_coa
+		}
+		every_ruler = {
+			limit = {
+				is_lowborn = no
+				is_landed = yes
+				has_culture = scope:heraldry_culture
+			}
+			set_title_coa_house_coa_effect = yes
+		}
+		every_ruler = {
+			limit = {
+				is_lowborn = yes
+				is_landed = yes
+				has_culture = scope:heraldry_culture
+			}
+			every_held_title = {
+				generate_coa = yes
+			}
+		}
+	}
+	else = {
+		every_ruler = {
+			limit = {
+				OR = {
+					government_has_flag = government_is_theocracy
+					government_has_flag = government_is_republic
+					government_has_flag = government_is_feudal
+				}
+			}
+			every_held_title = {
+				limit = {
+					NOR = {
+						tier = tier_empire
+						has_variable = default_coa_var
+					}
+				}
+				generate_coa = yes
+			}
+		}
+	}
+	scope:painter = {
+		destroy_title = title:d_debug_dna_title
+		death = {
+			death_reason = death_ck_drowned_in_paint
+		}
+	}
+	every_player = {
+		limit = {
+			is_lowborn = no
+			has_culture = scope:heraldry_culture
+			NOT = {
+				house = {
+					any_house_member = {
+						has_character_flag = house_coa_regenerated
+					}
+				}
+			}
+		}
+		trigger_event = ck_debug_events.0004
+	}
+}
+# Regenerate house coa, used on single houses
+reset_house_heraldry_effect = {
+	create_character = {
+		name = Painter
+		faith = faith:calradic
+		culture = culture:vlandian
+		dynasty = none
+		save_scope_as = painter
+		after_creation = {
+			get_title = title:d_debug_dna_title
+			add_character_flag = painter_flag
+		}
+	}
+	scope:painter = {
+		set_culture = root.culture
+		set_character_faith = root.faith
+	}
+	title:d_debug_dna_title = {
+		generate_coa = yes
+	}
+	house = {
+		set_coa = title:d_debug_dna_title
+	}
+	if = {
+		limit = {
+			has_game_rule = ck_titles_coa_house_coa
+		}
+		house = {
+			every_house_member = {
+				limit = {
+					is_landed = yes
+				}
+				set_title_coa_house_coa_effect = yes
+			}
+		}
+	}
+	if = {
+		limit = {
+			dynasty.dynast = {
+				this = root
+			}
+		}
+		dynasty = {
+			set_coa = root.house
+		}
+	}
+	scope:painter = {
+		destroy_title = title:d_debug_dna_title
+		death = {
+			death_reason = death_ck_drowned_in_paint
+		}
+	}
+}
+# Distribute canon WB Coat of Arms among Rhodok nobility
+rhodok_coa_distribution_effect = {
+	while = {
+		limit = {
+			any_ruler = {
+				has_culture = culture:rhodok
+				is_landed = yes
+				is_ai = yes
+				is_lowborn = no
+				NOT = {
+					house = {
+						any_house_member = {
+							is_ai = no
+						}
+					}
+				}
+				NOT = {
+					house = {
+						any_house_member = {
+							has_character_flag = canon_coa_distributed
+						}
+					}
+				}
+			}
+			NOT = {
+				any_ruler = {
+					count = 20
+					has_culture = culture:rhodok
+					is_landed = yes
+					is_ai = yes
+					is_lowborn = no
+					house = {
+						any_house_member = {
+							has_character_flag = canon_coa_distributed
+						}
+					}
+				}
+			}
+		}
+		random_ruler = {
+			limit = {
+				has_culture = culture:rhodok
+				is_landed = yes
+				is_ai = yes
+				is_lowborn = no
+				NOT = {
+					house = {
+						any_house_member = {
+							is_ai = no
+						}
+					}
+				}
+				NOT = {
+					house = {
+						any_house_member = {
+							has_character_flag = canon_coa_distributed
+						}
+					}
+				}
+			}
+			weight = {
+				base = 1
+				modifier = {
+					factor = 5
+					primary_title = {
+						tier >= tier_duchy
+					}
+				}
+				modifier = {
+					factor = 5
+					is_vassal_of = title:k_rhodok.holder
+				}
+			}
+			random_list = {
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_etrosq_coa } }
+					house = { set_coa = etrosq_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_etrosq_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_kastor_coa } }
+					house = { set_coa = kastor_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_kastor_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_reland_coa } }
+					house = { set_coa = reland_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_reland_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_rimusk_coa } }
+					house = { set_coa = rimusk_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_rimusk_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_talbar_coa } }
+					house = { set_coa = talbar_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_talbar_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_fudreim_coa } }
+					house = { set_coa = fudreim_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_fudreim_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_gutlans_coa } }
+					house = { set_coa = gutlans_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_gutlans_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_kurnias_coa } }
+					house = { set_coa = kurnias_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_kurnias_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_laruqen_coa } }
+					house = { set_coa = laruqen_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_laruqen_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_matheas_coa } }
+					house = { set_coa = matheas_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_matheas_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_tribidan_coa } }
+					house = { set_coa = tribidan_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_tribidan_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_tarchias_coa } }
+					house = { set_coa = tarchias_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_tarchias_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_reichsin_coa } }
+					house = { set_coa = reichsin_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_reichsin_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_gharmall_coa } }
+					house = { set_coa = gharmall_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_gharmall_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_gerluchs_coa } }
+					house = { set_coa = gerluchs_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_gerluchs_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_fraichin_coa } }
+					house = { set_coa = fraichin_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_fraichin_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_falsevor_coa } }
+					house = { set_coa = falsevor_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_falsevor_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_trimbau_coa } }
+					house = { set_coa = trimbau_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_trimbau_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_tellrog_coa } }
+					house = { set_coa = tellrog_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_tellrog_coa
+				}
+				2 = {
+					modifier = { factor = 0 any_ruler = { has_character_flag = used_nealcha_coa } }
+					house = { set_coa = nealcha_coa }
+					add_character_flag = canon_coa_distributed
+					add_character_flag = used_nealcha_coa
+				}
+			}
+			if = {
+				limit = {
+					dynasty.dynast = {
+						this = prev
+					}
+				}
+				dynasty = {
+					set_coa = prev.house
+				}
+			}
+		}
+	}
+}
