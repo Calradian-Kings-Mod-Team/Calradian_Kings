@@ -8873,9 +8873,35 @@ ep3_laamp_decision_event.1030 = {
 			if = {
 				limit = {
 					exists = scope:laamp_warband_companion_recruitable
+					OR = {
+						exists = scope:laamp_hooded_figure
+						exists = scope:laamp_spouse_material
+					}
 				}
 				# Warband companion exists
 				scope:laamp_warband_companion_recruitable = { save_scope_as = 1030_sixth_character }
+			}
+			else_if = {
+				limit = {
+					exists = scope:laamp_warband_companion_recruitable
+					NAND = {
+						exists = scope:laamp_hooded_figure
+						exists = scope:laamp_spouse_material
+					}
+				}
+				# Warband companion exists
+				scope:laamp_warband_companion_recruitable = { save_scope_as = 1030_third_character }
+			}
+			else_if = {
+				limit = {
+					exists = scope:laamp_warband_companion_recruitable
+					NOT = {
+						exists = scope:laamp_hooded_figure
+					}
+					exists = scope:laamp_spouse_material
+				}
+				# Warband companion exists
+				scope:laamp_warband_companion_recruitable = { save_scope_as = 1030_fourth_character }
 			}
 			else = {
 				#You're alone - save ROOT
@@ -9076,6 +9102,11 @@ ep3_laamp_decision_event.1030 = {
 		trigger = {
 			exists = scope:laamp_warband_companion_recruitable
 			is_ai = no
+			NOT = {
+				scope:laamp_warband_companion_recruitable = {
+					employer = root
+				}
+			}
 		}
 		reason = recruitment
 		#Been there once already
