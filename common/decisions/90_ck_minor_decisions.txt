@@ -1931,3 +1931,105 @@ recruit_eleftheroi_decision = {
 		base = 0
 	}
 }
+
+#### WARBAND COMPANION-RELATED DECISIONS
+ck_address_grievances_decision = {
+	title = ck_address_grievances_decision_name
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_levy_outcasts.dds"
+	}
+	desc = ck_address_grievances_decision_desc
+	selection_tooltip = ck_address_grievances_decision_tooltip
+	decision_group_type = adventurer
+
+	sort_order = 90
+
+	is_shown = {
+		is_ai = no
+		is_landless_adventurer = yes
+		any_courtier = {
+			OR = {
+				has_character_flag = ck_has_casualty_objection
+				has_character_flag = ck_has_quest_objection
+				has_character_flag = ck_has_food_objection
+			}
+		}
+	}
+
+	widget = {
+		gui = "decision_view_widget_option_list_generic"
+		controller = decision_option_list_controller
+		decision_to_second_step_button = "ck_address_grievances_decision_confirm"
+		show_from_start = yes
+
+		# Low on Food
+		item = {
+			value = ck_no_food
+			is_valid = {
+				# custom_tooltip = {
+				# 	text = ck_address_grievances_decision.tt.cooldown
+				# 	ck_address_grievances_decision_food_trigger = yes
+				# }
+				custom_tooltip = {
+					text = ck_address_grievances_decision.tt.no_food
+					ck_address_grievances_decision_food_trigger_2 = yes
+				}
+			}
+			# is_shown = {
+			# 	ck_address_grievances_decision_food_trigger_2 = yes
+			# }
+			localization = ck_address_grievances_option_food
+			icon = "gfx/interface/icons/icon_supply.dds"
+		}
+
+		# Huge Casualties
+		item = {
+			value = ck_huge_casualties
+			is_valid = {
+				custom_tooltip = {
+					text = ck_address_grievances_decision.tt.high_casualty
+					ck_address_grievances_decision_casualty_trigger_2 = yes
+				}
+			}
+			localization = ck_address_grievances_option_casualty
+			icon = "gfx/interface/icons/icon_retreat.dds"
+		}
+		# Failed Quest
+		item = {
+			value = ck_failed_quest
+			is_valid = {
+				custom_tooltip = {
+					text = ck_address_grievances_decision.tt.quest_failure
+					ck_address_grievances_decision_quest_trigger_2 = yes
+				}
+			}
+			localization = ck_address_grievances_option_quest
+			icon = "gfx/interface/icons/message_feed/contract.dds"
+		}
+	}
+
+	effect = {
+		switch = {
+			trigger = yes
+			scope:ck_no_food = {
+				add_character_flag = ck_wb_food
+				trigger_event = wb_companion_event.0001
+			}
+			scope:ck_huge_casualties = {
+				add_character_flag = ck_wb_casualties
+				trigger_event = wb_companion_event.0001
+			}
+			scope:ck_failed_quest = {
+				add_character_flag = ck_wb_quest
+				trigger_event = wb_companion_event.0001
+			}
+		}
+	}
+	ai_potential = {
+		always = no
+	}
+	ai_will_do = {
+		base = 0
+	}
+	ai_check_interval = 0
+}
