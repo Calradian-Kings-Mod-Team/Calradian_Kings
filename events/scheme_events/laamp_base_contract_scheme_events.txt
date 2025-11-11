@@ -119,16 +119,65 @@ scripted_effect laamp_base_contract_schemes_acknowledge_failure_stress_effect = 
 		limit = {
 			is_landless_adventurer = yes
 			is_ai = no
+			NOT = {
+				has_character_flag = ck_addressed_quest_flag
+			}
 		}
 		every_courtier = {
 			limit = {
 				employer = root
 				has_character_flag = companion_objects_quest_failure
-				NOT = {
+				NOR = {
 					has_character_flag = ck_has_quest_objection
+					has_character_flag = ck_quest_objection_cooldown
 				}
 			}
-			add_character_flag = ck_has_quest_objection
+			add_character_flag = {
+				flag = ck_has_quest_objection
+				years = 10
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			is_landless_adventurer = yes
+			is_ai = no
+			has_character_flag = ck_addressed_quest_flag
+		}
+		every_courtier = {
+			limit = {
+				employer = root
+				has_character_flag = companion_objects_quest_failure
+				has_character_flag = ck_quest_objection_cooldown
+			}
+			add_opinion = {
+				target = liege
+				modifier = broke_promise
+			}
+		}
+		random_courtier = {
+			limit = {
+				employer = root
+				has_character_flag = companion_objects_quest_failure
+				has_character_flag = ck_quest_objection_cooldown
+			}
+			save_scope_as = ck_companion_quest_scope
+		}
+		if = {
+			limit = {
+				NOT = {
+					has_character_modifier = breaks_promises_to_followers
+				}
+			}
+			add_character_modifier = {
+				modifier = breaks_promises_to_followers
+				years = 3
+			}
+		}
+		send_interface_toast = {
+			left_icon = scope:root
+			right_icon = scope:ck_companion_quest_scope
+			title = wb_companion_broke_promise
 		}
 	}
 }
@@ -19086,20 +19135,71 @@ laamp_base_contract_schemes.2678 = {
 
 	immediate = {
 		laamp_base_contract_schemes_2676_standard_duel_loss_effect = yes
+
+		### CALRADIAN KINGS - COMPANION GRIEVANCES
 		if = {
 			limit = {
 				is_landless_adventurer = yes
 				is_ai = no
+				NOT = {
+					has_character_flag = ck_addressed_quest_flag
+				}
 			}
 			every_courtier = {
 				limit = {
 					employer = root
 					has_character_flag = companion_objects_quest_failure
-					NOT = {
+					NOR = {
 						has_character_flag = ck_has_quest_objection
+						has_character_flag = ck_quest_objection_cooldown
 					}
 				}
-				add_character_flag = ck_has_quest_objection
+				add_character_flag = {
+					flag = ck_has_quest_objection
+					years = 10
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				is_landless_adventurer = yes
+				is_ai = no
+				has_character_flag = ck_addressed_quest_flag
+			}
+			every_courtier = {
+				limit = {
+					employer = root
+					has_character_flag = companion_objects_quest_failure
+					has_character_flag = ck_quest_objection_cooldown
+				}
+				add_opinion = {
+					target = root
+					modifier = broke_promise
+				}
+			}
+			random_courtier = {
+				limit = {
+					employer = root
+					has_character_flag = companion_objects_quest_failure
+					has_character_flag = ck_quest_objection_cooldown
+				}
+				save_scope_as = ck_companion_quest_scope_2
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_character_modifier = breaks_promises_to_followers
+					}
+				}
+				add_character_modifier = {
+					modifier = breaks_promises_to_followers
+					years = 3
+				}
+			}
+			send_interface_toast = {
+				left_icon = scope:root
+				right_icon = scope:ck_companion_quest_scope_2
+				title = wb_companion_broke_promise
 			}
 		}
 	}
