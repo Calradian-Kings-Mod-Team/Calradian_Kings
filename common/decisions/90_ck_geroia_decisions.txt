@@ -97,3 +97,98 @@
 		base = 100
 	}
 }
+form_geroia_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_found_kingdom.dds"
+	}
+	decision_group_type = major
+	ai_check_interval = 18
+	desc = form_geroia_decision_desc
+	
+	cost = {
+		gold = 200
+	}
+	
+	is_shown = {
+		culture = { has_cultural_pillar = heritage_geroian } ### I want it visible to Thonians too
+		NOT = {
+			exists = title:k_geroia.holder
+		}
+		is_landed = yes
+	}
+	
+	is_valid = {
+		is_independent_ruler = yes
+		custom_tooltip = {
+			text = thlos_holds_at_least_two_duchies_tt
+			any_held_title = {
+				count >= 2
+				tier = tier_duchy
+			}
+		}
+		custom_tooltip = {
+			text = owns_half_geroia_proper_lands_tt
+			any_county_in_region = {
+				region = region_geroia_proper
+				percent >= 0.6
+				holder.top_liege = {
+					this = root
+				}
+			}
+		}
+		NOT = {
+			custom_tooltip = {
+				text = no_foreigners_geroia_proper_tt
+				any_county_in_region = {
+					region = region_geroia_proper
+					NOT = {
+						holder.top_liege = {
+							culture = { 
+								has_cultural_pillar = heritage_geroian
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	is_valid_showing_failures_only = {
+		is_independent_ruler = yes
+		is_landless_adventurer = no
+		is_capable_adult = yes
+		is_imprisoned = no
+		is_at_war = no
+	}
+
+	effect = {
+		
+		custom_tooltip = you_will_create_geroia.tt
+		
+		
+		create_title_and_vassal_change = {
+			type = created
+			save_scope_as = title_change
+			add_claim_on_loss = no
+		}
+		title:k_geroia = {
+			change_title_holder = {
+				holder = root
+				change = scope:title_change
+			}
+		}
+		resolve_title_and_vassal_change = scope:title_change
+		
+		trigger_event = ck_geroian_events.0022
+	}
+
+	ai_potential = {
+		is_independent_ruler = yes
+		is_landless_adventurer = no
+		highest_held_title_tier >= tier_duchy
+	}
+
+	ai_will_do = {
+		base = 100
+	}
+}
