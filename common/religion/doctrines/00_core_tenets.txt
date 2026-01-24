@@ -327,29 +327,9 @@
 	tenet_consolamentum = {
 		icon = core_tenet_consolamentum
 
-		name = {
-			first_valid = {
-				triggered_desc = {
-					trigger = {
-						religion_tag = calradian_religion
-					}
-					desc = tenet_consolamentum_name
-				}
-				desc = tenet_consolamentum_name_alternate
-			}
-		}
+		name = tenet_consolamentum_name_alternate
 		
-		desc = {
-			first_valid = {
-				triggered_desc = {
-					trigger = {
-						religion_tag = calradian_religion
-					}
-					desc = tenet_consolamentum_miraclist_desc
-				}
-				desc = tenet_consolamentum_desc
-			}
-		}
+		desc = tenet_consolamentum_desc
 
 		piety_cost = {
 			if = {
@@ -378,6 +358,7 @@
 		is_shown = {
 			NOR = {
 				religion_tag = aserai_religion
+				religion_tag = calradian_religion
 				religion_tag = surrani_religion
 				religion_tag = darshi_religion
 				# AND = {
@@ -1381,8 +1362,24 @@
 				triggered_desc = {
 					trigger = {
 						religion_tag = calradian_religion
+						NOT = {
+							this = faith:calradistasi
+						}
 					}
 					desc = tenet_reincarnation_ascensionist_name
+				}
+				triggered_desc = {
+					trigger = {
+						religion_tag = calradian_religion
+						this = faith:calradistasi
+					}
+					desc = tenet_reincarnation_calradistasi_name
+				}
+				triggered_desc = {
+					trigger = {
+						religion_tag = west_nahasan_religion
+					}
+					desc = tenet_reincarnation_mahdi_name
 				}
 				desc = tenet_reincarnation_name
 			}
@@ -1399,8 +1396,24 @@
 				triggered_desc = {
 					trigger = {
 						religion_tag = calradian_religion
+						NOT = {
+							this = faith:calradistasi
+						}
 					}
 					desc = tenet_reincarnation_ascensionist_desc
+				}
+				triggered_desc = {
+					trigger = {
+						religion_tag = calradian_religion
+						this = faith:calradistasi
+					}
+					desc = tenet_reincarnation_calradistasi_desc
+				}
+				triggered_desc = {
+					trigger = {
+						religion_tag = west_nahasan_religion
+					}
+					desc = tenet_reincarnation_mahdi_desc
 				}
 				desc = tenet_reincarnation_desc
 			}
@@ -2803,6 +2816,7 @@
 		parameters = {
 			hostility_override_unreformed_faith_doctrine = 2
 			hostility_override_west_african_unreformed_faith_doctrine = 2
+			west_african_unreformed_faith_doctrine_2 = 2
 			unreformed_syncretic_actor_opinion_active = yes
 			opinion_of_unreformed_syncretic_recipient_opinion_active = 30 #Sync this to syncretic_mutual_opinion_bonus_value
 			unreformed_syncretic_conversion_malus_active = yes
@@ -3581,6 +3595,10 @@
 				text = INCOMPATIBLE_TENET_ADORCISM_TRIGGER
 				NOT = { doctrine:tenet_adorcism = { is_in_list = selected_doctrines } }
 			}
+			custom_description = {
+				text = INCOMPATIBLE_TENET_BAD_DJINN
+				NOT = { doctrine:tenet_djinns_positive = { is_in_list = selected_doctrines } }
+			}
 		}
 
 		character_modifier = {
@@ -3598,6 +3616,46 @@
 
 		traits = {
 			sins = { possessed_1 possessed_genetic }
+		}
+	}
+	tenet_djinns_positive = {
+		icon = core_tenet_djinnism
+
+		piety_cost = {
+			value = faith_tenet_cost_low
+
+			# Multiplier for keeping same tenet
+			if = {
+				limit = { has_doctrine = tenet_djinns_positive }
+				multiply = faith_unchanged_doctrine_cost_mult
+			}
+		}
+
+		is_shown = {
+			religion = { is_in_family = rf_nahasan }
+		}
+		can_pick = {
+			custom_description = {
+				text = INCOMPATIBLE_TENET_ADORCISM_TRIGGER
+				NOT = { doctrine:tenet_adorcism = { is_in_list = selected_doctrines } }
+			}
+			custom_description = {
+				text = INCOMPATIBLE_TENET_GOOD_DJINN
+				NOT = { doctrine:tenet_djinns = { is_in_list = selected_doctrines } }
+			}
+		}
+
+		character_modifier = {
+			monthly_county_control_growth_factor = 0.15
+			desert_attrition_mult = -0.2
+			desert_mountains_attrition_mult = -0.3
+			desert_travel_danger = desert_low_danger_reduction
+			drylands_travel_danger = drylands_low_danger_reduction
+			desert_mountains_travel_danger = desert_mountains_medium_danger_reduction
+		}
+
+		traits = {
+			virtues = { possessed_1 possessed_genetic }
 		}
 	}
 
@@ -3618,6 +3676,19 @@
 					}
 					desc = tenet_musicals_3_name
 				}
+				triggered_desc = {
+					trigger = {
+						religion_tag = calradian_religion
+						this = faith:calradistasi
+					}
+					desc = tenet_musical_calradistasi_name
+				}
+				triggered_desc = {
+					trigger = {
+						religion_tag = gazima_religion
+					}
+					desc = tenet_musicals_4_name
+				}
 				desc = tenet_musicals_name
 			}
 		}
@@ -3635,6 +3706,19 @@
 						religion_tag = jumne_religion
 					}
 					desc = tenet_musicals_3_desc
+				}
+				triggered_desc = {
+					trigger = {
+						religion_tag = calradian_religion
+						this = faith:calradistasi
+					}
+					desc = tenet_musical_calradistasi_desc
+				}
+				triggered_desc = {
+					trigger = {
+						religion_tag = gazima_religion
+					}
+					desc = tenet_musicals_4_desc
 				}
 				desc = tenet_musicals_desc
 			}
@@ -3718,6 +3802,61 @@
 		traits = {
 			virtues = { brave }
 		}
+	}
+	
+	tenet_mandated_miracles = {
+		icon = core_tenet_mandated_miracles
+
+		name = tenet_consolamentum_name
+		
+		desc = tenet_consolamentum_miraclist_desc
+
+		piety_cost = {
+			if = {
+				limit = {
+					has_doctrine = tenet_sacrificial_ceremonies
+				}
+				value = faith_tenet_cost_low
+			}
+			else = {
+				value = faith_tenet_cost_mid
+			}
+
+			# Multiplier for keeping same tenet
+			if = {
+				limit = { has_doctrine = tenet_mandated_miracles }
+				multiply = faith_unchanged_doctrine_cost_mult
+			}
+		}
+
+		is_shown = {
+			religion_tag = calradian_religion
+		}
+		
+		can_pick = {
+			custom_description = {
+				text = incompatible_tenet_sacrificial_ceremonies_trigger
+				NOT = { doctrine:tenet_sacrificial_ceremonies = { is_in_list = selected_doctrines } }
+			}
+			custom_description = {
+				text = incompatible_tenet_consolamentum_trigger
+				NOT = { doctrine:tenet_consolamentum = { is_in_list = selected_doctrines } }
+			}
+		}
+
+		parameters = {
+			custom_description = {
+				text = has_miraclist_mandate
+			}
+		}
+
+		character_modifier = {
+			short_reign_duration_mult = -0.5
+		}
+		
+		traits = {
+	 		virtues = { ck_mandated_miraclist = 2 ck_mandated_miraclist_ascendant = 10 } #To be clear, if you have the second trait, you are dead. Does affect previous ruler opinion though.
+	 	}
 	}
 	# tenet_ck_heavens_mandate = {
 	# 	is_shown = {

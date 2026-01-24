@@ -1,0 +1,663 @@
+﻿namespace = wb_companion_event
+
+### These events are dependent on the particular companions they are made for. Grievances are intended as a way to bring the similar system into CK3.
+### If, as an example, you have a companion who hates raiding, and you raid, you'll gain a grievance for them with a max of 3-5 before they declare their departure from your company, unable to be recruited again for years.
+### These events will be sorted by the particular type of grievance
+# Effects
+scripted_effect wb_companion_event_0001_cleanup = {
+	# Remove Lists
+	every_in_list = {
+		list = ck_no_casualty_list
+		remove_from_list = ck_no_casualty_list
+	}
+	every_in_list = {
+		list = ck_no_quest_list
+		remove_from_list = ck_no_quest_list
+	}
+	every_in_list = {
+		list = ck_no_food_list
+		remove_from_list = ck_no_food_list
+	}
+	# Remove Flags
+	if = {
+		limit = {
+			has_character_flag = ck_wb_food
+		}
+		remove_character_flag = ck_wb_food
+	}
+	if = {
+		limit = {
+			has_character_flag = ck_wb_quest
+		}
+		remove_character_flag = ck_wb_quest
+	}
+	if = {
+		limit = {
+			has_character_flag = ck_wb_casualty
+		}
+		remove_character_flag = ck_wb_casualty
+	}
+}
+# Remove the appropriate grievances to give them a cooldown
+scripted_effect wb_companion_event_0001_remove_flags = {
+	every_courtier = {
+		limit = {
+			has_character_flag = ck_has_$GRIEVANCE$_objection
+		}
+		remove_character_flag = ck_has_$GRIEVANCE$_objection
+		add_character_flag = {
+			flag = ck_$GRIEVANCE$_objection_cooldown
+			months = 30
+		}
+	}
+}
+
+#### Events ####
+wb_companion_event.0001 = { # Address Objection
+	type = character_event
+	title = {
+		desc = wb_companion_event.0001.t
+		first_valid = {
+			triggered_desc = { # Low Food
+				trigger = {
+					has_character_flag = ck_wb_food
+				}
+				desc = wb_companion_event.0001.t_food
+			}
+			triggered_desc = { # Failed Quest
+				trigger = {
+					has_character_flag = ck_wb_quest
+				}
+				desc = wb_companion_event.0001.t_quest
+			}
+			triggered_desc = { # High Casualties
+				trigger = {
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.t_casualty
+			}
+		}
+	}
+	desc = {
+		# Type of Gripe
+		first_valid = {
+			triggered_desc = { # Low Food
+				trigger = {
+					has_character_flag = ck_wb_food
+				}
+				desc = wb_companion_event.0001.desc_food
+			}
+			triggered_desc = { # Failed Quest
+				trigger = {
+					has_character_flag = ck_wb_quest
+				}
+				desc = wb_companion_event.0001.desc_quest
+			}
+			triggered_desc = { # High Casualties w/ Physician
+				trigger = {
+					has_character_flag = ck_wb_casualty
+					employs_court_position = court_physician_court_position
+				}
+				desc = wb_companion_event.0001.desc_casualty_doctor
+			}
+			triggered_desc = { # High Casualties w/o Physician
+				trigger = {
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.desc_casualty
+			}
+		}
+		# Specific Companion quotes
+		first_valid = {
+			## Food
+			triggered_desc = { # Artimenner
+				trigger = {
+					scope:wb_companion_0001 = character:artimenner_wb
+					has_character_flag = ck_wb_food
+				}
+				desc = wb_companion_event.0001.desc_food_artimenner
+			}
+			triggered_desc = { # Baheshtur
+				trigger = {
+					scope:wb_companion_0001 = character:baheshtur_wb
+					has_character_flag = ck_wb_food
+				}
+				desc = wb_companion_event.0001.desc_food_baheshtur
+			}
+			triggered_desc = { # Borcha
+				trigger = {
+					scope:wb_companion_0001 = character:borcha_wb
+					has_character_flag = ck_wb_food
+				}
+				desc = wb_companion_event.0001.desc_food_borcha
+			}
+			triggered_desc = { # Deshavi
+				trigger = {
+					scope:wb_companion_0001 = character:deshavi_wb
+					has_character_flag = ck_wb_food
+				}
+				desc = wb_companion_event.0001.desc_food_deshavi
+			}
+			triggered_desc = { # Katrin
+				trigger = {
+					scope:wb_companion_0001 = character:katrin_wb
+					has_character_flag = ck_wb_food
+				}
+				desc = wb_companion_event.0001.desc_food_katrin
+			}
+			triggered_desc = { # Fallback
+				trigger = {
+					has_character_flag = ck_wb_food
+				}
+				desc = wb_companion_event.0001.desc_food_fallback
+			}
+			## Quests
+			triggered_desc = { # Alayen
+				trigger = {
+					scope:wb_companion_0001 = character:alayen_wb
+					has_character_flag = ck_wb_quest
+				}
+				desc = wb_companion_event.0001.desc_quest_alayen
+			}
+			triggered_desc = { # Artimener
+				trigger = {
+					scope:wb_companion_0001 = character:artimenner_wb
+					has_character_flag = ck_wb_quest
+				}
+				desc = wb_companion_event.0001.desc_quest_artimenner
+			}
+			triggered_desc = { # Firentis
+				trigger = {
+					scope:wb_companion_0001 = character:firentis_wb
+					has_character_flag = ck_wb_quest
+				}
+				desc = wb_companion_event.0001.desc_quest_firentis
+			}
+			triggered_desc = { # Marnid
+				trigger = {
+					scope:wb_companion_0001 = character:marnid_wb
+					has_character_flag = ck_wb_quest
+				}
+				desc = wb_companion_event.0001.desc_quest_marnid
+			}
+			triggered_desc = { # Fallback
+				trigger = {
+					has_character_flag = ck_wb_quest
+				}
+				desc = wb_companion_event.0001.desc_quest_fallback
+			}
+			## Casualties
+			triggered_desc = { # Artimenner
+				trigger = {
+					scope:wb_companion_0001 = character:artimenner_wb
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.desc_casualty_artimenner
+			}
+			triggered_desc = { # Baheshtur
+				trigger = {
+					scope:wb_companion_0001 = character:baheshtur_wb
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.desc_casualty_baheshtur
+			}
+			triggered_desc = { # Borcha
+				trigger = {
+					scope:wb_companion_0001 = character:borcha_wb
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.desc_casualty_borcha
+			}
+			triggered_desc = { # Bunduk
+				trigger = {
+					scope:wb_companion_0001 = character:bunduk_wb
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.desc_casualty_bunduk
+			}
+			triggered_desc = { # Deshavi
+				trigger = {
+					scope:wb_companion_0001 = character:deshavi_wb
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.desc_casualty_deshavi
+			}
+			triggered_desc = { # Katrin
+				trigger = {
+					scope:wb_companion_0001 = character:katrin_wb
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.desc_casualty_katrin
+			}
+			triggered_desc = { # Fallback
+				trigger = {
+					has_character_flag = ck_wb_casualty
+				}
+				desc = wb_companion_event.0001.desc_casualty_fallback
+			}
+		}
+		# Outro - How Many People
+		first_valid = {
+			triggered_desc = { # One
+				trigger = {
+					exists = scope:wb_companion_0001
+					NOT = {
+						exists = scope:wb_companion_0002
+					}
+				}
+				desc = wb_companion_event.0001.desc_one
+			}
+			triggered_desc = { # Two or More
+				trigger = {
+					exists = scope:wb_companion_0001
+					exists = scope:wb_companion_0002
+				}
+				desc = wb_companion_event.0001.desc_several
+			}
+		}
+	}
+	theme = laamp
+	trigger = {
+		is_landless_adventurer = yes
+		is_ai = no
+	}
+	left_portrait = {
+		character = root
+		animation = thinking
+		camera = camera_event_very_left
+	}
+	right_portrait = {
+		character = scope:wb_companion_0001
+		animation = anger
+		camera = camera_event_very_right
+	}
+	lower_center_portrait = {
+		character = scope:wb_companion_0002
+		trigger = {
+			exists = scope:wb_companion_0002
+		}
+		animation = anger
+	}
+	immediate = {
+		## Localization Setup:
+		# Setup Physician if we have one
+		if = {
+			limit = {
+				any_court_position_holder = {
+					type = court_physician_court_position
+				}
+			}
+			random_court_position_holder = {
+				type = court_physician_court_position
+				save_scope_as = ck_physician
+			}
+		}
+		# Add proper characters to given lists
+		if = {
+			limit = {
+				has_character_flag = ck_wb_food
+			}
+			every_courtier = {
+				limit = {
+					has_character_flag = ck_has_food_objection
+				}
+				add_to_list = ck_no_food_list
+			}
+			random_in_list = {
+				list = ck_no_food_list
+				save_scope_as = wb_companion_0001
+			}
+			if = {
+				limit = {
+					any_in_list = {
+						list = ck_no_food_list
+						NOT = {
+							this = scope:wb_companion_0001
+						}
+					}
+				}
+				random_in_list = {
+					list = ck_no_food_list
+					limit = {
+						NOT = {
+							this = scope:wb_companion_0001
+						}
+					}
+					save_scope_as = wb_companion_0002
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				has_character_flag = ck_wb_quest
+			}
+			every_courtier = {
+				limit = {
+					has_character_flag = ck_has_quest_objection
+				}
+				add_to_list = ck_no_quest_list
+			}
+			random_in_list = {
+				list = ck_no_quest_list
+				save_scope_as = wb_companion_0001
+			}
+			if = {
+				limit = {
+					any_in_list = {
+						list = ck_no_quest_list
+						NOT = {
+							this = scope:wb_companion_0001
+						}
+					}
+				}
+				random_in_list = {
+					list = ck_no_quest_list
+					limit = {
+						NOT = {
+							this = scope:wb_companion_0001
+						}
+					}
+					save_scope_as = wb_companion_0002
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				has_character_flag = ck_wb_casualty
+			}
+			every_courtier = {
+				limit = {
+					has_character_flag = ck_has_casualty_objection
+				}
+				add_to_list = ck_no_casualty_list
+			}
+			random_in_list = {
+				list = ck_no_casualty_list
+				save_scope_as = wb_companion_0001
+			}
+			if = {
+				limit = {
+					any_in_list = {
+						list = ck_no_casualty_list
+						NOT = {
+							this = scope:wb_companion_0001
+						}
+					}
+				}
+				random_in_list = {
+					list = ck_no_casualty_list
+					limit = {
+						NOT = {
+							this = scope:wb_companion_0001
+						}
+					}
+					save_scope_as = wb_companion_0002
+				}
+			}
+		}
+	}
+	# Promise to avoid these mistakes - Normal cooldown, placates companions, if you make same mistake in 5 years then companions get (-30) opinion
+	option = {
+		name = wb_companion_event.0001.a
+		add_prestige = -50
+
+		custom_tooltip = wb_companion_event.0001.a.tt
+		custom_tooltip = wb_companion_event.0001.a.tt.2
+
+		hidden_effect = {
+			## Current Flags: ck_wb_quest | ck_wb_casualty | ck_wb_food
+			## Setup the variables and flags to avoid this concern from reoccurring. For the appropriate flags though, if the player has this flag when this grievance is done again, they will get a popup informing them as well as a big opinion malus from the
+			## Appropriate vassals. Even if the player fails to hold up their promise, the cooldown will still continue to avoid back-to-back grievances
+			if = {
+				limit = {
+					has_character_flag = ck_wb_casualty
+				}
+				add_character_flag = {
+					flag = ck_addressed_casualty_flag
+					years = 3
+				}
+			}
+			else_if = {
+				limit = {
+					has_character_flag = ck_wb_food
+				}
+				add_character_flag = {
+					flag = ck_addressed_food_flag
+					years = 3
+				}
+			}
+			else_if = {
+				limit = {
+					has_character_flag = ck_wb_quest
+				}
+				add_character_flag = {
+					flag = ck_addressed_quest_flag
+					years = 3
+				}
+			}
+			########
+			# Remove Objection Flags and give companion cooldown for that particular concern so they don't get it back immediately
+			if = {
+				limit = {
+					has_character_flag = ck_wb_casualty
+				}
+				wb_companion_event_0001_remove_flags = { GRIEVANCE = casualty }
+			}
+			else_if = {
+				limit = {
+					has_character_flag = ck_wb_food
+				}
+				wb_companion_event_0001_remove_flags = { GRIEVANCE = food }
+			}
+			else_if = {
+				limit = {
+					has_character_flag = ck_wb_quest
+				}
+				wb_companion_event_0001_remove_flags = { GRIEVANCE = quest }
+			}
+			########
+		}
+		# Give every relevant companion the appropriate opinion to the player
+		every_courtier = {
+			if = {
+				limit = {
+					liege = {
+						has_character_flag = ck_wb_casualty
+					}
+					has_character_flag = ck_has_casualty_objection
+				}
+				add_opinion = {
+					target = root
+					modifier = listened_opinion
+					opinion = 10
+				}
+			}
+			else_if = {
+				limit = {
+					liege = {
+						has_character_flag = ck_wb_quest
+					}
+					has_character_flag = ck_has_quest_objection
+				}
+				add_opinion = {
+					target = root
+					modifier = listened_opinion
+					opinion = 10
+				}
+			}
+			else_if = {
+				limit = {
+					liege = {
+						has_character_flag = ck_wb_food
+					}
+					has_character_flag = ck_has_food_objection
+				}
+				add_opinion = {
+					target = root
+					modifier = listened_opinion
+					opinion = 10
+				}
+			}
+		}
+		# Give the player an additional character modifier
+		if = {
+			limit = {
+				NOT = {
+					has_character_modifier = listens_to_follower_opinions
+				}
+			}
+			add_character_modifier = {
+				modifier = listens_to_follower_opinions
+				years = 4
+			}
+		}
+		# Cleanup
+		wb_companion_event_0001_cleanup = yes
+	}
+
+	# Disregard their concerns - Lower cooldown and makes companions upset (-20)
+	option = {
+		name = wb_companion_event.0001.b
+		add_prestige = -50
+		add_dread = minor_dread_gain
+
+		custom_tooltip = wb_companion_event.0001.b.tt
+		hidden_effect = {
+			## Rejected grievance concern:
+			## Gets technically resolved but player still gets opinion malus with relevant companions
+		}
+		# Give every relevant companion the appropriate opinion to the player
+		every_courtier = {
+			if = {
+				limit = {
+					liege = {
+						has_character_flag = ck_wb_casualty
+					}
+					has_character_flag = ck_has_casualty_objection
+				}
+				add_opinion = {
+					target = root
+					modifier = respect_opinion
+					opinion = -20
+				}
+			}
+			else_if = {
+				limit = {
+					liege = {
+						has_character_flag = ck_wb_quest
+					}
+					has_character_flag = ck_has_quest_objection
+				}
+				add_opinion = {
+					target = root
+					modifier = respect_opinion
+					opinion = -20
+				}
+			}
+			else_if = {
+				limit = {
+					liege = {
+						has_character_flag = ck_wb_food
+					}
+					has_character_flag = ck_has_food_objection
+				}
+				add_opinion = {
+					target = root
+					modifier = respect_opinion
+					opinion = -20
+				}
+			}
+		}
+		# Give the player an additional character modifier
+		if = {
+			limit = {
+				NOT = {
+					has_character_modifier = disregards_follower_opinions
+				}
+			}
+			add_character_modifier = {
+				modifier = disregards_follower_opinions
+				years = 4
+			}
+		}
+		add_character_modifier = {
+			modifier = ep2_activities_legacy_3_tours_majesty_modifier
+			years = 3
+		}
+		# Cleanup
+		wb_companion_event_0001_cleanup = yes
+	}
+}
+wb_companion_event.1000 = { # Low Provisions - Objection
+	hidden = yes
+	trigger = {
+		is_landless_adventurer = yes
+		is_ai = no
+		any_courtier = {
+			has_character_flag = companion_objects_low_food
+		}
+	}
+	immediate = {
+		if = {
+			limit = {
+				NOT = {
+					has_character_flag = ck_addressed_food_flag
+				}
+			}
+			every_courtier = {
+				limit = {
+					employer = root
+					has_character_flag = companion_objects_low_food
+					NOR = {
+						has_character_flag = ck_has_food_objection
+						has_character_flag = ck_food_objection_cooldown
+					}
+				}
+				add_character_flag = {
+					flag = ck_has_food_objection
+					years = 10
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				has_character_flag = ck_addressed_food_flag
+			}
+			every_courtier = {
+				limit = {
+					employer = root
+					has_character_flag = companion_objects_food_failure
+					has_character_flag = ck_food_objection_cooldown
+				}
+				add_opinion = {
+					target = root
+					modifier = broke_promise
+				}
+			}
+			random_courtier = {
+				limit = {
+					employer = root
+					has_character_flag = companion_objects_food_failure
+					has_character_flag = ck_food_objection_cooldown
+				}
+				save_scope_as = ck_companion_food_scope
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_character_modifier = breaks_promises_to_followers
+					}
+				}
+				add_character_modifier = {
+					modifier = breaks_promises_to_followers
+					years = 3
+				}
+			}
+			send_interface_toast = {
+				left_icon = scope:root
+				right_icon = scope:ck_companion_food_scope
+				title = wb_companion_broke_promise
+			}
+		}
+	}
+}

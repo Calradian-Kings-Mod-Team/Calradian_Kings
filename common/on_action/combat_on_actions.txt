@@ -671,5 +671,105 @@ on_combat_end_loser = {
 				add_prestige = miniscule_prestige_gain
 			}
 		}
+
+		## Calradian Kings - Objections from Companions for Wipe Out
+		if = {
+			limit = {
+				exists = scope:wipe
+			}
+			side_primary_participant = {
+				save_temporary_scope_as = ck_participant
+				if = {
+					limit = {
+						is_landless_adventurer = yes
+						is_ai = no
+						any_courtier = {
+							has_character_flag = companion_objects_casualties
+						}
+						NOT = {
+							has_character_flag = ck_addressed_casualty_flag
+						}
+					}
+					every_courtier = {
+						limit = {
+							has_character_flag = companion_objects_casualties
+							NOR = {
+								has_character_flag = ck_has_casualty_objection
+								has_character_flag = ck_casualty_objection_cooldown
+							}
+						}
+						add_character_flag = {
+							flag = ck_has_casualty_objection
+							years = 10
+						}
+						liege = {
+							if = {
+								limit = {
+									NOT = {
+										has_variable = ck_total_casualty_objections
+									}
+								}
+								set_variable = {
+									name = ck_total_casualty_objections
+									value = 1
+								}
+							}
+							else_if = {
+								limit = {
+									has_variable = ck_total_casualty_objections
+								}
+								change_variable = {
+									name = ck_total_casualty_objections
+									add = 1
+								}
+							}
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						has_character_flag = ck_addressed_casualty_flag
+						is_landless_adventurer = yes
+						is_ai = no
+						any_courtier = {
+							has_character_flag = companion_objects_casualties
+						}
+					}
+					every_courtier = {
+						limit = {
+							has_character_flag = companion_objects_casualties
+							has_character_flag = ck_casualty_objection_cooldown
+						}
+						add_opinion = {
+							target = liege
+							modifier = broke_promise
+						}
+					}
+					random_courtier = {
+						limit = {
+							has_character_flag = companion_objects_casualties
+							has_character_flag = ck_casualty_objection_cooldown
+						}
+						save_temporary_scope_as = ck_companion_casualty_scope
+					}
+					if = {
+						limit = {
+							NOT = {
+								has_character_modifier = breaks_promises_to_followers
+							}
+						}
+						add_character_modifier = {
+							modifier = breaks_promises_to_followers
+							years = 3
+						}
+					}
+					send_interface_toast = {
+						left_icon = scope:ck_participant
+						right_icon = scope:ck_companion_casualty_scope
+						title = wb_companion_broke_promise
+					}
+				}
+			}
+		}
 	}
 }

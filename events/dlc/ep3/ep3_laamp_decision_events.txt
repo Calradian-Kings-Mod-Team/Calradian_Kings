@@ -1662,6 +1662,15 @@ ep3_laamp_decision_event.1000 = {
 		1000_remember_settlement_effect = yes
 		1000_clean_up_effect = yes
 		ai_chance = { base = 50 }
+		hidden_effect = {
+			# CALRADIAN KINGS - REMOVE DISMISSAL FLAGS
+			if = {
+				limit = {
+					has_character_flag = 1000_ck_dismissal
+				}
+				remove_character_flag = 1000_ck_dismissal
+			}
+		}
 	}
 	after = {
 		remove_variable ?= 1000_is_currently_raining
@@ -7699,6 +7708,28 @@ ep3_laamp_decision_event.1030 = {
 				}
 				desc = ep3_laamp_decision_event.1030.desc
 			}
+			## WARBAND COMPANIONS ##
+			#RETURN: We've returned from the Warband companion: Not Recruited
+			triggered_desc = {
+				trigger = { 
+					var:return_from_location ?= flag:ck_companion
+					exists = scope:laamp_warband_companion_recruitable
+					scope:laamp_warband_companion_recruitable = {
+						NOT = {
+							employer = root
+						}
+					}
+				}
+				desc = ep3_laamp_decision_event.1030.desc_ck_companion_nonrecruited
+			}
+			#RETURN: We've returned from the Warband companion: Recruited
+			triggered_desc = {
+				trigger = { 
+					var:return_from_location ?= flag:ck_companion
+					exists = scope:laamp_warband_companion_recruitable
+				}
+				desc = ep3_laamp_decision_event.1030.desc_ck_companion_recruited
+			}
 		}
 		#MID: Is there a spouse? Do we recognize them? Have we interacted with them?
 		first_valid = {
@@ -8137,6 +8168,25 @@ ep3_laamp_decision_event.1030 = {
 			NOT = { root ?= scope:1030_fifth_character }
 		}
 		character = scope:1030_fifth_character
+	}
+	# Put the Warband companion here if they exists
+	lower_right_portrait = {
+		trigger = {
+			exists = scope:laamp_warband_companion_recruitable
+			OR = {
+				AND = {
+					exists = scope:laamp_hooded_figure
+					exists = scope:laamp_spouse_material
+				}
+				AND = {
+					NOT = {
+						exists = scope:laamp_hooded_figure
+					}
+					exists = scope:laamp_spouse_material
+				}
+			}
+		}
+		character = scope:laamp_warband_companion_recruitable
 	}
 	immediate = {
 		#To prevent the character, for whatever reason, managing to not have the variable be removed when exiting VS
@@ -8768,6 +8818,23 @@ ep3_laamp_decision_event.1030 = {
 				days = visit_settlement_cooldown_days
 			}
 		}
+		#WB: Find any Warband companions in tavern
+		if = {
+			limit = {
+				NOT = {
+					exists = scope:laamp_warband_companion_recruitable
+				}
+			}
+			scope:visiting_location = {
+				random_character_in_location = {
+					limit = {
+						has_character_flag = companion_recruitable_var
+						NOT = { employer = root }
+					}
+					save_scope_as = laamp_warband_companion_recruitable
+				}
+			}
+		}
 		#Set up the initial portraits
 		if = {
 			limit = {
@@ -8814,6 +8881,39 @@ ep3_laamp_decision_event.1030 = {
 				scope:visiting_partner = { save_scope_as = 1030_first_character }
 				#Save ROOT
 				save_scope_as = 1030_second_character
+			}
+			if = {
+				limit = {
+					exists = scope:laamp_warband_companion_recruitable
+					OR = {
+						exists = scope:laamp_hooded_figure
+						exists = scope:laamp_spouse_material
+					}
+				}
+				# Warband companion exists
+				scope:laamp_warband_companion_recruitable = { save_scope_as = 1030_sixth_character }
+			}
+			else_if = {
+				limit = {
+					exists = scope:laamp_warband_companion_recruitable
+					NAND = {
+						exists = scope:laamp_hooded_figure
+						exists = scope:laamp_spouse_material
+					}
+				}
+				# Warband companion exists
+				scope:laamp_warband_companion_recruitable = { save_scope_as = 1030_third_character }
+			}
+			else_if = {
+				limit = {
+					exists = scope:laamp_warband_companion_recruitable
+					NOT = {
+						exists = scope:laamp_hooded_figure
+					}
+					exists = scope:laamp_spouse_material
+				}
+				# Warband companion exists
+				scope:laamp_warband_companion_recruitable = { save_scope_as = 1030_fourth_character }
 			}
 			else = {
 				#You're alone - save ROOT
@@ -8993,6 +9093,46 @@ ep3_laamp_decision_event.1030 = {
 		1030_save_hub_scope_effect = { HUB = tavern }
 		#Go to the hooded figure screen
 		trigger_event = ep3_laamp_decision_event.1037
+	}
+	# Spot a companion to recruit
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					#Already scoped out the companion
+					triggered_desc = {
+						trigger = { 
+							exists = scope:been_to_companion
+						}
+						desc = ep3_laamp_decision_event.1030.ck.companion_second
+					}
+					#First time talking to companion
+					desc = ep3_laamp_decision_event.1030.ck.companion
+				}
+			}
+		}
+		trigger = {
+			exists = scope:laamp_warband_companion_recruitable
+			is_ai = no
+			NOT = {
+				scope:laamp_warband_companion_recruitable = {
+					employer = root
+				}
+			}
+		}
+		reason = recruitment
+		#Been there once already
+		if = {
+			limit = { exists = scope:been_to_companion }
+			custom_tooltip = ep3_laamp_decision_event.1030.ck.companion_tt_second
+		}
+		else = {
+			custom_tooltip = ep3_laamp_decision_event.1030.ck.companion_tt
+		}
+		#*Withered* - This needs to be done manually because the scope isn't saved before the next event is triggered if it's run in After = { ... }
+		1030_save_hub_scope_effect = { HUB = tavern }
+		#Go to the companion screen
+		trigger_event = ck_laamp_visit_events.1000
 	}
 	#I want to do something else
 	option = {
@@ -10232,6 +10372,83 @@ scripted_effect 1033_add_courtier_with_opinion_effect = {
 		}
 	}
 }
+scripted_effect 1033_ck_randomize_flags = { ## CK_EFFECT
+	# Set the grievances. 50% chance of them not receiving one at all
+	# First Grievance:
+	$1033_COMPANION$ = {
+		random_list = {
+			60 = {} # Receive no grievance flag
+			40 = {
+				# A random list of grievances
+				random_list = {
+					5 = {
+						# Casualty Grievance
+						trigger = {
+							NOT = {
+								has_character_flag = companion_objects_casualties
+							}
+						}
+						add_character_flag = companion_objects_casualties
+					}
+					5 = {
+						# Quest Grievance
+						trigger = {
+							NOT = {
+								has_character_flag = companion_objects_quest_failure
+							}
+						}
+						add_character_flag = companion_objects_quest_failure
+					}
+					5 = {
+						# Food Grievance
+						trigger = {
+							NOT = {
+								has_character_flag = companion_objects_low_food
+							}
+						}
+						add_character_flag = companion_objects_low_food
+					}
+				}
+			}
+		}
+		# Second Grievance:
+		random_list = {
+			60 = {} # Receive no grievance flag
+			40 = {
+				# A random list of grievances
+				random_list = {
+					5 = {
+						# Casualty Grievance
+						trigger = {
+							NOT = {
+								has_character_flag = companion_objects_casualties
+							}
+						}
+						add_character_flag = companion_objects_casualties
+					}
+					5 = {
+						# Quest Grievance
+						trigger = {
+							NOT = {
+								has_character_flag = companion_objects_quest_failure
+							}
+						}
+						add_character_flag = companion_objects_quest_failure
+					}
+					5 = {
+						# Food Grievance
+						trigger = {
+							NOT = {
+								has_character_flag = companion_objects_low_food
+							}
+						}
+						add_character_flag = companion_objects_low_food
+					}
+				}
+			}
+		}
+	}
+}
 
 scripted_effect 1033_set_cost_effect = {
 	save_scope_value_as = {
@@ -10580,6 +10797,8 @@ ep3_laamp_decision_event.1033 = {
 				#Create first recruit to stuff in pool
 				save_scope_as = laamp_first_recruit
 				1033_generate_character_effect = { SCOPE = scope:laamp_first_recruit }
+				# Add grievance flags
+				1033_ck_randomize_flags = { 1033_COMPANION = scope:laamp_first_recruit }
 			}
 			#Set their cost
 			1033_set_cost_effect = { CHARACTER = scope:laamp_first_recruit VALUE_NAME = first_recruit_cost }
@@ -10602,6 +10821,8 @@ ep3_laamp_decision_event.1033 = {
 				#Create second recruit to stuff in pool
 				save_scope_as = laamp_second_recruit
 				1033_generate_character_effect = { SCOPE = scope:laamp_second_recruit }
+				# Add grievance flags
+				1033_ck_randomize_flags = { 1033_COMPANION = scope:laamp_first_recruit }
 			}
 			#Set their cost
 			1033_set_cost_effect = { CHARACTER = scope:laamp_second_recruit VALUE_NAME = second_recruit_cost }
@@ -10723,6 +10944,8 @@ ep3_laamp_decision_event.1033 = {
 					#Create third recruit to stuff in pool
 					save_scope_as = laamp_third_recruit
 					1033_generate_character_effect = { SCOPE = scope:laamp_third_recruit }
+					# Add grievance flags
+					1033_ck_randomize_flags = { 1033_COMPANION = scope:laamp_first_recruit }
 				}	
 				#Set their cost
 				if = {
