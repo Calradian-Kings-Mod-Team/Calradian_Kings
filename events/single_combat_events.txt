@@ -733,7 +733,7 @@ scripted_effect select_special_tier_move_effect = {
 				NOT = { exists = local_var:combat_move_hurt_me_better_flag }
 				OR = {
 					has_trait = deviant
-					any_secret = { secret_type = secret_deviant }
+					any_secret = { type = secret_deviant }
 				}
 				# Block special moves twice in a row.
 				NOR = {
@@ -1896,6 +1896,19 @@ scripted_effect work_out_wounds_or_death_effect = {
 					death_reason = death_duel
 				}
 			}
+			if = {
+				limit = {
+					scope:sc_victor = {
+						faith = {
+							has_doctrine = tenet_cranial_trophies
+						}
+					}
+				}
+				tgp_cranial_trophies_beheading_effect = {
+					KILLER = scope:sc_victor
+					DEAD = scope:sc_loser
+				}
+			}
 		}
 		else = {
 			scope:sc_loser = {
@@ -1919,6 +1932,19 @@ scripted_effect work_out_wounds_or_death_effect = {
 			death = {
 				killer = scope:sc_victor
 				death_reason = death_duel
+			}
+		}
+		if = {
+			limit = {
+				scope:sc_victor = {
+					faith = {
+						has_doctrine = tenet_cranial_trophies
+					}
+				}
+			}
+			tgp_cranial_trophies_beheading_effect = {
+				KILLER = scope:sc_victor
+				DEAD = scope:sc_loser
 			}
 		}
 	}
@@ -2044,7 +2070,7 @@ scripted_effect finalise_combat_results_effect = {
 					any_relation = {
 						type = soulmate
 						count >= 1
-						NOT = { this = scope:sc_victor }
+						this != scope:sc_victor
 					}
 				}
 				random_relation = {
@@ -2062,7 +2088,7 @@ scripted_effect finalise_combat_results_effect = {
 					any_relation = {
 						type = best_friend
 						count >= 1
-						NOT = { this = scope:sc_victor }
+						this != scope:sc_victor
 					}
 				}
 				random_relation = {
@@ -2183,7 +2209,7 @@ scripted_effect finalise_combat_results_effect = {
 			## killed_by_another_head_of_faith
 			else_if = {
 				limit = {
-					NOT = { faith.religious_head = scope:sc_victor }
+					faith.religious_head != scope:sc_victor
 					scope:sc_victor.faith.religious_head = scope:sc_victor
 				}
 				save_scope_value_as = {
@@ -2323,8 +2349,7 @@ scripted_effect finalise_combat_results_effect = {
 	scope:sc_victor = {
 		if = {
 			limit = {
-				exists = accolade
-				accolade = { is_accolade_active = yes }
+				accolade ?= { is_accolade_active = yes }
 			}
 			# Glory is relative to the prowess difference between two characters. Beating someone equally matched or better is worth more.
 			## Massively outclassed.
@@ -5830,7 +5855,17 @@ single_combat.0001 = {
 	theme = martial
 	left_portrait = {
 		character = scope:myself
-		scripted_animation = duel_wield_weapon
+		triggered_animation = {
+			trigger = {
+				portrait_should_wield_sword_trigger = yes
+				culture = { has_cultural_pillar = heritage_japonic }
+			}
+			animation = chudan_no_kamae
+		}
+		triggered_animation = {
+			trigger = { always = yes }
+			scripted_animation = duel_wield_weapon
+		}
 	}
 	right_portrait = {
 		character = scope:my_foe
@@ -6707,7 +6742,7 @@ single_combat.0001 = {
 		name = {
 			trigger = {
 				house_not_allowed_to_yell_motto_trigger = no
-				NOT = { scope:sc_attacker.house = scope:sc_defender.house }
+				scope:sc_attacker.house != scope:sc_defender.house
 			}
 			text = single_combat.0001.enthusiastic_onslaught.motto
 		}
@@ -9546,7 +9581,11 @@ single_combat.0031 = {
 	theme = skull
 	left_portrait = {
 		character = scope:sc_loser
-		animation = fear
+		triggered_animation = {
+			trigger = { portrait_should_wield_sword_trigger = yes }
+			animation = sword_yield_start
+		}
+		animation = pain
 	}
 	right_portrait = {
 		character = scope:sc_victor
@@ -11183,7 +11222,7 @@ single_combat.0041 = {
 			trigger = { is_alive = no }
 			animation = loss_1
 		}
-		animation = fear
+		animation = sword_yield_start
 	}
 	# Background Logic
 	override_background = {
@@ -11261,6 +11300,17 @@ single_combat.0041 = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					scope:sc_victor.faith = { has_doctrine = tenet_cranial_trophies }
+				}
+				show_as_tooltip = {
+					tgp_cranial_trophies_beheading_effect = {
+						KILLER = scope:sc_victor
+						DEAD = scope:sc_loser
+					}
+				}
+			}
 		}
 		else_if = {
 			limit = { scope:fatality = flag:practice }
@@ -11298,6 +11348,7 @@ single_combat.0041 = {
 				limit = {
 					has_vassal_stance = belligerent
 				}
+				custom = every_belligerent_vassal
 				add_opinion = {
 					modifier = liege_won_duel
 					target = scope:sc_victor
@@ -11326,6 +11377,68 @@ single_combat.0041 = {
 			}
 			add_legitimacy = medium_legitimacy_gain
 		}
+
+		# Increase the Strength of Ushiwakamaru
+		if = {
+			limit = {
+				OR = {
+					has_character_modifier = tgp_japan_ushiwakamaru
+					has_character_modifier = tgp_japan_ushiwakamaru_2
+					has_character_modifier = tgp_japan_ushiwakamaru_3
+				}
+			}
+			change_variable = {
+				name = ushiwakamaru_duels_won
+				add = 1
+			}
+
+			if = {
+				limit = {
+					var:ushiwakamaru_duels_won >= 60
+					NOT = { has_character_modifier = tgp_japan_ushiwakamaru_4 }
+				}
+				remove_character_modifier = tgp_japan_ushiwakamaru_3
+				add_character_modifier = {
+					modifier = tgp_japan_ushiwakamaru_4
+					years = -1
+				}
+			}
+			else_if = {
+				limit = {
+					var:ushiwakamaru_duels_won >= 40
+					NOT = { has_character_modifier = tgp_japan_ushiwakamaru_4 }
+					NOT = { has_character_modifier = tgp_japan_ushiwakamaru_3 }
+				}
+				remove_character_modifier = tgp_japan_ushiwakamaru_2
+				add_character_modifier = {
+					modifier = tgp_japan_ushiwakamaru_3
+					years = -1
+				}
+			}
+			else_if = {
+				limit = {
+					var:ushiwakamaru_duels_won >= 20
+					NOT = { has_character_modifier = tgp_japan_ushiwakamaru_4 }
+					NOT = { has_character_modifier = tgp_japan_ushiwakamaru_3 }
+					NOT = { has_character_modifier = tgp_japan_ushiwakamaru_2 }
+				}
+				remove_character_modifier = tgp_japan_ushiwakamaru
+				add_character_modifier = {
+					modifier = tgp_japan_ushiwakamaru_2
+					years = -1
+				}
+			}
+		}
+		#Lose some stress if you kill your rival
+		if = {
+			limit = {
+				 has_relation_rival = scope:sc_loser 
+			}
+			stress_impact = {
+				base = major_stress_impact_loss
+			}
+		}
+		
 
 		# Damage equipped artifacts
 		may_damage_artifact_effect = {

@@ -6,7 +6,9 @@ artifact.0011 = {
 	scope = artifact
 	hidden = yes
 
-	trigger = { NOT = { has_variable = suppress_artifact_notifications } }
+	trigger = {
+		NOT = { has_variable = suppress_artifact_notifications } 
+	}
 
 	immediate = {
 		save_scope_as = this_artifact
@@ -47,10 +49,7 @@ artifact.0012 = {
 		scope:owner = {
 			send_interface_toast = {
 				type = msg_artifact_gained
-				title = artifact.0012.t
-				left_icon = scope:this_artifact
-				right_icon = scope:old_owner
-				custom_tooltip = artifact.0012.tooltip
+				right_icon = scope:this_artifact
 			}
 		}
 	}
@@ -97,7 +96,7 @@ artifact.0031 = {
 	hidden = yes
 
 	immediate = {
-		save_scope_as = artifact_inherited
+		save_scope_as = this_artifact
 		if = {
 			limit = {
 				has_variable = artifact_succession_title #Is this an artifact that should follow a title?
@@ -255,10 +254,7 @@ artifact.0031 = {
 			scope:owner = {
 				send_interface_toast = {
 					type = msg_artifact_gained
-					title = msg_artifact_gained_title
-					left_icon = scope:old_owner
-					right_icon = scope:artifact_inherited
-					custom_tooltip = msg_artifact_gained_desc
+					right_icon = scope:this_artifact
 				}
 			}
 			hidden_effect = {
@@ -1196,7 +1192,7 @@ artifact.3020 = {
 			}
 		}
 		trigger_if = {
-			limit = { is_landless_adventurer = yes }
+			limit = { has_government = landless_adventurer_government }
 			employs_court_position = antiquarian_court_position
 			any_court_position_holder = {
 				type = antiquarian_court_position
@@ -1245,7 +1241,7 @@ artifact.3020 = {
 			}
 		}
 		if = {
-			limit = { is_landless_adventurer = yes }
+			limit = { has_government = landless_adventurer_government }
 			random_court_position_holder = {
 				type = armorer_camp_officer
 				limit = { is_available_ai_adult = yes }
@@ -1393,7 +1389,7 @@ artifact.3030 = {
 			}
 		}
 		trigger_if = {
-			limit = { is_landless_adventurer = yes }
+			limit = { has_government = landless_adventurer_government }
 			employs_court_position = antiquarian_court_position
 			any_court_position_holder = {
 				type = antiquarian_court_position
@@ -1436,7 +1432,7 @@ artifact.3030 = {
 			}
 		}
 		if = {
-			limit = { is_landless_adventurer = yes }
+			limit = { has_government = landless_adventurer_government }
 			random_court_position_holder = {
 				type = armorer_camp_officer
 				limit = { is_available_ai_adult = yes }
@@ -1767,8 +1763,7 @@ scripted_trigger artifact_4000_cursed_history_trigger = {
 			var:stolen_artifact >= 5
 		}
 		AND = {
-			exists = previous_owner
-			previous_owner = {
+			previous_owner ?= {
 				is_alive = no
 				exists = killer
 			}
@@ -2743,8 +2738,7 @@ scripted_trigger artifact_4030_valid_empire_crown = {
 	artifact_slot_type = helmet
 	AND = {
 		root = { highest_held_title_tier = tier_empire }
-		exists = previous_owner
-		previous_owner = { highest_held_title_tier = tier_empire }
+		previous_owner ?= { highest_held_title_tier = tier_empire }
 		exists = previous_owner_level_2
 		previous_owner_level_2 = { highest_held_title_tier = tier_empire }
 		exists = previous_owner_level_3
@@ -2764,8 +2758,7 @@ scripted_trigger artifact_4030_valid_people_crown = {
 		root = {
 			primary_title = { save_temporary_scope_as = crown_title }
 		}
-		exists = previous_owner
-		previous_owner = { has_primary_title = scope:crown_title }
+		previous_owner ?= { has_primary_title = scope:crown_title }
 		exists = previous_owner_level_2
 		previous_owner_level_2 = { has_primary_title = scope:crown_title }
 		exists = previous_owner_level_3
@@ -3375,8 +3368,7 @@ scripted_trigger artifact_4070_valid_relic_trigger = {
 		limit = {
 			var:relic = flag:christian
 		}
-		exists = previous_owner
-		previous_owner = {
+		previous_owner ?= {
 			NOT = { faith.religion = religion:calradian_religion }
 		}
 	}
@@ -3384,26 +3376,47 @@ scripted_trigger artifact_4070_valid_relic_trigger = {
 		limit = {
 			var:relic = flag:islamic
 		}
-		exists = previous_owner
-		previous_owner = {
+		previous_owner ?= {
 			NOT = { faith.religion = religion:aserai_religion }
 		}
 	}
+	# trigger_else_if = {
+	# 	limit = {
+	# 		var:relic = flag:buddhism
+	# 	}
+	# 	previous_owner ?= {
+	# 		NOT = { faith.religion = religion:buddhism_religion }
+	# 	}
+	# }
 	trigger_else_if = {
 		limit = {
 			var:relic = flag:zoroastr
 		}
-		exists = previous_owner
-		previous_owner = {
+		previous_owner ?= {
 			NOT = { faith.religion = religion:darshi_religion }
 		}
 	}
+	# trigger_else_if = {
+	# 	limit = {
+	# 		var:relic = flag:jainism
+	# 	}
+	# 	previous_owner ?= {
+	# 		NOT = { faith.religion = religion:jainism_religion }
+	# 	}
+	# }
+	# trigger_else_if = {
+	# 	limit = {
+	# 		var:relic = flag:judaism
+	# 	}
+	# 	previous_owner ?= {
+	# 		NOT = { faith.religion = religion:judaism_religion }
+	# 	}
+	# }
 	trigger_else_if = {
 		limit = {
 			var:relic = flag:germanic
 		}
-		exists = previous_owner
-		previous_owner = {
+		previous_owner ?= {
 			NOT = { faith.religion = religion:jumne_religion }
 		}
 	}
@@ -3411,29 +3424,34 @@ scripted_trigger artifact_4070_valid_relic_trigger = {
 		limit = {
 			var:relic = flag:slavic
 		}
-		exists = previous_owner
-		previous_owner = {
+		previous_owner ?= {
 			NOT = { faith.religion = religion:northern_gods_religion }
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			var:relic = flag:boog
+		}
+		previous_owner ?= {
+			NOT = { faith.religion = religion:gazima_religion }
 		}
 	}
 	trigger_else_if = {
 		limit = {
 			var:relic = flag:hinduism
 		}
-		exists = previous_owner
-		previous_owner = {
+		previous_owner ?= {
 			NOT = { faith.religion = religion:ghavati_religion }
 		}
 	}
-	#trigger_else_if = {
-	#	limit = {
-	#		var:relic = flag:finno_ugric_religion
-	#	}
-	#	exists = previous_owner
-	#	previous_owner = {
-	#		NOT = { faith.religion = religion:vakken_religion }
-	#	}
-	#}
+	trigger_else_if = {
+		limit = {
+			var:relic = flag:finno_ugric_religion
+		}
+		previous_owner ?= {
+			NOT = { faith.religion = religion:vakken_religion }
+		}
+	}
 	trigger_else = {
 		always = no #Can't be a desecrated relic with no associated religion
 	}

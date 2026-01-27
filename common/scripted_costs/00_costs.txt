@@ -784,3 +784,55 @@ create_accolade = {
 reassign_title_troops = {
 	influence = admin_title_troop_command_cost_value
 }
+
+# root = ruler enacting the treasury budget (for their primary title)
+enact_treasury_budget = {
+	influence = {
+		value = {
+			value = 500
+			desc = "BASE"
+			format = "BASE_VALUE_FORMAT"
+		}
+
+		if = {
+			limit = {
+				treasury_years_since_budget_enact_date >= 5
+			}
+			subtract = { value = 500 desc = "five_years_since_budget" }
+		}
+		else_if = {
+			limit = {
+				treasury_years_since_budget_enact_date >= 4
+			}
+			subtract = { value = 400 desc = "four_years_since_budget" }
+		}
+		else_if = {
+			limit = {
+				treasury_years_since_budget_enact_date >= 3
+			}
+			subtract = { value = 300 desc = "three_years_since_budget" }
+		}
+		else_if = {
+			limit = {
+				treasury_years_since_budget_enact_date >= 2
+			}
+			subtract = { value = 200 desc = "two_years_since_budget" }
+		}
+		else_if = {
+			limit = {
+				treasury_years_since_budget_enact_date >= 1
+			}
+			subtract = { value = 100 desc = "one_year_since_budget" }
+		}
+
+		if = {
+			limit = {
+				treasury < 0
+			}
+			multiply = {
+				value = 0
+				desc = "treasury_in_debt"
+			}
+		}
+	}
+}

@@ -683,7 +683,7 @@ board_games.0001 = {
 			triggered_desc = {
 				trigger = {
 					exists = scope:bg_counterer
-					NOT = { this = scope:bg_counterer }
+					this != scope:bg_counterer
 				}
 				desc = board_games.0001.desc.i_am_countered
 			}
@@ -2575,7 +2575,7 @@ board_games.0021 = {
 		# If they're not the same person, inform scope:bg_initiator that the game scope:bg_attacker is playing has invalidated.
 		if = {
 			limit = {
-				NOT = { scope:bg_attacker = scope:bg_initiator }
+				scope:bg_attacker != scope:bg_initiator
 			}
 			scope:bg_initiator = {
 				send_interface_toast = {
@@ -3264,11 +3264,14 @@ board_games.0051 = {
 	}
 	override_background = { reference = sitting_room }
 
-	cooldown = { years = 100 }
+	#cooldown = { years = 100 }
 
 	trigger = {
 		# DLC check.
-		has_fp2_dlc_trigger = yes
+		OR = {
+			has_fp2_dlc_trigger = yes
+			has_tgp_dlc_trigger = yes
+		}
 		# Standard checks.
 		is_available_at_peace_adult = yes
 		is_landed = yes
@@ -3298,6 +3301,11 @@ board_games.0051 = {
 	# Just a few more pieces and I could have a rare set...
 	option = {
 		name = board_games.0051.b
+		trigger = {
+			location = {
+				bg_game_type_region_go_trigger = no
+			}
+		}
 
 		remove_short_term_gold = medium_gold_value
 

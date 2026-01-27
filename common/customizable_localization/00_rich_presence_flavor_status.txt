@@ -36,12 +36,7 @@
 	text = { # Epidemic
 		trigger = {
 			any_sub_realm_county = {
-				any_county_province = {
-					any_province_epidemic = {
-						count >= 1
-						outbreak_intensity >= major
-					}
-				}
+				has_province_with_epidemic = { intensity >= major }
 			}
 		}
 		localization_key = rich_presence_epidemic
@@ -210,7 +205,7 @@
 	text = { # Attending Activity
 		trigger = {
 			involved_activity ?= {
-				not = { root = activity_host }
+				root != activity_host
 			}
 		}
 		localization_key = rich_presence_attending_activity
@@ -383,7 +378,7 @@
 
 	text = { # Nemeses
 		trigger = {
-			num_of_relation_nemesis > 0
+			any_relation = { type = nemesis }
 		}
 		localization_key = rich_presence_enemies
 	}
@@ -411,13 +406,16 @@
 
 	text = { # House Feud
 		setup_scope = {
-			random_owned_story = {
-				limit = {
-					story_type = story_cycle_house_feud
-					has_variable = house_feud_house
-				}
-				var:house_feud_house = {
-					save_scope_as = house
+			house = {
+				save_scope_as = my_house
+				random_house_relation = {
+					limit = { has_house_relation_level = feud }
+					random_relation_house = {
+						limit = {
+							NOT = { this = scope:my_house}
+						}
+						save_scope_as = house
+					}
 				}
 			}
 		}
@@ -534,7 +532,7 @@
 	
 	text = { # Poet
 		trigger = {
-			has_trait = poet
+			has_trait = lifestyle_poet
 		}
 		localization_key = rich_presence_poet
 	}
@@ -598,7 +596,7 @@
 
 	text = { # Admin Government - Scheming
 		trigger = {
-			is_independent_ruler = no
+			top_liege != this
 			government_allows = administrative
 			highest_held_title_tier >= tier_duchy
 			liege = { government_allows = administrative }
@@ -650,9 +648,89 @@
 		localization_key = rich_presence_rhodok_rebellion
 	}
 
+	text = { # Mandate of Heaven - instability
+		trigger = {
+			has_title = title:h_china
+			top_participant_group:dynastic_cycle ?= {
+					participant_group_type = hegemon_ruler
+			}
+			situation:dynastic_cycle ?= {
+				situation_current_phase = situation_dynastic_cycle_phase_instability
+			}
+		}
+		localization_key = rich_presence_mandate_of_heaven_unstable
+	}
+
+	text = { # Mandate of Heaven
+		trigger = {
+			has_title = title:h_china
+			top_participant_group:dynastic_cycle ?= {
+				participant_group_type = hegemon_ruler
+			}
+		}
+		localization_key = rich_presence_mandate_of_heaven
+	}
+
+	text = { # Studying the confucian classics
+		trigger = {
+			any_scheme = {
+				scheme_type = study_confucian_classics
+			}
+		}
+		localization_key = rich_presence_merit_studying
+	}
+
+	text = { # Bureaucrat
+		trigger = {
+			government_has_flag = government_has_merit
+		}
+		localization_key = rich_presence_merit_bureaucrat
+	}
+
+	text = { # Tenno
+		trigger = {
+			has_title = title:k_chrysanthemum_throne
+			tgp_is_ceremonial_liege_trigger = yes
+		}
+		localization_key = rich_presence_tenno
+	}
+
+	text = { # Kampaku
+		trigger = {
+			tgp_is_ceremonial_regent_trigger = yes
+			has_title = title:e_japan
+		}
+		localization_key = rich_presence_kampaku
+	}
+
+	text = { # Soryo
+		trigger = {
+			government_has_flag = government_is_japan_feudal
+			is_landed = yes
+		}
+		localization_key = rich_presence_soryo
+	}
+
+	text = { # Ritsuryo
+		trigger = {
+			government_has_flag = government_is_japan_administrative
+			is_landed = yes
+		}
+		localization_key = rich_presence_ritsuryo
+	}
+
+	text = { # God King
+		trigger = {
+			top_liege = this
+			government_has_flag = government_is_mandala
+			mandala_radiance_value > 0
+		}
+		localization_key = rich_presence_god_king
+	}
+
 	text = { # Admin Government
 		trigger = {
-			is_independent_ruler = no
+			top_liege != this
 			government_allows = administrative
 			highest_held_title_tier >= tier_duchy
 			liege = { government_allows = administrative }

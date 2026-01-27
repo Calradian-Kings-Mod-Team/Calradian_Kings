@@ -36,7 +36,7 @@ pay_homage.9999 = {
 					limit = {
 						has_variable = pay_homage_gold_value
 					}
-					add_gold = var:pay_homage_gold_value
+					add_treasury_or_gold = var:pay_homage_gold_value
 				}
 			}
 			trigger_event = pay_homage.0601
@@ -56,8 +56,7 @@ scripted_trigger pay_homage_valid_trigger = { # Homage is still valid
 	is_alive = yes
 	is_imprisoned = no
 	has_variable = homage_liege_scope
-	exists = liege
-	liege = var:homage_liege_scope
+	liege ?= var:homage_liege_scope
 	var:homage_liege_scope = {
 		is_alive = yes 
 		is_imprisoned = no 
@@ -128,7 +127,7 @@ pay_homage.0001 = {
 		custom_tooltip = pay_homage.0001.a.tt
 		if = {
 			limit = { scope:homage_vassal.var:homage_type = flag:homage_gold }
-			show_as_tooltip = { add_gold = scope:homage_vassal.medium_gold_value }
+			show_as_tooltip = { add_treasury_or_gold = scope:homage_vassal.medium_treasury_or_gold_value }
 		}
 		else_if = {
 			limit = { scope:homage_vassal.var:homage_type = flag:homage_hook }
@@ -233,7 +232,7 @@ pay_homage.0009 = {
 		name = pay_homage.0009.a
 		if = {
 			limit = { var:homage_type = flag:homage_gold }
-			add_gold = medium_gold_value
+			add_treasury_or_gold = medium_treasury_or_gold_value
 		}
 	}
 
@@ -254,7 +253,7 @@ scripted_effect pay_homage_liege_reward_effect = {
 			dynasty = { add_dynasty_prestige = minor_dynasty_prestige_gain }
 			if = {
 				limit = { scope:homage_vassal.var:homage_type = flag:homage_gold }
-				add_gold = scope:homage_vassal.medium_gold_value
+				add_treasury_or_gold = scope:homage_vassal.medium_treasury_or_gold_value
 			}
 			else_if = { # Give hook
 				limit = { scope:homage_vassal.var:homage_type = flag:homage_hook }
@@ -1148,7 +1147,7 @@ pay_homage.0201 = {
 		show_as_tooltip = {
 			if = {
 				limit = { var:homage_type = flag:homage_gold }
-				scope:homage_liege = { add_gold = scope:homage_vassal.medium_gold_value }
+				scope:homage_liege = { add_treasury_or_gold = scope:homage_vassal.medium_treasury_or_gold_value }
 			}
 			else_if = {
 				limit = { var:homage_type = flag:homage_hook }
@@ -1259,8 +1258,7 @@ pay_homage.0601 = {
 				trigger = {
 					scope:homage_liege = {
 						is_alive = no
-						exists = killer
-						killer = root
+						killer ?= root
 					}
 				}
 				desc = pay_homage.0601.desc.liege_dead_me
@@ -1275,8 +1273,7 @@ pay_homage.0601 = {
 				trigger = {
 					scope:homage_liege = {
 						is_imprisoned = yes
-						exists = imprisoner
-						imprisoner = root
+						imprisoner ?= root
 					}
 				}
 				desc = pay_homage.0601.desc.liege_imprisoned_me
@@ -1302,7 +1299,7 @@ pay_homage.0601 = {
 			trigger = {
 				scope:homage_liege = { is_alive = yes }
 				exists = liege
-				NOT = { liege = root }
+				liege != root
 			}
 			desc = pay_homage.0601.desc
 		}
@@ -1326,7 +1323,7 @@ pay_homage.0601 = {
 	right_portrait = {
 		character = liege
 		trigger = {
-			NOT = { liege = scope:homage_liege }
+			liege != scope:homage_liege
 		}
 	}
 

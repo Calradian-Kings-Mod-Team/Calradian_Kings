@@ -1,4 +1,4 @@
-﻿favour_skilled_outsiders_decision_apply_opinions_effect = {
+favour_skilled_outsiders_decision_apply_opinions_effect = {
 	# Courtly vassals.
 	every_vassal = {
 		custom = favour_skilled_outsiders_decision.tt.upset_elites.courtly_non_heritage
@@ -32,8 +32,98 @@
 }
 
 
-## CK_UPDATE CK_STRUGGLE CK_SCRIPTS - Change to Imperial struggle or any struggle we want using the bargain interaction:
-# struggle_can_access_unlocks_bargain_fealty_interaction_trigger = {
-# 	# Just uhh, use an OR if you add something else.
-# 	is_struggle_type = iberian_struggle
+# 	show_as_tooltip = { # UI/UX
+# 		scope:fp3_seljuk_settle_target = {
+# 			change_title_holder = {
+# 				holder = scope:lead_seljuk
+# 				change = scope:change
+# 			}
+# 		}
+# 	}
+# 	hidden_effect = {
+# 		scope:fp3_seljuk_settle_target = {
+# 			change_title_holder = {
+# 				holder = scope:lead_seljuk
+# 				change = scope:change
+# 			}
+# 			every_de_jure_county = {
+# 				change_title_holder = {
+# 					holder = scope:lead_seljuk
+# 					change = scope:change
+# 				}
+# 			}
+# 		}
+# 	}
+# 	if = {
+# 		limit = {
+# 			highest_held_title_tier > tier_duchy
+
+# 		}
+# 		send_interface_toast = {
+# 			type = event_toast_effect_good
+# 			title = east_europe.0030.t
+# 			left_icon = scope:lead_seljuk
+# 			right_icon = scope:fp3_seljuk_settle_target
+			
+# 			scope:lead_seljuk = {
+# 				change_liege = {
+# 					liege = scope:seljuk_victim
+# 					change = scope:change
+# 				}
+# 			}
+# 		}
+# 	}
+
+
+# 	resolve_title_and_vassal_change = scope:change
+
+# 	# Give them an Alliance
+# 	scope:lead_seljuk = {
+# 		save_scope_as = recipient # for loc purposes
+# 		add_opinion = {
+# 			target = scope:seljuk_victim
+# 			modifier = event_negotiated_alliance_opinion
+# 		}
+# 	}
+# 	custom_tooltip = negotiate_alliance_effect_tooltip
+# 	create_alliance = {
+# 		target = scope:lead_seljuk
+# 		allied_through_owner = scope:seljuk_victim
+# 		allied_through_target = scope:lead_seljuk
+# 	}
+
+# 	# Housekeeping for the lead seljuk fella
+# 	scope:lead_seljuk = {
+# 		add_character_flag = settled_seljuk
+# 		change_government = clan_government
+# 	}
 # }
+
+set_house_head_effect = {
+	$NEW_HEAD$ = { save_scope_as = new_head }
+	$OLD_HEAD$ = {
+		save_scope_as = old_head
+		if = {
+			limit = {
+				any_held_title = { is_noble_family_title = yes }
+			}
+			random_held_title = {
+				limit = { is_noble_family_title = yes }
+				save_scope_as = nf_title
+			}
+		}
+	}
+	create_title_and_vassal_change = {
+		type = granted
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	scope:nf_title = {
+		change_title_holder_include_vassals = {
+			holder = scope:new_head
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+	scope:new_head.house = { set_house_head = scope:new_head }
+}

@@ -264,6 +264,11 @@ fp3_yearly.8000 = { #Ghazi Gone Bad
         	}
    		}
 	}
+	after = {
+		scope:raging_ghazi = {
+			silent_disappearance_ai_effect = yes
+		}
+	}
 }
 
 scripted_trigger fp3_yearly.8001_outlying_province_trigger = {
@@ -377,9 +382,8 @@ fp3_yearly.8001 = { #Frontier Fortress Benefactor
 			years = 5
 		}
 
-		remove_short_term_gold = minor_gold_value #gotta pay for travel expenses! 
+		remove_treasury_or_gold = minor_treasury_or_gold_value #gotta pay for travel expenses! 
 		
-
 		stress_impact = { 
    			diligent = medium_stress_impact_loss
    			brave = minor_stress_impact_loss
@@ -686,11 +690,9 @@ scripted_trigger fp3_yearly.8002_zealous_vassal_or_spouse_trigger = {
 #######Exotic Espand, by Ola Jentzsch#####
 
 scripted_trigger fp3_yearly_8003_far_away_mountain_trigger = {
-	any_county_province = {
-		OR = {
-			terrain = mountains
-			terrain = desert_mountains 
-		}
+	county_has_province_with_terrain = {
+		terrain = mountains
+		terrain = desert_mountains
 	}
 	squared_distance = {
 		target = root.capital_province
@@ -747,7 +749,7 @@ fp3_yearly.8003 = { #Exotic Espand
 		}
 
 		any_consort = {
-			NOT = { this = scope:consort_1 }
+			this != scope:consort_1
 			is_available_adult = yes
 			is_courtier = yes 
 			opinion = { 
@@ -775,7 +777,7 @@ fp3_yearly.8003 = { #Exotic Espand
 				save_temporary_scope_as = consort_1_temp
 				root = {
 					any_consort = {
-						NOT = { this = scope:consort_1_temp }
+						this != scope:consort_1_temp
 						is_available_adult = yes
 						is_courtier = yes 
 						opinion = {
@@ -789,7 +791,7 @@ fp3_yearly.8003 = { #Exotic Espand
 		}
 		random_consort = {
 			limit = {
-				NOT = { this = scope:superstitious_consort }
+				this != scope:superstitious_consort
 				is_available_adult = yes
 				is_courtier = yes 
 				opinion = {
@@ -1740,7 +1742,7 @@ fp3_yearly.8007 = {
 			}
 		}
 		
-		root.dynasty = { add_dynasty_prestige = minor_dynasty_prestige_value }
+		dynasty ?= { add_dynasty_prestige = minor_dynasty_prestige_value }
 		
 		scope:fp3_child_to_leave = {
 			add_character_modifier = {
@@ -1894,7 +1896,7 @@ fp3_yearly.8008 = {
 scripted_trigger fp3_yearly.8010_super_evil_pagan_heretic_neighboring_ruler_trigger = {
 	is_ai = yes
 	OR = {
-		is_independent_ruler = yes
+		top_liege = this
 		top_liege = { is_ai = yes }
 	}
 	NOT = {

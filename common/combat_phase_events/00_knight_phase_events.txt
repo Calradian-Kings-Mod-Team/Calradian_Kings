@@ -15,8 +15,7 @@
 		}
 		modifier = {
 			factor = 1.25
-			exists = dynasty
-			dynasty = {
+			dynasty ?= {
 				has_dynasty_perk = warfare_legacy_3
 			}
 		}
@@ -76,8 +75,7 @@ knight_berserker_attack = {
 		}
 		modifier = {
 			factor = 1.25
-			exists = dynasty
-			dynasty = {
+			dynasty ?= {
 				has_dynasty_perk = warfare_legacy_3
 			}
 		}
@@ -123,12 +121,13 @@ knight_berserker_attack = {
 	}
 
 	effect = {
+		save_scope_as = knight
 		if = {
 			limit = {
 				scope:combat_side.enemy_side = {
 					any_side_knight = {
 						is_alive = yes
-						this.prowess <= root.prowess_for_combat_event_opponent
+						this.prowess <= scope:knight.prowess_for_combat_event_opponent
 					}
 				}
 			}
@@ -136,14 +135,14 @@ knight_berserker_attack = {
 				random_side_knight = {
 					limit = {
 						is_alive = yes
-						this.prowess <= root.prowess_for_combat_event_opponent
+						this.prowess <= scope:knight.prowess_for_combat_event_opponent
 					}
 					save_temporary_scope_as = enemy_knight
 				}
 			}
 			if = {
 				limit = {
-					root = { is_alive = yes }
+					scope:knight = { is_alive = yes }
 					scope:enemy_knight = { is_alive = yes }
 				}
 				add_prestige = knight_prestige_gain_on_kill
@@ -152,8 +151,7 @@ knight_berserker_attack = {
 				scope:enemy_knight = {
 					if = {
 						limit = {
-							exists = accolade
-							accolade = { is_accolade_active = yes }
+							accolade ?= { is_accolade_active = yes }
 						}
 						accolade = { add_glory = minimal_glory_gain }
 					}
@@ -195,8 +193,7 @@ knight_become_berserker = {
 		}
 		modifier = {
 			factor = 1.25
-			exists = dynasty
-			dynasty = {
+			dynasty ?= {
 				has_dynasty_perk = warfare_legacy_3
 			}
 		}
@@ -281,31 +278,32 @@ knight_become_berserker = {
 	}
 
 	effect = {
+		save_scope_as = knight
 		if = {
 			limit = {
 				scope:combat_side.enemy_side = {
 					any_side_knight = {
-						this.prowess <= root.prowess_for_combat_event_opponent
+						this.prowess <= scope:knight.prowess_for_combat_event_opponent
 					}
 				}
 			}
 			scope:combat_side.enemy_side = {
 				random_side_knight = {
 					limit = {
-						this.prowess <= root.prowess_for_combat_event_opponent
+						this.prowess <= scope:knight.prowess_for_combat_event_opponent
 					}
 					save_temporary_scope_as = enemy_knight
 				}
 			}
 			if = {
 				limit = {
-					root = { is_alive = yes }
+					scope:knight = { is_alive = yes }
 					scope:enemy_knight = { is_alive = yes }
 				}
 				scope:combat_side = {
 					battle_event = {
 						key = "berserker_rage_killed_enemy"
-						left_portrait = root
+						left_portrait = scope:knight
 						right_portrait = scope:enemy_knight
 						type = death
 						target_right = yes
@@ -317,7 +315,7 @@ knight_become_berserker = {
 				scope:enemy_knight = {
 					death = {
 						death_reason = death_head_ripped_off
-						killer = root
+						killer = scope:knight
 					}
 				}
 			}
@@ -325,12 +323,12 @@ knight_become_berserker = {
 		else = {
 			if = {
 				limit = {
-					root = { is_alive = yes }
+					scope:knight = { is_alive = yes }
 				}
 				scope:combat_side = {
 					battle_event = {
 						key = "berserker_rage_no_enemy"
-						left_portrait = root
+						left_portrait = scope:knight
 						type = death
 						target_right = yes
 					}
@@ -379,8 +377,7 @@ knight_shieldmaiden_attack = {
 		}
 		modifier = {
 			factor = 1.25
-			exists = dynasty
-			dynasty = {
+			dynasty ?= {
 				has_dynasty_perk = warfare_legacy_3
 			}
 		}
@@ -425,12 +422,13 @@ knight_shieldmaiden_attack = {
 	}
 
 	effect = {
+		save_scope_as = knight
 		if = {
 			limit = {
 				scope:combat_side.enemy_side = {
 					any_side_knight = {
 						is_alive = yes
-						this.prowess <= root.prowess_for_combat_event_opponent
+						this.prowess <= scope:knight.prowess_for_combat_event_opponent
 					}
 				}
 			}
@@ -438,14 +436,14 @@ knight_shieldmaiden_attack = {
 				random_side_knight = {
 					limit = {
 						is_alive = yes
-						this.prowess <= root.prowess_for_combat_event_opponent
+						this.prowess <= scope:knight.prowess_for_combat_event_opponent
 					}
 					save_temporary_scope_as = enemy_knight
 				}
 			}
 			if = {
 				limit = {
-					root = { is_alive = yes }
+					scope:knight = { is_alive = yes }
 					scope:enemy_knight = { is_alive = yes }
 				}
 				add_prestige = knight_prestige_gain_on_kill
@@ -454,8 +452,7 @@ knight_shieldmaiden_attack = {
 				scope:enemy_knight = {
 					if = {
 						limit = {
-							exists = accolade
-							accolade = { is_accolade_active = yes }
+							accolade ?= { is_accolade_active = yes }
 						}
 						# Shieldmaidens are especially good at earning glory.
 						accolade = { add_glory = minor_glory_gain }
@@ -479,6 +476,7 @@ knight_becomes_incapable = {
 	}
 
 	effect = {
+		save_scope_as = knight
 		# Long as we're alive, conk 'em out.
 		if = {
 			limit = { is_alive = yes }
@@ -489,7 +487,7 @@ knight_becomes_incapable = {
 			scope:battle_memory = {
 				set_variable = {
 					name = battle_location
-					value = root.location
+					value = scope:knight.location
 				}
 			}
 		}
@@ -557,16 +555,14 @@ knight_wounded = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_low
 							
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_low
 						}
@@ -575,8 +571,7 @@ knight_wounded = {
 				# Not cumulative with subsequent ranks.
 				NOR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							OR = {
 								has_accolade_parameter = accolade_defends_family_medium
@@ -585,8 +580,7 @@ knight_wounded = {
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							OR = {
 								has_accolade_parameter = accolade_defends_family_medium
@@ -606,15 +600,13 @@ knight_wounded = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_medium
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_medium
 						}
@@ -623,15 +615,13 @@ knight_wounded = {
 				# Not cumulative with the subsequent rank.
 				NOR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
@@ -648,15 +638,13 @@ knight_wounded = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
@@ -667,18 +655,19 @@ knight_wounded = {
 	}
 
 	effect = {
+		save_scope_as = knight
 		if = {
 			limit = {
 				scope:combat_side.enemy_side = {
 					any_side_knight = {
-						this.prowess >= root.prowess_for_combat_event_opponent
+						this.prowess >= scope:knight.prowess_for_combat_event_opponent
 					}
 				}
 			}
 			scope:combat_side.enemy_side = {
 				random_side_knight = {
 					limit = {
-						this.prowess >= root.prowess_for_combat_event_opponent
+						this.prowess >= scope:knight.prowess_for_combat_event_opponent
 					}
 					save_temporary_scope_as = enemy_knight
 					add_prestige = knight_prestige_gain_on_wound_inverse
@@ -688,7 +677,7 @@ knight_wounded = {
 			scope:combat_side = {
 				battle_event = {
 					key = "knight_wounded_by_enemy"
-					left_portrait = root
+					left_portrait = scope:knight
 					right_portrait = scope:enemy_knight
 					type = wound
 				}
@@ -698,8 +687,7 @@ knight_wounded = {
 			scope:enemy_knight = {
 				if = {
 					limit = {
-						exists = accolade
-						accolade = { is_accolade_active = yes }
+						accolade ?= { is_accolade_active = yes }
 					}
 					accolade = { add_glory = minimal_glory_gain }
 				}
@@ -709,7 +697,7 @@ knight_wounded = {
 			scope:combat_side = {
 				battle_event = {
 					key = "knight_wounded_no_enemy"
-					left_portrait = root
+					left_portrait = scope:knight
 					type = wound
 				}
 			}
@@ -783,15 +771,13 @@ knight_maimed = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_low
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_low
 						}
@@ -800,8 +786,7 @@ knight_maimed = {
 				# Not cumulative with subsequent ranks.
 				NOR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							OR = {
 								has_accolade_parameter = accolade_defends_family_medium
@@ -810,8 +795,7 @@ knight_maimed = {
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							OR = {
 								has_accolade_parameter = accolade_defends_family_medium
@@ -831,15 +815,13 @@ knight_maimed = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_medium
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_medium
 						}
@@ -848,15 +830,13 @@ knight_maimed = {
 				# Not cumulative with the subsequent rank.
 				NOR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
@@ -873,15 +853,13 @@ knight_maimed = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
@@ -892,18 +870,19 @@ knight_maimed = {
 	}
 
 	effect = {
+		save_scope_as = knight
 		if = {
 			limit = {
 				scope:combat_side.enemy_side = {
 					any_side_knight = {
-						this.prowess >= root.prowess_for_combat_event_opponent
+						this.prowess >= scope:knight.prowess_for_combat_event_opponent
 					}
 				}
 			}
 			scope:combat_side.enemy_side = {
 				random_side_knight = {
 					limit = {
-						this.prowess >= root.prowess_for_combat_event_opponent
+						this.prowess >= scope:knight.prowess_for_combat_event_opponent
 					}
 					save_temporary_scope_as = enemy_knight
 					add_prestige = knight_prestige_gain_on_wound_inverse
@@ -913,7 +892,7 @@ knight_maimed = {
 			scope:combat_side = {
 				battle_event = {
 					key = "knight_maimed_by_enemy"
-					left_portrait = root
+					left_portrait = scope:knight
 					right_portrait = scope:enemy_knight
 					type = wound
 				}
@@ -923,8 +902,7 @@ knight_maimed = {
 			scope:enemy_knight = {
 				if = {
 					limit = {
-						exists = accolade
-						accolade = { is_accolade_active = yes }
+						accolade ?= { is_accolade_active = yes }
 					}
 					accolade = { add_glory = minimal_glory_gain }
 				}
@@ -934,7 +912,7 @@ knight_maimed = {
 			scope:combat_side = {
 				battle_event = {
 					key = "knight_maimed_no_enemy"
-					left_portrait = root
+					left_portrait = scope:knight
 					type = wound
 				}
 			}
@@ -1000,18 +978,16 @@ knight_killed = {
 		## Low increase chance.
 		modifier = {
 			factor = accolade_hostile_knight_death_in_battle_actual_low_value
-			scope:combat_side = {
+			scope:combat_side.enemy_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_increase_hostile_knight_death_low
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_increase_hostile_knight_death_low
 						}
@@ -1020,8 +996,7 @@ knight_killed = {
 				# Not cumulative with subsequent ranks.
 				NOR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							OR = {
 								has_accolade_parameter = accolade_increase_hostile_knight_death_medium
@@ -1030,8 +1005,7 @@ knight_killed = {
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							OR = {
 								has_accolade_parameter = accolade_increase_hostile_knight_death_medium
@@ -1045,18 +1019,16 @@ knight_killed = {
 		## Medium increase chance.
 		modifier = {
 			factor = accolade_hostile_knight_death_in_battle_actual_medium_value
-			scope:combat_side = {
+			scope:combat_side.enemy_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_increase_hostile_knight_death_medium
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_increase_hostile_knight_death_medium
 						}
@@ -1065,15 +1037,13 @@ knight_killed = {
 				# Not cumulative with the subsequent rank.
 				NOR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_increase_hostile_knight_death_high
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_increase_hostile_knight_death_high
 						}
@@ -1084,18 +1054,16 @@ knight_killed = {
 		## High increase chance.
 		modifier = {
 			factor = accolade_hostile_knight_death_in_battle_actual_high_value
-			scope:combat_side = {
+			scope:combat_side.enemy_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_increase_hostile_knight_death_high
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_increase_hostile_knight_death_high
 						}
@@ -1113,15 +1081,13 @@ knight_killed = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_low
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_low
 						}
@@ -1130,8 +1096,7 @@ knight_killed = {
 				# Not cumulative with subsequent ranks.
 				NOR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							OR = {
 								has_accolade_parameter = accolade_defends_family_medium
@@ -1140,8 +1105,7 @@ knight_killed = {
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							OR = {
 								has_accolade_parameter = accolade_defends_family_medium
@@ -1161,15 +1125,13 @@ knight_killed = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_medium
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_medium
 						}
@@ -1178,15 +1140,13 @@ knight_killed = {
 				# Not cumulative with the subsequent rank.
 				NOR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
@@ -1203,15 +1163,13 @@ knight_killed = {
 			scope:combat_side = {
 				OR = {
 					any_side_knight = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
 					}
 					any_side_commander = {
-						exists = accolade
-						accolade = {
+						accolade ?= {
 							is_accolade_active = yes
 							has_accolade_parameter = accolade_defends_family_high
 						}
@@ -1222,6 +1180,7 @@ knight_killed = {
 	}
 
 	effect = {
+		save_scope_as = knight
 		if = {
 			limit = {
 				has_variable = hold_court_8050_knight
@@ -1251,14 +1210,14 @@ knight_killed = {
 			limit = {
 				scope:combat_side.enemy_side = {
 					any_side_knight = {
-						this.prowess >= root.prowess_for_combat_event_opponent
+						this.prowess >= scope:knight.prowess_for_combat_event_opponent
 					}
 				}
 			}
 			scope:combat_side.enemy_side = {
 				random_side_knight = {
 					limit = {
-						this.prowess >= root.prowess_for_combat_event_opponent
+						this.prowess >= scope:knight.prowess_for_combat_event_opponent
 					}
 					save_temporary_scope_as = enemy_knight
 					add_prestige = knight_prestige_gain_on_kill_inverse
@@ -1267,8 +1226,7 @@ knight_killed = {
 					scope:enemy_knight = {
 						if = {
 							limit = {
-								exists = accolade
-								accolade = { is_accolade_active = yes }
+								accolade ?= { is_accolade_active = yes }
 							}
 							accolade = { add_glory = minor_glory_gain }
 						}
@@ -1278,20 +1236,43 @@ knight_killed = {
 
 			if = {
 				limit = {
-					root = { is_alive = yes }
+					scope:knight = { is_alive = yes }
 					scope:enemy_knight = { is_alive = yes }
 				}
 				scope:combat_side = {
 					battle_event = {
 						key = "knight_killed_by_enemy"
-						left_portrait = root
+						left_portrait = scope:knight
 						right_portrait = scope:enemy_knight
 						type = death
 					}
 					# For after-battle messaging
 					add_to_variable_list = {
 						name = slain_side_knights
-						target = root
+						target = scope:knight
+					}
+				}
+				house ?= {
+					change_house_relation_effect = {
+						HOUSE = scope:enemy_knight.house
+						VALUE = house_relation_damage_medium_value
+						REASON = killed
+						CHAR = scope:enemy_knight
+						TARGET_CHAR = scope:knight
+						TITLE = scope:dummy_gender
+					}
+				}
+				if = {
+					limit = {
+						scope:enemy_knight = {
+							faith = {
+								has_doctrine = tenet_cranial_trophies
+							}
+						}
+					}
+					tgp_cranial_trophies_beheading_effect = {
+						KILLER = scope:enemy_knight
+						DEAD = scope:knight
 					}
 				}
 				death = {
@@ -1304,13 +1285,13 @@ knight_killed = {
 			scope:combat_side = {
 				battle_event = {
 					key = "knight_killed_no_enemy"
-					left_portrait = root
+					left_portrait = scope:knight
 					type = death
 				}
 				# For after-battle messaging
 				add_to_variable_list = {
 					name = slain_side_knights
-					target = root
+					target = scope:knight
 				}
 			}
 			death = {

@@ -96,7 +96,9 @@ ep3_emperor_yearly.8000 = {
 	trigger = {
 		has_ep3_dlc_trigger = yes
 		# Ensure you are l'empereur
-		highest_held_title_tier = tier_empire
+		highest_held_title_tier >= tier_empire
+		is_independent_ruler = yes
+		government_allows = administrative
 		# Ensure there are people to annoy
 		any_vassal = {
 			count >= 3
@@ -108,15 +110,15 @@ ep3_emperor_yearly.8000 = {
 		}
 		# Recent conflict
 		OR = {
-			any_truce_holder = { count >= 1 }
-			any_truce_target = { count >= 1 }
+			any_truce_holder = { }
+			any_truce_target = { }
 			is_at_war = yes
 		}
 		# Be nice
 		NOR = {
-			any_character_epidemic = { count >= 1 }
+			any_character_epidemic = { }
 			capital_province = {
-				any_province_epidemic = { count >= 1 }
+				any_province_epidemic = { }
 			}
 		}
 	}
@@ -200,11 +202,11 @@ ep3_emperor_yearly.8000 = {
 					limit = {
 						trigger_if = {
 							limit = { exists = scope:governor_1 }
-							NOT = { this = scope:governor_1 }
+							this != scope:governor_1
 						}
 						trigger_if = {
 							limit = { exists = scope:governor_2 }
-							NOT = { this = scope:governor_2 }
+							this != scope:governor_2
 						}
 					}
 					weight = {
@@ -367,7 +369,9 @@ ep3_emperor_yearly.8010 = {
 	trigger = {
 		has_ep3_dlc_trigger = yes
 		# Ensure you are l'empereur
-		highest_held_title_tier = tier_empire
+		highest_held_title_tier >= tier_empire
+		is_independent_ruler = yes
+		government_allows = administrative
 		# Ensure there is a governor to be duped
 		any_vassal = { emperor_yearly_8010_valid_governor_trigger = yes }
 	}
@@ -598,6 +602,7 @@ ep3_emperor_yearly.8020 = {
 			primary_title = title:e_northern_empire
 			primary_title = title:e_southern_empire
 			has_trait = claimant_emperor
+			is_roman_emperor_trigger = yes
 		}
 		# Ensure you are struggling financially
 		gold < medium_gold_value
@@ -1023,7 +1028,7 @@ ep3_emperor_yearly.8030 = {
 	trigger = {
 		has_ep3_dlc_trigger = yes
 		# Ensure you are l'empereur
-		primary_title = title:e_calradian_empire
+		is_roman_emperor_trigger = yes
 		# Have a marshal
 		cp:councillor_marshal ?= { is_ai = yes }
 		# Ensure you control the Bosporos strait
@@ -1192,7 +1197,7 @@ ep3_emperor_yearly.8030 = {
 
 	option = { # Rational
 		name = ep3_emperor_yearly.8030.c
-		remove_short_term_gold = minor_gold_value
+		remove_treasury_or_gold = minor_treasury_or_gold_value
 		ep3_emperor_yearly_8030_coast_modifier_effect = { MODIFIER = mandate }
 		ep3_emperor_yearly_8030_sea_modifier_effect = { MODIFIER = mandate }
 		stress_impact = {
@@ -1291,229 +1296,235 @@ ep3_emperor_yearly.8030 = {
 # 	lower_right_portrait = scope:leo
 # 	cooldown = { years = 50 }
 
-# 	trigger = {
-# 		OR = {
-# 			static_group_filter = {
-# 				group = ep3_emperor_yearly.8040
-# 				match = 0.2
-# 			}
-# 			has_trait = cynical
-# 		}
-# 		has_ep3_dlc_trigger = yes
-# 		# Ensure you are l'empereur
-# 		has_title = title:e_byzantium
-# 		# You are not an Iconoclast
-# 		faith = faith:orthodox
-# 		# Something bad has happened
-# 		OR = {
-# 			# Won war recently to powerful enemy
-# 			any_truce_holder = { highest_held_title_tier >= tier_kingdom }
-# 			# Lost war recently to powerful enemy
-# 			any_truce_target = { highest_held_title_tier >= tier_kingdom }
-# 			# In debt
-# 			gold < -100
-# 			# Epidemic
-# 			capital_province = {
-# 				any_province_epidemic = { count >= 1 }
-# 			}
-# 			any_in_list = {
-# 				variable = formerly_infected_counties
-# 				title_province = root.capital_province
-# 			}
-# 		}
-# 		# Never twice
-# 		NOT = { has_character_flag = ep3_iconoclast_cooldown }
-# 	}
+	# trigger = {
+	# 	OR = {
+	# 		static_group_filter = {
+	# 			group = ep3_emperor_yearly.8040
+	# 			match = 0.2
+	# 		}
+	# 		has_trait = cynical
+	# 	}
+	# 	has_ep3_dlc_trigger = yes
+	# 	# Ensure you are l'empereur
+	# 	has_title = title:e_byzantium
+	# 	# You are not an Iconoclast
+	# 	faith = faith:orthodox
+	# 	# Something bad has happened
+	# 	OR = {
+	# 		# Won war recently to powerful enemy
+	# 		any_truce_holder = { highest_held_title_tier >= tier_kingdom }
+	# 		# Lost war recently to powerful enemy
+	# 		any_truce_target = { highest_held_title_tier >= tier_kingdom }
+	# 		# In debt
+	# 		gold < -100
+	# 		# Epidemic
+	# 		capital_province = {
+	# 			any_province_epidemic = { }
+	# 		}
+	# 		any_in_list = {
+	# 			variable = formerly_infected_counties
+	# 			title_province = root.capital_province
+	# 		}
+	# 	}
+	# 	# Never twice
+	# 	NOT = { has_character_flag = ep3_iconoclast_cooldown }
+	# }
 
-# 	weight_multiplier = {
-# 		base = 1
-# 		modifier = {
-# 			factor = 2
-# 			# Constantinopolis is Iconoclast
-# 			capital_province.faith = faith:iconoclast
-# 		}
-# 		modifier = {
-# 			factor = 2
-# 			# Iconoclasm is about
-# 			any_sub_realm_county = { faith = faith:iconoclast }
-# 		}
-# 		modifier = {
-# 			factor = 2
-# 			# Won war recently to powerful enemy
-# 			any_truce_holder = { highest_held_title_tier >= tier_kingdom }
-# 		}
-# 		modifier = {
-# 			factor = 2
-# 			# Lost war recently to powerful enemy
-# 			any_truce_target = { highest_held_title_tier >= tier_kingdom }
-# 		}
-# 		modifier = {
-# 			factor = 2
-# 			# In debt
-# 			gold < -100
-# 		}
-# 		modifier = {
-# 			factor = 2
-# 			capital_province = {
-# 				any_province_epidemic = { count >= 1 }
-# 			}
-# 		}
-# 		modifier = {
-# 			factor = 2
-# 			any_in_list = {
-# 				variable = formerly_infected_counties
-# 				title_province = root.capital_province
-# 			}
-# 		}
-# 	}
+	# weight_multiplier = {
+	# 	base = 1
+	# 	modifier = {
+	# 		factor = 2
+	# 		# Constantinopolis is Iconoclast
+	# 		capital_province.faith = faith:iconoclast
+	# 	}
+	# 	modifier = {
+	# 		factor = 2
+	# 		# Iconoclasm is about
+	# 		any_sub_realm_county = { faith = faith:iconoclast }
+	# 	}
+	# 	modifier = {
+	# 		factor = 2
+	# 		# Won war recently to powerful enemy
+	# 		any_truce_holder = { highest_held_title_tier >= tier_kingdom }
+	# 	}
+	# 	modifier = {
+	# 		factor = 2
+	# 		# Lost war recently to powerful enemy
+	# 		any_truce_target = { highest_held_title_tier >= tier_kingdom }
+	# 	}
+	# 	modifier = {
+	# 		factor = 2
+	# 		# In debt
+	# 		gold < -100
+	# 	}
+	# 	modifier = {
+	# 		factor = 2
+	# 		capital_province = {
+	# 			any_province_epidemic = { }
+	# 		}
+	# 	}
+	# 	modifier = {
+	# 		factor = 2
+	# 		any_in_list = {
+	# 			variable = formerly_infected_counties
+	# 			title_province = root.capital_province
+	# 		}
+	# 	}
+	# }
 
-# 	immediate = {
-# 		add_character_flag = ep3_iconoclast_cooldown
-# 		capital_province = { save_scope_as = constantinople }
-# 		character:70502 = { save_scope_as = leo }
-# 		title:e_byzantium.previous_holder ?= {
-# 			if = {
-# 				limit = { faith = faith:iconoclast }
-# 				save_scope_as = predecessor
-# 			}
-# 		}
-# 		if = {
-# 			limit = {
-# 				any_close_family_member = {
-# 					faith = faith:iconoclast
-# 					OR = {
-# 						is_parent_of = root
-# 						is_grandparent_of = root
-# 					}
-# 				}
-# 			}
-# 			random_close_family_member = {
-# 				limit = {
-# 					sex_same_as = root
-# 					is_parent_of = root
-# 					faith = faith:iconoclast
-# 				}
-# 				alternative_limit = {
-# 					is_parent_of = root
-# 					faith = faith:iconoclast
-# 				}
-# 				alternative_limit = {
-# 					sex_same_as = root
-# 					is_grandparent_of = root
-# 					faith = faith:iconoclast
-# 				}
-# 				alternative_limit = {
-# 					is_grandparent_of = root
-# 					faith = faith:iconoclast
-# 				}
-# 				save_scope_as = family
-# 			}
-# 		}
-# 		if = {
-# 			limit = {
-# 				title:k_orthodox.holder = { is_vassal_of = root }
-# 			}
-# 			title:k_orthodox.holder = { save_scope_as = priest }
-# 		}
-# 		else = {
-# 			ordered_vassal = {
-# 				limit = {
-# 					OR = {
-# 						is_clergy = yes
-# 						is_theocratic_lessee = yes
-# 						government_has_flag = government_is_theocracy
-# 					}
-# 				}
-# 				order_by = highest_held_title_tier
-# 				save_scope_as = priest
-# 			}
-# 		}
-# 		# Fallback
-# 		if = {
-# 			limit = { NOT = { exists = scope:priest } }
-# 			cp:councillor_court_chaplain ?= { save_scope_as = priest }
-# 		}
-# 		if = {
-# 			limit = {
-# 				# Lost war recently to powerful enemy
-# 				any_truce_target = { highest_held_title_tier >= tier_kingdom }
-# 			}
-# 			ordered_truce_target = {
-# 				order_by = max_military_strength
-# 				save_scope_as = truce_target
-# 			}
-# 		}
-# 		if = {
-# 			limit = {
-# 				# Won war recently to powerful enemy
-# 				any_truce_holder = { highest_held_title_tier >= tier_kingdom }
-# 			}
-# 			ordered_truce_holder = {
-# 				order_by = max_military_strength
-# 				save_scope_as = truce_holder
-# 			}
-# 		}
-# 		scope:constantinople = {
-# 			if = {
-# 				limit = {
-# 					any_province_epidemic = { count >= 1 }
-# 				}
-# 				random_province_epidemic = {
-# 					limit = { outbreak_intensity = apocalyptic }
-# 					alternative_limit = { outbreak_intensity = major }
-# 					alternative_limit = { outbreak_intensity = minor }
-# 					save_scope_as = epidemic
-# 				}
-# 			}
-# 		}
-# 	}
+	# immediate = {
+	# 	add_character_flag = ep3_iconoclast_cooldown
+	# 	capital_province = { save_scope_as = constantinople }
+	# 	character:70502 = { save_scope_as = leo }
+	# 	title:e_byzantium.previous_holder ?= {
+	# 		if = {
+	# 			limit = { faith = faith:iconoclast }
+	# 			save_scope_as = predecessor
+	# 		}
+	# 	}
+	# 	if = {
+	# 		limit = {
+	# 			any_close_family_member = {
+	# 				faith = faith:iconoclast
+	# 				OR = {
+	# 					is_parent_of = root
+	# 					is_grandparent_of = root
+	# 				}
+	# 			}
+	# 		}
+	# 		random_close_family_member = {
+	# 			limit = {
+	# 				sex_same_as = root
+	# 				is_parent_of = root
+	# 				faith = faith:iconoclast
+	# 			}
+	# 			alternative_limit = {
+	# 				is_parent_of = root
+	# 				faith = faith:iconoclast
+	# 			}
+	# 			alternative_limit = {
+	# 				sex_same_as = root
+	# 				is_grandparent_of = root
+	# 				faith = faith:iconoclast
+	# 			}
+	# 			alternative_limit = {
+	# 				is_grandparent_of = root
+	# 				faith = faith:iconoclast
+	# 			}
+	# 			save_scope_as = family
+	# 		}
+	# 	}
+	# 	if = {
+	# 		limit = {
+	# 			title:k_orthodox.holder = { is_vassal_of = root }
+	# 		}
+	# 		title:k_orthodox.holder = { save_scope_as = priest }
+	# 	}
+	# 	else = {
+	# 		ordered_vassal = {
+	# 			limit = {
+	# 				OR = {
+	# 					is_clergy = yes
+	# 					is_theocratic_lessee = yes
+	# 					government_has_flag = government_is_theocracy
+	# 				}
+	# 			}
+	# 			order_by = highest_held_title_tier
+	# 			save_scope_as = priest
+	# 		}
+	# 	}
+	# 	# Fallback
+	# 	if = {
+	# 		limit = { NOT = { exists = scope:priest } }
+	# 		cp:councillor_court_chaplain ?= { save_scope_as = priest }
+	# 	}
+	# 	if = {
+	# 		limit = {
+	# 			# Lost war recently to powerful enemy
+	# 			any_truce_target = { highest_held_title_tier >= tier_kingdom }
+	# 		}
+	# 		ordered_truce_target = {
+	# 			order_by = max_military_strength
+	# 			save_scope_as = truce_target
+	# 		}
+	# 	}
+	# 	if = {
+	# 		limit = {
+	# 			# Won war recently to powerful enemy
+	# 			any_truce_holder = { highest_held_title_tier >= tier_kingdom }
+	# 		}
+	# 		ordered_truce_holder = {
+	# 			order_by = max_military_strength
+	# 			save_scope_as = truce_holder
+	# 		}
+	# 	}
+	# 	scope:constantinople = {
+	# 		if = {
+	# 			limit = {
+	# 				any_province_epidemic = { }
+	# 			}
+	# 			random_province_epidemic = {
+	# 				limit = { outbreak_intensity = apocalyptic }
+	# 				alternative_limit = { outbreak_intensity = major }
+	# 				alternative_limit = { outbreak_intensity = minor }
+	# 				save_scope_as = epidemic
+	# 			}
+	# 		}
+	# 	}
+	# }
 
-# 	option = { # Convert
-# 		name = ep3_emperor_yearly.8040.a
-# 		add_piety = major_piety_gain
-# 		set_character_faith_with_conversion = faith:iconoclast
-# 		add_character_modifier = {
-# 			modifier = ep3_iconoclast_modifier
-# 			years = 15
-# 		}
-# 		if = {
-# 			limit = { ep3_iconoclast_vassal_count > 0 }
-# 			change_influence = {
-# 				value = 25
-# 				multiply = ep3_iconoclast_vassal_count
-# 			}
-# 		}
-# 		scope:priest = {
-# 			if = {
-# 				limit = { faith != faith:iconoclast }
-# 				add_opinion = {
-# 					target = root
-# 					modifier = angry_opinion
-# 					opinion = -30
-# 				}
-# 			}
-# 			else = {
-# 				add_opinion = {
-# 					target = root
-# 					modifier = pleased_opinion
-# 					opinion = 15
-# 				}
-# 			}
-# 		}
-# 		stress_impact = {
-# 			stubborn = medium_stress_impact_gain
-# 			lazy = medium_stress_impact_gain
-# 			arrogant = medium_stress_impact_gain
-# 			brave = medium_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 1
-# 			ai_value_modifier = {
-# 				ai_boldness = 0.5
-# 				ai_zeal = 0.5
-# 			}
-# 		}
-# 	}
+	# option = { # Convert
+	# 	name = ep3_emperor_yearly.8040.a
+	# 	add_piety = major_piety_gain
+	# 	set_character_faith_with_conversion = faith:iconoclast
+	# 	if = {
+	# 		limit = { 
+	# 			faith:iconoclast = { has_doctrine = doctrine_monotheist }
+	# 		}
+	# 		custom_description_no_bullet = { text = mandala_monotheist_warning_tt }
+	# 	}
+	# 	add_character_modifier = {
+	# 		modifier = ep3_iconoclast_modifier
+	# 		years = 15
+	# 	}
+	# 	if = {
+	# 		limit = { ep3_iconoclast_vassal_count > 0 }
+	# 		change_influence = {
+	# 			value = 25
+	# 			multiply = ep3_iconoclast_vassal_count
+	# 		}
+	# 	}
+	# 	scope:priest = {
+	# 		if = {
+	# 			limit = { faith != faith:iconoclast }
+	# 			add_opinion = {
+	# 				target = root
+	# 				modifier = angry_opinion
+	# 				opinion = -30
+	# 			}
+	# 		}
+	# 		else = {
+	# 			add_opinion = {
+	# 				target = root
+	# 				modifier = pleased_opinion
+	# 				opinion = 15
+	# 			}
+	# 		}
+	# 	}
+	# 	stress_impact = {
+	# 		stubborn = medium_stress_impact_gain
+	# 		lazy = medium_stress_impact_gain
+	# 		arrogant = medium_stress_impact_gain
+	# 		brave = medium_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 1
+	# 		ai_value_modifier = {
+	# 			ai_boldness = 0.5
+	# 			ai_zeal = 0.5
+	# 		}
+	# 	}
+	# }
 
 # 	option = { # Stay the course
 # 		name = ep3_emperor_yearly.8040.b
@@ -1577,7 +1588,8 @@ ep3_emperor_yearly.8050 = {
 		has_ep3_dlc_trigger = yes
 		# Ensure you are l'empereur
 		government_allows = administrative
-		highest_held_title_tier = tier_empire
+		highest_held_title_tier >= tier_empire
+		is_independent_ruler = yes
 		# Have a marshal
 		cp:councillor_marshal ?= { is_ai = yes }
 		# Sea capital
@@ -1929,7 +1941,7 @@ scripted_effect ep3_emperor_yearly_8060_defect_effect = {
 		text = ep3_emperor_yearly.8060.every_title
 		scope:defector = {
 			every_held_title = {
-				limit = { tier >= tier_county }
+				title_tier >= county
 				save_scope_as = title
 				root = { add_pressed_claim = scope:title }
 			}
@@ -2049,7 +2061,8 @@ ep3_emperor_yearly.8060 = {
 	trigger = {
 		has_ep3_dlc_trigger = yes
 		# Ensure you are l'empereur
-		highest_held_title_tier = tier_empire
+		highest_held_title_tier >= tier_empire
+		is_independent_ruler = yes
 		government_allows = administrative
 		# To avoid edge cases
 		is_at_war = no

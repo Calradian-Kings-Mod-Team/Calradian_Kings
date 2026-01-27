@@ -557,6 +557,7 @@ tradition_gardening = {
 				}
 			}
 		}
+		NOT = { culture_tradition:tradition_tgp_ephemeral_grace = { is_in_list = traits } }
 	}
 	
 	parameters = {
@@ -1626,7 +1627,7 @@ tradition_culture_blending = {
 						scope:character = {
 							any_sub_realm_county = {
 								percent >= 0.3
-								NOT = { culture = root }
+								culture != root
 							}
 						}
 					}
@@ -1720,9 +1721,7 @@ tradition_isolationist = {
 						any_sub_realm_county = {
 							culture = scope:character.culture
 							any_neighboring_county = {
-								NOT = {
-									culture = scope:character.culture
-								}
+								culture != scope:character.culture
 								culture = {
 									cultural_acceptance = { target = scope:character.culture value >= 40 }
 								}
@@ -1762,6 +1761,14 @@ tradition_isolationist = {
 		}
 	}
 	
+	can_pick = {
+		# Mutually exclusive with other Isolationist
+		NOR = {
+			culture_tradition:tradition_tgp_inward_perfection = { is_in_list = traits }
+			culture_tradition:tradition_cultural_primacy = { is_in_list = traits }
+		}
+	}
+
 	ai_will_do = {
 		value = 100
 		if = {
@@ -1905,16 +1912,20 @@ tradition_agrarian = {
 		1 = indian
 		4 = farmland.dds
 	}
+
+	is_shown = {
+		NOT = {
+			culture_tradition:tradition_intensive_farming = { is_in_list = traits }
+		}
+	}
 	
 	can_pick = {
 		custom_tooltip = {
 			text = culture_in_farmlands_or_floodplains_terrain_desc
 			any_culture_county = {
-				any_county_province = {
-					OR = {
-						terrain = farmlands
-						terrain = floodplains
-					}
+				county_has_province_with_terrain = {
+					terrain = farmlands
+					terrain = floodplains
 				}
 			}
 		}
@@ -1968,11 +1979,9 @@ tradition_agrarian = {
 					NOT = {
 						any_culture_county = {
 							count >= 5
-							any_county_province = {
-								OR = {
-									terrain = farmlands
-									terrain = floodplains
-								}
+							county_has_province_with_terrain = {
+								terrain = farmlands
+								terrain = floodplains
 							}
 						}
 					}
@@ -2006,11 +2015,9 @@ tradition_agrarian = {
 						any_sub_realm_county = {
 							count >= 2
 							culture = scope:character.culture
-							any_county_province = {
-								OR = {
-									terrain = farmlands
-									terrain = floodplains
-								}
+							county_has_province_with_terrain = {
+								terrain = farmlands
+								terrain = floodplains
 							}
 						}
 					}
@@ -2132,11 +2139,9 @@ tradition_pastoralists = {
 						any_sub_realm_county = {
 							percent >= 0.6
 							culture = scope:character.culture
-							any_county_province = {
-								OR = {
-									terrain = plains
-									terrain = steppe
-								}
+							county_has_province_with_terrain = {
+								terrain = plains
+								terrain = steppe
 							}
 						}
 					}
@@ -2439,9 +2444,7 @@ tradition_staunch_traditionalists = {
 				limit = {
 					scope:character = {
 						any_sub_realm_county = {
-							NOT = {
-								culture = scope:character.culture
-							}
+							culture != scope:character.culture
 						}
 					}
 				}
@@ -2518,7 +2521,7 @@ tradition_hill_dwellers = {
 		custom_description = {
 			text = culture_in_hills_desc
 			any_culture_county = {
-				any_county_province = {
+				county_has_province_with_terrain = {
 					terrain = hills
 				}
 			}
@@ -2564,7 +2567,7 @@ tradition_hill_dwellers = {
 					NOT = {
 						any_culture_county = {
 							percent >= 0.3
-							any_county_province = {
+							county_has_province_with_terrain = {
 								terrain = hills
 							}
 						}
@@ -2599,7 +2602,7 @@ tradition_hill_dwellers = {
 						any_sub_realm_county = {
 							percent >= 0.2
 							culture = scope:character.culture
-							any_county_province = {
+							county_has_province_with_terrain = {
 								terrain = hills
 							}
 						}
@@ -2612,7 +2615,7 @@ tradition_hill_dwellers = {
 			limit = {
 				any_culture_county = {
 					percent >= 0.6
-					any_county_province = {
+					county_has_province_with_terrain = {
 						terrain = hills
 					}
 				}
@@ -2644,11 +2647,9 @@ tradition_forest_folk = {
 		custom_description = {
 			text = culture_in_forest_desc
 			any_culture_county = {
-				any_county_province = {
-					OR = {
-						terrain = forest
-						terrain = taiga
-					}
+				county_has_province_with_terrain = {
+					terrain = forest
+					terrain = taiga
 				}
 			}
 		}
@@ -2697,11 +2698,9 @@ tradition_forest_folk = {
 					NOT = {
 						any_culture_county = {
 							percent >= 0.3
-							any_county_province = {
-								OR = {
-									terrain = forest
-									terrain = taiga
-								}
+							county_has_province_with_terrain = {
+								terrain = forest
+								terrain = taiga
 							}
 						}
 					}
@@ -2735,11 +2734,9 @@ tradition_forest_folk = {
 						any_sub_realm_county = {
 							percent >= 0.2
 							culture = scope:character.culture
-							any_county_province = {
-								OR = {
-									terrain = forest
-									terrain = taiga
-								}
+							county_has_province_with_terrain = {
+								terrain = forest
+								terrain = taiga
 							}
 						}
 					}
@@ -2751,11 +2748,9 @@ tradition_forest_folk = {
 			limit = {
 				any_culture_county = {
 					percent >= 0.6
-					any_county_province = {
-						OR = {
-							terrain = forest
-							terrain = taiga
-						}
+					county_has_province_with_terrain = {
+						terrain = forest
+						terrain = taiga
 					}
 				}
 			}
@@ -2790,11 +2785,9 @@ tradition_mountain_homes = {
 		custom_description = {
 			text = culture_in_mountains_desc
 			any_culture_county = {
-				any_county_province = {
-					OR = {
-						terrain = mountains
-						terrain = desert_mountains
-					}
+				county_has_province_with_terrain = {
+					terrain = mountains
+					terrain = desert_mountains
 				}
 			}
 		}
@@ -2843,11 +2836,9 @@ tradition_mountain_homes = {
 					NOT = {
 						any_culture_county = {
 							percent >= 0.3
-							any_county_province = {
-								OR = {
-									terrain = mountains
-									terrain = desert_mountains
-								}
+							county_has_province_with_terrain = {
+								terrain = mountains
+								terrain = desert_mountains
 							}
 						}
 					}
@@ -2881,11 +2872,9 @@ tradition_mountain_homes = {
 						any_sub_realm_county = {
 							percent >= 0.2
 							culture = scope:character.culture
-							any_county_province = {
-								OR = {
-									terrain = mountains
-									terrain = desert_mountains
-								}
+							county_has_province_with_terrain = {
+								terrain = mountains
+								terrain = desert_mountains
 							}
 						}
 					}
@@ -2897,11 +2886,9 @@ tradition_mountain_homes = {
 			limit = {
 				any_culture_county = {
 					percent >= 0.6
-					any_county_province = {
-						OR = {
-							terrain = mountains
-							terrain = desert_mountains
-						}
+					county_has_province_with_terrain = {
+						terrain = mountains
+						terrain = desert_mountains
 					}
 				}
 			}
@@ -2923,11 +2910,9 @@ tradition_dryland_dwellers = {
 		custom_description = {
 			text = culture_in_dryland_desc
 			any_culture_county = {
-				any_county_province = {
-					OR = {
-						terrain = drylands
-						terrain = desert
-					}
+				county_has_province_with_terrain = {
+					terrain = drylands
+					terrain = desert
 				}
 			}
 		}
@@ -2980,11 +2965,9 @@ tradition_dryland_dwellers = {
 					NOT = {
 						any_culture_county = {
 							percent >= 0.3
-							any_county_province = {
-								OR = {
-									terrain = drylands
-									terrain = desert
-								}
+							county_has_province_with_terrain = {
+								terrain = drylands
+								terrain = desert
 							}
 						}
 					}
@@ -3018,11 +3001,9 @@ tradition_dryland_dwellers = {
 						any_sub_realm_county = {
 							percent >= 0.2
 							culture = scope:character.culture
-							any_county_province = {
-								OR = {
-									terrain = drylands
-									terrain = desert
-								}
+							county_has_province_with_terrain = {
+								terrain = drylands
+								terrain = desert
 							}
 						}
 					}
@@ -3034,11 +3015,9 @@ tradition_dryland_dwellers = {
 			limit = {
 				any_culture_county = {
 					percent >= 0.6
-					any_county_province = {
-						OR = {
-							terrain = drylands
-							terrain = desert
-						}
+					county_has_province_with_terrain = {
+						terrain = drylands
+						terrain = desert
 					}
 				}
 			}
@@ -3067,7 +3046,7 @@ tradition_jungle_dwellers = {
 		custom_description = {
 			text = culture_in_jungle_desc
 			any_culture_county = {
-				any_county_province = {
+				county_has_province_with_terrain = {
 					terrain = jungle
 				}
 			}
@@ -3110,7 +3089,7 @@ tradition_jungle_dwellers = {
 					NOT = {
 						any_culture_county = {
 							percent >= 0.3
-							any_county_province = {
+							county_has_province_with_terrain = {
 								terrain = jungle
 							}
 						}
@@ -3145,7 +3124,7 @@ tradition_jungle_dwellers = {
 						any_sub_realm_county = {
 							percent >= 0.2
 							culture = scope:character.culture
-							any_county_province = {
+							county_has_province_with_terrain = {
 								terrain = jungle
 							}
 						}
@@ -3158,7 +3137,7 @@ tradition_jungle_dwellers = {
 			limit = {
 				any_culture_county = {
 					percent >= 0.6
-					any_county_province = {
+					county_has_province_with_terrain = {
 						terrain = jungle
 					}
 				}
@@ -3181,7 +3160,7 @@ tradition_wetlanders = {
 		custom_tooltip = {
 			text = culture_in_wetlands_desc
 			any_culture_county = {
-				any_county_province = {
+				county_has_province_with_terrain = {
 					terrain = wetlands
 				}
 			}
@@ -3236,7 +3215,7 @@ tradition_wetlanders = {
 					NOT = {
 						any_culture_county = {
 							count >= 3
-							any_county_province = {
+							county_has_province_with_terrain = {
 								terrain = wetlands
 							}
 						}
@@ -3271,7 +3250,7 @@ tradition_wetlanders = {
 						any_sub_realm_county = {
 							count >= 3
 							culture = scope:character.culture
-							any_county_province = {
+							county_has_province_with_terrain = {
 								terrain = wetlands
 							}
 						}
@@ -3284,7 +3263,7 @@ tradition_wetlanders = {
 			limit = {
 				any_culture_county = {
 					percent >= 0.6
-					any_county_province = {
+					county_has_province_with_terrain = {
 						terrain = wetlands
 					}
 				}
@@ -3314,7 +3293,7 @@ tradition_hidden_cities = {
 		custom_description = {
 			text = culture_in_jungle_desc
 			any_culture_county = {
-				any_county_province = {
+				county_has_province_with_terrain = {
 					terrain = jungle
 				}
 			}
@@ -3357,7 +3336,7 @@ tradition_hidden_cities = {
 					NOT = {
 						any_culture_county = {
 							percent >= 0.3
-							any_county_province = {
+							county_has_province_with_terrain = {
 								terrain = jungle
 							}
 						}
@@ -3390,7 +3369,7 @@ tradition_hidden_cities = {
 				NOT = {
 					any_culture_county = {
 						percent >= 0.3
-						any_county_province = {
+						county_has_province_with_terrain = {
 							terrain = jungle
 						}
 					}
@@ -3418,8 +3397,8 @@ tradition_hidden_cities = {
 			limit = {
 				any_culture_county = {
 					percent >= 0.6
-					any_county_province = {
-						terrain = wetlands
+					county_has_province_with_terrain = {
+						terrain = jungle
 					}
 				}
 			}
@@ -3477,7 +3456,7 @@ tradition_ancient_miners = {
 					scope:character = {
 						any_sub_realm_county = {
 							culture = scope:character.culture
-							any_county_province = {
+							county_has_province_with_terrain = {
 								terrain = hills
 							}
 						}
@@ -3502,8 +3481,11 @@ tradition_castle_keepers = {
 		custom_tooltip = {
 			scope:character = {
 				OR = {
-					government_has_flag = government_is_feudal
-					government_has_flag = government_is_clan
+						government_has_flag = government_is_feudal
+						government_has_flag = government_is_clan #Update for FP3
+						government_has_flag = government_is_administrative
+						government_has_flag = government_has_merit
+						government_has_flag = government_is_japan_feudal
 				}
 			}
 			text = must_be_feudal_or_clan
@@ -3610,13 +3592,20 @@ tradition_city_keepers = {
 	
 	can_pick = {
 		trigger_if = {
-			limit = { has_ep3_dlc_trigger = yes }
+			limit = {
+				OR = {
+					has_ep3_dlc_trigger = yes
+					has_tgp_dlc_trigger = yes
+				}
+			}
 			custom_tooltip = {
 				scope:character = {
 					OR = {
 						government_has_flag = government_is_feudal
-						government_has_flag = government_is_clan #Update for FP3
+						government_has_flag = government_is_clan
 						government_has_flag = government_is_administrative
+						government_has_flag = government_has_merit
+						government_has_flag = government_is_japan_feudal
 					}
 				}
 				text = must_be_feudal_clan_or_admin
@@ -3627,7 +3616,7 @@ tradition_city_keepers = {
 				scope:character = {
 					OR = {
 						government_has_flag = government_is_feudal
-						government_has_flag = government_is_clan #Update for FP3
+						government_has_flag = government_is_clan
 					}
 				}
 				text = must_be_feudal_or_clan
@@ -3734,9 +3723,7 @@ tradition_maritime_mercantilism = {
 		custom_description = {
 			text = culture_on_coast_desc
 			any_culture_county = {
-				any_county_province = {
-					is_coastal = yes
-				}
+				has_coastal_province = yes
 			}
 		}
 	}
@@ -3778,9 +3765,7 @@ tradition_maritime_mercantilism = {
 					NOT = {
 						any_culture_county = {
 							percent >= 0.3
-							any_county_province = {
-								is_coastal = yes
-							}
+							has_coastal_province = yes
 						}
 					}
 				}
@@ -3811,9 +3796,7 @@ tradition_maritime_mercantilism = {
 				scope:character = {
 					any_sub_realm_county = {
 						percent >= 0.6
-						any_county_province = {
-							is_coastal = yes
-						}
+						has_coastal_province = yes
 					}
 				}
 			}
@@ -3834,9 +3817,7 @@ tradition_maritime_mercantilism = {
 					scope:character = {
 						any_sub_realm_county = {
 							percent >= 0.3
-							any_county_province = {
-								is_coastal = yes
-							}
+							has_coastal_province = yes
 						}
 					}
 				}
@@ -3847,9 +3828,7 @@ tradition_maritime_mercantilism = {
 			limit = {
 				any_culture_county = {
 					percent >= 0.6
-					any_county_province = {
-						is_coastal = yes
-					}
+					has_coastal_province = yes
 				}
 			}
 			multiply = 2

@@ -14,16 +14,18 @@
 			}
 		}
 	}
+
+	allowed_for_character_display_regardless = {
+		tgp_japan_offensive_wars_ban_trigger = yes
+	}
 	
 	allowed_against_character = {
 		scope:attacker = {
 			has_de_jure_claim_on = scope:defender
 		}
-		NOT = {
-			OR = {
-				scope:defender = { target_is_liege_or_above = scope:attacker }
-				scope:attacker = { target_is_liege_or_above = scope:defender }
-			}
+		NOR = {
+			scope:defender = { target_is_liege_or_above = scope:attacker }
+			scope:attacker = { target_is_liege_or_above = scope:defender }
 		}
 	}
 	target_titles = de_jure
@@ -36,8 +38,7 @@
 	valid_to_start = {
 		scope:target = {
 			any_this_title_or_de_jure_above = {
-				exists = holder
-				holder = {
+				holder ?= {
 					OR = {
 						this = scope:attacker
 						target_is_liege_or_above = scope:attacker
@@ -60,7 +61,11 @@
 					list = target_titles 
 					limit = {
 						tier = tier_county
-						holder.top_liege = scope:defender
+						OR = {
+							holder.top_liege = scope:defender
+							holder.liege = scope:defender
+							holder.liege = scope:defender.liege
+						}
 					}
 					add = 100
 				}
@@ -148,6 +153,9 @@
 
 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+		#Mandalas gain or lose piety/devotion depending on Decree
+		mandala_war_victory_effects = yes
 	}
 
 	on_white_peace_desc = {
@@ -229,8 +237,11 @@
 		# Legitimacy
 		add_legitimacy_attacker_defeat_effect = yes
 
-		#EP2 accolade glory gain for winning against higher ranked enemy
-		scope:defender = { accolade_defender_war_end_glory_gain_med_effect = yes }
+		scope:defender = {
+			mandala_peacemaker_perk_serenity_effect = yes
+			#EP2 accolade glory gain for winning against higher ranked enemy
+			accolade_defender_war_end_glory_gain_med_effect = yes
+		}
 
 		# Attacker must pay the defender war reparations.
 		scope:attacker = {
@@ -256,8 +267,6 @@
 			WINNER_ALLY_FAME_SCALE = 100
 			LOSER_ALLY_FAME_SCALE = 100
 		}
-
-
 	
 		# Truce
 		add_truce_attacker_defeat_effect = yes
@@ -269,6 +278,9 @@
 
 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+		#Mandalas gain or lose piety/devotion depending on Decree
+		mandala_war_defeat_effects = yes
 	}
 	
 	on_primary_attacker_death = inherit
@@ -313,15 +325,17 @@ individual_county_de_jure_cb = {
 		}
 	}
 
+	allowed_for_character_display_regardless = {
+		tgp_japan_offensive_wars_ban_trigger = yes
+	}
+
 	allowed_against_character = {
 		scope:attacker = {
 			has_de_jure_claim_on = scope:defender
 		}
-		NOT = {
-			OR = {
-				scope:defender = { target_is_liege_or_above = scope:attacker }
-				scope:attacker = { target_is_liege_or_above = scope:defender }
-			}
+		NOR = {
+			scope:defender = { target_is_liege_or_above = scope:attacker }
+			scope:attacker = { target_is_liege_or_above = scope:defender }
 		}
 	}
 	target_titles = all
@@ -334,8 +348,7 @@ individual_county_de_jure_cb = {
 		scope:target = {
 			tier = tier_county
 			any_this_title_or_de_jure_above = {
-				exists = holder
-				holder = {
+				holder ?= {
 					OR = {
 						this = scope:attacker
 						target_is_liege_or_above = scope:attacker
@@ -477,6 +490,9 @@ individual_county_de_jure_cb = {
 
 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+		#Mandalas gain or lose piety/devotion depending on Decree
+		mandala_war_victory_effects = yes
 	}
 
 	on_white_peace_desc = {
@@ -549,9 +565,12 @@ individual_county_de_jure_cb = {
 		
 		# Legitimacy
 		add_legitimacy_attacker_defeat_effect = yes
-
-		#EP2 accolade glory gain for winning against higher ranked enemy
-		scope:defender = { accolade_defender_war_end_glory_gain_low_effect = yes }
+	
+		scope:defender = {
+			mandala_peacemaker_perk_serenity_effect = yes
+			#EP2 accolade glory gain for winning against higher ranked enemy
+			accolade_defender_war_end_glory_gain_low_effect = yes 
+		}
 
 		# Attacker must pay the defender war reparations.
 		scope:attacker = {
@@ -593,6 +612,9 @@ individual_county_de_jure_cb = {
 
 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+		#Mandalas gain or lose piety/devotion depending on Decree
+		mandala_war_defeat_effects = yes
 	}
 	
 	on_primary_attacker_death = inherit
@@ -639,15 +661,17 @@ individual_duchy_de_jure_cb = {
 		}
 	}
 
+	allowed_for_character_display_regardless = {
+		tgp_japan_offensive_wars_ban_trigger = yes
+	}
+
 	allowed_against_character = {
 		scope:attacker = {
 			has_de_jure_claim_on = scope:defender
 		}
-		NOT = {
-			OR = {
-				scope:defender = { target_is_liege_or_above = scope:attacker }
-				scope:attacker = { target_is_liege_or_above = scope:defender }
-			}
+		NOR = {
+			scope:defender = { target_is_liege_or_above = scope:attacker }
+			scope:attacker = { target_is_liege_or_above = scope:defender }
 		}
 	}
 	target_titles = all
@@ -660,8 +684,7 @@ individual_duchy_de_jure_cb = {
 		scope:target = {
 			tier = tier_duchy
 			any_this_title_or_de_jure_above = {
-				exists = holder
-				holder = {
+				holder ?= {
 					OR = {
 						this = scope:attacker
 						target_is_liege_or_above = scope:attacker
@@ -705,7 +728,11 @@ individual_duchy_de_jure_cb = {
 					every_in_de_jure_hierarchy = { # goes down, not up
 						limit = {
 							tier = tier_county
-							holder.top_liege = scope:defender
+							OR = {
+								holder.top_liege = scope:defender
+								holder.liege = scope:defender
+								holder.liege = scope:defender.liege
+							}
 						}
 						add = 100
 					}
@@ -829,6 +856,9 @@ individual_duchy_de_jure_cb = {
 
 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+		#Mandalas gain or lose piety/devotion depending on Decree
+		mandala_war_victory_effects = yes
 	}
 
 	on_white_peace_desc = {
@@ -905,9 +935,12 @@ individual_duchy_de_jure_cb = {
 		
 		# Legitimacy
 		add_legitimacy_attacker_defeat_effect = yes
-
-		#EP2 accolade glory gain for winning against higher ranked enemy
-		scope:defender = { accolade_defender_war_end_glory_gain_med_effect = yes }
+	
+		scope:defender = {
+			mandala_peacemaker_perk_serenity_effect = yes
+			#EP2 accolade glory gain for winning against higher ranked enemy
+			accolade_defender_war_end_glory_gain_med_effect = yes 
+		}
 
 		# Attacker must pay the defender war reparations.
 		scope:attacker = {
@@ -949,6 +982,9 @@ individual_duchy_de_jure_cb = {
 
 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+		#Mandalas gain or lose piety/devotion depending on Decree
+		mandala_war_defeat_effects = yes
 	}
 	
 	on_primary_attacker_death = inherit
@@ -988,7 +1024,7 @@ individual_duchy_de_jure_cb = {
 
 	# allowed_for_character = {
 	# 	scope:attacker = {
-	# 		has_title = title:e_roman_empire
+	# 		is_roman_emperor_excluding_byzantium_trigger = yes
 	# 	}
 	# }
 	
@@ -1085,14 +1121,21 @@ individual_duchy_de_jure_cb = {
 # 		scope:attacker = { fp1_remember_recent_conquest_victory_effect = yes }
 # 	}
 
-# 	on_white_peace_desc = {
-# 		first_valid = {
-# 			triggered_desc = {
-# 				trigger = { scope:defender = { is_local_player = yes } }
-# 				desc = de_jure_cb_white_peace_desc_defender
-# 			}
-# 			desc = de_jure_cb_white_peace_desc
-# 		}
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+	# 	laamp_as_mercenary_payout_tooltip_effect = yes
+
+	# 	#Mandalas gain or lose piety/devotion depending on Decree
+	# 	mandala_war_victory_effects = yes
+	# }
+
+	# on_white_peace_desc = {
+	# 	first_valid = {
+	# 		triggered_desc = {
+	# 			trigger = { scope:defender = { is_local_player = yes } }
+	# 			desc = de_jure_cb_white_peace_desc_defender
+	# 		}
+	# 		desc = de_jure_cb_white_peace_desc
+	# 	}
 		
 # 	}
 	
@@ -1139,8 +1182,11 @@ individual_duchy_de_jure_cb = {
 	# 	# Legitimacy
 	# 	add_legitimacy_attacker_defeat_effect = yes
 
-# 		#EP2 accolade glory gain for winning against higher ranked enemy
-# 		scope:defender = { accolade_defender_war_end_glory_gain_med_effect = yes }
+		# scope:defender = {
+		# 	mandala_peacemaker_perk_serenity_effect = yes
+		# 	#EP2 accolade glory gain for winning against higher ranked enemy
+		# 	accolade_defender_war_end_glory_gain_med_effect = yes
+		# }
 	
 # 		scope:attacker = {
 # 			pay_short_term_gold_reparations_effect = {
@@ -1182,7 +1228,12 @@ individual_duchy_de_jure_cb = {
 # 	cb_name = IMPERIAL_RECONQUEST_SPECIFIC_NAME
 # 	interface_priority = 98 #Below take all and regular dejure.
 
-# 	attacker_wargoal_percentage = 0.8
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+	# 	laamp_as_mercenary_payout_tooltip_effect = yes
+
+	# 	#Mandalas gain or lose piety/devotion depending on Decree
+	# 	mandala_war_defeat_effects = yes
+	# }
 	
 # 	max_defender_score_from_occupation = 150
 # 	max_attacker_score_from_occupation = 150
@@ -1192,4 +1243,359 @@ individual_duchy_de_jure_cb = {
 # 	on_invalidated_desc = msg_invalidate_war_title
 # }
 
-# Removed Pretender CB's because they do not exist
+# 	attacker_wargoal_percentage = 0.8
+	
+# 	max_defender_score_from_occupation = 150
+# 	max_attacker_score_from_occupation = 150
+	
+# 	max_ai_diplo_distance_to_title = 500
+	
+# 	on_invalidated_desc = msg_invalidate_war_title
+
+# 	ai_score_mult = {
+# 		value = 1
+# 		add = frankokratia_leader_protection_value #Set back to 0. Declaring war on the frankokratia leader can really ruin the whole thing
+# 	}
+# }
+
+# dismantle_holy_pretender_cb = {
+# 	icon = dissolution_war
+# 	group = de_jure
+	
+# 	allowed_for_character = {
+# 		scope:attacker = {
+# 			has_character_flag = flag_emperor_challenging_hre
+# 		}
+# 	}
+
+# 	allowed_against_character = {
+# 		NOR = {
+# 			scope:defender = { target_is_liege_or_above = scope:attacker }
+# 			scope:attacker = { target_is_liege_or_above = scope:defender }
+# 			scope:attacker = { has_character_flag = flag_emperor_challenged_hre } #Only once per Emperor.
+# 		}
+# 	}
+# 	target_titles = all
+# 	target_title_tier = all
+# 	ignore_effect = change_title_holder
+
+# 	white_peace_possible = no
+# 	on_white_peace_desc = {
+# 		desc = WHITE_PEACE_DISABLED
+# 	}
+	
+# 	valid_to_start = {
+# 		scope:target = { this = title:e_hre }
+# 	}
+
+# 	on_declaration = {
+# 		on_declared_war = yes
+# 	}	
+
+# 	on_victory_desc = {
+# 		desc = dismantle_holy_pretender_cb_victory_desc
+# 	}
+	
+# 	on_victory = {
+# 		scope:attacker = { show_pow_release_message_effect = yes }
+# 		scope:defender = { save_scope_as = hre_emperor }
+# 		scope:attacker = {
+# 			save_scope_as = byz_emperor
+# 			destroy_title = title:e_hre
+# 			add_character_flag = { #No repeats.
+# 				flag = flag_emperor_challenged_hre
+# 			}
+# 		}		
+# 		hidden_effect = {
+# 			title:e_hre = {
+# 				every_in_de_jure_hierarchy = {
+# 					limit = {
+# 						tier = tier_kingdom
+# 					}
+# 					set_de_jure_liege_title = scope:attacker.primary_title #Drift all the HRE vassal titles to de jure Roman Empire.
+# 				}
+# 			}
+# 		}
+# 		# Legitimacy
+# 		add_legitimacy_attacker_victory_effect = yes
+# 		# truce
+# 		add_truce_attacker_victory_effect = yes
+
+# 		hidden_effect = {
+# 			scope:attacker = {
+# 				trigger_event = roman_restoration.0162
+# 			}
+# 			scope:defender = {
+# 				trigger_event = roman_restoration.0163
+# 			}
+# 		}
+
+# 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+# 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+# 		#Mandalas gain or lose piety/devotion depending on Decree
+# 		mandala_war_victory_effects = yes
+# 	}
+
+# 	on_defeat_desc = {
+# 		desc = dismantle_holy_pretender_cb_defeat_desc
+# 	}
+	
+# 	on_defeat = {
+# 		scope:attacker = { show_pow_release_message_effect = yes }
+# 		scope:defender = {
+# 			mandala_peacemaker_perk_serenity_effect = yes
+# 			save_scope_as = hre_emperor
+# 		}
+# 		scope:attacker = {
+# 			save_scope_as = byz_emperor
+# 			add_character_flag = { #No repeats.
+# 				flag = flag_emperor_challenged_hre
+# 			}
+# 			pay_short_term_gold_reparations_effect = {
+# 				GOLD_VALUE = 10
+# 			}
+# 		}
+		
+# 		every_in_list = {
+# 			list = target_titles
+# 			save_temporary_scope_as = target
+# 		}
+		
+# 		setup_de_jure_cb = {
+# 			attacker = scope:attacker
+# 			defender = scope:defender
+# 			#attacker_prestige = -10
+# 			victory = no
+# 			title = scope:target
+# 		}
+		
+# 		# Legitimacy
+# 		add_legitimacy_attacker_defeat_effect = yes
+		
+# 		# Truce
+# 		add_truce_attacker_defeat_effect = yes
+
+# 		hidden_effect = {
+# 			scope:attacker = {
+# 				trigger_event = roman_restoration.0164
+# 			}
+# 			scope:defender = {
+# 				trigger_event = roman_restoration.0165
+# 			}
+# 		}
+		
+# 		scope:attacker = {
+# 			save_temporary_scope_as = loser
+# 		}
+# 		on_lost_aggression_war_discontent_loss = yes
+
+# 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+# 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+# 		#Mandalas gain or lose piety/devotion depending on Decree
+# 		mandala_war_defeat_effects = yes
+# 	}
+	
+# 	on_primary_attacker_death = inherit
+# 	on_primary_defender_death = inherit
+	
+# 	transfer_behavior = transfer
+	
+# 	attacker_allies_inherit = yes
+# 	defender_allies_inherit = yes
+	
+# 	war_name = "DISMANTLE_EMPIRE_WAR_SPECIFIC_NAME"
+# 	war_name_base = "DISMANTLE_EMPIRE_WAR_SPECIFIC_NAME_BASE"
+# 	cb_name = DISMANTLE_EMPIRE_SPECIFIC_NAME
+# 	interface_priority = 98 #Below take all and regular dejure.
+	
+# 	attacker_ticking_warscore = 0.01
+# 	defender_ticking_warscore = 0.05
+# 	attacker_wargoal_percentage = 0.9
+# 	defender_ticking_warscore_delay = { months = 24 }
+	
+# 	max_defender_score_from_occupation = 150
+# 	max_attacker_score_from_occupation = 150
+	
+# 	max_ai_diplo_distance_to_title = 2000
+	
+# 	on_invalidated_desc = msg_invalidate_war_title
+
+# 	ai_score_mult = {
+# 		value = 1
+# 		add = frankokratia_leader_protection_value #Set back to 0. Declaring war on the frankokratia leader can really ruin the whole thing
+# 	}
+# }
+
+# dismantle_byz_pretender_cb = {
+# 	icon = dissolution_war
+# 	group = de_jure
+	
+# 	allowed_for_character = {
+# 		scope:attacker = {
+# 			has_character_flag = flag_emperor_challenging_byz
+# 		}
+# 	}
+
+# 	allowed_against_character = {
+# 		NOR = {
+# 			scope:defender = { target_is_liege_or_above = scope:attacker }
+# 			scope:attacker = { target_is_liege_or_above = scope:defender }
+# 			scope:attacker = { has_character_flag = flag_emperor_challenged_byz } #Only once per Emperor.
+# 		}
+# 	}
+# 	target_titles = all
+# 	target_title_tier = all
+# 	ignore_effect = change_title_holder
+
+# 	white_peace_possible = no
+# 	on_white_peace_desc = {
+# 		desc = WHITE_PEACE_DISABLED
+# 	}
+	
+# 	valid_to_start = {
+# 		scope:target = { this = title:e_byzantium }
+# 	}
+
+# 	on_declaration = {
+# 		on_declared_war = yes
+# 	}	
+
+# 	on_victory_desc = {
+# 		desc = dismantle_byz_pretender_cb_victory_desc
+# 	}
+	
+# 	on_victory = {
+# 		scope:attacker = { show_pow_release_message_effect = yes }
+# 		scope:defender = { save_scope_as = byz_emperor }
+# 		scope:attacker = {
+# 			save_scope_as = hre_emperor
+# 			destroy_title = title:e_byzantium
+# 			add_character_flag = { #No repeats.
+# 				flag = flag_emperor_challenged_hre
+# 			}
+# 		}		
+# 		hidden_effect = {
+# 			title:e_byzantium = {
+# 				every_in_de_jure_hierarchy = {
+# 					limit = {
+# 						tier = tier_kingdom
+# 					}
+# 					set_de_jure_liege_title = scope:attacker.primary_title #Drift all the HRE vassal titles to de jure Roman Empire.
+# 				}
+# 			}
+# 		}
+		
+# 		# Legitimacy
+# 		add_legitimacy_attacker_victory_effect = yes
+		
+# 		# truce
+# 		add_truce_attacker_victory_effect = yes
+
+# 		hidden_effect = {
+# 			scope:attacker = {
+# 				trigger_event = roman_restoration.0172
+# 			}
+# 			scope:defender = {
+# 				trigger_event = roman_restoration.0173
+# 			}
+# 		}
+
+# 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+# 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+# 		#Mandalas gain or lose piety/devotion depending on Decree
+# 		mandala_war_victory_effects = yes
+# 	}
+
+# 	on_defeat_desc = {
+# 		desc = dismantle_byz_pretender_cb_defeat_desc
+# 	}
+	
+# 	on_defeat = {
+# 		scope:attacker = { show_pow_release_message_effect = yes }
+# 		scope:defender = { 
+# 			mandala_peacemaker_perk_serenity_effect = yes
+# 			save_scope_as = byz_emperor 
+# 		}
+# 		scope:attacker = {
+# 			save_scope_as = hre_emperor
+# 			add_character_flag = { #No repeats.
+# 				flag = flag_emperor_challenged_byz
+# 			}
+# 			pay_short_term_gold_reparations_effect = {
+# 				GOLD_VALUE = 10
+# 			}
+# 		}
+		
+# 		every_in_list = {
+# 			list = target_titles
+# 			save_temporary_scope_as = target
+# 		}
+		
+# 		setup_de_jure_cb = {
+# 			attacker = scope:attacker
+# 			defender = scope:defender
+# 			#attacker_prestige = -10
+# 			victory = no
+# 			title = scope:target
+# 		}
+		
+# 		# Legitimacy
+# 		add_legitimacy_attacker_defeat_effect = yes
+
+# 		# Truce
+# 		add_truce_attacker_defeat_effect = yes
+	
+# 		hidden_effect = {
+# 			scope:attacker = {
+# 				trigger_event = roman_restoration.0174
+# 			}
+# 			scope:defender = {
+# 				trigger_event = roman_restoration.0175
+# 			}
+# 		}
+		
+# 		scope:attacker = {
+# 			save_temporary_scope_as = loser
+# 		}
+# 		on_lost_aggression_war_discontent_loss = yes
+
+# 		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+# 		laamp_as_mercenary_payout_tooltip_effect = yes
+
+# 		#Mandalas gain or lose piety/devotion depending on Decree
+# 		mandala_war_defeat_effects = yes
+# 	}
+	
+# 	on_primary_attacker_death = inherit
+# 	on_primary_defender_death = inherit
+	
+# 	transfer_behavior = transfer
+	
+# 	attacker_allies_inherit = yes
+# 	defender_allies_inherit = yes
+	
+# 	war_name = "DISMANTLE_EMPIRE_WAR_SPECIFIC_NAME"
+# 	war_name_base = "DISMANTLE_EMPIRE_WAR_SPECIFIC_NAME_BASE"
+# 	cb_name = DISMANTLE_EMPIRE_SPECIFIC_NAME
+# 	interface_priority = 98 #Below take all and regular dejure.
+	
+# 	attacker_ticking_warscore = 0.01
+# 	defender_ticking_warscore = 0.05
+# 	attacker_wargoal_percentage = 0.9
+# 	defender_ticking_warscore_delay = { months = 24 }
+	
+# 	max_defender_score_from_occupation = 150
+# 	max_attacker_score_from_occupation = 150
+	
+# 	max_ai_diplo_distance_to_title = 2000
+	
+# 	on_invalidated_desc = msg_invalidate_war_title
+	
+# 	ai_score_mult = {
+# 		value = 1
+# 		add = frankokratia_leader_protection_value #Set back to 0. Declaring war on the frankokratia leader can really ruin the whole thing
+# 	}
+# }

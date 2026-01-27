@@ -28,16 +28,35 @@ special_succession_jirga_trigger = {
 }
 
 historical_succession_access_single_heir_succession_law_trigger = {
-	OR = {
-		has_title = title:e_southern_empire
-		has_title = title:e_northern_empire
-		# has_title = title:k_vlandia
-		# has_title = title:e_nahasa
-		has_title = title:e_calradian_empire
-
-		#Add any subsequent exceptions here.
+	trigger_if = {
+		limit = { government_allows = administrative }
+		OR = {
+			tgp_japan_single_heir_succession_override_trigger = yes
+			tgp_korea_single_heir_succession_override_trigger = yes
+			has_title = title:h_serica
+			has_title = title:e_southern_empire
+			has_title = title:e_northern_empire
+			# has_title = title:k_vlandia
+			# has_title = title:e_nahasa
+			has_title = title:e_calradian_empire
+			AND = {
+				is_independent_ruler = yes
+				government_has_flag = government_is_steppe_admin
+			}
+		}
 	}
-	NOT = { government_allows = administrative }
+	trigger_else = {
+		OR = {
+			# has_title = title:k_austria
+			is_roman_emperor_trigger = yes
+			has_title = title:h_serica
+			AND = {
+				government_has_flag = government_is_japan_feudal
+				is_independent_ruler = yes
+			}
+			#Add any subsequent exceptions here.
+		}
+	}
 }
 
 historical_succession_access_single_heir_succession_law_youngest_trigger = {
@@ -54,4 +73,23 @@ historical_succession_access_single_heir_dynasty_house_trigger = {
 		has_title = title:k_sturgia
 		culture = { has_innovation = innovation_table_of_princes }
 	}
+}
+
+can_have_meritocratic_regency_succession_law_trigger = {
+	has_tgp_dlc_trigger = yes
+	is_independent_ruler = yes
+	highest_held_title_tier = tier_empire
+	government_allows = administrative
+	government_allows = merit
+	NOT = { government_allows = obedience } # Stop Khanates
+	# OR = {
+		# Ceremonial Monarch title always pairs with law
+		exists = primary_title.var:administrative_ui_special_title
+		# Jipjeong Jeong Jung-bu
+		# AND = {
+		# 	game_start_date = 1178.10.1
+		# 	has_title = title:e_goryeo
+		# 	months_from_game_start < 1
+		# }
+	# }
 }

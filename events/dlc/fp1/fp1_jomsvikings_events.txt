@@ -1085,9 +1085,9 @@ fp1_jomsvikings.0011 = {
 		# Inform root that they won't lose any control.
 		custom_tooltip = fp1_jomsvikings.0011.c.tt
 		# Pay the gold straight to scope:leader.
-		pay_short_term_gold = {
+		pay_treasury_or_gold = {
 			target = scope:leader
-			gold = medium_gold_value
+			value = medium_treasury_or_gold_value
 		}
 
 		stress_impact = {
@@ -1501,27 +1501,17 @@ fp1_jomsvikings.0041 = {
 						faith = { has_doctrine_parameter = consanguinity_unrestricted_incest }
 					}
 				}
-				## Adulterer.
+				## Adulterer/Fornicator
 				AND = {
-					has_trait = adulterer
-					is_male = yes
-					faith = { has_doctrine_parameter = adultery_male_crime }
-				}
-				AND = {
-					has_trait = adulterer
-					is_female = yes
-					faith = { has_doctrine_parameter = adultery_female_crime }
-				}
-				## Fornicator.
-				AND = {
-					has_trait = fornicator
-					is_male = yes
-					faith = { has_doctrine_parameter = adultery_male_crime }
-				}
-				AND = {
-					has_trait = fornicator
-					is_female = yes
-					faith = { has_doctrine_parameter = adultery_female_crime }
+					OR = {
+						has_trait = adulterer
+						has_trait = fornicator
+					}
+					trait_is_criminal_in_faith_trigger = {
+						FAITH = faith
+						TRAIT = adulterer
+						GENDER_CHARACTER = this
+					}
 				}
 				## Murderer.
 				has_trait = murderer
@@ -2184,7 +2174,7 @@ fp1_jomsvikings.1011 = {
 		## Third, give scope:founder their independence if they lacked it.
 		scope:founder = {
 			if = {
-				limit = { is_independent_ruler = no }
+				limit = { top_liege != this }
 				create_title_and_vassal_change = {
 					type = independency
 					save_scope_as = change
