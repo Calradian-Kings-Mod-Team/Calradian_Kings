@@ -696,6 +696,7 @@ convert_whole_realm_to_feudalism_effect = {
 			top_liege = this
 			culture.culture_head ?= { government_is_japanese_trigger = yes }
 		}
+		add_character_flag = can_become_japanese_feudal # Used in the can_get_government of japan_feudal_government
 		change_government = japan_feudal_government
 		if = {
 			limit = {
@@ -794,6 +795,7 @@ convert_whole_realm_to_feudalism_effect = {
 			}
 			every_vassal_or_below = {
 				limit = { government_has_flag = government_is_tribal }
+				add_character_flag = can_become_japanese_feudal # Used in the can_get_government of japan_feudal_government
 				change_government = japan_feudal_government
 				if = {
 					limit = {
@@ -1177,29 +1179,7 @@ tribal_challenger_lost_effect = {
 ##################################################
 # Found Cadet House Effects
 found_cadet_house_decision_effect = {
-	hidden_effect = {
-		house.house_head = {
-			save_scope_as = former_house_head
-		}
-		house = {
-			save_scope_as = former_house
-		}
-		add_achievement_flag_effect = { FLAG = achievement_a_house_of_my_own_flag }
-	}
-
-	## Avoiding duplicate cadet coa
-	if = {
-		limit = {
-			has_game_rule = ck_titles_coa_house_coa
-		}
-		capital_county = {
-			generate_coa = yes
-		}
-	}
-
-	create_cadet_branch = yes
-	add_prestige = $PRESTIGE$
-	hidden_effect = {
+	$CHARACTER$ = {
 		save_scope_as = new_head
 		save_scope_as = new_house_head # don't ask
 		hidden_effect = {
@@ -1209,7 +1189,7 @@ found_cadet_house_decision_effect = {
 			house = {
 				save_scope_as = former_house
 			}
-			add_achievement_flag_effect = { FLAG = achievement_a_house_of_my_own_flag }
+			# add_achievement_flag_effect = { FLAG = achievement_a_house_of_my_own_flag }
 
 			#Cultural variation for Cadet Branch Naming:
 
@@ -1237,28 +1217,36 @@ found_cadet_house_decision_effect = {
 					culture = {
 						OR = {
 							# India
-							has_cultural_pillar = heritage_indo_aryan
-							has_cultural_pillar = heritage_dravidian
+							has_cultural_pillar = heritage_khangay
+							# has_cultural_pillar = heritage_dravidian
 							# Vietnam
 							has_cultural_pillar = heritage_viet
 							has_name_list = name_list_vietnamese
 							# Khmer
-							has_name_list = name_list_khmer
+							# has_name_list = name_list_khmer
 							# Mon
-							has_name_list = name_list_mon
+							# has_name_list = name_list_mon
 							# Cham
-							has_name_list = name_list_cham
+							# has_name_list = name_list_cham
 							# Tai
-							has_name_list = name_list_tai
+							# has_name_list = name_list_tai
 							# China
 							has_cultural_pillar = heritage_chinese
 							has_name_list = name_list_han
 							# Korea
-							has_cultural_pillar = heritage_korean
-							has_name_list = name_list_korean
+							# has_cultural_pillar = heritage_korean
+							# has_name_list = name_list_korean
 							# Buyeo
-							has_cultural_pillar = heritage_buyeo
-							has_name_list = name_list_balhae
+							# has_cultural_pillar = heritage_buyeo
+							# has_name_list = name_list_balhae
+							## Vlandians, Swadians, Rhodoks, and Gottics
+							# Vlandians
+							has_cultural_pillar = heritage_balian
+							has_cultural_pillar = heritage_esbalian
+							has_name_list = name_list_vlandian
+							has_name_list = name_list_swadian
+							has_cultural_pillar = heritage_gottic
+							has_name_list = name_list_rhodok
 						}
 					}
 					NOT = { faith.religion = religion:aserai_religion }
@@ -1269,22 +1257,22 @@ found_cadet_house_decision_effect = {
 				}
 				scope:new_house = { generate_coa = yes } # Avoid western style cadet CoA
 			}
-			else_if = { # County Dynasty - (COUNTY) (DYNASTY)
-				limit = {
-					is_landed = yes
-					culture = {
-						OR = {
-							# Malaysia
-							has_name_list = name_list_malay
-						}
-					}
-				}
-				create_cadet_branch = {
-					name = cadet_name_style_county_dynasty
-					save_scope_as = new_house
-				}
-				scope:new_house = { generate_coa = yes } # Avoid western style cadet CoA
-			}
+			# else_if = { # County Dynasty - (COUNTY) (DYNASTY) - Some counties have CASTLE in the name. Not ideal
+			# 	limit = {
+			# 		is_landed = yes
+			# 		culture = {
+			# 			OR = {
+			# 				# Malaysia
+			# 				has_name_list = name_list_malay
+			# 			}
+			# 		}
+			# 	}
+			# 	create_cadet_branch = {
+			# 		name = cadet_name_style_county_dynasty
+			# 		save_scope_as = new_house
+			# 	}
+			# 	scope:new_house = { generate_coa = yes } # Avoid western style cadet CoA
+			# }
 			else_if = { # Japanese - (PLACE)
 				limit = {
 					exists = var:new_japanese_house_name
@@ -1387,8 +1375,7 @@ found_cadet_house_decision_effect = {
 		# Struggle Catalysts
 		# if = {
 		# 	limit = {
-		# 		root =  {
-		# 			exists = house
+		# 		$CHARACTER$ =  {
 		# 			exists = house.house_head
 		# 			any_character_struggle	 = {
 		# 				involvement = involved
@@ -1400,35 +1387,12 @@ found_cadet_house_decision_effect = {
 		# 		involvement = involved
 		# 		activate_struggle_catalyst = {
 		# 			catalyst = catalyst_cadet_branch_created
-		# 			character = root
+		# 			character = $CHARACTER$
 		# 		}
 		# 		log_debug_variable_for_persian_struggle_effect = { VAR = unrest_catalyst_cadet_branch_created }
 		# 	}
 		# }
 
-		## Change new house members title coas
-		if = {
-			limit = {
-				has_game_rule = ck_titles_coa_house_coa
-			}
-			scope:new_house = { 
-				every_house_member = {
-					limit = {
-						is_landed = yes
-					}
-					every_held_title = {
-						limit = {
-							NOR = {
-								tier = tier_empire
-								has_variable = default_coa_var
-							}
-						}
-						set_coa = scope:new_house
-					}
-				}
-			}
-		}
-		
 		every_child = {
 			limit = {
 				has_trait = bastard
@@ -1456,7 +1420,6 @@ found_cadet_house_decision_effect = {
 		}
 	}
 }
-
 learn_language_linguist_effect = {
 	hidden_effect = { add_courtier = $LINGUIST$ }
 	$LINGUIST$ = { save_scope_as = selected_linguist }
