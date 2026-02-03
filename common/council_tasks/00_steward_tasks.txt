@@ -608,7 +608,7 @@ task_develop_county = {
 			# 		}
 
 			# 	# }
-			# }
+			}
 			else_if = { # fallback for previous save: the effect would trigger a month later
 				limit = {
 					exists = scope:county
@@ -815,7 +815,7 @@ task_promote_culture = {
 		# Conversion speed game rules
 		if = {
 			limit = {
-				has_game_rule = slower_culture_conversion_speed
+				has_game_rule = slower_ck_culture_conversion_speed
 			}
 			multiply = {
 				value = slower_game_rule_value
@@ -824,7 +824,7 @@ task_promote_culture = {
 		}
 		if = {
 			limit = {
-				has_game_rule = significantly_slower_culture_conversion_speed
+				has_game_rule = significantly_slower_ck_culture_conversion_speed
 			}
 			multiply = {
 				value = significantly_slower_game_rule_value
@@ -833,7 +833,7 @@ task_promote_culture = {
 		}
 		if = {
 			limit = {
-				has_game_rule = significantly_faster_culture_conversion_speed
+				has_game_rule = significantly_faster_ck_culture_conversion_speed
 			}
 			multiply = {
 				value = significantly_faster_game_rule_value
@@ -842,7 +842,7 @@ task_promote_culture = {
 		}
 		if = {
 			limit = {
-				has_game_rule = faster_culture_conversion_speed
+				has_game_rule = faster_ck_culture_conversion_speed
 			}
 			multiply = {
 				value = faster_game_rule_value
@@ -939,55 +939,26 @@ task_promote_culture = {
 					}
 				}
 			}
-			NAND = { 
-				#### It should be allowed after we add new post-calradic cultures
-				scope:councillor_liege.culture = { has_cultural_pillar = heritage_calradian }
-				scope:county.culture = { has_cultural_pillar = heritage_calradian }
-			}
-			OR = {
-				NOT = {
-					scope:county.culture = {
-						cultural_acceptance = { target = scope:councillor_liege.culture value >= 50 }
-					}
-				}
-				scope:councillor_liege.culture = { # All AI's are motivated to spread new Hybrid/Divergent cultures
-					OR = {
-						is_hybrid_culture = yes
-						is_divergent_culture = yes
-					}
-					# NOT = { # Leave the Welsh alone!
-					# 	this = culture:anglo_saxon
-					# }
-					any_parent_culture = {
-						this = scope:county.culture
-					}
-				}
-				AND = {
-					scope:county.culture = {
-						cultural_acceptance = { target = scope:councillor_liege.culture value <= 75 }
-					}
-					scope:councillor_liege.primary_title.tier >= tier_duchy
-					scope:councillor_liege.culture = { has_cultural_pillar = heritage_calradian }
-					scope:county.culture = { has_cultural_pillar = heritage_palaic }
-				}
-				AND = {
-					# Scottish rulers should convert counties of 'old' cultures to the new one.
-					culture = culture:swadian
-					OR = {
-						scope:county.culture = culture:vlandian
-						scope:county.culture = culture:bithic
-					}
-				}
-				AND = {
-					# English rulers should convert counties of 'old' cultures to the new one.
-					culture = culture:rhodok
-					OR = {
-						scope:county.culture = culture:kassen
-						scope:county.culture = culture:rhoyd
-						scope:county.culture = culture:jendea
-					}
-				}
-			}
+			# NAND = { # Princes in the HRE tend to not convert each other's cultures
+			# 	exists = title:e_hre.holder
+			# 	scope:councillor_liege.top_liege = title:e_hre.holder
+			# 	OR = {
+			# 		scope:councillor_liege.culture = culture:czech
+			# 		scope:councillor_liege.culture = { has_cultural_pillar = heritage_central_germanic }
+			# }
+			# OR = {
+			# 		scope:county.culture = culture:czech
+			# 		scope:county.culture = { has_cultural_pillar = heritage_central_germanic }
+			# 	}
+			# }
+			# NOT = { # Do not eliminate the Basques
+			# 		scope:county.culture = {
+			# 		this = culture:basque
+			# 		any_culture_county = {
+			# 			count <= 5
+			# 		}
+			# 	}
+			# }
 			scope:councillor_liege = {
 				OR = {
 					NOT = {
@@ -1037,6 +1008,7 @@ task_promote_culture = {
 						OR = {
 							scope:county.culture = culture:vlandian
 							scope:county.culture = culture:bithic
+							scope:county.culture = culture:heimarkel
 						}
 					}
 					AND = {
@@ -1097,6 +1069,7 @@ task_promote_culture = {
 						OR = {
 							scope:county.culture = culture:vlandian
 							scope:county.culture = culture:bithic
+							scope:county.culture = culture:heimarkel
 						}
 					}
 					AND = {
@@ -1109,7 +1082,7 @@ task_promote_culture = {
 						}
 					}
 					AND = {
-						primary_title.tier >= tier_duchy
+						scope:councillor_liege.primary_title.tier >= tier_duchy
 						culture = { has_cultural_pillar = heritage_calradian }
 						scope:county.culture = { has_cultural_pillar = heritage_palaic }
 					}
@@ -1121,104 +1094,56 @@ task_promote_culture = {
 						culture = scope:councillor_liege.culture # The AI only wants to convert counties bordering their own culture
 					}
 				}
+				# AND = { # The English want to convert the Anglo Saxons and Cumbrians
+				# 	scope:councillor_liege.culture = culture:english
+				# 	OR = {
+				# 		scope:county.culture = culture:anglo_saxon
+				# 		scope:county.culture = culture:cumbrian
+				# 	}
+				# }
+				# AND = { # The Scots want to convert the Anglo Saxons, Cumbrians and Gaelic
+				# 	scope:councillor_liege.culture = culture:scottish
+				# 	OR = {
+				# 		scope:county.culture = culture:anglo_saxon
+				# 		scope:county.culture = culture:gaelic
+				# 		scope:county.culture = culture:cumbrian
+				# 		scope:county.culture = culture:pictish
+				# 	}
+				# }
+				# AND = { # The Gaels want to convert the Picts and Cumbrians
+				# 	scope:councillor_liege.culture = culture:gaelic
+				# 	OR = {
+				# 		scope:county.culture = culture:cumbrian
+				# 		scope:county.culture = culture:pictish
+				# 			}
+				# 		}
+				# AND = { # The modern scandinavians want to convert the Norse
+				# 	OR = {
+				# 		scope:councillor_liege.culture = culture:swedish
+				# 		scope:councillor_liege.culture = culture:danish
+				# 		scope:councillor_liege.culture = culture:norwegian
+				# 	}
+				# 	scope:county.culture = culture:norse
+				# }
+				# AND = { # The Portuguese should want to convert Suebi
+				# 	scope:councillor_liege.culture = culture:portuguese
+				# 	scope:county.culture = culture:suebi
+				# }
+				# AND = { # The Iberians want to convert Visigothic
+				# 	scope:councillor_liege.culture = { has_cultural_pillar = heritage_iberian }
+				# 	NOT = { scope:councillor_liege.culture = culture:portuguese }
+				# 	scope:county.culture = culture:visigothic
+				# }
 				AND = {
-					scope:county.culture = {
-						cultural_acceptance = { target = scope:councillor_liege.culture value <= 75 }
-					}
-					scope:councillor_liege.primary_title.tier >= tier_duchy
-					scope:councillor_liege.culture = { has_cultural_pillar = heritage_calradian }
-					scope:county.culture = { has_cultural_pillar = heritage_palaic }
+						scope:councillor_liege.primary_title.tier >= tier_duchy
+						scope:councillor_liege.culture = { has_cultural_pillar = heritage_calradian }
+						scope:county.culture = { has_cultural_pillar = heritage_palaic }
 				}
-				AND = {
-					NOT = {
-						scope:county = {
-							any_neighboring_county = {
-								culture = scope:councillor_liege.culture # The AI only wants to convert counties bordering their own culture
-							}
-						}
-					}
-					OR = {
-						scope:councillor_liege.culture = { # All AI's are motivated to spread new Hybrid cultures
-							is_hybrid_culture = yes
-							any_parent_culture = {
-								this = scope:county.culture
-							}
-						}
-						# Unless they're a nomadic culture converting in the steppe or Asia Minor...
-						AND = { # Deprecated as of the Culture Update, nomadic cultures now try to hybridize aggressively
-							OR = {
-								scope:councillor_liege.culture = { has_cultural_pillar = heritage_khuzic }
-								scope:councillor_liege.culture = { has_cultural_pillar = heritage_lir_ovus }
-							}
-							scope:county.title_province = {
-								OR = {
-									geographical_region = region_calradia_southeast
-									geographical_region = world_steppe
-								}
-							}
-						}
-						# AND = { # The English want to convert the Anglo Saxons and Cumbrians
-						# 	scope:councillor_liege.culture = culture:english
-						# 	OR = {
-						# 		scope:county.culture = culture:anglo_saxon
-						# 		scope:county.culture = culture:cumbrian
-						# 	}
-						# }
-						AND = { # The Scots want to convert the Anglo Saxons, Cumbrians and Gaelic
-							scope:councillor_liege.culture = culture:rhodok
-							OR = {
-								scope:county.culture = culture:kassen
-								scope:county.culture = culture:rhoyd
-								scope:county.culture = culture:jendea
-							}
-						}
-						# AND = { # The Gaels want to convert the Picts and Cumbrians
-						# 	scope:councillor_liege.culture = culture:gaelic
-						# 	OR = {
-						# 		scope:county.culture = culture:cumbrian
-						# 		scope:county.culture = culture:pictish
-						# 	}
-						# }
-						# AND = { # The modern scandinavians want to convert the nord
-						# 	OR = {
-						# 		scope:councillor_liege.culture = culture:swedish
-						# 		scope:councillor_liege.culture = culture:danish
-						# 		scope:councillor_liege.culture = culture:norwegian
-						# 	}
-						# 	scope:county.culture = culture:nord
-						# }
-						#AND = { # The vikings want to culture convert the Brits, OBSOLETE as of the Hybrid Culture update - they want to create hybrids instead!
-						#	OR = {
-						#		scope:councillor_liege.culture = culture:nord
-						#		scope:councillor_liege.culture = culture:norwegian
-						#	}
-						#	scope:county = {
-						#		any_county_province = {
-						#			is_coastal = yes
-						#		}
-						#	}
-						#	OR = {
-						#		scope:county.culture = { has_cultural_pillar = heritage_west_germanic }
-						#		scope:county.culture = { has_cultural_pillar = heritage_goidelic }
-						#		scope:county.culture = { has_cultural_pillar = heritage_brythonic }
-						#	}
-						#}
-						# AND = { # The Portuguese should want to convert Suebi
-						# 	scope:councillor_liege.culture = culture:portuguese
-						# 	scope:county.culture = culture:suebi
-						# }
-						# AND = { # The Iberians want to convert Visigothic
-						# 	scope:councillor_liege.culture = { has_cultural_pillar = heritage_iberian }
-						# 	NOT = { scope:councillor_liege.culture = culture:portuguese }
-						# 	scope:county.culture = culture:visigothic
-						# }
-					}
-				}
-				AND = {
-					# Japanese rulers should convert Emishi counties
-					scope:councillor_liege.culture = culture:japanese
-					scope:county.culture = culture:emishi
-				}
+				# AND = {
+				# 	# Japanese rulers should convert Emishi counties
+				# 	scope:councillor_liege.culture = culture:japanese_ck
+				# 	scope:county.culture = culture:emishi
+				# }
 			}
 		}
 		trigger_else_if = { # But AI Directives should still try to look pretty
@@ -1789,11 +1714,8 @@ task_promote_culture = {
 						desc = cultural_acceptance_loss_promote_culture
 					}
 				}
-				set_county_culture = scope:councillor_liege.culture
 			}
-			else = {
-				set_county_culture = scope:councillor_liege.culture
-			}
+			set_county_culture = scope:councillor_liege.culture
 		}
 		scope:councillor = {
 			start_default_task = yes
@@ -1829,7 +1751,7 @@ task_promote_culture = {
 							capital_county.kingdom = title:k_vlandia
 						}
 						AND = {
-							culture = culture:japanese
+							culture = culture:japanese_ck
 							capital_county.empire = title:e_japan
 						}
 						AND = {
@@ -2267,6 +2189,7 @@ task_accept_culture = {
 					OR = {
 						scope:county.culture = culture:vlandian
 						scope:county.culture = culture:bithic
+						scope:county.culture = culture:heimarkel
 					}
 				}
 				NAND = {
@@ -2279,7 +2202,7 @@ task_accept_culture = {
 					}
 				}
 				NAND = {
-					primary_title.tier >= tier_duchy
+					scope:councillor_liege.primary_title.tier >= tier_duchy
 					culture = { has_cultural_pillar = heritage_calradian }
 					scope:county.culture = { has_cultural_pillar = heritage_palaic }
 				}
