@@ -969,7 +969,58 @@ create_artifact_pedestal_branch_relic_slavic_effect = {
 	}
 }
 
-# No Africa artifacts... yet
+
+create_artifact_pedestal_branch_relic_boog_effect = {
+	# Get the character the artifact is being made for.
+	$OWNER$ = { save_scope_as = owner }
+	set_artifact_rarity_illustrious = yes
+
+	save_scope_value_as = {
+		name = branch_name
+		value = flag:somb
+	}
+
+	# Create the artifact
+	create_artifact = {	
+		name = artifact_pedestal_branch_name
+		description = artifact_pedestal_branch_description
+		type = pedestal
+		template = branch_boog_template
+		visuals = pedestal_branch_relic_boog
+		wealth = scope:wealth
+		quality = scope:quality
+		history = {
+			type = created_before_history
+		}
+		modifier = artifact_placeholder_modifier
+		save_scope_as = newly_created_artifact
+	}
+
+	scope:newly_created_artifact = {
+		set_variable = { name = historical_unique_artifact value = yes }
+		set_variable = {
+			name = relic
+			value = flag:boog
+		}
+		add_scaled_artifact_modifier_piety_effect = yes
+		add_scaled_artifact_modifier_grandeur_small_effect = yes
+		if = {
+			limit = {
+				OR = {
+					rarity = famed
+					rarity = illustrious
+				}
+			}
+			add_2_scaled_artifact_modifier_devotion_effect = yes
+			
+		}
+		else = {
+			add_scaled_artifact_modifier_devotion_effect = yes
+		}
+		add_artifact_modifier = artifact_monthly_prestige_penalty_modifier #overwrite default creation modifier
+		save_scope_as = epic
+	}
+}
 
 create_artifact_pedestal_branch_relic_hinduism_effect = {
 	# Get the character the artifact is being made for.
