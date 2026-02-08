@@ -1675,7 +1675,7 @@ learning_theology.3031 = {
 	}
 	right_portrait = {
 		character = scope:bishop
-		animation = dismisall
+		animation = dismissal
 		trigger = { exists = scope:bishop }
 	}
 
@@ -3575,6 +3575,17 @@ learning_theology_special.1003 = {
 # by Linnéa Thimrén
 ##################################################
 
+scripted_trigger learning_theology_special_1101_rabbi_trigger = {
+	faith = faith:kazyrdi_faith
+	OR = {
+		has_trait = education_learning_2
+		has_trait = education_learning_3
+		has_trait = education_learning_4
+	}
+	learning >= medium_skill_rating
+	can_be_clergy_due_to_gender_trigger = yes
+}
+
 learning_theology_special.1101 = {
 	type = character_event
 	title = learning_theology_special.1101.t
@@ -3613,6 +3624,7 @@ learning_theology_special.1101 = {
 		is_playable_character = yes
 		faith = {
 			OR = {
+				religion_tag = surrani_religion
 				religion_tag = calradian_religion
 				religion_tag = darshi_religion
 				religion_tag = aserai_religion
@@ -3627,15 +3639,81 @@ learning_theology_special.1101 = {
 		}
 		add_character_flag = had_learning_theology_special_1101_this_lifetime
 
+		if = { #If Rashi could have been alive we create him (for players!)
+			limit = {
+				game_start_date >= 1140.1.1
+				game_start_date <= 1205.1.1
+				is_ai = no
+				NOT = { #Only spawns once.
+					is_target_in_global_variable_list = {
+						name = special_character_list
+						target = flag:flag_theology_1101_shlomo_yitzchaki
+					}
+				}
+			}
+			create_character = {
+				location = root.capital_province
+				template = scholar_character
+				faith = faith:kazyrdi_faith
+				culture = culture:kuqaean
+				trait = scholar
+				trait = diligent
+				name = "Qamitz Zairys"
+				gender = male
+				save_scope_as = scholar
+			}
+			save_scope_value_as = {
+				name = rashi
+				value = yes
+			}
+			add_to_global_variable_list = {
+				name = special_character_list
+				target = flag:flag_theology_1101_shlomo_yitzchaki
+			}
+			add_character_flag = flag_learning_theology_2020_historical
+		}
+		else_if = {
+			limit = {
+				exists = root.capital_province
+				any_pool_character = {
+					province = root.capital_province
+					learning_theology_special_1101_rabbi_trigger = yes
+				}
+			}
+			random_pool_character = {
+				province = root.capital_province
+				limit = { learning_theology_special_1101_rabbi_trigger = yes }
+				save_scope_as = scholar
+			}
+			save_scope_value_as = {
+				name = rashi
+				value = no
+			}
+		}
+		else = {
 		create_character = {
 			location = root.capital_province
 			template = scholar_character
 			faith = root.faith
 			culture = root.culture
 			gender_female_chance = {
-				value = 50
+				if = {
+					limit = { faith:kazyrdi_faith = { has_doctrine_parameter = clergy_must_be_male } }
+					value = 0
+				}
+				else_if = {
+					limit = { faith:kazyrdi_faith = { has_doctrine_parameter = clergy_must_be_female } }
+					value = 100
+				}
+				else = {
+					value = 50
+				}
 			}
 			save_scope_as = scholar
+				after_creation = {
+					add_character_flag = created
+				}
+			}
 			save_scope_value_as = {
 				name = rashi
 				value = no
