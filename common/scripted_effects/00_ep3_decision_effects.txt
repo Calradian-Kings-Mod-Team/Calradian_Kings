@@ -259,7 +259,7 @@ apply_historic_administrative_game_rule_effect = {
 	# Northern Empire 
 	if = {
 		limit = {
-			NOT = { has_game_rule = ck_admin_government_disabled }
+			has_game_rule = ck_admin_government_nimp
 			exists = title:e_northern_empire
 		}
 		if = {
@@ -271,10 +271,7 @@ apply_historic_administrative_game_rule_effect = {
 	# Northern and Western Empire 
 	if = {
 		limit = {
-			NOR = { 
-				has_game_rule = ck_admin_government_disabled
-				has_game_rule = ck_admin_government_nimp
-			}
+			has_game_rule = ck_admin_government_nimp_and_wimp
 			exists = title:e_northern_empire
 			exists = title:e_western_empire
 		}
@@ -288,9 +285,7 @@ apply_historic_administrative_game_rule_effect = {
 	# Every Empire
 	if = {
 		limit = {
-			NOT = { 
-				has_game_rule = ck_admin_government_disabled
-			}
+			has_game_rule = ck_admin_government_every_empire
 			exists = title:e_northern_empire
 			exists = title:e_western_empire
 			exists = title:e_southern_empire
@@ -300,7 +295,13 @@ apply_historic_administrative_game_rule_effect = {
 			culture:palaic_dryatic = { save_scope_as = ignore_culture }
 			title:e_northern_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
 			title:e_western_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
-			title:e_southern_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
+			# In 1257, the Southern Empire is a shadow of their former self. Not an administrative by any measure any more.
+			if = {
+				limit = {
+					game_start_date <= 1084.5.1 # Start date is 1084 or earlier
+				}
+				title:e_southern_empire.holder ?= { convert_to_administrative_from_feudalism_game_start_effect = yes }
+			}
 		}
 	}
 }
