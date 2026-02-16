@@ -167,15 +167,33 @@ vaegir_laamp_1_1 = { # Vulfyr's Calradian wife/concubine - the one who encourage
 	1063.6.15 = {
 		birth = yes
 	}
-	1084.1.23 = {
-		
-	}
 	1084.1.16 = {
-		add_spouse = vaegir_laamp_1
+		trait = adventurer_follower
+		effect = { # add memory (on_marriage doesn't fire) instead of duplicate spouse
+			create_character_memory = {
+				type = married
+				participants = {
+					spouse = character:vaegir_laamp_1
+				}
+			}
+			#need to make a new memory type if we want the lover_varangian_x reason to show up
+			primary_spouse ?= { had_sex_with_effect = { CHARACTER = prev PREGNANCY_CHANCE = 50} }
+		}
 	}
-	# 1084.4.30 = {
-	# 	employer = vaegir_laamp_1
-	# }
+	1084.4.24 = {
+		# add_spouse = vaegir_laamp_1
+		effect = {
+			if = {
+				limit = {
+					primary_spouse ?= character:vaegir_laamp_1
+				}
+				start_scheme = {
+					target_character = primary_spouse
+					type = learn_language
+				}
+			}
+		}
+	}
 	1119.7.18 = {
 		culture = vaegir
 		effect = {
@@ -212,10 +230,17 @@ vaegir_laamp_1_2 = { # Sorgard, one of Vulfyr's Vaegir companions #
 		birth = yes
 		effect = { add_character_flag = do_not_generate_starting_family }
 	}
-	1084.4.30 = {
+	1084.4.24 = {
 		employer = vaegir_laamp_1
 		effect = {
-			set_relation_best_friend = { reason = friend_generic_history target = character:vaegir_laamp_1 } # Fought with each other for years
+			# the memory type is not created for the best friend effect because it's assumed they are friends already
+			set_relation_blood_brother = { reason = best_friend_varangian target = character:vaegir_laamp_1 } # Fought with each other for years
+			employer ?= {
+				appoint_court_position = {
+					recipient = prev
+					court_position = second_camp_officer
+				}
+			}
 			learn_language_of_culture = culture:dolinak
 			learn_language_of_culture = culture:calradian
 			add_trait = lifestyle_blademaster
@@ -261,7 +286,13 @@ vaegir_laamp_1_3 = { # Valdym, one of Vulfyr's Vaegir companions #
 		effect = {
 			set_relation_friend = {
 				target = character:vaegir_laamp_1
-				reason = friend_generic_history
+				reason = friend_varangian
+			}
+			employer ?= {
+				appoint_court_position = {
+					recipient = prev
+					court_position = travel_leader_court_position
+				}
 			}
 			learn_language_of_culture = culture:calradian
 			add_trait = lifestyle_blademaster
