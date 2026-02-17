@@ -801,6 +801,7 @@ ck_laamp_visit_events.1000 = {
 	}
 	# Offer your company
 	option = {
+		reason = storyteller
 		name = {
 			text = {
 				first_valid =  { # Different responses to different companions
@@ -1494,17 +1495,10 @@ ck_laamp_visit_events.1001 = {
 				gold = scope:laamp_warband_companion_recruitable.var:ck_companion_recruitment_cost
 			}
 		}
-		if = {
-			limit = {
-				scope:laamp_warband_companion_recruitable = {
-					has_character_flag = companion_recruitable_free
-				}
-			}
+		else = {
 			custom_tooltip = companion_recruitable_free_tt
 		}
-		show_as_unavailable = { 
-			gold >= scope:laamp_warband_companion_recruitable.var:ck_companion_recruitment_cost
-		}
+		reason = recruitment
 		#Hire wo/manpower
 		1033_add_courtier_with_opinion_effect = { TARGET = scope:laamp_warband_companion_recruitable }
 		#Rewards for the Camp Party
@@ -1695,14 +1689,18 @@ ck_laamp_visit_events.1001 = {
 	option = {
 		name = ck_laamp_visit_events.1001.c
 		trigger = {
-			root.gold < scope:laamp_warband_companion_recruitable.var:ck_companion_recruitment_cost
+			scope:laamp_warband_companion_recruitable ?= {
+				has_variable = ck_companion_recruitment_cost
+				root.gold < var:ck_companion_recruitment_cost
+			}
 			# scope:laamp_warband_companion_recruitable = {
 			# 	NOT = {
 			# 		has_character_flag = companion_recruitable_free
 			# 	}
 			# }
 		}
-		reason = ck_laamp_visit_events.1001.c.reason
+		exclusive = yes
+		flavor = ck_laamp_visit_events.1001.c.reason
 		#Set the variables and redirect us back to the tavern main room
 		1031_been_to_effect = { GUILD = companion }
 		#Go back to the tavern main room

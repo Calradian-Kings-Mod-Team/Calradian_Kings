@@ -1211,7 +1211,7 @@ ep3_laamp_decision_event.1000 = {
 			}
 			location = {
 				random_neighboring_province = { 
-					limit = { is_location_valid_for_travel_event_on_land = yes }
+					limit = { exists = county } #Unop is_location_valid_for_travel_event_on_land is for character
 					save_scope_as = neighboring_county
 				}
 			}
@@ -8496,8 +8496,11 @@ ep3_laamp_decision_event.1030 = {
 								root = { is_attracted_to_gender_of = prev } #Prev is the spouse scope
 								#They might want to marry us
 								is_attracted_to_gender_of = root
+								#Unop Avoid old characters (40=>define value)
+								age <= Define:NMarriage|SPOUSE_FINDER_RELEVANCE_INFERTILE_MODIFIER_FEMALE_AGE
 							}
 							save_scope_as = laamp_spouse_material
+							# set_variable = 1030_has_rolled_for_congenital_traits
 						}
 					}
 					#Otherwise create 'em
@@ -8512,6 +8515,7 @@ ep3_laamp_decision_event.1030 = {
 								template = generic_peasant_character
 								location = scope:visiting_location
 								dynasty = none
+								age = { 18 40 } #Unop Avoid old characters (template is 18-50)
 								culture = scope:visiting_location.culture
 								faith = scope:visiting_location.faith
 								diplomacy = { low_skill_rating high_skill_rating }
@@ -8530,6 +8534,7 @@ ep3_laamp_decision_event.1030 = {
 								location = scope:visiting_location
 								dynasty = none
 								gender = male
+								age = { 18 40 } #Unop Avoid old characters
 								culture = scope:visiting_location.culture
 								faith = scope:visiting_location.faith
 								diplomacy = { low_skill_rating high_skill_rating }
@@ -8547,6 +8552,7 @@ ep3_laamp_decision_event.1030 = {
 								location = scope:visiting_location
 								dynasty = none
 								gender = female
+								age = { 18 40 } #Unop Avoid old characters
 								culture = scope:visiting_location.culture
 								faith = scope:visiting_location.faith
 								diplomacy = { low_skill_rating high_skill_rating }
@@ -10961,9 +10967,9 @@ ep3_laamp_decision_event.1033 = {
 							    		#Create a victim to kill
 								    	create_character = {
 											template = generic_peasant_character
-											culture = scope:visiting_location.location.county.culture
-											faith = scope:visiting_location.location.county.faith
-											location = scope:visiting_location.location
+											culture = scope:visiting_location.culture #Unop Use correct scope
+											faith = scope:visiting_location.faith #Unop Use correct scope
+											location = scope:visiting_location #Unop Use correct scope
 											after_creation = { set_to_lowborn = yes }
 											save_scope_as = 1030_previous_victim
 										}
@@ -14800,6 +14806,7 @@ ep3_laamp_decision_event.1043 = {
 					faith = scope:visiting_location.faith
 					save_scope_as = laamp_clergy_character
 				}
+				scope:laamp_clergy_character = { remove_character_flag = peasant_outfit } #Unop: generic_peasant_character is forcing a peasant outfit on the clergy member and this look terrible
 			}
 			#Remember the clerger
 			1010_remember_vendor_character_effect = { GUILD = clergy CHARACTER = scope:laamp_clergy_character }
@@ -17403,7 +17410,7 @@ ep3_laamp_decision_event.1053 = {
 			random_pool_character = {
 				province = scope:visiting_location
 				limit = { 1053_random_martial_character_trigger = yes }
-				save_scope_as = laamp_plain_guard
+				save_scope_as = laamp_talented_guard # Unop: Save correct scope
 			}
 			#Otherwise create a suiting talented guard
 			if = {
@@ -17448,6 +17455,22 @@ ep3_laamp_decision_event.1053 = {
 			}
 			else = {
 				save_scope_as = bg_override_char
+			}
+		}
+
+		#Unop Remove their shirts and hats
+		if = { # The first time you go to the garrison, the desc is telling that they are brawling
+			limit = {
+				NOT = { exists = scope:been_to_garrison }
+			}			
+			#Unop: In the fight club you fight shirtless
+			scope:laamp_plain_guard = {
+				add_character_flag = single_combat_stripped_to_waist
+				add_character_flag = no_hat
+			}
+			scope:laamp_talented_guard = {
+				add_character_flag = single_combat_stripped_to_waist
+				add_character_flag = no_hat
 			}
 		}
 	}
@@ -17569,6 +17592,28 @@ ep3_laamp_decision_event.1053 = {
 	after = {
 		#What was our last location
 		1000_update_last_location_effect = { LOCATION_FLAG = flag:garrison }
+
+		#Unop Put their shirts and hats back on
+		scope:laamp_plain_guard ?= {
+			if = { 
+				limit = { has_character_flag = single_combat_stripped_to_waist }
+				remove_character_flag = single_combat_stripped_to_waist
+			}
+			if = {
+				limit = { has_character_flag = no_hat }
+				remove_character_flag = no_hat
+			}
+		}
+		scope:laamp_talented_guard ?= {
+			if = { 
+				limit = { has_character_flag = single_combat_stripped_to_waist }
+				remove_character_flag = single_combat_stripped_to_waist
+			}
+			if = {
+				limit = { has_character_flag = no_hat }
+				remove_character_flag = no_hat
+			}
+		}
 	}
 }
 
@@ -17812,7 +17857,7 @@ ep3_laamp_decision_event.1055 = {
 			#Otherwise create a spokesperson
 			if = {
 				limit = {
-					NOT = { exists = scope:laamp_plain_guard }
+					NOT = { exists = scope:laamp_maa_reinforcer } #Unop: Was laamp_plain_guard ?
 				}
 				#Create spokesperson to stuff in pool
 				create_character = {
@@ -17887,7 +17932,15 @@ ep3_laamp_decision_event.1055 = {
 	option = {
 		name = ep3_laamp_decision_event.1055.b
 		trigger = { 
-			piety_level >= low_piety_level 
+			piety_level >= low_piety_level
+			#Unop Limit this to same religion if accepted or astray
+			faith.religion = scope:visiting_location.faith.religion
+			faith = {
+				faith_hostility_level = {
+					target = scope:visiting_location.faith
+					value <= faith_astray_level
+				}
+			}
 		}
 		show_as_unavailable = { always = yes }
 		flavor = ep3_laamp_decision_event.1055.b.flavor
@@ -20826,14 +20879,15 @@ ep3_laamp_decision_event.1103 = {
 						subtract = location.county.county_opinion
 					}
 				}
-				modifier = {
-					factor = 0.75
-					location.county.faith.religion = root.religion
-				}
-				modifier = {
-					factor = 0.75
-					knows_language_of_culture = location.county.culture
-				}
+				#Unop Moved to below since these conditions should increase the success chance
+				#modifier = {
+				#	factor = 0.75
+				#	location.county.faith.religion = root.religion
+				#}
+				#modifier = {
+				#	factor = 0.75
+				#	knows_language_of_culture = location.county.culture
+				#}
 				send_interface_toast = {
 					type = event_toast_effect_good
 					title = ep3_laamp_decision_event.1103.a.success
@@ -20854,6 +20908,15 @@ ep3_laamp_decision_event.1103 = {
 				modifier = {
 					add = location.county.development_level
 				}
+				#Unop Moved from above since these conditions should increase the success chance
+				modifier = {
+					factor = 0.75
+					location.county.faith.religion = root.religion
+				}
+				modifier = {
+					factor = 0.75
+					knows_language_of_culture = location.county.culture
+				}
 				send_interface_toast = {
 					type = event_toast_effect_good
 					title = ep3_laamp_decision_event.1103.a.failure
@@ -20870,10 +20933,15 @@ ep3_laamp_decision_event.1103 = {
 			min = 20
 		}
 
-		reverse_add_opinion = {
-			modifier = vengeful_opinion
-			opinion = -75
-			target = location.county.holder
+		if = { #Unop The county holder should get a negative opinion only if they are of a different faith
+			limit = {
+				NOT = { location.county.holder.faith = root.faith }
+			}
+			reverse_add_opinion = {
+				modifier = vengeful_opinion
+				opinion = -75
+				target = location.county.holder
+			}
 		}
 
 		ai_chance = {
@@ -21554,7 +21622,7 @@ ep3_laamp_decision_event.1133 = { #get a mill
 		add_character_flag = laamp_city_builder_mill
 		show_as_tooltip = {
 			scope:city_location = {
-				add_building = watermills_01
+				add_building = watermills_02 #Unop: laamp_city_builder_construction_effect is building the _02 building not _01
 			}
 		}
 		remove_short_term_gold = 80
@@ -21753,12 +21821,19 @@ ep3_laamp_decision_event.1135 = { #argue for more favorable land assigment from 
 		}
 	}
 
+	on_trigger_fail = { #Unop: Added the missing event trigger in the chain
+		trigger_event = {
+			id = ep3_laamp_decision_event.1136
+			months = { 4 6 }
+		}
+	}
+
 	option = { #cool
 		name = ep3_laamp_decision_event.1135.a
 		add_character_flag = laamp_city_builder_manor
 		show_as_tooltip = {
 			scope:city_location = {
-				add_building = farm_estates_01
+				add_building = farm_estates_02 #Unop: laamp_city_builder_construction_effect is building the _02 building not _01
 			}
 		}
 		pay_short_term_gold = {
@@ -21798,7 +21873,13 @@ ep3_laamp_decision_event.1135 = { #argue for more favorable land assigment from 
 			base = 0
 		}
 	}
-	
+
+	after = {
+		trigger_event = {
+			id = ep3_laamp_decision_event.1136
+			months = { 4 6 }
+		}
+	}
 }
 
 ep3_laamp_decision_event.1136 = { #utilize connections, get merchant building
@@ -21807,7 +21888,7 @@ ep3_laamp_decision_event.1136 = { #utilize connections, get merchant building
 	window = visit_settlement_window
 	desc = ep3_laamp_decision_event.1136.desc
 
-	orphan = yes
+	#orphan = yes #Unop: Now that the code to trigger this event have been completed, unflag this one
 
 	theme = stewardship
 
@@ -21836,13 +21917,13 @@ ep3_laamp_decision_event.1136 = { #utilize connections, get merchant building
 			limit = { has_variable = city_construction_is_temple_citadel }
 			add_character_flag = laamp_city_builder_spice_plantation
 			scope:city_location = {
-				show_as_tooltip = { add_building = spice_plantation_01 }
+				show_as_tooltip = { add_building = spice_plantation_02 } #Unop: laamp_city_builder_construction_effect is building the _02 building not _01
 			}
 		}
 		else = {
 			add_character_flag = laamp_city_builder_workshops
 			scope:city_location = {
-				show_as_tooltip = { add_building = workshops_01 }
+				show_as_tooltip = { add_building = workshops_02 } #Unop: laamp_city_builder_construction_effect is build
 			}
 		}
 		add_prestige = -400
@@ -21926,7 +22007,7 @@ ep3_laamp_decision_event.1137 = { #utilize connections, get prayer hall
 		else = {
 			add_character_flag = laamp_city_builder_prayer_hall
 			scope:city_location = {
-				show_as_tooltip = { add_building = monastic_schools_01 }
+				show_as_tooltip = { add_building = monastic_schools_02 } #Unop: laamp_city_builder_construction_effect is building the _02 building not _01
 			}
 		}
 		add_piety = -400
