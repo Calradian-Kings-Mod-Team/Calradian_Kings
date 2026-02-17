@@ -50,6 +50,13 @@ can_marry_common_trigger = {
 		}
 		exists = scope:contest_winner
 	}
+	trigger_if = {
+		limit = {
+			character_is_wb_claimant = yes # Keep pretending you're single
+		}
+		# landing as duke (or camping as adventurer) is good enough?
+		highest_held_title_tier >= tier_duchy
+	}
 }
 
 #Can marry right now
@@ -59,10 +66,13 @@ can_marry_trigger = {
 	NOR = {
 		has_trait = widow
 		has_trait = calking_slave
-		AND = {
-			has_character_flag = companion_recruitable_var # Keep companions from marrying before being recruited
-			NOT = {
-				has_character_flag = companion_recruited_var
+		trigger_if = {
+			limit = {
+				has_character_flag = companion_recruitable_var # Keep companions from marrying before being recruited
+			}
+			NOR = {
+				highest_held_title_tier >= tier_duchy
+				has_character_flag = ck_companion_recruited
 			}
 		}
 	}

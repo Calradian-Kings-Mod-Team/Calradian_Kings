@@ -24,6 +24,27 @@
 	is_valid_showing_failures_only = {
 		scope:recipient = {
 			is_ruler = no
+			trigger_if = {
+				limit = {
+					character_is_wb_claimant = yes
+				}
+				NOT = {
+					custom_description = {
+						text = wb_claimant_warning_tt
+						any_claim = {
+							pressed = yes
+							tier >= tier_kingdom
+							holder ?= { 
+								OR = {
+									this = scope:actor
+									this = scope:actor.top_overlord
+								}
+							}
+						}
+						object = scope:actor.top_overlord # mostly acccurate if the player is top dog
+					}
+				}
+			}
 		}
 		trigger_if = {
 			limit = {
@@ -353,16 +374,15 @@
 
 		# Make it all more likely
 		modifier = {
-			factor = 4
+			factor = scope:actor.highest_held_title_tier
 		}
-
 		# The AI will always use a hook if it can
 		modifier = {
 			scope:hook = yes
 			add = 1
 		}
 
-		# Avoid recruiting companions
+		# Avoid recruiting companions (should this be a blocker instead?)
 		modifier = {
  			scope:recipient = { has_character_flag = companion_recruitable_var }
  			add = -200
