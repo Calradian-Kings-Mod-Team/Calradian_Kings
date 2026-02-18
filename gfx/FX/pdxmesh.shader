@@ -447,6 +447,9 @@ PixelShader =
 
 			PDX_MAIN
 			{
+				#ifdef SELECTION_MARKER
+					discard;
+				#endif
 				float4 Diffuse = PdxTex2D( DiffuseMap, DIFFUSE_UV_SET );
 
 				#if defined( PDX_MESH_UV1 ) && defined( TILING_AO )
