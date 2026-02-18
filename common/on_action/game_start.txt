@@ -26,19 +26,7 @@ on_game_start = {
 			value = yes
 			years = 10
 		}
-		### BOOKMARK USAGE - CK
-		## Rename Titles back to their originals
-		remove_redundant_titles_effect = yes
-		### Warband Setup
-		if = {
-			limit = {
-				game_start_date >= 1257.3.23
-			}
-			## Update BL COAs to WB COAs
-			# title:k_vlandia = { set_coa = k_swadia }
-			## Remove redundant bookmark titles
-			1257_set_dynn_coas = yes
-		}
+
 		### CORONATION LOCATION SETUP ###
 		if = {
 			limit = {
@@ -638,12 +626,41 @@ on_game_start = {
 			title:d_laamp_eleftheroi = { set_coa = eleftheroi_coa }
 			title:d_laamp_forest_people = { set_coa = forest_people_coa }
 			title:d_laamp_khergit_1 = { set_coa = laamp_khergit_1 }
+			### Some starter for eleftheroi ###
+			if = {
+				limit = {
+					exists = title:d_laamp_eleftheroi
+				}
+				title:d_laamp_eleftheroi.holder ?= {
+					create_maa_regiment = {
+						type = veteran_eleftheroi
+						check_can_recruit = no
+						size = 6
+					}
+					create_maa_regiment = {
+						type = veteran_eleftheroi
+						check_can_recruit = no
+						size = 6
+					}
+					create_maa_regiment = {
+						type = veteran_eleftheroi
+						check_can_recruit = no
+						size = 3
+					}
+					domicile ?= { # don't starve
+						change_provisions = 3000
+					}
+				}
+			}
 		}
 		### Warband Setup
-		if = {
+		else_if = {
 			limit = {
 				game_start_date >= 1257.3.23
 			}
+			### BOOKMARK USAGE - CK
+			## Rename Titles back to their originals (in history now)
+			1257_set_dynn_coas = yes
 			## LAAMP COA's - Warband
 			title:d_laamp_warriders = { set_coa = laamp_warriders_coa }
 			# Claimant LAAMP COA's -  Placeholders as of 2/17/2026
@@ -653,29 +670,6 @@ on_game_start = {
 			title:d_laamp_lethwin = { set_coa = d_laamp_lethwin_coa }
 			title:d_laamp_arwa = { set_coa = d_laamp_arwa_coa }
 			title:d_laamp_valdym = { set_coa = d_laamp_valdym_coa }
-		}
-		### Some starter for eleftheroi ###
-		if = {
-			limit = {
-				exists = title:d_laamp_eleftheroi
-			}
-			title:d_laamp_eleftheroi.holder = {
-				create_maa_regiment = {
-					type = veteran_eleftheroi
-					check_can_recruit = no
-					size = 6
-				}
-				create_maa_regiment = {
-					type = veteran_eleftheroi
-					check_can_recruit = no
-					size = 6
-				}
-				create_maa_regiment = {
-					type = veteran_eleftheroi
-					check_can_recruit = no
-					size = 3
-				}
-			}
 		}
 		### Setting up dynamic colours - For Bannerlord startdate ###
 		if = {
