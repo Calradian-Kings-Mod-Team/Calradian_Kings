@@ -444,35 +444,43 @@ arwa_wb = {
         }
     }
     1234.1.16 = {
+		trait = calking_former_slave
         effect = {
             set_father = character:sarranid_BS_6
             set_mother = character:sarranid_BS_6_Y
-            add_opinion = {
-                target = character:sarranid_BS_6
-                modifier = ck_adopted_scripted
-                opinion = 50
-            }
-            add_opinion = {
-                target = character:sarranid_BS_6_Y
-                modifier = ck_adopted_scripted
-                opinion = 50
-            }
-            set_house = house:house_banu_sarran
+            # add_opinion = {
+            #     target = character:sarranid_BS_6
+            #     modifier = ck_adopted_scripted
+            #     opinion = 50
+            # }
+            # add_opinion = {
+            #     target = character:sarranid_BS_6_Y
+            #     modifier = ck_adopted_scripted
+            #     opinion = 50
+            # }
+			create_character_memory = {
+				type = was_noble_family_adopted
+				participants = { house_head = father }
+				duration = { years = 99 }
+			}
+			scope:new_memory = { set_variable = { name = adopted_house value = house:house_banu_sarran } }
+            # set_house = house:house_banu_sarran
         }
         give_nickname = nick_pearled
     }
 
 	# Effects of turning 16
 	1235.4.19 = {
+		trait = administrative_court_2
 		effect = { # Earned some additional learning and stewardship
-			add_stewardship_skill = 1
-			add_learning_skill = 2
-			add_learning_lifestyle_xp = medium_lifestyle_xp
+			add_learning_skill = 1
+			add_learning_lifestyle_perk_points = 1
 		}
 	}
 
     1253.3.22 = {
         effect = {
+			# add witch secret known to hakim?
             set_relation_rival = { target = character:hakim_wb reason = rival_usurper }	# Hakim usurped Arwa
 			add_opinion = {
 				target = character:hakim_wb
@@ -525,6 +533,8 @@ arwa_wb = {
 					add_domicile_building = proving_grounds_02
 					add_domicile_building = proving_grounds_personal_bouts
 				}
+				# add option but don't set the law by default
+				primary_title = { set_variable = { name = can_keep_realm_law value = flag:equal_law } }
 			}
 		}
 	}
@@ -637,6 +647,8 @@ isolla_wb = {
 					add_domicile_building = proving_grounds_02
 					add_domicile_building = proving_grounds_personal_bouts
 				}
+				primary_title = { set_variable = { name = can_keep_realm_law value = flag:equal_law } }
+				add_realm_law_skip_effects = equal_law # warrior queen claims
 			}
 		}
 	}
@@ -685,7 +697,7 @@ dustum_wb = {
 	}
 	1250.1.1 = {
         effect = {
-            set_relation_rival = { target = character:sanjar_wb reason = rival_usurper }	# Hakim usurped Arwa
+            set_relation_rival = { target = character:sanjar_wb reason = rival_usurper }	# Sanjar usurped Dustum
 			add_opinion = {
 				target = character:sanjar_wb
 				modifier = usurped_title
@@ -786,10 +798,10 @@ valdym_wb = {
 				participants = {
 					new_holder = character:Vaegir_MAIN_1
 				}
+				duration = { years = 99 }
 			}
 			# duplicate setup from title_event.9901
-			every_memory = {
-				memory_type = lost_title_memory
+			scope:new_memory = {
 				set_variable = {
 					name = landed_title
 					value = title:e_sturgia
