@@ -2548,6 +2548,14 @@ scripted_trigger 1010_basic_merchant_checks_trigger = {
 		has_any_bad_relationship_with_character_trigger = { CHARACTER = root }
 	}
 	is_available_adult = yes
+	trigger_if = { # if they ever get lost again, treat them like strangers
+		limit = {
+			has_character_flag = companion_recruitable_var
+		}
+		NOT = {
+			has_character_flag = ck_companion_recruited
+		}
+	}
 	#No double-dipping
 	trigger_if = {
 		limit = { exists = scope:laamp_supply_merchant }
@@ -8878,8 +8886,8 @@ ep3_laamp_decision_event.1030 = {
 				random_character_in_location = {
 					limit = {
 						has_character_flag = companion_recruitable_var
-						NOT = { employer = root }
-						NOT = {
+						NOR = {
+							employer ?= root
 							has_character_flag = ck_companion_recruited
 						}
 						is_available_adult = yes
@@ -9165,16 +9173,11 @@ ep3_laamp_decision_event.1030 = {
 			}
 		}
 		trigger = {
-			exists = scope:laamp_warband_companion_recruitable
 			is_ai = no
-			NOT = {
-				scope:laamp_warband_companion_recruitable = {
-					employer = root
-				}
-			}
-			scope:laamp_warband_companion_recruitable = {
-				NOT = {
+			scope:laamp_warband_companion_recruitable ?= {
+				NOR = {
 					has_character_flag = ck_companion_recruited
+					employer ?= root
 				}
 			}
 		}
