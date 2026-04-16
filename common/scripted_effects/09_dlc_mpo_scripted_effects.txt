@@ -530,24 +530,38 @@ migration_title_and_vassal_change_effect = {
 			scope:target_title.tier >= tier_kingdom
 		}
 		scope:target_title ?= {
-			every_de_jure_county_holder = {
+
+			every_in_de_jure_hierarchy = { #Unop: Take the existing duchy title that are within this title
 				limit = {
-					OR = {
-						any_in_list = {
-							list = old_holder
-							this = prev
-						}
-						this = scope:recipient
-						AND = {
-							scope:recipient = this.liege
-							any_held_county = {
-								exists = duchy
-								NOT = { target_is_de_jure_liege_or_above = scope:target_title }
+					tier = tier_duchy
+					holder = scope:recipient
+				}
+				change_title_holder = {
+					holder = scope:actor
+					change = scope:change1
+				}
+			}
+
+			every_de_jure_county = { #Unop: We want to transfert the counties within the target title, so iterate on them, it will also fix the change_title_holder below
+				limit = {
+					holder = {
+						OR = {
+							any_in_list = {
+								list = old_holder
+								this = prev
+							}
+							this = scope:recipient
+							AND = {
+								scope:recipient = this.liege
+								any_held_county = {
+									exists = duchy
+									NOT = { target_is_de_jure_liege_or_above = scope:target_title }
+								}
 							}
 						}
 					}
 				}
-				change_title_holder = {
+				change_title_holder = { #Unop: change_title_holder need a landed title, previously it was a character scope but with the iterator fix, it's good now
 					holder = scope:actor
 					change = scope:change1
 				}
@@ -793,6 +807,60 @@ migration_title_and_vassal_change_effect = {
 		debug_log = "Migration completed"
 		debug_log_scopes = yes
 	}
+
+	# Unop: Step 9: Make sure everyone follow you instead of staying at the previous location
+	hidden_effect = {
+		scope:actor = {
+			every_courtier_or_guest = {
+				limit = { unop_can_location_be_reset = { LIEGE = root } }
+				set_location_to_default = yes 
+			}
+			every_prisoner = {
+				set_location_to_default = yes 
+			}
+			random_held_title = { #Unop: Now reset the de-jure capital to the new title that we migrate to
+				limit = {
+					is_nomad_title = yes
+					exists = title_domicile
+				}
+				set_capital_county = scope:actor.capital_province.county
+			}
+		}
+		scope:recipient = {
+			every_courtier_or_guest = {
+				limit = { unop_can_location_be_reset = { LIEGE = root } }
+				set_location_to_default = yes 
+			}
+			every_prisoner = {
+				set_location_to_default = yes 
+			}
+			random_held_title = {
+				limit = {
+					is_nomad_title = yes
+					exists = title_domicile
+				}
+				set_capital_county = scope:recipient.capital_province.county
+			}
+		}
+		every_in_list = {
+			list = settled_vassal
+			save_scope_as = unop_settled_vassal
+			every_courtier_or_guest = {
+				limit = { unop_can_location_be_reset = { LIEGE = root } }
+				set_location_to_default = yes 
+			}
+			every_prisoner = {
+				set_location_to_default = yes 
+			}
+			random_held_title = {
+				limit = {
+					is_nomad_title = yes
+					exists = title_domicile
+				}
+				set_capital_county = scope:unop_settled_vassal.capital_province.county
+			}
+		}
+	}
 }
 
 migration_set_obedient_vassal_effect = {
@@ -916,12 +984,14 @@ mpo_mongol_recovered_head_content_effect = {
 	if = {
 		limit = {
 			any_side_participant = {
+				is_alive = yes #Unop Fix dead character errors
 				has_variable = beheaded_warrior
 				is_ruler = yes
 			}
 		}
 		every_side_participant = {
 			limit = {
+				is_alive = yes #Unop Fix dead character errors
 				has_variable = beheaded_warrior
 				is_ruler = yes
 			}
@@ -1472,7 +1542,7 @@ ai_paiza_giveaway_effect = {
 		limit = {
 			NOT = {
 				any_character_artifact = {
-					scope:artifact.var:paiza_patron ?= root
+					var:paiza_patron ?= root #Unop ck3-tiger Fix scope
 				}
 			}
 		}
@@ -1485,7 +1555,7 @@ ai_paiza_giveaway_effect = {
 		limit = {
 			NOT = {
 				any_character_artifact = {
-					scope:artifact.var:paiza_patron ?= root
+					var:paiza_patron ?= root #Unop ck3-tiger Fix scope
 				}
 			}
 		}
@@ -1501,7 +1571,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { #Vostrum
 			trigger = {
 				title:c_vostrum = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1519,7 +1589,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { # Quyaz
 			trigger = {
 				title:c_quyaz = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1537,7 +1607,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { #Pravend
 			trigger = {
 				title:c_pravend = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1555,7 +1625,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { #Varcheg
 			trigger = {
 				title:c_varcheg = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1573,7 +1643,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { #Charas
 			trigger = {
 				title:c_charas = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1591,7 +1661,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { #Balgard
 			trigger = {
 				title:c_balgard = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1602,14 +1672,14 @@ mpo_find_suitable_merchant_effect = {
 			modifier = {
 				add = title:c_balgard.development_level
 			}
-			title:c_balgard  = {
+			title:c_balgard = {
 				save_scope_as = merchant_origin
 			}
 		}
 		1 = { # Revyl
 			trigger = {
 				title:c_revyl = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1627,7 +1697,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { #Marunath
 			trigger = {
 				title:c_marunath = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1645,7 +1715,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { # Zeonica
 			trigger = {
 				title:c_zeonica = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1663,7 +1733,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { # Banton (West Isles)
 			trigger = {
 				title:c_banton = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1681,7 +1751,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { # Sanala
 			trigger = {
 				title:c_sanala = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -1699,7 +1769,7 @@ mpo_find_suitable_merchant_effect = {
 		1 = { # Askar
 			trigger = {
 				title:c_askar = {
-					development_level >= 30
+					development_level > 10
 					NOT = {
 						holder.top_liege = {
 							government_has_flag = government_is_nomadic
@@ -3638,25 +3708,11 @@ mpo_overrunning_vassal_title_distribution_effect = {
 								scope:undervassal = {
 									OR = {
 										#Personal reasons to go clan
-										faith.religion = religion:aserai_religion
-										culture ?= {
-											OR = {
-												has_cultural_pillar = heritage_nahasi
-												has_cultural_pillar = heritage_darshi
-											}
-										}
+										ep3_is_clan_inclined_trigger = yes
 										#county and liege are clan
 										AND = {
 											scope:title_to_grant = {
-												OR = {
-													faith.religion = religion:aserai_religion
-													culture = {
-														OR = {
-															has_cultural_pillar = heritage_nahasi
-															has_cultural_pillar = heritage_darshi
-														}
-													}
-												}
+												ep3_is_clan_inclined_trigger = yes
 											}
 											scope:attacker = {
 												government_has_flag = government_is_clan
@@ -3730,25 +3786,11 @@ mpo_overrunning_vassal_title_distribution_effect = {
 					scope:title_gainer = {
 						OR = {
 							#Personal reasons to go clan
-							faith.religion = religion:aserai_religion
-							culture = {
-								OR = {
-									has_cultural_pillar = heritage_nahasi
-									has_cultural_pillar = heritage_darshi
-								}
-							}
+							ep3_is_clan_inclined_trigger = yes
 							#county and liege are clan
 							AND = {
 								scope:title_to_grant = {
-									OR = {
-										faith.religion = religion:aserai_religion
-										culture = {
-											OR = {
-												has_cultural_pillar = heritage_nahasi
-												has_cultural_pillar = heritage_darshi
-											}
-										}
-									}
+									ep3_is_clan_inclined_trigger = yes
 								}
 								scope:attacker = {
 									government_has_flag = government_is_clan
@@ -4881,7 +4923,7 @@ confederation_migration_notification_effect = {
 		type = msg_broken_confederation
 		title = msg_broken_confederation_migration_root
 		desc = msg_broken_confederation_migration_root_desc
-		left_icon = confederation
+		#left_icon = confederation #Unop: For now this does not work, so commented it out until further notice
 	}
 	add_character_flag = {
 		flag = migrating_from_confederation
@@ -5696,7 +5738,7 @@ omen_yurt_effect = {
 					title = omen_yurt_effect_tt
 					desc = omen_yurt_effect_desc
 					left_icon = scope:improved_child
-					scope:improved_knight = {
+					scope:improved_child = { # Unop ck3-tiger Fix scope
 						random_list = {
 							1 = { add_diplomacy_skill = 1 }
 							1 = { add_stewardship_skill = 1 }
@@ -5909,7 +5951,7 @@ clean_up_ai_nomad_effect = {
 		limit = {
 			is_ai = yes
 			is_at_war = no
-			domicile.herd < 500
+			#domicile.herd < 500 #Unop: Do not allow nomad with no-land to keep being nomadic, this will cause issue with them being stuck, herders will also have no lands, etc...
 			is_landed = no
 			any_held_title = {
 				exists = title_domicile
@@ -6181,12 +6223,12 @@ nomadic_heir_cleanup_realm_effect = {
 					type = swear_fealty
 					save_scope_as = change
 				}
-				scope:recipient = {
+				#scope:recipient = { #Unop ck3-tiger Fix scope
 					change_liege = {
 						liege = scope:old_liege
 						change = scope:change
 					}
-				}
+				#}
 				resolve_title_and_vassal_change = scope:change
 			}
 		}
