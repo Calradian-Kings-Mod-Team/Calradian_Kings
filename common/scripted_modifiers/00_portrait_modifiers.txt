@@ -178,3 +178,79 @@ court_fashion_level_5_modifier = {
         }
     }
 }
+# add game rule to toggle this later
+portrait_ck_ruler_armor_modifier = {
+	modifier = {
+		add = 699 # might go past 1000 with other factors
+		trigger_if = {
+			limit = {
+				is_alive = yes
+			}
+			portrait_wear_armor_trigger = yes
+		}
+		ck_is_$CULTURE_INPUT$_king = yes
+	}
+}
+portrait_ck_holy_royalty_modifier = {
+	modifier = {
+		add = 110
+		has_cp9_dlc_trigger = yes
+		OR = {
+		# trigger_if = {
+		# 	limit = {
+		# 		exists = capital_barony
+		# 		exists = faith
+		# 	}
+		# 	capital_barony = {  # sub realm has all 4/5 site?
+		# 		title_province.faith = prev.faith
+		# 		is_holy_site_of = prev.faith 
+		# 	}
+		# }
+			portrait_has_trait_trigger = { TRAIT = crusader_king }
+			portrait_religious_head_ruler_trigger = yes
+			primary_spouse ?= {
+				OR = {
+					has_trait = crusader_king
+					portrait_religious_head_ruler_trigger = yes
+				}
+			}
+		}
+	}
+}
+portrait_ck_lamellar_armor_modifier = {
+	modifier = {
+		add = -60
+		scope:culture ?= {
+			# NOT = { has_unit_gfx = emishi_unit_gfx }
+			should_use_asian_maa_graphics = no
+		}
+	}
+}
+portrait_ck_block_tgp_headgear_modifier = {
+	# court_fashion_level_5_modifier = {
+	# 	INPUT_MODIFIER = $INPUT_PARAMETER$
+	# }
+	modifier = { # use the steppe crowns where available
+		add = -90
+		government_has_flag = government_is_nomadic
+		# any_character_situation = {
+		# 	this = situation:the_great_steppe
+		# }
+	}
+	modifier = {
+		factor = 0
+		trigger_if = {
+			limit = {
+				has_cp9_dlc_trigger = yes
+			}
+			NOR = {
+				has_royal_court = yes # the ruler themselves
+				primary_spouse ?= { has_royal_court = yes }
+				is_merit_based_official = yes
+				court_fashion_level_4_headgear_trigger = {
+					CULTURE_INPUT = $INPUT_PARAMETER$
+				}
+			}
+		}
+	}
+}
