@@ -92,21 +92,7 @@
 		multiply = byzantium_conquests_ai_score_value
 		
 		# So Swadian vassals stop eating rhodokia after rebellion - cooldown for AI held rhodokia
-		if = {
-			limit = {
-				scope:attacker = {
-					is_vassal_or_below_of = title:k_vlandia.holder
-				}
-				scope:defender = { # NOTE TO IRL: Because the global_var's below are created depending on whether the Rhodok king is AI or not, we don't need the extra 'if' statement for if the Rhodok king is AI or not.
-					has_title = title:k_rhodok
-				}
-				OR = {
-					exists = global_var:ck_swadian_rhodok_wars_cooldown # = 10 years (War usually starts in 1120)
-					exists = global_var:ck_swadian_rhodok_wars_cooldown_AI # = 15 years (War usually starts in 1120)
-				}
-			}
-			multiply = 0
-		}
+		multiply = ck_conquest_protection_value
 		# Slightly Increased chance if Swadians have the eastern expansion innovation / against Battanians
 		if = {
 			limit = {
@@ -164,16 +150,9 @@
 			multiply = common_cb_piety_cost_multiplier
 			if = {
 				limit = {
-					scope:attacker = {
-						culture = {
-							has_innovation = innovation_swadian_settling
-							has_variable = cheaper_conquest_temp
-						}
-					}
-					scope:defender = {
-						culture = {
-							has_cultural_pillar = heritage_battanian
-						}
+					ck_swadian_conquest_of_battania_trigger = yes
+					scope:attacker.culture ?= {
+						has_variable = cheaper_conquest_temp
 					}
 				}
 				multiply = {
@@ -202,16 +181,9 @@
 			multiply = common_cb_prestige_cost_multiplier
 			if = {
 				limit = {
-					scope:attacker = {
-						culture = {
-							has_innovation = innovation_swadian_settling
-							has_variable = cheaper_conquest_temp
-						}
-					}
-					scope:defender = {
-						culture = {
-							has_cultural_pillar = heritage_battanian
-						}
+					ck_swadian_conquest_of_battania_trigger = yes
+					scope:attacker.culture ?= {
+						has_variable = cheaper_conquest_temp
 					}
 				}
 				multiply = {
@@ -562,24 +534,9 @@ duchy_conquest_cb = {
 		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
 		multiply = byzantium_conquests_ai_score_value
 		multiply = muslim_invasions_prefer_nonmuslims_ai_score_value
-		
-		# So Swadian vassals stop eating rhodokia after rebellion - cooldown for AI held rhodokia
-		if = {
-			limit = {
-				scope:attacker = {
-					is_vassal_or_below_of = title:k_vlandia.holder
-				}
-				scope:defender = { # NOTE TO IRL: Because the global_var's below are created depending on whether the Rhodok king is AI or not, we don't need the extra 'if' statement for if the Rhodok king is AI or not.
-					has_title = title:k_rhodok
-				}
-				OR = {
-					exists = global_var:ck_swadian_rhodok_wars_cooldown # = 10 years (War usually starts in 1120)
-					exists = global_var:ck_swadian_rhodok_wars_cooldown_AI # = 15 years (War usually starts in 1120)
-				}
-			}
-			multiply = 0
-		}
 
+		# So Swadian vassals stop eating rhodokia after rebellion - cooldown for AI held rhodokia
+		multiply = ck_conquest_protection_value
 	}
 
 	valid_to_start = {
