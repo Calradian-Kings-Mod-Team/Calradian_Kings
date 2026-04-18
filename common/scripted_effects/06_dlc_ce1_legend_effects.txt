@@ -303,12 +303,23 @@ grab_mythical_founder_effect = {
 		if = {
 			limit = {
 				NOT = { exists = var:mythical_ancestor_var }
+				exists = root.primary_title # scope:target_title is saved in one event but not the other
+			}
+			if = {
+				limit = {
+					NOT = {
+						exist = scope:target_title
+					}
+				}
+				root.primary_title = {
+					save_scope_as = target_title
+				}
 			}
 			random_list = {
 				10 = { # Calradios
 					trigger = {
 						AND = { 
-							root.primary_title = title:e_calradian_empire
+							scope:target_title = title:e_calradian_empire
 							root.faith = faith:calradic
 							current_date > 1000.1.1
 						}
@@ -324,8 +335,8 @@ grab_mythical_founder_effect = {
 								scope:target_title = title:e_grand_principality_of_sturgia
 							}
 							NOR = {
-								root.faith.religion = religion:aserai_religion
-								root.faith.religion = religion:calradian_religion
+								root.religion ?= religion:aserai_religion
+								root.religion ?= religion:calradian_religion
 							}
 						}
 					}
@@ -333,15 +344,15 @@ grab_mythical_founder_effect = {
 				}
 				10 = { # Wilund the Bold
 					trigger = {
-						root.primary_title = title:k_vlandia
+						scope:target_title = title:k_vlandia
 					}
 					set_variable = { name = mythical_ancestor_var value = flag:wilund_founder }
 				}
 				10 = { # Asera
 					trigger = {
 						OR = {
-							root.primary_title = title:k_aserai
-							root.primary_title = title:e_nahasa
+							scope:target_title = title:k_aserai
+							scope:target_title = title:e_nahasa
 						}
 					}
 					set_variable = { name = mythical_ancestor_var value = flag:asera_founder }
@@ -350,9 +361,9 @@ grab_mythical_founder_effect = {
 					trigger = {
 						AND = {
 							OR = {
-								root.primary_title = title:k_aserai
-								root.primary_title = title:e_nahasa
-								root.primary_title = title:k_kanniq	
+								scope:target_title = title:k_aserai
+								scope:target_title = title:e_nahasa
+								scope:target_title = title:k_kanniq	
 							}
 							NOT = {
 								root.religion = religion:aserai_religion
