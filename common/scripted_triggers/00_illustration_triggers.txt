@@ -120,7 +120,6 @@ graphical_wilderness_steppe_trigger = {
 			OR = {
 				geographical_region = world_steppe
 				geographical_region = region_darshi_west
-				geographical_region = region_darshi_west
 			}
 		}
 	}
@@ -531,10 +530,23 @@ has_graphical_western_region_trigger = {
 has_graphical_iberia_region_trigger = {
 	trigger_if = {
 		limit = {
+			game_start_date >= 1257.3.23
+		}
+		# expansion of graphical_mediterranean to account for sarranid capital in shariz
+		has_graphical_mediterranean_region_trigger = yes
+	}
+	trigger_else_if = {
+		limit = {
 			exists = capital_province
 		}
 		capital_province = {
-			geographical_region = region_perassic_isles
+			geographical_region = world_europe_west_iberia
+			trigger_if = {
+				limit = {
+					geographical_region = region_north_nahasa_coast
+				}
+				province_owner ?= { NOT = { government_allows = always_use_patronym } } # tribal + clan catchall 
+			}
 		}
 	}
 	trigger_else_if = {
@@ -544,7 +556,7 @@ has_graphical_iberia_region_trigger = {
 		trigger_if = { 
 			limit = { exists = host.capital_province }
 			host.capital_province = {
-				geographical_region = region_perassic_isles
+				geographical_region = world_europe_west_iberia
 			}
 		}
 		trigger_else_if = {
@@ -552,7 +564,7 @@ has_graphical_iberia_region_trigger = {
 				exists = liege.capital_province
 			}
 			liege.capital_province = {
-				geographical_region = region_perassic_isles
+				geographical_region = world_europe_west_iberia
 			}
 		}
 		trigger_else_if = {
@@ -560,7 +572,7 @@ has_graphical_iberia_region_trigger = {
 				exists = location.province_owner.capital_province
 			}
 			location.province_owner.capital_province = {
-				geographical_region = region_perassic_isles
+				geographical_region = world_europe_west_iberia
 			}
 		}
 		trigger_else = { always = yes }
@@ -578,7 +590,7 @@ has_graphical_iran_region_trigger = {
 		capital_province = {
 			OR = {
 				geographical_region = world_middle_east_persia
-				geographical_region = world_steppe_tarim
+				geographical_region = world_steppe_tarim # khergit settled
 				geographical_region = world_steppe_central
 			}
 		}
@@ -677,6 +689,7 @@ steppe_building_gfx_use_iranian_trigger = {
 	AND = {
 		OR = {
 			geographical_region = world_steppe_central
+			geographical_region = world_steppe_tarim
 			geographical_region = world_middle_east_persia
 		}
 		culture ?= { has_building_gfx = steppe_building_gfx }
@@ -711,6 +724,76 @@ steppe_building_gfx_use_southeast_asian_trigger = {
 	AND = {
 		culture ?= { has_building_gfx = steppe_building_gfx }
 		geographical_region = world_asia_southeast
+	}
+}
+
+steppe_building_gfx_use_borteq_camp_character_trigger = {
+	AND = {
+		culture ?= {
+			has_cultural_pillar = heritage_khuzic
+			has_building_gfx = steppe_building_gfx
+		}
+		trigger_if = {
+			limit = {
+				government_has_flag = government_is_clan
+			}
+			capital_province ?= {
+				has_holding_type = castle_holding
+			}
+		}
+		# trigger_else_if = {
+		# 	limit = {
+		# 		government_has_flag = government_is_tribal
+		# 	}
+		# 	capital_province ?= {
+		# 		has_holding_type = tribal_holding
+		# 	}
+		# }
+		trigger_else_if = { #use other tents
+			limit = {
+				government_has_flag = government_is_nomadic
+			}
+			capital_county ?= {
+				NOT = {
+					any_county_situation = {
+						situation_type = the_great_steppe
+					}
+				}
+			}
+		}
+		# highest_held_title_tier <= tier_kingdom # meant for e_arkits
+	}
+}
+steppe_building_gfx_use_khiindai_camp_character_trigger = {
+	AND = {
+		culture ?= {
+			has_cultural_pillar = heritage_khiindai
+			has_building_gfx = steppe_building_gfx
+		}
+		highest_held_title_tier <= tier_kingdom
+		trigger_if = {
+			limit = {
+				government_has_flag = government_is_clan
+			}
+			capital_province ?= {
+				has_holding_type = castle_holding
+				NOT = { # skip khergits
+					geographical_region = region_warband
+				}
+			}
+		}
+		trigger_else = { #use other tents
+			limit = {
+				government_has_flag = government_is_nomadic
+			}
+			capital_county ?= {
+				NOT = {
+					any_county_situation = {
+						situation_type = the_great_steppe
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -870,7 +953,16 @@ has_graphical_korean_region_trigger = {
 	}
 	trigger_else = { always = yes }
 }
-
+has_graphical_calradic_empire_character_trigger = {
+	is_landed_or_landless_administrative = yes
+	culture = {
+		has_cultural_pillar = heritage_calradian
+		# relax this via traditions for warband bookmark?
+	}
+	top_liege ?= {
+		valid_for_byz_emperor_content_trigger = yes
+	}
+}
 #Northern Empire
 has_graphical_northern_empire_trigger = {
 	trigger_if = {
