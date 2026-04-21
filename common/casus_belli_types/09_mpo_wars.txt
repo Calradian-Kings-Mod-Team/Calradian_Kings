@@ -55,6 +55,7 @@ migration_cb = {
 
 	on_victory = {
 		scope:attacker = { 
+			save_scope_as = duchy_war
 			show_pow_release_message_effect = yes 
 			if = {
 				limit = {
@@ -275,6 +276,9 @@ mpo_nomad_invasion_cb = {
 	mutually_exclusive_titles = { always = yes }
 	allow_hostages = no
 
+	defender_score_from_occupation_scale = 50
+	attacker_score_from_occupation_scale = 150
+
 	allowed_for_character = {
 		is_independent_ruler = yes
 		government_has_flag = government_is_nomadic
@@ -285,11 +289,8 @@ mpo_nomad_invasion_cb = {
 			OR = {
 				is_landed = no
 				capital_county = {
-					any_county_situation = {
-						any_situation_sub_region = {
+					any_county_situation_sub_region = {
 							sub_region_current_phase = situation_steppe_havsarsan_zud_season
-							situation_sub_region_has_county = root.capital_county
-						}
 					}
 				}
 				AND = {
@@ -298,23 +299,20 @@ mpo_nomad_invasion_cb = {
 						has_bad_season_nomadic_capital_root_trigger = yes
 					}
 				}
+				mpo_nomad_invasion_war_ai_trigger = { NOMAD = root }
 			}
 			trigger_if = {
 				limit = {
 					NOT = {
 						capital_county = {
-							any_county_situation = {
-								any_situation_sub_region = {
+							any_county_situation_sub_region = {
 									sub_region_current_phase = situation_steppe_havsarsan_zud_season
-									situation_sub_region_has_county = root.capital_county
-								}
 							}
 						}
 					}
 				}
-				NOR = {
-					realm_size >= 30
-					is_confederation_member = yes
+				NOT = {
+					sub_realm_size > 40
 				}
 			}
 		}
@@ -336,6 +334,10 @@ mpo_nomad_invasion_cb = {
 	target_title_tier = kingdom
 	target_de_jure_regions_above = yes
 
+	ai_can_target_all_titles = {
+		always = yes
+	}
+
 	max_ai_diplo_distance_to_title = 1000
 	ai_score = {
 		value = {
@@ -344,11 +346,8 @@ mpo_nomad_invasion_cb = {
 					limit = {
 						scope:attacker = {
 							capital_county = {
-								any_county_situation = {
-									any_situation_sub_region = {
+								any_county_situation_sub_region = {
 										sub_region_current_phase = situation_steppe_havsarsan_zud_season
-										situation_sub_region_has_county = scope:attacker.capital_county
-									}
 								}
 							}
 						}
@@ -372,24 +371,12 @@ mpo_nomad_invasion_cb = {
 								AND = {
 									ai_boldness >= 50
 									capital_county = {
-										any_county_situation = {
+										any_county_situation_sub_region = {
 											OR = {
-												any_situation_sub_region = {
 													sub_region_current_phase = situation_steppe_white_zud_season
-													situation_sub_region_has_county = scope:attacker.capital_county
-												}
-												any_situation_sub_region = {
 													sub_region_current_phase = situation_steppe_cold_zud_season
-													situation_sub_region_has_county = scope:attacker.capital_county
-												}
-												any_situation_sub_region = {
 													sub_region_current_phase = situation_steppe_severe_drought_season
-													situation_sub_region_has_county = scope:attacker.capital_county
-												}
-												any_situation_sub_region = {
 													sub_region_current_phase = situation_steppe_havsarsan_zud_season
-													situation_sub_region_has_county = scope:attacker.capital_county
-												}
 											}
 										}
 									}
@@ -419,14 +406,14 @@ mpo_nomad_invasion_cb = {
 							list = target_titles
 							tier = tier_kingdom
 							OR = {
-								title:k_iltan ?= this
-								title:k_nempire_k_2 ?= this
-								title:k_devseg ?= this
-								title:k_tsanghate ?= this
+								this = title:k_iltan
+								this = title:k_nempire_k_2
+								this = title:k_devseg
+								this = title:k_tsanghate
 								empire = {
-									# OR = {
-										title:e_khuzait_khanate ?= this
-										# title:e_turan ?= this
+									OR = {
+										this = title:e_khuzait_khanate 
+										this = title:e_great_horde 
 										# title:e_yongliang ?= this
 										# title:e_zhongyuan ?= this
 										# title:e_carpathia ?= this
@@ -434,7 +421,7 @@ mpo_nomad_invasion_cb = {
 										# title:e_chagatai ?= this
 										# title:e_ilkhanate ?= this
 										# title:e_golden_horde ?= this
-									# }
+									}
 								}
 							}
 						}
@@ -463,8 +450,7 @@ mpo_nomad_invasion_cb = {
 						}
 						scope:defender = {
 							OR = {
-								has_title = title:e_calradian_empire
-								has_trait = claimant_emperor
+								is_roman_emperor_trigger = yes
 								sub_realm_size >= 150
 							}
 						}
@@ -479,8 +465,57 @@ mpo_nomad_invasion_cb = {
 									has_cultural_pillar = heritage_khuzic
 									has_cultural_pillar = heritage_khiindai
 									has_cultural_pillar = heritage_nahasi
+									has_cultural_pillar = heritage_west_nahasan
 								}
 							}
+						}
+					}
+					multiply = 0.25
+				}
+				if = {
+					limit = {
+						scope:defender = {
+							any_character_war = {
+								using_cb = mpo_nomad_invasion_cb
+							}
+						}
+					}
+					multiply = 0.33
+				}
+				if = {
+					limit = {
+						any_in_list = {
+							list = target_titles
+							has_variable = was_overrun
+						}
+					}
+					multiply = 0.2
+				}
+				#Should not target islands... ever
+				if = {
+					limit = {
+						any_in_list = {
+							list = target_titles
+							tier = tier_duchy
+							OR = {
+								kingdom ?= title:k_esglaons
+								kingdom ?= title:k_lotki
+								kingdom ?= title:k_geroia
+								kingdom ?= title:k_thlos
+								empire ?= {
+									# OR = {
+										this = title:e_antipari
+									# }
+								}
+							}
+						}
+					}
+					multiply = 0
+				}
+				if = {
+					limit = {
+						scope:defender = {
+							current_military_strength > scope:attacker.eighty_percent_of_current_military_strength
 						}
 					}
 					multiply = 0.1
@@ -500,9 +535,6 @@ mpo_nomad_invasion_cb = {
 			# 	multiply = 0
 			# }
 		}
-	}
-	ai_can_target_all_titles = {
-		always = yes
 	}
 	ai_score_mult = {
 		value = 1
@@ -599,7 +631,17 @@ mpo_nomad_invasion_cb = {
 		}
 	}
 
-	on_invalidated_desc = msg_invasion_war_invalidated_message
+	on_invalidated_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:attacker = { is_alive = no }
+				}
+				desc = msg_claim_war_invalidated_claimant_unavailable_dead_attacker_message
+			}
+			desc = msg_claim_war_invalidated_message
+		}
+	}
 
 	on_invalidated = {
 	}
@@ -611,23 +653,19 @@ mpo_nomad_invasion_cb = {
 			multiply = 1.5
 		}
 		prestige = {
-			add = {
-				value = 2000
-
-				desc = CB_BASE_COST
-			}
-			multiply = common_cb_prestige_cost_multiplier
-			if = {
-				limit = {
-					scope:attacker = { is_ai = yes }
-				}
-				multiply = 0.5
-			}
+			value = nomad_invasion_cb_prestige_cost
 		}
 	}
 
 	on_declaration = {
 		on_declared_war = yes
+		random_in_list = {
+			list = target_titles
+			limit = {
+				tier = tier_kingdom
+			}
+			save_scope_as = target
+		}
 	}
 
 	on_victory_desc = {
@@ -699,8 +737,21 @@ mpo_nomad_invasion_cb = {
 	
 		scope:attacker = { show_pow_release_message_effect = yes }
 
-		# Legitimacy
-		scope:attacker = { add_legitimacy = medium_legitimacy_gain }
+		# Legitimacy and gold
+		scope:attacker = {
+			if = {
+				limit = {
+					scope:defender = {
+						government_has_flag = government_is_tribal
+					}
+				}
+				add_short_term_gold = medium_gold_value
+			}
+			else = {
+				add_short_term_gold = major_gold_value
+			}
+			add_legitimacy = medium_legitimacy_gain
+		}
 
 		#EP2 accolade glory gain for winning against higher ranked enemy
 		scope:attacker = { accolade_attacker_war_end_glory_gain_high_effect = yes }
@@ -717,6 +768,10 @@ mpo_nomad_invasion_cb = {
 				tier = tier_kingdom
 			}
 			save_scope_as = target
+			set_variable = {
+				name = was_overrun
+				years = 20
+			}
 		}
 		scope:attacker = {
 			if = {
@@ -855,24 +910,22 @@ mpo_nomad_invasion_cb = {
 			}
 		}
 
-
-		create_title_and_vassal_change = {
-			type = conquest
-			save_scope_as = change
-			add_claim_on_loss = yes
-		}
 		scope:target = {
 			custom_tooltip = invasion_title_transfer_tt
 		}
 
 		hidden_effect = {
+		create_title_and_vassal_change = {
+			type = conquest
+			save_scope_as = change
+			add_claim_on_loss = yes
+		}
 			setup_invasion_cb = {
 				titles = target_titles
 				attacker = scope:attacker
 				defender = scope:defender
 				change = scope:change
 				take_occupied = no
-			}
 		}
 		every_in_list = {
 			list = target_titles
@@ -902,6 +955,8 @@ mpo_nomad_invasion_cb = {
 		}
 
 		resolve_title_and_vassal_change = scope:change
+		}
+		
 
 		#Should gain target title, if possible
 		scope:attacker = {
@@ -986,6 +1041,7 @@ mpo_nomad_invasion_cb = {
 								holder = scope:attacker
 								change = scope:change_2
 							}
+							set_color_from_title = scope:target
 						}
 						resolve_title_and_vassal_change = scope:change_2
 						scope:new_title = { generate_coa = yes }
@@ -1195,7 +1251,7 @@ mpo_nomad_invasion_cb = {
 				}
 				while = {
 					limit = {
-						scope:invading_herd_value >= 3000
+						scope:invading_herd_value >= 5000
 						any_sub_realm_county = {
 							NOT = {
 								culture = scope:invading_culture
@@ -1236,12 +1292,35 @@ mpo_nomad_invasion_cb = {
 						}
 						set_county_culture = scope:invading_culture
 						set_county_faith = scope:invading_faith
+						#Convert additional tribal county if possible
+						ordered_neighboring_county = {
+							order_by = {
+								value = development_level
+								multiply = -1
+							}
+							limit = {
+								NOT = { culture = scope:invading_culture }
+								title_province = {
+									has_holding_type = tribal_holding
+								}
+								OR = {
+									holder = scope:attacker
+									holder = {
+										any_liege_or_above = {
+											this = scope:attacker
+										}
+									}
+								}
+							}
+							set_county_culture = scope:invading_culture
+							set_county_faith = scope:invading_faith
+						}
 					}
 					save_scope_value_as = {
 						name = invading_herd_value
 						value = {
 							add = scope:invading_herd_value
-							subtract = 3000
+							subtract = 5000
 						}
 					}
 				}
@@ -1260,8 +1339,12 @@ mpo_nomad_invasion_cb = {
 					}
 					if = {
 						limit = {
-							any_county_province = {
+							title_province = {
+								OR = {
 								has_holding_type = tribal_holding
+									has_holding_type = nomad_holding
+									has_holding_type = herder_holding
+								}
 							}
 						}
 						change_development_level = -1
@@ -1279,7 +1362,7 @@ mpo_nomad_invasion_cb = {
 						change_development_level = -3
 					}
 					else = {
-						change_development_level = -4
+						change_development_level = -5
 					}
 				}
 			}
@@ -1475,6 +1558,1024 @@ mpo_nomad_invasion_cb = {
 	max_attacker_score_from_occupation = 150
 }
 
+mpo_nomad_duchy_invasion_cb = {
+	icon = migration_cb
+	group = invasion
+
+	combine_into_one = yes
+	should_show_war_goal_subview = yes
+	mutually_exclusive_titles = { always = yes }
+	allow_hostages = no
+
+	defender_score_from_occupation_scale = 50
+	attacker_score_from_occupation_scale = 150
+
+	allowed_for_character = {
+		is_independent_ruler = yes
+		government_has_flag = government_is_nomadic
+		trigger_if = {
+			limit = {
+				is_ai = yes
+			}
+			highest_held_title_tier < tier_kingdom
+			#Are not capable of kingdom-level invasion
+			has_realm_law = nomadic_authority_2
+			OR = {
+				is_landed = no
+				capital_county = {
+					has_bad_season_nomadic_capital_root_trigger = yes
+				}
+				mpo_nomad_duchy_invasion_war_ai_trigger = { NOMAD = root }
+			}
+			trigger_if = {
+				limit = {
+					NOT = {
+						capital_county = {
+							any_county_situation_sub_region = {
+								sub_region_current_phase = situation_steppe_havsarsan_zud_season
+							}
+						}
+					}
+				}
+				sub_realm_size < 12
+			}
+		}
+	}
+
+	allowed_for_character_display_regardless = {
+		custom_tooltip = {
+			text = mpo_nomad_invasion_duchy_cb_tt
+			NOT = {
+				has_realm_law = nomadic_authority_1
+			}
+		}
+		mpo_has_gok_mongol_empire_trigger = no
+	}
+
+	target_titles = all
+	target_title_tier = duchy
+	target_de_jure_regions_above = yes
+
+	ai_can_target_all_titles = {
+		has_character_flag = nomad_duchy_invasion_all_target_override
+	}
+
+	max_ai_diplo_distance_to_title = 850
+	ai_score = {
+		value = {
+			add = {
+				if = {
+					limit = {
+						scope:attacker = {
+							capital_county = {
+								any_county_situation_sub_region = {
+									sub_region_current_phase = situation_steppe_havsarsan_zud_season
+								}
+							}
+						}
+					}
+					every_in_list = {
+						list = target_titles
+						every_in_de_jure_hierarchy = {
+							limit = {
+								tier = tier_county
+								title_province = { has_holding_type = castle_holding }
+							}
+							add = 1000
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						scope:attacker = {
+							OR = {
+								is_landed = no
+								AND = {
+									ai_boldness >= 50
+									capital_county = {
+										any_county_situation_sub_region = {
+											OR = {
+												sub_region_current_phase = situation_steppe_white_zud_season
+												sub_region_current_phase = situation_steppe_cold_zud_season
+												sub_region_current_phase = situation_steppe_severe_drought_season
+												sub_region_current_phase = situation_steppe_havsarsan_zud_season
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					every_in_list = {
+						list = target_titles
+						every_in_de_jure_hierarchy = {
+							limit = {
+								tier = tier_county
+								title_province = { has_holding_type = castle_holding }
+							}
+							add = 100
+						}
+					}
+				}
+				if = {
+					limit = {
+						scope:attacker = {
+							any_character_situation = {
+								this = situation:the_great_steppe
+							}
+						}
+						any_in_list = {
+							list = target_titles
+							tier = tier_duchy
+							OR = {
+								kingdom ?= title:k_iltan
+								kingdom ?= title:k_nempire_k_2
+								kingdom ?= title:k_devseg
+								kingdom ?= title:k_tsanghate
+								empire ?= {
+									OR = {
+										this = title:e_khuzait_khanate 
+										this = title:e_great_horde 
+										# title:e_yongliang ?= this
+										# title:e_zhongyuan ?= this
+										# title:e_carpathia ?= this
+										# title:e_great_yuan ?= this
+										# title:e_chagatai ?= this
+										# title:e_ilkhanate ?= this
+										# title:e_golden_horde ?= this
+									}
+								}
+							}
+						}
+					}
+					multiply = 5
+				}
+				#weigh down non-neighboring states, nomadic heritage, already invaded targets
+				if = {
+					limit = {
+						scope:defender = {
+							OR = {
+								NOT = {
+									any_land_neighboring_realm_with_tributaries_owner = {
+										this = scope:attacker
+									}
+								}
+								culture = {
+									OR = {
+										has_cultural_pillar = heritage_khiindai
+										has_cultural_pillar = heritage_khuzic
+										has_cultural_pillar = heritage_west_nahasan
+									}
+								}
+								any_character_war = {
+									OR = {	
+										using_cb = mpo_nomad_duchy_invasion_cb
+										using_cb = mpo_nomad_invasion_cb
+									}
+								}
+								current_military_strength > scope:attacker.eighty_percent_of_current_military_strength
+							}
+						}
+					}
+					multiply = 0.1
+				}
+				if = {
+					limit = {
+						any_in_list = {
+							list = target_titles
+							has_variable = was_overrun
+						}
+					}
+					multiply = 0.2
+				}
+				#Should not target islands... ever
+				if = {
+					limit = {
+						any_in_list = {
+							list = target_titles
+							tier = tier_duchy
+							OR = {
+								this = title:d_konios
+								this = title:d_ostrias
+								title = title:d_hacard
+								kingdom ?= title:k_esglaons
+								kingdom ?= title:k_lotki
+								kingdom ?= title:k_geroia
+								kingdom ?= title:k_thlos
+								empire ?= {
+									# OR = {
+										this = title:e_antipari
+									# }
+								}
+							}
+						}
+					}
+					multiply = 0
+				}
+			}
+			if = {
+				limit = {
+					scope:attacker = {
+						any_owned_story = {
+							OR = {
+								story_type = story_mongol_invasion
+								story_type = story_greatest_of_khans
+							}
+						}
+					}
+				}
+				multiply = 0
+			}
+		}
+	}
+	ai_score_mult = {
+		value = 1
+
+		# HOUSE RELATIONS
+		add = house_relation_ai_score_value
+
+		# AI in struggles act insularly for wars that don't have a familial or legal basis.
+		multiply = struggle_wars_prioritise_struggle_targets_value
+		# Tell the Romans to stop going adventuring into the steppe for no gods-damned reason.
+		multiply = byzantium_conquests_ai_score_value
+		multiply = muslim_invasions_prefer_nonmuslims_ai_score_value
+
+		add = frankokratia_leader_protection_value #Set back to 0. Declaring war on the frankokratia leader can really ruin the whole thing
+	}
+
+	valid_to_start = {
+		scope:target = {
+			#At least one settled county, y'know
+			custom_tooltip = {
+				text = at_least_one_non_nomad_county_tt
+				any_de_jure_county = {
+					holder.top_liege = scope:defender
+					NOT = {
+						title_province = {
+							OR = {
+								has_holding_type = nomad_holding
+								has_holding_type = herder_holding
+							}	
+						}
+					}
+				}
+			}
+			
+		}
+	}
+
+	should_invalidate = {
+		NOT = {
+			any_in_list = {
+				list = target_titles
+				any_in_de_jure_hierarchy = {
+					tier = tier_county
+					holder = {
+						target_is_same_character_or_above = scope:defender
+					}
+				}
+			}
+		}
+	}
+
+	on_invalidated_desc = msg_invasion_war_invalidated_message
+
+	on_invalidated = {
+	}
+
+	cost = {
+		piety = {
+			value = common_cb_impious_piety_cost
+		}
+		prestige = {
+			add = {
+				value = 800
+
+				desc = CB_BASE_COST
+			}
+			multiply = common_cb_prestige_cost_multiplier
+			if = {
+				limit = {
+					scope:attacker = { is_ai = yes }
+				}
+				multiply = 0.5
+			}
+		}
+	}
+
+	on_declaration = {
+		on_declared_war = yes
+		random_in_list = {
+			list = target_titles
+			limit = {
+				tier = tier_duchy
+			}
+			save_scope_as = target
+		}
+	}
+
+	on_victory_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:attacker = { is_local_player = yes } }
+				desc = overrunning_duchy_war_victory_desc_attacker
+			}
+			desc = overrunning_duchy_war_victory_desc
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					
+					mpo_overrunner_becomes_tribal_desc_trigger = yes
+				}
+				desc = overrunning_war_victory_desc_tribal
+			}
+			triggered_desc = {
+				trigger = {
+					mpo_overrunner_becomes_clan_desc_trigger = yes
+				}
+				desc = overrunning_war_victory_desc_clan
+			}
+			desc = overrunning_war_victory_desc_feudal
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:attacker = { is_local_player = yes } }
+				desc = overrunning_war_victory_warning_desc_attacker
+			}
+			desc = overrunning_war_victory_warning_desc
+		}
+	}
+
+	on_victory = {
+		#GoK stops really being GoK
+		scope:attacker = {
+			gok_government_change_story_end_effect = yes
+		}
+
+		scope:attacker = {
+			domicile.domicile_culture = { save_scope_as = invading_culture }
+			domicile.domicile_faith = { save_scope_as = invading_faith }
+			save_scope_value_as = {
+				name = invading_herd_value
+				value = domicile.herd
+			}
+			if = {
+				limit = {
+					exists = confederation
+				}
+				confederation = {
+					remove_confederation_member = scope:attacker
+				}
+			}
+		}
+	
+		scope:attacker = { show_pow_release_message_effect = yes }
+
+		# Legitimacy and gold
+		scope:attacker = {
+			if = {
+				limit = {
+					scope:defender = {
+						government_has_flag = government_is_tribal
+					}
+				}
+				add_short_term_gold = minor_gold_value
+			}
+			else = {
+				add_short_term_gold = medium_gold_value
+			}
+			add_legitimacy = minor_legitimacy_gain
+		}
+
+		#EP2 accolade glory gain for winning against higher ranked enemy
+		scope:attacker = { accolade_attacker_war_end_glory_gain_high_effect = yes }
+
+		scope:defender = {
+			every_vassal = {
+				add_to_list = defender_vassals
+			}
+		}
+
+		random_in_list = {
+			list = target_titles
+			limit = {
+				tier = tier_duchy
+			}
+			save_scope_as = target
+			set_variable = {
+				name = was_overrun
+				years = 20
+			}
+		}
+		scope:attacker = {
+			if = {
+				limit = {
+					mpo_overrunner_becomes_tribal_trigger = yes
+				}
+				save_scope_as = becoming_tribal
+			}
+			else_if = {
+				limit = {
+					mpo_overrunner_becomes_clan_trigger = yes
+				}
+				save_scope_as = becoming_clan
+			}
+		}
+
+		scope:target = {
+			every_in_de_jure_hierarchy = {
+				limit = {
+					tier = tier_county
+					holder.top_liege = scope:defender
+					NOT = {
+						is_in_list = target_titles
+					}
+				}
+				add_to_list = target_titles
+			}
+		}
+
+		scope:attacker = { save_scope_as = overrunner }
+
+		#Add vassals to a list - they may move with attacker
+		scope:attacker = {
+			every_vassal = {
+				limit = {
+					mpo_overrunning_willing_vassal_trigger = yes
+				}
+				add_to_list = potential_overrunning_vassals
+			}
+		}
+
+		#Wrap up being a nomad
+		scope:attacker = {
+			mpo_overrunning_ending_nomadism_effect = yes
+			every_tributary = {
+				custom = custom.every_tributary
+				end_tributary = yes
+			}
+		}
+
+		#Tooltip that defender will lose vassals after losing title
+		scope:defender = {
+			if = {
+				limit = {
+					scope:target = {
+						holder = scope:defender
+					}
+					NOT = {
+						any_held_title = {
+							tier >= tier_duchy
+							this = scope:target
+						}
+					}
+				}
+				custom_tooltip = overrunning_defender_lose_vassals_tt
+			}
+		}
+		#If defender loses rank, make sure vassals become independent instead of going under attacker
+		hidden_effect = {
+			scope:defender = {
+				#being demoted to duke
+				if = {
+					limit = {
+						NOT = {
+							any_held_title = {
+								tier >= tier_duchy
+								NOT = {
+									is_in_list = target_titles
+								}
+							}
+						}
+					}
+					every_vassal = {
+						limit = {
+							highest_held_title_tier >= tier_county
+							NOT = {
+								any_held_title = {
+									OR = {
+										kingdom = scope:target
+										this = scope:target
+									}
+								}
+							}
+						}
+						create_title_and_vassal_change = {
+							type = independency
+							save_scope_as = change_9
+						}
+						becomes_independent = { change = scope:change_9 }
+						resolve_title_and_vassal_change = scope:change_9
+					}
+				}
+			}
+		}
+		
+		scope:target = {
+			custom_tooltip = overrunning_title_transfer_tt
+		}
+
+		hidden_effect = {
+			create_title_and_vassal_change = {
+				type = conquest
+				save_scope_as = change
+				add_claim_on_loss = yes
+			}
+			setup_invasion_cb = {
+				titles = target_titles
+				attacker = scope:attacker
+				defender = scope:defender
+				change = scope:change
+				take_occupied = no
+			}
+			every_in_list = {
+				list = target_titles
+				if = {
+					limit = {
+						tier = tier_duchy
+						OR = {
+							NOT = { exists = holder }
+							holder.top_liege = scope:defender
+						}
+					}
+					change_title_holder = {
+						holder = scope:attacker
+						change = scope:change
+					}
+				}
+				every_in_de_jure_hierarchy = {
+					limit = {
+						holder.top_liege = scope:defender
+						tier = tier_county
+					}
+					change_title_holder = {
+						holder = scope:attacker
+						change = scope:change
+					}
+				}
+			}
+
+			resolve_title_and_vassal_change = scope:change
+		}
+
+		#Should gain target title, if possible
+		scope:attacker = {
+			if = {
+				limit = {
+					scope:target = {
+						OR = {
+							NOT = {
+								exists = holder
+							}
+							holder.top_liege = scope:defender
+						}
+					}
+				}
+				create_title_and_vassal_change = {
+					type = conquest
+					save_scope_as = change_0
+					add_claim_on_loss = yes
+				}
+				scope:target = {
+					save_scope_as = new_primary
+					change_title_holder = {
+						holder = scope:attacker
+						change = scope:change_0
+					}
+				}
+				resolve_title_and_vassal_change = scope:change_0
+			}
+			else = {
+				#Gain titular duchy
+				if = {
+					limit = {
+						highest_held_title_tier < tier_duchy
+					}
+					custom_tooltip = overrunning_gain_titular_duchy_tt
+					hidden_effect = {
+						create_dynamic_title = {
+							tier = duchy
+							name = FORMER_NOMAD_DUCHY_NAME
+							adj = FORMER_NOMAD_DUCHY_NAME_ADJ
+						}
+						scope:new_title = {
+							save_scope_as = new_primary
+						}
+						create_title_and_vassal_change = {
+							type = created
+							save_scope_as = change_2
+							add_claim_on_loss = no
+						}
+						scope:new_title = {
+							set_destroy_on_gain_same_tier = yes
+							set_no_automatic_claims = yes
+							set_can_be_named_after_dynasty = yes
+							change_title_holder = {
+								holder = scope:attacker
+								change = scope:change_2
+							}
+							set_color_from_title = scope:target
+						}
+						resolve_title_and_vassal_change = scope:change_2
+						scope:new_title = { generate_coa = yes }
+					}
+				}
+			}
+
+			#Make this their primary title, if highest tier
+			hidden_effect = {
+				if = {
+					limit = {
+						exists = scope:new_primary
+						NOT = {
+							highest_held_title_tier > scope:new_primary.tier
+						}
+					}
+					set_primary_title_to = scope:new_primary
+				}
+			}
+		}
+
+		#Change attacker's government
+		scope:attacker = {
+			if = {
+				limit = {
+					exists = scope:becoming_tribal
+				}
+				nomad_convert_people_to_tribe_effect = yes
+			}
+			else_if = {
+				limit = {
+					exists = scope:becoming_clan
+				}
+				nomad_convert_people_to_clan_effect = yes
+			}
+			else = {
+				nomad_convert_people_to_feudal_effect = yes
+			}
+		}
+
+		#Change capital to somewhere in new lands
+		scope:target = {
+			custom_tooltip = overrunning_move_capital_tt
+		}
+
+		hidden_effect = {
+			scope:attacker = {
+				#Capital of duchy, if available
+				if = {
+					limit = {
+						scope:target.title_capital_county = {
+							holder = scope:attacker
+							NOT = {
+								any_county_province = {
+									OR = {
+										has_holding_type = nomad_holding
+										has_holding_type = herder_holding
+									}
+								}
+							}
+						}
+					}
+					scope:target.title_capital_county = {
+						culture = { save_scope_as = expelled_culture }
+					}
+					scope:attacker = {
+						set_realm_capital = scope:target.title_capital_county
+					}
+				}
+				#Most developed county
+				else = {
+					ordered_realm_county = {
+						order_by = development_level
+						limit = {
+							kingdom = scope:target
+							NOT = {
+								any_county_province = {
+									OR = {
+										has_holding_type = nomad_holding
+										has_holding_type = herder_holding
+									}
+								}
+							}
+						}
+						culture = { save_scope_as = expelled_culture }
+						scope:attacker = {
+							set_realm_capital = prev
+						}
+					}
+				}
+				capital_county.duchy = {
+					save_scope_as = new_capital_duchy
+				}
+			}
+		}
+
+		#Vassals gain titles
+		hidden_effect = {
+			scope:attacker = {
+				mpo_duchy_overrunning_vassal_title_distribution_effect = yes
+			}
+		}
+
+		#Make sure defender vassals who should be independent... are
+		hidden_effect = {
+			if = {
+				limit = {
+					any_in_list = {
+						list = defender_vassals
+						liege = scope:attacker
+					}
+				}
+				every_in_list = {
+					list = defender_vassals
+					limit = {
+						liege = scope:attacker
+					}
+					create_title_and_vassal_change = {
+						type = independency
+						save_scope_as = change_10
+					}
+					becomes_independent = { change = scope:change_10 }
+					resolve_title_and_vassal_change = scope:change_10
+				}
+			}
+		}
+
+		scope:target = {
+			#Vassals tooltip
+			custom_tooltip = overrunning_vassals_gain_titles_duchy_tt
+		}
+		#Counties lose development levels if not tribal
+		if = {
+			limit = {
+				scope:attacker = {
+					any_held_title = {
+						tier = tier_county
+						duchy = scope:target
+						NOT = {
+							title_province = {
+								OR = {
+									has_holding_type = tribal_holding
+									has_holding_type = nomad_holding
+									has_holding_type = herder_holding
+								}
+							}
+						}
+					}
+				}
+			}
+			scope:target = {
+				custom_tooltip = attackers_counties_lose_development
+			}
+		}
+		
+		hidden_effect = {
+			scope:attacker = {
+				every_held_title = {
+					limit = {
+						tier = tier_county
+						duchy = scope:target
+						NOT = {
+							title_province = {
+								OR = {
+									has_holding_type = tribal_holding
+									has_holding_type = nomad_holding
+									has_holding_type = herder_holding
+								}
+							}
+						}
+					}
+					if = {
+						limit = {
+							current_year < 1065
+						}
+						change_development_level = -1
+					}
+					else_if = {
+						limit = {
+							current_year < 1250
+						}
+						change_development_level = -2
+					}
+					else = {
+						change_development_level = -4
+					}
+				}
+			}
+		}
+
+		#Leave tributaries that don't border you
+		scope:attacker = {
+			every_tributary = {
+				limit = {
+					NOR = {
+						top_liege = scope:attacker.top_liege
+						any_realm_border_county = {
+							any_neighboring_county = {
+								holder = scope:attacker
+							}
+						}
+					}
+				}
+				custom = custom.every_no_longer_neighbor_tributary
+				end_tributary = yes
+			}
+		}
+
+		# Attacker gets Prestige Experience, Defender loses Prestige, all other participants gain Prestige based on their war contribution.
+		modify_all_participants_fame_values = {
+			WINNER = scope:attacker
+			LOSER = scope:defender
+			FAME_BASE = scope:cb_prestige_factor # Set by 'setup_invasion_cb'
+			IS_RELIGIOUS_WAR = no
+			WINNER_FAME_SCALE = 10
+			LOSER_FAME_SCALE = -10
+			WINNER_ALLY_FAME_SCALE = 10
+			LOSER_ALLY_FAME_SCALE = 10
+		}
+
+		# Truce
+		add_truce_attacker_victory_effect = yes
+
+		# FP1: note the victory for future memorialisation via stele (if applicable).
+		scope:attacker = { fp1_remember_recent_conquest_victory_effect = yes }
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
+
+		#Event for attacker
+		scope:attacker = {
+			trigger_event = {
+				id = mpo_nomad_events.1040
+				days = 1
+			}
+		}
+	}
+
+	on_white_peace_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:defender = { is_local_player = yes } }
+				desc = invasion_war_white_peace_desc_defender
+			}
+			desc = invasion_war_white_peace_desc
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:attacker = { is_local_player = yes } }
+				desc = overrunning_war_white_peace_desc_attacker
+			}
+			desc = overrunning_war_white_peace_desc
+		}
+	}
+
+	on_white_peace = {
+
+		scope:attacker = { show_pow_release_message_effect = yes }
+
+		#EP2 accolade glory gain for doing ok against higher ranked enemy
+		scope:attacker = { accolade_attacker_war_end_glory_gain_low_effect = yes }
+		scope:defender = { accolade_defender_war_end_glory_gain_med_effect = yes }
+
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:attacker # Not important as the scales are identical
+			FAME_BASE = major_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+
+		# Truce
+		add_truce_white_peace_effect = yes
+
+		scope:attacker = {
+			add_dread = minor_dread_loss
+			add_legitimacy = minor_legitimacy_loss
+			add_prestige = mongol_invasion_cb_prestige_white_peace
+			stress_impact = {
+				ambitious = medium_stress_impact_gain
+				arrogant = medium_stress_impact_gain
+			}
+		}
+
+		scope:defender = {
+			stress_impact = {
+				arrogant = medium_stress_impact_gain
+			}
+		}
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
+	}
+
+	on_defeat_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:defender = { is_local_player = yes } }
+				desc = invasion_war_white_peace_desc_defender
+			}
+			desc = invasion_war_white_peace_desc
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:attacker = { is_local_player = yes } }
+				desc = overrunning_war_surrender_desc_attacker
+			}
+			desc = overrunning_war_surrender_desc
+		}
+	}
+
+	on_defeat = {
+
+		scope:attacker = { show_pow_release_message_effect = yes }
+
+		# Legitimacy
+		add_legitimacy_attacker_defeat_effect = yes
+
+		# Influence
+		add_influence_attacker_defeat_effect = yes
+
+		scope:defender = { 
+			mandala_peacemaker_perk_serenity_effect = yes
+			#EP2 accolade glory gain for winning against higher ranked enemy
+			accolade_defender_war_end_glory_gain_high_effect = yes
+		}
+
+		# Prestige loss for the attacker
+		scope:attacker = {
+			add_dread = major_dread_loss
+			add_legitimacy = major_legitimacy_loss
+			pay_short_term_gold_reparations_effect = {
+				GOLD_VALUE = 2
+			}
+			add_prestige = {
+				value = massive_prestige_value
+				multiply = -1.0
+			}
+			switch = {
+			   trigger = has_realm_law
+			   nomadic_authority_5 = { add_realm_law = nomadic_authority_4 }
+			   nomadic_authority_4 = { add_realm_law = nomadic_authority_3 }
+			   nomadic_authority_3 = { add_realm_law = nomadic_authority_2 }
+			}
+		}
+
+		setup_invasion_cb = {
+			titles = target_titles
+			attacker = scope:attacker
+			defender = scope:defender
+			claimant = scope:claimant
+			victory = no
+		}
+
+		# Attacker loses Prestige, all other war participants gain Prestige (Defender gains full prestige, all allies on both sides gain based on war contribution).
+		modify_all_participants_fame_values = {
+			WINNER = scope:defender
+			LOSER = scope:attacker
+			FAME_BASE = scope:cb_prestige_factor # Set by 'setup_claim_cb'
+			IS_RELIGIOUS_WAR = no
+			WINNER_FAME_SCALE = scale_10_war_defender_win
+			LOSER_FAME_SCALE = -10
+			WINNER_ALLY_FAME_SCALE = 10
+			LOSER_ALLY_FAME_SCALE = 10
+		}
+
+		add_truce_attacker_defeat_effect = yes
+
+		scope:attacker = {
+			save_temporary_scope_as = loser
+		}
+		on_lost_aggression_war_discontent_loss = yes
+
+		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
+		laamp_as_mercenary_payout_tooltip_effect = yes
+	}
+
+	transfer_behavior = transfer
+
+	on_primary_attacker_death = inherit
+	on_primary_defender_death = inherit
+
+	attacker_allies_inherit = yes
+	defender_allies_inherit = yes
+
+	war_name = "MPO_NOMAD_DUCHY_INVASION_WAR_NAME"
+	war_name_base = "MPO_NOMAD_DUCHY_INVASION_WAR_NAME_BASE"
+	cb_name = "MPO_NOMAD_DUCHY_INVASION_CB_NAME"
+
+	interface_priority = 100
+
+	use_de_jure_wargoal_only = yes
+
+	attacker_wargoal_percentage = 0.8
+
+	max_defender_score_from_occupation = 150
+	max_attacker_score_from_occupation = 150
+}
+
 ##########
 # Humiliation CB
 ##########
@@ -1571,9 +2672,16 @@ humiliation_cb = {
 
 	on_victory = {
 		# Lowers the Dominance leavel of the Defender
-		scope:defender = { lower_dominance_level_effect = yes }
+		scope:defender = {
+			lower_dominance_level_effect = yes
+			if = {
+				limit = { is_independent_ruler = yes }
+				# They will lose some land to Herders
+				custom_tooltip = humiliation_cb_release_herder_land_tt
+				mpo_release_herder_land_effect = yes
+			}
+		}
 		
-		# They pay you Herd
 		scope:defender = {
 			pay_herd = {
 				target = scope:attacker
@@ -1597,9 +2705,9 @@ humiliation_cb = {
 			add_prestige = major_prestige_gain
 		}
 		
+		scope:defender = {
 		# Some of their obedient vassals become not obedient
 		custom_tooltip = humiliation_cb_not_obedient_tt
-		scope:defender = {
 			every_vassal = {
 				limit = {
 					is_obedient_to = scope:defender
@@ -1633,10 +2741,12 @@ humiliation_cb = {
 		scope:defender = { play_sound_effect = "event:/DLC/CE2/UI/Notifications/ce2_ui_notifications_migration_negative" }
 
 		# Prestige Progress for the Attacker
+		scope:attacker = {
+			add_prestige_experience = {
 		every_in_list = {
 			list = target_titles
-			scope:attacker = {
-				add_prestige_experience = medium_prestige_value
+					add = medium_prestige_value
+				}
 			}
 		}
 
@@ -2760,11 +3870,8 @@ de_jure_cb_nomadic = {
 					OR = {
 						is_landed = no
 						capital_county = {
-							any_county_situation = {
-								any_situation_sub_region = {
+							any_county_situation_sub_region = {
 									sub_region_current_phase = situation_steppe_havsarsan_zud_season
-									situation_sub_region_has_county = scope:attacker.capital_county
-								}
 							}
 						}
 					}

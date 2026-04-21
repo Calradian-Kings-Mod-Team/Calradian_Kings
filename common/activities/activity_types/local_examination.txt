@@ -305,11 +305,9 @@
 			limit = {
 				any_held_title = {
 					tier = tier_county
-			   		any_county_province = {
-			   			any_province_epidemic = {
+			   		any_county_province_epidemic = {
 			   				count >= 1
 			   				outbreak_intensity < apocalyptic
-			   			}
 					}
 				}
 				would_follow_social_distancing_value >= -1
@@ -322,11 +320,9 @@
 		else_if = {
 			limit = {
 				any_realm_county = {
-			 		any_county_province = {
-			 			any_province_epidemic = {
+			 		any_county_province_epidemic = {
 			 				count >= 1
 			 				outbreak_intensity < apocalyptic
-			 			}
 			 		}
 			 	}
 			 	would_follow_social_distancing_value >= -1
@@ -340,11 +336,9 @@
 			limit = {
 				any_held_title = {
 					tier = tier_county
-			 		any_county_province = {
-			 			any_province_epidemic = {
+			 		any_county_province_epidemic = {
 							count >= 1
 							outbreak_intensity = apocalyptic
-			 			}
 					}
 				}
 			}
@@ -357,11 +351,9 @@
 			limit = {
 				any_held_title = {
 					tier = tier_county
-			 		any_county_province = {
-			 			any_province_epidemic = {
+			 		any_county_province_epidemic = {
 							count >= 1
 							outbreak_intensity = apocalyptic
-			 			}
 			 		}
 				}
 			}
@@ -436,7 +428,6 @@
 					add = {
 						value = imperial_examination_actual_cost
 						desc = imperial_examination_base_cost
-					}
 				}
 			}
 			if = {
@@ -455,6 +446,7 @@
 					}
 					multiply = imperial_examination_cost_discount_max_value
 					desc = imperial_examination_cost_discount_examination_hall
+					}
 				}
 			}
 			else = { value = 0 }
@@ -1076,16 +1068,12 @@
 					if = {
 						limit = {
 							OR = {
-								has_trait = education_diplomacy_4
-								has_trait = education_martial_4
-								has_trait = education_stewardship_4
-								has_trait = education_intrigue_4
-								has_trait = education_learning_4
-								has_trait = education_diplomacy_5
-								has_trait = education_martial_5
-								has_trait = education_stewardship_5
-								has_trait = education_intrigue_5
-								has_trait = education_learning_5
+								any_character_trait = {
+									OR = {
+										has_trait_flag = level_4_education
+										has_trait_flag = level_5_education
+									}
+								}
 								has_trait = shrewd
 								has_trait = intellect_good
 							}
@@ -1165,6 +1153,24 @@
 			on_enter_phase = {
 				scope:activity = {
 					progress_activity_phase_after = { days = 1 }
+					every_attending_character = {
+						limit = {
+							is_ai = no
+							is_in_guest_subset = { name = entrants }
+							NOT = { has_activity_intent = local_exam_taker_intent }
+						}
+						save_temporary_scope_as = temp_character
+						scope:activity = {
+							remove_from_guest_subset = {
+								name = entrants
+								target = scope:temp_character
+							}
+							add_to_guest_subset = {
+								name = guests
+								target = scope:temp_character
+							}
+						}
+					}
 				}
 			}
 
@@ -1728,6 +1734,7 @@
 				remove_character_flag = celestial_examination_support_cost_reduction
 			}
 		}
+		
 		every_player = {
 			limit = {
 				is_landed = no
