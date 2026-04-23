@@ -658,6 +658,11 @@ combat_event.1001 = {
 							has_perk = stalwart_leader_perk
 							is_ai = yes
 						}
+						#Acclaimed knights being captured has weird results, we are giving them essentially a pass
+						modifier = {
+							add = 500
+							is_acclaimed = yes
+						}
 
 						#Reduced risk for character with Bodyguard(s) that are fighting by their side
 						modifier = {
@@ -668,6 +673,19 @@ combat_event.1001 = {
 								save_temporary_scope_as = bodyguard
 								root.enemy_side = {
 									any_side_knight = { this = scope:bodyguard }
+								}
+							}
+						}
+
+						#Reduced risk for character with Garuda that are fighting by their side
+						modifier = {
+							add = 50
+							employs_court_position = garuda_court_position
+							any_court_position_holder = {
+								type = garuda_court_position
+								save_temporary_scope_as = garuda
+								root.enemy_side = {
+									any_side_knight = { this = scope:garuda }
 								}
 							}
 						}
@@ -771,6 +789,19 @@ combat_event.1001 = {
 							}
 						}
 
+						#Reduced risk for character with Garuda that are fighting by their side
+						modifier = {
+							add = 25
+							employs_court_position = garuda_court_position
+							any_court_position_holder = {
+								type = garuda_court_position
+								save_temporary_scope_as = garuda
+								root.enemy_side = {
+									any_side_knight = { this = scope:garuda }
+								}
+							}
+						}
+
 						# Being stackwiped greatly increases the chance of capture and/or death.
 						modifier = {
 							scope:wipe = yes
@@ -816,6 +847,11 @@ combat_event.1001 = {
 						modifier = {
 							factor = 1.25
 							scope:combat_winner.confederation ?= { has_cohesion_level_parameter = any_member_extra_capture_chance }
+						}
+						#Acclaimed knights being captured has weird results, we are giving them essentially a pass
+						modifier = {
+							factor = 0.1
+							is_acclaimed = yes
 						}
 
 						# Transfer equipped armor and weapon to winner if durability not too low
@@ -903,6 +939,10 @@ combat_event.1001 = {
 						modifier = {
 							factor = 0.5
 							liege.culture = { has_cultural_parameter = knights_die_less_but_are_captured_more }
+						}
+						modifier = {
+							factor = 0.5
+							is_acclaimed = yes
 						}
 
 						# For messaging purposes.
@@ -1079,6 +1119,73 @@ combat_event.1001 = {
 				trigger_event = combat_event.1004
 			}
 		}		
+		every_side_participant = {
+			random = { # chance of inspiring a knight to become eligible for thug accolade
+				chance = 2
+				modifier = {
+					factor = accolade_progress # scales with accolade progress
+				}
+				modifier = { # must have an eligible knight
+					NOT = {
+						root = {
+							any_side_knight = {
+								can_unlock_accolade_attribute_trigger = {
+									ATTRIBUTE = thug
+								}
+								any_killed_character = {
+									OR = {
+										is_in_list = slain_combatants
+										is_in_list = victorious_slain_combatants
+									}
+								}
+							}
+						}
+					}
+					factor = 0
+				}
+				save_scope_as = accolade_liege
+				set_variable = {
+					name = accolade_progress
+					value = 0
+				}
+				root = {
+					random_side_knight = {
+						limit = {
+							can_unlock_accolade_attribute_trigger = {
+								ATTRIBUTE = thug
+							}
+							any_killed_character = {
+								OR = {
+									is_in_list = slain_combatants
+									is_in_list = victorious_slain_combatants
+								}
+							}
+						}
+						weight = {
+							base = 1
+							modifier = {
+								add = 50
+								is_acclaimed = yes
+							}
+						}
+						save_scope_as = accolade_knight
+					}
+				}
+				send_interface_message = {
+					type = msg_accolade_eligibility
+					title = accolade_thug_unlock.t
+					left_icon = scope:accolade_knight
+					right_icon = scope:accolade_liege
+					custom_tooltip = accolade_thug_unlock.tt
+					scope:accolade_knight = {
+						set_variable = {
+							name = thug_attribute_unlock
+							value = yes
+						}
+					}	
+				}
+			}
+		}	
 	}
 }
 
@@ -1966,15 +2073,26 @@ combat_event.2101 = {
 	scope = combat_side
 
 	trigger = {
-		any_side_knight = {
-			accolade ?= { is_accolade_active = yes }
+		OR = {
+			any_side_knight = {
+				is_acclaimed = yes
+			}
+			any_side_commander = {
+				is_acclaimed = yes
+			}
 		}
 	}
 
 	immediate = {
 		every_side_knight = {
 			limit = {
-				accolade ?= { is_accolade_active = yes }
+				is_acclaimed = yes
+			}
+			accolade = { add_glory = minor_glory_gain }
+		}
+		every_side_commander = {
+			limit = {
+				is_acclaimed = yes
 			}
 			accolade = { add_glory = minor_glory_gain }
 		}
@@ -1987,15 +2105,26 @@ combat_event.2111 = {
 	scope = combat_side
 
 	trigger = {
-		any_side_knight = {
-			accolade ?= { is_accolade_active = yes }
+		OR = {
+			any_side_knight = {
+				is_acclaimed = yes
+			}
+			any_side_commander = {
+				is_acclaimed = yes
+			}
 		}
 	}
 
 	immediate = {
 		every_side_knight = {
 			limit = {
-				accolade ?= { is_accolade_active = yes }
+				is_acclaimed = yes
+			}
+			accolade = { add_glory = minimal_glory_loss }
+		}
+		every_side_commander = {
+			limit = {
+				is_acclaimed = yes
 			}
 			accolade = { add_glory = minimal_glory_loss }
 		}
