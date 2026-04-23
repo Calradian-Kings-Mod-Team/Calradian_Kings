@@ -5,7 +5,7 @@ ask_for_conversion_interaction = {
 	popup_on_receive = yes
 
 	desc = {
-		desc = ask_for_conversion_interaction_desc
+		desc = compel_conversion_interaction_desc
 		triggered_desc = {
 			trigger = {
 				scope:actor = {
@@ -138,15 +138,13 @@ ask_for_conversion_interaction = {
 		state_faith_conversion_add_piety_effect = yes
 
 		# Add imprisonment opinion for liege against this actor if they have Full Tolerance
-		if = {
-			limit = {
-				scope:actor = {
-					liege = {
+		scope:actor = {
+			if = {
+				limit = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
-			}
-			scope:actor = {
 				liege = {
 					add_opinion = {
 						target = scope:actor
@@ -172,15 +170,13 @@ ask_for_conversion_interaction = {
 		state_faith_refuse_conversion_add_piety_effect = yes 
 
 		# Add imprisonment opinion for liege against this actor if they have Full Tolerance
-		if = {
-			limit = {
-				scope:actor = {
-					liege = {
+		scope:actor = {
+			if = {
+				limit = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
-			}
-			scope:actor = {
 				liege = {
 					add_opinion = {
 						target = scope:actor
@@ -200,7 +196,6 @@ ask_for_conversion_interaction = {
 		localization = SCHEME_HOOK
 	}
 	send_options_exclusive = no
-
 }
 
 ask_for_conversion_courtier_interaction = {
@@ -229,7 +224,7 @@ ask_for_conversion_courtier_interaction = {
 		triggered_desc = {
 			trigger = {
 				scope:actor = {
-					liege = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
@@ -355,7 +350,7 @@ ask_for_conversion_courtier_interaction = {
 		if = {
 			limit = {
 				scope:actor = {
-					liege = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
@@ -416,7 +411,7 @@ ask_for_conversion_courtier_interaction = {
 		if = {
 			limit = {
 				scope:actor = {
-					liege = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
@@ -492,7 +487,7 @@ ask_for_conversion_courtier_interaction = {
 		modifier = {
 			factor = 0 # Do not risk imprisonment for trying to convert
 			scope:actor = { 
-				liege = {
+				liege ?= {
 					has_realm_law_flag = full_religious_tolerance
 				}
 			}
@@ -606,7 +601,7 @@ ask_for_conversion_courtier_interaction = {
 		}
 		modifier = {
 			add = -50
-			scope:actor.liege = {
+			scope:actor.liege ?= {
 				NOT = {
 					has_trait = zealous
 				}
@@ -615,7 +610,7 @@ ask_for_conversion_courtier_interaction = {
 		}
 		modifier = {
 			add = -20
-			scope:actor.liege = {
+			scope:actor.liege ?= {
 				AND = {
 					has_trait = zealous
 					has_realm_law_flag = full_religious_tolerance
@@ -688,7 +683,7 @@ demand_conversion_interaction = {
 		triggered_desc = {
 			trigger = {
 				scope:actor = {
-					liege = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
@@ -777,23 +772,27 @@ demand_conversion_interaction = {
 		state_faith_conversion_add_piety_effect = yes
 
 		# Add imprisonment opinion for liege against this actor if they have Full Tolerance
-		if = {
-			limit = {
-				scope:actor = {
-					liege = {
+		scope:actor = {
+			if = {
+				limit = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
-			}
-			scope:actor = {
 				liege = {
 					add_opinion = {
 						target = scope:actor
 						modifier = ck_religious_tolerance_3_converted
 					}
-				}
+				}			
 			}
 		}
+
+		# If we're a clan this interaction affects unity
+		accept_faith_conversion_add_clan_unity_effect = yes
+
+		# If character is converting to the state faith, we add influence
+		state_faith_conversion_add_piety_effect = yes
 	}
 
 	on_decline = {
@@ -838,15 +837,13 @@ demand_conversion_interaction = {
 		state_faith_refuse_conversion_add_piety_effect = yes
 
 		# Add imprisonment opinion for liege against this actor if they have Full Tolerance
-		if = {
-			limit = {
-				scope:actor = {
-					liege = {
+		scope:actor = {
+			if = {
+				limit = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
-			}
-			scope:actor = {
 				liege = {
 					add_opinion = {
 						target = scope:actor
@@ -908,7 +905,7 @@ demand_conversion_interaction = {
 		}
 		modifier = {
 			add = -50
-			scope:actor.liege = {
+			scope:actor.liege ?= {
 				NOT = {
 					has_trait = zealous
 				}
@@ -917,7 +914,7 @@ demand_conversion_interaction = {
 		}
 		modifier = {
 			add = -20
-			scope:actor.liege = {
+			scope:actor.liege ?= {
 				AND = {
 					has_trait = zealous
 					has_realm_law_flag = full_religious_tolerance
@@ -980,7 +977,7 @@ demand_conversion_interaction = {
 		modifier = {
 			factor = 0 # Do not risk imprisonment for trying to convert
 			scope:actor = { 
-				liege = {
+				liege ?= {
 					has_realm_law_flag = full_religious_tolerance
 				}
 			}
@@ -1037,7 +1034,7 @@ demand_conversion_vassal_ruler_interaction = {
 		triggered_desc = {
 			trigger = {
 				scope:actor = {
-					liege = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
@@ -1137,15 +1134,13 @@ demand_conversion_vassal_ruler_interaction = {
 		state_faith_conversion_add_piety_effect = yes
 
 		# Add imprisonment opinion for liege against this actor if they have Full Tolerance
-		if = {
-			limit = {
-				scope:actor = {
-					liege = {
+		scope:actor = {
+			if = {
+				limit = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
-			}
-			scope:actor = {
 				liege = {
 					add_opinion = {
 						target = scope:actor
@@ -1271,15 +1266,13 @@ demand_conversion_vassal_ruler_interaction = {
 		refuse_faith_conversion_add_clan_unity_effect = yes
 
 		# Add imprisonment opinion for liege against this actor if they have Full Tolerance
-		if = {
-			limit = {
-				scope:actor = {
-					liege = {
+		scope:actor = {
+			if = {
+				limit = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
-			}
-			scope:actor = {
 				liege = {
 					add_opinion = {
 						target = scope:actor
@@ -1338,7 +1331,7 @@ demand_conversion_vassal_ruler_interaction = {
 		modifier = {
 			factor = 0 # Do not risk imprisonment for trying to convert
 			scope:actor = { 
-				liege = {
+				liege ?= {
 					has_realm_law_flag = full_religious_tolerance
 				}
 			}
@@ -1512,7 +1505,7 @@ demand_conversion_vassal_ruler_interaction = {
 		}
 		modifier = {
 			add = -50
-			scope:actor.liege = {
+			scope:actor.liege ?= {
 				NOT = {
 					has_trait = zealous
 				}
@@ -1521,7 +1514,7 @@ demand_conversion_vassal_ruler_interaction = {
 		}
 		modifier = {
 			add = -20
-			scope:actor.liege = {
+			scope:actor.liege ?= {
 				AND = {
 					has_trait = zealous
 					has_realm_law_flag = full_religious_tolerance
@@ -1558,7 +1551,7 @@ demand_conversion_player_ruler_interaction = {
 		triggered_desc = {
 			trigger = {
 				scope:actor = {
-					liege = {
+					liege ?= {
 						has_realm_law_flag = full_religious_tolerance
 					}
 				}
@@ -1597,6 +1590,7 @@ demand_conversion_player_ruler_interaction = {
 	cooldown_against_recipient = { years = 15 }
 
 	is_valid_showing_failures_only = {
+		valid_demand_conversion_conditions_trigger = yes
 		custom_tooltip = {
 			text = "ck_tolerance_3_no_conversions"
 			scope:actor = {
@@ -1850,7 +1844,7 @@ demand_conversion_player_ruler_interaction = {
 		}
 		modifier = {
 			add = -50
-			scope:actor.liege = {
+			scope:actor.liege ?= {
 				NOT = {
 					has_trait = zealous
 				}
@@ -1859,7 +1853,7 @@ demand_conversion_player_ruler_interaction = {
 		}
 		modifier = {
 			add = -20
-			scope:actor.liege = {
+			scope:actor.liege ?= {
 				AND = {
 					has_trait = zealous
 					has_realm_law_flag = full_religious_tolerance
@@ -2581,7 +2575,7 @@ seek_indulgences_interaction = {
 			trigger_if = {
 				limit = {
 					has_trait = kinslayer_3
-					trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_3 GENDER_CHARACTER = scope:actor }
+					trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_3 GENDER_CHARACTER = scope:actor }
 				}
 				gold >= seek_indulgences_major_criminal_trait_value
 			}
@@ -2590,19 +2584,19 @@ seek_indulgences_interaction = {
 					OR = {
 						AND = {
 							has_trait = kinslayer_2
-							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_2 GENDER_CHARACTER = scope:actor }
+							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_2 GENDER_CHARACTER = scope:actor }
 						}
 						AND = {
 							has_trait = witch
-							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = witch GENDER_CHARACTER = scope:actor }
+							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:witch GENDER_CHARACTER = scope:actor }
 						}
 						AND = {
 							has_trait = deviant
-							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = deviant GENDER_CHARACTER = scope:actor }
+							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:deviant GENDER_CHARACTER = scope:actor }
 						}
 						AND = {
 							has_trait = sodomite
-							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = sodomite GENDER_CHARACTER = scope:actor }
+							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:sodomite GENDER_CHARACTER = scope:actor }
 						}
 					}
 				}
@@ -2613,15 +2607,15 @@ seek_indulgences_interaction = {
 					OR = {
 						AND = {
 							has_trait = kinslayer_1
-							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_1 GENDER_CHARACTER = scope:actor }
+							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_1 GENDER_CHARACTER = scope:actor }
 						}
 						AND = {
 							has_trait = fornicator
-							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = fornicator GENDER_CHARACTER = scope:actor }
+							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:fornicator GENDER_CHARACTER = scope:actor }
 						}
 						AND = {
 							has_trait = adulterer
-							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = adulterer GENDER_CHARACTER = scope:actor }
+							trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:adulterer GENDER_CHARACTER = scope:actor }
 						}
 					}
 				}
@@ -4436,7 +4430,7 @@ take_vows_interaction = {
 			if = {
 				limit = {
 					house = {
-						has_house_power_parameter = humility_take_the_vows_bonus
+						has_house_aspiration_parameter = humility_take_the_vows_bonus
 					}
 				}
 				add_piety_experience = 100
@@ -5773,11 +5767,11 @@ hof_ask_for_gold_interaction = {
 				OR = {
 					AND = {
 						has_trait = fornicator
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = fornicator GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:fornicator GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = adulterer
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = adulterer GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:adulterer GENDER_CHARACTER = scope:actor }
 					}
 				}
 			}
@@ -5807,15 +5801,15 @@ hof_ask_for_gold_interaction = {
 				OR = {
 					AND = {
 						has_trait = kinslayer_1
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_1 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_1 GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = kinslayer_2
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_2 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_2 GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = kinslayer_3
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_3 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_3 GENDER_CHARACTER = scope:actor }
 					}
 				}
 			}
@@ -6602,11 +6596,11 @@ hof_ask_for_claim_interaction = {
 				OR = {
 					AND = {
 						has_trait = fornicator
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = fornicator GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:fornicator GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = adulterer
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = adulterer GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:adulterer GENDER_CHARACTER = scope:actor }
 					}
 				}
 			}
@@ -6619,11 +6613,11 @@ hof_ask_for_claim_interaction = {
 				OR = {
 					AND = {
 						has_trait = fornicator
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = fornicator GENDER_CHARACTER = scope:secondary_recipient }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:fornicator GENDER_CHARACTER = scope:secondary_recipient }
 					}
 					AND = {
 						has_trait = adulterer
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = adulterer GENDER_CHARACTER = scope:secondary_recipient }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:adulterer GENDER_CHARACTER = scope:secondary_recipient }
 					}
 				}
 			}
@@ -6670,15 +6664,15 @@ hof_ask_for_claim_interaction = {
 				OR = {
 					AND = {
 						has_trait = kinslayer_1
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_1 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_1 GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = kinslayer_2
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_2 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_2 GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = kinslayer_3
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_3 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_3 GENDER_CHARACTER = scope:actor }
 					}
 				}
 			}
@@ -6691,15 +6685,15 @@ hof_ask_for_claim_interaction = {
 				OR = {
 					AND = {
 						has_trait = kinslayer_1
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_1 GENDER_CHARACTER = scope:secondary_recipient }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_1 GENDER_CHARACTER = scope:secondary_recipient }
 					}
 					AND = {
 						has_trait = kinslayer_2
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_2 GENDER_CHARACTER = scope:secondary_recipient }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_2 GENDER_CHARACTER = scope:secondary_recipient }
 					}
 					AND = {
 						has_trait = kinslayer_3
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_3 GENDER_CHARACTER = scope:secondary_recipient }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_3 GENDER_CHARACTER = scope:secondary_recipient }
 					}
 				}
 			}
@@ -7562,6 +7556,7 @@ attempt_conversion_of_local_ruler_interaction = {
 		scope:recipient = {
 			is_available = yes
 		}
+		valid_demand_conversion_conditions_trigger = yes
 		custom_tooltip = {
 			text = "ck_tolerance_3_no_conversions"
 			scope:actor = {
