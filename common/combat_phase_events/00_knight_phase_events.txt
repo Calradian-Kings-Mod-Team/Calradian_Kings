@@ -174,8 +174,7 @@ knight_berserker_attack = {
 				knight_increase_prowess_chance_effect = yes
 				berserker_kill_version_randomization_effect = yes
 				scope:enemy_knight = {
-						accolade = { add_glory = minimal_glory_gain }
-					}
+					accolade ?= { add_glory = minimal_glory_gain }
 				}
 			}
 		}
@@ -189,8 +188,8 @@ knight_become_berserker = {
 			has_doctrine = tenet_warmonger
 		}
 		OR = {
-			culture = { has_cultural_pillar = heritage_byalic } #Excludes Sturgics
-			religion = religion:jumne_religion
+			culture ?= { has_cultural_pillar = heritage_byalic } #Excludes Sturgics
+			religion ?= religion:jumne_religion
 		}
 		NOR = {
 			has_trait = craven
@@ -378,7 +377,7 @@ knight_become_berserker = {
 			}
 		}
 		accolade ?= {
-				add_glory = minimal_glory_gain
+			add_glory = minimal_glory_gain
 		}
 	}
 }
@@ -504,7 +503,7 @@ knight_shieldmaiden_attack = {
 				knight_increase_prowess_chance_effect = yes
 				shieldmaiden_kill_version_randomisation_effect = yes
 				scope:enemy_knight = {
-						# Shieldmaidens are especially good at earning glory.
+					# Shieldmaidens are especially good at earning glory.
 					accolade ?= { add_glory = minor_glory_gain }
 				}
 			}
@@ -561,6 +560,12 @@ knight_wounded = {
 			factor = { # Prowess directly reduces chance of injury/death
 				value = 40 # Value at which 'immortality' happens
 				subtract = prowess
+				if = {
+					limit = {
+						has_court_position = garuda_court_position
+					}
+					add = garuda_prowess_svalue
+				}
 				divide = 40
 				min = 0.1 # Everyone dies.
 			}
@@ -585,6 +590,10 @@ knight_wounded = {
 			faith = {
 				has_doctrine_parameter = death_is_glory
 			}
+		}
+		modifier = {
+			factor = 4
+			has_court_position = garuda_court_position
 		}
 		modifier = {
 			factor = 2
@@ -763,6 +772,12 @@ knight_maimed = {
 			factor = { # Prowess directly reduces chance of injury/death
 				value = 30 # Value at which 'immortality' happens
 				subtract = prowess
+				if = {
+					limit = {
+						has_court_position = garuda_court_position
+					}
+					add = garuda_prowess_svalue
+				}
 				divide = 30
 				min = 0.1 # Everyone dies.
 			}
@@ -791,6 +806,10 @@ knight_maimed = {
 			faith = {
 				has_doctrine_parameter = death_is_glory
 			}
+		}
+		modifier = {
+			factor = 3
+			has_court_position = garuda_court_position
 		}
 		modifier = {
 			factor = 2
@@ -954,6 +973,12 @@ knight_killed = {
 			factor = { # Prowess directly reduces chance of injury/death
 				value = 30 # Value at which 'immortality' happens
 				subtract = prowess
+				if = {
+					limit = {
+						has_court_position = garuda_court_position
+					}
+					add = garuda_prowess_svalue
+				}
 				divide = 30
 				min = 0.1 # Everyone dies.
 			}
@@ -982,6 +1007,10 @@ knight_killed = {
 			faith = {
 				has_doctrine_parameter = death_is_glory
 			}
+		}
+		modifier = {
+			factor = 3
+			has_court_position = garuda_court_position
 		}
 		modifier = {
 			factor = 2
@@ -1262,13 +1291,13 @@ knight_killed = {
 						exists = scope:enemy_knight.house
 					}
 					house = {
-					change_house_relation_effect = {
-						HOUSE = scope:enemy_knight.house
-						VALUE = house_relation_damage_medium_value
-						REASON = killed
-						CHAR = scope:enemy_knight
-						TARGET_CHAR = scope:knight
-						TITLE = scope:dummy_gender
+						change_house_relation_effect = {
+							HOUSE = scope:enemy_knight.house
+							VALUE = house_relation_damage_medium_value
+							REASON = killed
+							CHAR = scope:enemy_knight
+							TARGET_CHAR = scope:knight
+							TITLE = scope:dummy_gender
 						}
 					}
 				}
@@ -1557,7 +1586,7 @@ knight_qualify_for_accolade = {
 			10 = {
 				trigger = {
 					knight_army = {
-						any_army_maa_regiment = {
+						any_army_maa_regiment = { ## CK_CROSSBOWS - Put all crossbow MAAs here
 							OR = {
 								is_maa_type = geroian_crossbowmen_1
 								is_maa_type = crossbowmen

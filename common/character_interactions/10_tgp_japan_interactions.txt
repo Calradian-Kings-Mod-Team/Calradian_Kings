@@ -304,12 +304,11 @@ invite_to_house_bloc_interaction = {
 								INVITING_HOUSE = scope:actor.house
 							}
 						}
-						}
 					}
-					tgp_leave_house_bloc_effect = {
-						OPINION = flag:yes
-						TRUCE = flag:no
-					}
+				}
+				tgp_leave_house_bloc_effect = {
+					OPINION = flag:yes
+					TRUCE = flag:no
 				}
 			add_character_flag = {
 				flag = invited_to_bloc_recently
@@ -636,7 +635,7 @@ invite_to_house_bloc_interaction = {
  			}
  		}
 		modifier = { # Try to have a good number of blocs at all times
-			NOT = { exists = house_head.house.house_confederation }
+			NOT = { exists = house.house_confederation } #Unop Use house, as we are in a character scope
 			# From someone that makes sense
 			is_landed = yes
 			is_house_head = yes
@@ -675,7 +674,7 @@ invite_to_house_bloc_interaction = {
 		## MUST GO AT BOTTOM
 		modifier = { # Frequency
 			factor = 0
-			scope:joiner_temp = { has_character_flag = invited_to_bloc_recently }
+			scope:recipient = { has_character_flag = invited_to_bloc_recently } #Unop Use recipient instead of joiner_temp
 		}
 	}
 }
@@ -971,7 +970,7 @@ invite_to_house_bloc_interaction = {
 # 			desc = AI_LANDLESS_REASON
 # 		}
 # 		modifier = { # Same house power
-# 			scope:actor.house ?= { has_same_house_power_as = scope:recipient.house }
+# 			scope:actor.house ?= { has_same_house_aspiration_as = scope:recipient.house }
 # 			add = 25
 # 			desc = AI_SAME_ASPIRATION_REASON
 # 		}
@@ -1098,7 +1097,7 @@ invite_to_house_bloc_interaction = {
 # 		}
 # 		modifier = { # Don't join blocs of different aspiration
 # 			scope:actor.house = {
-# 				NOT = { has_same_house_power_as = scope:recipient.house }
+# 				NOT = { has_same_house_aspiration_as = scope:recipient.house }
 # 			}
 # 			add = -150
 # 		}
@@ -1185,7 +1184,7 @@ leave_house_bloc_interaction = {
 			tgp_save_bloc_leaving_reason_effect = {
 				LEAVING_HOUSE = scope:actor.house
 				INVITING_HOUSE = scope:actor.house
-		}
+			}
 			tgp_leave_house_bloc_effect = {
 				OPINION = flag:yes
 				TRUCE = flag:yes
@@ -1656,7 +1655,7 @@ assume_house_bloc_leadership_interaction = {
 									target = scope:actor
 									level >= 2
 								}
-								dynast ?= scope:actor
+								dynasty.dynast ?= scope:actor #Unop Use dynasty.dynast as we are in a character scope
 							}
 						}
 					}
@@ -1925,7 +1924,7 @@ assume_house_bloc_leadership_interaction = {
 								target = scope:actor
 								level >= 2
 							}
-							dynast ?= scope:actor
+							dynasty.dynast ?= scope:actor #Unop Use dynasty.dynast as we are in a character scope
 						}
 					}
 				}
@@ -2265,9 +2264,11 @@ improve_house_relation_in_bloc_interaction = {
 		}
 		else_if = {
 			limit = {
-				any_house_relation = {
-					any_relation_house = { this = scope:recipient.house }
-					has_house_relation_level = rivalry
+				scope:actor.house = { #Unop Use correct scope
+					any_house_relation = {
+						any_relation_house = { this = scope:recipient.house }
+						has_house_relation_level = rivalry
+					}
 				}
 			}
 			custom_tooltip = house_relation_perk_interaction_rivalry_effect

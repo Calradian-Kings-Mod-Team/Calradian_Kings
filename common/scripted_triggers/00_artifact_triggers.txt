@@ -25,6 +25,90 @@ artifact_value_trigger = {
 		artifact_high_rarity_trigger = yes
 	}
 }
+artifact_is_worthy_to_improve_trigger = {
+	NOR = {
+		has_variable = ai_to_ai_destroy_in_sieges
+		has_variable = unwanted_artifact
+		has_variable = cursed_artifact
+		has_variable = 1025_treasure_map
+	}
+}
+artifact_can_be_gift_base_trigger = {
+	NOR = {
+		has_variable = ai_to_ai_destroy_in_sieges
+		has_variable = unwanted_artifact
+		has_variable = cursed_artifact
+		has_variable = 1025_treasure_map
+		has_variable = ungiftable
+		has_variable = is_tribute_mission_artifact
+		has_variable = artifact_prevent_transfer # not enforced in all script but make life easier for modders.
+	}
+}
+# e.g. a formal tribute gift 
+artifact_can_be_gift_advance_trigger = {
+	artifact_can_be_gift_base_trigger = yes
+	NOR = {
+		has_variable = banner_dynasty
+		has_variable = banner_house
+		has_variable = bunga_mas_created_by
+		var:artifact_succession_title ?= { is_title_created = yes }
+	}
+}
+
+artifact_can_be_gift_to_trigger = {
+	artifact_can_be_gift_base_trigger = yes
+	trigger_if = {
+		limit = {
+			NOT = { $RECIPIENT$ = { has_artifact_claim = prev } }
+		}
+		trigger_if = {
+			limit = {
+				has_variable = banner_dynasty
+			}
+			$RECIPIENT$.dynasty ?= var:banner_dynasty
+			artifact_owner = {
+				# it make no sense giving your own banner to other member if you are dynast
+				NAND = {
+					var:banner_dynasty.dynast ?= this
+					has_royal_court = yes
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				has_variable = banner_house
+			}
+			$RECIPIENT$.house ?= var:banner_house
+			artifact_owner = {
+				# it make no sense giving your own banner to other member if you are dynast
+				NAND = {
+					var:banner_house.house_head ?= this
+					has_royal_court = yes
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				has_variable = relic_religion
+			}
+			# make no sense gifting relic to heathen, but sending heathen stuff to others are acceptable
+			OR = {
+				artifact_owner.religion != var:relic_religion
+				$RECIPIENT$.religion = var:relic_religion
+			}
+		}
+		trigger_if = {
+			limit = {
+				var:artifact_succession_title ?= { is_title_created = yes }
+			}
+			# either its title destroyed, or recipient is rightfully owner, or you are not the title's holder
+			OR = {
+				var:artifact_succession_title.holder = $RECIPIENT$
+				var:artifact_succession_title.holder != artifact_owner
+			}
+		}
+	}
+}
 
 artifact_region_trigger = {
 	trigger_if = {
@@ -310,6 +394,7 @@ artifact_use_indian_building_visuals_trigger = {
 		OR = {
 			has_building_gfx = indian_building_gfx
 			has_building_gfx = southeast_asian_building_gfx
+			has_building_gfx = tibetan_building_gfx
 		}
 	}
 }
@@ -323,12 +408,18 @@ artifact_use_mediterranean_building_visuals_trigger = {
 		OR = {
 			has_building_gfx = mediterranean_building_gfx
 			has_building_gfx = byzantine_building_gfx 
+			has_building_gfx = caucasian_building_gfx  
 		}
 	}
 }
 
 artifact_use_byzantine_building_visuals_trigger = {
-	culture ?= { has_building_gfx = byzantine_building_gfx }
+	culture ?= {
+		OR = {
+			has_building_gfx = byzantine_building_gfx
+			has_building_gfx = caucasian_building_gfx
+		}
+	}
 }
 
 artifact_use_iberian_building_visuals_trigger = {
@@ -846,6 +937,7 @@ artifact_feature_cloth_fustian_trigger = {
 	exists = scope:wealth
 	artifact_value_trigger = { VALUE = scope:wealth MIN = 40 MAX = 70 }
 	artifact_region_trigger = { CHARACTER = scope:owner REGION = material_cloth_linen }
+	# NOT = { scope:owner.religion = religion:judaism_religion }
 }		
 
 
@@ -1492,7 +1584,10 @@ artifact_feature_earthware_terracotta_trigger = {
 artifact_feature_earthware_stone_trigger = {
 	trigger_if = {
 		limit = { exists = scope:potter }
-		scope:potter.culture = { has_cultural_pillar = heritage_nahasi }
+		OR = { # saved from create_artifact_urn_effect
+			scope:potter = { should_use_asian_music_trigger = yes }
+			scope:potter.culture ?= { has_cultural_pillar = heritage_nahasi }
+		}
 	}
 	trigger_else = {
 		always = no
@@ -1510,10 +1605,12 @@ artifact_feature_earthware_stone_trigger = {
 artifact_feature_earthware_porcelain_trigger = {
 	trigger_if = {
 		limit = { exists = scope:potter }
-		scope:potter.culture = { 
+		OR = {
+			scope:potter.culture ?= {
 			#OR = { # CK_TO-DO CK_CHINA - add Chinese heritage here
 				has_cultural_pillar = heritage_nahasi 
-			#}
+			}
+			scope:potter = { should_use_chinese_music_trigger = yes }
 		}
 	}
 	trigger_else = {
@@ -2137,6 +2234,7 @@ relic_war_valid_religious_artefact_trigger = {
 			can_benefit_from_artifact = prev
 		}
 	}
+	NOT = { has_variable = artifact_prevent_transfer }
 }
 
 relic_war_valid_struggle_artefact_trigger = {

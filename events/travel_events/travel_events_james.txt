@@ -671,11 +671,11 @@ travel_events.4002 = {
 			}
 		}
 	}
-	after = {
-		scope:local_beauty_scope = {
-			silent_disappearance_ai_if_created_effect = yes
-		}
-	}
+	#after = { #Unop Let's not kill root's lover, concubine, or spouse, even if they are AI
+	#	scope:local_beauty_scope = {
+	#		silent_disappearance_ai_if_created_effect = yes
+	#	}
+	#}
 }
 
 # You encounter vikings at sea
@@ -1467,6 +1467,16 @@ travel_events.4005 = {
 					}
 				}
 			}
+			scope:merchant_artifact_scope = { #Unop: We need to register both wealth & quality ont the artifact itself !
+				set_variable = {
+					name = quality
+					value = scope:quality
+				}
+				set_variable = {
+					name = wealth
+					value = scope:wealth
+				}
+			}
 		}
 	}
 	# Buy the artifact!
@@ -1638,6 +1648,7 @@ travel_events.4006 = {
 		root.current_travel_plan = {
 			random_entourage_character = {
 				limit = {
+					is_adult = yes
 					opinion = {
 						value <= low_negative_opinion
 						target = root
@@ -2565,9 +2576,12 @@ travel_events.4013 = {
 			limit = { exists = house }
 			scope:feral_child_scope = { set_house = root.house }
 		}
-		set_relation_friend = {
-			reason = friend_adopted
-			target = scope:feral_child_scope
+		if = {
+			limit = { NOT = { has_relation_friend = scope:feral_child_scope } } #Unop: Add this check just to be clean
+			set_relation_friend = {
+				reason = friend_adopted
+				target = scope:feral_child_scope
+			}
 		}
 		stress_impact = {
 			compassionate = medium_stress_impact_loss
@@ -4018,9 +4032,16 @@ travel_events.4021 = {
 		}
 	}
 	after = {
-		scope:sacrificed_person_scope ?= {
-			remove_character_flag = is_naked
-			silent_disappearance_ai_if_created_effect = yes
+		if = {
+			limit = {
+				scope:sacrificed_person_scope ?= { #Unop: prevent scope is dead during effect execution
+					is_alive = yes
+				}
+			}
+			scope:sacrificed_person_scope ?= {
+				remove_character_flag = is_naked
+				silent_disappearance_ai_if_created_effect = yes
+			}
 		}
 	}
 }
@@ -4064,6 +4085,7 @@ travel_events.4022 = {
 				faith = { has_doctrine_parameter = believes_in_harmony_with_nature_invisible }
 			}
 		}
+		NOT = { root = root.location.county.holder } #Unop: Prevent this event to trigger in our own holdings.
 	}
 	immediate = {
 		wayfarer_storyteller_fame_effect = { VALUE = roaming_reward_fame_medium }
@@ -5681,7 +5703,7 @@ travel_events.4032 = {
 					}
 					if = {
 						limit = {
-							accolade ?= { is_accolade_active = yes }
+							is_acclaimed = yes
 						}
 						accolade = { add_glory = minor_glory_gain }
 					}
@@ -5700,7 +5722,7 @@ travel_events.4032 = {
 					}
 					if = {
 						limit = {
-							accolade ?= { is_accolade_active = yes }
+							is_acclaimed = yes
 						}
 						accolade = { add_glory = minor_glory_gain }
 					}
@@ -6081,7 +6103,7 @@ travel_events.4033 = {
 					scope:witch_scope = {
 						death = {
 							killer = root
-							death_reason = death_burned
+							death_reason = death_burned_witch #Unop: Because we are not in the feast activity
 						}
 					}
 				}
@@ -6592,20 +6614,20 @@ travel_events.4036 = {
 		}
 	}
 	immediate = {
-		create_character = {
-			template = generic_peasant_character
-			location = root.location
-			culture = root.location.culture
-			faith = root.location.faith
-			#Set up the scope
-			save_scope_as = merchant_character_scope
-			after_creation = {
-				add_character_flag = created
+		hidden_effect_new_object = { #Unop Prevent tooltip errors
+			create_character = {
+				template = generic_peasant_character
+				location = root.location
+				culture = root.location.culture
+				faith = root.location.faith
+				#Set up the scope
+				save_scope_as = merchant_character_scope
+				after_creation = {
+					add_character_flag = created
+				}
 			}
-		}
-		root.location.kingdom = { save_scope_as = kingdom_scope }
-		scope:merchant_character_scope = {
-			hidden_effect = {
+			root.location.kingdom = { save_scope_as = kingdom_scope }
+			scope:merchant_character_scope = {
 				add_trait = avaricious
 				random_list = {
 					10 = {
@@ -6651,6 +6673,16 @@ travel_events.4036 = {
 							save_scope_as = merchant_artifact_scope
 						}
 					}
+				}
+			}
+			scope:merchant_artifact_scope = { #Unop Set quality and wealth variables
+				set_variable = {
+					name = quality
+					value = scope:quality
+				}
+				set_variable = {
+					name = wealth
+					value = scope:wealth
 				}
 			}
 		}
@@ -6896,6 +6928,10 @@ travel_events.4037 = {
 				religion = religion:aserai_religion
 				location.faith = { has_doctrine_parameter = islamic_syncretic_actor_opinion_active }
 			}
+			AND = {
+				religion = religion:surrani_religion
+				location.faith = { has_doctrine_parameter = jewish_syncretic_actor_opinion_active }
+			}
 		}
 	}
 	immediate = {
@@ -7093,6 +7129,10 @@ travel_events.4038 = {
 				faith = { has_doctrine_parameter = islamic_syncretic_actor_opinion_active }
 				location.religion = religion:aserai_religion
 			}
+			AND = {
+				faith = { has_doctrine_parameter = jewish_syncretic_actor_opinion_active }
+				location.religion = religion:surrani_religion
+			}
 		}
 	}
 	immediate = {
@@ -7205,6 +7245,15 @@ travel_events.4038 = {
 						}
 						add_character_modifier = {
 							modifier = offended_muslim_modifier
+							years = 5
+						}
+					}
+					else_if = {
+						limit = {
+							faith = { has_doctrine_parameter = jewish_syncretic_actor_opinion_active }
+						}
+						add_character_modifier = {
+							modifier = offended_jewish_modifier
 							years = 5
 						}
 					}

@@ -1,7 +1,13 @@
 ﻿## No Hungarians
 
 exclave_independence_trigger = {
-	is_independent_ruler = yes
+	top_liege = this
+	NOT = {
+		primary_title ?= {
+			is_temporal_head_of_faith_trigger = yes
+		}
+	}
+	# NOT = { has_title = title:k_papal_state }
 	exists = root.capital_province
 	any_sub_realm_title = {
 		tier = tier_county
@@ -52,7 +58,7 @@ harm_game_rule_enablement_trigger = {
 		player_heir.dynasty ?= dynasty
 	}
 	# Immortals do not receive harm events, as they would be inevitably killed by them over a long enough period of time.
-	NOT = { has_trait = immortal }
+	NOT = { has_trait_with_flag = is_immortal }
 }
 
 # Who do we care about when recording variable logs for harm events?
@@ -254,3 +260,26 @@ rule_title_creation_imperial_power_projection_title_creation_trigger = {
 # 		}
 # 	}
 # }
+
+game_rule_can_create_hybird_culture_trigger = {
+	trigger_if = {
+		limit = { is_ai = yes }
+		NOR = {
+			has_game_rule = none_hybrid_culture_ai_frequency
+			has_global_variable = has_ai_hybrid_event_cooldown
+		}
+	}
+}
+
+game_rule_can_create_hybrid_culture_trigger = {
+	game_rule_can_create_hybird_culture_trigger = yes
+}
+
+game_rule_unrestricted_dynasty_legacies_trigger = {
+	switch = {
+		trigger = has_game_rule
+		unrestricted_dynasty_legacies_all = { always = yes }
+		unrestricted_dynasty_legacies_player_only = { is_ai = no }
+		fallback = { always = no }
+	}
+}
