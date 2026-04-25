@@ -2,36 +2,25 @@
 	has_ach_dlc_trigger = yes
 	is_landed = yes
 	highest_held_title_tier >= tier_kingdom
-	OR = {
-		government_has_flag = government_is_feudal
-		government_has_flag = government_is_tribal
-		AND = {
-			government_has_flag = government_is_administrative
-			is_independent_ruler = yes
-		}
-		government_has_flag = government_is_nomadic
-		government_has_flag = government_is_clan
-		AND = {
-			government_has_flag = government_is_meritocratic
-			is_independent_ruler = yes
-		}
-		AND = {
-			government_has_flag = government_is_celestial
-			is_independent_ruler = yes
-		}
-		AND = {
-			government_has_flag = government_is_steppe_admin
-			is_independent_ruler = yes
-		}
-		AND = {
-			government_is_japanese_trigger = yes
-			is_independent_ruler = yes
-			trigger_if = {
-				limit = { tgp_realm_has_ceremonial_liege_trigger = yes }
+	# Governments where independent king+ rulers can hold Coronations
+	trigger_if = {
+		limit = { tgp_realm_has_ceremonial_liege_trigger = yes }
+		custom_tooltip = {
+			text = tgp_ceremonial_liege_coronation_trigger
 				tgp_has_ceremonial_liege_title_trigger = yes
 			}
 		}
-		government_has_flag = government_is_mandala
+	trigger_if = {
+		limit = { government_allows = administrative }
+		is_independent_ruler = yes
+	}
+	trigger_else = {
+		NOR = {
+			government_has_flag = government_is_theocracy
+			government_has_flag = government_is_republic
+			government_has_flag = government_is_mercenary
+			government_has_flag = government_is_holy_order
+		}
 	}
 }
 
@@ -91,8 +80,10 @@ is_important_hof_trigger = {
 coronation_has_proper_artifact_trigger = {
 	trigger_if = {
 		limit = {
-			coronation_proper_artifact_crown_trigger = yes
-			coronation_proper_artifact_regalia_trigger = no
+			faith = {
+				coronation_proper_artifact_crown_trigger = yes
+				coronation_proper_artifact_regalia_trigger = no
+			}
 		}
 		any_character_artifact = {
 			artifact_slot_type = helmet
@@ -100,8 +91,10 @@ coronation_has_proper_artifact_trigger = {
 	}
 	trigger_else_if = {
 		limit = {
-			coronation_proper_artifact_regalia_trigger = yes
-			coronation_proper_artifact_crown_trigger = no
+			faith = {
+				coronation_proper_artifact_regalia_trigger = yes
+				coronation_proper_artifact_crown_trigger = no
+			}
 		}
 		any_character_artifact = {
 			artifact_slot_type = regalia
@@ -118,7 +111,7 @@ coronation_has_proper_artifact_trigger = {
 }
 
 coronation_proper_artifact_crown_trigger = {
-	faith.religion = {
+	religion = {
 		OR = {
 			this = religion:vakken_religion
 			# this = religion:bon_religion
@@ -154,21 +147,6 @@ coronation_proper_artifact_regalia_trigger = {
 }
 
 # Religions that are not included in the triggers above can have both regalia or a crown.
-# The list is intentional and includes:
-# akom_religion
-# basque_paganism_religion
-# donyipolism_religion
-# germanic_religion
-# islam_religion
-# magyar_religion
-# mundhum_religion
-# north_african_religion
-# paganism_religion
-# qiangic_religion
-# taoism_ph_religion
-# waaqism_religion
-# west_african_roog_religion
-# zunism_religion
 
 has_regal_presence_trait_trigger = {
 	#Done this way to prevent traits blocking event option text
@@ -213,6 +191,18 @@ has_regal_presence_trait_trigger = {
 			has_trait = conqueror
 		}
 		has_trait = conqueror
+	}
+	trigger_else_if = {
+		limit = {
+			has_trait = claimant_emperor
+		}
+		has_trait = claimant_emperor
+	}
+	trigger_else_if = {
+		limit = {
+			has_trait = restorer_emperor
+		}
+		has_trait = restorer_emperor
 	}
 	trigger_else_if = {
 		limit = {
