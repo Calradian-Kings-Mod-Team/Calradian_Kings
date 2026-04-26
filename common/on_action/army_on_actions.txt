@@ -35,6 +35,189 @@ on_army_monthly = {
 # scope:war is the war causing the previous controller and the occupant to be hostile
 on_county_occupied = {
 	effect = {
+		random = { # chance of granting a knight eligibility for marauder / besieger accolade
+			chance = 2
+			modifier = {
+				factor = accolade_progress
+			}
+			modifier = {
+				NOT = {
+					any_knight = {
+						OR = {
+							can_be_acclaimed = yes
+							accolade ?= {
+								accolade_can_have_more_attributes = yes
+							}
+						}
+						knight_army ?= {
+							location.county = scope:county
+						}
+						OR = {
+							AND = { # needed for besieger
+								knight_army ?= { 
+									any_army_maa_regiment = {
+										is_unit_type = siege_weapon
+									}
+								}
+								besieger_attribute_trigger = no
+							}
+							AND = { # needed for marauder
+								NOT = { 
+									has_trait = compassionate
+								}
+								marauder_attribute_trigger = no
+							}
+						}
+					}
+				}
+				factor = 0
+			}
+			set_variable = {
+				name = accolade_progress
+				value = 0
+			}
+			random_list = {
+				10 = { # marauder
+					trigger = {
+						any_knight = {
+							OR = {
+								can_be_acclaimed = yes
+								accolade ?= {
+									accolade_can_have_more_attributes = yes
+								}
+							}
+							knight_army ?= {
+								location.county = scope:county
+							}
+							NOT = {
+								has_trait = compassionate
+							}
+							marauder_attribute_trigger = no
+						}
+					}
+					random_knight = {
+						limit = {
+							OR = {
+								can_be_acclaimed = yes
+								accolade ?= {
+									accolade_can_have_more_attributes = yes
+								}
+							}
+							knight_army ?= {
+								location.county = scope:county
+							}
+							NOT = {
+								has_trait = compassionate
+							}
+							marauder_attribute_trigger = no
+						}
+						weight = {
+							base = 1
+							modifier = {
+								add = 60
+								is_acclaimed = yes
+							}
+							modifier = {
+								add = 30
+								has_trait = sadistic
+							}
+							modifier = {
+								add = 30
+								has_trait = callous
+							}
+							modifier = {
+								add = 30
+								has_trait = wrathful
+							}
+							modifier = {
+								add = 30
+								has_trait = greedy
+							}
+						}
+						save_scope_as = marauder
+					}
+					send_interface_message = {
+						type = msg_accolade_eligibility
+						title = accolade_marauder_unlock.t
+						left_icon = scope:marauder
+						right_icon = scope:recipient
+						custom_tooltip = accolade_marauder_unlock.tt
+						scope:marauder = {
+							set_variable = {
+								name = marauder_attribute_unlock
+								value = yes
+							}
+						}	
+					}
+				}
+				10 = { # besieger
+					trigger = {
+						any_knight = {
+							OR = {
+								can_be_acclaimed = yes
+								accolade ?= {
+									accolade_can_have_more_attributes = yes
+								}
+							}
+							knight_army ?= {
+								location.county = scope:county
+								any_army_maa_regiment = {
+									is_unit_type = siege_weapon
+								}
+							}
+							besieger_attribute_trigger = no
+						}
+					}
+					random_knight = {
+						limit = {
+							OR = {
+								can_be_acclaimed = yes
+								accolade ?= {
+									accolade_can_have_more_attributes = yes
+								}
+							}
+							knight_army ?= {
+								location.county = scope:county
+								any_army_maa_regiment = {
+									is_unit_type = siege_weapon
+								}
+							}
+							besieger_attribute_trigger = no
+						}
+						weight = {
+							base = 1
+							modifier = {
+								add = 60
+								is_acclaimed = yes
+							}
+							modifier = {
+								add = 30
+								has_trait = calm
+							}
+							modifier = {
+								add = 30
+								has_trait = patient
+							}
+						}
+						save_scope_as = besieger
+					}
+					send_interface_message = {
+						type = msg_accolade_eligibility
+						title = accolade_besieger_unlock.t
+						left_icon = scope:besieger
+						right_icon = scope:recipient
+						custom_tooltip = accolade_besieger_unlock.tt
+						scope:besieger = {
+							set_variable = {
+								name = besieger_attribute_unlock
+								value = yes
+							}
+						}	
+					}
+				}
+			}
+				
+		}	
 		scope:county = {
 			if = {
 				limit = {
@@ -171,7 +354,7 @@ on_county_occupied = {
 			}
 			send_interface_message = {
 				type = msg_siege_effect
-				title = tactical_besiegers_house_power
+				title = tactical_besiegers_house_aspiration
 				left_icon = root
 				right_icon = scope:barony
 				
@@ -274,7 +457,7 @@ on_siege_completion = {
 		scope:barony.title_province = {
 			every_army_in_location = {
 				army_commander ?= {
-					if = {
+					if = {  
 						limit = {
 							has_trait = military_engineer
 							is_commanding_army = yes

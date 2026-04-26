@@ -11852,7 +11852,219 @@ scripted_effect pilgrimage_6810_friend_effect = {
 	}
 }
 
-## Calradians don't have to buy indulgences
+pilgrimage.6810 = { # Only for Darusan-Mandatists
+	type = activity_event
+	title = pilgrimage.6810.t
+	desc = pilgrimage.6810.desc
+	theme = pilgrimage_destination
+	override_background = {
+		trigger = {
+			NOR = {
+				religion = religion:hinduism_religion
+				religion = religion:jainism_religion
+				religion = religion:buddhism_religion
+				religion = religion:tengrism_religion
+			}
+		}
+		reference = temple
+	}
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	right_portrait = {
+		character = scope:bishop_pilgrim
+		animation = steward
+	}
+	lower_left_portrait = {
+		trigger = { exists = scope:my_heir }
+		character = scope:my_heir
+	}
+	lower_right_portrait = scope:religious_head_scope
+	lower_center_portrait = {
+		trigger = { exists = scope:my_bishop }
+		character = scope:my_bishop
+	}
+	cooldown = { years = 1 }
+	trigger = {
+		faith = {
+			has_doctrine = special_doctrine_darusian  #this is basically a Darusan thing
+		}
+		exists = faith.religious_head #you have a religious head
+		faith.religious_head = {
+			this != root #and it's not you
+			is_available_ai_adult = yes
+		}
+		exists = location.county.holder.cp:councillor_court_chaplain #there's also someone around to be handing out these
+		location.county.holder.cp:councillor_court_chaplain.faith = faith.religious_head.faith #and they're the same faith (and, by extension, yours)
+	}
+	immediate = {
+		faith.religious_head = { save_scope_as = religious_head_scope }
+		location.county.holder.cp:councillor_court_chaplain = { save_scope_as = bishop_pilgrim }
+		if = {
+			limit = { exists = root.player_heir }
+			player_heir = { save_scope_as = my_heir }
+		}
+		if = {
+			limit = {
+				exists = cp:councillor_court_chaplain
+				current_travel_plan ?= {
+					any_entourage_character = {
+						this = root.cp:councillor_court_chaplain
+					}
+				}
+			}
+			cp:councillor_court_chaplain = { save_scope_as = my_bishop }
+		}
+	}
+	weight_multiplier = {
+		base = 1
+		modifier = {
+			factor = 2
+			OR = { #you're in a religious journey
+				has_activity_intent = zealot_intent
+				scope:activity = {
+					has_activity_option = {
+						category = special_type
+						option = pilgrimage_type_pious
+					}
+				}
+			}
+		}
+	}
+	#Buy one
+	option = {
+		name = pilgrimage.6810.a
+		pious_type_option_effect = yes
+		pay_short_term_gold = {
+			target = scope:bishop_pilgrim
+			gold = {
+				value = medium_gold_value
+				max = 25
+			}
+		}
+		add_piety = minor_piety_gain
+		pilgrimage_6810_friend_effect = yes
+		if = {
+			limit = {
+				faith = { trait_is_virtue = greedy }
+			}
+			stress_impact = {
+				greedy = medium_stress_impact_loss
+			}
+		}
+		else = {
+			stress_impact = {
+				honest = minor_stress_impact_gain
+				just = medium_stress_impact_gain
+			}
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0.5
+				has_trait = greedy
+			}
+			modifier = {
+				factor = 0
+				OR = {
+					has_trait = honest
+					has_trait = just
+				}
+			}
+			modifier = {
+				factor = 0
+				short_term_gold <= medium_gold_value
+			}
+		}
+	}
+	#Buy one for your heir
+	option = {
+		name = pilgrimage.6810.b
+		trigger = { exists = scope:my_heir }
+		pious_type_option_effect = yes
+		pay_short_term_gold = {
+			target = scope:bishop_pilgrim
+			gold = {
+				value = medium_gold_value
+				max = 25
+			}
+		}
+		add_piety = minor_piety_gain
+		scope:my_heir = { pilgrimage_6810_friend_effect = yes }
+		if = {
+			limit = {
+				faith = { trait_is_virtue = greedy }
+			}
+			stress_impact = {
+				greedy = medium_stress_impact_loss
+				generous = medium_stress_impact_loss
+			}
+		}
+		else = {
+			stress_impact = {
+				honest = minor_stress_impact_gain
+				just = medium_stress_impact_gain
+				generous = medium_stress_impact_loss
+			}
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 1.5
+				has_trait = generous
+			}
+			modifier = {
+				factor = 0.5
+				OR = {
+					has_trait = greedy
+					has_trait = callous
+				}
+			}
+			modifier = {
+				factor = 0
+				OR = {
+					has_trait = honest
+					has_trait = just
+				}
+			}
+			modifier = {
+				factor = 0
+				short_term_gold <= medium_gold_value
+			}
+		}
+	}
+	#This is immoral
+	option = {
+		name = pilgrimage.6810.c
+		worldly_type_option_effect = yes
+		if = {
+			limit = { has_lifestyle = learning_lifestyle }
+			add_learning_lifestyle_xp = minor_lifestyle_experience
+		}
+		else_if = {
+			limit = { has_lifestyle = diplomacy_lifestyle }
+			add_diplomacy_lifestyle_xp = minor_lifestyle_experience
+		}
+		stress_impact = {
+			cynical = medium_stress_impact_loss
+			deceitful = minor_stress_impact_gain
+			callous = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				OR = {
+					has_trait = deceitful
+					has_trait = arbitrary
+					has_trait = callous
+				}
+			}
+		}
+	}
+}
+
 
 scripted_trigger pilgrimage_6820_trigger = {
 	age = { 20 60 }
