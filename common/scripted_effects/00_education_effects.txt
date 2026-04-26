@@ -481,11 +481,11 @@ education_complete_notification_effect = {
 	save_scope_as = educated_child
 	if = {
 		limit = {
-			any_relation = { type = guardian }
+			num_of_relation_guardian >= 1
 		}
 		random_relation = {
 			type = guardian
-			save_scope_as = current_guardian #Unop: Save the guardian to be used later
+			save_scope_as = current_guardian
 			if = {
 				limit = { this = { is_parent_of = root } }
 				save_scope_as = parent_guardian
@@ -583,7 +583,38 @@ education_complete_notification_effect = {
 				}
 			}
 		}
-		trigger_event = coming_of_age.1002
+		if = {
+			limit = {
+				OR = {
+					has_relation_favorite_child = scope:educated_child
+					scope:educated_child = {
+						OR = {
+							is_ruler = yes
+							is_primary_heir_of = prev
+							is_player_heir_of = prev
+							NOT = {
+								any_sibling = {
+									count >= 2
+									is_alive = yes
+									age >= scope:educated_child.age
+								}
+							}
+						}
+					}
+				}
+			}
+			trigger_event = coming_of_age.1002
+		}
+		else = {
+			save_scope_as = relative
+			send_interface_message = {
+				type = msg_child_of_age
+				title = msg_child_of_age_title
+				desc = msg_child_of_age_desc
+				left_icon = scope:educated_child
+				scope:educated_child = { display_correct_education_trait_gain_tooltip_effect = yes }
+			}
+		}
 	}
 	# Inform non-parent dynasty member players they are in the court of
 	if = {

@@ -444,6 +444,16 @@ convert_whole_realm_to_feudalism_effect = {
 				}
 				set_holding_type = church_holding
 			}
+			hidden_effect = {
+				if = {
+					limit = { has_county_modifier = mpo_siberian_permafrost_modifier }
+					remove_county_modifier = mpo_siberian_permafrost_modifier
+				}
+				else_if = {
+					limit = { has_county_modifier = mpo_siberian_permafrost_modifier_bad }
+					remove_county_modifier = mpo_siberian_permafrost_modifier_bad
+				}
+			}
 		}
 		
 		every_sub_realm_county = { # Spawn a City
@@ -517,6 +527,16 @@ convert_whole_realm_to_feudalism_effect = {
 						}
 					}
 					set_holding_type = city_holding
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = { has_county_modifier = mpo_siberian_permafrost_modifier }
+					remove_county_modifier = mpo_siberian_permafrost_modifier
+				}
+				else_if = {
+					limit = { has_county_modifier = mpo_siberian_permafrost_modifier_bad }
+					remove_county_modifier = mpo_siberian_permafrost_modifier_bad
 				}
 			}
 		}
@@ -594,6 +614,16 @@ convert_whole_realm_to_feudalism_effect = {
 					set_holding_type = church_holding
 				}
 			}
+			hidden_effect = {
+				if = {
+					limit = { has_county_modifier = mpo_siberian_permafrost_modifier }
+					remove_county_modifier = mpo_siberian_permafrost_modifier
+				}
+				else_if = {
+					limit = { has_county_modifier = mpo_siberian_permafrost_modifier_bad }
+					remove_county_modifier = mpo_siberian_permafrost_modifier_bad
+				}
+			}
 		}
 
 		##Sort out new buildings for liege and all vassals
@@ -611,7 +641,6 @@ convert_whole_realm_to_feudalism_effect = {
 					NOT = { is_in_list = feudal_conversion }
 				}
 				add_to_list = feudal_conversion
-
 			}
 		}
 		every_in_list = {
@@ -634,6 +663,18 @@ convert_whole_realm_to_feudalism_effect = {
 			}
 			remove_variable = tribal_to_feudal_building_level
 			remove_from_list = feudal_conversion
+			hidden_effect = {
+				county = {
+					if = {
+						limit = { has_county_modifier = mpo_siberian_permafrost_modifier }
+						remove_county_modifier = mpo_siberian_permafrost_modifier
+					}
+					else_if = {
+						limit = { has_county_modifier = mpo_siberian_permafrost_modifier_bad }
+						remove_county_modifier = mpo_siberian_permafrost_modifier_bad
+					}
+				}
+			}
 		}
 	}
 	
@@ -730,6 +771,17 @@ convert_whole_realm_to_feudalism_effect = {
 		}
 		##General
 		custom_tooltip = all_holding_will_change
+		if = {
+			limit = {
+				any_sub_realm_county = {
+					OR = {
+						has_county_modifier = mpo_siberian_permafrost_modifier
+						has_county_modifier = mpo_siberian_permafrost_modifier_bad
+					}
+				}
+			}
+			custom_tooltip = all_permafrost_will_clear
+		}
 		##Liege has clan? Convert to clan!
 		if = {
 			limit = {
@@ -1242,18 +1294,73 @@ found_cadet_house_decision_effect = {
 							## Vlandians, Swadians, Rhodoks, and Gottics
 							# Vlandians
 							has_cultural_pillar = heritage_balian
-							has_cultural_pillar = heritage_esbalian
 							has_name_list = name_list_vlandian
+							has_cultural_pillar = heritage_esbalian
 							has_name_list = name_list_swadian
-							has_cultural_pillar = heritage_gottic
 							has_name_list = name_list_rhodok
+							has_cultural_pillar = heritage_gottic
+							has_name_list = name_list_gottic
 						}
 					}
 					NOT = { faith.religion = religion:aserai_religion }
 				}
-				create_cadet_branch = {
-					name = cadet_name_style_barony_dynasty
-					save_scope_as = new_house
+				if = {
+					limit = {
+						culture = {
+							OR = {
+								## Vlandians and Swadians
+								# Vlandians
+								has_name_list = name_list_vlandian
+								has_name_list = name_list_swadian
+							}
+						}
+					}
+					create_cadet_branch = {
+						prefix = dynnp_dey
+						name = cadet_name_style_barony_dynasty
+						save_scope_as = new_house
+					}
+				}
+				else_if = {
+					limit = {
+						culture = {
+							OR = {
+								has_cultural_pillar = heritage_gottic # dynnp_vand
+								has_name_list = name_list_gottic
+								has_name_list = name_list_balion
+								has_cultural_pillar = heritage_balian
+								has_cultural_pillar = heritage_esbalian
+							}
+							NOR = {
+								has_name_list = name_list_vlandian
+								has_name_list = name_list_swadian
+								has_name_list = name_list_rhodok
+							}
+						}
+					}
+					create_cadet_branch = {
+						prefix = dynnp_vand
+						name = cadet_name_style_barony_dynasty
+						save_scope_as = new_house
+					}
+				}
+				else_if = {
+					limit = {
+						culture = {
+							has_name_list = name_list_rhodok
+						}
+					}
+					create_cadet_branch = {
+						prefix = dynnp_de
+						name = cadet_name_style_barony_dynasty
+						save_scope_as = new_house
+					}
+				}
+				else = {
+					create_cadet_branch = {
+						name = cadet_name_style_barony_dynasty
+						save_scope_as = new_house
+					}
 				}
 				scope:new_house = { generate_coa = yes } # Avoid western style cadet CoA
 			}
@@ -1420,6 +1527,7 @@ found_cadet_house_decision_effect = {
 		}
 	}
 }
+
 learn_language_linguist_effect = {
 	hidden_effect = { add_courtier = $LINGUIST$ }
 	$LINGUIST$ = { save_scope_as = selected_linguist }
@@ -1437,11 +1545,11 @@ learn_language_linguist_effect = {
 			limit = {
 				NOT = { knows_language_of_culture = $LINGUIST$.culture }
 			}
-	    	start_scheme = {
+			start_scheme = {
 				type = learn_language
 				target_character = $LINGUIST$
 			}
-	    }
+		}
 	}
 }
 
@@ -1564,6 +1672,27 @@ linguist_random_realm_effect = {
 	}
 }
 
+isolate_single_character_effect = {
+	add_character_flag = {
+		flag = blocked_from_leaving
+		years = 5
+	}
+	add_character_modifier = {
+		modifier = isolating_modifier
+		years = 5
+	}
+	if = {
+		limit = { exists = involved_activity }
+		if = {
+			limit = { involved_activity.activity_host = root }
+			invalidate_activity = involved_activity
+		}
+		else = {
+			remove_from_activity = involved_activity
+		}
+	}
+}
+
 isolate_family_decision_effect = {
 	show_as_tooltip = {
 		every_close_family_member = {
@@ -1580,8 +1709,21 @@ isolate_family_decision_effect = {
 			modifier = isolating_modifier
 			years = 5
 		}
+		if = {
+			limit = { exists = involved_activity }
+			if = {
+				limit = { involved_activity.activity_host = root }
+				invalidate_activity = involved_activity
+			}
+			else = {
+				remove_from_activity = involved_activity
+			}
+		}
 	}
-	custom_tooltip = travelling_will_break_isolation_tt
+	if = {
+		limit = { NOT = { exists = current_travel_plan } }
+		custom_tooltip = travelling_will_break_isolation_tt
+	}
 	hidden_effect = {
 		every_close_family_member = {
 			custom = every_close_family_member_at_court
@@ -1594,14 +1736,7 @@ isolate_family_decision_effect = {
 					target = prev
 				}
 			}
-			add_character_flag = {
-				flag = blocked_from_leaving
-				years = 5
-			}
-			add_character_modifier = {
-				modifier = isolating_modifier
-				years = 5
-			}
+			isolate_single_character_effect = yes
 		}
 		every_consort = {
 			limit = {
@@ -1613,19 +1748,9 @@ isolate_family_decision_effect = {
 					target = prev
 				}
 			}
-			add_character_flag = {
-				flag = blocked_from_leaving
-				years = 5
-			}
-			add_character_modifier = {
-				modifier = isolating_modifier
-				years = 5
-			}
+			isolate_single_character_effect = yes
 		}
-		add_character_modifier = {
-			modifier = isolating_modifier
-			years = 5
-		}
+		isolate_single_character_effect = yes
 		set_variable = {
 			name = isolating_cooldown_var
 			years = 1
@@ -1692,12 +1817,12 @@ flagellation_decision_effect = {
 	#Be kind to the AI
 	if = {
 		limit = { is_ai = yes }
-		random_list = { 
-			75 = { 
-				#No increase 
+		random_list = {
+			75 = {
+				#No increase
 			}
-			25 = { 
-				increase_wounds_effect = { REASON = whipping } 
+			25 = {
+				increase_wounds_effect = { REASON = whipping }
 			}
 		}
 	}
