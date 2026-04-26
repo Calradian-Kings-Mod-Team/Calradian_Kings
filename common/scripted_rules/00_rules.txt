@@ -102,12 +102,6 @@ faith_conversion = {
 			scope:new_faith = { has_variable = block_conversion_till_nebulous_circumstances }
 		}
 	}
-	custom_tooltip = { 
-		text = faith_conversion_cost_conversion_blocked_gamestart ##
-		NOT = {
-			scope:new_faith = { has_variable = block_conversion_till_warband }
-		}
-	}
 }
 
 # Determines if the mother of a character should spread the house to a bastard.
@@ -210,6 +204,20 @@ is_character_allowed_to_be_player = {
 			# This is a generic "catch all", we should have caught it before this
 			is_playable_character = yes
 		}
+
+		# This character is not playable
+		trigger_if = {
+			limit = {
+				government_is_japanese_trigger = yes
+				is_landed = no
+			}
+
+			custom_tooltip = {
+				text = GAME_OVER_CANNOT_PLAY_ESTATELESS
+				has_domicile = yes
+			}
+		}
+		
 		# We can become landless adventurers
 		trigger_else = {
 			# This is a generic "catch all", we should have caught it before this
@@ -221,6 +229,7 @@ is_character_allowed_to_be_player = {
 				is_playable_character = yes # General catch-all, we can continue playing
 			}
 			NOT = { has_character_flag = declined_become_laamp }
+			
 		}
 	}
 }
@@ -932,7 +941,11 @@ ai_should_repair_artifact = {
 			is_at_war = yes
 		}
 		scope:artifact = {
-			artifact_slot_type = miscellaneous
+			OR = {
+				artifact_slot_type = miscellaneous
+				has_variable = ai_to_ai_destroy_in_sieges
+				has_variable = unwanted_artifact
+			}
 		}
 	}
 }
