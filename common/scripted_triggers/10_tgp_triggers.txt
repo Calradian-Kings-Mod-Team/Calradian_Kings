@@ -217,21 +217,6 @@ tgp_can_be_a_minister_trigger = {
 
 tgp_can_be_grand_marshal_trigger = {
 	can_be_councillor_basics_trigger = yes
-	$COURT_OWNER$ ?= {
-		NOT = { government_has_flag = government_is_nomadic }
-	}
-	NAND = {
-		has_council_position = councillor_court_chaplain
-		faith = { has_doctrine_parameter = clerical_appointment_fixed }
-	}
-	NOR = {
-		has_council_position = councillor_spouse
-		AND = {
-			this = liege.diarch
-			liege = { has_diarchy_active_parameter = diarchy_is_vizierate }
-		}
-		has_trait = devoted
-	}
 	# Has to be celestial or a non-ruler
 	OR = {
 		is_ruler = no
@@ -419,29 +404,39 @@ tgp_portrait_liege_or_ceremonial_liege_emperor_trigger = {
 		primary_title.holder.top_liege.highest_held_title_tier >= tier_empire
 	}
 	# Standard Liege
-	trigger_else_if = {
-		limit = {
-			exists = scope:highest_held_title_tier
+	trigger_else = {
+		trigger_if = {
+			limit = {
+				is_alive = yes
+			}
+			highest_held_title_tier >= tier_empire
+			is_independent_ruler = yes
+		}
+		trigger_else = {
 			scope:highest_held_title_tier >= tier_empire
 		}
-		is_independent_ruler = yes
-	}
-	# non-standard liege check (after scoping to primary_spouse)
-	trigger_else = { 
-		is_independent_ruler = yes
-		highest_held_title_tier >= tier_empire # 360 noscsope
 	}
 }
 
 tgp_portrait_liege_or_ceremonial_liege_king_trigger = {
-	 # Ceremonial Liege
+	# Ceremonial Liege
 	trigger_if = {
 		limit = { tgp_realm_has_ceremonial_liege_trigger = yes }
 		tgp_has_ceremonial_liege_title_trigger = yes
 		primary_title.holder.top_liege.highest_held_title_tier = tier_kingdom
 	}
 	# Standard Liege
-	trigger_else = { highest_held_title_tier = tier_kingdom }
+	trigger_else = {
+		trigger_if = {
+			limit = {
+				is_alive = yes
+			}
+			highest_held_title_tier = tier_kingdom
+		}
+		trigger_else = {
+			scope:highest_held_title_tier = tier_kingdom
+		}
+	}
 }
 
 # Check if a character has a ceremonial liege title (but not if they are actually a ceremonial liege)
@@ -550,9 +545,8 @@ tgp_can_become_celestial_trigger = {
 		OR = {
 			has_government = celestial_government
 			has_title = title:h_china
-			culture = culture:han_ck
 			culture = {
-				any_parent_culture_or_above = { this = culture:han_ck }
+				culture_is_or_has_ancestor_trigger = { CULTURE = culture:han_ck }
 			}
 		}
 	}
@@ -976,8 +970,12 @@ tgp_is_in_chinese_naming_region = {
 	}
 }
 
-tgp_has_cultural_naming_in_chinese = {
+tgp_has_cultural_naming_in_chinese = { # Put your unique Chinese names in!
 	OR = {
+		has_cultural_pillar = heritage_viet_ck
+		has_cultural_pillar = heritage_japonic_ck
+		has_cultural_pillar = heritage_tibetan_ck
+		has_cultural_pillar = heritage_korean_ck
 		has_cultural_pillar = heritage_calradian
 		has_cultural_pillar = heritage_khiindai
 	}
@@ -994,7 +992,7 @@ tgp_has_unique_chinese_naming = {
 tgp_chinese_naming_tier_trigger = {
 	save_temporary_scope_as = ruler_temp
 	OR = {
-	capital_county.title_province ?= {
+		capital_county.title_province ?= { 
 			trigger_if = {
 				limit = {
 					geographical_region = tgp_county_chinese_naming_region
@@ -1052,8 +1050,8 @@ farm_estates_3_4_trigger = {
 			}
 			AND = {
 				building_paddy_fields_requirement_terrain = yes
-				scope:holder.culture = { 
-					has_innovation = innovation_champa_rice 
+				scope:holder.culture = {
+					has_innovation = innovation_champa_rice
 					has_innovation = innovation_manorialism
 				}
 				building_requirement_castle_city_church = { LEVEL = 02 }

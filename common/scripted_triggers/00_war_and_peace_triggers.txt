@@ -310,6 +310,7 @@ can_be_warrior_trigger = {
 	}
 }
 
+# referenced in KNIGHT_RESTRICTIONS_TT, update when changing this trigger
 can_be_knight_trigger = {
 	is_available_quick = {
 		ai = yes
@@ -318,10 +319,10 @@ can_be_knight_trigger = {
 	can_be_warrior_trigger = { ARMY_OWNER = $ARMY_OWNER$ }
 	trigger_if = { # Admin governors cannot be knights
 		limit = {
-			$ARMY_OWNER$ = { government_allows = administrative }
-			is_courtier = no
+			government_allows = administrative
+			exists = primary_title
 		}
-		primary_title ?= {
+		primary_title = {
 			tier < tier_duchy
 			trigger_if = {
 				limit = { is_noble_family_title = yes }
@@ -370,6 +371,15 @@ can_be_knight_trigger = {
 			exists = liege.diarch
 		}
 		this != liege.diarch
+	}
+	# knight permissions for players
+	trigger_if = {
+		limit = {
+			$ARMY_OWNER$ = {
+				is_ai = no
+			}
+		}
+		is_knight_permitted = $ARMY_OWNER$
 	}
 }
 
@@ -907,6 +917,7 @@ herders_and_tributary_constraints = {
 			# You cannot attack your Confederation buddies tributaries
 			trigger_if = {
 				limit = {
+					exists = suzerain
 					suzerain != this
 					scope:attacker = { is_confederation_member = yes }
 					suzerain = { is_confederation_member = yes }
@@ -919,6 +930,7 @@ herders_and_tributary_constraints = {
 				is_tributary_of_suzerain_or_above = scope:defender 	# can't attack your own suzerain
 				trigger_if = {
 					limit = {
+						exists = suzerain
 						suzerain != this
 						scope:defender = { is_confederation_member = yes }
 						suzerain = { is_confederation_member = yes }

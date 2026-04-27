@@ -4,7 +4,7 @@
 		game_rule_unrestricted_dynasty_legacies_trigger = yes
 		dynasty = {
 			OR = {
-				dynast ?= {
+				dynast = {
 					government_allows = administrative
 				}
 				has_dynasty_perk = ep3_administrative_legacy_1
@@ -14,7 +14,10 @@
 }
 
 ep3_should_use_byzantine_graphics_trigger = {
-	culture = { has_building_gfx = byzantine_building_gfx }
+	OR = {
+		culture = { has_building_gfx = byzantine_building_gfx }
+		culture = { has_building_gfx = caucasian_building_gfx }
+	}
 }
 
 is_roman_emperor_trigger = {
@@ -49,20 +52,17 @@ is_roman_emperor_primary_title_excluding_byzantium_trigger = {
 
 valid_for_byz_emperor_content_trigger = {
 	has_ep3_dlc_trigger = yes
-	culture = {
-		has_cultural_pillar = heritage_calradian
-	}
+	character_is_calradian = yes
 	OR = {
 		is_roman_emperor_primary_title_trigger = yes
-		primary_title ?= title:e_calradian_empire
-		primary_title ?= title:e_southern_empire
-		primary_title ?= title:e_western_empire
-		primary_title ?= title:e_northern_empire
+		has_trait = claimant_emperor
 		AND = {
 			culture = {
 				OR = {
-					this = culture:calradian
-					any_parent_culture_or_above = { this = culture:calradian }
+					has_cultural_pillar = heritage_calradian
+					any_parent_culture_or_above = {
+						has_cultural_pillar = heritage_calradian
+					}
 				}
 			}
 			highest_held_title_tier >= tier_empire
@@ -74,22 +74,21 @@ valid_for_byz_governor_content_trigger = {
 	has_ep3_dlc_trigger = yes
 	is_governor = yes
 	top_liege.culture = {
-		has_cultural_pillar = heritage_calradian
+		character_is_calradian = yes
 	}
 	top_liege = {
 		OR = {
 			is_roman_emperor_primary_title_trigger = yes
-			primary_title ?= title:e_calradian_empire
-			primary_title ?= title:e_southern_empire
-			primary_title ?= title:e_western_empire
-			primary_title ?= title:e_northern_empire
+			has_trait = claimant_emperor
 			AND = {
 				culture = {
-					OR = {
-						this = culture:calradian
-						any_parent_culture_or_above = { this = culture:calradian }
+				OR = {
+					has_cultural_pillar = heritage_calradian
+					any_parent_culture_or_above = {
+						has_cultural_pillar = heritage_calradian
 					}
 				}
+			}
 				highest_held_title_tier >= tier_empire
 			}
 		}
@@ -1094,6 +1093,7 @@ ep3_is_clan_inclined_trigger = {
 			OR = {
 				has_cultural_pillar = heritage_nahasi
 				has_cultural_pillar = heritage_darshi
+				has_cultural_pillar = heritage_khuzic
 			}
 		}
 	}
