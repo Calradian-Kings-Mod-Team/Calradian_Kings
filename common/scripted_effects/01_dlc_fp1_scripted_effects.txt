@@ -800,19 +800,28 @@ calculate_authority_cooldown_break_effect = {
 fp1_culture_innovation_setup_effect = {
 	if = {
 		limit = {
-			has_fp1_dlc_trigger = yes
+			# has_fp1_dlc_trigger = yes
 			game_start_date >= 867.1.1
 		}
-		culture:nordlander = {
-			add_innovation = innovation_varangian_adventurers
-		}
-		culture:nord = {
-			add_innovation = innovation_varangian_adventurers
-			add_innovation = innovation_all_things
-		}
-		culture:hacardian = {
-			add_innovation = innovation_varangian_adventurers
-			add_innovation = innovation_all_things
+		every_culture_global = {
+			limit = {
+				culture_is_or_has_ancestor_trigger = {
+					CULTURE = culture:nord
+				}
+			}
+			if = {
+				limit = {
+					has_fp1_dlc_trigger = yes
+				}
+				add_innovation = innovation_varangian_adventurers_ck
+				# heritage_byalic.txt already lists innovation_all_things
+			}
+			else_if = { # keep it in history if they need 8 per era
+				limit = {
+					has_innovation = innovation_all_things
+				}
+				remove_innovation = innovation_all_things
+			}
 		}
 	}
 }
