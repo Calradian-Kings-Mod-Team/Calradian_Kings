@@ -23,6 +23,10 @@
 # 	on_owner_death = {
 # 		story_owner = {
 # 			set_variable = {
+# 				name = special_mongol_empire_conquest_region_prio_1_alpha_var
+# 				value = 0
+# 			}
+# 			set_variable = {
 # 				name = special_mongol_empire_conquest_region_prio_1_var
 # 				value = 0
 # 			}
@@ -112,6 +116,19 @@
 # 						}
 # 					}
 # 				}
+# 				else_if = {
+# 					limit = {
+# 						title_province = {
+# 							geographical_region = special_mongol_empire_conquest_region_prio_1_alpha
+# 						}
+# 					}
+# 					root.story_owner = {
+# 						change_variable = {
+# 							name = special_mongol_empire_conquest_region_prio_1_alpha_var
+# 							add = 1
+# 						}
+# 					}
+# 				}
 # 				else = {
 # 					root.story_owner = {
 # 						change_variable = {
@@ -125,42 +142,69 @@
 # 		# Weighted random chance to end the story/break up the Empire
 # 		random = {
 # 			chance = 0
-# 			modifier = { # If the empire is very successful, increase the chance
+# 			#Pure realm size - Mongol empire is historical breakup size
+# 			modifier = {
+# 				add = 20
+# 				story_owner = {
+# 					realm_size >= 1087
+# 				}
+# 			}
+# 			#Pure realm size - Mongol empire is max extent size
+# 			modifier = {
+# 				add = 20
+# 				story_owner = {
+# 					realm_size >= 1474
+# 				}
+# 			}
+# 			#Pure realm size - Mongol empire is at total bonus size
+# 			modifier = {
 # 				add = 30
 # 				story_owner = {
-# 					var:special_mongol_empire_conquest_region_prio_1_var >= 10
-# 					var:special_mongol_empire_conquest_region_prio_2_var >= 10
-# 					var:special_mongol_empire_conquest_region_prio_3_var >= 10
-# 					var:special_mongol_empire_conquest_region_prio_4_var >= 10
-# 					var:special_mongol_empire_conquest_region_prio_5_var >= 10
+# 					realm_size >= 1725
+# 				}
+# 			}
+# 			modifier = { # If the empire is very successful, increase the chance
+# 				add = 10
+# 				story_owner = {
+# 					#Half of total county count
+# 					var:special_mongol_empire_conquest_region_prio_1_alpha_var >= 80
+# 					var:special_mongol_empire_conquest_region_prio_1_var >= 60
+# 					var:special_mongol_empire_conquest_region_prio_2_var >= 100
+# 					#Just a third
+# 					var:special_mongol_empire_conquest_region_prio_3_var >= 30
+# 					var:special_mongol_empire_conquest_region_prio_4_var >= 100
+# 					var:special_mongol_empire_conquest_region_prio_5_var >= 120
 # 				}
 # 			}
 # 			modifier = { # If the empire is EXTREMELY successful, increase the chance
-# 				add = 30
+# 				add = 20
 # 				story_owner = {
-# 					var:special_mongol_empire_conquest_region_prio_1_var >= 20
-# 					var:special_mongol_empire_conquest_region_prio_2_var >= 20
-# 					var:special_mongol_empire_conquest_region_prio_3_var >= 20
-# 					var:special_mongol_empire_conquest_region_prio_4_var >= 20
-# 					var:special_mongol_empire_conquest_region_prio_5_var >= 20
-# 					var:outside_conquest_region_var >= 50
+# 					#Three quarters of total county count
+# 					var:special_mongol_empire_conquest_region_prio_1_alpha_var >= 120
+# 					var:special_mongol_empire_conquest_region_prio_1_var >= 75
+# 					var:special_mongol_empire_conquest_region_prio_2_var >= 200
+# 					#Just half
+# 					var:special_mongol_empire_conquest_region_prio_3_var >= 45
+# 					var:special_mongol_empire_conquest_region_prio_4_var >= 150
+# 					var:special_mongol_empire_conquest_region_prio_5_var >= 180
+# 					var:outside_conquest_region_var >= 100
 # 				}
 # 			}
 # 			modifier = {
 # 				add = 20
-# 				var:succession_counter > 0
+# 				var:succession_counter > 1
 # 			}
 # 			modifier = {
 # 				add = 30
-# 				var:succession_counter > 1
+# 				var:succession_counter > 2
 # 			}
 # 			modifier = { # Historical point
 # 				add = 30
-# 				var:succession_counter > 2
-# 			}
-# 			modifier = { # Guaranteed if there have been four successions
-# 				add = 20
 # 				var:succession_counter > 3
+# 			}
+# 			modifier = { # Guaranteed if there have been five successions
+# 				add = 20
+# 				var:succession_counter > 4
 # 			}
 # 			set_variable = {
 # 				name = end_of_story
@@ -312,6 +356,7 @@
 # 			}
 # 		}
 # 		story_owner = {
+# 			clear_variable_list = special_mongol_empire_conquest_region_prio_1_alpha_var
 # 			clear_variable_list = special_mongol_empire_conquest_region_prio_1_var
 # 			clear_variable_list = special_mongol_empire_conquest_region_prio_2_var
 # 			clear_variable_list = special_mongol_empire_conquest_region_prio_3_var
@@ -325,7 +370,7 @@
 
 # 	#Start a new war if none is ongoing
 # 	effect_group = {
-# 		days = { 30 60 }
+# 		days = { 30 50 }
 
 # 		trigger = {
 # 			story_owner = {
@@ -337,35 +382,35 @@
 # 			}
 # 		}
 
-	# 	triggered_effect = {
-	# 		trigger = {
-	# 			story_owner = {
-	# 				is_ai = yes
-	# 			}
-	# 		}
-	# 		effect = {
-	# 			if = {
-	# 				limit = {
-	# 					has_mpo_dlc_trigger = yes
-	# 				}
-	# 				story_owner = {
-	# 					gok_war_target_evaluation_and_declaration_effect = yes
-	# 				}
-	# 			}
-	# 			else = {
-	# 				story_owner = {
-	# 					mongol_war_target_evaluation_and_declaration_effect = yes
-	# 				}
-	# 			}
-	# 			debug_log = "The story started a new war for the Mongols"
-	# 			debug_log_date = yes
-	# 			story_owner = {
-	# 				save_scope_as = owner
-	# 			}
-	# 			debug_log_scopes = yes
-	# 		}
-	# 	}
-	# }
+# 		triggered_effect = {
+# 			trigger = {
+# 				story_owner = {
+# 					is_ai = yes
+# 				}
+# 			}
+# 			effect = {
+# 				if = {
+# 					limit = {
+# 						has_mpo_dlc_trigger = yes
+# 					}
+# 					story_owner = {
+# 						gok_war_target_evaluation_and_declaration_effect = yes
+# 					}
+# 				}
+# 				else = {
+# 					story_owner = {
+# 						mongol_war_target_evaluation_and_declaration_effect = yes
+# 					}
+# 				}
+# 				debug_log = "The story started a new war for the Mongols"
+# 				debug_log_date = yes
+# 				story_owner = {
+# 					save_scope_as = owner
+# 				}
+# 				debug_log_scopes = yes
+# 			}
+# 		}
+# 	}
 
 # 	# Story handling in case of succession weirdness
 # 	effect_group = {
@@ -439,10 +484,10 @@
 # 			}
 # 		}
 
-# # 		triggered_effect = {
-# # 			trigger = {
-# # 				always = yes
-# # 			}
+# 		triggered_effect = {
+# 			trigger = {
+# 				always = yes
+# 			}
 
 # 			effect = {
 # 				title:e_mongolia = {
@@ -482,11 +527,11 @@
 # 					}
 # 				}
 
-# # 				set_variable = {
-# # 					name = has_updated_mongolia_de_jure
-# # 					value = yes
-# # 				}
-# # 			}
-# # 		}
-# # 	}
-# # }
+# 				set_variable = {
+# 					name = has_updated_mongolia_de_jure
+# 					value = yes
+# 				}
+# 			}
+# 		}
+# 	}
+# }
