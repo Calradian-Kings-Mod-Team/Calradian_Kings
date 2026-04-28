@@ -46,7 +46,24 @@ scripted_effect faction_demand_counter_offer_co_rule_start_diarchy_effect = {
 	}
 }
 
-
+scripted_trigger ck_important_emperor = {
+	OR = {
+		has_variable = conqueror
+		# has_trait = claimant_emperor
+		mpo_has_gok_mongol_empire_trigger = yes
+		any_held_title = {
+			OR = {
+				title_is_calradian_empire = { TIER = empire }
+				this = title:e_southern_empire
+				this = title:e_western_empire
+				this = title:e_northern_empire
+				this = title:e_khuzait_khanate
+				# this = title:e_great_horde # under mpo_has_gok_mongol_empire_trigger
+				this = title:e_grand_principality_of_sturgia
+			}
+		}
+	}
+}
 
 
 
@@ -255,19 +272,7 @@ faction_demand.0001 = {
 			}
 			modifier = {
 				add = -5000
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_grand_principality_of_sturgia
-					has_title = title:e_great_horde
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
@@ -279,7 +284,7 @@ faction_demand.0001 = {
 	# Attempt to bribe.
 	option = {
 		name = "FACTION_DEMAND_BRIBE_CO_EMPEROR"
-		show_as_unavailable = { has_active_diarchy = yes }
+		show_as_unavailable = { may_appoint_co_emperors_trigger = yes }
 		trigger = { faction_target_can_attempt_to_bribe_with_co_emperorship_trigger = yes }
 
 		# Ping-pong the choice back to the target.
@@ -337,19 +342,7 @@ faction_demand.0001 = {
 			}
 			modifier = {
 				add = 5000
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
@@ -565,27 +558,44 @@ faction_demand.0101 = {
 
 		# LEGITIMACY LOSS FOR ACCEPTING FACTION DEMANDS
 		faction_accept_demand_legitimacy_effect = yes
-		
 		switch = {
-			trigger = has_realm_law
-			imperial_bureaucracy_1 = { add_realm_law = imperial_bureaucracy_0 }
-			imperial_bureaucracy_2 = { add_realm_law = imperial_bureaucracy_1 }
-			imperial_bureaucracy_3 = { add_realm_law = imperial_bureaucracy_2 }
-			tribal_authority_1 = { add_realm_law = tribal_authority_0 }
-			tribal_authority_2 = { add_realm_law = tribal_authority_1 }
-			tribal_authority_3 = { add_realm_law = tribal_authority_2 }
-			celestial_bureaucracy_1 = { add_realm_law = celestial_bureaucracy_0 }
-			celestial_bureaucracy_2 = { add_realm_law = celestial_bureaucracy_1 }
-			celestial_bureaucracy_3 = { add_realm_law = celestial_bureaucracy_2 }
-			meritocratic_bureaucracy_1 = { add_realm_law = meritocratic_bureaucracy_0 }
-			meritocratic_bureaucracy_2 = { add_realm_law = meritocratic_bureaucracy_1 }
-			meritocratic_bureaucracy_3 = { add_realm_law = meritocratic_bureaucracy_2 }
-			japanese_bureaucracy_1 = { add_realm_law = japanese_bureaucracy_0 }
-			japanese_bureaucracy_2 = { add_realm_law = japanese_bureaucracy_1 }
-			japanese_bureaucracy_3 = { add_realm_law = japanese_bureaucracy_2 }
-			crown_authority_1 = { add_realm_law = crown_authority_0 }
-			crown_authority_2 = { add_realm_law = crown_authority_1 }
-			crown_authority_3 = { add_realm_law = crown_authority_2 }
+			trigger = has_realm_law_in_group
+			celestial_bureaucracy = {
+				change_realm_law_level = {
+					law_group = celestial_bureaucracy
+					change = -1
+				}
+			}
+			imperial_bureaucracy = {
+				change_realm_law_level = {
+					law_group = imperial_bureaucracy
+					change = -1
+				}
+			}
+			japanese_bureaucracy = {
+				change_realm_law_level = {
+					law_group = japanese_bureaucracy
+					change = -1
+				}
+			}
+			meritocratic_bureaucracy = {
+				change_realm_law_level = {
+					law_group = meritocratic_bureaucracy
+					change = -1
+				}
+			}
+			crown_authority = {
+				change_realm_law_level = {
+					law_group = crown_authority
+					change = -1
+				}
+			}
+			tribal_authority = {
+				change_realm_law_level = {
+					law_group = tribal_authority
+					change = -1
+				}
+			}
 		}
 
 		add_prestige = -200
@@ -655,7 +665,7 @@ faction_demand.0101 = {
 
 	option = {
 		name = "FACTION_DEMAND_BRIBE_CO_EMPEROR"
-		show_as_unavailable = { has_active_diarchy = yes }
+		show_as_unavailable = { may_appoint_co_emperors_trigger = yes }
 		trigger = { faction_target_can_attempt_to_bribe_with_co_emperorship_trigger = yes }
 
 		# Ping-pong the choice back to the target.
@@ -1070,19 +1080,7 @@ faction_demand.1001 = {
 			
 			modifier = {
 				add = 50
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
@@ -1122,7 +1120,7 @@ faction_demand.1001 = {
 		}
 		add_piety_level = -1
 
-		ai_chance = { # AI should always choose this option if it's available
+		ai_chance = {
 			base = 50
 			ai_value_modifier = {
 				trigger = {
@@ -1142,19 +1140,7 @@ faction_demand.1001 = {
 			
 			modifier = {
 				add = 50
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			
 			modifier = { # Don't agree to change the state faith to another religion
@@ -1294,14 +1280,7 @@ faction_demand.1001 = {
 			modifier = {
 				add = -5000
 				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_grand_principality_of_sturgia
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_variable = conqueror
+					ck_important_emperor = yes
 					government_allows = state_faith
 				}
 			}
@@ -1380,19 +1359,7 @@ faction_demand.1001 = {
 			}
 			modifier = {
 				add = 5000
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
@@ -2099,19 +2066,7 @@ faction_demand.2001 = {
 			}
 			modifier = {
 				add = -5000
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
@@ -2119,11 +2074,12 @@ faction_demand.2001 = {
 			}
 		}
 	}
+
 	option = {
 		name = "FACTION_DEMAND_BRIBE_CO_EMPEROR"
 		show_as_unavailable = {
 			OR = {
-				has_active_diarchy = yes
+				may_appoint_co_emperors_trigger = yes
 				scope:faction_leader != scope:faction.special_character
 			}
 		}
@@ -2196,19 +2152,7 @@ faction_demand.2001 = {
 			}
 			modifier = {
 				add = 5000
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
@@ -2452,16 +2396,7 @@ faction_demand.2011 = {
 			}
 			modifier = {
 				add = -5000
-				OR = {
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_grand_principality_of_sturgia
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				scope:faction.special_character ?= { is_close_family_of = root }
@@ -2507,16 +2442,7 @@ faction_demand.2011 = {
 			}
 			modifier = {
 				add = 5000
-				OR = {
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_grand_principality_of_sturgia
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				scope:faction.special_title.holder ?= { is_close_family_of = root }
@@ -2726,7 +2652,7 @@ faction_demand.0221 = {
 
 	option = {
 		name = "FACTION_DEMAND_BRIBE_CO_EMPEROR"
-		show_as_unavailable = { has_active_diarchy = yes }
+		show_as_unavailable = { may_appoint_co_emperors_trigger = yes }
 		trigger = { faction_target_can_attempt_to_bribe_with_co_emperorship_trigger = yes }
 
 		# Ping-pong the choice back to the target.
@@ -3353,19 +3279,7 @@ faction_demand.1000 = {
 			}
 			modifier = {
 				add = -5000
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
@@ -3376,7 +3290,7 @@ faction_demand.1000 = {
 
 	option = {
 		name = "FACTION_DEMAND_BRIBE_CO_EMPEROR"
-		show_as_unavailable = { has_active_diarchy = yes }
+		show_as_unavailable = { may_appoint_co_emperors_trigger = yes }
 		trigger = { faction_target_can_attempt_to_bribe_with_co_emperorship_trigger = yes }
 
 		# Ping-pong the choice back to the target.
@@ -3436,19 +3350,7 @@ faction_demand.1000 = {
 			}
 			modifier = {
 				add = 5000
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_trait = claimant_emperor
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_title = title:h_calradian_empire
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
@@ -3817,17 +3719,8 @@ faction_demand.9998 = {
 			modifier = {
 				add = -5000
 				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_title = title:h_calradian_empire
+					ck_important_emperor = yes
 					has_trait = claimant_emperor # CK_IRLFIT, let's see how nomads treat people w/ this trait before deciding if we want to remove it
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_variable = conqueror
 					government_allows = state_faith
 				}
 			}
@@ -3900,23 +3793,11 @@ faction_demand.9998 = {
 			}
 			modifier = {
 				add = 5000
-				OR = {
-					has_title = title:e_calradian_empire
-					has_title = title:e_southern_empire
-					has_title = title:e_western_empire
-					has_title = title:e_northern_empire
-					has_title = title:e_khuzait_khanate
-					has_title = title:e_great_horde
-					has_title = title:e_grand_principality_of_sturgia
-					has_title = title:h_calradian_empire
-					has_trait = claimant_emperor # CK_IRLFIT, let's see how nomads treat people w/ this trait before deciding if we want to remove it
-					mpo_has_gok_mongol_empire_trigger = yes
-					has_variable = conqueror
-				}
+				ck_important_emperor = yes
 			}
 			modifier = {
 				add = 10000
-				scope:faction_leader = { is_no_men_enabled = yes }
+				scope:peasant_leader = { is_no_men_enabled = yes }
 			}
 		}
 	}

@@ -362,7 +362,7 @@ scheme_critical_moments.0001 = {
 						scheme_success_chance >= 50
 						# You're landless and have a so-so shot.
 						AND = {
-							is_ruler = no
+							scheme_owner = { is_ruler = no } #Unop ck3-tiger Use correct scope
 							scope:scheme.scheme_success_chance >= 20
 						}
 						# Or you've run out of potential.
@@ -463,8 +463,8 @@ scheme_critical_moments.0001 = {
 			# Let's go again.
 			## Hack fix for murder.
 			if = {
-				limit = { scheme_type = seduce }
-				remove_character_flag = currently_in_scheme_preparations
+				limit = { scheme_type = murder } #Unop Use correct scheme type
+				root = { remove_character_flag = currently_in_scheme_preparations } #Unop Use correct scope
 				roll_critical_moment_options_06_agent_types_effect = {
 					# Success results event.
 					OUTPUT_EVENT = scheme_critical_moments.1001
@@ -491,7 +491,7 @@ scheme_critical_moments.0001 = {
 			## Hack fix for seduction.
 			if = {
 				limit = { scheme_type = seduce }
-				remove_character_flag = currently_in_scheme_preparations
+				root = { remove_character_flag = currently_in_scheme_preparations } #Unop use correct scope
 				roll_critical_moment_options_07_agent_types_effect = {
 					# Success results event.
 					OUTPUT_EVENT = scheme_critical_moments.1011
@@ -2537,9 +2537,6 @@ scheme_critical_moments.1174 = {
 		custom_tooltip = {
 			text = status_challenged_success_tt
 			house = {
-				if = {
-
-				}
 				add_to_variable_list = {
 					name = status_challenged_by
 					target = scope:owner
@@ -2783,6 +2780,7 @@ scheme_critical_moments.1202 = {
 		if = {
 			limit = {
 				scope:scheme.var:siphon_destination ?= flag:treasury
+				has_treasury = yes
 			}
 			add_treasury = scope:scheme.var:embezzlement_stake_initial
 		}
@@ -3151,7 +3149,7 @@ scheme_critical_moments.1213 = {
 # Target reaction to Success
 scheme_critical_moments.1214 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = scheme_critical_moments.1214.t
 	desc = {
 		desc = scheme_critical_moments.1214.desc
@@ -3201,7 +3199,7 @@ scheme_critical_moments.1214 = {
 # Target reaction to Failure
 scheme_critical_moments.1215 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = scheme_critical_moments.1215.t
 	desc = {
 		desc = scheme_critical_moments.1215.desc
@@ -3390,7 +3388,7 @@ scripted_effect coerced_tributary_opinion_loss_effect = {
 #Inform Schemer that Target needs to consider their Suzerain
 scheme_critical_moments.1224 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = scheme_critical_moments.1224.t
 	desc = scheme_critical_moments.1224.desc
 	theme = mandala
@@ -3426,7 +3424,7 @@ scripted_effect coerced_tributary_spent_resources_effect = {
 #Suzerain gets notified of impending Tributary departure
 scheme_critical_moments.1225 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = scheme_critical_moments.1225.t
 	desc = scheme_critical_moments.1225.desc
 	theme = mandala
@@ -3550,7 +3548,7 @@ scheme_critical_moments.1225 = {
 #Scheme owner gets notified of outcome
 scheme_critical_moments.1226 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = {
 		first_valid = {
 			triggered_desc = {
@@ -5527,14 +5525,8 @@ scheme_critical_moments.4001 = {
 		first_valid = {
 			triggered_desc = {
 				trigger = {
-					scope:target = { 
-						OR = {
-							has_title = title:e_calradian_empire 
-							has_title = title:e_southern_empire 
-							has_title = title:e_western_empire 
-							has_title = title:e_northern_empire 
-							has_trait = claimant_emperor
-						}
+					scope:target = {
+						is_calradian_claimant_or_emperor = yes
 					}
 				}
 				desc = scheme_critical_moments.4001.desc.byzantium
@@ -5732,7 +5724,7 @@ scheme_critical_moments.4012 = {
 		first_valid = {
 			triggered_desc = {
 				trigger = {
-					scope:target = { has_title = title:e_calradian_empire }
+					scope:target = { is_calradian_claimant_or_emperor = yes }
 				}
 				desc = scheme_critical_moments.4012.desc.byzantium
 			}
@@ -6659,8 +6651,16 @@ scheme_critical_moments.8031 = {
 					save_scope_as = scheme_permission
 				}
 				#DISCOVERY ROLL
+				#Unop Calculate discovery chance as 100 - secrecy
+				save_scope_value_as = {
+					name = discovery_chance
+					value = {
+						value = 100
+						subtract = scope:scheme.scheme_secrecy
+					}
+				}
 				random = {
-					chance = scope:scheme.scheme_secrecy
+					chance = scope:discovery_chance #Unop Use correct discovery chance
 					save_scope_value_as = {
 						name = scheme_discovered
 						value = yes
@@ -6714,7 +6714,7 @@ scheme_critical_moments.8031 = {
 									limit = { exists = scope:scheme_maim }
 									NOR = {
 										has_trait = blind
-										has_trait = eunuch_1
+										is_eunuch_trigger = yes #Unop: Was has_trait = eunuch_1
 										has_trait = disfigured
 									}
 								}
@@ -6777,7 +6777,10 @@ scheme_critical_moments.8031 = {
 							}
 							scope:target = {
 								random_character_artifact = {
-									limit = { is_equipped = no }
+									limit = {
+										is_equipped = no
+										NOT = { has_variable = artifact_prevent_transfer }
+									}
 									weight = {
 										base = 1
 										# Prefer worse artifacts
@@ -6837,6 +6840,9 @@ scheme_critical_moments.8031 = {
 										has_domicile_building_or_higher = vineyard_01
 										has_domicile_building_or_higher = olive_01
 										has_domicile_building_or_higher = silk_01
+										#Unop Add missing domicile buildings
+										has_domicile_building_or_higher = market_01
+										has_domicile_building_or_higher = courtyard_01
 									}
 								}
 							}
@@ -7221,6 +7227,9 @@ scripted_effect raid_estate_success_effect = {
 				flag:olive = { ep3_raid_insight_effect = { TYPE = olive } }
 				flag:silk = { ep3_raid_insight_effect = { TYPE = silk } }
 				flag:tea = { ep3_raid_insight_effect = { TYPE = tea } }
+				#Unop Add missing domicile buildings
+				flag:market = { ep3_raid_insight_effect = { TYPE = market } }
+				flag:courtyard = { ep3_raid_insight_effect = { TYPE = courtyard } }
 			}
 		}
 	}
@@ -9230,6 +9239,10 @@ scheme_critical_moments.8070 = {
 				}
 				add = -50
 			}
+			ai_value_modifier = {
+				ai_greed = -1
+				ai_honor = -1
+			}
 			modifier = {
 				factor = 0
 				OR = {
@@ -9257,7 +9270,16 @@ scheme_critical_moments.8070 = {
 				type = fabrication_hook
 			}
 		}
-		remove_short_term_treasury = minor_treasury_value
+		if = {
+			limit = {
+				has_treasury = yes
+				has_title = title:e_minister_censor
+			}
+			remove_treasury = minor_gold_value	
+		}
+		else = {
+			remove_short_term_gold = minor_gold_value
+		}
 		add_merit_if_relevant_effect = {
 			MERIT = minor_merit_value
 		}
@@ -9294,6 +9316,9 @@ scheme_critical_moments.8070 = {
 				is_in_same_movement_as = { TARGET = scope:councillor_liege }
 				add = 20
 			}
+			ai_value_modifier = {
+				ai_honor = 1
+			}
 		}
 	}
 
@@ -9321,8 +9346,13 @@ scheme_critical_moments.8070 = {
 		ai_chance = {
 			base = 5
 			modifier = {
+				is_in_pro_hegemon_or_hegemon_movement = no
 				is_in_same_movement_as = { TARGET = scope:character_to_hook }
 				add = 200
+			}
+			ai_value_modifier = {
+				ai_sociability = 0.5
+				ai_honor = -1
 			}
 			modifier = {
 				is_close_or_extended_family_of = scope:character_to_hook

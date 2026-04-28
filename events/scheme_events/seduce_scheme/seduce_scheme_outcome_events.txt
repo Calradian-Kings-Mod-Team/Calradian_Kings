@@ -91,20 +91,29 @@ seduce_outcome.0002 = {
 			mandala_trickster_increment_successful_schemes_effect = yes
 		}
 
-		#DISCOVERY ROLL
-		save_scope_value_as = {
-			name = discovery_chance
-			value = {
-				value = 100
-				subtract = scope:scheme.scheme_secrecy
+		if = { # Unop: Seducing your wife or concubine is nothing secret / to be ashamed of
+			limit = {
+				NOT = {
+					scope:target = {
+						is_consort_of = scope:owner
+					}
+				}
 			}
-		}
-
-		random = {
-			chance = scope:discovery_chance
+			#DISCOVERY ROLL
 			save_scope_value_as = {
-				name = scheme_discovered
-				value = yes
+				name = discovery_chance
+				value = {
+					value = 100
+					subtract = scope:scheme.scheme_secrecy
+				}
+			}
+
+			random = {
+				chance = scope:discovery_chance
+				save_scope_value_as = {
+					name = scheme_discovered
+					value = yes
+				}
 			}
 		}
 
@@ -133,14 +142,7 @@ seduce_outcome.0002 = {
 			}
 		}
 		#FOR PLAYER CHARACTER, SEND CHOICE EVENT
-		else_if = {
-			limit = {
-				scope:target = {
-					NOT = {
-						has_trait = widow
-					}
-				}
-			}
+		else = {
 			scope:target = {
 				trigger_event = {
 					id = seduce_outcome.0003
@@ -177,6 +179,7 @@ seduce_outcome.0003 = { #by Mathilda Bjarnehed & Petter Vilberg
 	#Success: I want to be your lover
 	option = {
 		trigger = { matching_gender_and_sexuality_trigger = { CHARACTER_1 = scope:owner CHARACTER_2 = scope:target } }
+		show_as_unavailable = { has_trait = widow }
 		name = {
 			trigger = { exists = scope:scheme_successful }
 			text = seduce_outcome.0003.a.success
@@ -338,6 +341,7 @@ seduce_outcome.0003 = { #by Mathilda Bjarnehed & Petter Vilberg
 	#Failure: be mean
 	option = {
 		trigger = { NOT = { is_consort_of = scope:owner }} # Not an option if you're already married/concubines (it's not adultery then!)
+		trait = widow
 		name = seduce_outcome.0003.d
 
 		save_scope_value_as = {
@@ -1862,7 +1866,7 @@ seduce_outcome.2309 = {
 #We were discovered! Triggered after the success event by owner_seduce_outcome_become_lovers_option_effects and owner_seduce_outcome_just_sex_effects
 seduce_outcome.2900 = { #by Mathilda Bjarnehed
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2900.t
 	desc = {
 		desc = seduce_outcome.2900.start.desc
@@ -1911,7 +1915,19 @@ seduce_outcome.2900 = { #by Mathilda Bjarnehed
 		}
 
 		scope:target.liege = {
-			trigger_event = seduce_outcome.3901
+			if = {
+				limit = {
+					OR = {
+						is_ai = yes
+						is_of_major_interest_trigger = { CHARACTER = scope:target }
+						is_of_major_interest_trigger = { CHARACTER = scope:owner }
+					}
+				}
+				trigger_event = seduce_outcome.3901
+			}
+			else = {
+				scope:target = { seduce_outcome_success_discovered_effect = yes }
+			}
 		}
 	}
 }
@@ -1923,85 +1939,85 @@ seduce_outcome.2900 = { #by Mathilda Bjarnehed
 ######################################################
 
 # Pope
-# seduce_outcome.3000 = {
-# 	type = character_event
-# 	window = scheme_target_event
-# 	title = seduce_outcome.2000.t
-# 	desc = seduce_outcome.3000.desc
+seduce_outcome.3000 = {
+	type = character_event
+	window = scheme_conclusion_event_no_header
+	title = seduce_outcome.2000.t
+	desc = seduce_outcome.3000.desc
 
-	# theme = seduce_scheme
-	# override_background = {
-	# 	reference = temple_church
-	# }
-	# center_portrait = {
-	# 	character = root
-	# 	animation = prayer
-	# }
-	# right_portrait = {
-	# 	character = scope:owner
-	# 	animation = wedding_priest
-	# }
+	theme = seduce_scheme
+	override_background = {
+		reference = temple_church
+	}
+	center_portrait = {
+		character = root
+		animation = prayer
+	}
+	right_portrait = {
+		character = scope:owner
+		animation = wedding_priest
+	}
 
-# 	immediate = {
-# 		root = { add_character_flag = is_naked }
-# 		scope:owner = { add_character_flag = is_naked }
-# 		#Either runs had_sex_with_effect or shows a tooltip of it (effect is always just run once per success):
-# 		target_seduce_outcome_sex_effect = yes
+	immediate = {
+		root = { add_character_flag = is_naked }
+		scope:owner = { add_character_flag = is_naked }
+		#Either runs had_sex_with_effect or shows a tooltip of it (effect is always just run once per success):
+		target_seduce_outcome_sex_effect = yes
 
-# 		if = {
-# 			limit = {
-# 				exists = root.location
-# 			}
-# 			root.location = { save_scope_as = seduction_location } #Used only in the set_relation effect
-# 		}
-# 		else_if = {
-# 			limit = {
-# 				exists = scope:owner.location
-# 			}
-# 			scope:owner.location = { save_scope_as = seduction_location }
-# 		}
-# 		else = {
-# 			random_province = {
-# 				save_scope_as = seduction_location
-# 			}
-# 		}
+		if = {
+			limit = {
+				exists = root.location
+			}
+			root.location = { save_scope_as = seduction_location } #Used only in the set_relation effect
+		}
+		else_if = {
+			limit = {
+				exists = scope:owner.location
+			}
+			scope:owner.location = { save_scope_as = seduction_location }
+		}
+		else = {
+			random_province = {
+				save_scope_as = seduction_location
+			}
+		}
 
-# 	}
+	}
 
-# 	option = { #We went for both consummation and relationship
-# 		name = seduce_outcome.3000.a
-# 		trigger = { scope:owner = { has_character_flag = consummation_and_relationship } }
+	option = { #We went for both consummation and relationship
+		name = seduce_outcome.3000.a
+		trigger = { scope:owner = { has_character_flag = consummation_and_relationship } }
 
-# 		set_relation_lover_through_seduction_effect = {
-# 			CHARACTER = scope:owner
-# 			REASON = lover_seduction_effect_pope
-# 			LOCATION = scope:seduction_location
-# 		}
-# 	}
+		set_relation_lover_through_seduction_effect = {
+			CHARACTER = scope:owner
+			REASON = lover_seduction_effect_pope
+			LOCATION = scope:seduction_location
+		}
+	}
 
-# 	option = { #We're just here for the fun time!
-# 		name = seduce_outcome.2000.b
-# 		trigger = { scope:owner = { NOT = { has_character_flag = consummation_and_relationship } } }
+	option = { #We're just here for the fun time!
+		name = seduce_outcome.2000.b
+		trigger = { scope:owner = { NOT = { has_character_flag = consummation_and_relationship } } }
 
-# 		scope:scheme = {
-# 			end_scheme = yes
-# 		}
-# 	}
+		scope:scheme = {
+			end_scheme = yes
+		}
+	}
 
-# 	after = {
-# 		if = {
-# 			limit = { scope:owner = { has_character_flag = consummation_and_relationship } }
-# 			scope:owner = { remove_character_flag = consummation_and_relationship }
-# 		}
-# 		root = { remove_character_flag  = is_naked }
-# 		scope:target = { remove_character_flag  = is_naked }
-# 	}
-# }
+	after = {
+		if = {
+			limit = { scope:owner = { has_character_flag = consummation_and_relationship } }
+			scope:owner = { remove_character_flag = consummation_and_relationship }
+		}
+		root = { remove_character_flag  = is_naked }
+		scope:target = { remove_character_flag  = is_naked }
+	}
+}
 
 # Drunkards
 seduce_outcome.3010 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2010.t
 	desc = seduce_outcome.3010.desc
 
@@ -2084,7 +2100,7 @@ seduce_outcome.3010 = {
 # Privy
 seduce_outcome.3020 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2020.t
 	desc = seduce_outcome.3020.desc
 
@@ -2161,7 +2177,7 @@ seduce_outcome.3020 = {
 # Gluttons
 seduce_outcome.3030 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2030.t
 	desc = {
 		desc = seduce_outcome.3030.a.desc
@@ -2245,7 +2261,7 @@ seduce_outcome.3030 = {
 # At the walls
 seduce_outcome.3040 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2040.t
 	desc = seduce_outcome.3040.desc
 
@@ -2318,7 +2334,7 @@ seduce_outcome.3040 = {
 # Chaste
 seduce_outcome.3050 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2050.t
 	desc = seduce_outcome.3050.desc
 
@@ -2391,7 +2407,7 @@ seduce_outcome.3050 = {
 #Owner comes to the target's chambers
 seduce_outcome.3301 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.3301.t
 	desc = seduce_outcome.3301.desc
 
@@ -2475,7 +2491,7 @@ seduce_outcome.3301 = {
 #Owner sneaks into target's court (distance seduction)
 seduce_outcome.3302 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2302.t
 	desc = {
 		desc = seduce_outcome.3302.desc_opening
@@ -2576,7 +2592,7 @@ seduce_outcome.3302 = {
 #Gregarious target(and owner), gushing compliments
 seduce_outcome.3303 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2303.t
 	desc = seduce_outcome.3303.desc
 
@@ -2654,7 +2670,7 @@ seduce_outcome.3303 = {
 #Out in the woods
 seduce_outcome.3304 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2304.t
 	desc = seduce_outcome.3304.desc
 
@@ -2767,13 +2783,14 @@ seduce_outcome.3304 = {
 		}
 		root = { remove_character_flag  = is_naked }
 		scope:target = { remove_character_flag  = is_naked }
+		scope:owner = { remove_character_flag  = is_naked } #Unop: Just in case, we need to be sure all scopes got this flag removed
 	}
 }
 
 #Love letter
 seduce_outcome.3305 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2305.t
 	desc = seduce_outcome.3305.desc
 
@@ -2846,7 +2863,7 @@ seduce_outcome.3305 = {
 #Seduction of spouse
 seduce_outcome.3306 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.3306.t
 	desc = seduce_outcome.3306.desc
 
@@ -2928,7 +2945,7 @@ seduce_outcome.3306 = {
 #Seduction of rival
 seduce_outcome.3307 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.3307.t
 	desc = seduce_outcome.3307.desc
 
@@ -3007,7 +3024,7 @@ seduce_outcome.3307 = {
 #Seduction of close family member
 seduce_outcome.3308 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.3308.t
 	desc = {
 		first_valid = {
@@ -3107,7 +3124,7 @@ seduce_outcome.3308 = {
 #Outcome using the sex scene generator
 seduce_outcome.3309 = {
 	type = character_event
-	window = scheme_target_event
+	window = scheme_conclusion_event_no_header
 	title = seduce_outcome.2309.t
 	desc = {
 		desc = seduce_outcome.3309.desc_opening
@@ -3241,7 +3258,7 @@ seduce_outcome.3309 = {
 ##We were discovered! Outcommented because the scheme target should always be unlanded if discovery happens.
 #seduce_outcome.3900 = { #by Mathilda Bjarnehed
 #	type = character_event
-#	window = scheme_target_event
+#	window = scheme_conclusion_event_no_header
 #	title = seduce_outcome.3900.t
 #	desc = seduce_outcome.3900.desc
 #

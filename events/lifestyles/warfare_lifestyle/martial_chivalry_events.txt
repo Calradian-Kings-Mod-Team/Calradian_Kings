@@ -90,6 +90,7 @@ martial_chivalry.0001 = {
 				faith = root.faith
 				gender_female_chance = root_soldier_female_chance
 				prowess = 15
+				dynasty = none
 			}
 		}
 	}
@@ -1003,12 +1004,12 @@ martial_chivalry.2010 = {
 	left_portrait = {
 		character = root
 		scripted_animation = duel_wield_weapon
-		outfit_tags { military_outfit }
+		outfit_tags = { military_outfit }
 	}
 	right_portrait = {
 		character = scope:challenger
 		animation = personality_bold
-		outfit_tags { military_outfit }
+		outfit_tags = { military_outfit }
 	}
 
 	trigger = {
@@ -1638,6 +1639,12 @@ martial_chivalry.5100 = {
 
 	option = { # Drink up!
 		name = fp2_struggle.2023.d
+		trait = drunkard
+		if = { # If the player's faith forbids drinking, notify the player to ensure they are not confused about why the cost is there
+			limit = { faith_forbids_alcohol_trigger = yes }
+			custom_tooltip = action_considered_haram_warning
+			add_piety = medium_piety_loss
+		}
 		duel = {
 			skill = prowess
 			value = scope:fp2_2023_enemy_knight.prowess
@@ -2525,12 +2532,8 @@ martial_chivalry.4000 = {
 		any_knight = {
 			is_available_ai_adult = yes
 		}
-		# # UPDATE THIS LATER FOR THE ADDITION OF JUMNE, AN AREA NOT EXPECTED FOR A LOT OF HORSE TRAVEL
-		# NOT = { 
-		# 	capital_province = {
-		# 		geographical_region = world_jumne
-		# 	}
-		# }	
+		#All the riding doesn't feel appropriate for a lot of Scandinavia
+		culture_uses_frequent_winter_transportation_trigger = no
 		trigger_if = {
 			limit = { top_liege != this }
 			any_neighboring_realm_same_rank_owner = {
