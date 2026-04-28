@@ -1216,7 +1216,7 @@ raiding.0023 = {
 		reference = burning_building
 	}
 	left_portrait = {
-		character = root
+		character = scope:raid_leader
 		animation = war_over_win
 	}
 
@@ -1235,6 +1235,14 @@ raiding.0023 = {
 		else = {
 			capital_province = { save_scope_as = capital_province }
 		}
+		if = {
+			limit = {
+				NOT = {
+					exists = scope:raid_leader
+				}
+				save_scope_as = raid_leader
+			}
+		}
 	}
 
 	#Accept the trait.
@@ -1244,10 +1252,10 @@ raiding.0023 = {
 			OR = {
 				can_raid_across_water_trigger = yes
 				culture = { has_innovation = innovation_longboats }
-			}			
+			}
 		}
-		reason = has_cultrad
-		custom_tooltip = innovation_longboats_desc
+		# reason = has_cultrad
+		# custom_tooltip = innovation_longboats_desc
 		if = {
 			limit = {
 				OR = {
@@ -1275,8 +1283,13 @@ raiding.0023 = {
 	option = {
 		name = raiding.0023.b
 		trait = gallowsbait
+		reason = dread
 		trigger = {
-			is_landed_or_landless_administrative = no
+			OR = {
+				dread >= high_dread
+				has_trait = gallowsbait
+				is_landed_or_landless_administrative = no
+			}
 		}
 		if = {
 			limit = {
@@ -1344,6 +1357,7 @@ raiding.0023 = {
 				has_trait = maimed
 				has_trait = one_eyed
 				has_trait = one_legged
+				culture = { has_cultural_pillar = heritage_geroian }
 				culture = { has_cultural_tradition = tradition_practiced_pirates }
 			}
 		}
@@ -1383,7 +1397,7 @@ raiding.0023 = {
 				ai_honor = -0.5
 			}
 			modifier = {
-				add = 20
+				add = 30
 				culture = { has_cultural_pillar = heritage_geroian }
 			}
 			modifier = {
@@ -1396,7 +1410,12 @@ raiding.0023 = {
 		name = raiding.0023.d
 		add_piety = medium_piety_gain
 		add_prestige_experience = minor_fame_loss
-		remove_nickname = yes
+		if = {
+			limit = {
+				has_any_nickname = yes
+			}
+			remove_nickname = yes
+		}
 		ai_chance = {
 			base = 0
 		}
