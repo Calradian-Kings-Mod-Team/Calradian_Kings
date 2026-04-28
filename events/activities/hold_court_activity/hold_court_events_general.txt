@@ -2173,7 +2173,7 @@ hold_court.3040 = {
 			}
 		}
 
-		hidden_effect = { add_courtier = scope:potential_jester } # So they're considered valid for the position
+		#hidden_effect = { add_courtier = scope:potential_jester } # So they're considered valid for the position #Unop: Not needed anymore
 
 		random_vassal = {
 			limit = {
@@ -9261,31 +9261,27 @@ hold_court.6120 = {
 			}
 		}
 		remove_treasury_or_gold = major_treasury_or_gold_value
+		#Unop Add option B
+		scope:steward = {
+			add_opinion = {
+				target = root
+				modifier = pleased_opinion
+				opinion = 20
+			}
+		}
 		add_character_flag = {
 			flag = 6120_has_domesday_book_flag
 			years = 50
 		}
+
+		custom_tooltip = hold_court.6120.a.tt #Unop
 		show_as_tooltip = {
-			random_list = {
-				100 = {
-					show_chance = no
-					desc = hold_court.6120.a.tt
-					hold_court_6120_rewards = yes
-				}
-			}
+			hold_court_6120_rewards = yes
 		}
-		hidden_effect = {
-			scope:steward = {
-				add_opinion = {
-					target = root
-					modifier = pleased_opinion
-					opinion = 20
-				}
-			}
-			trigger_event = {
-				id = hold_court.6121
-				days = 185
-			}
+		#Unop Add missing options
+		trigger_event = {
+			id = hold_court.6121
+			days = 185
 		}
 		stress_impact = {
 			lazy = major_stress_impact_gain
@@ -9301,6 +9297,75 @@ hold_court.6120 = {
 				ai_energy = 0.25
 				ai_rationality = 0.5
 				ai_greed = -0.25
+			}
+			modifier = {
+				has_trait = lazy
+				add = -75
+			}
+			modifier = {
+				has_trait = content
+				add = -75
+			}
+		}
+	}
+
+	#Unop Option B: yes but with seneschal
+	option = {
+		name = hold_court.6120.b
+		trigger = {
+			exists = scope:seneschal
+			trigger_if = {
+				limit = {
+					is_ai = yes
+				}
+				short_term_gold >= major_gold_value
+			}
+		}
+		scope:steward = {
+			add_opinion = {
+				target = root
+				modifier = pleased_opinion
+				opinion = 20
+			}
+		}
+		scope:seneschal = {
+			add_opinion = {
+				target = root
+				modifier = pleased_opinion
+				opinion = 20
+			}
+		}
+		remove_short_term_gold = major_gold_value
+
+
+		custom_tooltip = hold_court.6120.a.tt
+		show_as_tooltip = {
+			hold_court_6120_rewards = yes
+		}
+			trigger_event = {
+				id = hold_court.6121
+				days = 185
+			}
+		add_character_flag = {
+			flag = 6120_has_domesday_book_flag
+			years = 50
+		}
+
+		stress_impact = {
+			lazy = major_stress_impact_gain
+			content = major_stress_impact_gain
+		}
+
+		ai_chance = {
+			base = 150
+			ai_value_modifier = {
+				ai_energy = 0.25
+				ai_rationality = 0.5
+				ai_greed = -0.25
+			}
+			modifier = {
+				gold < major_gold_value
+				add = -150
 			}
 			modifier = {
 				has_trait = lazy
@@ -9544,10 +9609,10 @@ scripted_effect hold_court_6130_a_rewards = {
 		every_held_county = {
 			custom = custom.every_held_county
 			change_development_progress_with_overflow = 35
-			# add_county_modifier = {
-			# 	modifier = 6131_mapped_wilderness_county_modifier
-			# 	years = 10
-			# }
+			add_county_modifier = {
+				modifier = 6131_mapped_wilderness_county_modifier
+				years = 10
+			}
 		}
 	}
 	scope:6131_proposer = { #Unop Use correct scope
@@ -23220,6 +23285,9 @@ hold_court.8180 = {
 					}
 				}
 				ordered_character_artifact = {
+					limit = {
+						artifact_can_be_gift_to_trigger = { RECIPIENT = root }
+					}
 					order_by = artifact_rarity
 					save_scope_as = vassal_artifact
 				}

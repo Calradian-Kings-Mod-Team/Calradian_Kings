@@ -236,13 +236,13 @@ scripted_effect prelude_events_0010_screw_over_guest_effect = {
 	if = {
 		limit = {
 			any_targeting_faction = {
-				exists = yes
+				exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 				NOT = { exists = faction_war }
 			}
 		}
 		random_targeting_faction = {
 			limit = {
-				exists = yes
+				exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 				NOT = { exists = faction_war }
 			}
 			faction_leader ?= { save_scope_as = leader }
@@ -344,7 +344,7 @@ prelude_events.0010 = {
 					modifier = {
 						add = 5
 						any_targeting_faction = {
-							exists = yes
+							exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 							NOT = { exists = faction_war }
 						}
 					}
@@ -410,7 +410,7 @@ prelude_events.0010 = {
 		trigger = {
 			has_activity_intent = coronation_weaken_detractors
 		}
-		custom_tooltip = available_because_intent_tt
+		reason = activity_intent
 		add_internal_flag = special
 		scope:guest = {
 			prelude_events_0010_screw_over_guest_effect = yes
@@ -707,7 +707,7 @@ prelude_events.0020 = {
 	trigger = {
 		has_activity_intent = coronation_weaken_detractors
 		any_targeting_faction = {
-			exists = yes
+			exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 			NOT = { exists = faction_war }
 			any_faction_member = {
 				is_participant_in_activity = root.involved_activity
@@ -725,7 +725,7 @@ prelude_events.0020 = {
 	weight_multiplier = {
 		base = 1
 		modifier = {
-			target_of_powerful_faction_trigger = yes
+			any_targeting_faction = { target_of_powerful_faction_trigger = yes } #Unop: Fix wrong scope used
 			factor = 2
 		}
 	}
@@ -733,7 +733,7 @@ prelude_events.0020 = {
 	immediate = {
 		ordered_targeting_faction = { # We grab the most pressing faction
 			limit = {
-				exists = yes
+				exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 				NOT = { exists = faction_war }
 				any_faction_member = {
 					is_participant_in_activity = root.involved_activity
@@ -2229,9 +2229,11 @@ prelude_events.0070 = {
 	
 	trigger = {
 		involved_activity.activity_host = {
+			is_ai = yes # Do not mess with Players' councils behind their back 
 			this != root
 			this = root.liege
 			NOT = { government_has_flag = government_is_nomadic } # Do not mess with the Kurultai
+			tgp_has_access_to_ministry_trigger = no # or ministers
 			OR = { # They like you a lot or you're pretty good at something
 				opinion = {
 					target = root
@@ -2246,6 +2248,9 @@ prelude_events.0070 = {
 				}
 			}
 			NOT = { has_relation_rival = root }
+			any_councillor = {
+				can_be_fired_from_council_trigger = { COURT_OWNER = prev }
+			}
 		}
 		is_councillor = no
 		is_ai = no # To avoid AI changing councillors too often/weirdly
@@ -3090,12 +3095,28 @@ prelude_events.0100 = {
 
 # Host: Different culture vassal asks you to say some words to them specifically
 scripted_trigger prelude_events_0110_appropriate_guest = {
+	save_temporary_scope_as = temp_guest
 	is_ai = yes
 	is_adult = yes
 	is_landed = yes
 	is_healthy = yes
 	this != root
 	culture != root.culture
+	#At least two vassals of this culture OR a county of this culture in realm
+	#It's silly if they are like the only rep of their people
+	root = {
+		OR = {
+			any_vassal = {
+				NOT = {
+					this = scope:temp_guest
+				}
+				culture = scope:temp_guest.culture
+			}
+			any_sub_realm_county = {
+				culture = scope:temp_guest.culture
+			}
+		}
+	}
 }
 	
 prelude_events.0110 = {
@@ -3318,10 +3339,9 @@ scripted_trigger prelude_events_0120_appropriate_artifact = {
 		artifact_slot_type = regalia
 		artifact_type = throne
 		artifact_type = regalia
-		has_variable = banner_house
-        has_variable = banner_dynasty
 		rarity = common
 	}
+	artifact_can_be_gift_advance_trigger = yes
 }
 	
 prelude_events.0120 = {
@@ -3630,10 +3650,8 @@ prelude_events.0120 = {
 # Host: Get the officiator to bless an artifact
 scripted_trigger prelude_events_0130_appropriate_artifact = {
 	ep1_artifact_is_court_artifact_trigger = no
-	NOR = {
-		has_variable = ai_to_ai_destroy_in_sieges
-		has_variable = unwanted_artifact
-		has_variable = cursed_artifact
+	artifact_is_worthy_to_improve_trigger = yes
+	NOT = {
 		rarity = common
 	}
 }
@@ -3890,7 +3908,7 @@ prelude_events.0140 = {
 		name = prelude_events.0140.a
 		trigger = { has_activity_intent = coronation_disrupt_loyalists }
 		add_internal_flag = special
-		custom_tooltip = available_because_intent_tt
+		reason = activity_intent
 		if = {
 			limit = {
 				OR = {
@@ -4199,10 +4217,17 @@ prelude_events.0150 = {
 		name = prelude_events.0150.aa
 		add_internal_flag = special
 		trigger = {
+			might_cheat_on_every_partner_trigger = yes
 			scope:guest = {
 				is_attracted_to_gender_of = root
 				OR = {
+					AND = {
 					is_married = no
+						NOT = {
+							has_trait = chaste
+							has_trait = celibate
+						}
+					}
 					might_cheat_on_every_partner_trigger = yes
 				}
 			}
@@ -5455,7 +5480,7 @@ scripted_trigger prelude_events_0190_appropriate_councillor = {
 	is_healthy = yes
 	opinion = {
 		target = root
-		value >= 10
+		value >= 25
 	}
 }
 
@@ -5543,6 +5568,7 @@ prelude_events.0190 = {
 				OR = {
 					has_relation_friend = root
 					has_relation_lover = root
+					is_allied_to = root
 				}
 			}
 			add = 5
