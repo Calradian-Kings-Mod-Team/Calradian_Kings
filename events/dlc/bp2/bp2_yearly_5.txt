@@ -100,77 +100,77 @@ bp2_yearly.5000 = {
 		# 	}
 		# }
 		# else = {
-			random_list = {
-				10 = { #You succeed
-					desc = bp2_yearly.5000.a.success
-					modifier = {
-						add = scope:integer
-					}
-					modifier = {
-						add = 5
-						OR = {
-							has_trait = callous
-							has_trait = sadistic
-						}
-					}
-					modifier = {
-						add = 5
-						intrigue > 15
-					}
-					send_interface_toast = {
-						title = bp2_yearly.5000.a.success
-						left_icon = scope:tower_prince
-						hard_imprison_character_effect = {
-							TARGET = scope:tower_prince
-							IMPRISONER = root
-						}
-					}
-					trigger_event = {
-						id = bp2_yearly.5001
-						days = { 40 80 }
+		random_list = {
+			10 = { #You succeed
+				desc = bp2_yearly.5000.a.success
+				modifier = {
+					add = scope:integer
+				}
+				modifier = {
+					add = 5
+					OR = {
+						has_trait = callous
+						has_trait = sadistic
 					}
 				}
-				10 = { #You fail
-					desc = bp2_yearly.5000.a.failure
-					modifier = {
-						add = 5
-						OR = {
-							has_trait = compassionate
-							has_trait = just
-						}
+				modifier = {
+					add = 5
+					intrigue > 15
+				}
+				send_interface_toast = {
+					title = bp2_yearly.5000.a.success
+					left_icon = scope:tower_prince
+					hard_imprison_character_effect = {
+						TARGET = scope:tower_prince
+						IMPRISONER = root
 					}
-					modifier = {
-						add = 5
-						intrigue < 8
+				}
+				trigger_event = {
+					id = bp2_yearly.5001
+					days = { 40 80 }
+				}
+			}
+			10 = { #You fail
+				desc = bp2_yearly.5000.a.failure
+				modifier = {
+					add = 5
+					OR = {
+						has_trait = compassionate
+						has_trait = just
 					}
-					reverse_add_opinion = {
-						target = scope:tower_prince
-						modifier = hate_opinion
-						opinion = -40
+				}
+				modifier = {
+					add = 5
+					intrigue < 8
+				}
+				reverse_add_opinion = {
+					target = scope:tower_prince
+					modifier = hate_opinion
+					opinion = -40
+				}
+				send_interface_toast = {
+					title = bp2_yearly.5000.a.failure
+					left_icon = scope:tower_prince
+					show_as_tooltip = {
+						custom_tooltip = bp2_yearly.5000.a.tt
 					}
-					send_interface_toast = {
-						title = bp2_yearly.5000.a.failure
-						left_icon = scope:tower_prince
-						show_as_tooltip = {
-							custom_tooltip = bp2_yearly.5000.a.tt
-						}
-					}
-					hidden_effect = {
-						scope:tower_prince = {
-							every_vassal = {
-								limit = {
-									root != this
-								}
-								add_opinion = {
-									target = root
-									modifier = suspicion_opinion
-									opinion = -15
-								}
+				}
+				hidden_effect = {
+					scope:tower_prince = {
+						every_vassal = {
+							limit = {
+								root != this
+							}
+							add_opinion = {
+								target = root
+								modifier = suspicion_opinion
+								opinion = -15
 							}
 						}
 					}
 				}
 			}
+		}
 
 		stress_impact = {
 			compassionate = medium_stress_impact_gain
@@ -616,10 +616,16 @@ bp2_yearly.5007 = {
 
 		if = {
 			limit = {
-				any_character_artifact = { artifact_slot_type = miscellaneous }
+				any_character_artifact = {
+					artifact_slot_type = miscellaneous
+					artifact_can_be_gift_to_trigger = { RECIPIENT = scope:foreign_hostage }
+				}
 			}
 			random_character_artifact = {
-				limit = { artifact_slot_type = miscellaneous }
+				limit = {
+					artifact_slot_type = miscellaneous
+					artifact_can_be_gift_to_trigger = { RECIPIENT = scope:foreign_hostage }
+				}
 				save_scope_as = child_artifact
 			}
 		}
@@ -630,7 +636,7 @@ bp2_yearly.5007 = {
 		name = bp2_yearly.5007.a
 
 		trigger = {
-			any_character_artifact = { artifact_slot_type = miscellaneous }
+			exists = scope:child_artifact
 			is_ai = no #So you don't have it popping up randomly for human recipients
 		}
 
@@ -1241,6 +1247,15 @@ bp2_yearly.5013 = {
  # ## ## ##  `-._,_)' ## # ``--...____..-' ### # ##
   # ##### #### ## #### ## ###### ### #### ## #####
 
+scripted_trigger bp2_yearly_5050_language_teacher_trigger = {
+	is_available = yes
+	location = root.location
+	age > 18
+	root = {
+		NOT = { knows_language_of_culture = prev.culture }
+	}
+}
+
 # You learn a language off a guest or courtier
 bp2_yearly.5050 = {
 	type = character_event
@@ -1269,43 +1284,16 @@ bp2_yearly.5050 = {
 		OR = {
 			any_warden_hostage = {
 				is_hostage_of = root
-				location = root.location
-				age > 18
-				NOT = {
-					culture = {
-						has_same_culture_language = root.culture
-					}
-				}				
+				bp2_yearly_5050_language_teacher_trigger = yes
 			}
 			any_parent = {
-				is_available = yes
-				location = root.location
-				age > 18
-				NOT = {
-					culture = {
-						has_same_culture_language = root.culture
-					}
-				}				
+				bp2_yearly_5050_language_teacher_trigger = yes
 			}
 			any_councillor = {
-				is_available = yes
-				location = root.location
-				age > 18
-				NOT = {
-					culture = {
-						has_same_culture_language = root.culture
-					}
-				}				
+				bp2_yearly_5050_language_teacher_trigger = yes
 			}
 			any_courtier_or_guest = {
-				is_available = yes
-				location = root.location
-				age > 18
-				NOT = {
-					culture = {
-						has_same_culture_language = root.culture
-					}
-				}
+				bp2_yearly_5050_language_teacher_trigger = yes
 			}
 		}
 	}
@@ -1315,26 +1303,13 @@ bp2_yearly.5050 = {
 			limit = {
 				any_warden_hostage = {
 					is_hostage_of = root
-					location = root.location
-					age > 18
-					NOT = {
-						culture = {
-							has_same_culture_language = root.culture
-						}
-					}
+					bp2_yearly_5050_language_teacher_trigger = yes
 				}
 			}
 			random_warden_hostage = { 
 				limit = {
 					is_hostage_of = root
-					is_available = yes
-					location = root.location
-					age > 18
-					NOT = {
-						culture = {
-							has_same_culture_language = root.culture
-						}
-					}
+					bp2_yearly_5050_language_teacher_trigger = yes
 				}
 				save_scope_as = polyglot
 			}
@@ -1342,26 +1317,12 @@ bp2_yearly.5050 = {
 		else_if = {
 			limit = {
 				any_councillor = {
-					is_available = yes
-					location = root.location
-					age > 18
-					NOT = {
-						culture = {
-							has_same_culture_language = root.culture
-						}
-					}
+					bp2_yearly_5050_language_teacher_trigger = yes
 				}
 			}
 			random_councillor = {
 				limit = {
-					is_available = yes
-					location = root.location
-					age > 18
-					NOT = {
-						culture = {
-							has_same_culture_language = root.culture
-						}
-					}
+					bp2_yearly_5050_language_teacher_trigger = yes
 				}
 				save_scope_as = polyglot
 			}
@@ -1369,26 +1330,12 @@ bp2_yearly.5050 = {
 		else_if = {
 			limit = {
 				any_parent = {
-					is_available = yes
-					location = root.location
-					age > 18
-					NOT = {
-						culture = {
-							has_same_culture_language = root.culture
-						}
-					}
+					bp2_yearly_5050_language_teacher_trigger = yes
 				}
 			}
 			random_parent = {
 				limit = {
-					is_available = yes
-					location = root.location
-					age > 18
-					NOT = {
-						culture = {
-							has_same_culture_language = root.culture
-						}
-					}
+					bp2_yearly_5050_language_teacher_trigger = yes
 				}
 				save_scope_as = polyglot
 			}
@@ -1396,14 +1343,7 @@ bp2_yearly.5050 = {
 		else = {
 			random_courtier_or_guest = {
 				limit = {
-					is_available = yes
-					location = root.location
-					age > 18
-					NOT = {
-						culture = {
-							has_same_culture_language = root.culture
-						}
-					}
+					bp2_yearly_5050_language_teacher_trigger = yes
 				}
 				save_scope_as = polyglot
 			}
