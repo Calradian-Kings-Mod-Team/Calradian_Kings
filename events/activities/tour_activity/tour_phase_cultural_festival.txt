@@ -1205,7 +1205,9 @@ cultural_festival.2020 = {
 		first_valid = {
 			triggered_desc = { #Darusmas?
 				trigger = {
-					location.faith.religion = faith:darusan.religion
+					location.faith = {
+						has_doctrine = special_doctrine_darusian
+					}
 					OR = { #we take the broader Darusmas season
 						current_month = 11
 						current_month = 12
@@ -1222,7 +1224,7 @@ cultural_festival.2020 = {
 						current_month = 1
 					}						
 				}
-				desc = cultural_festival.2020.desc.calradios ### I want this particular event to give the player a marble figurine of Calradios IMPORTANT CK_UPDATE
+				desc = cultural_festival.2020.desc.calradios ### I want this particular event to give the player a marble figurine of Calradios IMPORTANT CK_UPDATE CK_CALRADIA CK_EVENTS CK_CALRADIOS
 			}
 			triggered_desc = { #Eid al-Fitr
 				trigger = {
@@ -1653,6 +1655,7 @@ cultural_festival.2040 = {
 	
 	immediate = {
 		location.county.culture = { save_scope_as = festival_culture_scope }
+		location = { select_root_vegetable_effect = yes } #Unop: For cultural_festival.2040.desc to work properly
 	}
 
 	weight_multiplier = {
@@ -2192,6 +2195,15 @@ cultural_festival.2060 = {
 		}
 		any_character_artifact = { #you bring something with you
 			is_equipped = no
+			artifact_can_be_gift_to_trigger = { RECIPIENT = scope:stop_host_scope }
+			trigger_if = {
+				limit = {
+					scope:stop_host_scope = {
+						highest_held_title_tier > tier_kingdom #No point in giving a court artifact if this is a character without a court.
+					}
+				}
+				ep1_artifact_is_court_artifact_trigger = no
+			}
 		}
 	}
 
@@ -2218,6 +2230,7 @@ cultural_festival.2060 = {
 		random_character_artifact = {
 			limit = {
 				is_equipped = no
+				artifact_can_be_gift_to_trigger = { RECIPIENT = scope:stop_host_scope }
 				trigger_if = {
 					limit = {
 						scope:stop_host_scope = {
@@ -2242,6 +2255,7 @@ cultural_festival.2060 = {
 			}
 			alternative_limit = {
 				is_equipped = no
+				artifact_can_be_gift_to_trigger = { RECIPIENT = scope:stop_host_scope }
 				trigger_if = {
 					limit = {
 						scope:stop_host_scope = {
@@ -2254,6 +2268,7 @@ cultural_festival.2060 = {
 			}
 			alternative_limit = {
 				is_equipped = no
+				artifact_can_be_gift_to_trigger = { RECIPIENT = scope:stop_host_scope }
 				trigger_if = {
 					limit = {
 						scope:stop_host_scope = {
@@ -2959,7 +2974,7 @@ scripted_trigger cultural_festival_2090_peasant = {
 }
 
 scripted_trigger cultural_festival_2090_faction = {
-	exists = yes
+	exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 	NOT = { exists = faction_war }
 	faction_is_type = peasant_faction
 	faction_leader ?= {
@@ -3017,7 +3032,7 @@ cultural_festival.2090 = {
 			factor = 2
 			any_targeting_faction = {
 				faction_type = peasant_faction
-				exists = yes
+				exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 				NOT = { exists = faction_war }
 			}
 		}
@@ -3557,7 +3572,7 @@ cultural_festival.2110 = {
 		trigger = {
 			has_activity_intent = reduce_stress_intent
 		}
-		custom_tooltip = available_because_intent_tt
+		reason = activity_intent
 		stress_impact = {
 			base = major_stress_impact_loss #your reward
 			callous = minor_stress_impact_gain
@@ -3950,7 +3965,7 @@ cultural_festival.3001 = {
 	
 	after = {
 		clear_available_compliments_effect = yes
-		scope:visiting_liege = { trigger_event = { id = cultural_festival.3002 days = 3 } }
+		scope:visiting_liege = { trigger_event = { id = cultural_festival.3002 } } 
 	}
 }
 
@@ -4384,7 +4399,7 @@ cultural_festival.3010 = {
 				years = 5
 			}
 			set_variable = alcohol_fountain_var
-			trigger_event = { id = cultural_festival.3011 days = 3 }
+			trigger_event = { id = cultural_festival.3011 } 
 		}
 		if = {
 			limit = {
@@ -4458,7 +4473,7 @@ cultural_festival.3010 = {
 				years = 5
 			}
 			set_variable = juice_fountain_var
-			trigger_event = { id = cultural_festival.3011 days = 3 }
+			trigger_event = { id = cultural_festival.3011 } 
 		}
 		stress_impact = {
 			greedy = minor_stress_impact_gain
@@ -4660,7 +4675,7 @@ cultural_festival.3020 = {
 	option = { # I sure do!
 		name = cultural_festival.3020.a
 		custom_tooltip = cultural_festival.3020.a.tt
-		trigger_event = { id = cultural_festival.3021 days = 3 }
+		trigger_event = { id = cultural_festival.3021 }
 		stress_impact = {
 			humble = minor_stress_impact_gain
 		}
@@ -4872,7 +4887,7 @@ cultural_festival.3021 = {
 	
 	after = {
 		scope:stop_host_scope = {
-			trigger_event = { id = cultural_festival.3022 days = 3 }
+			trigger_event = { id = cultural_festival.3022 }
 		}
 	}
 }
@@ -5377,6 +5392,7 @@ cultural_festival.3040 = {
 				artifact_type = dagger
 				artifact_type = sword
 			}
+			artifact_can_be_gift_advance_trigger = yes
 		}
 	}
 	
@@ -5390,6 +5406,7 @@ cultural_festival.3040 = {
 					artifact_type = dagger
 					artifact_type = sword
 				}
+				artifact_can_be_gift_advance_trigger = yes
 			}
 			save_scope_as = sword_in_the_stone_scope
 		}
@@ -5859,7 +5876,7 @@ cultural_festival.3050 = {
 							has_trait = deceitful #they know you're lying
 						}
 					}
-					scope:stop_host_scope = { trigger_event = { id = cultural_festival.3051 days = 3 } }
+					scope:stop_host_scope = { trigger_event = { id = cultural_festival.3051 } }
 				}
 				40 = { #they don't notice
 					modifier = {
@@ -6019,6 +6036,7 @@ cultural_festival.3060 = {
 		character = scope:stop_host_scope
 		trigger = { #they'll only be there if you're trying to dance with their spouse
 			exists = scope:vassal_spouse
+			exists = scope:my_spouse #Unop ensure this scope is not undefined
 			scope:stop_host_scope != scope:my_spouse
 		}
 	}
@@ -6211,7 +6229,7 @@ cultural_festival.3060 = {
 			increase_tour_success_effect = { POINTS = 1 }
 		}
 		hidden_effect = {
-			scope:stop_host_scope = { trigger_event = { id = cultural_festival.3061 days = 3 } }
+			scope:stop_host_scope = { trigger_event = { id = cultural_festival.3061 } }
 		}
 		stress_impact = {
 			lustful = minor_stress_impact_loss
@@ -6467,6 +6485,8 @@ cultural_festival.3070 = {
 		culture = { has_cultural_pillar = heritage_balian }
 		location = {
 			any_character_in_location = {
+				this != root #Unop: Prevent root to self-target itself
+				is_travelling = no #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 				this != scope:visiting_liege
 				num_sinful_traits >= 1
 				is_adult = yes
@@ -6475,6 +6495,8 @@ cultural_festival.3070 = {
 			any_character_in_location = {
 				this != scope:jester_1
 				this != scope:visiting_liege
+				this != root #Unop: Prevent root to self-target itself
+				is_travelling = no #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 				OR = {
 					has_relation_potential_rival = root
 					has_relation_rival = root
@@ -6528,6 +6550,7 @@ cultural_festival.3070 = {
 					any_character_in_location = {
 						this != scope:visiting_liege
 						has_relation_nemesis = root
+						NOT = { is_travelling = yes } #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 					}
 				}
 			}
@@ -6536,6 +6559,7 @@ cultural_festival.3070 = {
 					limit = {
 						this != scope:visiting_liege
 						has_relation_nemesis = root
+						NOT = { is_travelling = yes } #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 					}
 					save_scope_as = rival_jester
 				}
@@ -6547,6 +6571,7 @@ cultural_festival.3070 = {
 					any_character_in_location = {
 						this != scope:visiting_liege
 						has_relation_rival = root
+						NOT = { is_travelling = yes } #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 					}
 				}
 			}
@@ -6555,6 +6580,7 @@ cultural_festival.3070 = {
 					limit = {
 						this != scope:visiting_liege
 						has_relation_rival = root
+						NOT = { is_travelling = yes } #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 					}
 					save_scope_as = rival_jester
 				}
@@ -6566,6 +6592,7 @@ cultural_festival.3070 = {
 					any_character_in_location = {
 						this != scope:visiting_liege
 						has_relation_potential_rival = root
+						NOT = { is_travelling = yes } #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 					}
 				}
 			}
@@ -6574,6 +6601,7 @@ cultural_festival.3070 = {
 					limit = {
 						this != scope:visiting_liege
 						has_relation_potential_rival = root
+						NOT = { is_travelling = yes } #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 					}
 					save_scope_as = rival_jester
 				}
@@ -6590,6 +6618,7 @@ cultural_festival.3070 = {
 								value < 0
 							}
 						}
+						NOT = { is_travelling = yes } #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 					}
 					weight = {
 						base = 100
@@ -6609,6 +6638,8 @@ cultural_festival.3070 = {
 					is_adult = yes
 					this != scope:rival_jester 
 					this != scope:visiting_liege
+					NOT = { this = root } #Unop: Prevent root to self-target itself
+					NOT = { is_travelling = yes } #Unop: Prevent traveling characters to be selected if they stopped by at the same time this event fired
 				}
 				save_scope_as = sinful_jester
 			}
@@ -6698,7 +6729,7 @@ cultural_festival.3070 = {
 		}
 		add_piety = minor_piety_loss
 		cultural_festival.3070.bishop_angry_effect = yes
-		scope:visiting_liege = { trigger_event = { id = cultural_festival.3071 days = 3 } }
+		scope:visiting_liege = { trigger_event = { id = cultural_festival.3071 } }
 		stress_impact = {
 			forgiving = minor_stress_impact_gain
 			compassionate = minor_stress_impact_gain
@@ -6767,7 +6798,7 @@ cultural_festival.3070 = {
 		}
 		add_piety = minor_piety_loss
 		#bishop doesn't really care that much since they're sinful
-		scope:visiting_liege = { trigger_event = { id = cultural_festival.3071 days = 3 } }
+		scope:visiting_liege = { trigger_event = { id = cultural_festival.3071 } }
 		stress_impact = {
 			compassionate = medium_stress_impact_gain
 			forgiving = medium_stress_impact_gain
@@ -6818,7 +6849,7 @@ cultural_festival.3070 = {
 		scope:visiting_liege = {
 			save_scope_as = final_jester
 			set_variable = im_the_jester_var
-			trigger_event = { id = cultural_festival.3071 days = 3 }
+			trigger_event = { id = cultural_festival.3071 }
 		}
 		stress_impact = {
 			compassionate = minor_stress_impact_gain
@@ -7138,6 +7169,9 @@ cultural_festival.3071 = {
 ######################
 
 scripted_trigger unknown_language_character_trigger = { #pick someone you don't understand
+	exists = location #Unop: Added this & the 2 lines below to not select someone that is at sea or in limbo
+	location = { NOT = { is_sea_province = yes } }
+	exists = location.county
 	is_physically_able_ai_adult = yes
 	culture = location.county.culture
 	NOT = { knows_language_of_culture = scope:visiting_liege.culture }
@@ -7235,8 +7269,15 @@ cultural_festival.4000 = { #Liege: You end up in a conversation in a language yo
 				save_scope_as = local_translator_scope
 			}
 			hidden_effect = {
-				scope:local_translator_scope = {
-					learn_language_of_culture = root.culture
+				scope:local_translator_scope = { #Unop: Check that the translator is actually speaking both language
+					if = {
+						limit = { NOT = { knows_language_of_culture = root.culture } }
+						learn_language_of_culture = root.culture
+					}
+					if = {
+						limit = { NOT = { knows_language_of_culture = scope:local_character_scope.culture } }
+						learn_language_of_culture = scope:local_character_scope.culture
+					}
 				}
 			}
 		}
@@ -7257,6 +7298,11 @@ cultural_festival.4000 = { #Liege: You end up in a conversation in a language yo
 				scope:local_translator_scope = {
 					NOT = {
 						is_courtier_of = scope:visiting_liege
+					}
+					is_travelling = no #Unop: Ensure this character is not already traveling & can join our activity
+					OR = {
+						NOT = { exists = scope:activity }
+						can_join_activity = scope:activity
 					}
 				}
 			}
@@ -7684,7 +7730,7 @@ scripted_effect parade_liege_enjoyment_effect = { #rewards for liege if liege li
 		}
 	}
 	if = {
-		limit = { scope:visiting_liege.culture != location.county.culture }
+		limit = { scope:visiting_liege.culture != scope:stop_host_scope.location.county.culture } #Unop: Prevent same culture acceptance bonus
 		scope:visiting_liege.culture = {
 			change_cultural_acceptance = {
 				target = scope:stop_host_scope.location.county.culture
@@ -7771,7 +7817,7 @@ scripted_effect parade_end_effect = { #rewards for vassal dependent on parade ty
 					years = 5
 				}
 			}
-			dynasty = { add_dynasty_prestige = minor_dynasty_prestige_gain }
+			dynasty ?= { add_dynasty_prestige = scope:stop_host_scope.dynasty.minor_dynasty_prestige_gain } #Unop: Fix add_dynasty_prestige gain from culture era
 			if = {
 				limit = { scope:visiting_liege = { has_character_flag = parade_liege_dissatisfaction_flag } }
 				negative_opinion_after_parade_effect = yes
@@ -7793,7 +7839,7 @@ scripted_effect parade_end_effect = { #rewards for vassal dependent on parade ty
 					years = 5
 				}
 			}
-			dynasty = { add_dynasty_prestige = minor_dynasty_prestige_gain }
+			dynasty ?= { add_dynasty_prestige = scope:stop_host_scope.minor_dynasty_prestige_gain } #Unop: Fix add_dynasty_prestige gain from culture era
 		}
 		else = {
 			scope:cultural_festival_scope = {
@@ -7802,7 +7848,7 @@ scripted_effect parade_end_effect = { #rewards for vassal dependent on parade ty
 					years = 5
 				}
 			}
-			dynasty ?= { add_dynasty_prestige = miniscule_dynasty_prestige_gain }
+			dynasty ?= { add_dynasty_prestige = scope:stop_host_scope.miniscule_dynasty_prestige_gain } #Unop: Fix add_dynasty_prestige gain from culture era
 			negative_opinion_after_parade_effect = yes
 		}
 	}
@@ -8826,17 +8872,24 @@ cultural_festival.4300 = { #Vassal: Decide which gift to give
 				has_any_artifact = yes
 				any_character_artifact = {
 					category = inventory
+					NOT = { has_variable = historical_unique_artifact }
+					artifact_can_be_gift_to_trigger = { RECIPIENT = scope:visiting_liege }
 				}
 			}
 			random_character_artifact = {
 				limit = {
 					category = inventory
 					NOT = { has_variable = historical_unique_artifact }
+					artifact_can_be_gift_to_trigger = { RECIPIENT = scope:visiting_liege }
 				}
 				save_scope_as = existing_artifact
 			}
 		}
 		hidden_effect = { #create new artifact and save it as something to gift
+			if = { #Unop: Prevent error: Failed to fetch variable for 'child_toy_variable' due to not being set
+				limit = { is_adult = no }
+				set_favorite_toy_effect = yes
+			}
 			create_cultural_artifact_effect = yes
 		}
 		add_character_flag = {  #to make sure to not trigger 4310 in the same tour you gave the gift
@@ -9077,6 +9130,13 @@ cultural_festival.4301 = { #Liege: Get the gift from vassal and decide to keep i
 					has_relation_soulmate = scope:stop_host_scope
 				}
 			}
+			modifier = { #Unop: If the AI can equip/benefit from gifted artifact, then boost their will to keep it
+				add = 100
+				OR = {
+					can_equip_artifact = scope:gifted_artifact
+					can_benefit_from_artifact = scope:gifted_artifact
+				}
+			}
 		}
 	}
 
@@ -9109,6 +9169,13 @@ cultural_festival.4301 = { #Liege: Get the gift from vassal and decide to keep i
 				OR = {
 					has_relation_rival = scope:stop_host_scope
 					has_relation_nemesis = scope:stop_host_scope
+				}
+			}
+			modifier = { #Unop: If the AI cannot equip/benefit from gifted artifact, then boost their will to trash it
+				add = 100
+				NAND = {
+					can_equip_artifact = scope:gifted_artifact
+					can_benefit_from_artifact = scope:gifted_artifact
 				}
 			}
 		}
@@ -9178,26 +9245,29 @@ cultural_festival.4302 = { #Liege: Pick the gift for Vassal, mirror of cultural_
 	immediate = {
 		if = {
 			limit = {
-				root = {
 					has_any_artifact = yes
 					any_character_artifact = {
 						category = inventory
 						NOT = { has_variable = historical_unique_artifact }
 						NOT = { has_variable = received_as_cultural_gift } #make sure you don't give back the thing you just got
-					}
+						artifact_can_be_gift_to_trigger = { RECIPIENT = scope:stop_host_scope }
 				}
 			}
 			random_character_artifact = {
 				limit = {
 					category = inventory
-					artifact_owner = root
 					NOT = { has_variable = historical_unique_artifact }
 					NOT = { has_variable = received_as_cultural_gift }
+					artifact_can_be_gift_to_trigger = { RECIPIENT = scope:stop_host_scope }
 				}
 				save_scope_as = existing_artifact
 			}
 		}
 		hidden_effect = {
+			if = { #Unop: Prevent error: Failed to fetch variable for 'child_toy_variable' due to not being set
+				limit = { is_adult = no }
+				set_favorite_toy_effect = yes
+			}
 			create_cultural_artifact_effect = yes
 		}
 		add_character_flag = {  #to make sure to not trigger 4310 in the same tour you gave the gift
@@ -9443,6 +9513,13 @@ cultural_festival.4303 = { #Vassal: Get the gift from liege, mirror of cultural_
 					has_relation_soulmate = scope:stop_host_scope
 				}
 			}
+			modifier = { #Unop: If the AI can equip/benefit from gifted artifact, then boost their will to keep it
+				add = 100
+				OR = {
+					can_equip_artifact = scope:gifted_artifact
+					can_benefit_from_artifact = scope:gifted_artifact
+				}
+			}
 		}
 	}
 
@@ -9475,6 +9552,13 @@ cultural_festival.4303 = { #Vassal: Get the gift from liege, mirror of cultural_
 				OR = {
 					has_relation_rival = scope:stop_host_scope
 					has_relation_nemesis = scope:stop_host_scope
+				}
+			}
+			modifier = { #Unop: If the AI cannot equip/benefit from gifted artifact, then boost their will to trash it
+				add = 100
+				NAND = {
+					can_equip_artifact = scope:gifted_artifact
+					can_benefit_from_artifact = scope:gifted_artifact
 				}
 			}
 		}

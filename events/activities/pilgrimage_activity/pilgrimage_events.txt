@@ -546,7 +546,7 @@ pilgrimage.1100 = {
 				}
 				triggered_desc = {
 					trigger = {
-						faith = { has_doctrine_parameter = unreformed }
+						faith = { has_doctrine = unreformed_faith_doctrine }
 					}
 					desc = pilgrimage.1100.t.pagan
 				}
@@ -812,7 +812,7 @@ pilgrimage.1100 = {
 		trigger = {
 			faith = {
 				OR = {
-					has_doctrine = unreformed_faith_doctrine # kept explicit
+					has_doctrine = unreformed_faith_doctrine
 					has_doctrine_parameter = gruesome_festivals_active
 					has_doctrine_parameter = human_sacrifice_active
 				}
@@ -1350,7 +1350,7 @@ pilgrimage.1110 = {
 		name = {
 			trigger = {
 				NOT = {
-					faith = { has_doctrine_parameter = unreformed }
+					faith = { has_doctrine = unreformed_faith_doctrine }
 				}
 				scope:heathen_raider.faith = { has_doctrine_parameter = unreformed }
 			}
@@ -2137,6 +2137,7 @@ pilgrimage.1130 = {
 }
 
 scripted_trigger pilgrim_group_leader_trigger = {
+	is_adult = yes #Unop: Ensure we do not get a child as a group leader
 	is_available = yes
 	# Landless
 	is_landed = no
@@ -2787,6 +2788,7 @@ scripted_trigger pilgrimage_2004_potential_friend_trigger = {
 	faith = root.faith
 	NOT = { is_courtier_of = root }
 	location = root.location
+	is_ruler = no #Unop To fix [ Trying to put character in court despite being a ruler ] (because of this char being taken in piligrimage travel)
 }
 
 #Run into a potential friend
@@ -3094,7 +3096,7 @@ pilgrimage.2006 = {
 		modifier = {
 			exists = current_travel_plan.travel_leader
 			current_travel_plan.travel_leader = {
-				aptitude:travel_leader_court_position < 10
+				aptitude:travel_leader_court_position <= 1 #Unop: Was < 10 but excellent is 4, so made it only for terrible (0) & poor aptitude (1)
 			}
 			faith = {
 				OR = {
@@ -3773,6 +3775,7 @@ pilgrimage.2010 = {
 				}
 			}
 		}
+		remove_character_flag = in_pilgrimage_event_chain #Unop: Cut the event_chain since this option mean we do not get further
 	}
 }
 
@@ -5182,6 +5185,34 @@ pilgrimage.2101 = {
 	title = pilgrimage.2101.t
 	desc = { 
 		desc = pilgrimage.2101.desc
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					faith = { trait_is_virtue = lustful }
+				}
+				desc = pilgrimage.2101.desc.lust_virtue
+			}
+			triggered_desc = {
+				trigger = {
+					faith = { trait_is_sin = lustful }
+				}
+				desc = pilgrimage.2101.desc.lust_vice
+			}
+			triggered_desc = {
+				trigger = {
+					OR = {
+						has_sexuality = asexual
+						faith = {
+							NOR = {
+								trait_is_sin = lustful
+								trait_is_virtue = lustful
+							}
+						}
+					}
+				}
+				desc = pilgrimage.2101.desc.lust_neutral
+			}
+		}
 	}
 	cooldown = { years = 5 }
 	theme = travel_pilgrimage
@@ -6310,6 +6341,9 @@ pilgrimage.3001 = {
 	title = pilgrimage.3001.t
 	desc = pilgrimage.3001.desc
 	theme = travel_pilgrimage
+	override_effect_2d = { #Unop: Add the rain FX since it's an event about "torrential rain"
+		reference = rain
+	}
 	override_background = { reference = terrain_travel }
 	widget = { gui = event_window_widget_vfx_rain_storm container = foreground_shader_vfx_container }
 	left_portrait = {
@@ -6496,6 +6530,10 @@ pilgrimage.3002 = {
 			OR = {
 				NOT = { has_game_rule = strict_regional_heresy }
 				is_ai = no
+			}
+			trigger_if = { #Unop: A HoF will never convert
+				limit = { exists = faith.religious_head }
+				NOT = { faith.religious_head = root}
 			}
 		}
 		worldly_type_option_effect = yes
@@ -6764,7 +6802,126 @@ pilgrimage.3004 = {
 	}		
 }
 
-# No Hajj
+###3101-3200: Islam
+#Ziyarat - Why am I taking this pilgrimage?
+# by Sean Hughes
+# pilgrimage.3102 = {
+# 	type = character_event
+# 	title = pilgrimage.3102.t
+# 	desc = pilgrimage.3102.desc
+# 	theme = travel_pilgrimage
+# 	left_portrait = {
+# 		character = root
+# 		animation = thinking
+# 	}
+# 	cooldown = { years = 2 }
+# 	trigger = {
+# 		religion = religion:islam_religion
+# 		is_location_valid_for_travel_event_on_land = yes
+# 	}
+# 	# See distant places
+# 	option = { 
+# 		name = pilgrimage.3102.a
+# 		worldly_type_option_effect = yes
+# 		if = {
+# 			limit = { 
+# 				has_trait = lifestyle_traveler
+# 				has_trait_xp = {
+# 					trait = lifestyle_traveler
+# 					track = travel
+# 					value < 100
+# 				}
+# 			}
+# 			add_trait_xp = {
+# 				trait = lifestyle_traveler
+# 				track = travel
+# 				value = 5
+# 			}
+# 		}
+# 		add_stress = minor_stress_loss
+# 		add_piety = miniscule_piety_gain
+# 		if = {
+# 			limit = {
+# 				has_trait = lifestyle_mystic
+# 			}
+# 			add_trait_xp = {
+# 				trait = lifestyle_mystic
+# 				value = lifestyle_mystic_xp_gain_minor_value
+# 			}
+# 		}
+# 		add_character_modifier = {
+# 			modifier = pilgrimage_worldly_modifier
+# 			years = 10
+# 		}
+# 		ai_chance = {
+# 			base = 50
+# 			compare_modifier = {
+# 				value = stress
+# 				multiplier = 2
+# 			}
+# 		}		
+# 	}
+# 	# My zeal drives me!
+# 	option = { 
+# 		name = pilgrimage.3102.b
+# 		trigger = {
+# 			NOT = { has_trait = cynical }
+# 		}
+# 		pious_type_option_effect = yes
+# 		show_as_unavailable = {
+# 			has_trait = cynical
+# 		}
+# 		if = {
+# 			limit = { 
+# 				has_trait = pilgrim
+# 				has_trait_xp = {
+# 					trait = pilgrim
+# 					value < 100
+# 				}
+# 			}
+# 			add_trait_xp = {
+# 				trait = pilgrim
+# 				value = 5
+# 			}
+# 		}
+# 		add_piety = minor_piety_gain
+# 		add_character_modifier = {
+# 			modifier = dedicated_to_pilgrimage_modifier
+# 			years = 10
+# 		}
+# 		ai_chance = {
+# 			base = 200
+# 			ai_value_modifier = {
+# 				ai_zeal = 1
+# 			}
+# 		}
+# 	}
+# 	# I have... questions
+# 	option = { 
+# 		name = pilgrimage.3102.c
+# 		trigger = {
+# 			NOT = { has_trait = zealous }
+# 		}
+# 		pious_type_option_effect = yes
+# 		show_as_unavailable = {
+# 			has_trait = zealous
+# 		}
+# 		stress_impact = {
+# 			base = minor_stress_impact_gain
+# 			cynical = minor_stress_impact_loss
+
+# 			stubborn = minor_stress_impact_gain
+# 			arrogant = minor_stress_impact_gain
+# 		}
+# 		add_learning_lifestyle_xp = massive_lifestyle_xp
+# 		ai_chance = {
+# 			base = 50
+# 			ai_value_modifier = {
+# 				ai_zeal = -1
+# 			}
+# 		}
+# 	}
+# }
 
 ###3201-3300: Hinduism
 #Ritual purification in a river
@@ -6914,42 +7071,494 @@ pilgrimage.3202 = {
 	}
 }
 
-###Dharmic 
-#Parikrama
-# by Laurence Kennedy
-pilgrimage.5445 = {
-	type = activity_event
-	title = pilgrimage.5445.t
-	desc = pilgrimage.5445.desc
-	theme = pilgrimage_destination
-	left_portrait = {
-		character = root
-		animation = happiness
-	}
-	trigger = {
-		# OR = {
-			religion = religion:ghavati_religion
-			# religion = religion:buddhism_religion
-		# }	   
-	}
-	immediate = {
-		play_music_cue = mx_cue_pilgrimage_arrival
-	}
-	#Alright
-	option = {
-		name = {
-			trigger = { has_variable = pilgrimage_death_bury_home }
-			text = pilgrimage.5445.a_dead
-		}
-		name = {
-			trigger = { has_trait = cynical }
-			text = pilgrimage.5445.a_cynical
-		}
-		name = pilgrimage.5445.a
-		give_pilgrim_trait_or_xp_effect = yes
-		pilgrimage_arrival_stress_loss_effect = yes
-	}
-}
+###3301-3400: Buddhism
+#Critical Wanderer
+# by Sean Hughes
+# pilgrimage.3301 = {
+# 	type = character_event
+# 	title = pilgrimage.3301.t
+# 	desc = pilgrimage.3301.desc
+# 	#theme = pilgrimage_activity #Unop: Wrong theme
+# 	theme = travel_pilgrimage
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = {
+# 				OR = {
+# 					has_trait = gluttonous
+# 					has_trait = arrogant
+# 					has_trait = greedy
+# 				}
+# 			}
+# 			animation = disapproval
+# 		}
+# 		animation = personality_coward
+# 	}
+# 	right_portrait = {
+# 		character = scope:wanderer
+# 		animation = personality_zealous
+# 		outfit_tags = { monk_outfit }
+# 	}
+# 	cooldown = { years = 5 }
+# 	trigger = {
+# 		religion = religion:buddhism_religion
+# 		is_location_valid_for_travel_event_on_land = yes
+# 	}
+# 	immediate = {
+# 		random_dummy_gender_clergy_effect = yes
+# 		create_character = {
+# 			age = 80
+# 			dynasty = none
+# 			gender = scope:dummy_clergy_gender
+# 			location = root.location
+# 			faith = root.faith
+# 			culture = root.culture
+# 			save_scope_as = wanderer
+# 		}
+# 	}
+# 	#Show off your learning
+# 	option = {
+# 		name = pilgrimage.3301.c
+# 		bonus_to_all_types_effect = yes
+# 		trigger = { learning >= high_skill_rating }
+# 		show_as_unavailable = { learning < high_skill_rating }
+# 		add_prestige = medium_prestige_gain
+# 		add_piety = minor_piety_gain
+# 		if = {
+# 			limit = { 
+# 				has_trait = pilgrim
+# 				has_trait_xp = {
+# 					trait = pilgrim
+# 					value < 100
+# 				}
+# 			}
+# 			add_trait_xp = {
+# 				trait = pilgrim
+# 				value = 10
+# 			}
+# 		}
+# 	}
+# 	#...alright then
+# 	option = {
+# 		name = pilgrimage.3301.a
+# 		pious_type_option_effect = yes
+# 		add_piety = medium_piety_gain
+# 		add_prestige = minor_prestige_loss
+# 		stress_impact = {
+# 			base = minor_stress_gain
+# 			temperate = minor_stress_loss
+# 			gluttonous = minor_stress_gain
+# 			arrogant = minor_stress_gain
+# 			greedy = minor_stress_gain
+# 		}
+# 	}
+# 	#My things!
+# 	option = {
+# 		name = pilgrimage.3301.b
+# 		add_piety = minor_piety_loss
+# 		stress_impact = {
+# 			humble = minor_stress_gain
+# 		}
+# 	}
+# 	after = {
+# 		hidden_effect = {
+# 			scope:wanderer = {
+# 				if = {
+# 					limit = {
+# 						root = { is_ai = yes }
+# 					}
+# 					silent_disappearance_effect = yes
+# 				}
+# 			}
+# 		}
+# 	}
+# }
+# #The Wisdom of Goats
+# # by Laurence Kennedy
+# pilgrimage.3302 = {
+# 	type = character_event
+# 	title = pilgrimage.3302.t
+# 	desc = pilgrimage.3302.desc
+# 	#theme = pilgrimage_activity #Unop ck3-tiger Duplicated and wrong
+# 	theme = travel_pilgrimage
+# 	override_background = { reference = terrain }
+# 	left_portrait = {
+# 		character = root
+# 		animation = interested
+# 	}
+# 	right_portrait = {
+# 		character = scope:mountain_local
+# 		animation = personality_zealous
+# 	}
+# 	cooldown = { years = 5 }
+
+# 	trigger = {
+# 		is_location_valid_for_travel_event_on_land = yes
+# 		location = {
+# 			is_mountainous_or_hilly_trigger = yes 
+# 		}
+# 		religion = religion:buddhism_religion
+# 	}
+# 	immediate = {
+# 		create_character = {
+# 			age = 80
+# 			dynasty = none
+# 			template = default_mystic_character
+# 			location = root.location
+# 			culture = root.location.county.culture
+# 			faith = root.location.county.faith
+# 			save_scope_as = mountain_local
+# 		}
+# 	}
+# 	weight_multiplier = {
+# 		base = 1
+# 		modifier = {
+# 			factor = 2
+# 			OR = { #you're in a reflection journey
+# 				has_activity_intent = reflection_intent
+# 				involved_activity = {
+# 					has_activity_option = {
+# 						category = special_type
+# 						option = pilgrimage_type_pious
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
+# 	#Judgemental Relection 
+# 	option = {
+# 		name = pilgrimage.3302.a
+# 		add_piety = miniscule_piety_gain
+# 		stress_impact = {
+# 			humble = minor_stress_impact_gain
+# 			cynical = medium_stress_impact_gain
+# 		}
+# 		ai_chance = {
+# 			base = 100
+# 			modifier = {
+# 				factor = 0
+# 				has_trait = humble
+# 				has_trait = cynical
+# 			}
+# 		}
+# 	}
+# 	#Humble Reflection 
+# 	option = {
+# 		name = pilgrimage.3302.b
+# 		pious_type_option_effect = yes
+# 		stress_impact = {
+# 			arrogant = minor_stress_impact_gain
+# 			cynical = medium_stress_impact_gain
+# 		}
+# 		ai_chance = {
+# 			base = 100
+# 			modifier = {
+# 				factor = 0
+# 				has_trait = arrogant
+# 				has_trait = cynical
+# 			}
+# 		}
+# 	}
+# 	#Harvest the salt
+# 	option = {
+# 		name = pilgrimage.3302.c
+# 		flavor = pilgrimage.3302.c.flavor
+# 		add_gold = {
+# 			value = tiny_gold_value
+# 			max = 15
+# 		}
+# 		stress_impact = {
+# 			base = minor_stress_gain
+# 			generous = minor_stress_gain
+# 			zealous = minor_stress_gain
+# 			greedy = minor_stress_loss
+# 		}
+# 	}
+# 	#gets rid of old man
+# 	after = {
+# 		scope:mountain_local = {
+# 			silent_disappearance_effect = yes
+# 		}
+# 	}
+# }
+# # Kalama Sutta
+# # by Laurence Kennedy
+# pilgrimage.3303 = {
+# 	type = character_event
+# 	title = pilgrimage.3303.t
+# 	desc = pilgrimage.3303.desc
+# 	theme = travel_pilgrimage
+	
+# 	left_portrait = {
+# 		character = root
+# 		animation = chaplain
+# 	}
+# 	right_portrait = {
+# 		character = scope:wisdom_seeker
+# 		animation = beg
+		
+# 	}
+# 	cooldown = { years = 5 }
+
+# 	trigger = { 
+# 		#Only for Buddhist
+# 		religion = religion:buddhism_religion
+# 		#make sure it is a city or castle
+# 		is_location_valid_for_travel_event_on_land = yes
+# 		location = {
+#         	OR = {
+#         		has_holding_type = castle_holding
+#         		has_holding_type = city_holding	
+#         	}
+#         	#is there a leader there to meet you
+#         	province_owner = {
+#         		is_available_ai_adult = yes
+#         	}	
+#         }
+# 	}
+# 	immediate = {
+# 	    #set scope for location and find province owner
+# 		location = {
+# 			save_scope_as = place_to_teach
+# 			province_owner = {
+# 				save_scope_as = wisdom_seeker
+# 			}
+# 		}
+# 	}
+# 	weight_multiplier = {
+# 		base = 1
+# 		modifier = {
+# 			factor = 2
+# 			OR = { #you're in a reflection journey
+# 				has_activity_intent = reflection_intent
+# 				involved_activity = {
+# 					has_activity_option = {
+# 						category = special_type
+# 						option = pilgrimage_type_pious
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
+# 	#Intellectual/zealous
+# 	option = {
+# 		name = pilgrimage.3303.a
+# 		add_piety = medium_piety_gain
+# 		pious_type_option_effect = yes
+# 		#Improves the conversion rate of your court champlain
+# 		location.county = {
+# 			add_county_modifier = {
+# 				modifier = buddhist_teachings_conversion_modifier
+# 				#giving fifteen years because this might incentivize you to conquer the territory so you can take advantage of this and conversions can take awhile. 
+# 				years = 15
+# 			}
+# 		}
+# 		stress_impact = {
+# 			humble = minor_stress_impact_gain
+# 			cynical = medium_stress_impact_gain
+# 			zealous = medium_stress_impact_loss
+# 		}
+# 		ai_chance = {
+# 			base = 100
+# 			modifier = {
+# 				factor = 0
+# 				has_trait = cynical
+# 				has_trait = humble
+# 			}
+# 		}
+# 	}
+# 	#Open minded 
+# 	option = {
+# 		name = pilgrimage.3303.b
+# 		flavor = pilgrimage.3303.b.flavor
+# 		add_learning_lifestyle_xp = medium_lifestyle_xp
+# 		add_character_modifier = {
+# 			modifier = pilgrimage_conversion_modifier
+# 			years = 5
+# 		}
+# 		stress_impact = {
+# 			zealous = minor_stress_impact_gain
+# 			arrogant = medium_stress_impact_gain
+# 			humble = medium_stress_impact_loss
+# 		}
+# 		ai_chance = {
+# 			base = 100
+# 			modifier = {
+# 				factor = 0
+# 				has_trait = zealous
+# 				has_trait = arrogant
+# 			}
+# 		}
+# 	}
+# } 
+# ### 3401-3500: Dharmic
+# # Brahmacharya Challenged
+# # by Laurence Kennedy
+# pilgrimage.3401 = {
+# 	type = character_event
+# 	title = pilgrimage.3401.t
+# 	desc = pilgrimage.3401.desc
+# 	#theme = pilgrimage_activity #Unop ck3-tiger Duplicated and wrong
+# 	theme = travel_pilgrimage
+# 	#background for riverside province
+# 	override_background = { 
+# 		trigger = {
+# 			location = {
+#         		is_riverside_province = yes
+#         	}	
+# 		}
+# 		reference = bp3_riverside
+# 	}
+# 	#background for lakeside province
+# 	override_background = { 
+# 		trigger = {
+# 			location = {
+#         		is_lakeside_province = yes
+#         	}	
+# 		}
+# 		reference = wilderness_wetlands
+# 	}
+# 	#background for coastal province
+# 	override_background = { 
+# 		trigger = {
+# 			location = {
+#         		is_coastal = yes
+#         	}	
+# 		}
+# 		reference = bp3_coast
+# 	}
+# 	left_portrait = {
+# 		character = root
+# 		animation = interested
+# 	}
+# 	right_portrait = {
+# 		character = scope:bather
+# 		animation = personality_zealous
+# 		outfit_tags = { no_clothes }
+# 	}
+# 	cooldown = { years = 10 }
+
+# 	trigger = { 
+# 		#Only for Dharmic
+# 		religion = {
+# 			OR = {
+# 				this = religion:buddhism_religion
+# 				this = religion:hinduism_religion
+# 			}
+# 		}
+# 		#make sure you are by a body of water
+# 		is_location_valid_for_travel_event_on_land = yes
+# 		location = {
+#         	OR = {
+#         		is_riverside_province = yes
+#         		is_lakeside_province = yes
+#         		is_coastal = yes
+#         	}	
+#         }
+#         #find someone in the entourage that you are attracted to
+#     	current_travel_plan = {
+# 	    	any_entourage_character = {
+# 				root = { 
+# 					is_attracted_to_gender_of = prev
+# 				}
+# 				is_physically_able_adult = yes
+# 				are_characters_sensible_lovers_trigger = {
+# 					INSTIGATING_LOVER = root
+# 					TARGET_OF_LOVE = this
+# 				}
+# 			}
+# 		}
+
+# 	}
+# 	immediate = {
+# 	#This is for loc to name body of water
+# 		location = {			
+# 	    	random_neighboring_province = {
+# 	    		limit = {
+# 	            	OR = {
+# 	            		is_river_province = yes
+# 	            		is_lake_province = yes
+# 	            		is_sea_province = yes
+# 	            	}
+# 	    		}
+# 	    		save_scope_as = body_of_water
+# 		    }
+# 	    }
+# 	    #find person to be tempted by 
+# 		current_travel_plan = {
+# 			random_entourage_character = {
+# 				limit = {
+# 					root = { 
+# 						is_attracted_to_gender_of = prev
+# 					}
+# 					is_physically_able_adult = yes
+# 					are_characters_sensible_lovers_trigger = {
+# 						INSTIGATING_LOVER = root
+# 						TARGET_OF_LOVE = this
+# 					}
+# 				}
+# 				save_scope_as = bather
+# 			}
+# 		}
+# 	}
+# 	weight_multiplier = {
+# 		base = 1
+# 		modifier = {
+# 			factor = 2
+# 			OR = { #you're in a reflection journey
+# 				has_activity_intent = reflection_intent
+# 				involved_activity = {
+# 					has_activity_option = {
+# 						category = special_type
+# 						option = pilgrimage_type_pious
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
+# 	#Give in to temptation
+# 	option = {
+# 		name = pilgrimage.3401.a
+# 		add_character_modifier = {
+# 			modifier = pilgrimage_seduction_modifier
+# 			years = 5
+# 		}
+# 		stress_impact = {
+# 			chaste = minor_stress_impact_gain
+# 			zealous = medium_stress_impact_gain
+# 			lustful = medium_stress_impact_loss
+# 		}
+# 		ai_chance = {
+# 			base = 100
+# 			modifier = {
+# 				factor = 0
+# 				has_trait = chaste
+# 				has_trait = zealous
+# 			}
+# 		}
+# 	}
+# 	#stay resolute in your chastity  
+# 	option = {
+# 		name = pilgrimage.3401.b
+# 		flavor = pilgrimage.3401.b.flavor
+# 		pious_type_option_effect = yes
+# 		add_piety = miniscule_piety_gain
+# 		stress_impact = {
+# 			lustful = minor_stress_impact_gain
+# 			cynical = medium_stress_impact_gain
+# 			chaste = medium_stress_impact_loss
+# 			zealous = medium_stress_impact_loss
+# 		}
+# 		ai_chance = {
+# 			base = 100
+# 			modifier = {
+# 				factor = 0
+# 				has_trait = lustful
+# 				has_trait = cynical
+# 			}
+# 		}
+# 	}
+# }
 
 ############################
 ## BP1 Events
@@ -7190,6 +7799,14 @@ pilgrimage.6002 = {
 		character = scope:friend
 		animation = happiness
 	}
+	trigger = { #Unop: Since this is a delayed event, we need to ensure that the friend is still alive !
+		scope:friend = { is_alive = yes }
+	}
+	on_trigger_fail = {
+		remove_character_flag = in_pilgrimage_event_chain
+		current_travel_plan = { resume_travel_plan = yes }
+		#Make an event to warn ?
+	}
 	# Hit up the tavern
 	option = { 
 		name = pilgrimage.6002.a
@@ -7267,6 +7884,14 @@ pilgrimage.6003 = {
 		character = scope:friend
 		animation = toast_goblet
 	}
+	trigger = { #Unop: Since this is a delayed event, we need to ensure that the friend is still alive !
+		scope:friend = { is_alive = yes }
+	}
+	on_trigger_fail = {
+		remove_character_flag = in_pilgrimage_event_chain
+		current_travel_plan = { resume_travel_plan = yes }
+		#Make an event to warn ?
+	}
 	immediate = {
 		play_music_cue = "mx_cue_in_taberna_instrumental"
 	}
@@ -7311,6 +7936,7 @@ pilgrimage.6003 = {
 		name = pilgrimage.6003.b
 		custom_tooltip = pilgrimage.6003.b.tt
 		current_travel_plan = { resume_travel_plan = yes }
+		remove_character_flag = in_pilgrimage_event_chain #Unop: Opt-out, clear the flag
 	}
 }
 
@@ -7328,6 +7954,14 @@ pilgrimage.6004 = {
 	right_portrait = { 
 		character = scope:friend
 		animation = shock
+	}
+	trigger = { #Unop: Since this is a delayed event, we need to ensure that the friend is still alive !
+		scope:friend = { is_alive = yes }
+	}
+	on_trigger_fail = {
+		remove_character_flag = in_pilgrimage_event_chain
+		current_travel_plan = { resume_travel_plan = yes }
+		#Make an event to warn ?
 	}
 	immediate = {
 		play_music_cue = "mx_cue_in_taberna_instrumental"
@@ -7386,7 +8020,7 @@ pilgrimage.6004 = {
 	option = {
 		name = pilgrimage.6004.b
 		custom_tooltip = pilgrimage.6003.b.tt
-		current_travel_plan = { resume_travel_plan = yes }
+		# current_travel_plan = { resume_travel_plan = yes }
 	}
 	after = {
 		trigger_event = {
@@ -7421,6 +8055,14 @@ pilgrimage.6005 = {
 	right_portrait = { 
 		character = scope:friend
 		animation = paranoia
+	}
+	trigger = { #Unop: Since this is a delayed event, we need to ensure that the friend is still alive !
+		scope:friend = { is_alive = yes }
+	}
+	on_trigger_fail = {
+		remove_character_flag = in_pilgrimage_event_chain
+		current_travel_plan = { resume_travel_plan = yes }
+		#Make an event to warn ?
 	}
 	immediate = {
 		random_list = {
@@ -7493,6 +8135,59 @@ pilgrimage.6006 = {
 	right_portrait = { 
 		character = scope:friend
 		animation = anger
+	}
+	trigger = {
+		scope:friend = { is_alive = yes } #Unop: Since this is a delayed event, we need to ensure that the friend is still alive !
+ 		scope:friend = { #Unop: Since this is a delayed event, the secret could have been exposed by now (seen in the log)
+			any_secret = { secret_type = secret_non_believer }
+		}
+	}
+	on_trigger_fail = {
+		if = {
+			limit = { scope:friend = { is_alive = no } }
+			remove_character_flag = in_pilgrimage_event_chain
+			current_travel_plan = { resume_travel_plan = yes }
+			#Make an event to warn ?
+		}
+		else = {
+			#Unop: So if the secret is no more, we try to fire the other possible events from pilgrimage.6001.a
+			if = {
+				limit = {
+					scope:friend = {
+						OR = {
+							# Physical Traits 
+							has_trait = wounded_1
+							has_trait = wounded_2
+							has_trait = wounded_3
+							has_trait = impotent 
+							has_trait = infirm 
+							# Diseases 
+							has_trait = ill
+							has_trait = bubonic_plague
+							has_trait = cancer 
+							has_trait = consumption 
+							has_trait = great_pox 
+							has_trait = gout_ridden
+							has_trait = leper 
+							has_trait = lovers_pox 
+							has_trait = pneumonic 
+							has_trait = smallpox 
+							has_trait = typhus 
+						}
+					}
+				}
+				trigger_event = {
+					id = pilgrimage.6007
+					days = 0
+				}
+			}
+			else = { # Fallback event
+				trigger_event = {
+					id = pilgrimage.6002
+					days = 0
+				}
+			}
+		}
 	}
 	immediate = {
 		scope:friend = {
@@ -7584,6 +8279,14 @@ pilgrimage.6007 = {
 		outfit_tags = { monk_outfit }
 	}
 	cooldown = { years = 10 }
+	trigger = {
+		scope:friend = { is_alive = yes } #Unop: Since this is a delayed event, we need to ensure that the friend is still alive !
+	}
+	on_trigger_fail = {
+		remove_character_flag = in_pilgrimage_event_chain
+		current_travel_plan = { resume_travel_plan = yes }
+		#Make an event to warn ?
+	}
 	immediate = {
 		play_music_cue = "mx_cue_sacredrite"
 		create_character = {
@@ -8427,7 +9130,42 @@ pilgrimage.5021 = {
 # 		}
 # 		animation = happiness
 # 	}
-# 	trigger = { scope:activity.activity_location.county = title:c_sanala }
+# 	trigger = { scope:activity.activity_location.county = title:c_alexandria }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# ###Jewish
+# #Mount Sinai
+# pilgrimage.5101 = {
+# 	type = activity_event
+# 	title = pilgrimage.5101.t
+# 	desc = pilgrimage.5101.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_sinai }
 # 	immediate = {
 # 		play_music_cue = mx_cue_pilgrimage_arrival
 # 	}
@@ -8481,6 +9219,422 @@ pilgrimage.5201 = {
 		pilgrimage_arrival_stress_loss_effect = yes
 	}
 }
+
+###Hindu
+#Varanasi
+# pilgrimage.5301 = {
+# 	type = activity_event
+# 	title = pilgrimage.5301.t
+# 	desc = pilgrimage.5301.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_varanasi }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# #Ayodhya
+# pilgrimage.5311 = {
+# 	type = activity_event
+# 	title = pilgrimage.5311.t
+# 	desc = pilgrimage.5311.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_ayodhya }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# #Mathura
+# pilgrimage.5321 = {
+# 	type = activity_event
+# 	title = pilgrimage.5321.t
+# 	desc = pilgrimage.5321.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_mathura }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# #Haridwar
+# pilgrimage.5331 = {
+# 	type = activity_event
+# 	title = pilgrimage.5331.t
+# 	desc = pilgrimage.5331.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_sthanisvara }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# #Kanchipuram
+# pilgrimage.5341 = {
+# 	type = activity_event
+# 	title = pilgrimage.5341.t
+# 	desc = pilgrimage.5341.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_kanchipuram }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# #Ujjayini
+# pilgrimage.5351 = {
+# 	type = activity_event
+# 	title = pilgrimage.5351.t
+# 	desc = pilgrimage.5351.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_ujjayini }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# #Dwarka
+# pilgrimage.5361 = {
+# 	type = activity_event
+# 	title = pilgrimage.5361.t
+# 	desc = pilgrimage.5361.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_dvaraka }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# ###Buddhism
+# #Bodh Gaya
+# pilgrimage.5401 = {
+# 	type = activity_event
+# 	title = pilgrimage.5401.t
+# 	desc = pilgrimage.5401.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_gaya }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# #Kushinagar
+# pilgrimage.5411 = {
+# 	type = activity_event
+# 	title = pilgrimage.5411.t
+# 	desc = pilgrimage.5411.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_kusinagara }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+
+# #Sarnath
+# pilgrimage.5421 = {
+# 	type = activity_event
+# 	title = pilgrimage.5421.t
+# 	desc = pilgrimage.5421.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = {
+# 		#Sarnath is literally a mile from Varanasi
+# 		scope:activity.activity_location.county = title:c_varanasi
+# 	}
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
+# ###Dharmic 
+# #Parikrama
+# # by Laurence Kennedy
+pilgrimage.5445 = {
+	type = activity_event
+	title = pilgrimage.5445.t
+	desc = pilgrimage.5445.desc
+	theme = pilgrimage_destination
+	left_portrait = {
+		character = root
+		animation = happiness
+	}
+	trigger = {
+		# OR = {
+			religion = religion:ghavati_religion
+			# religion = religion:buddhism_religion
+		# }	   
+	}
+	immediate = {
+		play_music_cue = mx_cue_pilgrimage_arrival
+	}
+	#Alright
+	option = {
+		name = {
+			trigger = { has_variable = pilgrimage_death_bury_home }
+			text = pilgrimage.5445.a_dead
+		}
+		name = {
+			trigger = { has_trait = cynical }
+			text = pilgrimage.5445.a_cynical
+		}
+		name = pilgrimage.5445.a
+		give_pilgrim_trait_or_xp_effect = yes
+		pilgrimage_arrival_stress_loss_effect = yes
+	}
+}
+
+# ###Jainism
+# #Shikharj
+# pilgrimage.5501 = {
+# 	type = activity_event
+# 	title = pilgrimage.5501.t
+# 	desc = pilgrimage.5501.desc
+# 	theme = pilgrimage_destination
+# 	left_portrait = {
+# 		character = root
+# 		triggered_animation = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			animation = sadness
+# 		}
+# 		animation = happiness
+# 	}
+# 	trigger = { scope:activity.activity_location.county = title:c_radha }
+# 	immediate = {
+# 		play_music_cue = mx_cue_pilgrimage_arrival
+# 	}
+# 	#Alright
+# 	option = {
+# 		name = {
+# 			trigger = { has_variable = pilgrimage_death_bury_home }
+# 			text = pilgrimage.4001.a_dead
+# 		}
+# 		name = {
+# 			trigger = { has_trait = cynical }
+# 			text = pilgrimage.4001.a_cynical
+# 		}
+# 		name = pilgrimage.4001.a
+# 		give_pilgrim_trait_or_xp_effect = yes
+# 		pilgrimage_arrival_stress_loss_effect = yes
+# 	}
+# }
 
 ###Zoroastrian
 #Ushi-darena
@@ -11092,12 +12246,15 @@ pilgrimage.6780 = {
 					location = root.location
 					is_physically_able_adult = yes
 					is_available = yes
-					is_landed = no
+					is_landed_or_landless_administrative = no #Unop: Prevent landless admin as it will throw: [ Trying to put character ('XXX') in court despite being a ruler ]
+					NOT = { faith.religious_head ?= this } #Unop: Same as above but for HoF
 				}
 				any_courtier_or_guest = {
 					is_physically_able_adult = yes
 					has_any_high_skill_rating = yes
 					is_available = yes
+					is_landed_or_landless_administrative = no #Unop: Prevent landless admin as it will throw: [ Trying to put character ('XXX') in court despite being a ruler ]
+					NOT = { faith.religious_head ?= this } #Unop: Same as above but for HoF
 				}
 			}
 		}
@@ -11111,7 +12268,8 @@ pilgrimage.6780 = {
 						location = root.location
 						is_physically_able_adult = yes
 						is_available = yes
-						is_landed = no
+					is_landed_or_landless_administrative = no #Unop: Prevent landless admin as it will throw: [ Trying to put character ('XXX') in court despite being a ruler ]
+					NOT = { faith.religious_head ?= this } #Unop: Same as above but for HoF
 					}
 				}
 			}
@@ -11121,7 +12279,8 @@ pilgrimage.6780 = {
 						location = root.location
 						is_physically_able_adult = yes
 						is_available = yes
-						is_landed = no
+					is_landed_or_landless_administrative = no #Unop: Prevent landless admin as it will throw: [ Trying to put character ('XXX') in court despite being a ruler ]
+					NOT = { faith.religious_head ?= this } #Unop: Same as above but for HoF
 					}
 					save_scope_as = stolen_courtier
 				}
@@ -11134,6 +12293,8 @@ pilgrimage.6780 = {
 						is_physically_able_adult = yes
 						has_any_high_skill_rating = yes
 						is_available = yes
+						is_landed_or_landless_administrative = no #Unop: Prevent landless admin as it will throw: [ Trying to put character ('XXX') in court despite being a ruler ]
+						NOT = { faith.religious_head ?= this } #Unop: Same as above but for HoF
 					}
 					save_scope_as = stolen_courtier
 				}
@@ -11500,6 +12661,16 @@ scripted_trigger pilgrimage_6800_valid_member = {
 		has_trait = celibate
 		has_trait = devoted
 		is_courtier_of = $NEW_COURT_OWNER$
+	}
+	trigger_if = { #Unop: Do not allow the script to select someone who cannot divorce
+		limit = {
+			is_married = yes
+			OR = {
+				faith = { has_doctrine = doctrine_divorce_disallowed }
+				culture = { has_cultural_parameter = cannot_divorce }
+			}
+		}
+		always = no
 	}
 }
 
@@ -13234,6 +14405,7 @@ pilgrimage.7000 = {
 		remove_character_flag = added_new_holy_site
 		remove_character_flag = should_get_trait_piety
 		remove_character_flag = pilgrimage_counter_obligatory
+		remove_character_flag = artifact_received_from_pilgrimage
 	}
 }
 
