@@ -48,12 +48,12 @@ fp3_yearly.2000 = {
 			}
 			# Faith must condemn drunkard/hashishiyah
 			faith = {
+				this = religion:aserai_religion
 				NOR = {
 					trait_is_virtue = drunkard
 					trait_is_virtue = hashishiyah
 				}
 			}
-			has_faith = faith:sarranid_faith
 			# Liege should not be a hypocrite
 			NOR = {
 				has_trait = drunkard
@@ -221,7 +221,7 @@ fp3_yearly.2001 = {
 			exists = scope:intoxicated
 			AND = {
 				NOT = { has_character_flag = had_event_fp3_yearly_2001 }
-				faith = faith:sarranid_faith
+				religion = religion:aserai_religion
 				NOR = {
 					has_trait = drunkard
 					has_trait = hashishiyah
@@ -336,6 +336,7 @@ fp3_yearly.2001 = {
 scripted_effect fp3_yearly_2010_create_baker_effect = {
 	create_character = {
 		age = { 35 50 }
+		dynasty = none
 		location = root.capital_province
 		gender_female_chance = root_faith_dominant_gender_female_chance
 		faith = root.capital_province.faith
@@ -732,7 +733,7 @@ fp3_yearly.2011 = {
 
 # This tax collector is guilty of at least one vice condemned of public officials in the Quran
 scripted_trigger fp3_yearly_2020_is_valid_tax_collector = {
-	is_available_ai_adult = yes
+	is_available_adult = yes #Unop: Allow players to be valid targets of this event
 	OR = {
 		AND = {
 			has_trait = greedy
@@ -813,10 +814,12 @@ fp3_yearly.2020 = {
 		is_landed = yes
 		has_religion = religion:aserai_religion
 		piety_level > low_negative_piety_level
+		is_independent_ruler = no #Unop: Since when we are independent we are our own liege, need to ensure this
 		liege ?= {
 			has_religion = religion:aserai_religion
 			employs_tax_collector = yes
 			any_tax_collector = {
+				this != root
 				any_tax_collector_vassal = { this = root }
 				fp3_yearly_2020_is_valid_tax_collector = yes
 			}
@@ -842,6 +845,7 @@ fp3_yearly.2020 = {
 			}
 			random_tax_collector = {
 				limit = {
+					this != root
 					any_tax_collector_vassal = { this = root }
 					fp3_yearly_2020_is_valid_tax_collector = yes
 				}
@@ -890,6 +894,14 @@ fp3_yearly.2020 = {
 					}
 				}
 			}
+		}
+		if = { #Unop: Sanity & debug warning check
+			limit = {
+				#debug_only = yes
+				root = scope:sinful_tax_collector
+			}
+			error_log = "Unop: fp3_yearly.2020 scope:sinful_tax_collector is also root"
+			debug_log_scopes = yes
 		}
 	}
 
@@ -993,7 +1005,12 @@ fp3_yearly.2020 = {
 					}
 				}
 			}
-			save_scope_as = denouncing_taxpayer
+			random_tax_collector_vassal = { #Unop: We want someone that is taxed by the tax collector that is not the tax collector himself !
+				limit = {
+					NOT = { this = root }
+				}
+				save_scope_as = denouncing_taxpayer
+			}
 			scope:liege = { trigger_event = fp3_yearly.2021 }
 		}
 		stress_impact = {
@@ -1025,7 +1042,12 @@ fp3_yearly.2020 = {
 			OPINION = 0
 		}
 		# Tank the collector's aptitude and inform the liege
-		save_scope_as = denouncing_taxpayer
+		random_tax_collector_vassal = { #Unop: We want someone that is taxed by the tax collector that is not the tax collector himself !
+			limit = {
+				NOT = { this = root }
+			}
+			save_scope_as = denouncing_taxpayer
+		}
 		add_piety = minor_piety_gain
 		liege = {
 			send_interface_message = {
@@ -1757,7 +1779,7 @@ fp3_yearly.2040 = {
 			triggered_desc = {
 				trigger = {
 					any_character_war = {
-						primary_attacker = { faith.religion = faith:sarranid_faith.religion }
+						primary_attacker = { faith.religion = religion:aserai_religion }
 					}
 				}
 				desc = fp3_yearly.2040.desc_attacker_is_muslim
@@ -1786,7 +1808,7 @@ fp3_yearly.2040 = {
 		NOT = { has_trait = incapable }
 		NOT = { has_variable = gone_adventuring }
 		NOT = { has_character_flag = planning_an_activity }
-		faith.religion = faith:sarranid_faith.religion
+		faith.religion = religion:aserai_religion
 		is_at_war_as_defender = yes
 		any_character_war = {
 			primary_defender = root

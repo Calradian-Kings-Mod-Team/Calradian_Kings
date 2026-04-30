@@ -1324,6 +1324,7 @@ tgp_east_asia_mandala_task_contract_events.1400 = {
 		else = {
 			create_character = {
 				template = local_noble_character
+				dynasty = none
 				location = scope:ritual_location
 				culture = scope:ritual_location.culture
 				faith = scope:ritual_location.faith
@@ -1336,6 +1337,7 @@ tgp_east_asia_mandala_task_contract_events.1400 = {
 			create_character = {
 				template = local_noble_character
 				age = { 25 35 }
+				dynasty = none
 				location = scope:ritual_location
 				culture = scope:ritual_location.culture
 				faith = scope:ritual_location.faith
@@ -1347,6 +1349,15 @@ tgp_east_asia_mandala_task_contract_events.1400 = {
 			}
 			hidden_effect_new_object = {
 				scope:local_character = {
+					if = {
+						limit = {
+							is_lowborn = yes
+							root = { is_ai = no }
+						}
+						create_dynasty = {
+							spread_to_descendants = yes
+						}
+					}
 					marry = scope:local_character_2
 				}
 			}
@@ -1465,6 +1476,9 @@ tgp_east_asia_mandala_task_contract_events.1400 = {
 		}
 		add_character_flag = recently_completed_mandala_contract
 		scope:local_character = {
+			silent_disappearance_ai_if_created_effect = yes
+		}
+		scope:local_character_2 = {
 			silent_disappearance_ai_if_created_effect = yes
 		}
 	}
@@ -1876,7 +1890,7 @@ tgp_east_asia_mandala_task_contract_events.1500 = {
 		scope:local_character_2 = {
 			silent_disappearance_ai_if_created_effect = yes
 		}
-		scope:1500_stand_in_character = {
+		scope:1500_stand_in_character ?= {
 			silent_disappearance_ai_if_created_effect = yes
 		}
 	}
@@ -2838,9 +2852,11 @@ tgp_east_asia_mandala_task_contract_events.2100 = {
 		remove_short_term_gold = medium_gold_value
 		
 		scope:vengeance_target = {
-			add_county_modifier = {
-				modifier = recently_looted_modifier
-				years = 5
+			title_province = {
+				add_province_modifier = {
+					modifier = recently_looted_modifier
+					years = 5
+				}
 			}
 			change_county_control = -50
 			change_development_progress_with_overflow = -50

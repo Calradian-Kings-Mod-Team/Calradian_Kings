@@ -3572,7 +3572,7 @@ scripted_effect send_merchant_on_first_voyage_effect = {
 		value = scope:merchant_origin
 	}
 	start_travel_plan = {
-		destination = var:merchant_employer.location
+		destination = var:merchant_employer.domicile.domicile_location #Unop Use domicile location
 		on_arrival_event = mpo_decisions_events.2140
 		on_arrival_destinations = first
 		return_trip = no
@@ -3626,10 +3626,11 @@ mpo_decisions_events.2139 = {
 				}
 			}
 			add_trait = lifestyle_traveler
-			add_gold = {
-				value = root.tiny_gold_value
-				multiply = 21.37
-			}
+			#Unop The same amount of gold is already added in mpo_find_suitable_merchant_effect
+			#add_gold = {
+			#	value = root.tiny_gold_value
+			#	multiply = 21.37
+			#}
 			send_merchant_on_first_voyage_effect = yes
 		}
 	}
@@ -3640,7 +3641,7 @@ mpo_decisions_events.2140 = {
 	hidden = yes
 
 	immediate = {
-		remove_variable = merchant_var # Used only to send the death notification message
+		# remove_variable = merchant_var # Used only to send the death notification message #Unop Only remove the merchant variable after the entire event chain is over
 		save_scope_as = paiza_merchant
 		var:merchant_origin = {
 			save_scope_as = merchant_origin
@@ -3654,11 +3655,11 @@ mpo_decisions_events.2140 = {
 				if = {
 					limit = {
 						NOT = {
-							root.location = location
+							root.location = domicile.domicile_location #Unop Use domicile location
 						}
 					}
 					root = {
-						set_location = { location = var:merchant_employer.location }
+						set_location = domicile.domicile_location #Unop Use domicile location
 					}
 				}
 				if = {
@@ -3832,16 +3833,25 @@ mpo_decisions_events.2141 = { #mpo_call_for_merchants_smol_decision initial even
 
 	trigger = {
 		is_available_adult = yes
-		scope:paiza_merchant.location = root.location
+		#Unop Avoid the merchant chasing root
+		#scope:paiza_merchant.location = root.location
 	}
 
 	on_trigger_fail = {
-		scope:paiza_merchant = {
-			set_location = { location = root.location }
-		}
+		#Unop Avoid the merchant chasing root
+		#scope:paiza_merchant = {
+		#	set_location = { location = root.location }
+		#}
 		trigger_event = {
 			id = mpo_decisions_events.2141
 			months = { 2 4 }
+		}
+	}
+
+	#Unop Avoid the merchant chasing root, and use domicile location
+	immediate = {
+		scope:paiza_merchant = {
+			set_location = root.domicile.domicile_location
 		}
 	}
 
@@ -3976,16 +3986,25 @@ mpo_decisions_events.0100 = { #mpo_call_for_merchants_decision initial event
 
 	trigger = {
 		is_available_adult = yes
-		scope:paiza_merchant.location = root.location
+		#Unop Avoid the merchant chasing root
+		#scope:paiza_merchant.location = root.location
 	}
 
 	on_trigger_fail = {
-		scope:paiza_merchant = {
-			set_location = { location = root.location }
-		}
+		#Unop Avoid the merchant chasing root
+		#scope:paiza_merchant = {
+		#	set_location = { location = root.location }
+		#}
 		trigger_event = {
 			id = mpo_decisions_events.0100
 			months = { 2 4 }
+		}
+	}
+
+	#Unop Avoid the merchant chasing root, and use domicile location
+	immediate = {
+		scope:paiza_merchant = {
+			set_location = root.domicile.domicile_location
 		}
 	}
 
@@ -4172,13 +4191,15 @@ mpo_decisions_events.0101 = { #the merchant is back
 
 	trigger = {
 		is_available_adult = yes
-		scope:paiza_merchant.location = root.location
+		#Unop Avoid the merchant chasing root
+		#scope:paiza_merchant.location = root.location
 	}
 
 	on_trigger_fail = {
-		scope:paiza_merchant = {
-			set_location = { location = root.location }
-		}
+		#Unop Avoid the merchant chasing root (moved to immediate)
+		#scope:paiza_merchant = {
+		#	set_location = { location = root.location }
+		#}
 		trigger_event = {
 			id = mpo_decisions_events.0101
 			months = { 2 4 }
@@ -4404,6 +4425,11 @@ mpo_decisions_events.0101 = { #the merchant is back
 				}
 			}
 		}
+
+		#Unop Avoid the merchant chasing root, and use domicile location
+		scope:paiza_merchant = {
+			set_location = root.domicile.domicile_location
+		}
 	}
 
 
@@ -4467,6 +4493,8 @@ mpo_decisions_events.0101 = { #the merchant is back
 				target = root
 				gold = root.var:trade_gold_value
 			}
+
+			remove_variable = merchant_var #Unop Remove the merchant variable here
 		}	
 	}
 }
@@ -4693,11 +4721,11 @@ mpo_decisions_events.0102 = {
 				if = {
 					limit = {
 						NOT = {
-							root.location = location
+							root.location = domicile.domicile_location #Unop Use domicile location
 						}
 					}
 					root = {
-						set_location = { location = var:merchant_employer.location }
+						set_location = domicile.domicile_location #Unop Use domicile location
 					}
 				}
 				trigger_event = mpo_decisions_events.0101
@@ -4971,23 +4999,27 @@ mpo_decisions_events.0112 = { #mpo_abuse_authority_paiza_decision consequences d
 			has_character_flag = refused_paiza_abuse_notifications
 		}
 		scope:paiza_abuser = {
+			dynasty = { #Unop: Fix missing dynasty rescope for the any_dynasty_member
 			any_dynasty_member = {
-				location = scope:paiza_abuser
-				is_ai = yes
-				is_adult = yes
+					location = scope:paiza_abuser.location
+					is_ai = yes
+					is_adult = yes
+				}
 			}
 		}
 	}
 
 	immediate = {
 		scope:paiza_abuser = {
+			dynasty = { #Unop: Fix missing dynasty rescope for the any_dynasty_member
 			random_dynasty_member = {
 				limit = {
-					location = scope:paiza_abuser
+					location = scope:paiza_abuser.location
 					is_ai = yes
 					is_adult = yes
 				}
 				save_scope_as = paiza_abuser_1		
+				}
 			}
 			random_equipped_character_artifact = {
 				limit = {
@@ -5329,6 +5361,7 @@ mpo_decisions_events.0200 = {
 					save_scope_as = commander_trait_mentor
 					after_creation = {
 						give_random_commander_trait_effect = yes
+						add_character_flag = created #Unop Add created flag so we could only disappear created characters
 					}
 				}
 			}
@@ -5678,7 +5711,7 @@ mpo_decisions_events.0200 = {
 				}
 			}
 			scope:commander_trait_mentor = {
-				silent_disappearance_effect = yes
+				silent_disappearance_ai_if_created_effect = yes #Unop Only disappear created characters
 			}
 		}
 		trigger_event = {
@@ -9235,7 +9268,7 @@ mpo_decisions_events.0090 = {
 		}
 		# Good Character
 		invite_foreign_emissary_find_example = {
-			APTITUDE = 4
+			APTITUDE = 3 #Unop: Was 4 but aptitude are [0-4]
 			LEVEL = good
 			EDUCATION_1 = 1
 			EDUCATION_2 = 2
@@ -9246,7 +9279,7 @@ mpo_decisions_events.0090 = {
 		}
 		# Great Character
 		invite_foreign_emissary_find_example = {
-			APTITUDE = 5
+			APTITUDE = 4 #Unop: Was 5 but aptitude are [0-4] so this effect always create someone new
 			LEVEL = great
 			EDUCATION_1 = 3
 			EDUCATION_2 = 4
