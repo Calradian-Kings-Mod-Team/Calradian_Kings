@@ -1211,6 +1211,7 @@ ep3_laamp_decision_event.1000 = {
 			}
 			location = {
 				random_neighboring_province = { 
+					#limit = { is_location_valid_for_travel_event_on_land = yes }
 					limit = { exists = county } #Unop is_location_valid_for_travel_event_on_land is for character
 					save_scope_as = neighboring_county
 				}
@@ -9239,24 +9240,53 @@ scripted_effect 1031_been_to_effect = {
 		}
 		save_scope_as = been_to_$GUILD$
 	}
-	#Go back to the previous screen
+	# Unop Return to the correct place without checking var:return_from_location
+	# to prevent exiting the event chain prematurely and without cleanup
 	if = {
-		limit = { var:return_from_location ?= flag:tavern }
+		limit = {
+			OR = {
+				flag:$GUILD$ = flag:storyteller
+				flag:$GUILD$ = flag:recruit
+				flag:$GUILD$ = flag:spouse
+				flag:$GUILD$ = flag:hood
+			}
+		}
 		1031_return_to_tavern_effect = yes
 	}
 	#Go back to church grounds
-	if = {
-		limit = { var:return_from_location ?= flag:church_grounds }
+	else_if = {
+		limit = {
+			OR = {
+				flag:$GUILD$ = flag:healer
+				flag:$GUILD$ = flag:church
+				flag:$GUILD$ = flag:garden
+				flag:$GUILD$ = flag:physician
+			}
+		}
 		1041_return_to_church_grounds_effect = yes
 	}
 	#Go back to castle grounds
-	if = {
-		limit = { var:return_from_location ?= flag:castle_grounds }
+	else_if = {
+		limit = {
+			OR = {
+				flag:$GUILD$ = flag:training
+				flag:$GUILD$ = flag:garrison
+				flag:$GUILD$ = flag:reinforcers
+				flag:$GUILD$ = flag:bodyguard
+			}
+		}
 		1051_return_to_castle_effect = yes
 	}
 	#Go back to craftsmen district
-	if = {
-		limit = { var:return_from_location ?= flag:craftsmen }
+	else_if = {
+		limit = {
+			OR = {
+				flag:$GUILD$ = flag:weaponsmith
+				flag:$GUILD$ = flag:armorer
+				flag:$GUILD$ = flag:jeweler
+				flag:$GUILD$ = flag:quartermaster
+			}
+		}
 		1061_return_to_craftsmen_effect = yes
 	}
 }
@@ -10016,7 +10046,7 @@ ep3_laamp_decision_event.1031 = {
 			#Set the cooldown on the action
 			set_variable = {
 				name = 1031_has_reveled_recently
-				months = visit_settlement_small_cooldown_days
+				days = visit_settlement_small_cooldown_days #Unop: Was using months = (so the CD was 180/12=15 years)
 			}
 			stress_impact = {
 				base = medium_stress_impact_gain
@@ -10103,7 +10133,7 @@ ep3_laamp_decision_event.1031 = {
 		#Set the cooldown on the action
 		set_variable = {
 			name = 1031_has_relaxed_recently
-			months = visit_settlement_minimum_cooldown_days
+			days = visit_settlement_minimum_cooldown_days #Unop: Was using months = (so the CD was 90/12=7.5 years)
 		}
 		#Set the variables and redirect us back to the tavern main room
 		1031_storied_effect = yes
@@ -11654,7 +11684,7 @@ ep3_laamp_decision_event.1035 = {
 		#Cooldown for the action
 		set_variable = {
 			name = 1035_spouse_unwinded_recently
-			months = visit_settlement_minimum_cooldown_days
+			days = visit_settlement_minimum_cooldown_days #Unop: Was using months = (so the CD was 90/12=7.5 years)
 		}
 		#Set the variables and redirect us back to the tavern main room
 		1035_spoused_effect = yes
@@ -14926,6 +14956,17 @@ ep3_laamp_decision_event.1043 = {
 				}
 			}
 		}
+		#Unop Limit this to same religion if accepted or astray
+		trigger = {
+			faith.religion = scope:visiting_location.faith.religion
+			faith = {
+				faith_hostility_level = {
+					target = scope:visiting_location.faith
+					value <= faith_astray_level
+				}
+			}
+		}
+		show_as_unavailable = { always = yes }
 		if = {
 			limit = { NOT = { exists = var:visit_settlement_church_donation } }
 			set_variable = {
@@ -15007,6 +15048,14 @@ ep3_laamp_decision_event.1043 = {
 	option = {
 		name = ep3_laamp_decision_event.1043.b
 		trigger = {
+			#Unop Limit this to same religion if accepted or astray
+			faith.religion = scope:visiting_location.faith.religion
+			faith = {
+				faith_hostility_level = {
+					target = scope:visiting_location.faith
+					value <= faith_astray_level
+				}
+			}
 			NOR = { 
 				has_character_modifier = laamp_decision_church_blessing_stress_loss_modifier
 				has_character_modifier = laamp_decision_church_blessing_stress_gain_modifier
@@ -21529,6 +21578,7 @@ ep3_laamp_decision_event.1131 = { #city is finished, wat do
 		}
 		add_pressed_claim = scope:city_location.county
 		add_pressed_claim = scope:city_location.barony
+		add_character_flag = temp_no_claim_war_cost
 		start_war = {
 			cb = claim_cb
 			target = scope:city_location.county.holder
@@ -21536,6 +21586,7 @@ ep3_laamp_decision_event.1131 = { #city is finished, wat do
 			target_title = scope:city_location.county
 			target_title = scope:city_location.barony
 		}
+		remove_character_flag = temp_no_claim_war_cost
 
 		ai_chance = {
 			base = 0
