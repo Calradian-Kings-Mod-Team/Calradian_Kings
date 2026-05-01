@@ -696,8 +696,9 @@ scripted_trigger is_near_vikings_trigger = {
 	}
 }
 scripted_trigger is_near_berber_pirates_trigger = {
-	NOT = {
+	NOR = {
 		culture = { has_cultural_pillar = heritage_nahasi }
+		culture = { has_cultural_pillar = heritage_west_nahasan }
 	}
 	location = {
 		any_neighboring_province = {
@@ -705,7 +706,10 @@ scripted_trigger is_near_berber_pirates_trigger = {
 			county = {
 				holder = { in_diplomatic_range = root }
 				is_coastal_county = yes
-				culture = { has_cultural_pillar = heritage_nahasi }
+				OR = {
+					culture = { has_cultural_pillar = heritage_nahasi }
+					culture = { has_cultural_pillar = heritage_west_nahasan }
+				}
 			}
 		}
 	}
@@ -3045,6 +3049,7 @@ travel_events.4017 = {
 						OR = {
 							geographical_region = world_steppe
 							county = { culture = { has_cultural_pillar = heritage_khuzic } }
+							county = { culture = { has_cultural_pillar = heritage_khiindai } }
 						}
 						county = { culture = { has_cultural_tradition = tradition_horse_lords } }
 					}
@@ -5081,7 +5086,9 @@ travel_events.4029 = {
 		first_valid = {
 			triggered_desc = {
 				trigger = {
-					faith = faith:darusan
+					faith = {
+						has_doctrine = special_doctrine_darusian
+					}
 				}
 				desc = travel_events.4029.desc.mid.darusan
 			}
@@ -6916,6 +6923,10 @@ travel_events.4037 = {
 				religion = { is_in_family = rf_eastern }
 				location.faith = { has_doctrine_parameter = eastern_syncretic_actor_opinion_active }
 			}
+			AND = { #Unop Add rf_sinitic
+				religion = { is_in_family = rf_sinitic }
+				location.faith = { has_doctrine_parameter = sinitic_syncretic_actor_opinion_active }
+			}
 			AND = {
 				faith = { has_doctrine_parameter = unreformed }
 				location.faith = { has_doctrine_parameter = unreformed_syncretic_actor_opinion_active }
@@ -7117,6 +7128,10 @@ travel_events.4038 = {
 				faith = { has_doctrine_parameter = eastern_syncretic_actor_opinion_active }
 				location.religion = { is_in_family = rf_eastern }
 			}
+			AND = { #Unop Add rf_sinitic
+				faith = { has_doctrine_parameter = sinitic_syncretic_actor_opinion_active }
+				location.religion = { is_in_family = rf_sinitic }
+			}
 			AND = {
 				faith = { has_doctrine_parameter = unreformed_syncretic_actor_opinion_active }
 				location.faith = { has_doctrine_parameter = unreformed }
@@ -7218,6 +7233,15 @@ travel_events.4038 = {
 						}
 						add_character_modifier = {
 							modifier = offended_eastern_modifier
+							years = 5
+						}
+					}
+					else_if = { #Unop Add sinitic_syncretic_actor_opinion_active
+						limit = {
+							faith = { has_doctrine_parameter = sinitic_syncretic_actor_opinion_active }
+						}
+						add_character_modifier = {
+							modifier = offended_sinitic_modifier
 							years = 5
 						}
 					}

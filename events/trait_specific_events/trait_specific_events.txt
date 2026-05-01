@@ -70,9 +70,6 @@ trait_specific.0001 = {
 			#Depressed
 			6 = {
 				trigger = { NOT = { has_trait = depressed } }
-				ai_value_modifier = {
-					ai_energy = -0.5
-				}
 				add_trait = depressed_1
 			}
 			#Drunkard
@@ -273,6 +270,7 @@ trait_specific.1001 = {
 	
 	trigger = {
 		NOT = { has_trait = lunatic }
+		NOT = { has_character_flag = had_recent_event_trait_specific_lunatic }
 	}
 
 	weight_multiplier = {
@@ -280,6 +278,13 @@ trait_specific.1001 = {
 		modifier = { #Less likely if you already have an extreme trait
 			add = -0.75
 			has_special_content_trait = yes
+		}
+	}
+
+	immediate = {
+		add_character_flag = {
+			flag = had_recent_event_trait_specific_lunatic
+			years = 10
 		}
 	}
 
@@ -306,6 +311,7 @@ trait_specific.1002 = {
 	
 	trigger = {
 		NOT = { has_trait = lunatic }
+		NOT = { has_character_flag = had_recent_event_trait_specific_lunatic }
 	}
 
 	weight_multiplier = {
@@ -313,6 +319,13 @@ trait_specific.1002 = {
 		modifier = { #Less likely if you already have an extreme trait
 			add = -0.75
 			has_special_content_trait = yes
+		}
+	}
+
+	immediate = {
+		add_character_flag = {
+			flag = had_recent_event_trait_specific_lunatic
+			years = 10
 		}
 	}
 
@@ -343,6 +356,11 @@ trait_specific.1010 = {
 
 	immediate = {
 		play_music_cue = "mx_cue_stress"
+	}
+
+	option = {
+		name = trait_specific.1010.a
+		#Unop Moved from immediate
 		if = {
 			limit = { has_inactive_trait = lunatic_genetic }
 			make_trait_active = lunatic_genetic
@@ -383,6 +401,7 @@ trait_specific.2001 = {
 	
 	trigger = {
 		NOT = { has_trait = possessed }
+		NOT = { has_character_flag = had_recent_event_trait_specific_possessed }
 	}
 
 	weight_multiplier = {
@@ -390,6 +409,13 @@ trait_specific.2001 = {
 		modifier = { #Less likely if you already have an extreme trait
 			add = -0.75
 			has_special_content_trait = yes
+		}
+	}
+
+	immediate = {
+		add_character_flag = {
+			flag = had_recent_event_trait_specific_possessed
+			years = 10
 		}
 	}
 
@@ -421,6 +447,11 @@ trait_specific.2002 = {
 
 	immediate = {
 		play_music_cue = "mx_cue_stress"
+	}
+
+	option = {
+		name = trait_specific.2002.a
+		#Unop Moved from immediate
 		if = {
 			limit = { has_inactive_trait = possessed_genetic }
 			make_trait_active = possessed_genetic
@@ -459,16 +490,21 @@ trait_specific.3001 = {
 	
 	trigger = {
 		NOT = { has_trait = depressed }
+		NOT = { has_character_flag = had_recent_event_trait_specific_depressed }
 	}
 
 	weight_multiplier = {
-		base = 1.25
+		base = 1
 		modifier = { #Less likely if you already have an extreme trait
 			add = -0.75
 			has_special_content_trait = yes
 		}
-		ai_value_modifier = {
-			ai_energy = -0.5
+	}
+
+	immediate = {
+		add_character_flag = {
+			flag = had_recent_event_trait_specific_depressed
+			years = 10
 		}
 	}
 
@@ -509,7 +545,13 @@ trait_specific.3002 = {
 
 	option = {
 		name = trait_specific.3999.a
-		add_trait = depressed_1
+		if = { #Unop Add depressed_genetic
+			limit = { has_inactive_trait = depressed_genetic }
+			make_trait_active = depressed_genetic
+		}
+		else = {
+			add_trait = depressed_1
+		}
 	}
 }
 
@@ -584,7 +626,7 @@ trait_specific.4001 = {
 	}
 
 	weight_multiplier = {
-		base = 0.70
+		base = 1
 		modifier = { #Less likely if you already have an "extreme" trait
 			add = -0.5
 			has_special_content_trait = yes
@@ -1489,6 +1531,8 @@ trait_specific.8501 = {
 	}
 
 	immediate = {
+		#Unop: Reorder & remove the duplicate effect (reorder since the effect is using the mean_courtier scope)
+
 		random_courtier_or_guest = {
 			limit = {
 				is_available_ai_adult = yes
@@ -1500,7 +1544,8 @@ trait_specific.8501 = {
 			}
 			save_scope_as = mean_courtier
 		}
-		lisp_mocking_reaction_effect = yes
+
+		lisp_mocking_reaction_effect = yes #Unop moved from above
 	}
 
 

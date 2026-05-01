@@ -404,13 +404,13 @@ laamp_base_contract_schemes.0002 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -595,13 +595,13 @@ laamp_base_contract_schemes.0012 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -818,13 +818,13 @@ laamp_base_contract_schemes.0022 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = { add_stress = major_stress_loss }
@@ -1002,13 +1002,13 @@ laamp_base_contract_schemes.0032 = {
 		if = {
 			limit = { exists = scope:scheme }
 			laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-			random_list = {
-				67 = {
+			#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+			if = {
+				limit = { scope:unop_success_type ?= flag:success_standard }
 					scope:scheme.task_contract = { complete_task_contract = success_standard }
 				}
-				33 = {
+			else = {
 					scope:scheme.task_contract = { complete_task_contract = success_critical }
-				}
 			}
 			# Employer outcome.
 			scope:employer = {
@@ -1437,7 +1437,7 @@ laamp_base_contract_schemes.0034 = {
 			}
 			ordered_in_list = {
 				list = destination_counties_list
-				order_by = "squared_distance(prev.capital_province)"
+				order_by = "squared_distance(scope:employer.capital_province)" #Unop
 				max = 3
 				check_range_bounds = no
 				if = {
@@ -4961,6 +4961,20 @@ scripted_effect laamp_base_contract_schemes_0661_setup_difficulties_effect = {
 		}
 		save_scope_as = task_contract
 	}
+	if = {
+		limit = {
+			#debug_only = yes
+			NOT = { exists = scope:duel_diff }
+		}
+		error_log_stack_trace = "Unop: For laamp_base_contract_schemes_0661_setup_difficulties_effect diagnostic" #Check error.log
+		error_log = "Unop: For laamp_base_contract_schemes_0661_setup_difficulties_effect diagnostic, no scope value duel_diff defined, fallback on a laamp_base_contract_schemes_on_going_duel_diff_t1_value"
+		debug_log = "Unop: For laamp_base_contract_schemes_0661_setup_difficulties_effect diagnostic, no scope value duel_diff defined, fallback on a laamp_base_contract_schemes_on_going_duel_diff_t1_value"
+		debug_log_scopes = yes
+		save_scope_value_as = {
+			name = duel_diff
+			value = @laamp_base_contract_schemes_on_going_duel_diff_t1_value
+		}
+	}
 }
 
 #	Diplomacy + martial + stewardship
@@ -6444,6 +6458,7 @@ scripted_effect laamp_base_contract_schemes_0791_select_artefact_to_steal_effect
 		ordered_character_artifact = {
 			limit = {
 				is_equipped = no
+				NOT = { has_variable = artifact_prevent_transfer }
 				laamp_base_contract_schemes_0791_$STEALABLE_GROUP$_artefact_group_trigger = yes
 			}
 			order_by = {
@@ -8614,6 +8629,7 @@ laamp_base_contract_schemes.1004 = {
 					limit = {
 						is_available_healthy_ai_adult = yes
 						can_start_single_combat_trigger = yes
+						can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = this } #Unop Ensure appropriate gender for single combat
 						NOR = {
 							has_trait = honest
 							has_trait = compassionate
@@ -8733,6 +8749,7 @@ laamp_base_contract_schemes.1004 = {
 						province = root.location
 						is_available_healthy_ai_adult = yes
 						can_start_single_combat_trigger = yes
+						can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = this } #Unop Ensure appropriate gender for single combat
 					}
 				}
 				random_pool_character = {
@@ -8740,6 +8757,7 @@ laamp_base_contract_schemes.1004 = {
 					limit = {
 						is_available_healthy_ai_adult = yes
 						can_start_single_combat_trigger = yes
+						can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = this } #Unop Ensure appropriate gender for single combat
 					}
 					save_scope_as = recidivist
 				}
@@ -9097,13 +9115,13 @@ laamp_base_contract_schemes.1012 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
-				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
+		else = {
+			scope:scheme.task_contract = { complete_task_contract = success_critical }
 		}
 		# Employer outcome.
 		scope:employer = { add_dread = major_dread_gain }
@@ -9280,13 +9298,13 @@ laamp_base_contract_schemes.1022 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -9470,13 +9488,13 @@ laamp_base_contract_schemes.1032 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -9778,10 +9796,10 @@ laamp_base_contract_schemes.1044 = {
 		}
 		else_if = {
 			limit = { exists = scope:employer.location }
-			scope:employer.location = { save_scope_as = destination_1 }
+			scope:employer.location.county = { save_scope_as = destination_1 } #Unop ck3-tiger Use county as destination
 		}
 		else = {
-			location = { save_scope_as = destination_1 }
+			location.county = { save_scope_as = destination_1 } #Unop ck3-tiger Use county as destination
 		}
 		# Okay, find a suitable destination.
 		scope:destination_1 = {
@@ -9817,6 +9835,17 @@ laamp_base_contract_schemes.1044 = {
 				}
 			}
 		}
+
+		if = { #Unop: Sanity & debug warning check
+			limit = {
+				#debug_only = yes
+				NOT = { exists = scope:destination_2 }
+			}
+			error_log = "Unop: destination_2 is undefined"
+			debug_log = "Unop: destination_2 is undefined"
+			debug_log_scopes = yes
+		}
+
 		# Work out how many encounters we'll have.
 		scope:employer = {
 			if = {
@@ -10029,9 +10058,11 @@ scripted_effect laamp_base_contract_schemes_1301_roll_other_duel_effect = {
 					title = laamp_base_contract_schemes_1301.$OPTION$.tt.success
 					left_icon = scope:recidivist
 					custom_tooltip = laamp_base_contract_schemes.1301.tt.score_increased
-					increment_variable_effect = {
-						VAR = wins_tally
-						VAL = 1
+					scope:task_contract = { #Unop: Need to rescope to task_contract since without, it add the variable to the character scope
+						increment_variable_effect = {
+							VAR = wins_tally
+							VAL = 1
+						}
 					}
 					if = {
 						limit = { scope:task_contract.var:encounters_tally >= 3 }
@@ -10069,11 +10100,18 @@ scripted_effect laamp_base_contract_schemes_1301_roll_other_duel_effect = {
 
 scripted_effect laamp_base_contract_schemes_1301_successful_recruitment_effect = {
 	scope:task_contract = { complete_task_contract = failure_recruitment }
-	add_courtier = scope:recidivist
-	reverse_add_opinion = {
-		target = scope:recidivist
-		modifier = respect_opinion
-		opinion = 50
+	if = {
+		limit = {
+			scope:recidivist = {
+				is_alive = yes
+			}
+		}
+		add_courtier = scope:recidivist
+		reverse_add_opinion = {
+			target = scope:recidivist
+			modifier = respect_opinion
+			opinion = 50
+		}
 	}
 	save_scope_value_as = {
 		name = chosen_maa_type
@@ -10945,7 +10983,12 @@ laamp_base_contract_schemes.1781 = {
 			}
 			else = {
 				if = {
-					limit = { scope:task_contract.var:haul_actual >= 1 }
+					limit = {
+						scope:task_contract = { #Unop: Just ensure the "haul_actual" exists so it doesn't yell in the logs
+							has_variable = haul_actual
+							var:haul_actual >= 1 
+						}
+					}
 					travel_plan_owner = { trigger_event = laamp_base_contract_schemes.1783 }
 				}
 				else = {
@@ -11198,16 +11241,16 @@ laamp_base_contract_schemes.1782 = {
 			every_in_global_list = {
 				variable = laamps_tally
 				limit = {
-					domicile = {
+					holder.domicile = { #Unop: laamps_tally is a list of Landed_title so holder.domicile is needed to get the domicile
 						domicile_location.duchy = root.location.duchy
 						# Laamps with defences can't be ambushed — partially for verisimilitude, partially just to keep loc variants down.
 						NOT = { has_domicile_building_or_higher = camp_perimeter_01 }
 					}
-					laamp_base_contract_schemes_1782_valid_target_char_trigger = yes
-					this != root
+					holder = { laamp_base_contract_schemes_1782_valid_target_char_trigger = yes } #Unop ck3-tiger
+					this.holder != root #Unop: laamps_tally is a list of Landed_title so this.holder is needed to get a char
 				}
 				save_scope_as = potential_chars_list
-				add_to_list = is_laamp_char_list
+				holder = { add_to_list = is_laamp_char_list } #Unop ck3-tiger is_laamp_char_list should contain characters
 			}
 		}
 		# Aaaand process them to pick out the one we want.
@@ -11712,13 +11755,13 @@ laamp_base_contract_schemes.2002 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -11989,13 +12032,13 @@ laamp_base_contract_schemes.2012 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -12668,13 +12711,13 @@ laamp_base_contract_schemes.2022 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		hidden_effect = {
@@ -12864,13 +12907,13 @@ laamp_base_contract_schemes.2032 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -13117,13 +13160,13 @@ laamp_base_contract_schemes.2042 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -15328,6 +15371,7 @@ laamp_base_contract_schemes.2322 = {
 					name = total_result
 					value = flag:violence
 				}
+				scope:person_a = { save_scope_as = aggressor } #Unop: We need the aggressor scope for laamp_base_contract_schemes.2332 event text
 			}
 			# Everyone else rolls the highest of their boldness or vengeance, min 20%.
 			else = {
@@ -15421,12 +15465,13 @@ laamp_base_contract_schemes.2322 = {
 	option = {
 		name = laamp_base_contract_schemes.2322.d
 		trigger = {
+			#Unop: Remove the scope check from the show_as_unavailable, so the option is now only shown if the event goes into violence.
+			scope:total_result = flag:violence
 			custom_tooltip = {
 				text = laamp_base_contract_schemes.2322.d.tt.need_troops
 				current_military_strength >= 500
 			}
 		}
-		show_as_unavailable = { scope:total_result = flag:violence }
 
 		duel = {
 			skill = martial
@@ -15593,10 +15638,6 @@ laamp_base_contract_schemes.2323 = {
 				}
 			}
 		}
-		# And send our laamp off.
-		hidden_effect = {
-			return_home = yes
-		}
 
 		# Neither stress nor AI chance, for t'is the only option.
 	}
@@ -15612,12 +15653,6 @@ laamp_base_contract_schemes.2323 = {
 			target = scope:person_a
 			modifier = respect_opinion
 			opinion = -50
-		}
-
-		# And send our laamp off.
-		hidden_effect = {
-			current_travel_plan = { resume_travel_plan = yes }
-			return_home = yes
 		}
 
 		stress_impact = {
@@ -16064,6 +16099,7 @@ laamp_base_contract_schemes.2332 = {
 	after = {
 		# And send our laamp off.
 		hidden_effect = {
+			current_travel_plan = { resume_travel_plan = yes } #Unop: laamp_base_contract_schemes.2301 is pausing the travel, so we need to resume it
 			return_home = yes
 		}
 		scope:person_b = {
@@ -16426,6 +16462,12 @@ laamp_base_contract_schemes.2541 = {
 					add = 15
 					scope:fluff_type = flag:admiration
 				}
+				modifier = {
+					add = {
+						value = scope:location.county.county_opinion
+						multiply = 0.1
+					}
+				}
 				min = 5
 				desc = laamp_base_contract_schemes.2541.a.tt.success
 				send_interface_toast = {
@@ -16576,6 +16618,12 @@ laamp_base_contract_schemes.2541 = {
 					value = scope:duel_value
 					multiplier = 3.5
 					min = -49
+				}
+				modifier = {
+					add = {
+						value = scope:location.county.development_level
+						multiply = 0.1
+					}
 				}
 				min = 5
 				desc = laamp_base_contract_schemes.2541.c.tt.success
@@ -16838,6 +16886,7 @@ laamp_base_contract_schemes.2541 = {
 	}
 
 	after = {
+		clear_saved_scope = fluff_type
 		if = {
 			limit = { scope:task_contract.var:destinations_processed >= scope:employer.laamp_base_2011_desired_surveyable_holdings_per_tier_value }
 			trigger_event = laamp_base_contract_schemes.2542
@@ -17161,7 +17210,7 @@ laamp_base_contract_schemes.2542 = {
 			}
 		}
 	}
-	window = scheme_successful_event
+	window = scheme_conclusion_event_no_header
 	theme = stewardship
 	left_portrait = {
 		character = scope:shown_officer
@@ -18193,7 +18242,7 @@ laamp_base_contract_schemes.2666 = {
 			name = resolution_type
 			value = flag:camp_purpose
 		}
-		show_as_tooltip = { laamp_base_contract_schemes_2661_purpose_win_effect = yes }
+		show_as_tooltip = { laamp_base_contract_schemes_2666_purpose_win_effect = yes } #Unop Use correct effect for this event
 		trigger_event = laamp_base_contract_schemes.2667
 
 		# No stress here.
@@ -18617,7 +18666,7 @@ laamp_base_contract_schemes.2671 = {
 			name = resolution_type
 			value = flag:camp_purpose
 		}
-		show_as_tooltip = { laamp_base_contract_schemes_2661_purpose_win_effect = yes }
+		show_as_tooltip = { laamp_base_contract_schemes_2671_purpose_win_effect = yes } #Unop Use correct effect for this event
 		trigger_event = laamp_base_contract_schemes.2672
 
 		stress_impact = {
@@ -19083,7 +19132,7 @@ laamp_base_contract_schemes.2676 = {
 			name = resolution_type
 			value = flag:camp_purpose
 		}
-		show_as_tooltip = { laamp_base_contract_schemes_2661_purpose_win_effect = yes }
+		show_as_tooltip = { laamp_base_contract_schemes_2676_purpose_win_effect = yes } #Unop Use correct effect for this event
 		trigger_event = laamp_base_contract_schemes.2677
 
 		# No stress here.
@@ -19569,7 +19618,7 @@ laamp_base_contract_schemes.2681 = {
 			name = resolution_type
 			value = flag:camp_purpose
 		}
-		show_as_tooltip = { laamp_base_contract_schemes_2661_purpose_win_effect = yes }
+		show_as_tooltip = { laamp_base_contract_schemes_2681_purpose_win_effect = yes } #Unop Use correct effect for this event
 		trigger_event = laamp_base_contract_schemes.2682
 
 		# No stress here.
@@ -20579,13 +20628,13 @@ laamp_base_contract_schemes.3002 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -21149,6 +21198,10 @@ laamp_base_contract_schemes.3022 = {
 
 	immediate = {
 		# Employer outcome.
+		#Unop Release target first to be able to imprison them
+		scope:target = {
+			release_from_prison = yes
+		}
 		imprison_character_effect = {
 			TARGET = scope:target
 			IMPRISONER = scope:employer
@@ -24256,14 +24309,14 @@ laamp_base_contract_schemes.3663 = {
 
 scripted_effect laamp_base_contract_schemes_3781_note_old_rollee_duel_effect = {
 	if = {
-		limit = { scope:secondary_roll = flag:agent_prowess }
+		limit = { scope:secondary_roll ?= flag:agent_prowess } #Unop: secondary_roll can be undefined (Undefined event target 'secondary_roll')
 		save_scope_value_as = {
 			name = old_secondary_roll
 			value = flag:agent_prowess
 		}
 	}
 	else_if = {
-		limit = { scope:secondary_roll = flag:agent_intrigue }
+		limit = { scope:secondary_roll ?= flag:agent_intrigue } #Unop: secondary_roll can be undefined (Undefined event target 'secondary_roll')
 		save_scope_value_as = {
 			name = old_secondary_roll
 			value = flag:agent_intrigue
@@ -24633,11 +24686,11 @@ laamp_base_contract_schemes.3781 = {
 			# Agent intrigue.
 			100 = {
 				trigger = { "list_size(former_agents_list)" >= 1 }
-				laamp_base_contract_schemes_3781_note_old_rollee_duel_effect = yes
-				save_scope_value_as = {
+								save_scope_value_as = {
 					name = secondary_roll
 					value = flag:agent_intrigue
 				}
+				laamp_base_contract_schemes_3781_note_old_rollee_duel_effect = yes
 				ordered_in_list = {
 					list = former_agents_list
 					order_by = {
@@ -24670,11 +24723,11 @@ laamp_base_contract_schemes.3781 = {
 			# Agent prowess.
 			100 = {
 				trigger = { "list_size(former_agents_list)" >= 1 }
-				laamp_base_contract_schemes_3781_note_old_rollee_duel_effect = yes
 				save_scope_value_as = {
 					name = secondary_roll
 					value = flag:agent_prowess
 				}
+				laamp_base_contract_schemes_3781_note_old_rollee_duel_effect = yes
 				ordered_in_list = {
 					list = former_agents_list
 					order_by = {
@@ -25140,11 +25193,11 @@ laamp_base_contract_schemes.3782 = {
 				}
 				## Deduct our earnings.
 				if = {
-					limit = { scope:contribution_gold != 0 }
+					limit = { root.var:haul_actual != 0 }
 					hidden_effect = {
-						add_gold = {
-							value = scope:contribution_gold
-							multiply = scope:haul_percentage
+						remove_short_term_gold = {
+							value = root.var:haul_actual
+							min = 1
 						}
 					}
 				}
@@ -25420,13 +25473,13 @@ laamp_base_contract_schemes.4002 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -25614,13 +25667,13 @@ laamp_base_contract_schemes.4012 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = { add_piety = major_piety_gain }
@@ -25795,13 +25848,13 @@ laamp_base_contract_schemes.4022 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -25985,13 +26038,13 @@ laamp_base_contract_schemes.4032 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -26402,13 +26455,13 @@ laamp_base_contract_schemes.5002 = {
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
 		# Clean up variables.
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -26620,13 +26673,13 @@ laamp_base_contract_schemes.5012 = {
 
 	immediate = {
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {
@@ -29233,13 +29286,13 @@ laamp_base_contract_schemes.6002 = {
 	immediate = {
 		select_local_animal_effect = { TYPE = dangerous }
 		laamp_base_contract_schemes_set_up_outcome_immediate_effect = yes
-		random_list = {
-			67 = {
+		#Unop Use pre-determined success type to avoid potentially incorrect tooltip
+		if = {
+			limit = { scope:unop_success_type ?= flag:success_standard }
 				scope:scheme.task_contract = { complete_task_contract = success_standard }
 			}
-			33 = {
+		else = {
 				scope:scheme.task_contract = { complete_task_contract = success_critical }
-			}
 		}
 		# Employer outcome.
 		scope:employer = {

@@ -1816,6 +1816,9 @@ court_yearly.5020 = {
 			years = 10
 		}
 		random_courtier = {
+			limit = {
+				is_available_ai_adult = yes #Unop: Sync with the trigger
+			}
 			weight = { #More likely if you dislike each other
 				opinion_modifier = {
 					opinion_target = root
@@ -2960,6 +2963,7 @@ scripted_trigger court_7040_ascetic_religion_trigger = {
 	faith = {
 		OR = {
 			religion_tag = calradian_religion
+			religion_tag = taoism_ph_religion
 			has_doctrine = tenet_asceticism
 		}
 	}
@@ -3873,7 +3877,7 @@ scripted_effect event_0101_spawn_criminal_effect = {
 				10 = { #Holy man murderer
 					modifier = {
 						factor = 0
-						NOT = { has_allowed_gender_for_clergy = scope:lowborn_criminal }
+						NOT = { faith = { has_allowed_gender_for_clergy = scope:lowborn_criminal } } #Unop Use correct scope
 					}
 					replace_with_learning_trait_effect = yes
 					add_character_flag = {
@@ -5229,7 +5233,7 @@ court_yearly.0110 = {
 		has_royal_court = yes
 		has_dlc_feature = royal_court
 		any_parent = {
-			exists = yes
+			exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 			is_available_adult = yes
 			liege = root
 			is_landed = no
@@ -5265,7 +5269,7 @@ court_yearly.0110 = {
 		modifier = { 
 			add = 0.5
 			any_parent = {
-				exists = yes
+				exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 				is_available_adult = yes
 				liege = root
 				is_landed = no
@@ -5315,7 +5319,7 @@ court_yearly.0110 = {
 		}
 		progress_towards_rival_effect = {
 			REASON = rival_parent_imprisoned
-			CHARACTER = cp:councillor_court_chaplain
+			CHARACTER = scope:chaplain #Unop: Because using cp:XXX as parameter can cause issue 
 			OPINION = default_rival_opinion
 		}
 		imprison_character_effect = {
@@ -5796,6 +5800,24 @@ scripted_trigger root_faith_compare_doctrine_trigger = {
 	}
 }
 
+#Unop: So we can check for witchcraft properly since the introduction of witchcraft being virtuous
+scripted_trigger root_faith_compare_doctrine_parameter_trigger = {
+	OR = {
+		AND = {
+			faith = { has_doctrine_parameter = $DOCTRINE_PARAMETER$ }
+			NOT = {
+				ROOT.faith = { has_doctrine_parameter = $DOCTRINE_PARAMETER$ }
+			}
+		}
+		AND = {
+			ROOT.faith = { has_doctrine_parameter = $DOCTRINE_PARAMETER$ }
+			NOT = {
+				faith = { has_doctrine_parameter = $DOCTRINE_PARAMETER$ }
+			}
+		}
+	}
+}
+
 scripted_trigger court_8120_zealous_vassal_trigger = {
 	faith = ROOT.faith
 	has_trait = zealous
@@ -5884,7 +5906,7 @@ scripted_trigger court_8120_debater_trigger = {
 		root_faith_compare_doctrine_trigger = { DOCTRINE = doctrine_divorce_disallowed } # Divorce 
 		root_faith_compare_doctrine_trigger = { DOCTRINE = doctrine_adultery_women_accepted } # Adultery Female
 		root_faith_compare_doctrine_trigger = { DOCTRINE = doctrine_adultery_men_accepted } # Adultery Male
-		root_faith_compare_doctrine_trigger = { DOCTRINE = doctrine_witchcraft_accepted } # Witchcraft 
+		root_faith_compare_doctrine_parameter_trigger = { DOCTRINE_PARAMETER = witchcraft_accepted } # Witchcraft #Unop: Need to check the parameter since this was made before the creation of witchcraft virtuous
 		root_faith_compare_doctrine_trigger = { DOCTRINE = doctrine_gender_equal } # Equality 
 		root_faith_compare_doctrine_trigger = { DOCTRINE = doctrine_consanguinity_unrestricted } # Cosanguity
 	}
@@ -6117,6 +6139,20 @@ court_yearly.8120 = {
 				else = { save_scope_as = refuter }
 	    	}
 	    }
+
+		#Unop Add debug logging
+		if = { 
+			limit = {
+				NOR = {
+					exists = scope:refuter
+					exists = scope:accuser
+				}
+				#debug_only = yes 
+			}
+			debug_log = "Unop: For court_yearly.8120 diagnostic"
+			debug_log_scopes = yes
+		}
+
 	    # Scopes for conversion effects
 	    save_scope_as = character
         if = {
