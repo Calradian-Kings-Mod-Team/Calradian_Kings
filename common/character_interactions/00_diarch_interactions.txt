@@ -4994,20 +4994,27 @@ diarch_coup_liege_interaction = {
 	# First, grab every other powerful vassal of your liege & plonk them in a list.
 	populate_recipient_list = {
 		scope:actor.liege = {
-			every_powerful_vassal = {
+			if = { #Unop Populate either powerful vassals or powerful family heads, consistent with other triggers
 				limit = {
-					this != scope:actor
+					scope:recipient = { NOT = { government_has_flag = government_has_powerful_families } }
 				}
-				add_to_list = characters
-			}
-			every_powerful_family = {
-				limit = {
-					NOR = {
-						house_head = scope:actor
-						house_head = scope:recipient
+				every_powerful_vassal = {
+					limit = {
+						this != scope:actor
 					}
+					add_to_list = characters
 				}
-				house_head = { add_to_list = characters }
+			}
+			else = {
+				every_powerful_family = {
+					limit = {
+						NOR = {
+							house_head = scope:actor
+							house_head = scope:recipient
+						}
+					}
+					house_head = { add_to_list = characters }
+				}
 			}
 		}
 	}
@@ -5130,6 +5137,7 @@ diarch_coup_liege_interaction = {
 				scope:recipient = { government_has_flag = government_has_powerful_families }
 			}
 			scope:secondary_recipient.house = { is_powerful_family = yes }
+			scope:secondary_recipient = { is_house_head = yes } #Unop Only invite powerful family heads, consistent with other triggers
 		}
 		trigger_else = {
 			scope:secondary_recipient = { is_powerful_vassal = yes }
@@ -9223,13 +9231,15 @@ appoint_vizier_interaction = {
 				exists = scope:secondary_recipient
 			}
 			scope:secondary_recipient = {
+				exists = liege
+				exists = liege.faith
 				is_valid_basic_candidate_for_vizier_trigger = yes
-			OR = {
-				is_courtier_of = scope:actor
-				AND = {
-					highest_held_title_tier = tier_barony
-					liege = scope:actor
-				}
+				OR = {
+					is_courtier_of = scope:actor
+					AND = {
+						highest_held_title_tier = tier_barony
+						liege = scope:actor
+					}
 				}
 			}
 		}
