@@ -1057,3 +1057,101 @@ release_hostage_interaction = {
 
 	auto_accept = yes
 }
+
+wb_companion_scramble_interaction = {
+	category = interaction_debug_main
+	icon = icon_force_to_step_down
+	common_interaction = yes
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	is_shown = {
+		debug_only = yes
+		scope:recipient ?= {
+			is_ruler = no
+			OR = {
+				character_is_wb_claimant = yes
+				has_variable = companion_recruitable_var
+			}
+		}
+	}
+	send_option = {
+		is_shown = {
+			scope:recipient = {
+				has_variable = companion_recruitable_var
+			}
+		}
+		flag = spawned_companion
+	}
+	send_option = {
+		is_shown = {
+			scope:recipient = {
+				has_variable = wb_claimant
+			}
+		}
+		flag = spawned_claimant
+	}
+	send_options_exclusive = no
+	options_heading = wb_reset_location
+
+	on_accept = {
+		switch = {
+			trigger = yes
+			scope:spawned_claimant = {
+				every_province = {
+					limit = {
+						has_variable = spawned_claimant
+					}
+					remove_variable = spawned_claimant
+				}
+			}
+			scope:spawned_companion = {
+				every_province = {
+					limit = {
+						has_variable = spawned_companion
+					}
+					remove_variable = spawned_companion
+				}
+			}
+		}
+		scope:recipient = {
+			set_location_to_default = yes
+			remove_character_flag = ck_companion_recruited
+			if = {
+				limit = {
+					has_variable = companion_recruitable_var
+				}
+				set_random_location_companion_effect = yes
+			}
+			else = {
+				set_random_location_claimant_effect = yes
+			}
+		}
+	}
+
+	auto_accept = yes
+}
+wb_claimant_retake_interaction = {
+	category = interaction_debug_main
+	icon = force_abdication
+	common_interaction = yes
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	is_shown = {
+		debug_only = yes
+		scope:recipient ?= {
+			character_is_wb_claimant = yes
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			warband_claimants_retake_effect = yes
+		}
+	}
+
+	auto_accept = yes
+}
