@@ -95,6 +95,15 @@ ck_game_start = {
 					add_culture_tradition = tradition_devoted_horsemanship
 				}
 			}
+			# was at "base origin" instead of bookmark's 4 value
+			dynasty:dynn_banu_sarran = {
+				if = {
+					limit = {
+						dynasty_prestige_level < 4
+					}
+					add_dynasty_prestige = 2300
+				}
+			}
 		}
 		
 	}
@@ -125,6 +134,56 @@ ck_game_start_after_lobby = {
 				}
 				warband_claimant_destroy_title_effect = yes
 				warband_claimant_location_effect = yes
+			}
+			else_if = {
+				every_duchy = {
+					limit = {
+						is_landless_type_title = yes
+						var:adventurer_creation_reason ?= flag:exile
+						holder ?= { has_variable = wb_claimant }
+					}
+					holder = {
+						if = {
+							limit = {
+								has_game_rule = ck_claimants_off
+							}
+							var:wb_claimant = {
+								holder ?= {
+									save_temporary_scope_as = killer
+								}
+							}
+							if = {
+								limit = {
+									exists = scope:killer
+								}
+								death = {
+									killer = scope:killer
+									death_reason = death_coup_successful
+								}
+							}
+							else = {
+								silent_disappearance_effect = yes
+							}
+						}
+						else_if = {
+							limit = {
+								has_game_rule = ck_claimants_invert
+							}
+							if = {
+								limit = {
+									primary_title.var:can_keep_realm_law ?= flag:equal_law
+								}
+								var:wb_claimant = {
+									set_variable = { name = can_keep_realm_law value = flag:equal_law }
+								}
+							}
+							warband_claimants_retake_effect = yes
+						}
+						else = { # populate contracts without any visits
+							trigger_event = ep3_laamps.9982
+						}
+					}
+				}
 			}
 		}
 	}
