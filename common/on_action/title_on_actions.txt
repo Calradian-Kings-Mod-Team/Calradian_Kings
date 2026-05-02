@@ -4210,6 +4210,31 @@ on_title_gain = {
 			}
 		}
 
+		# wb claimants - flag cleanup
+		if = {
+			# do not check character_is_wb_claimant because the claim should be gone by now
+			limit = {
+				has_variable = wb_claimant
+				scope:title = var:wb_claimant
+				# months_from_game_start > 0
+				NOT = {
+					scope:previous_holder ?= {
+						has_variable = wb_claimant
+					}
+				}
+			}
+			remove_variable = wb_claimant
+			if = {
+				limit = {
+					has_legitimacy = yes
+				}
+				add_legitimacy = massive_legitimacy_gain
+			}
+			else = {
+				add_prestige_level = 1
+			}
+			play_music_cue = mx_Struggle_ending_conciliation
+		}
 		
 		# Did I conquer a place with holy order leases not of my faith?
 		if = {
@@ -4656,8 +4681,6 @@ on_title_gain = {
 	events = {
 		# roman_restoration.0005		#New Roman Emperor gets Augustus trait. (old holder, if still alive, loses it)
 		# roman_restoration.0199		#Restoring the Pentarchy.
-		# religious_decision.0312		# Base game: new holder of a county with a runestone
-		fp1_other_decisions.0113	# FP1: new holder of a county with a runestone
 		delay = { days = 1 }
 		realm_maintenance.2001		#Big notification about inheriting emperor tier title
 		# If we weren't already in a diarchy but should be, put us in one.

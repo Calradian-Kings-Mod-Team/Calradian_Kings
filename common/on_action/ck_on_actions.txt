@@ -81,13 +81,6 @@ ck_game_start = {
 			}
 			# Spawn in companions into random cities
 			warband_companions_location_effect = yes
-			# Gamerule: Canonical Families - If enabled, rulers like Harlaus will start with a pre-generated family
-			if = {
-				limit = {
-					has_game_rule = ck_non_canon
-				}
-				ck_warband_canonical_family_effect = yes
-			}
 			## Change Khergit name list to name_list_khergit for proper Noyan titles
 			culture:khergit = {
 				set_name_list = name_list_khergit
@@ -102,6 +95,15 @@ ck_game_start = {
 					add_culture_tradition = tradition_devoted_horsemanship
 				}
 			}
+			# was at "base origin" instead of bookmark's 4 value
+			dynasty:dynn_banu_sarran = {
+				if = {
+					limit = {
+						dynasty_prestige_level < 4
+					}
+					add_dynasty_prestige = 2300
+				}
+			}
 		}
 		
 	}
@@ -112,6 +114,19 @@ ck_game_start_after_lobby = {
 			limit = {
 				game_start_date >= 1257.3.23
 			}
+			# Gamerule: Canonical Families - If enabled, rulers like Harlaus will start with a pre-generated family
+			if = {
+				limit = {
+					NOT = {
+						has_game_rule = ck_canon_single
+					}
+				}
+				# this effect was moved down so the player can be checked
+				ck_warband_canonical_family_effect = yes
+			}
+			# else = {
+ 			# 	# disappear the fake family if true?
+			# }
 			# Destroy the titles of AI claimants, if game rule is enabled
 			if = {
 				limit = {
@@ -119,6 +134,56 @@ ck_game_start_after_lobby = {
 				}
 				warband_claimant_destroy_title_effect = yes
 				warband_claimant_location_effect = yes
+			}
+			else_if = {
+				every_duchy = {
+					limit = {
+						is_landless_type_title = yes
+						var:adventurer_creation_reason ?= flag:exile
+						holder ?= { has_variable = wb_claimant }
+					}
+					holder = {
+						if = {
+							limit = {
+								has_game_rule = ck_claimants_off
+							}
+							var:wb_claimant = {
+								holder ?= {
+									save_temporary_scope_as = killer
+								}
+							}
+							if = {
+								limit = {
+									exists = scope:killer
+								}
+								death = {
+									killer = scope:killer
+									death_reason = death_coup_successful
+								}
+							}
+							else = {
+								silent_disappearance_effect = yes
+							}
+						}
+						else_if = {
+							limit = {
+								has_game_rule = ck_claimants_invert
+							}
+							if = {
+								limit = {
+									primary_title.var:can_keep_realm_law ?= flag:equal_law
+								}
+								var:wb_claimant = {
+									set_variable = { name = can_keep_realm_law value = flag:equal_law }
+								}
+							}
+							warband_claimants_retake_effect = yes
+						}
+						else = { # populate contracts without any visits
+							trigger_event = ep3_laamps.9982
+						}
+					}
+				}
 			}
 		}
 	}

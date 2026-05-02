@@ -3320,15 +3320,6 @@ on_game_start_after_lobby = {
 						has_government = landless_adventurer_government
 					}
 					add_realm_law_skip_effects = camp_purpose_mercenaries
-					# and because history in character file does not work...
-					if = { # Zalisa, spouse
-						limit = {
-							character:vaegir_laamp_1_1 = {
-								NOT = { is_courtier_of = character:vaegir_laamp_1 }
-							}
-						}
-						add_courtier = character:vaegir_laamp_1_1
-					}
 				}
 			}
 
@@ -3480,61 +3471,6 @@ on_game_start_after_lobby = {
 					add_realm_law_skip_effects = camp_purpose_mercenaries
 				}
 			}
-			# Warband Claimants
-			character:isolla_wb ?= {
-				if = {
-					limit = {
-						is_alive = yes
-						has_government = landless_adventurer_government
-					}
-					add_realm_law_skip_effects = camp_purpose_legitimists
-				}
-			}
-			character:kastor_wb ?= {
-				if = {
-					limit = {
-						is_alive = yes
-						has_government = landless_adventurer_government
-					}
-					add_realm_law_skip_effects = camp_purpose_legitimists
-				}
-			}
-			character:dustum_wb ?= {
-				if = {
-					limit = {
-						is_alive = yes
-						has_government = landless_adventurer_government
-					}
-					add_realm_law_skip_effects = camp_purpose_legitimists
-				}
-			}
-			character:lethwin_wb ?= {
-				if = {
-					limit = {
-						is_alive = yes
-						has_government = landless_adventurer_government
-					}
-					add_realm_law_skip_effects = camp_purpose_legitimists
-				}
-			}
-			character:arwa_wb ?= {
-				if = {
-					limit = {
-						is_alive = yes
-						has_government = landless_adventurer_government
-					}
-					add_realm_law_skip_effects = camp_purpose_legitimists
-				}
-			}
-			character:valdym_wb ?= {
-				if = {
-					limit = {
-						is_alive = yes
-						has_government = landless_adventurer_government
-					}
-					add_realm_law_skip_effects = camp_purpose_legitimists
-				}
-			}
 			every_independent_ruler = {
 				if = {
 					limit = { is_landless_adventurer = yes }
@@ -3553,6 +3489,30 @@ on_game_start_after_lobby = {
 						trigger_event = {
 							on_action = on_adventurer_ai_new_employer_arrival
 							days = { 10 30 }
+						}
+						# starting with high martial means they get the perk very often, point them elsewhere
+						if = {
+							limit = {
+								has_perk = gallant_perk
+								has_trait = gallowsbait
+							}
+							remove_perk = gallant_perk
+							# add_wanderer_lifestyle_perk_points = 1
+							random_list = {
+								10 = {
+									add_perk = mustering_the_troops_perk
+								}
+								15 = {
+									add_perk = well_prepared_perk
+								}
+								15 = {
+									add_perk = power_at_home_perk
+								}
+								5 = {
+									add_perk = mercenary_contacts_perk
+								}
+							}
+							set_focus = wanderer_destination_focus
 						}
 					}
 					# Sort our starting flavourisation.
