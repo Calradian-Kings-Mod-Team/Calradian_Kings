@@ -5,7 +5,7 @@ lethwin_wb = {
 	dna = lethwin_wb_dna
 	religion = jumne
 	culture = nord
-	trait = education_learning_5
+	trait = education_learning_4 # nerfed a bit otherwise he has over 100 total
 	trait = intellect_good_1
 	father = lethwin_father
 	mother = lethwin_mother
@@ -41,10 +41,40 @@ lethwin_wb = {
 			add_intrigue_skill = 1
 			add_intrigue_lifestyle_xp = minor_lifestyle_xp
 			# Learning
-			add_learning_skill = 2
-			add_learning_lifestyle_xp = medium_lifestyle_xp
+			# add_learning_skill = 2 # did not actually finish
+			add_learning_lifestyle_xp = major_lifestyle_xp
+			random_county = {
+				limit = {
+					title_province = { has_university_building_trigger = yes }
+				}
+				title_province = { 
+					save_temporary_scope_as = activity_location
+				}
+			}
+			if = {
+				limit = {
+					exists = scope:activity_location
+				}
+				create_character_memory = {
+					type = completed_adult_education
+					# years = 25 # this acts as a pseudo-cooldown (at the same location)
+				}
+				scope:new_memory = {
+					set_variable = {
+						name = education_destination
+						value = scope:activity_location
+					}
+				}
+				learn_language_of_culture = scope:activity_location.culture
+				# change_trait_rank = {
+				# 	trait = education_learning
+				# 	rank = 1
+				# }
+				add_perk = scholar_perk
+			}
+			add_trait = logistician # Years of traveling have made him a better logistician
+			add_trait = lifestyle_traveler # Years of logic have made him a better traveller
 		}
-		add_trait = logistician # Years of traveling have made him a better logistician
 	}
 	# Give Lethwin his claims
 	1254.9.19 = {
@@ -60,18 +90,32 @@ lethwin_wb = {
 			add_pressed_claim = title:c_tver
 			add_pressed_claim = title:k_druinova
 			set_variable = { name = wb_claimant value = title:e_nords }
+			add_trait_xp = {
+				trait = lifestyle_traveler
+				track = travel
+				value = 20
+			}
 		}
-		add_trait = scholar
 	}
 	# Laamp Effects #
 	1256.1.1 = {
 		effect = {
+			add_trait_xp = {
+				trait = lifestyle_traveler
+				track = danger
+				value = age
+			}
+			add_perk = power_at_home_perk # ironic
+			add_perk = journey_perk
+			add_perk = been_there_done_that_perk
 			set_landless_government_effect = yes
 			add_character_flag = special_laamp_char
 			add_character_flag = do_not_generate_starting_family
 
 			if = {
 				limit = { is_ruler = yes }
+				# add_wanderer_lifestyle_perk_points = 4
+				set_focus = wanderer_journey_focus
 				# Add their capital holder as a contact w/ half the normal respect opinion
 				add_contact = character:yaroglek_wb
 				add_opinion = {
@@ -298,7 +342,9 @@ kastor_wb = {
 		effect = { # Stewardship Education Paid Off
 			add_stewardship_skill = 2
 			add_stewardship_lifestyle_xp = medium_lifestyle_xp
+			add_gold = 500
 		}
+		trait = education_republican_knowledge_3 # he's the worst claimant stat-wise
 	}
 	# Give him the claim for gameplay purposes
 	1252.12.15 = {
@@ -480,7 +526,21 @@ arwa_wb = {
 
     1253.3.22 = {
         effect = {
-			# add witch secret known to hakim?
+			house ?= {
+				add_unity_value = {
+					value = -30
+					character = character:hakim_wb
+					desc = clan_unity_historical_circumstances.desc
+				}
+			}
+			add_secret = {
+				type = secret_witch
+			}
+			random_secret = {
+				type = secret_witch
+				reveal_to = character:hakim_wb
+				# save_scope_as = witch_secret
+			}
             set_relation_rival = { target = character:hakim_wb reason = rival_usurper }	# Hakim usurped Arwa
 			add_opinion = {
 				target = character:hakim_wb
@@ -607,6 +667,7 @@ isolla_wb = {
 			add_pressed_claim = title:k_swadia
 			add_pressed_claim = title:k_battania
             set_variable = { name = wb_claimant value = title:k_swadia }
+			add_character_modifier = ignores_gender_army_rules
         }
     }
 	# Laamp Effects #
@@ -697,6 +758,14 @@ dustum_wb = {
 	}
 	1250.1.1 = {
         effect = {
+			save_temporary_scope_as = unity_target
+			house ?= {
+				add_unity_value = {
+					value = -30
+					character = character:sanjar_wb
+					desc = clan_unity_scared_into_sub.desc
+				}
+			}
             set_relation_rival = { target = character:sanjar_wb reason = rival_usurper }	# Sanjar usurped Dustum
 			add_opinion = {
 				target = character:sanjar_wb
