@@ -65,6 +65,7 @@ influence_candidacy_interaction = {
 				TOP_LIEGE = scope:recipient
 			}
 		}
+		tgp_ceremonial_candidacy_restriction_trigger = yes #Unop: Prevent selecting invalid title
 	}
 
 	has_valid_target_showing_failures_only = {
@@ -3561,7 +3562,7 @@ request_council_interaction = {
 			# Admin only
 			government_allows = administrative
 			# Except for Merit based realms - they should compete with merit and score instead
-			NOT = { government_allows = merit }
+			#NOT = { government_allows = merit } #Unop You can't really compete for council positions with "merit and score"
 		}
 		scope:recipient = {
 			government_allows = administrative
@@ -8055,7 +8056,7 @@ request_governorship_interaction = {
 	cooldown_against_recipient = { years = 10 }
 
 	redirect = {
-		scope:recipient = { save_scope_as = secondary_recipient }
+		scope:recipient ?= { save_scope_as = secondary_recipient }
 	}
 
 	cost = {
@@ -8798,13 +8799,13 @@ noble_family_adoption_interaction = {
 				type = event_toast_effect_bad
 				title = noble_family_adoption_effect_toast
 				left_icon = scope:recipient
-				right_icon = scope:actor.house
+				right_icon = scope:actor #Unop: Toast icon cannot display houses
 				scope:recipient = {
 					send_interface_toast = {
 						type = event_toast_effect_bad
 						title = noble_family_adoption_effect_toast
 						left_icon = scope:recipient
-						right_icon = scope:actor.house
+						right_icon = scope:actor #Unop: Toast icon cannot display houses
 						if = {
 							limit = { scope:actor = { is_ai = yes } }
 							reverse_add_opinion = {
@@ -10088,9 +10089,11 @@ request_title_troops_back_interaction = {
 				remove_variable = title_troops_lent_out
 			}
 		}
-		tgp_activate_catalyst_against_hegemon_effect = {
-			HEGEMON = scope:recipient
-			CATALYST = catalyst_hegemon_influenced_by_interaction
+		scope:actor = { #Unop: Add this missing actor scope
+			tgp_activate_catalyst_against_hegemon_effect = {
+				HEGEMON = scope:recipient
+				CATALYST = catalyst_hegemon_influenced_by_interaction
+			}
 		}
 	}
 
@@ -10236,10 +10239,12 @@ request_raid_remit_interaction = {
 	on_accept = {
 		if = {
 			limit = { scope:gold = yes }
-			scope:actor = {
-				pay_short_term_gold = {
-					target = scope:recipient
-					gold = scope:actor.minor_gold_value
+			show_as_tooltip = { #Unop Only show as tooltip since the gold is paid also in ep3_interactions_events.0421
+				scope:actor = {
+					pay_short_term_gold = {
+						target = scope:recipient
+						gold = scope:actor.minor_gold_value
+					}
 				}
 			}
 		}
@@ -11606,8 +11611,7 @@ house_head_request_interaction = {
 			}
 		}
 		is_shown = {
-			scope:actor.domicile ?= { has_domicile_building_or_higher = cabinet_of_curiosities_01 }
-
+			scope:actor.domicile ?= { has_domicile_parameter = house_head_can_ask_for_artifacts } #Unop Use domicile parameter to support all domicile buildings
 		}
 		flag = artifact
 		localization = ASK_FOR_ARTIFACT
@@ -11626,10 +11630,7 @@ house_head_request_interaction = {
 			}
 		}
 		is_shown = {
-			OR = {
-				scope:actor.domicile ?= { has_domicile_building_or_higher = guardhouse_01 }
-				scope:actor.domicile ?= { has_domicile_building_or_higher = barracks_01 }
-			}
+			scope:actor.domicile ?= { has_domicile_parameter = house_head_can_ask_for_knight } #Unop Use domicile parameter to support all domicile buildings
 		}
 		flag = knight
 		localization = ASK_FOR_KNIGHT
@@ -11672,21 +11673,14 @@ house_head_request_interaction = {
 			}
 		}
 		is_shown = {
-			OR = {
-				scope:actor.domicile ?= { has_domicile_building_or_higher = guardhouse_03 }
-				scope:actor.domicile ?= { has_domicile_building_or_higher = barracks_01 }
-				scope:actor.domicile ?= { has_domicile_building_or_higher = watchtower_04 }
-			}
+			scope:actor.domicile ?= { has_domicile_parameter = house_head_can_ask_for_maa } #Unop Use domicile parameter to support all domicile buildings
 		}
 		flag = maa
 		localization = ASK_FOR_MAA
 	}
 	send_option = {
 		is_shown = {
-			OR = {
-				scope:actor.domicile ?= { has_domicile_building_or_higher = storage_01 }
-				scope:actor.domicile ?= { has_domicile_building_or_higher = storage_warehouse_03 }
-			}
+			scope:actor.domicile ?= { has_domicile_parameter = house_head_can_ask_building_support } #Unop Use domicile parameter to support all domicile buildings
 		}
 		flag = building
 		localization = ASK_FOR_BUILDING
@@ -12514,7 +12508,7 @@ ep3_hof_ask_for_influence_interaction = {
 
 		modifier = { # Parent of the Head of Faith
 			add = 25
-			desc = YOU_ARE_MY_PARENT
+			desc = PARENTS #Unop: YOU_ARE_MY_PARENT does not exists
 			scope:recipient = {
 				is_child_of = scope:actor
 			}
@@ -12883,22 +12877,22 @@ ep3_join_faction_war_interaction = {
 		modifier = { # Reluctant to join against Friends
 			add = -50
 			has_relation_friend = scope:secondary_recipient
-			desc = WONT_FIGHT_FRIEND
+			desc = WONT_FIGHT_FRIEND_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Best Friends
 			add = -100
 			has_relation_best_friend = scope:secondary_recipient
-			desc = WONT_FIGHT_BEST_FRIEND
+			desc = WONT_FIGHT_BEST_FRIEND_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Lovers
 			add = -100
 			has_relation_lover = scope:secondary_recipient
-			desc = WONT_FIGHT_LOVER
+			desc = WONT_FIGHT_LOVER_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Soulmate
 			add = -200
 			has_relation_soulmate = scope:secondary_recipient
-			desc = WONT_FIGHT_SOULMATE
+			desc = WONT_FIGHT_SOULMATE_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = {  # Refuse call for hostages' safety
 			any_home_court_hostage = {
@@ -13280,25 +13274,25 @@ ep3_switch_faction_war_sides_interaction = {
 			add = -50
 			exists = scope:secondary_recipient
 			has_relation_friend = scope:secondary_recipient
-			desc = WONT_FIGHT_FRIEND
+			desc = WONT_FIGHT_FRIEND_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Best Friends
 			add = -100
 			exists = scope:secondary_recipient
 			has_relation_best_friend = scope:secondary_recipient
-			desc = WONT_FIGHT_BEST_FRIEND
+			desc = WONT_FIGHT_BEST_FRIEND_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Lovers
 			add = -100
 			exists = scope:secondary_recipient
 			has_relation_lover = scope:secondary_recipient
-			desc = WONT_FIGHT_LOVER
+			desc = WONT_FIGHT_LOVER_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Soulmate
 			add = -200
 			exists = scope:secondary_recipient
 			has_relation_soulmate = scope:secondary_recipient
-			desc = WONT_FIGHT_SOULMATE
+			desc = WONT_FIGHT_SOULMATE_REASON #Unop: Missing _REASON suffix
 		}
 	}
 
