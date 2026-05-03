@@ -48,8 +48,8 @@
 				exists = scope:inspiration_owner
 				scope:inspiration_owner = {
 					has_character_flag = local_artisan
+					liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 				}
-				liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 			}
 			multiply = estate_reduce_commission_artifact_cost_value
 		}
@@ -211,7 +211,7 @@ armor_inspiration = {
 		if = {
 			limit = {
 				scope:inspiration_owner ?= { has_character_flag = local_artisan }
-				liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
+				scope:inspiration_owner.liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } #Unop Use correct scope: root is inspiration
 			}
 			multiply = estate_reduce_commission_artifact_cost_value
 		}
@@ -381,8 +381,8 @@ book_inspiration = {
 				exists = scope:inspiration_owner
 				scope:inspiration_owner = {
 					has_character_flag = local_artisan
+					liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 				}
-				liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 			}
 			multiply = estate_reduce_commission_artifact_cost_value
 		}
@@ -531,8 +531,8 @@ weaver_inspiration = {
 				exists = scope:inspiration_owner
 				scope:inspiration_owner = {
 					has_character_flag = local_artisan
+					liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 				}
-				liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 			}
 			multiply = estate_reduce_commission_artifact_cost_value
 		}
@@ -1042,8 +1042,8 @@ artisan_inspiration = {
 				exists = scope:inspiration_owner
 				scope:inspiration_owner = {
 					has_character_flag = local_artisan
+					liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 				}
-				liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 			}
 			multiply = estate_reduce_commission_artifact_cost_value
 		}
@@ -1136,8 +1136,16 @@ artisan_inspiration = {
 									}
 									modifier = {
 										add = 20
-										scope:inspiration_sponsor = {
-											ep3_orthodox_faith_trigger = yes
+										trigger_if = { #Unop: inspiration_sponsor can be undefined here, so if it is, use the liege
+											limit = { exists = scope:inspiration_sponsor }
+											scope:inspiration_sponsor = {
+												ep3_orthodox_faith_trigger = yes
+											}
+										}
+										trigger_else = {
+											liege = {
+												ep3_orthodox_faith_trigger = yes
+											}
 										}
 									}
 									set_variable = {
@@ -1280,8 +1288,8 @@ smith_inspiration = {
 				exists = scope:inspiration_owner
 				scope:inspiration_owner = {
 					has_character_flag = local_artisan
+					liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 				}
-				liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 			}
 			multiply = estate_reduce_commission_artifact_cost_value
 		}
@@ -1606,7 +1614,7 @@ alchemy_inspiration = {
 }
 
 research_inspiration = {
-	gold = fp3_research_base_cost
+	gold = scope:inspiration_sponsor.fp3_research_base_cost #Unop: So the cost is actually correctly calculated
 
 	progress_chance = 75
 
@@ -1694,7 +1702,7 @@ research_inspiration = {
 }
 
 religious_inspiration = {
-	gold = medium_gold_value
+	gold = scope:inspiration_sponsor.medium_gold_value #Unop: So the cost is actually correctly calculated
 
 	progress_chance = 100
 
@@ -1812,8 +1820,8 @@ bow_inspiration = {
 				exists = scope:inspiration_owner
 				scope:inspiration_owner = {
 					has_character_flag = local_artisan
+					liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 				}
-				liege.domicile ?= { has_domicile_parameter = estate_reduce_commission_artifact_cost } # We check liege specifically because scope:inspiration_sponsor does not exist yet
 			}
 			multiply = estate_reduce_commission_artifact_cost_value
 		}
