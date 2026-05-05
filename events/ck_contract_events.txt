@@ -1,0 +1,1797 @@
+﻿namespace = ck_contract_events
+
+scripted_effect ck_contract_events_0001_organise_travel_effect = {
+	start_travel_plan = {
+		destination = scope:ck_destination_1
+		destination = scope:ck_destination_2
+		destination = scope:ck_destination_3
+		destination = scope:ck_destination_4
+		destination = scope:ck_employer_province
+		on_arrival_event = ck_contract_events.0003
+		travel_with_domicile = $DOMICILE$
+		return_trip = $RETURN$
+		on_travel_planner_cancel_event = ck_contract_events.0002
+		players_use_planner = no
+		on_arrival_destinations = $EVENT_FIRE$
+	}
+}
+
+scripted_effect ck_contract_events_0001_create_peasant_effect = {
+	if = {
+		limit = {
+			NOT = {
+				exists = scope:destination_$NUM$_character
+			}
+			location = scope:ck_destination_$NUM$
+		}
+		create_character = {
+			template = peasant_character
+			location = scope:ck_destination_$NUM$
+			dynasty = none
+			culture = scope:ck_destination_$NUM$.culture
+			faith = scope:ck_destination_$NUM$.faith
+			gender_female_chance = 50
+			after_creation = {
+				set_to_lowborn = yes
+			}
+			save_scope_as = destination_$NUM$_character
+		}
+	}
+}
+
+scripted_effect ck_contract_events_0001_create_herdsman_effect = {
+	if = {
+		limit = {
+			NOT = {
+				exists = scope:employer_herdsman_character
+			}
+		}
+		create_character = {
+			template = peasant_character
+			location = scope:ck_employer_province
+			dynasty = none
+			culture = scope:ck_employer_capital.culture
+			faith = scope:ck_employer_capital.faith
+			gender_female_chance = 50
+			after_creation = {
+				set_to_lowborn = yes
+			}
+			save_scope_as = employer_herdsman_character
+		}
+	}
+}
+
+scripted_effect ck_contract_events_0003_success_tooltip = {
+	if = {
+		limit = {
+			scope:task_contract.var:ck_livestock_tally = scope:task_contract.var:ck_livestock_desired
+		}
+		custom_tooltip = ck_contracts_event.0003.tt.success_num
+	}
+	else_if = {
+		limit = {
+			scope:task_contract.var:ck_livestock_tally > scope:task_contract.var:ck_livestock_desired
+		}
+		custom_tooltip = ck_contracts_event.0003.tt.crit_success_num
+	}
+}
+
+scripted_effect ck_contract_events_0003_herd_costs_effect = { # Setting up costs
+	# Randomize Numbers of Livestock at each stop
+	scope:task_contract = {
+		set_variable = {
+			name = location_herd_number
+			value = {
+				value = { 1 4 }
+				round = yes
+			}
+		}
+		set_variable = {
+			name = location_herd_cost
+			value = {
+				value = scope:ck_contract_events_settlement_county.development_level
+				multiply = 1.5
+			}
+		}
+	}
+	save_scope_value_as = {
+		name = ck_location_herd_num
+		value = scope:task_contract.var:location_herd_number
+	}
+	if = {
+		limit = {
+			scope:ck_contract_events_settlement_county_holder ?= {
+				government_has_flag = government_is_nomadic
+				exists = domicile
+			}
+		}
+		scope:task_contract = {
+			set_variable = {
+				name = location_herd_nomad_cost # Cost for a nomad to give up their herd for you. Since it's divided the herd number, it's the 
+				value = {
+					value = scope:ck_contract_events_settlement_county_holder.domicile.herd
+					divide = 6 # Not too high, not too low
+					divide = scope:task_contract.var:location_herd_number
+					round = yes
+				}
+			}
+			debug_log = "NOMAD_LIVESTOCK_COST_SET"
+		}
+	}
+}
+scripted_effect ck_contract_events_0003_remove_herd_nomad = {
+	if = {
+		limit = {
+			scope:ck_contract_events_settlement_county_holder ?= {
+				government_has_flag = government_is_nomadic
+				exists = domicile
+			}
+		}
+		scope:ck_contract_events_settlement_county_holder = {
+			domicile ?= {
+				change_herd = {
+					value = scope:task_contract.var:location_herd_nomad_cost
+					multiply = $HERD_NUM$
+					multiply = -1
+					max = scope:ck_contract_events_settlement_county_holder.domicile.herd
+				}
+			}
+		}
+	}
+}
+
+scripted_effect ck_contract_events_0003_employer_payment_effects = {
+	# What will the employer get from the player's livestock
+	# Both settled and nomad get county modifiers too
+	save_scope_value_as = {
+		name = ck_increased_dev
+		value = {
+			value = scope:ck_employer_capital.development_level
+			multiply = 0.1
+			round = yes
+		}
+	}
+	if = { # If the employer was nomadic, give them herd based on num of livestock
+		limit = {
+			scope:employer ?= {
+				government_has_flag = government_is_nomadic
+				exists = domicile
+			}
+		}
+		scope:employer = {
+			domicile = {
+				change_herd = { # Pay them out the herd cost + the number of herds the player brings
+					value = scope:task_contract.var:location_herd_nomad_cost
+					multiply = scope:task_contract.var:ck_livestock_tally
+				}
+			}
+			# Add herd county modifier
+		}
+		if = {
+			limit = {
+				scope:task_contract.var:ck_livestock_tally > scope:task_contract.var:ck_livestock_desired
+			}
+			scope:employer = {
+				domicile = {
+					domicile_location.county = {
+						add_county_modifier = {
+							modifier = ck_deliver_herd_county_x2_modifier
+							years = 5
+						}
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				AND = {
+					scope:task_contract.var:ck_livestock_tally <= scope:task_contract.var:ck_livestock_desired
+					scope:task_contract.var:ck_livestock_tally > 0
+				}
+			}
+			scope:employer = {
+				domicile = {
+					domicile_location.county = {
+						add_county_modifier = {
+							modifier = ck_deliver_herd_county_modifier
+							years = 5
+						}
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				scope:task_contract.var:ck_livestock_tally = 0
+			}
+			scope:employer = {
+				domicile = {
+					domicile_location.county = {
+						add_county_modifier = {
+							modifier = ck_deliver_herd_county_bad_modifier
+							years = 5
+						}
+					}
+				}
+			}
+		}
+	}
+	else_if = { # Landed employer will NOT gain gold. They paid the player that and they may otherwise be frugal
+		limit = {
+			scope:employer ?= {
+				is_landed = yes # Avoid giving an employer who somehow becomes unlanded to receive these rewards, the contract should've invalidated though
+				exists = capital_county
+			}
+		}
+		if = {
+			limit = {
+				scope:task_contract.var:ck_livestock_tally > scope:task_contract.var:ck_livestock_desired
+			}
+			scope:employer = {
+				capital_county = {
+					add_county_modifier = {
+						modifier = ck_deliver_herd_county_x2_modifier
+						years = 5
+					}
+					change_development_level = scope:ck_increased_dev
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				AND = {
+					scope:task_contract.var:ck_livestock_tally <= scope:task_contract.var:ck_livestock_desired
+					scope:task_contract.var:ck_livestock_tally > 0
+				}
+			}
+			scope:employer = {
+				capital_county = {
+					add_county_modifier = {
+						modifier = ck_deliver_herd_county_modifier
+						years = 5
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				scope:task_contract.var:ck_livestock_tally = 0
+			}
+			scope:employer = {
+				capital_county = {
+					add_county_modifier = {
+						modifier = ck_deliver_herd_county_bad_modifier
+						years = 5
+					}
+				}
+			}
+		}
+	}
+}
+
+scripted_effect ck_contract_events_0003_successful_bargain_effect = {
+	if = {
+		limit = {
+			exists = scope:ck_contract_events_settlement_county_holder
+		}
+		pay_short_term_gold = {
+			target = scope:ck_contract_events_settlement_county_holder
+			gold = {
+				value = scope:task_contract.var:location_herd_cost
+				divide = 4
+				round = yes
+			}
+		}
+	}
+}
+
+scripted_effect ck_contract_events_0004_lose_livestock_effect = {
+	if = {
+		limit = {
+			scope:task_contract.var:ck_livestock_tally > 0
+		}
+		scope:task_contract = {
+			change_variable = {
+				name = ck_livestock_tally
+				add = {
+					add = -1
+					min = 0
+				}
+			}
+		}
+	}
+}
+
+scripted_trigger ck_contract_events_settlement_county_not_sell = {
+	scope:ck_contract_events_settlement_county ?= {
+		OR = {
+			holder ?= {
+				government_has_flag = government_is_nomadic
+				exists = domicile
+				domicile = {
+					herd < 100 # Will not sell herd as nomad if they're low
+				}
+			}
+			any_county_province_epidemic = { # Will not sell if there is an epidemic. Need to conserve food.
+				outbreak_intensity > minor
+			}
+		}
+	}
+}
+
+## Deliver Herd to Employer
+ck_contract_events.0001 = {
+	type = character_event
+	title = ck_contract_events.0001.t
+	desc = {
+		desc = ck_contract_events.0001.desc
+		first_valid = {
+			triggered_desc = { # They're Nomadic and Lost Herd to a rival
+				trigger = {
+					scope:employer = {
+						has_character_flag = ck_stolen_herd_flag
+						any_held_county = {
+							NOT = {
+								has_county_modifier = martial_chivalry_stolen_livestock_modifier
+							}
+						}
+					}
+				}
+				desc = ck_contract_events.0001.desc.stolen
+			}
+			triggered_desc = { # Lost livestock to bandits
+				trigger = {
+					scope:employer = {
+						NOT = {
+							has_character_flag = ck_stolen_herd_flag
+						}
+						any_held_county = {
+							has_county_modifier = martial_chivalry_stolen_livestock_modifier
+						}
+					}
+				}
+				desc = ck_contract_events.0001.desc.bandits
+			}
+			triggered_desc = { # Fallback
+				trigger = {
+					scope:employer = {
+						NOR = {
+							has_character_flag = ck_stolen_herd_flag
+							any_held_county = {
+								has_county_modifier = martial_chivalry_stolen_livestock_modifier
+							}
+						}
+					}
+				}
+				desc = ck_contract_events.0001.desc.fallback
+			}
+		}
+		desc = ck_contract_events.0001.desc.2
+	}
+	theme = landless_adventurer
+	override_background = { reference = terrain }
+	#task_contract_owner, you
+	left_portrait = {
+		character = root
+		animation = personality_bold
+	}
+	right_portrait = {
+		character = scope:employer_herdsman_character
+		animation = shepherd_with_sheep
+	}
+	lower_right_portrait = {
+		character = scope:employer
+		animation = war_over_loss
+	}
+
+	immediate = {
+		# Grab four provinces within reach of the employer's capital but not owned by them
+		scope:employer.capital_county = {
+			save_scope_as = ck_employer_capital
+			
+			# Pull all duchies from de jure kingdom
+			kingdom = {
+				every_in_de_jure_hierarchy = {
+					continue = { tier >= tier_county }
+					limit = { tier = tier_county }
+					add_to_list = possible_counties_list_ck
+				}
+			}
+			# And sort through the list at random to pick possible destinations.
+			## First destination
+			random_in_list = {
+				list = possible_counties_list_ck
+				weight = {
+					# Weight up for richness.
+					modifier = {
+						add = title_capital_county.development_level
+						always = yes
+					}
+				}
+				limit = {
+					holder ?= {
+						this != scope:employer
+						NOT = {
+							has_character_flag = ck_stolen_herd_flag # Their herd was recently stolen (Steppe Interaction)
+						}
+					}
+					NOT = {
+						has_county_modifier = martial_chivalry_stolen_livestock_modifier
+					}
+					development_level > 6
+					# capital_province ?= {
+					# 	squared_distance = {
+					# 		target = scope:employer.capital_province # We want a nearby county to pull from within reasonable distance of the employer
+					# 		value = 85000 # Wales + Ireland (Top-to-bottom distance, given our own map size too)
+					# 	}
+					# }
+				}
+				# Pull a random barony w/ a holding to save as destination
+				random_county_province = {
+					limit = {
+						has_holding = yes
+						NOT = {
+							geographical_region = custom_nahasa_unhabitable
+						}
+					}
+					save_scope_as = ck_destination_1
+				}
+			}
+			## Second Destination
+			random_in_list = {
+				list = possible_counties_list_ck
+				weight = {
+					# Weight up for richness.
+					modifier = {
+						add = title_capital_county.development_level
+						always = yes
+					}
+				}
+				limit = {
+					holder ?= {
+						this != scope:employer
+						NOT = {
+							has_character_flag = ck_stolen_herd_flag # Their herd was recently stolen (Steppe Interaction)
+						}
+					}
+					NOR = {
+						# Not the same county as last time
+						this = scope:ck_destination_1.county
+						has_county_modifier = martial_chivalry_stolen_livestock_modifier
+					}
+					development_level > 6
+					# capital_province ?= {
+					# 	squared_distance = {
+					# 		target = scope:employer.capital_province # We want a nearby county to pull from within reasonable distance of the employer
+					# 		value = 85000 # Wales + Ireland (Top-to-bottom distance, given our own map size too)
+					# 	}
+					# }
+				}
+				# Pull a random barony w/ a holding to save as destination
+				random_county_province = {
+					limit = {
+						has_holding = yes
+						NOT = {
+							geographical_region = custom_nahasa_unhabitable
+						}
+					}
+					save_scope_as = ck_destination_2
+				}
+			}
+			## Third Destination
+			random_in_list = {
+				list = possible_counties_list_ck
+				weight = {
+					# Weight up for richness.
+					modifier = {
+						add = title_capital_county.development_level
+						always = yes
+					}
+				}
+				limit = {
+					holder ?= {
+						this != scope:employer
+						NOT = {
+							has_character_flag = ck_stolen_herd_flag # Their herd was recently stolen (Steppe Interaction)
+						}
+					}
+					NOR = {
+						# Not the same county as last time
+						this = scope:ck_destination_1.county
+						this = scope:ck_destination_2.county
+						has_county_modifier = martial_chivalry_stolen_livestock_modifier
+					}
+					development_level > 6
+					# capital_province ?= {
+					# 	squared_distance = {
+					# 		target = scope:employer.capital_province # We want a nearby county to pull from within reasonable distance of the employer
+					# 		value = 85000 # Wales + Ireland (Top-to-bottom distance, given our own map size too)
+					# 	}
+					# }
+				}
+				# Pull a random barony w/ a holding to save as destination
+				random_county_province = {
+					limit = {
+						has_holding = yes
+						NOT = {
+							geographical_region = custom_nahasa_unhabitable
+						}
+					}
+					save_scope_as = ck_destination_3
+				}
+			}
+			## Fourth and Final Possible Destination
+			random_in_list = {
+				list = possible_counties_list_ck
+				weight = {
+					# Weight up for richness.
+					modifier = {
+						add = title_capital_county.development_level
+						always = yes
+					}
+				}
+				limit = {
+					holder ?= {
+						this != scope:employer
+						NOT = {
+							has_character_flag = ck_stolen_herd_flag # Their herd was recently stolen (Steppe Interaction)
+						}
+					}
+					NOR = {
+						# Not the same county as last time
+						this = scope:ck_destination_1.county
+						this = scope:ck_destination_2.county
+						this = scope:ck_destination_3.county
+						has_county_modifier = martial_chivalry_stolen_livestock_modifier
+					}
+					development_level > 6
+					# capital_province ?= {
+					# 	squared_distance = {
+					# 		target = scope:employer.capital_province # We want a nearby county to pull from within reasonable distance of the employer
+					# 		value = 85000 # Wales + Ireland (Top-to-bottom distance, given our own map size too)
+					# 	}
+					# }
+				}
+				# Pull a random barony w/ a holding to save as destination
+				random_county_province = {
+					limit = {
+						has_holding = yes
+						NOT = {
+							geographical_region = custom_nahasa_unhabitable
+						}
+					}
+					save_scope_as = ck_destination_4
+				}
+			}
+		}
+		scope:employer = {
+			capital_province = {
+				save_scope_as = ck_employer_province
+			}
+		}
+		## Creating the employer's herdsman, responsible for the herd
+		ck_contract_events_0001_create_herdsman_effect = yes
+
+		## Setup desired livestock tally
+		# Determine number of livestock desired by employer
+		scope:task_contract = {
+			save_scope_value_as = {
+				name = ck_livestock_desired
+				value = {
+					value = 1 # Always at least one head, increase every two available destinations
+					if = {
+						limit = { # 2/3
+							exists = scope:ck_destination_2
+							exists = scope:ck_destination_3
+						}
+						add = 1
+					}
+					if = {
+						limit = { # 3/4
+							exists = scope:ck_destination_2
+							exists = scope:ck_destination_3
+							exists = scope:ck_destination_4
+						}
+						add = 1
+					}
+					if = {
+						limit = { # Desperate
+							OR = {
+								has_character_flag = ck_stolen_herd_flag # Their herd was recently stolen (Steppe Interaction)
+								monthly_character_income <= 0
+							}
+						}
+						add = 1 # Need more to make up for income loss
+					}
+					add = { 0 1 } # Some variance for added difficulty
+					round = yes
+				}
+			}
+			increment_variable_effect = {
+				VAR = ck_livestock_desired
+				VAL = scope:ck_livestock_desired
+			}
+			# Debug Log to ensure value was set properly
+			debug_log = "DESIRED_LIVESTOCK_DEBUG"
+		}
+	}
+
+	# Onwards and Away (No Domicile).
+	option = {
+		name = ck_contract_events.0001.a
+
+		custom_tooltip = travel.stationary_domicile.tt
+		custom_tooltip = ck_contract_events.0001.tt.destination_list
+		custom_tooltip = ck_contract_events.0001.tt.explanation
+		ck_contract_events_0001_organise_travel_effect = {
+			DOMICILE = no
+			RETURN = yes
+			EVENT_FIRE = all_but_last
+		}
+
+		# No stress here.
+		# The AI should only choose to travel without their domicile.
+		ai_chance = { base = 1000 }
+	}
+}
+ck_contract_events.0002 = { # Invalidated
+	hidden = yes
+
+	trigger = { is_alive = yes }
+
+	immediate = {
+		random_character_active_contract = {
+			task_contract_type = laamp_ck_deliver_herd
+			save_scope_as = task_contract
+		}
+		send_interface_message = {
+			title = contract_invalidated_title
+			type = stewardship_contract_scheme_invalidated_message
+			right_icon = scope:task_contract.task_contract_employer
+			scope:task_contract = { complete_task_contract = failure_standard }
+		}
+	}
+}
+# Make it to your destination (localized per destination)
+ck_contract_events.0003 = {
+	type = character_event
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					location != scope:ck_employer_province
+				}
+				desc = ck_contract_events.0003.t.not_capital
+			}
+			triggered_desc = {
+				trigger = {
+					location = scope:ck_employer_province
+				}
+				desc = ck_contract_events.0003.t.capital
+			}
+		}
+	}
+	desc = {
+		# Description of province - preceding the # of the destination
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					location = { terrain = plains }
+				}
+				desc = ck_contract_events.0003.desc.intro.plains
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = steppe }
+				}
+				desc = ck_contract_events.0003.desc.intro.steppe
+			}
+			triggered_desc = {
+				trigger = {
+					location = {
+						terrain = hills
+						has_winter_trigger = no
+					}
+				}
+				desc = ck_contract_events.0003.desc.intro.hills
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = hills }
+				}
+				desc = ck_contract_events.0003.desc.intro.hills_winter
+			}
+			triggered_desc = {
+				trigger = {
+					location = {
+						terrain = farmlands
+						has_winter_trigger = no
+					}
+				}
+				desc = ck_contract_events.0003.desc.intro.farmlands
+			}
+			triggered_desc = {
+				trigger = {
+					location = {
+						terrain = farmlands
+					}
+				}
+				desc = ck_contract_events.0003.desc.intro.farmlands_winter
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = mountains }
+				}
+				desc = ck_contract_events.0003.desc.intro.mountains
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = desert }
+				}
+				desc = ck_contract_events.0003.desc.intro.desert
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = desert_mountains }
+				}
+				desc = ck_contract_events.0003.desc.intro.desert_mountains
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = oasis }
+				}
+				desc = ck_contract_events.0003.desc.intro.oasis
+			}
+			triggered_desc = {
+				trigger = {
+					location = {
+						terrain = forest
+						has_winter_trigger = no
+					}
+				}
+				desc = ck_contract_events.0003.desc.intro.forest
+			}
+			triggered_desc = {
+				trigger = {
+					location = {
+						terrain = forest
+					}
+				}
+				desc = ck_contract_events.0003.desc.intro.forest_winter
+			}
+			triggered_desc = {
+				trigger = {
+					location = {
+						terrain = taiga
+						has_winter_trigger = no
+					}
+				}
+				desc = ck_contract_events.0003.desc.intro.taiga
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = taiga }
+				}
+				desc = ck_contract_events.0003.desc.intro.taiga
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = wetlands }
+				}
+				desc = ck_contract_events.0003.desc.intro.wetlands
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = floodplains }
+				}
+				desc = ck_contract_events.0003.desc.intro.floodplains
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = drylands }
+				}
+				desc = ck_contract_events.0003.desc.intro.drylands
+			}
+			triggered_desc = {
+				trigger = {
+					location = { terrain = jungle }
+				}
+				desc = ck_contract_events.0003.desc.intro.jungle
+			}
+		}
+		# Destinations
+		first_valid = { 
+			triggered_desc = { # First destination
+				trigger = {
+					location = scope:ck_destination_1
+				}
+				desc = ck_contract_events.0003.desc.intro.preamble.first_destination
+			}
+			triggered_desc = { # Second destination
+				trigger = {
+					location = scope:ck_destination_2
+				}
+				desc = ck_contract_events.0003.desc.intro.preamble.second_destination
+			}
+			triggered_desc = { # Third destination
+				trigger = {
+					location = scope:ck_destination_3
+				}
+				desc = ck_contract_events.0003.desc.intro.preamble.third_destination
+			}
+			triggered_desc = { # Fourth destination
+				trigger = {
+					location = scope:ck_destination_4
+				}
+				desc = ck_contract_events.0003.desc.intro.preamble.fourth_destination
+			}
+			triggered_desc = { # Employer's Capital
+				trigger = {
+					location = scope:ck_employer_province
+				}
+				desc = ck_contract_events.0003.desc.intro.preamble.final_destination
+			}
+		}
+		# Meeting the locals (Four Randomized Variants + 2 for counties that cannot afford it)
+		random_valid = {
+			triggered_desc = {
+				trigger = {
+					location.county != scope:ck_employer_capital
+					location.county ?= {
+						OR = {
+							faith = {
+								OR = {
+									has_doctrine = tenet_ritual_hospitality
+									has_doctrine = tenet_ritual_celebrations
+								}
+							}
+							culture = { has_cultural_tradition = tradition_esteemed_hospitality }
+						}
+					}
+					NAND = {
+						has_trait = zealous # Why would a zealot celebrate with those heathens?
+						faith != location.county.faith
+					}
+				}
+				desc = ck_contract_events.0003.desc.locals.1_hospitality
+			}
+			triggered_desc = {
+				trigger = {
+					location.county != scope:ck_employer_capital
+				}
+				desc = ck_contract_events.0003.desc.locals.2
+			}
+			triggered_desc = {
+				trigger = {
+					location.county != scope:ck_employer_capital
+				}
+				desc = ck_contract_events.0003.desc.locals.3
+			}
+			triggered_desc = {
+				trigger = {
+					location.county != scope:ck_employer_capital
+				}
+				desc = ck_contract_events.0003.desc.locals.4
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						location.county != scope:ck_employer_capital
+						ck_contract_events_settlement_county_not_sell = yes
+					}
+				}
+				desc = ck_contract_events.0003.desc.locals.poor.1
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						location.county != scope:ck_employer_capital
+						ck_contract_events_settlement_county_not_sell = yes
+					}
+				}
+				desc = ck_contract_events.0003.desc.locals.poor.2
+			}
+		}
+		first_valid = { 
+			triggered_desc = { # They have heads of livestock to give away
+				trigger = {
+					location.county != scope:ck_employer_capital
+				}
+				desc = ck_contract_events.0003.desc.local_herdsman.1
+			}
+			triggered_desc = { # They have nothing to offer
+				trigger = {
+					location.county != scope:ck_employer_capital
+					ck_contract_events_settlement_county_not_sell = yes
+				}
+				desc = ck_contract_events.0003.desc.local_herdsman.2
+			}
+		}
+		# Returning to the capital, speaking to herdsman
+		first_valid = {
+			# Critical Success
+			triggered_desc = {
+				trigger = {
+					location.county = scope:ck_employer_capital
+					scope:task_contract.var:ck_livestock_tally > scope:task_contract.var:ck_livestock_desired
+				}
+				desc = ck_contract_events.0003_desc.ending.critical
+			}
+			# Normal Success
+			triggered_desc = {
+				trigger = {
+					location.county = scope:ck_employer_capital
+					scope:task_contract.var:ck_livestock_tally = scope:task_contract.var:ck_livestock_desired
+				}
+				desc = ck_contract_events.0003_desc.ending.success
+			}
+			# Poor Success
+			triggered_desc = {
+				trigger = {
+					location.county = scope:ck_employer_capital
+					AND = {
+						scope:task_contract.var:ck_livestock_tally < scope:task_contract.var:ck_livestock_desired
+						scope:task_contract.var:ck_livestock_tally > 0
+					}
+				}
+				desc = ck_contract_events.0003_desc.ending.sub_success
+			}
+			# Failure
+			triggered_desc = {
+				trigger = {
+					location.county = scope:ck_employer_capital
+					scope:task_contract.var:ck_livestock_tally = 0
+				}
+				desc = ck_contract_events.0003_desc.ending.failure
+			}
+		}
+	}
+	theme = landless_adventurer
+	override_background = { reference = terrain }
+
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	right_portrait = {
+		character = scope:destination_character
+		# Triggered Animations for destintion_character's
+		triggered_animation = { # herdsman if you come back with more than 0 but less than desired
+			trigger = {
+				AND = {
+					scope:task_contract_taker.var:ck_livestock_tally < scope:task_contract_taker.var:ck_livestock_desired
+					scope:task_contract_taker.var:ck_livestock_tally > 0
+				}
+				root = {
+					location = scope:ck_employer_province
+				}
+			}
+			animation = war_over_loss
+		}
+		triggered_animation = {
+			trigger = {
+				root = {
+					location = scope:ck_employer_province
+				}
+				scope:task_contract_taker.var:ck_livestock_tally = 0
+			}
+			animation = aggressive_unarmed
+		}
+		triggered_animation = {
+			trigger = {
+				root = {
+					location != scope:ck_employer_province
+				}
+			}
+			animation = shepherd_with_sheep
+		}
+        hide_info = yes
+        camera = camera_event_right_pointing_right
+	}
+
+	immediate = {
+		### Creating Characters
+		# Ensure the herdsman is still alive, otherwise respawn them
+		if = {
+			limit = {
+				scope:employer_herdsman_character ?= {
+					is_alive = no
+				}
+			}
+			ck_contract_events_0001_create_herdsman_effect = yes
+		}
+
+		## Creating the peasants of each province (using scripted_effect)
+		# Destination 1
+		ck_contract_events_0001_create_peasant_effect = { NUM = 1 }
+		# Destination 2
+		ck_contract_events_0001_create_peasant_effect = { NUM = 2 }
+		# Destination 3
+		ck_contract_events_0001_create_peasant_effect = { NUM = 3 }
+		# Destination 4
+		ck_contract_events_0001_create_peasant_effect = { NUM = 4 }
+
+		# Save Portrait Info
+		if = {
+			limit = {
+				location = scope:ck_employer_province
+			}
+			scope:employer_herdsman_character ?= {
+				save_scope_as = destination_character
+			}
+		}
+		else_if = {
+			limit = {
+				location = scope:ck_destination_1
+			}
+			scope:destination_1_character = {
+				save_scope_as = destination_character
+			}
+		}
+		else_if = {
+			limit = {
+				location = scope:ck_destination_2
+			}
+			scope:destination_2_character = {
+				save_scope_as = destination_character
+			}
+		}
+		else_if = {
+			limit = {
+				location = scope:ck_destination_3
+			}
+			scope:destination_3_character = {
+				save_scope_as = destination_character
+			}
+		}
+		else_if = {
+			limit = {
+				location = scope:ck_destination_4
+			}
+			scope:destination_4_character = {
+				save_scope_as = destination_character
+			}
+		}
+
+		# Saving current county for costs
+		if = {
+			limit = {
+				location.county != scope:ck_employer_capital
+			}
+			location.county = {
+				save_scope_as = ck_contract_events_settlement_county
+				holder ?= {
+					save_scope_as = ck_contract_events_settlement_county_holder
+				}
+			}
+		}
+
+		### Setup Livestock Costs
+		ck_contract_events_0003_herd_costs_effect = yes
+
+		### Setup Success Upon Return
+		if = {
+			limit = {
+				location = scope:ck_employer_province
+			}
+			if = {
+				limit = {
+					scope:task_contract.var:ck_livestock_tally > scope:task_contract.var:ck_livestock_desired
+				}
+				scope:task_contract = {
+					set_variable = {
+						name = ck_0003_success_type
+						value = flag:0003_critical_success
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					# AND = {
+						scope:task_contract.var:ck_livestock_tally = scope:task_contract.var:ck_livestock_desired
+					# }
+				}
+				scope:task_contract = {
+					set_variable = {
+						name = ck_0003_success_type
+						value = flag:0003_success
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					AND = {
+						scope:task_contract.var:ck_livestock_tally < scope:task_contract.var:ck_livestock_desired
+						scope:task_contract.var:ck_livestock_tally > 0
+					}
+				}
+				scope:task_contract = {
+					set_variable = {
+						name = ck_0003_success_type
+						value = flag:0003_sub_success
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					scope:task_contract.var:ck_livestock_tally = 0
+				}
+				scope:task_contract = {
+					set_variable = {
+						name = ck_0003_success_type
+						value = flag:0003_failure
+					}
+				}
+			}
+		}
+	}
+
+	### Options
+	## Offers to Buy Livestock - Unavailable if they're not willing to sell. Check triggers at top
+	# Buy one
+	option = {
+		name = ck_contract_events.0003.a
+		custom_tooltip = ck_contract_events.0003.a.tt
+		trigger = {
+			location.county != scope:ck_employer_capital
+			ck_contract_events_settlement_county_not_sell = no
+		}
+		custom_tooltip = ck_contract_events.0003.number_of_heads
+		ck_contract_events_0003_success_tooltip = yes # Notify player if they have enough livestock
+		# Pay for herd
+		pay_short_term_gold = {
+			target = scope:ck_contract_events_settlement_county_holder
+			gold = scope:task_contract.var:location_herd_cost
+		}
+		hidden_effect = {
+			# Remove Herd from Steppe Ruler, if it is the case
+			ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 1 }
+			# Add Livestock Tally
+			scope:task_contract = {
+				increment_variable_effect = {
+					VAR = ck_livestock_tally
+					VAL = 1
+				}
+			}
+		}
+		ai_chance = {
+			base = 100 # AI will always attempt to buy, unless they don't have the funds
+			ai_value_modifier = {
+				ai_greed = -1
+			}
+			modifier = {
+				factor = 0
+				short_term_gold < scope:task_contract.var:location_herd_cost
+			}
+		}
+	}
+	# Buy two
+	option = {
+		name = ck_contract_events.0003.a.2
+		custom_tooltip = ck_contract_events.0003.a.2.tt
+		custom_tooltip = ck_contract_events.0003.number_of_heads
+		trigger = {
+			location.county != scope:ck_employer_capital
+			ck_contract_events_settlement_county_not_sell = no
+			scope:task_contract.var:location_herd_number >= 2
+		}
+		ck_contract_events_0003_success_tooltip = yes # Notify player if they have enough livestock
+		# Pay for herd
+		pay_short_term_gold = {
+			target = scope:ck_contract_events_settlement_county_holder
+			gold = {
+				value = scope:task_contract.var:location_herd_cost
+				multiply = 2
+			}
+		}
+		hidden_effect = {
+			# Remove Herd from Steppe Ruler, if it is the case
+			ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 2 }
+			# Add Livestock Tally
+			scope:task_contract = {
+				increment_variable_effect = {
+					VAR = ck_livestock_tally
+					VAL = 2
+				}
+			}
+			save_scope_value_as = {
+				name = two_livestock_cost
+				value = {
+					value = scope:task_contract.var:location_herd_cost
+					multiply = 2
+				}
+			}
+		}
+		ai_chance = {
+			base = 50 # AI will always attempt to buy, unless they don't have the funds
+			ai_value_modifier = {
+				ai_greed = -2
+			}
+			modifier = {
+				factor = 0
+				short_term_gold < scope:three_livestock_cost
+			}
+		}
+	}
+	# Buy all
+	option = {
+		name = ck_contract_events.0003.b
+		custom_tooltip = ck_contracts_event.0003.b.tt
+		custom_tooltip = ck_contract_events.0003.number_of_heads
+		trigger = {
+			location.county != scope:ck_employer_capital
+			ck_contract_events_settlement_county_not_sell = no
+			scope:task_contract.var:location_herd_number >= 3 # Not possible for more than three but keeping it to be safe
+		}
+		ck_contract_events_0003_success_tooltip = yes # Notify player if they have enough livestock
+		# Pay for herd
+		pay_short_term_gold = {
+			target = scope:ck_contract_events_settlement_county_holder
+			gold = {
+				value = scope:task_contract.var:location_herd_cost
+				multiply = 3
+			}
+		}
+		if = {
+			limit = {
+				scope:task_contract.var:ck_livestock_tally = scope:task_contract.var:ck_livestock_desired
+			}
+			custom_tooltip = ck_contracts_event.0003.tt.success_num
+		}
+		else_if = {
+			limit = {
+				scope:task_contract.var:ck_livestock_tally > scope:task_contract.var:ck_livestock_desired
+			}
+			custom_tooltip = ck_contracts_event.0003.tt.crit_success_num
+		}
+		hidden_effect = {
+			# Remove Herd from Steppe Ruler, if it is the case
+			ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 3 }
+			# Add Livestock Tally
+			scope:task_contract = {
+				increment_variable_effect = {
+					VAR = ck_livestock_tally
+					VAL = 3
+				}
+			}
+			save_scope_value_as = {
+				name = three_livestock_cost
+				value = {
+					value = scope:task_contract.var:location_herd_cost
+					multiply = 3
+				}
+			}
+		}
+		ai_chance = {
+			base = 25 # AI will always attempt to buy, unless they don't have the funds
+			ai_value_modifier = {
+				ai_greed = -2.5
+			}
+			modifier = {
+				factor = 0
+				short_term_gold < scope:three_livestock_cost
+			}
+		}
+	}
+	# Bargain (w/ perks or proper backstory (merchant))
+	option = {
+		name = ck_contract_events.0003.c
+		custom_tooltip = ck_contracts_event.0003.c.tt
+		custom_tooltip = ck_contract_events.0003.number_of_heads
+		trigger = {
+			ck_contract_events_settlement_county_not_sell = no
+			location.county != scope:ck_employer_capital
+		}
+		ck_contract_events_0003_success_tooltip = yes # Notify player if they have enough livestock
+		duel = {
+			skill = stewardship
+			value = medium_skill_rating
+			30 = {
+				desc = ck_contract_events.0003.c.success
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 2
+					min = 1
+				}
+				modifier = {
+					add = 15
+					OR = {
+						has_character_modifier = born_into_merchants
+						has_perk = war_profiteer_perk
+					}
+				}
+				send_interface_message = {
+					type = event_toast_effect_good
+					title = ck_contract_events.0003.c.success
+					left_icon = root
+					right_icon = scope:destination_character
+					ck_contract_events_0003_successful_bargain_effect = yes
+					hidden_effect = {
+						# Remove Herd from Steppe Ruler, if it is the case
+						ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 1 }
+						# Add Livestock Tally
+						scope:task_contract = {
+							increment_variable_effect = {
+								VAR = ck_livestock_tally
+								VAL = 1
+							}
+						}
+					}
+				}
+			}
+			70 = {
+				desc = ck_contract_events.0003.c.failure
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 2
+					min = 1
+				}
+				send_interface_message = {
+					type = event_toast_effect_bad
+					title = ck_contract_events.0003.c.failure.tt
+					left_icon = root
+					right_icon = scope:destination_character
+					# Pay the Price of One
+					pay_short_term_gold = {
+						target = scope:ck_contract_events_settlement_county_holder
+						gold = scope:task_contract.var:location_herd_cost
+					}
+					hidden_effect = {
+						# Remove Herd from Steppe Ruler, if it is the case
+						ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 1 }
+						# Add Livestock Tally
+						scope:task_contract = {
+							increment_variable_effect = {
+								VAR = ck_livestock_tally
+								VAL = 1
+							}
+						}
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 50 # AI will always attempt to buy, unless they don't have the funds
+			ai_value_modifier = {
+				ai_greed = -2
+			}
+			modifier = {
+				factor = 0
+				short_term_gold < scope:task_contract.var:location_herd_cost
+			}
+		}
+	}
+	## Criminal Acts
+	# Steal heads (grab only one)
+	option = {
+		name = ck_contract_events.0003.d
+		custom_tooltip = ck_contracts_event.0003.d.tt
+		custom_tooltip = ck_contract_events.0003.number_of_heads
+		ck_contract_events_0003_success_tooltip = yes # Notify player if they have enough livestock
+		trigger = {
+			location.county != scope:ck_employer_capital
+		}
+		duel = {
+			skill = intrigue
+			value = high_skill_rating
+			30 = {
+				desc = ck_contract_events.0003.d.success
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				modifier = {
+					add = 10
+					has_trait_xp = {
+						trait = gallowsbait
+						track = thief
+						value < 50
+					}
+				}
+				modifier = {
+					add = 20
+					has_trait_xp = {
+						trait = gallowsbait
+						track = thief
+						value >= 50
+					}
+				}
+
+				send_interface_toast = {
+					title = ck_contract_events.0003.d.success
+					type = event_toast_effect_good
+					left_icon = root
+					right_icon = scope:destination_character
+					reverse_add_opinion = {
+						modifier = stole_my_herd_crime
+						target = scope:ck_contract_events_settlement_county_holder
+					}
+					# Add Gallowsbait XP
+					laamp_rewards_apply_criminal_xp_effect = {
+						TRACK = thief
+						XP_MAX = 20
+						XP_MIN = 15
+					}
+					hidden_effect = {
+						ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 1 }
+						# Add Livestock Tally
+						scope:task_contract = {
+							increment_variable_effect = {
+								VAR = ck_livestock_tally
+								VAL = 1
+							}
+						}
+					}
+
+				}
+			}
+			70 = {
+				desc = ck_contract_events.0003.d.failure
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+
+				send_interface_toast = {
+					title = ck_contract_events.0003.d.failure
+					type = event_toast_effect_bad
+					left_icon = root
+					right_icon = scope:destination_character
+					reverse_add_opinion = {
+						modifier = attempted_to_steal_herd_crime
+						target = scope:ck_contract_events_settlement_county_holder
+					}
+					# Add Gallowsbait XP
+					laamp_rewards_apply_criminal_xp_effect = {
+						TRACK = thief
+						XP_MAX = 5
+						XP_MIN = 0
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 30 # AI will always attempt to buy, unless they don't have the funds
+			ai_value_modifier = {
+				ai_greed = 1
+				ai_honor = -1
+			}
+			modifier = {
+				add = 40
+				has_trait = gallowsbait
+				has_trait_xp = {
+					trait = gallowsbait
+					track = thief
+					value >= 30
+				}
+			}
+		}
+		
+		# Stress Impacts
+		stress_impact = {
+			just = medium_stress_impact_gain
+			deceitful = minor_stress_impact_loss
+		}
+	}
+	# Steal heads (try to grab all. Much more risky)
+	option = {
+		name = ck_contract_events.0003.d.2
+		reason = ck_reason_gallowsbait
+		custom_tooltip = ck_contracts_event.0003.d.2.tt
+		custom_tooltip = ck_contract_events.0003.number_of_heads
+		trigger = {
+			scope:task_contract.var:location_herd_number > 1 # Since the above option is for only one livestock
+			location.county != scope:ck_employer_capital
+			AND = {
+				has_trait = gallowsbait
+				has_trait_xp = {
+					trait = gallowsbait
+					track = thief
+					value > 70
+				}
+			}
+		}
+		ck_contract_events_0003_success_tooltip = yes # Notify player if they have enough livestock
+		duel = {
+			skill = intrigue
+			value = very_high_skill_rating
+			30 = {
+				desc = ck_contract_events.0003.d.2.success
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				modifier = {
+					add = 10
+					has_trait_xp = {
+						trait = gallowsbait
+						track = thief
+						value < 50
+					}
+				}
+				modifier = {
+					add = 20
+					has_trait_xp = {
+						trait = gallowsbait
+						track = thief
+						value >= 50
+					}
+				}
+
+				send_interface_toast = {
+					title = ck_contract_events.0003.d.2.success
+					type = event_toast_effect_good
+					left_icon = root
+					right_icon = scope:destination_character
+					reverse_add_opinion = {
+						modifier = stole_my_herd_crime
+						target = scope:ck_contract_events_settlement_county_holder
+					}
+					# Add Gallowsbait XP
+					laamp_rewards_apply_criminal_xp_effect = {
+						TRACK = thief
+						XP_MAX = 30
+						XP_MIN = 25
+					}
+					hidden_effect = {
+						if = {
+							limit = {
+								scope:task_contract.var:location_herd_number = 1
+							}
+							ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 1 }
+						}
+						else_if = {
+							limit = {
+								scope:task_contract.var:location_herd_number = 2
+							}
+							ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 2 }
+						}
+						else_if = {
+							limit = {
+								scope:task_contract.var:location_herd_number = 3
+							}
+							ck_contract_events_0003_remove_herd_nomad = { HERD_NUM = 3 }
+						}
+						# Add Livestock Tally
+						scope:task_contract = {
+							increment_variable_effect = {
+								VAR = ck_livestock_tally
+								VAL = 1
+							}
+						}
+					}
+				}
+			}
+			70 = {
+				desc = ck_contract_events.0003.d.failure
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+
+				send_interface_toast = {
+					title = ck_contract_events.0003.d.failure
+					type = event_toast_effect_bad
+					left_icon = root
+					right_icon = scope:destination_character
+					reverse_add_opinion = {
+						modifier = attempted_to_steal_herd_crime
+						target = scope:ck_contract_events_settlement_county_holder
+					}
+					# Add Gallowsbait XP
+					laamp_rewards_apply_criminal_xp_effect = {
+						TRACK = thief
+						XP_MAX = 5
+						XP_MIN = 0
+					}
+				}
+			}
+		}
+		
+		ai_chance = {
+			base = 20 # AI will always attempt to buy, unless they don't have the funds
+			ai_value_modifier = {
+				ai_greed = 1.25
+				ai_honor = -1
+			}
+			modifier = {
+				add = 50
+				has_trait = gallowsbait
+				has_trait_xp = {
+					trait = gallowsbait
+					track = thief
+					value >= 60
+				}
+			}
+			modifier = {
+				add = 15
+				intrigue >= 15
+			}
+		}
+		# Stress Impacts
+		stress_impact = {
+			just = medium_stress_impact_gain
+			deceitful = minor_stress_impact_loss
+		}
+	}
+	## Move On (No livestock added)
+	option = {
+		name = ck_contracts_events.0003.e
+		trigger = {
+			location.county != scope:ck_employer_capital
+		}
+		custom_tooltip = ck_contracts_event.0003.e.tt
+		custom_tooltip = ck_contract_events.0003.number_of_heads
+		ck_contract_events_0003_success_tooltip = yes # Notify player if they have enough livestock
+		# Stress Impacts
+		stress_impact = {
+			diligent = medium_stress_impact_gain
+			lazy = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 60 # AI will always attempt to buy, unless they don't have the funds
+			ai_value_modifier = {
+				ai_honor = -0.5
+			}
+			modifier = {
+				add = 30
+				short_term_gold < scope:task_contract.var:location_herd_cost
+			}
+		}
+	}
+	## Taking the herd and run
+	option = {
+		name = ck_contracts_events.0003.f
+		custom_tooltip = ck_contracts_events.0003.f.tt
+		custom_tooltip = ck_contract_events.0003.number_of_heads
+		trigger = {
+			location.county != scope:ck_employer_capital
+			scope:task_contract.var:ck_livestock_tally > 1 # Need something to steal
+		}
+		# Add Provisions from the livestock
+		domicile ?= {
+			change_provisions = {
+				value = {
+					value = scope:task_contract.var:ck_livestock_tally
+					multiply = 100
+				}
+			}
+		}
+		# Remove the peasants
+		hidden_effect = {
+			scope:destination_1_character ?= {
+				silent_disappearance_effect = yes
+			}
+			scope:destination_2_character ?= {
+				silent_disappearance_effect = yes
+			}
+			scope:destination_3_character ?= {
+				silent_disappearance_effect = yes
+			}
+			scope:destination_4_character ?= {
+				silent_disappearance_effect = yes
+			}
+		}
+		# Fail the Contract - Gain Gallowsbait XP from the type of failure it was
+		scope:task_contract = {
+			complete_task_contract = failure_stole_herd
+		}
+		# Stress Impacts
+		stress_impact = {
+			arbitrary = minor_stress_impact_loss
+			just = medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 15 # AI will always attempt to buy, unless they don't have the funds
+			ai_value_modifier = {
+				ai_greed = 1.5
+				ai_honor = -1
+			}
+			modifier = {
+				add = 50
+				has_trait = gallowsbait
+				has_trait_xp = {
+					trait = gallowsbait
+					track = thief
+					value >= 60
+				}
+			}
+			modifier = {
+				add = 15
+				intrigue >= 15
+			}
+			modifier = {
+				add = 30
+				short_term_gold < scope:task_contract.var:location_herd_cost
+			}
+		}
+	}
+	## Finally meeting the herdsman after all of that traveling
+	option = {
+		trigger = {
+			location = scope:ck_employer_province
+		}
+		name = { # Critical Success
+			trigger = {
+				scope:task_contract.var:ck_0003_success_type = flag:0003_critical_success
+			}
+			text = ck_contract_events.0003.g.cs
+		}
+		name = { # Success
+			trigger = {
+				scope:task_contract.var:ck_0003_success_type = flag:0003_success
+			}
+			text = ck_contract_events.0003.g.s
+		}
+		name = { # Sub-Success
+			trigger = {
+				scope:task_contract.var:ck_0003_success_type = flag:0003_sub_success
+			}
+			text = ck_contract_events.0003.g.ss
+		}
+		name = { # Failure
+			trigger = {
+				scope:task_contract.var:ck_0003_success_type = flag:0003_failure
+			}
+			text = ck_contract_events.0003.g.f
+		}
+		
+		if = {
+			limit = {
+				scope:task_contract.var:ck_livestock_tally > scope:task_contract.var:ck_livestock_desired
+			}
+			scope:task_contract = {
+				complete_task_contract = success_critical
+			}
+		}
+		else_if = {
+			limit = {
+				# AND = {
+					scope:task_contract.var:ck_livestock_tally = scope:task_contract.var:ck_livestock_desired
+				# }
+			}
+			scope:task_contract = {
+				complete_task_contract = success_standard
+			}
+		}
+		else_if = {
+			limit = {
+				AND = {
+					scope:task_contract.var:ck_livestock_tally < scope:task_contract.var:ck_livestock_desired
+					scope:task_contract.var:ck_livestock_tally > 0
+				}
+			}
+			scope:task_contract = {
+				complete_task_contract = success_substandard
+			}
+		}
+		else_if = {
+			limit = {
+				scope:task_contract.var:ck_livestock_tally = 0
+			}
+			scope:task_contract = {
+				complete_task_contract = failure_standard
+			}
+		}
+		ck_contract_events_0003_employer_payment_effects = yes
+		# Remove the peasants
+		hidden_effect = {
+			scope:destination_1_character ?= {
+				silent_disappearance_effect = yes
+			}
+			scope:destination_2_character ?= {
+				silent_disappearance_effect = yes
+			}
+			scope:destination_3_character ?= {
+				silent_disappearance_effect = yes
+			}
+			scope:destination_4_character ?= {
+				silent_disappearance_effect = yes
+			}
+		}
+	}
+}

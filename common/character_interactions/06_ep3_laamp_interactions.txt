@@ -2756,6 +2756,10 @@ complete_task_contract_interaction = {
 					laamp_help_increase_control_contract = {
 						scope:actor = { custom_tooltip = ep3_contract_event.0001.tt_increase_control }
 					}
+					# Calradian Kings Additions
+					laamp_ck_deliver_herd = {
+						scope:actor = { custom_tooltip = ck_contract_event.0001.tt_deliver_herd }
+					}
 				}
 			}
 			#trigger the travel planner
@@ -3088,6 +3092,11 @@ contact_list_request_interaction = { # make a request, make_a_request
 						}
 						can_create_task_contract = {
 							type_name = laamp_join_faction_contract
+							employer = scope:recipient
+						}
+						# Calradian Kings Additions
+						can_create_task_contract = {
+							type_name = laamp_ck_deliver_herd
 							employer = scope:recipient
 						}
 					}
@@ -3810,6 +3819,30 @@ contact_list_request_interaction = { # make a request, make_a_request
 										value = yes
 									}
 								}
+								#laamp_ck_deliver_herd - Deliver Herd (CALKING) CK_CONTRACT
+								1 = {
+									trigger = {
+										can_create_task_contract = {
+											type_name = laamp_ck_deliver_herd
+											employer = scope:recipient
+										}
+									}
+									modifier = {
+										add = 10
+										has_realm_law = camp_purpose_explorers
+									}
+									create_task_contract = {
+										task_contract_type = laamp_ck_deliver_herd
+										location = scope:recipient.capital_province
+										task_contract_employer = scope:recipient
+										task_contract_tier = scope:recipient.task_contract_tier_value
+										save_scope_as = new_contract
+									}
+									save_scope_value_as = {
+										name = laamp_ck_deliver_herd
+										value = yes
+									}
+								}
 							}
 							scope:new_contract = {
 								open_view_data = {
@@ -3954,6 +3987,17 @@ contact_list_request_interaction = { # make a request, make_a_request
 								}
 								create_task_contract = {
 									task_contract_type = laamp_join_faction_contract
+									location = scope:recipient.location
+									task_contract_employer = scope:recipient
+									task_contract_tier = scope:recipient.task_contract_tier_value
+								}
+							}
+							if = {
+								limit = {
+									scope:create_laamp_ck_deliver_herd?= yes
+								}
+								create_task_contract = {
+									task_contract_type = laamp_ck_deliver_herd
 									location = scope:recipient.location
 									task_contract_employer = scope:recipient
 									task_contract_tier = scope:recipient.task_contract_tier_value
