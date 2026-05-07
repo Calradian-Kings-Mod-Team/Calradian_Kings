@@ -1469,3 +1469,329 @@ warband_claimants_retake_effect = {
 		set_coa = dynn_ck_loki_mother_wb
 	}
 }
+
+warband_king_armor = {
+	if = {
+		limit = {
+			has_game_rule = ck_wb_king_visual
+		}
+		# unused choices are mace/spear
+		character:harlaus_wb ?= {
+			set_variable = {
+				name = signature_weapon
+				value = flag:sword # itm_bastard_sword_b
+			}
+		}
+		character:yaroglek_wb ?= {
+			set_variable = {
+				name = signature_weapon
+				value = flag:hammer # itm_military_pick
+			}
+		}
+		character:sanjar_wb ?= {
+			set_variable = {
+				name = signature_weapon
+				value = flag:sword # itm_sword_khergit_3
+			}
+		}
+		character:ragnar_wb ?= {
+			set_variable = {
+				name = signature_weapon
+				value = flag:axe # itm_great_axe
+			}
+		}
+		character:graveth_wb ?= {
+			set_variable = {
+				name = signature_weapon
+				value = flag:sword # itm_bastard_sword_b
+			}
+		}
+		character:hakim_wb ?= {
+			set_variable = {
+				name = signature_weapon
+				value = flag:dagger # itm_sarranid_cavalry_sword but we switch it up
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			has_game_rule = ck_wb_king_artifact
+		}
+		# unused choices are mace/spear
+		character:harlaus_wb ?= {
+			save_scope_as = owner
+			save_scope_value_as = {
+				name = quality
+				value = { value = sub_realm_size add = prowess }
+			}
+			get_artifact_wealth_effect = yes
+			random_vassal = {
+				save_scope_as = smith
+			}
+			create_artifact_weapon_effect = {
+				OWNER = scope:owner
+				CREATOR = scope:smith
+				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
+			}
+			scope:newly_created_artifact = {
+				reforge_artifact = { type = sword visuals = longsword }
+				set_artifact_name = artifact_harlaus_sword
+				equip_artifact_to_owner = yes
+			}
+			create_artifact = {
+				name = artifact_harlaus_armor
+				description = artifact_harlaus_armor_desc
+				template = ck_wb_king_armor_template
+				# creator = scope:smith
+				type = armor_plate
+				visuals = harlaus_armor
+				wealth = scope:wealth
+				quality = scope:quality
+				modifier = legendary_feast_legend_modifier
+				title_history = title:k_battania
+				title_history_date = 1185.1.1 # skip the empty holder
+				save_scope_as = newly_created_artifact
+			}
+			scope:newly_created_artifact ?= {
+				set_artifact_feature = armor_material_steel
+				add_scaled_artifact_modifier_dynasty_prestige_effect = yes
+				add_scaled_artifact_modifier_combat_effect = yes
+				equip_artifact_to_owner = yes
+			}
+		}
+		character:yaroglek_wb ?= {
+			save_scope_as = owner
+			save_scope_value_as = {
+				name = quality
+				value = { value = sub_realm_size add = prowess }
+			}
+			get_artifact_wealth_effect = yes
+			random_vassal = {
+				save_scope_as = smith
+			}
+			create_artifact_weapon_effect = {
+				OWNER = scope:owner
+				CREATOR = scope:smith
+				SET_WEAPON_TYPE = flag:artifact_weapon_type_hammer
+			}
+			scope:newly_created_artifact = {
+				set_artifact_name = artifact_yaroglek_hammer
+					# note that his starting health is 2.5 deactivating the armor template
+				add_artifact_modifier = artifact_old_man_modifier
+				equip_artifact_to_owner = yes
+			}
+
+			get_artifact_wealth_effect = yes
+			create_artifact = {
+				name = artifact_yaroglek_armor
+				description = artifact_yaroglek_armor_desc
+				template = ck_wb_king_armor_template
+				# creator = scope:smith
+				type = armor_mail
+				visuals = yaroglek_armor
+				wealth = scope:wealth
+				quality = scope:quality
+				modifier = artifact_propaganda_chronicle_modifier
+				title_history = scope:owner.primary_title
+				save_scope_as = newly_created_artifact
+				# visual_source = scope:owner.primary_title
+			}
+			scope:newly_created_artifact ?= {
+				set_artifact_feature = armor_material_steel
+				add_scaled_artifact_modifier_rulership_effect = yes
+				add_scaled_artifact_modifier_majesty_effect = yes
+				equip_artifact_to_owner = yes
+			}
+		}
+		character:sanjar_wb ?= {
+			save_scope_as = owner
+			save_scope_value_as = {
+				name = quality
+				value = { value = sub_realm_size add = prowess }
+			}
+			# give him a bow instead?
+			get_artifact_wealth_effect = yes
+			random_vassal = {
+				save_scope_as = smith
+			}
+			create_artifact_weapon_effect = {
+				OWNER = scope:owner
+				CREATOR = scope:smith
+				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
+			}
+			scope:newly_created_artifact = {
+				set_artifact_name = artifact_sanjar_sword
+				# add_artifact_modifier = artifact_raid_speed_4_modifier
+				equip_artifact_to_owner = yes
+			}
+
+			set_artifact_rarity_illustrious = yes
+			create_artifact = {
+				name = artifact_sanjar_armor
+				description = artifact_sanjar_armor_desc
+				template = ck_wb_king_armor_template
+				# creator = scope:smith
+				type = armor_lamellar
+				visuals = sanjar_armor
+				wealth = scope:wealth
+				quality = scope:quality
+				modifier = artifact_plains_advantage_2_modifier
+				title_history = scope:owner.primary_title
+				save_scope_as = newly_created_artifact
+			}
+			scope:newly_created_artifact ?= {
+				set_artifact_feature = armor_material_gold
+				# add_scaled_artifact_modifier_archer_cavalry_damage_add_effect = yes
+				add_artifact_modifier = artifact_steppe_advantage_1_modifier # not actually useful
+				add_scaled_artifact_modifier_negate_prowess_penalty_effect = yes
+				add_scaled_artifact_modifier_combat_effect = yes
+				equip_artifact_to_owner = yes
+			}
+		}
+		character:ragnar_wb ?= {
+			save_scope_as = owner
+			save_scope_value_as = {
+				name = quality
+				value = { value = sub_realm_size add = prowess }
+			}
+			get_artifact_wealth_effect = yes
+			random_vassal = {
+				save_scope_as = smith
+			}
+			create_artifact_weapon_effect = {
+				OWNER = scope:owner
+				CREATOR = scope:smith
+				SET_WEAPON_TYPE = flag:artifact_weapon_type_axe
+			}
+			scope:newly_created_artifact = {
+				set_artifact_name = artifact_ragnar_axe
+				add_artifact_modifier = artifact_belligerent_vassal_opinion_3_modifier
+				equip_artifact_to_owner = yes
+			}
+			random_vassal = {
+				save_scope_as = smith
+			}
+			create_artifact = {
+				name = artifact_ragnar_armor
+				description = artifact_ragnar_armor_desc
+				template = ck_wb_king_armor_template
+				# creator = scope:smith
+				type = armor_brigandine
+				visuals = ragnar_armor
+				wealth = scope:wealth
+				quality = scope:quality
+				modifier = bp3_conqueror_black_sea_modifier
+				
+				title_history = title:e_nords
+				save_scope_as = newly_created_artifact
+
+			}
+			scope:newly_created_artifact ?= {
+				set_artifact_feature = armor_material_hardened_leather
+				add_2_scaled_artifact_modifier_combat_effect = yes
+				set_artifact_rarity = famed
+				equip_artifact_to_owner = yes
+			}
+		}
+		character:graveth_wb ?= {
+			save_scope_as = owner
+			save_scope_value_as = {
+				name = quality
+				value = { value = sub_realm_size add = prowess }
+			}
+			get_artifact_wealth_effect = yes
+			random_vassal = {
+				save_scope_as = smith
+			}
+			create_artifact_weapon_effect = {
+				OWNER = scope:owner
+				CREATOR = scope:smith
+				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
+			}
+			scope:newly_created_artifact = {
+				reforge_artifact = { type = sword visuals = longsword }
+				set_artifact_name = artifact_graveth_sword
+				equip_artifact_to_owner = yes
+			}
+			random_vassal = {
+				limit = {
+					is_landed = yes
+					highest_held_title_tier >= tier_duchy
+				}
+				save_scope_as = smith
+			}
+			# set_artifact_rarity_masterwork = yes # make it green on green
+			create_artifact = {
+				name = artifact_graveth_armor
+				description = artifact_graveth_armor_desc
+				template = ck_wb_king_armor_template
+				creator = scope:smith
+				type = armor_mail
+				visuals = graveth_armor
+				wealth = scope:wealth
+				quality = scope:quality
+				modifier = artifact_armor_2_artifact_modifier
+				title_history = scope:smith.capital_county # random landed title since we don't have rebellion history
+				title_history_date = 1085.1.1
+				# visual_source = scope:owner.primary_title
+				save_scope_as = newly_created_artifact
+
+			}
+			scope:newly_created_artifact ?= {
+				set_artifact_feature = armor_material_steel
+				set_artifact_rarity = masterwork
+				add_2_scaled_artifact_modifier_rulership_effect = yes
+				equip_artifact_to_owner = yes
+			}
+		}
+		character:hakim_wb ?= {
+			save_scope_as = owner
+			save_scope_value_as = {
+				name = quality
+				value = { value = sub_realm_size add = prowess }
+			}
+			get_artifact_wealth_effect = yes
+			random_vassal = {
+				save_scope_as = smith
+			}
+			create_artifact_weapon_effect = {
+				OWNER = scope:owner
+				CREATOR = scope:smith
+				SET_WEAPON_TYPE = flag:artifact_weapon_type_dagger
+			}
+			scope:newly_created_artifact = {
+				set_artifact_name = artifact_hakim_sword
+				set_artifact_description = easteregg_artifact_chad_dagger_description
+				set_artifact_feature = blade_metal_damascus_steel
+
+				add_artifact_modifier = artifact_owned_personal_scheme_success_chance_add_12_modifier
+				add_artifact_modifier = artifact_personal_scheme_phase_duration_add_12_modifier
+				equip_artifact_to_owner = yes
+			}
+			random_vassal = {
+				save_scope_as = smith
+			}
+			get_artifact_wealth_effect = yes
+			create_artifact = {
+				name = artifact_hakim_armor
+				description = artifact_hakim_armor_desc
+				template = ck_wb_king_armor_template
+				creator = scope:smith
+				type = armor_mail
+				visuals = hakim_armor
+				wealth = scope:wealth
+				quality = scope:quality
+				modifier = artifact_armor_2_artifact_modifier
+				title_history = scope:owner.primary_title # random landed title since we don't have rebellion history
+				save_scope_as = newly_created_artifact
+
+			}
+			scope:newly_created_artifact ?= {
+				set_artifact_feature = armor_material_iron
+				add_scaled_artifact_modifier_intrigue_effect = yes
+				add_scaled_artifact_modifier_devotion_effect = yes
+				equip_artifact_to_owner = yes
+			}
+		}
+	}
+}
