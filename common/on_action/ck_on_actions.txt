@@ -39,22 +39,21 @@ ck_game_start = {
 		### CALRADIC KINGS - GAMERULES ###
 		if = {
 		 	limit = {
-		 		has_game_rule = ck_full_shatter_calradia
+				OR = {
+		 			has_game_rule = ck_shatter_all_but_calradians
+					has_game_rule = ck_full_shatter_calradia
+				}
 		 	}
 		 	shatter_kingdoms_and_empires_effect = yes
-			shatter_calradian_empires_effect = yes
 		}
 		if = {
 		 	limit = {
-		 		has_game_rule = ck_shatter_calradian_empires
+				OR = {
+		 			has_game_rule = ck_shatter_calradian_empires
+					has_game_rule = ck_full_shatter_calradia
+				}
 		 	}
-		 	shatter_calradian_empires_effect = yes
-		}
-		if = {
-		 	limit = {
-		 		has_game_rule = ck_shatter_all_but_calradians
-		 	}
-		 	shatter_kingdoms_and_empires_effect = yes
+		 	shatter_calradian_empires_effect = yes = yes
 		}
 		#### === WARBAND RELATED === ####
 		### Warband Setup
@@ -62,6 +61,40 @@ ck_game_start = {
 			limit = {
 				game_start_date >= 1257.3.23
 			}
+			if = {
+				limit = {
+					has_game_rule = ck_shatter_warband
+				}
+				every_kingdom = {
+					limit = {
+						exists = holder
+						NOT = {
+							this = title:k_mytophion # offshore
+						}
+						empire ?= {
+							OR = {
+								this = title:e_west_calradia
+								this = title:e_nords
+								this = title:e_sturgia
+								this = title:e_khergits
+							}
+						}
+						# capital_county.title_province = {
+						# 	geographical_region = region_warband
+						# }
+					}
+					holder ?= {
+						if = {
+							limit = {
+								highest_held_title_tier >= tier_empire
+							}
+							destroy_title = primary_title
+						}
+						destroy_title = prev
+					}
+				}
+			}
+			warband_king_armor = yes
 			# MAKE NORDIC & STURGIC FAITHS REFORMED 
 			faith:jumne = {
 				set_variable = { name = has_been_reformed }
@@ -101,11 +134,10 @@ ck_game_start = {
 					limit = {
 						dynasty_prestige_level < 4
 					}
-					add_dynasty_prestige = 2300
+					add_dynasty_prestige_level = 5
 				}
 			}
 		}
-		
 	}
 }
 ck_game_start_after_lobby = {
