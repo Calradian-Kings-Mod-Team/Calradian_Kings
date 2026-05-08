@@ -127,6 +127,94 @@ ck_game_start = {
 					remove_culture_tradition = tradition_mpo_northern_tribes
 					add_culture_tradition = tradition_devoted_horsemanship
 				}
+				if = {
+					limit = {
+						NOT = {
+							has_game_rule = ck_khergit_clan
+						}
+					}
+					every_culture_county = {
+						if = {
+							limit = {
+								has_game_rule = ck_khergit_nomad
+							}
+							raze_county = {
+								holding_type = nomad_holding
+								purge_secondary_holdings = yes
+							}
+						}
+						else_if = {
+							limit = {
+								has_game_rule = ck_khergit_tribe
+							}
+							raze_county = {
+								holding_type = tribal_holding
+								purge_secondary_holdings = yes
+							}
+						}
+					}
+					if = {
+						limit = {
+							has_game_rule = ck_khergit_tribe
+						}
+						if = {
+							limit = {
+								has_game_rule = situation_the_great_steppe_toggle_on
+								exists = situation:the_great_steppe
+							}
+							# region_warband_khergits + a few extra borders
+							expanding_steppe_add_region_effect = {
+								SUB_REGION = warband
+								REGION = world_steppe_khergits
+							}
+						}
+						every_ruler = {
+							limit = {
+								is_landed = yes
+								culture = culture:khergit
+							}
+							change_government = tribal_government
+						}
+					}
+					else_if = {
+						limit = {
+							has_game_rule = ck_khergit_nomad
+						}
+						if = {
+							limit = {
+								has_game_rule = situation_the_great_steppe_toggle_on
+								# situation:the_great_steppe ?= {
+								# }
+							}
+							# grab the whole region until decision for partial expansion is added
+							expanding_steppe_add_region_effect = {
+								SUB_REGION = warband
+								REGION = region_warband
+							}
+							situation:the_great_steppe = {
+								situation_sub_region:steppe_warband ?= {
+									every_situation_sub_region_participant = {
+										limit = {
+											is_landed = yes
+											culture = culture:khergit
+										}
+										change_government = nomad_government
+										# every_directly_owned_province = {
+										# 	limit = {
+										# 		NOR = {
+										# 			culture = province_owner.culture
+										# 			faith = province_owner.faith
+										# 		}
+										# 	}
+										# }
+									}
+								}
+							}
+						}
+						# why would you play this with situation_the_great_steppe_toggle_off? khergit herders?
+						
+					}
+				}
 			}
 			# was at "base origin" instead of bookmark's 4 value
 			dynasty:dynn_banu_sarran = {
