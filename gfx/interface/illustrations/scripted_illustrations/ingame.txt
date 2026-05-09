@@ -10426,6 +10426,8 @@ character_view_bg = {
 		reference = "character_view/fp2_throneroom_iberian.dds"
 
 		trigger = {
+			# aserai use the iberian fancy one - this trigger doesn not use scope:culture
+			portrait_fp2_iberian_muslim_clothing_spouse_trigger = yes
 			high_tier_throne_room_trigger = { REGION = iberia }
 		}
 	}
@@ -10448,8 +10450,90 @@ character_view_bg = {
 		}
 	}
 
+
+	# Mediterranean, high rank (this is everybody along the perassic)
+	texture = {
+		reference = "character_view/throneroom_mediterranean.dds"
+
+		trigger = {
+			trigger_if = {
+				limit = {
+					OR = {
+						has_graphical_northern_empire_trigger = yes
+						portrait_fp2_iberian_christian_clothing_trigger = yes
+					}
+				}
+				# this should be along the entier perassic but oh well
+				high_tier_throne_room_trigger = { REGION = iberian }
+			}
+			trigger_else = {
+				high_tier_throne_room_trigger = { REGION = mediterranean }
+			}
+		}
+	}
+
+	environment = {
+		reference = "environment_cw_mediterranean_throneroom_main"
+
+		trigger = {
+			high_tier_throne_room_trigger = { REGION = mediterranean }
+			is_character_window_main_character = yes
+		}
+	}
+
+	environment = {
+		reference = "environment_cw_mediterranean_throneroom_spouse"
+
+		trigger = {
+			high_tier_throne_room_spouse_trigger = { REGION = mediterranean }
+			is_character_window_main_character = no
+		}
+	}
+	# inside, everybody else
+	texture = {
+		reference = "event_scenes/fp2_corridor_day.dds"
+
+		trigger = {
+			has_graphical_iberia_region_trigger = yes
+			faith_is_aserai_origin = yes
+			trigger_if = {
+				limit = {
+					is_adult = yes
+				}
+				is_ruler = no
+			}
+		}
+	}
+	environment = {
+		reference = "environment_event_fp2_corridor_day"
+
+		trigger = {
+			# should_use_temple_character_background_trigger = yes
+			trigger_if = {
+				limit = {
+					is_adult = yes
+				}
+				is_ruler = no
+			}
+			faith_is_aserai_origin = yes
+			has_graphical_iberia_region_trigger = yes
+			is_character_window_main_character = yes
+		}
+	}
+
 	##########################################
-	# Iberian, regular
+	# Mediterranean, regular
+	texture = {
+		reference = "character_view/mediterranean.dds"
+
+		trigger = {
+			trigger_if = {
+				limit = { is_in_prison_type = house_arrest }
+				imprisoner = { has_graphical_mediterranean_region_trigger = yes }
+			}
+			trigger_else = { has_graphical_mediterranean_region_trigger = yes }
+		}
+	}
 	texture = {
 		reference = "character_view/fp2_iberian.dds"
 
@@ -10459,26 +10543,19 @@ character_view_bg = {
 				limit = { is_in_prison_type = house_arrest }
 				imprisoner = { has_graphical_iberia_region_trigger = yes }
 			}
+			trigger_else_if = {
+				limit = {
+					character_is_calradian = yes
+					has_graphical_northern_empire_trigger = yes
+				}
+				highest_held_title_tier < tier_kingdom
+			}
 			trigger_else = { has_graphical_iberia_region_trigger = yes }
 		}
 	}
-	
-	texture = {
-		reference = "character_view/fp2_iberian.dds"
 
-		trigger = {
-			has_fp2_dlc_trigger = yes
-			trigger_if = { 
-				culture = {
-					has_cultural_pillar = heritage_calradian
-				}
-				NOT = {
-					primary_title.tier = tier_empire
-				}
-				has_graphical_northern_empire_trigger = yes
-			}
-		}
-	}
+	##########################################
+	# Iberian, geroian
 
 	environment = {
 		reference = "environment_cw_fp2_iberian"
@@ -10524,49 +10601,6 @@ character_view_bg = {
 				}
 			}
 			is_character_window_main_character = no
-		}
-	}
-
-	############################################
-
-	# Mediterranean, high rank
-	texture = {
-		reference = "character_view/throneroom_mediterranean.dds"
-
-		trigger = {
-			high_tier_throne_room_trigger = { REGION = mediterranean }
-		}
-	}
-
-	environment = {
-		reference = "environment_cw_mediterranean_throneroom_main"
-
-		trigger = {
-			high_tier_throne_room_trigger = { REGION = mediterranean }
-			is_character_window_main_character = yes
-		}
-	}
-
-	environment = {
-		reference = "environment_cw_mediterranean_throneroom_spouse"
-
-		trigger = {
-			high_tier_throne_room_spouse_trigger = { REGION = mediterranean }
-			is_character_window_main_character = no
-		}
-	}
-
-	##########################################
-	# Mediterranean, regular
-	texture = {
-		reference = "character_view/mediterranean.dds"
-
-		trigger = {
-			trigger_if = {
-				limit = { is_in_prison_type = house_arrest }
-				imprisoner = { has_graphical_mediterranean_region_trigger = yes }
-			}
-			trigger_else = { has_graphical_mediterranean_region_trigger = yes }
 		}
 	}
 
