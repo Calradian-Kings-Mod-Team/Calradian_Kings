@@ -39,22 +39,21 @@ ck_game_start = {
 		### CALRADIC KINGS - GAMERULES ###
 		if = {
 		 	limit = {
-		 		has_game_rule = ck_full_shatter_calradia
+				OR = {
+		 			has_game_rule = ck_shatter_all_but_calradians
+					has_game_rule = ck_full_shatter_calradia
+				}
 		 	}
 		 	shatter_kingdoms_and_empires_effect = yes
-			shatter_calradian_empires_effect = yes
 		}
 		if = {
 		 	limit = {
-		 		has_game_rule = ck_shatter_calradian_empires
+				OR = {
+		 			has_game_rule = ck_shatter_calradian_empires
+					has_game_rule = ck_full_shatter_calradia
+				}
 		 	}
 		 	shatter_calradian_empires_effect = yes
-		}
-		if = {
-		 	limit = {
-		 		has_game_rule = ck_shatter_all_but_calradians
-		 	}
-		 	shatter_kingdoms_and_empires_effect = yes
 		}
 		#### === WARBAND RELATED === ####
 		### Warband Setup
@@ -62,6 +61,40 @@ ck_game_start = {
 			limit = {
 				game_start_date >= 1257.3.23
 			}
+			if = {
+				limit = {
+					has_game_rule = ck_shatter_warband
+				}
+				every_kingdom = {
+					limit = {
+						exists = holder
+						NOT = {
+							this = title:k_mytophion # offshore
+						}
+						empire ?= {
+							OR = {
+								this = title:e_west_calradia
+								this = title:e_nords
+								this = title:e_sturgia
+								this = title:e_khergits
+							}
+						}
+						# capital_county.title_province = {
+						# 	geographical_region = region_warband
+						# }
+					}
+					holder ?= {
+						if = {
+							limit = {
+								highest_held_title_tier >= tier_empire
+							}
+							destroy_title = primary_title
+						}
+						destroy_title = prev
+					}
+				}
+			}
+			warband_king_armor = yes
 			# MAKE NORDIC & STURGIC FAITHS REFORMED 
 			faith:jumne = {
 				set_variable = { name = has_been_reformed }
@@ -94,6 +127,94 @@ ck_game_start = {
 					remove_culture_tradition = tradition_mpo_northern_tribes
 					add_culture_tradition = tradition_devoted_horsemanship
 				}
+				if = {
+					limit = {
+						NOT = {
+							has_game_rule = ck_khergit_clan
+						}
+					}
+					every_culture_county = {
+						if = {
+							limit = {
+								has_game_rule = ck_khergit_nomad
+							}
+							raze_county = {
+								holding_type = nomad_holding
+								purge_secondary_holdings = yes
+							}
+						}
+						else_if = {
+							limit = {
+								has_game_rule = ck_khergit_tribe
+							}
+							raze_county = {
+								holding_type = tribal_holding
+								purge_secondary_holdings = yes
+							}
+						}
+					}
+					if = {
+						limit = {
+							has_game_rule = ck_khergit_tribe
+						}
+						if = {
+							limit = {
+								has_game_rule = situation_the_great_steppe_toggle_on
+								exists = situation:the_great_steppe
+							}
+							# region_warband_khergits + a few extra borders
+							expanding_steppe_add_region_effect = {
+								SUB_REGION = warband
+								REGION = world_steppe_khergits
+							}
+						}
+						every_ruler = {
+							limit = {
+								is_landed = yes
+								culture = culture:khergit
+							}
+							change_government = tribal_government
+						}
+					}
+					else_if = {
+						limit = {
+							has_game_rule = ck_khergit_nomad
+						}
+						if = {
+							limit = {
+								has_game_rule = situation_the_great_steppe_toggle_on
+								# situation:the_great_steppe ?= {
+								# }
+							}
+							# grab the whole region until decision for partial expansion is added
+							expanding_steppe_add_region_effect = {
+								SUB_REGION = warband
+								REGION = region_warband
+							}
+							situation:the_great_steppe = {
+								situation_sub_region:steppe_warband ?= {
+									every_situation_sub_region_participant = {
+										limit = {
+											is_landed = yes
+											culture = culture:khergit
+										}
+										change_government = nomad_government
+										# every_directly_owned_province = {
+										# 	limit = {
+										# 		NOR = {
+										# 			culture = province_owner.culture
+										# 			faith = province_owner.faith
+										# 		}
+										# 	}
+										# }
+									}
+								}
+							}
+						}
+						# why would you play this with situation_the_great_steppe_toggle_off? khergit herders?
+						
+					}
+				}
 			}
 			# was at "base origin" instead of bookmark's 4 value
 			dynasty:dynn_banu_sarran = {
@@ -101,11 +222,10 @@ ck_game_start = {
 					limit = {
 						dynasty_prestige_level < 4
 					}
-					add_dynasty_prestige = 2300
+					add_dynasty_prestige_level = 5
 				}
 			}
 		}
-		
 	}
 }
 ck_game_start_after_lobby = {

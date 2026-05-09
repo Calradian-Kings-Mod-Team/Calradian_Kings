@@ -538,7 +538,10 @@ create_landless_adventurer_title_effect = {
 			# Give us a couple of starting chars if we're almost completely bereft.
 			if = {
 				limit = {
-					any_courtier = { count <= 2 }
+					any_courtier = { #Unop Check only for adult followers
+						is_adult = yes
+						count <= 2
+					}
 				}
 				trigger_event = {
 					id = ep3_laamps.1001
@@ -557,6 +560,13 @@ create_landless_adventurer_title_effect = {
 }
 
 ep3_become_landed_transfer_effect = {
+	#Unop Get scope:new_primary_title early, and use it instead of scope:target,
+	# since scope:target may not exist, or may be a character
+	ordered_in_list = {
+		list = $TITLE_LIST$
+		order_by = tier
+		save_scope_as = new_primary_title
+	}
 	hidden_effect = {
 		# Liquidate camp
 		$TITLE_RECEIVER$ = { laamp_clear_domicile_buildings_liquidator_effect = yes }
@@ -573,7 +583,7 @@ ep3_become_landed_transfer_effect = {
 		}
 		set_variable = { # Used to prevent invalid NF creation
 			name = laamp_invasion_flag
-			value = scope:target
+			value = scope:new_primary_title #Unop Use new_primary_title instead of target
 			days = 1
 		}
 	}
@@ -582,10 +592,13 @@ ep3_become_landed_transfer_effect = {
 		add_claim_on_loss = yes
 		save_scope_as = title_change
 	}
-	scope:target.holder ?= { save_scope_as = old_holder }
+	scope:new_primary_title.holder ?= { save_scope_as = old_holder } #Unop Use new_primary_title instead of target
 	if = {
-		limit = { NOT = { exists = scope:old_holder } }
-		scope:target = {
+		limit = {
+			NOT = { exists = scope:old_holder }
+			exists = scope:defender #Unop ck3-tiger Check for this scope before using it
+		}
+		scope:new_primary_title = { #Unop Use new_primary_title instead of target
 			ordered_de_jure_county = {
 				limit = { holder.top_liege = scope:defender.top_liege }
 				order_by = development_level
@@ -678,6 +691,7 @@ ep3_become_landed_transfer_effect = {
 	if = {
 		limit = {
 			NOT = { exists = scope:new_capital }
+			exists = scope:defender #Unop ck3-tiger Check for this scope before using it
 		}
 		scope:new_primary_title ?= {
 			ordered_de_jure_county = {
@@ -688,11 +702,11 @@ ep3_become_landed_transfer_effect = {
 			}
 		}
 	}
-	ordered_in_list = {
-		list = $TITLE_LIST$
-		order_by = tier
-		save_scope_as = new_primary_title
-	}
+	#ordered_in_list = { #Unop Moved above
+	#	list = $TITLE_LIST$
+	#	order_by = tier
+	#	save_scope_as = new_primary_title
+	#}
 	$TITLE_RECEIVER$ = {
 		if = {
 			limit = {
@@ -712,23 +726,28 @@ ep3_become_landed_transfer_effect = {
 			}
 		}
 	}
-	scope:new_primary_title ?= {
-		every_de_jure_county = {
-			limit = {
-				NOT = { is_in_list = $TITLE_LIST$ }
-				trigger_if = {
-					limit = { exists = scope:defender }
-					holder.top_liege ?= scope:defender.top_liege
+	if = {
+		limit = {
+			NOT = { scope:ascended_throne_value = flag:purchased }
+		}
+		scope:new_primary_title ?= {
+			every_de_jure_county = {
+				limit = {
+					NOT = { is_in_list = $TITLE_LIST$ }
+					trigger_if = {
+						limit = { exists = scope:defender }
+						holder.top_liege ?= scope:defender.top_liege
+					}
+					trigger_if = {
+						limit = { exists = scope:new_liege }
+						holder.top_liege ?= scope:new_liege.top_liege
+					}
 				}
-				trigger_if = {
-					limit = { exists = scope:new_liege }
-					holder.top_liege ?= scope:new_liege.top_liege
+				change_title_holder_include_vassals = {
+					holder = $TITLE_RECEIVER$
+					change = scope:title_change
+					take_baronies = no
 				}
-			}
-			change_title_holder_include_vassals = {
-				holder = $TITLE_RECEIVER$
-				change = scope:title_change
-				take_baronies = no
 			}
 		}
 	}
@@ -793,6 +812,28 @@ ep3_become_landed_transfer_effect = {
 		becomes_independent = { change = scope:title_change }
 	}
 	resolve_title_and_vassal_change = scope:title_change
+	if = {
+		limit = {
+			$REASON$ = flag:purchased
+			any_in_list = {
+				list = purchase_land_vassals_taken
+				always = yes
+			}
+		}
+		create_title_and_vassal_change = {
+			type = $TYPE$
+			add_claim_on_loss = yes
+			save_scope_as = purchase_land_vassal_change
+		}
+		every_in_list = {
+			list = purchase_land_vassals_taken
+			change_liege = {
+				liege = $TITLE_RECEIVER$
+				change = scope:purchase_land_vassal_change
+			}
+		}
+		resolve_title_and_vassal_change = scope:purchase_land_vassal_change
+	}
 	# Because target may be either a title or a character, we check if a scope value has been set up in advance if this is being called from the Seize Realm scheme specifically
 	if = {
 		limit = { exists = scope:old_government_type }
@@ -1008,8 +1049,9 @@ ep3_become_landed_transfer_effect = {
 				limit = {
 					OR = {
 						scope:new_liege ?= { government_has_flag = government_is_mandala }
-						#scope:old_government ?= flag:mandala
 						scope:target.holder = { government_has_flag = government_is_mandala }
+						scope:old_government ?= flag:mandala  #Unop scope:target below is problematic, so stick to old_government
+						#scope:target.holder = { government_has_flag = government_is_mandala }
 					}
 					faith = { has_doctrine = doctrine_polytheist }
 				}
@@ -1152,12 +1194,12 @@ purchase_land_interaction_effect = {
 	}
 	# Purchase land specific
 	scope:actor = {
-		show_as_tooltip = {
+		#show_as_tooltip = { #Unop: We based all script review on the effect taking gold, so comment this
 			pay_short_term_gold = {
 				gold = scope:purchase_land_cost
 				target = scope:recipient
 			}
-		}
+		#}
 	}
 	# Resolve title, liege, government changes
 	ep3_become_landed_transfer_effect = {

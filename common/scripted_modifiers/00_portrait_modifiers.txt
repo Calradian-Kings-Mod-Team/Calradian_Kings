@@ -178,17 +178,30 @@ court_fashion_level_5_modifier = {
         }
     }
 }
-# add game rule to toggle this later
+
 portrait_ck_ruler_armor_modifier = {
 	modifier = {
 		add = 699 # might go past 1000 with other factors
 		trigger_if = {
 			limit = {
-				is_alive = yes
+				has_game_rule = ck_wb_king_artifact
 			}
-			portrait_wear_armor_trigger = yes
+			is_alive = yes
+			any_equipped_character_artifact = {
+				has_artifact_feature = artifact_armor_descriptor_$CULTURE_INPUT$
+			}
 		}
-		ck_is_$CULTURE_INPUT$_king = yes
+		trigger_else_if = {
+			limit = {
+				has_game_rule = ck_wb_king_visual
+			}
+			# this allows dead portraits
+			ck_is_$CULTURE_INPUT$_king = yes
+		}
+		trigger_else = { # ck_wb_king_normal
+			always = no
+		}
+		portrait_wear_armor_trigger = yes
 	}
 }
 portrait_ck_holy_royalty_modifier = {

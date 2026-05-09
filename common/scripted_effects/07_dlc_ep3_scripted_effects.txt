@@ -49,6 +49,7 @@ create_landless_adventurer_title_effect = {
 				trigger = {
 					scope:warrior_youth ?= scope:new_landless_adventurer
 					age <= 20
+					exists = scope:host #Unop: Ensure this scope exists before using it just below
 					exists = scope:host.house
 				}
 				create_adventurer_title = {
@@ -548,7 +549,10 @@ create_landless_adventurer_title_effect = {
 			# Give us a couple of starting chars if we're almost completely bereft.
 			if = {
 				limit = {
-					any_courtier = { count <= 2 }
+					any_courtier = { #Unop Check only for adult followers
+						is_adult = yes
+						count <= 2
+					}
 				}
 				trigger_event = {
 					id = ep3_laamps.1001
@@ -801,6 +805,13 @@ ep3_become_landed_save_liege_effect = {
 }
 
 ep3_become_landed_transfer_effect = {
+	#Unop Get scope:new_primary_title early, and use it instead of scope:target,
+	# since scope:target may not exist, or may be a character
+	ordered_in_list = {
+		list = $TITLE_LIST$
+		order_by = tier
+		save_scope_as = new_primary_title
+	}
 	hidden_effect = {
 		# Liquidate camp
 		$TITLE_RECEIVER$ = { laamp_clear_domicile_buildings_liquidator_effect = yes }
@@ -822,7 +833,7 @@ ep3_become_landed_transfer_effect = {
 		}
 		set_variable = { # Used to prevent invalid NF creation
 			name = laamp_invasion_flag
-			value = scope:target
+			value = scope:new_primary_title #Unop Use new_primary_title instead of target
 			days = 1
 		}
 	}
@@ -831,10 +842,13 @@ ep3_become_landed_transfer_effect = {
 		add_claim_on_loss = yes
 		save_scope_as = title_change
 	}
-	scope:target.holder ?= { save_scope_as = old_holder }
+	scope:new_primary_title.holder ?= { save_scope_as = old_holder } #Unop Use new_primary_title instead of target
 	if = {
-		limit = { NOT = { exists = scope:old_holder } }
-		scope:target = {
+		limit = {
+			NOT = { exists = scope:old_holder }
+			exists = scope:defender #Unop ck3-tiger Check for this scope before using it
+		}
+		scope:new_primary_title = { #Unop Use new_primary_title instead of target
 			ordered_de_jure_county = {
 				limit = { holder.top_liege = scope:defender.top_liege }
 				order_by = development_level
@@ -927,6 +941,7 @@ ep3_become_landed_transfer_effect = {
 	if = {
 		limit = {
 			NOT = { exists = scope:new_capital }
+			exists = scope:defender #Unop ck3-tiger Check for this scope before using it
 		}
 		scope:new_primary_title ?= {
 			ordered_de_jure_county = {
@@ -937,11 +952,11 @@ ep3_become_landed_transfer_effect = {
 			}
 		}
 	}
-	ordered_in_list = {
-		list = $TITLE_LIST$
-		order_by = tier
-		save_scope_as = new_primary_title
-	}
+	#ordered_in_list = { #Unop Moved above
+	#	list = $TITLE_LIST$
+	#	order_by = tier
+	#	save_scope_as = new_primary_title
+	#}
 	$TITLE_RECEIVER$ = {
 		if = {
 			limit = {
@@ -961,23 +976,28 @@ ep3_become_landed_transfer_effect = {
 			}
 		}
 	}
-	scope:new_primary_title ?= {
-		every_de_jure_county = {
-			limit = {
-				NOT = { is_in_list = $TITLE_LIST$ }
-				trigger_if = {
-					limit = { exists = scope:defender }
-					holder.top_liege ?= scope:defender.top_liege
+	if = {
+		limit = {
+			NOT = { scope:ascended_throne_value = flag:purchased }
+		}
+		scope:new_primary_title ?= {
+			every_de_jure_county = {
+				limit = {
+					NOT = { is_in_list = $TITLE_LIST$ }
+					trigger_if = {
+						limit = { exists = scope:defender }
+						holder.top_liege ?= scope:defender.top_liege
+					}
+					trigger_if = {
+						limit = { exists = scope:new_liege }
+						holder.top_liege ?= scope:new_liege.top_liege
+					}
 				}
-				trigger_if = {
-					limit = { exists = scope:new_liege }
-					holder.top_liege ?= scope:new_liege.top_liege
+				change_title_holder_include_vassals = {
+					holder = $TITLE_RECEIVER$
+					change = scope:title_change
+					take_baronies = no
 				}
-			}
-			change_title_holder_include_vassals = {
-				holder = $TITLE_RECEIVER$
-				change = scope:title_change
-				take_baronies = no
 			}
 		}
 	}
@@ -1042,6 +1062,28 @@ ep3_become_landed_transfer_effect = {
 		becomes_independent = { change = scope:title_change }
 	}
 	resolve_title_and_vassal_change = scope:title_change
+	if = {
+		limit = {
+			$REASON$ = flag:purchased
+			any_in_list = {
+				list = purchase_land_vassals_taken
+				always = yes
+			}
+		}
+		create_title_and_vassal_change = {
+			type = $TYPE$
+			add_claim_on_loss = yes
+			save_scope_as = purchase_land_vassal_change
+		}
+		every_in_list = {
+			list = purchase_land_vassals_taken
+			change_liege = {
+				liege = $TITLE_RECEIVER$
+				change = scope:purchase_land_vassal_change
+			}
+		}
+		resolve_title_and_vassal_change = scope:purchase_land_vassal_change
+	}
 	# Because target may be either a title or a character, we check if a scope value has been set up in advance if this is being called from the Seize Realm scheme specifically
 	if = {
 		limit = { exists = scope:old_government_type }
@@ -1257,8 +1299,8 @@ ep3_become_landed_transfer_effect = {
 				limit = {
 					OR = {
 						scope:new_liege ?= { government_has_flag = government_is_mandala }
-						#scope:old_government ?= flag:mandala
-						scope:target.holder = { government_has_flag = government_is_mandala }
+						scope:old_government ?= flag:mandala  #Unop scope:target below is problematic, so stick to old_government
+						#scope:target.holder = { government_has_flag = government_is_mandala }
 					}
 					faith = { has_doctrine = doctrine_polytheist }
 				}
@@ -1458,12 +1500,12 @@ purchase_land_interaction_effect = {
 	}
 	# Purchase land specific
 	scope:actor = {
-		show_as_tooltip = {
+		#show_as_tooltip = { #Unop: We based all script review on the effect taking gold, so comment this
 			pay_short_term_gold = {
 				gold = scope:purchase_land_cost
 				target = scope:recipient
 			}
-		}
+		#}
 	}
 	# Resolve title, liege, government changes
 	ep3_become_landed_transfer_effect = {
@@ -1882,6 +1924,27 @@ negotiate_settlement_interaction_effect = {
 	}
 	# Effects on land giver
 	scope:actor = {
+		#Unop ck3-tiger Ensure scope:negotiate_settlement_legitimacy_cost exists, see negotiate_settlement_interaction
+		if = {
+			limit = { 
+				NOT = { exists = scope:negotiate_settlement_legitimacy_cost }
+			}
+			save_scope_value_as = {
+				name = negotiate_settlement_legitimacy_cost
+				value = {
+					value = 0
+					every_in_list = {
+						list = offered_titles
+						if = {
+							limit = { tier = tier_county }
+							add = -25
+						}
+						else = { add = -50 }
+					}
+					multiply = scope:actor.highest_held_title_tier
+				}
+			}
+		}
 		add_legitimacy = scope:negotiate_settlement_legitimacy_cost
 		stress_impact = {
 			greedy = minor_stress_impact_gain
@@ -2004,7 +2067,7 @@ ep3_laamp_supporter_invalidated_effect = {
 			send_interface_message = {
 				type = event_landless_adventurer_neutral
 				title = ep3_laamp_sponsor_invalidated_title
-				left_icon = scope:attacker
+				left_icon = scope:adventurer #Unop ck3-tiger
 				right_icon = scope:war_target
 				remove_variable = adventurer_invasion_supportee
 				remove_variable = adventurer_invasion_target
@@ -2013,7 +2076,7 @@ ep3_laamp_supporter_invalidated_effect = {
 					limit = { exists = var:adventurer_invasion_join_war }
 					set_variable = {
 						name = adventurer_invasion_join_war
-						value = scope:actor
+						value = scope:adventurer #Unop: Here it's the advendturer scope not actor
 						years = 5
 					}
 				}
@@ -2021,7 +2084,7 @@ ep3_laamp_supporter_invalidated_effect = {
 					limit = { exists = var:adventurer_invasion_request_soldiers }
 					set_variable = {
 						name = adventurer_invasion_request_soldiers
-						value = scope:actor
+						value = scope:adventurer #Unop: Use correct scope (was actor)
 						years = 5
 					}
 				}
@@ -3170,13 +3233,13 @@ bandit_king_maa_spawn_effect = {
 					}
 					spawn_army = {
 						men_at_arms = {
-							type = maa_thieves
+							type = maa_marauders #Unop: From the desc of the effect, it should be marauders here
 							stacks = var:maa_number
 						}
 						inheritable = no
 						uses_supply = yes
 						location = scope:bandit_king.location
-						name = ep3_bandits_army
+						name = ep3_poachers_army #Unop: Harmonised with above (since we are in the poachers case)
 					}
 				}
 				1 = {
@@ -7679,6 +7742,7 @@ ep3_story_cycle_admin_eunuch_matching_modifier_effect = {
 }
 
 ep3_story_cycle_admin_eunuch_downgrade_modifier_effect = {
+	top_liege = { save_scope_as = ck_top_liege }
 	save_scope_value_as = {
 		name = modifier_type
 		value = flag:$TYPE$
@@ -7690,7 +7754,7 @@ ep3_story_cycle_admin_eunuch_downgrade_modifier_effect = {
 				limit = { scope:modifier_type = flag:eunuch }
 				progress_towards_rival_effect = {
 					REASON = rival_admin_eunuch
-					CHARACTER = top_liege
+					CHARACTER = scope:ck_top_liege
 					OPINION = default_rival_opinion
 				}
 			}
@@ -11263,6 +11327,7 @@ war_task_contracts_completion_effect = {
 					}
 					if = {
 						limit = {
+							exists = scope:winner #Unop: scope:winner doesn't exist if the war ended in white peace or was invalidated
 							task_contract_taker = scope:winner
 						}
 						complete_task_contract = success_standard
@@ -11309,6 +11374,10 @@ laamp_as_mercenary_payout_effect = {
 			}
 			else = {
 				save_scope_as = laamp_temp
+				save_scope_value_as = { #Unop ck3-tiger ep3_hire_laamp_mercs_payment_value depends on scope:war_contribution_value
+					name = war_contribution_value
+					value = "scope:war.war_contribution(scope:laamp_temp)"
+				}
 				var:joined_as_mercenary = { save_scope_as = employer }
 				if = {
 					limit = { exists = var:aggregate_war_contribution_value }
@@ -11925,6 +11994,45 @@ disburse_camp_party_reward_effect = {
 										}
 									}
 								}
+								1 = { #Unop: Add the missing mess_tent_01
+									trigger = {
+										has_domicile_building_or_higher = mess_tent_01
+										NOT = { has_domicile_building = mess_tent_06 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										mess_tent_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_01
+											}
+										}
+										mess_tent_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_02
+											}
+										}
+										mess_tent_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_03
+											}
+										}
+										mess_tent_04 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_04
+											}
+										}
+										mess_tent_05 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_05
+											}
+										}
+									}
+								}
 							}
 						}
 					}
@@ -11965,6 +12073,12 @@ disburse_camp_party_reward_effect = {
 						flag:camp_perimeter_03 = { add_domicile_building = camp_perimeter_04 }
 						flag:camp_perimeter_04 = { add_domicile_building = camp_perimeter_05 }
 						flag:camp_perimeter_05 = { add_domicile_building = camp_perimeter_06 }
+						#Unop: Add the missing mess_tent_01
+						flag:mess_tent_01 = { add_domicile_building = mess_tent_02 }
+						flag:mess_tent_02 = { add_domicile_building = mess_tent_03 }
+						flag:mess_tent_03 = { add_domicile_building = mess_tent_04 }
+						flag:mess_tent_04 = { add_domicile_building = mess_tent_05 }
+						flag:mess_tent_05 = { add_domicile_building = mess_tent_06 }
 					}
 				}
 
@@ -12565,7 +12679,7 @@ ep3_decrease_pacification_effect = {
 ep3_decrease_resistance_effect = {
 	save_scope_as = origin_char
 	if = {
-		limit = { scope:story.var:pacification != 0 }
+		limit = { scope:story.var:resistance != 0 } #Unop: Was checking pacification value
 		scope:story = {
 			change_variable = {
 				name = resistance
