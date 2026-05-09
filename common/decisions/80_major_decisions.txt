@@ -194,7 +194,7 @@ convert_clan_to_feudalism_through_liege_decision = {
 				faith = {
 					faith_hostility_level = {
 						target = root.liege.faith
-						value >= faith_fully_accepted_level
+						value <= faith_fully_accepted_level
 					}
 				}
 			}
@@ -283,7 +283,7 @@ convert_feudalism_to_clan_through_liege_decision = {
 				faith = {
 					faith_hostility_level = {
 						target = root.liege.faith
-						value >= faith_fully_accepted_level
+						value <= faith_fully_accepted_level
 					}
 				}
 			}
@@ -459,7 +459,7 @@ convert_whole_realm_to_feudalism_decision = {
 	ai_potential = {
 		OR = {
 			NAND = { 
-				current_date <= 1300.1.1
+				current_date <= 1200.1.1
 				has_title = title:e_khuzait_khanate # Avoid the Khuzaits from feudalizing too soon
 			} #Stop the Khuzaits from slowing their conquest.
 			NOT = { mpo_has_gok_mongol_empire_trigger = yes } #Stop the Great Horde from slowing their conquest
@@ -545,102 +545,111 @@ convert_to_tribalism_decision = {
 # Convert Realm to Feudalism (West African Pagan)
 # by Ewan Cowhig Croft
 ##################################################
+### CK_WEST_AFRICA CK_AFRICA CK_UPDATE CK_AUH - Update this decision to include the new religions
+# A decision for West African pagans to feudalise without reforming. 
+### Adopt [ROOT.Char.Custom('GetTribalReformGovernment')|U] Ways: #weak (West African Pagan)#! ###
+convert_whole_realm_to_feudalism_west_african_pagan_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/fp2_decision_struggle_conciliation.dds"
+	}
+	decision_group_type = major
+	title = convert_whole_realm_to_feudalism_west_nahasan_pagan_decision
+	desc = convert_whole_realm_to_feudalism_west_nahasan_pagan_decision_desc
 
-# A decision for West African pagans to feudalise without reforming. ### CK_WEST_AFRICA CK_AFRICA CK_UPDATE CK_AUH - Update this decision to include the new religions
-# convert_whole_realm_to_feudalism_west_african_pagan_decision = {
-# 	picture = {
-# 		reference = "gfx/interface/illustrations/decisions/decision_realm.dds"
-# 	}
-# 	decision_group_type = major
-# 	desc = convert_whole_realm_to_feudalism_west_african_pagan_decision_desc
+	ai_check_interval_by_tier = {
+		barony = 0
+		county = 72
+		duchy = 60
+		kingdom = 36
+		empire = 36
+		hegemony = 0
+	}
 
-# 	ai_check_interval = 36
+	is_shown = {
+		# Only tribals need formalise.
+		government_has_flag = government_is_tribal
+		# Unreformed West African Pagans are our targets.
+		faith_qualifies_for_west_african_pagan_feudalisation_trigger = yes
+	}
 
-# 	is_shown = {
-# 		# Only tribals need formalise.
-# 		government_has_flag = government_is_tribal
-# 		# Unreformed West African Pagans are our targets.
-# 		faith_qualifies_for_west_african_pagan_feudalisation_trigger = yes
-# 	}
+	is_valid = {
+		# Repeat the faith requirements, so that the player knows what's up.
+		faith_qualifies_for_west_african_pagan_feudalisation_trigger = yes
+		# Must have suitable authority.
+		has_realm_law = tribal_authority_3
+		# Independents only.
+		top_liege = this
+		# West Africans feudalise from large empires.
+		calc_true_if = {
+			amount >= 4
+			realm_size >= minor_realm_size
+			highest_held_title_tier >= tier_kingdom
+			custom_tooltip = {
+				text = convert_whole_realm_to_feudalism_west_african_pagan_decision.tt.vassal_count
+				any_vassal = { count >= convert_whole_realm_to_feudalism_west_african_pagan_decision_vassal_count_value }
+			}
+			prestige_level >= high_prestige_level
+			piety_level >= high_piety_level
+			custom_tooltip = {
+				text = convert_whole_realm_to_feudalism_west_african_pagan_decision.tt.wa_capital_development
+				capital_county = {
+					development_level >= convert_whole_realm_to_feudalism_west_african_pagan_decision_wa_capital_development_value
+					title_province = { geographical_region = world_nahasa_west }
+				}
+			}
+		}
+		# You need to have 70% of all (non-regional/unique) tribal innovations!
+		custom_description = {
+			text = has_all_tribal_innovations
+			subject = root.culture
+			culture = {
+				calc_true_if = {
+					amount >= 9
+					has_innovation = innovation_motte
+					has_innovation = innovation_catapult
+					has_innovation = innovation_barracks
+					has_innovation = innovation_mustering_grounds
+					has_innovation = innovation_bannus
+					has_innovation = innovation_quilted_armor
+					has_innovation = innovation_gavelkind
+					has_innovation = innovation_crop_rotation
+					has_innovation = innovation_city_planning
+					has_innovation = innovation_casus_belli
+					has_innovation = innovation_plenary_assemblies
+					has_innovation = innovation_ledger
+					has_innovation = innovation_development_01
+					has_innovation = innovation_currency_01
+				}
+			}
+		}
+	}
 
-# 	is_valid = {
-# 		# Repeat the faith requirements, so that the player knows what's up.
-# 		faith_qualifies_for_west_african_pagan_feudalisation_trigger = yes
-# 		# Must have suitable authority.
-# 		has_realm_law = tribal_authority_3
-# 		# Independents only.
-# 		is_independent_ruler = yes
-# 		# West Africans feudalise from large empires.
-# 		calc_true_if = {
-# 			amount >= 4
-# 			realm_size >= minor_realm_size
-# 			highest_held_title_tier >= tier_kingdom
-# 			custom_tooltip = {
-# 				text = convert_whole_realm_to_feudalism_west_african_pagan_decision.tt.vassal_count
-# 				any_vassal = { count >= convert_whole_realm_to_feudalism_west_african_pagan_decision_vassal_count_value }
-# 			}
-# 			prestige_level >= high_prestige_level
-# 			piety_level >= high_piety_level
-# 			custom_tooltip = {
-# 				text = convert_whole_realm_to_feudalism_west_african_pagan_decision.tt.wa_capital_development
-# 				capital_county = {
-# 					development_level >= convert_whole_realm_to_feudalism_west_african_pagan_decision_wa_capital_development_value
-# 					title_province = { geographical_region = region_west_nahasa }
-# 				}
-# 			}
-# 		}
-# 		# You need to have 70% of all (non-regional/unique) tribal innovations!
-# 		custom_description = {
-# 			text = has_all_tribal_innovations
-# 			subject = root.culture
-# 			culture = {
-# 				calc_true_if = {
-# 					amount >= 9
-# 					has_innovation = innovation_motte
-# 					has_innovation = innovation_catapult
-# 					has_innovation = innovation_barracks
-# 					has_innovation = innovation_mustering_grounds
-# 					has_innovation = innovation_bannus
-# 					has_innovation = innovation_quilted_armor
-# 					has_innovation = innovation_gavelkind
-# 					has_innovation = innovation_crop_rotation
-# 					has_innovation = innovation_city_planning
-# 					has_innovation = innovation_casus_belli
-# 					has_innovation = innovation_plenary_assemblies
-# 					has_innovation = innovation_ledger
-# 					has_innovation = innovation_development_01
-# 					has_innovation = innovation_currency_01
-# 				}
-# 			}
-# 		}
-# 	}
+	cost = { prestige = 500 }
 
-# 	cost = { prestige = 500 }
+	effect = {
+		trigger_event = major_decisions.0001
+		save_scope_as = actor
+		convert_whole_realm_to_feudalism_effect = yes
+		hidden_effect = {
+			every_vassal = {
+				trigger_event = {
+					id = major_decisions.0002
+					days = 3
+				}
+			}
+		}
+	}
 
-# 	effect = {
-# 		trigger_event = major_decisions.0001
-# 		save_scope_as = actor
-# 		convert_whole_realm_to_feudalism_effect = yes
-# 		hidden_effect = {
-# 			every_vassal = {
-# 				trigger_event = {
-# 					id = major_decisions.0002
-# 					days = 3
-# 				}
-# 			}
-# 		}
-# 	}
+	ai_potential = {
+		# Cut down on checks for other tribals.
+		exists = capital_county.title_province
+		capital_county.title_province = { geographical_region = world_nahasa_west }
+	}
 
-# 	ai_potential = {
-# 		# Cut down on checks for other tribals.
-# 		exists = capital_county.title_province
-# 		capital_county.title_province = { geographical_region = region_west_nahasa }
-# 	}
-
-# 	ai_will_do = {
-# 		base = 100
-# 	}
-# }
+	ai_will_do = {
+		base = 100
+	}
+}
 
 
 
@@ -704,7 +713,8 @@ declare_bloodline_holy_decision = {
 			has_trait = divine_blood
 			has_trait = paragon
 			has_trait = consecrated_blood
-			faith.religion = faith:aserai_faith.religion #Uses Sayyid mechanics already.
+			has_trait = golden_lineage
+			# faith.religion = faith:aserai_faith.religion #Uses Sayyid mechanics already.
 			dynasty = {
 				exists = var:variable_made_bloodline_holy
 				dynasty:japanese_yamato ?= this # Already divine
@@ -1288,7 +1298,6 @@ found_empire_decision = {
 		}
 	}
 
-
 	effect = {
 		if = {
 			limit = {
@@ -1708,12 +1717,7 @@ found_university_decision = {
 				this = title:b_razih
 			}
 			title_province = {
-				NOR = {
-					exists = var:university
-					has_building_or_higher = al_azhar_university
-					has_building_or_higher = charas_library
-					has_building_or_higher = imperial_academy
-				}
+				has_university_building_trigger = no
 			}
 		}
 	}
@@ -1852,6 +1856,19 @@ lunatic_building_decision = {
 		}
 	}
 
+	widget = { #Unop: The goal is to prevent players to waste this decision that IMHO is hard to setup
+		controller = create_holy_order #revoke_holy_order_lease #create_holy_order
+		barony_valid = { #Unop: Taken from pick_legendary_barony_decision
+			trigger_if = {
+				limit = { exists = this }
+				title_province = { has_special_building_slot = no }
+				is_capital_barony = yes
+				holder = scope:ruler
+				is_leased_out = no
+			}
+		}
+	}
+
 	is_valid = {
 		prestige_level >= 2
 	}
@@ -1862,10 +1879,11 @@ lunatic_building_decision = {
 	}
 
 	effect = {
+		scope:barony.county = { save_scope_as = lunatic_county } #Unop: Save the county
 		save_scope_as = builder
-		root.cp:councillor_court_chaplain = {
-			save_scope_as = court_chaplain
-		}
+		#root.cp:councillor_court_chaplain = { #Unop: Why this was here ? it's not use anywhere
+		#	save_scope_as = court_chaplain
+		#}
 		show_as_tooltip = { lunatic_building_decision_effect = yes }
 
 		trigger_event = major_decisions.3001
@@ -2017,21 +2035,13 @@ repay_loan_decision = {
 	ai_check_interval = 0
 
 	is_shown = {
-		trigger_if = {
-			limit = {
-				has_character_flag = borrow_from_holy_order
-			}
-			faith = {
-				any_faith_holy_order = { #Your faith must have a Holy Order
-					leader = {
-						exists = var:owes_me_money
-						var:owes_me_money = root
-					}
-				}
+		var:loan_holder ?= {
+			any_in_list = {
+				variable = owes_me_money
+				this = root
 			}
 		}
 		exists = var:loan_amount_owed
-		exists = var:loan_holder
 	}
 
 	is_valid_showing_failures_only = {
@@ -2040,73 +2050,16 @@ repay_loan_decision = {
 	}
 
 	effect = {
+		var:loan_holder ?= { save_scope_as = recipient }
 		pay_short_term_gold = {
 			gold = var:loan_amount_owed
-			target = var:loan_holder
+			target = scope:recipient
 		}
-		if = {
-			limit = {
-				faith = {
-					any_faith_holy_order = {
-						leader = {
-							this = root.var:loan_holder
-						}
-					}
-				}
-			}
-			faith = {
-				random_faith_holy_order = {
-					limit = {
-						leader = { this = root.var:loan_holder }
-					}
-					leader = { save_scope_as = recipient }
-					save_scope_as = order
-				}
-			}
-			hidden_effect = { remove_decision_cooldown = repay_loan_decision }
-		}
-		remove_variable = loan_amount_owed
-		remove_variable = loan_holder
-		remove_character_flag = borrow_from_holy_order
-		if = {
-			limit = {
-				has_character_flag = promised_repayment
-			}
-			remove_character_flag = promised_repayment
-		}
-		if = {
-			limit = {
-				exists = var:has_reminded_about_loan
-			}
-			remove_variable = has_reminded_about_loan
-		}
-		if = {
-			limit = {
-				exists = var:original_loan_holder
-			}
-			remove_variable = original_loan_holder
-		}
-		if = {
-			limit = {
-				any_vassal = {
-					exists = var:owes_me_money
-				}
-			}
-			random_vassal = {
-				limit = {
-					exists = var:owes_me_money
-				}
-				save_scope_as = recipient
-			}
-		}
+		clear_loanee_variables_effect = yes
 		scope:recipient = {
-			remove_variable = owes_me_money
-			remove_variable = loan_amount_owed
-			if = {
-				limit = {
-					exists = var:original_lender
-				}
-				remove_variable = original_lender
+			remove_list_variable = {
+				name = owes_me_money
+				target = root
 			}
 		}
 	}
@@ -2145,8 +2098,8 @@ escape_from_prison_decision = {
 
 	cooldown = { days = 1825 }
 
-	is_shown = { 
-		is_imprisoned = yes 
+	is_shown = {
+		is_imprisoned = yes
 		# NOT = { #Disqualify Hereward, but only when he's been imprisoned via the story cycle
 		# 	has_character_flag = harrying_imprisoned_flag
 		# }
@@ -2729,7 +2682,7 @@ set_de_jure_capital_decision = {
 			is_valid = {
 
 			}
-			current_description = hire_physician_decision_desc
+			current_description = set_de_jure_capital_decision
 			localization = set_de_jure_capital_duchy
 			icon = "gfx/interface/icons/duchy_crown.dds"
 			ai_chance = { value = 100 }
@@ -2742,7 +2695,7 @@ set_de_jure_capital_decision = {
 					highest_held_title_tier >= tier_kingdom
 				}
 			}
-			current_description = hire_physician_decision_desc
+			current_description = set_de_jure_capital_decision
 			localization = set_de_jure_capital_kingdom
 			icon = "gfx/interface/icons/kingdom_crown.dds"
 			ai_chance = { value = 100 }
@@ -2755,16 +2708,28 @@ set_de_jure_capital_decision = {
 					highest_held_title_tier >= tier_empire
 				}
 			}
-			current_description = hire_physician_decision_desc
+			current_description = set_de_jure_capital_decision
 			localization = set_de_jure_capital_empire
 			icon = "gfx/interface/icons/empire_crown.dds"
+			ai_chance = { value = 100 }
+		}
+
+		item = { # Hegemony
+			value = set_hegemony_capital
+			is_shown = {
+				root = {
+					highest_held_title_tier >= tier_hegemony
+				}
+			}
+			current_description = set_de_jure_capital_decision
+			localization = set_de_jure_capital_hegemony
+			icon = "gfx/interface/icons/hegemony_crown.dds"
 			ai_chance = { value = 100 }
 		}
 	}
 
 	is_shown = {
 		highest_held_title_tier >= tier_duchy
-		highest_held_title_tier < tier_hegemony
 		any_held_title = {
 			tier >= tier_duchy
 			NOR = {
@@ -2784,6 +2749,10 @@ set_de_jure_capital_decision = {
 			AND = {
 				highest_held_title_tier >= tier_empire
 				NOT = { root.capital_county = root.capital_county.empire.title_capital_county }
+			}
+			AND = {
+				highest_held_title_tier >= tier_hegemony
+				NOT = { root.capital_county = root.capital_county.hegemony.title_capital_county }
 			}
 		}
 	}
@@ -2807,6 +2776,10 @@ set_de_jure_capital_decision = {
 						highest_held_title_tier = tier_empire
 						scope:set_empire_capital = yes
 					}
+					AND = {
+						highest_held_title_tier = tier_hegemony
+						scope:set_hegemony_capital = yes
+					}
 				}
 			}
 			root.primary_title = {
@@ -2824,6 +2797,9 @@ set_de_jure_capital_decision = {
 				}
 				scope:set_empire_capital = {
 					root.capital_county.empire = { save_temporary_scope_as = current_de_jure }
+				}
+				scope:set_hegemony_capital = {
+					root.capital_county.hegemony = { save_temporary_scope_as = current_de_jure }
 				}
 			}
 		}
@@ -2867,6 +2843,7 @@ set_de_jure_capital_decision = {
 					scope:set_duchy_capital = { value = 500 }
 					scope:set_kingdom_capital = { value = 750 }
 					scope:set_empire_capital = { value = 1000 }
+					scope:set_hegemony_capital = { value = 1500 }
 				}
 			}
 			else = {
@@ -2894,6 +2871,10 @@ set_de_jure_capital_decision = {
 						highest_held_title_tier = tier_empire
 						scope:set_empire_capital = yes
 					}
+					AND = {
+						highest_held_title_tier = tier_hegemony
+						scope:set_hegemony_capital = yes
+					}
 				}
 			}
 			root.primary_title = {
@@ -2918,6 +2899,12 @@ set_de_jure_capital_decision = {
 				}
 				scope:set_empire_capital = {
 					root.capital_county.empire = {
+						title_capital_county = { save_scope_as = old_capital }
+						save_scope_as = current_de_jure_scope
+					}
+				}
+				scope:set_hegemony_capital = {
+					root.capital_county.hegemony = {
 						title_capital_county = { save_scope_as = old_capital }
 						save_scope_as = current_de_jure_scope
 					}

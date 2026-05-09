@@ -1,6 +1,55 @@
 ﻿character_is_calradian = {
 	culture = { has_cultural_pillar = heritage_calradian }
 }
+faith_is_aserai_origin = {
+	# OR = {
+		faith.religion = religion:aserai_religion
+		#faith = {
+			# has_doctrine_parameter = ck_aserai_mandate # Eventually make either a new religion out of Ardallah (Sarranid faith) or put it under the Calradic religion w/ special tolerance for Aserai faiths and hostility tolerance to some Calradic faiths
+		# }
+	#}
+}
+# decision art trigger for ep3_cerimonial_decision - root CAN also be top_liege, check top_overlord eventually
+character_ceremonial_calradian_decision_trigger = {
+	NOR = {
+		government_has_flag = government_is_tribal
+		government_has_flag = government_is_theocracy
+		top_liege ?= { government_has_flag = government_is_tribal }
+		top_liege ?= { government_has_flag = government_is_theocracy }
+	}
+	OR = {
+		character_is_calradian = yes
+		top_liege ?= {
+			OR = {
+				# capital_county ?= title:c_lycaron
+				character_is_calradian = yes
+				has_trait = claimant_emperor
+				is_roman_emperor_primary_title_trigger = yes
+			}
+		}
+	}
+}
+# character tooltipping
+is_calradian_claimant_or_emperor = {
+	OR = {
+		trigger_if = {
+			limit = {
+				has_trait = claimant_emperor
+			}
+			character_is_calradian = yes
+		}
+		is_roman_emperor_primary_title_trigger = yes
+	}
+}
+# title checklist
+title_is_calradian_empire = {
+	tier >= tier_$TIER$
+	OR = {
+		this = title:h_calradian_empire
+		this = title:h_eastern_calradian_empire
+		this = title:e_calradian_empire
+	}
+}
 
 is_background_father_trigger = {
 	scope:ck_father = {
@@ -41,7 +90,7 @@ ck_eye_blind_scar = {
 		has_trait = one_eyed
 	}
 }
-ck_unique_troops_trigger = {
+ck_unique_troops_trigger = { ## Any time a heritage gets new units, please add it here (Calradian Kings) # CK_MAA
 	OR = {
 		culture = { has_cultural_pillar = heritage_calradian }
 		culture = { has_cultural_pillar = heritage_balian }
@@ -51,6 +100,8 @@ ck_unique_troops_trigger = {
 		culture = { has_cultural_pillar = heritage_khuzic }
 		culture = { has_cultural_pillar = heritage_geroian }
 		culture = { has_cultural_pillar = heritage_byalic }
+
+		# culture = { has_cultural_pillar = heritage_kohinik }
 	}
 }
 

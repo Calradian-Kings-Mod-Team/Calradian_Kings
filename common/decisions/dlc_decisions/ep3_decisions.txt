@@ -22,10 +22,8 @@ hold_triumph_decision = {
 	is_shown = {
 		has_ep3_dlc_trigger = yes
 		OR = {
-			has_title = title:e_calradian_empire
-			has_title = title:e_southern_empire
-			has_title = title:e_western_empire
-			has_title = title:e_northern_empire
+			is_roman_emperor_trigger = yes
+			has_trait = claimant_emperor
 		}
 		culture = { has_cultural_parameter = holds_triumphs }
 	}
@@ -33,10 +31,8 @@ hold_triumph_decision = {
 	is_valid = {
 		is_at_war = no
 		OR = {
-			has_title = title:e_calradian_empire
-			has_title = title:e_southern_empire
-			has_title = title:e_western_empire
-			has_title = title:e_northern_empire
+			is_roman_emperor_trigger = yes
+			has_trait = claimant_emperor
 		}
 		culture = { has_cultural_parameter = holds_triumphs }
 	}
@@ -1690,25 +1686,7 @@ found_vaegir_guard_decision = {
 change_state_faith = {
 	picture = {
 		trigger = {
-			NOR = {
-				government_has_flag = government_is_tribal
-				government_has_flag = government_is_theocracy
-				top_liege ?= { government_has_flag = government_is_tribal }
-				top_liege ?= { government_has_flag = government_is_theocracy }
-			}
-			OR = {
-				culture = { has_cultural_pillar = heritage_calradian }
-				top_liege ?= {
-					OR = {
-						culture = { has_cultural_pillar = heritage_calradian }
-						capital_barony ?= title:b_lycaron
-						primary_title ?= title:e_calradian_empire
-						primary_title ?= title:e_southern_empire
-						primary_title ?= title:e_northern_empire
-						primary_title ?= title:e_western_empire
-					}
-				}
-			}
+			character_ceremonial_calradian_decision_trigger = yes
 		}
 		reference = "gfx/interface/illustrations/decisions/ep3_cerimonial_decision.dds"
 	}
@@ -1947,24 +1925,7 @@ change_state_faith = {
 adopt_state_faith = {
 	picture = {
 		trigger = {
-			NOR = {
-				government_has_flag = government_is_tribal
-				government_has_flag = government_is_theocracy
-				top_liege ?= { government_has_flag = government_is_tribal }
-				top_liege ?= { government_has_flag = government_is_theocracy }
-			}
-			OR = {
-				culture = { has_cultural_pillar = heritage_calradian }
-				top_liege ?= {
-					OR = {
-						culture = { has_cultural_pillar = heritage_calradian }
-						capital_barony ?= title:b_lycaron
-						primary_title ?= title:e_calradian_empire
-						primary_title ?= title:e_northern_empire
-						primary_title ?= title:e_western_empire
-					}
-				}
-			}
+			character_ceremonial_calradian_decision_trigger = yes
 		}
 		reference = "gfx/interface/illustrations/decisions/ep3_cerimonial_decision.dds"
 	}
@@ -2049,7 +2010,10 @@ adopt_state_faith = {
 			add_piety = massive_piety_gain
 			top_liege = {
 				if = {
-					limit = { faith = primary_title.state_faith }
+					limit = {
+						faith = primary_title.state_faith
+						this != root
+					}
 					add_opinion = {
 						target = root
 						modifier = converted_to_state_faith_opinion
@@ -2086,6 +2050,8 @@ adopt_state_faith = {
 			is_governor = yes
 			add = 40
 		}
+		
+		# Personality
 		modifier = {
 			is_governor = yes
 			has_trait = ambitious
@@ -2832,9 +2798,8 @@ establish_silk_production_decision = {
 		}
 		top_liege ?= {
 			OR = {
-				primary_title = title:e_calradian_empire
-				primary_title = title:e_southern_empire
-				primary_title = title:e_northern_empire
+				is_roman_emperor_primary_title_trigger = yes
+				has_trait = claimant_emperor
 			}
 		}
 		NOT = {
@@ -2848,9 +2813,8 @@ establish_silk_production_decision = {
 		trigger_if = {
 			limit = { top_liege = this }
 			OR = {
-				primary_title = title:e_calradian_empire
-				primary_title = title:e_southern_empire
-				primary_title = title:e_northern_empire
+				is_roman_emperor_primary_title_trigger = yes
+				has_trait = claimant_emperor
 			}
 			OR = {
 				has_realm_law = imperial_bureaucracy_2
@@ -3177,7 +3141,10 @@ foster_integration_decision = {
 		}
 		if = {
 			limit = {
-				top_liege = { is_ai = yes }
+				top_liege = {
+					is_ai = yes
+					this != root
+				}
 			}
 			top_liege = {
 				add_opinion = {

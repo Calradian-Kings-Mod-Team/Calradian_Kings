@@ -44,15 +44,6 @@ scripted_trigger is_valid_nomad_events_0001_councillor = {
 		is_spouse_of = root 
 		is_child_of = root 
 	}
-	NAND = { # Not your Shaman unless they can be fired
-		has_council_position = councillor_court_chaplain
-		faith = {
-			OR = {
-				has_doctrine = doctrine_clerical_succession_temporal_fixed_appointment
-				has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment
-			}
-		}
-	}
 }
 
 scripted_trigger is_valid_nomad_events_0001_courtier = {
@@ -2341,7 +2332,7 @@ nomad_events.0110 = {
 		base = 1
 		modifier = {
 			add = 3
-			situation:the_great_steppe = {
+			situation:the_great_steppe ?= { #Unop: Added ?= to not flood the logs of those who don't own the DLC
 				OR = {
 					any_situation_sub_region = {
 					    sub_region_current_phase = situation_steppe_white_zud_season
@@ -2893,17 +2884,18 @@ nomad_events.0140 = {
 						save_scope_as = merchant
 					}
 				}
-				10 = {
+				0 = {
 					modifier = {
 						location = { geographical_region = world_steppe_west }
+						game_start_date >= 1190.1.1 # Timeframe in which Darusan faith emerged
 						add = 10
 					}
 					create_character = {
 						location = root.location
 						template = merchant_template
 						gender_female_chance = root_faith_dominant_gender_adjusted_female_chance
-						faith = faith:western_calradic
-						culture = culture:marrmann
+						faith = faith:darusan
+						culture = culture:rhodok
 						save_scope_as = merchant ## CK_RHODOKS CK_UPDATE. Use the rhodok emergence variable to create a Rhodok merchant here
 					}
 				}
@@ -4218,7 +4210,7 @@ nomad_events.0210 = {
 				herd <= minor_herd_value
 			}
 		}
-		situation:the_great_steppe = {
+		situation:the_great_steppe ?= { #Unop: Added ?= to not flood the logs of those who don't own the DLC
 			NOR = {
 			    any_situation_sub_region = {
 			    	sub_region_current_phase = situation_steppe_abundant_grazing_season
@@ -5349,8 +5341,8 @@ nomad_events.0260 = {
 			limit = { nomad_events_0260_ruler_trigger = yes }
 			weight = {
 				base = 1
-				modifier = { # western_calradics already end up in the Steppe
-					faith = faith:western_calradic
+				modifier = { # Calradics already end up in the Steppe
+					faith = faith:calradic
 					add = -250
 				}
 				modifier = { # Hindus shouldn't end up in the Steppe

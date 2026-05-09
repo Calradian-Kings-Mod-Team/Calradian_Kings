@@ -1230,7 +1230,7 @@ hunt.0500 = {
 						activity_location.county = { has_county_modifier = hunt_sighting_dangerous_modifier }
 						OR = {
 							has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
-							government_has_flag = government_is_nomadic
+							activity_host = { government_has_flag = government_is_nomadic } #Unop ck3-tiger Fix scope
 						}
 					}
 				}
@@ -1257,7 +1257,7 @@ hunt.0500 = {
 					scope:activity = {
 						OR = {
 							has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
-							government_has_flag = government_is_nomadic
+							activity_host = { government_has_flag = government_is_nomadic } #Unop ck3-tiger Fix scope
 						}
 					}
 				}
@@ -1631,7 +1631,7 @@ hunt.0500 = {
 		}
 		scope:activity = {
 			hidden_effect = {
-				hunt_activity_deer_game_effect = { PROVINCE = activity_location }
+				hunt_activity_deer_game_effect = { PROVINCE = scope:activity.activity_location } #Unop ck3-tiger
 			}
 			set_variable = {
 				name = hunt_forced_type
@@ -2013,7 +2013,7 @@ hunt.0510 = {
 					scope:activity = {
 						OR = {
 							has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
-							government_has_flag = government_is_nomadic
+							activity_host = { government_has_flag = government_is_nomadic } #Unop ck3-tiger Fix scope
 						}
 					}
 				}
@@ -2058,6 +2058,20 @@ hunt.0510 = {
 	option = { # We'll chase it!
 		name = hunt.0510.a
 		custom_tooltip = hunt_seek_current_legendary_tt
+		if = {
+			limit = {
+				this = scope:host
+				is_ai = no
+				NOT = { has_character_flag = had_mystical_animal_story }
+				NOT = { any_owned_story = { type = story_cycle_hunt_mystical_animal } }
+				exists = scope:activity.var:animal_type
+			}
+			set_variable = {
+				name = animal_type
+				value = scope:activity.var:animal_type
+			}
+			start_hunt_mystical_animal_story_cycle_effect = yes
+		}
 		ai_chance = {
 			base = 10
 		}
@@ -2178,7 +2192,7 @@ hunt.0530 = {
 					scope:activity = {
 						OR = {
 							has_activity_option = { category = hunt_option_attendants option = hunt_attendants_many }
-							government_has_flag = government_is_nomadic
+							activity_host = { government_has_flag = government_is_nomadic } #Unop ck3-tiger Fix scope
 						}
 					}
 				}
@@ -2233,8 +2247,10 @@ hunt.0530 = {
 						value = scope:activity.activity_location.county.var:animal_type
 					}
 				}
-				hidden_effect = {
-					hunt_activity_falconry_game_effect = { PROVINCE = scope:activity.activity_location }
+				else = { #Unop Only select random game if no sighting
+					hidden_effect = {
+						hunt_activity_falconry_game_effect = { PROVINCE = scope:activity.activity_location }
+					}
 				}
 			}
 			hunt_activity_random_subordinate_participant_effect = {
@@ -2266,7 +2282,7 @@ hunt.0530 = {
 					}
 				}
 				scope:activity = {
-					hunt_falconry_select_waterfowl_effect = { VAR = waterfowl_type PROVINCE = activity_location }
+					hunt_falconry_select_waterfowl_effect = { VAR = waterfowl_type PROVINCE = scope:activity.activity_location } #Unop ck3-tiger
 				}
 			}
 			if = {
@@ -2280,7 +2296,7 @@ hunt.0530 = {
 					}
 				}
 				scope:activity = {
-					hunt_falconry_select_gamebird_effect = { VAR = gamebird_type PROVINCE = activity_location }
+					hunt_falconry_select_gamebird_effect = { VAR = gamebird_type PROVINCE = scope:activity.activity_location } #Unop ck3-tiger
 				}
 			}
 		}
@@ -5160,11 +5176,13 @@ hunt.1011 = {
 					}
 				}
 				hunt_activity_success_change_effect = { CHANGE = decrease_medium }
-				stress_impact = {
-					sadistic = minor_stress_impact_loss
-					compassionate = medium_stress_impact_gain
-					forgiving = minor_stress_impact_gain
-					calm = medium_stress_impact_gain
+				root = { #Unop ck3-tiger
+					stress_impact = {
+						sadistic = minor_stress_impact_loss
+						compassionate = medium_stress_impact_gain
+						forgiving = minor_stress_impact_gain
+						calm = medium_stress_impact_gain
+					}
 				}
 			}
 		}
@@ -6370,7 +6388,7 @@ hunt.1023 = {
 			type = story_cycle_pet_dog
 			save_scope_as = story
 		}
-		hunt_activity_dangerous_game_effect = { PROVINCE = activity_location }
+		hunt_activity_dangerous_game_effect = { PROVINCE = scope:activity.activity_location } #Unop ck3-tiger
 		hunt_activity_success_change_effect = { CHANGE = increase_minor  }
 		if = {
 			limit = {
@@ -10157,7 +10175,6 @@ hunt.1202 = {
 				scope:host ?= this
 				scope:hunt_summary_scope ?= this
 				scope:animal_slayer ?= this
-				exists = scope:group_kill
 			}
 		}
 	}
@@ -10195,7 +10212,7 @@ hunt.1202 = {
 			}
 			switch = {
 				trigger = exists
-				scope:group_kill = {
+				scope:group_success = {
 					every_in_list = {
 						list = animal_slayers
 						custom = hunt_every_hunter_tt
@@ -10221,8 +10238,13 @@ hunt.1202 = {
 					}
 				}
 				scope:group_critical = {
-					scope:animal_slayer = {
-						hunt_animal_death_effect = { VAR = var:animal_type }
+					every_in_list = {
+						list = animal_slayers
+						custom = hunt_every_hunter_tt
+						add_prestige = hunt_prestige_melee_group_value
+					}
+					scope:injury_target = {
+						hunt_animal_death_effect = { VAR = scope:activity.var:animal_type }
 					}
 				}
 			}
@@ -10602,33 +10624,6 @@ hunt.2001 = {
 
 	immediate = {
 		hidden_effect = {
-			random_list = {
-				10 = {
-					add_to_list = realm_list
-					every_neighboring_and_across_water_top_liege_realm_owner = { add_to_list = realm_list }
-					random_in_list = {
-						list = realm_list
-						random_realm_county = {
-							culture = { save_scope_as = merchant_culture }
-							faith = { save_scope_as = merchant_faith }
-						}
-					}
-					create_character = {
-						template = falconer_template
-						location = root.capital_province
-						dynasty = none
-						culture = scope:merchant_culture
-						faith = scope:merchant_faith
-						save_scope_as = falcon_salesman
-					}
-				}
-				10 = {
-					trigger = {
-						any_pool_guest = {
-							is_lowborn = yes
-							has_trait = lifestyle_hunter
-						}
-					}
 					random_pool_guest = {
 						limit = { 
 							is_lowborn = yes
@@ -10646,6 +10641,29 @@ hunt.2001 = {
 							}
 						}
 						save_scope_as = falcon_salesman
+					}
+			if = {
+				limit = {
+					NOT = { exists = scope:falcon_salesman }
+				}
+				location.empire = {
+					random_in_de_jure_hierarchy = {
+						limit = {
+							tier = tier_county
+						}
+						culture = { save_scope_as = merchant_culture }
+						faith = { save_scope_as = merchant_faith }
+					}
+				}
+				create_character = {
+					template = falconer_template
+					location = root.capital_province
+					dynasty = none
+					culture = scope:merchant_culture
+					faith = scope:merchant_faith
+					save_scope_as = falcon_salesman
+					after_creation = { #Unop: To be handled in the after block
+						add_character_flag = created
 					}
 				}
 			}
@@ -10668,7 +10686,12 @@ hunt.2001 = {
 			modifier = peregrine_falcon
 			years = 7
 		}		
-		remove_courtier_or_guest = scope:falcon_salesman
+		show_as_tooltip = {
+			remove_courtier_or_guest = scope:falcon_salesman
+		}
+		scope:falcon_salesman = {
+			silent_disappearance_effect = yes
+		}
 		ai_chance = {
 			base = 50
 			modifier = {
@@ -10716,7 +10739,12 @@ hunt.2001 = {
 
 	option = { # Send away
 		name = hunt.2001.d
-		remove_courtier_or_guest = scope:falcon_salesman
+		show_as_tooltip = {
+			remove_courtier_or_guest = scope:falcon_salesman
+		}
+		scope:falcon_salesman = {
+			silent_disappearance_effect = yes
+		}
 		ai_chance = {
 			base = 50
 			modifier = {
@@ -10729,6 +10757,12 @@ hunt.2001 = {
 			}
 		}
 	}
+
+	after = { #Unop: Make the falcon_salesman vanish if it was created
+		scope:falcon_salesman = {
+			silent_disappear_ai_if_not_hired_with_flag = yes
+		}
+	}
 }
 
 #######################
@@ -10739,13 +10773,14 @@ hunt.2001 = {
 scripted_effect hunt_sighting_county_province_effect = {
 	if = {
 		limit = { is_landed = no }
+		save_scope_as = sighting_char
 		domicile.domicile_location.county ?= {
 			if = {
 				limit = { hunt_activity_recent_hunt_sighting_trigger = no }
 				add_to_list = sighting_counties
 			}
 			if = { # Estate owners cannot move to hunt
-				limit = { root = { has_government = landless_adventurer_government } }
+				limit = { scope:sighting_char = { has_government = landless_adventurer_government } }
 				every_neighboring_county = {
 					limit = { hunt_activity_recent_hunt_sighting_trigger = no }
 					add_to_list = sighting_counties
@@ -10866,7 +10901,7 @@ hunt.2500 = {
 			# Create new sighting
 			hunt_create_sighting_effect = {
 				TYPE = standard
-				ANIMAL = flag:deer
+				ANIMAL = scope:sighting_county.var:animal_type
 				OWNER = root
 			}
 		}
@@ -11070,7 +11105,18 @@ hunt.2510 = {
 		# Save sighting county
 		if = {
 			limit = { exists = scope:story.var:legendary_county }
-			scope:story.var:legendary_county = { save_scope_as = sighting_county }
+			scope:story.var:legendary_county = {
+				save_scope_as = sighting_county
+				random_county_province = {
+					weight = {
+						base = 1
+						hunt_activity_sighting_terrain_modifier = yes
+						hunt_activity_sighting_building_modifier = { PROVINCE = this }
+						hunt_activity_game_building_modifier = { PROVINCE = this }
+					}
+					save_scope_as = sighting_province
+				}
+			}
 		}
 		else = { hunt_sighting_county_province_effect = yes }
 		# Save sighting
@@ -11093,11 +11139,11 @@ hunt.2510 = {
 					}
 				}
 			}
-			hunt_create_sighting_effect = {
-				TYPE = legendary
-				ANIMAL = var:animal_type
-				OWNER = root
-			}
+			#hunt_create_sighting_effect = { #Unop: For an unknown reason, having this here will make the tooltip state the wrong county, so transfert it into each options
+			#	TYPE = legendary
+			#	ANIMAL = var:animal_type
+			#	OWNER = root
+			#}
 		}
 	}
 
@@ -11119,6 +11165,41 @@ hunt.2510 = {
 		ai_chance = {
 			base = 25
 		}
+		scope:sighting_county ?= { #Unop: See comment above
+			hunt_create_sighting_effect = {
+				TYPE = legendary
+				ANIMAL = var:animal_type
+				OWNER = root
+			}
+		}
+	}
+
+	option = { # Move Camp
+		name = hunt.2510.c
+		trigger = {
+			is_landless_adventurer = yes
+			is_travelling = no
+			domicile.domicile_location != scope:sighting_province
+		}
+		show_as_unavailable = {
+			is_travelling = yes
+		}
+		show_as_tooltip = {
+			domicile = {
+				move_domicile = scope:sighting_province
+			}
+		}
+		start_travel_plan = {
+			destination = scope:sighting_province
+			on_start_on_action = on_travel_relocation_start
+			on_arrival_on_action = on_travel_relocation_end
+			on_arrival_destinations = last
+			return_trip = no # One way
+			travel_with_domicile = yes
+		}
+		ai_chance = {
+			base = 0
+		}
 	}
 
 	option = { # Hire
@@ -11128,6 +11209,13 @@ hunt.2510 = {
 		add_courtier = scope:new_hunter
 		ai_chance = {
 			base = 0
+		}
+		scope:sighting_county ?= { #Unop: See comment above
+			hunt_create_sighting_effect = {
+				TYPE = legendary
+				ANIMAL = var:animal_type
+				OWNER = root
+			}
 		}
 	}
 
@@ -11143,6 +11231,13 @@ hunt.2510 = {
 		}
 		ai_chance = {
 			base = 0
+		}
+		scope:sighting_county ?= { #Unop: See comment above
+			hunt_create_sighting_effect = {
+				TYPE = legendary
+				ANIMAL = var:animal_type
+				OWNER = root
+			}
 		}
 	}
 
@@ -13927,6 +14022,12 @@ hunt.4006 = {
 			ARCHETYPE = hunter
 			COMBATANT = yes
 			SCOPE = hunt_participant
+		}
+		scope:activity.activity_location = { #Unop: county_owner scope is needed in options below
+			county = {
+				save_scope_as = activity_place
+				holder = { save_scope_as = county_owner }
+			}
 		}
 	}
 
@@ -16731,8 +16832,8 @@ scripted_trigger hunt_4010_heir_trigger = {
 	scope:activity = {
 		any_attending_character = {
 			this != root
-			player_heir_position = { target = root value <= 1 }
-			player_heir_position = { target = root value >= 3 }			
+			player_heir_position = { target = root value >= 1 } #Unop: Fix impossible condition (was <= 1 and >= 3)
+			player_heir_position = { target = root value <= 3 } #Unop: Fix impossible condition (was <= 1 and >= 3)
 			opinion = {
 				target = root.player_heir
 				value <= -10
@@ -16877,8 +16978,8 @@ hunt.4010 = {
 					scope:activity = {
 						random_attending_character = {
 							limit = {
-								player_heir_position = { target = root value <= 1 }
-								player_heir_position = { target = root value >= 3 }
+								player_heir_position = { target = root value >= 1 } #Unop: Fix impossible condition (was <= 1 and >= 3)
+								player_heir_position = { target = root value <= 3 } #Unop: Fix impossible condition (was <= 1 and >= 3)
 								opinion = {
 									target = root.player_heir
 									value <= -10
@@ -18054,6 +18155,7 @@ hunt.4014 = { # Guest accident
 	trigger = { exists = scope:accident_target }
 
 	immediate = {
+		scope:accident_target = { save_scope_as = wounded_courtier } #Unop: This scope is needed in the options but wasn't defined
 		hunt_save_physician_effect = yes
 		if = {
 			limit = { exists = scope:wound }
@@ -19098,7 +19200,7 @@ hunt.4015 = {
 						hunt_4015_basic_check_trigger = yes
 						this != scope:lover_participant
 						save_temporary_scope_as = lover_check_2
-						matching_gender_and_sexuality_trigger = { CHARACTER_1 = scope:lover_check_2 CHARACTER_2 = scope:lover_check }
+						matching_gender_and_sexuality_trigger = { CHARACTER_1 = scope:lover_check_2 CHARACTER_2 = scope:lover_participant } #Unop: The CHARACTER_2 was lover_check but it must use lover_participant
 						can_set_relation_lover_trigger = { CHARACTER = scope:lover_participant }
 					}
 					save_scope_as = second_lover_participant
@@ -19729,14 +19831,14 @@ hunt.4017 = {
 		has_character_flag = had_mystical_animal_story
 		any_owned_story = {
 			type = story_cycle_hunt_mystical_animal
-			OR = {
+			#OR = { #Unop: Useless OR
 				var:legendary_county = {
 					OR = {
 						this = root.location.county
 						any_neighboring_county = { this = root.location.county }
 					}
 				}
-			}
+			#}
 		}
 		exists = scope:activity.var:hunt_4017 # Found animal in 4018
 	}
@@ -19929,14 +20031,14 @@ hunt.4018 = {
 		has_character_flag = had_mystical_animal_story
 		any_owned_story = {
 			type = story_cycle_hunt_mystical_animal
-			OR = {
+			#OR = { #Unop: Useless OR
 				var:legendary_county = {
 					OR = {
 						this = root.location.county
 						any_neighboring_county = { this = root.location.county }
 					}
 				}
-			}
+			#}
 		}
 		NOT = { exists = scope:activity.var:hunt_4013 } # Not first Legendary hunt
 	}
@@ -22881,8 +22983,12 @@ hunt.7001 = {
 				# Effect
 				root = {
 					hunter_progress_point_gain_effect = { CHANGE = 1 RANDOM_CHANGE = 1 }
+					add_dread = minor_dread_gain
+					stress_impact = { #Unop Move stress impact here
+						sadistic = medium_stress_impact_loss
+						compassionate = medium_stress_impact_gain
+					}
 				}
-				add_dread = minor_dread_gain
 				scope:peasant = {
 					death = {
 						death_reason = death_manhunted
@@ -22894,10 +23000,6 @@ hunt.7001 = {
 						modifier = hunt_killed_local_madman_modifier
 						days = 1825
 					}
-				}
-				stress_impact = {
-					sadistic = medium_stress_impact_loss
-					compassionate = medium_stress_impact_gain
 				}
 			}
 		}
@@ -22931,12 +23033,14 @@ hunt.7001 = {
 					}
 				}
 				hunt_activity_success_change_effect = { CHANGE = increase_minor }
-				stress_impact = {
-					lifestyle_hunter = minor_stress_impact_loss
-					compassionate = minor_stress_impact_gain
-					humble = minor_stress_impact_gain
-					just = minor_stress_impact_gain
-					patient = minor_stress_impact_gain
+				root = { #Unop ck3-tiger
+					stress_impact = {
+						lifestyle_hunter = minor_stress_impact_loss
+						compassionate = minor_stress_impact_gain
+						humble = minor_stress_impact_gain
+						just = minor_stress_impact_gain
+						patient = minor_stress_impact_gain
+					}
 				}
 			}
 		}
@@ -23639,11 +23743,10 @@ hunt.7020 = {
 						desc = hunt_boulder_jump_success_self
 						min = 5
 						hunt_boulder_jump_success_modifiers = { CHARACTER = root }
+						root = { #Unop ck3-tiger
 						send_interface_toast = {
 							title = hunt_boulder_jump_success_self
-							root = {
-								add_prestige = minor_prestige_gain
-							}
+							add_prestige = minor_prestige_gain
 							scope:activity = {
 								every_attending_character = {
 									limit = {
@@ -23654,6 +23757,7 @@ hunt.7020 = {
 										target = root
 										modifier = hunt_jumped_boulder_opinion
 										opinion = 15
+										}
 									}
 								}
 							}
@@ -23673,9 +23777,9 @@ hunt.7020 = {
 							}
 						}
 						hidden_effect = {
+							root = { #Unop ck3-tiger
 							send_interface_toast = {
 								title = hunt_boulder_jump_failure_self
-								root = {
 									add_prestige = miniscule_prestige_gain
 									add_character_modifier = {
 										modifier = crushed_by_boulder_modifier
@@ -23725,9 +23829,11 @@ hunt.7020 = {
 						}
 					}
 				}
-				stress_impact = {
-					craven = medium_stress_impact_gain
-					humble = minor_stress_impact_gain
+				root = { #Unop ck3-tiger
+					stress_impact = {
+						craven = medium_stress_impact_gain
+						humble = minor_stress_impact_gain
+					}
 				}
 			}
 		}
@@ -24007,7 +24113,7 @@ hunt.7020 = {
 													this = scope:pertinent
 												}
 											}
-											custom = hunt_every_attendee_tt
+											custom = hunt_every_hunter_tt #Unop: Was hunt_every_attendee_tt that do not exists
 											add_opinion = {
 												target = root
 												modifier = hunt_jumped_boulder_opinion
@@ -24043,7 +24149,7 @@ hunt.7020 = {
 													this = scope:pertinent
 												}
 											}
-											custom = hunt_every_attendee_tt
+											custom = hunt_every_hunter_tt #Unop: Was hunt_every_attendee_tt that do not exists
 											add_opinion = {
 												target = scope:pertinent
 												modifier = hunt_jumped_boulder_opinion
@@ -24076,7 +24182,7 @@ hunt.7020 = {
 													this = scope:pertinent
 												}
 											}
-											custom = hunt_every_attendee_tt
+											custom = hunt_every_hunter_tt #Unop: Was hunt_every_attendee_tt that do not exists
 											add_opinion = {
 												target = root
 												modifier = hunt_jumped_boulder_opinion
@@ -24198,6 +24304,7 @@ hunt.7100 = {
 	type = activity_event
 	title = hunt.7100.t
 	desc = {
+		desc = hunt.7100.opening # Unop: Opening text could be missing in some cases
 		first_valid = {
 			triggered_desc = {
 				trigger = {
@@ -24221,7 +24328,7 @@ hunt.7100 = {
 				}
 				desc = hunt.7100.currentspouse
 			}
-			desc = hunt.7100.opening
+			#desc = hunt.7100.opening # Unop: Put this at the top to be always displayed
 		}
 		desc = hunt.7100.desc
 	}
@@ -24287,8 +24394,11 @@ hunt.7100 = {
 		}
 		else = {
 			random_scheme = {
-				type = seduce
 				limit = {
+					OR = {
+						scheme_type = seduce
+						scheme_type = courting
+					}
 					scheme_target_character = {
 						is_alive = yes
 						is_participant_in_activity = scope:activity
@@ -24447,8 +24557,7 @@ hunt.7100 = {
 									ai_energy > medium_positive_energy
 								}
 								hunt_dharmic_pacificist_trigger = no
-								exists = scope:woo_approach
-								scope:woo_approach = flag:hunter
+								scope:woo_approach ?= flag:hunter
 							}
 							AND = {
 								OR = {
@@ -24463,32 +24572,28 @@ hunt.7100 = {
 									ai_sociability > medium_positive_compassion # socialbility doesn't exist
 								}
 								hunt_dharmic_pacificist_trigger = no
-								exists = scope:woo_approach
-								scope:woo_approach = flag:falconer
+								scope:woo_approach ?= flag:falconer
 							}
 							AND = {
 								OR = {
 									has_personality_benevolent_trigger = yes
 									ai_compassion > medium_positive_compassion
 								}
-								exists = scope:woo_approach
-								scope:woo_approach = flag:pity
+								scope:woo_approach ?= flag:pity
 							}
 							AND = {
 								OR = {
 									has_trait = ambitious
 									ai_boldness > medium_positive_boldness
 								}
-								exists = scope:woo_approach
-								scope:woo_approach = flag:wastrel
+								scope:woo_approach ?= flag:wastrel
 							}
 							AND = {
 								OR = {
 									has_trait = education_stewardship
 									ai_rationality > medium_positive_rationality
 								}
-								exists = scope:woo_approach
-								scope:woo_approach = flag:steward
+								scope:woo_approach ?= flag:steward
 							}
 						}
 					}
@@ -24501,32 +24606,27 @@ hunt.7100 = {
 					100 = { #Success
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:hunter
+							scope:woo_approach ?= flag:hunter
 							has_trait = brave
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:falconer
+							scope:woo_approach ?= flag:falconer
 							has_trait = gregarious
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:pity
+							scope:woo_approach ?= flag:pity
 							has_trait = compassionate
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:wastrel
+							scope:woo_approach ?= flag:wastrel
 							has_trait = diligent
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:steward
+							scope:woo_approach ?= flag:steward
 							has_trait = architect
 						}
 						trigger_event = {
@@ -24555,20 +24655,17 @@ hunt.7100 = {
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:hunter
+							scope:woo_approach ?= flag:hunter
 							has_trait = craven
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:falconer
+							scope:woo_approach ?= flag:falconer
 							has_trait = shy
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:pity
+							scope:woo_approach ?= flag:pity
 							OR = {
 								has_trait = callous
 								has_trait = sadistic
@@ -24576,14 +24673,12 @@ hunt.7100 = {
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:wastrel
+							scope:woo_approach ?= flag:wastrel
 							has_trait = content
 						}
 						modifier = {
 							add = 100
-							exists = scope:woo_approach
-							scope:woo_approach = flag:steward
+							scope:woo_approach ?= flag:steward
 							has_trait = lazy
 						}
 						trigger_event = {
@@ -24639,6 +24734,8 @@ hunt.7101 = {
 	}
 	theme = seduce_scheme
 
+	override_background = { reference = wilderness_activity } # Unop: Added to avoid the castle interior
+
 	trigger = { exists = scope:woo_approach }
 
 	option = {
@@ -24689,6 +24786,8 @@ hunt.7102 = {
 		animation = flirtation
 	}
 	theme = unfriendly
+
+	override_background = { reference = wilderness_activity } # Unop: Added to avoid the castle interior
 
 	trigger = { exists = scope:woo_approach }
 
@@ -24800,6 +24899,8 @@ hunt.7104 = {
 	}
 	theme = seduce_scheme
 
+	override_background = { reference = wilderness_activity } # Unop: Added to avoid the castle interior
+
 	trigger = { exists = scope:woo_approach }
 
 	option = {
@@ -24813,10 +24914,12 @@ hunt.7104 = {
 				target = scope:woo_target
 
 				#Effect
-				reverse_add_opinion = {
-					target = scope:woo_target
-					modifier = hunt_failed_woo_opinion
-					opinion = -10
+				root = { #Unop ck3-tiger
+					reverse_add_opinion = {
+						target = scope:woo_target
+						modifier = hunt_failed_woo_opinion
+						opinion = -10
+					}
 				}
 			}
 		}
@@ -25009,7 +25112,7 @@ hunt.8210 = {
 					base = 1
 					modifier = {
 						add = -1
-						is_of_major_interest_trigger = { CHARACTER = scope:root }
+						is_of_major_interest_trigger = { CHARACTER = root } #Unop: Removed scope: before root since there is no registration of root as a named scope
 					}
 				}					
 			}
@@ -27137,6 +27240,7 @@ hunt.7412 = { # Target
 #######################
 
 scripted_trigger hunt_7800_murder_attempt_trigger = {
+	this != root
 	can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = root }
 	OR = {
 		is_scheming_against = {
@@ -27149,6 +27253,7 @@ scripted_trigger hunt_7800_murder_attempt_trigger = {
 		}
 		has_relation_rival = root
 		house ?= {
+			this != root.house
 			any_house_relation = {
 				any_relation_house = { this = root.house }
 				has_house_relation_level = feud
@@ -28301,7 +28406,7 @@ hunt.9001 = {
 			scope:activity = {
 				set_variable = {
 					name = hunt_invalidated
-					value = root
+					value = flag:fallback #Unop var is flag-typed elsewhere; root was a vanilla typo
 				}
 			}			
 		}
@@ -28566,7 +28671,7 @@ hunt.9002 = {
 						intent_target = { save_scope_as = murder_target }
 					}
 					else_if = {
-						limit = { has_activity_intent = murder_attendee_intent }
+						limit = { has_activity_intent = woo_attendee_intent } #Unop: Was murder_attendee_intent, probably a copy/paste issue
 						intent_target = { save_scope_as = woo_target }
 					}
 					else_if = {

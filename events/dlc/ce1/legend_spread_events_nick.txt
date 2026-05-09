@@ -1159,6 +1159,11 @@ legend_spread_events.5030 = {
 					target = root
 					type = favor_hook
 				}
+				promoted_legend ?= { #Unop: Should not already be promoting our legend !
+					NOT = {
+						this = root.promoted_legend
+					}
+				}
 			}
 		}
 
@@ -4460,7 +4465,7 @@ legend_spread_events.5230 = {
 		}
 		# Just to ensure people are actually freaked out by this
 		trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = {
-			TRAIT = cannibal
+			TRAIT = trait:cannibal
 			GENDER_CHARACTER = root
 		}
 	}
@@ -5408,13 +5413,18 @@ legend_spread_events.5305 = {
 		highest_held_title_tier > tier_barony
 		any_neighboring_realm_same_rank_owner = {
 			is_available_healthy_ai_adult = yes
-			save_temporary_scope_as = potential_promoter_temp
+			promoted_legend ?= { #Unop Check correct conditions
+				NOT = { legend_owner ?= root }
+			}
+			#save_temporary_scope_as = potential_promoter_temp
 		}
 		promoted_legend ?= {
 			legend_owner = root
-			any_legend_promoter = {
-				this != scope:potential_promoter_temp
-			}
+			#any_legend_promoter = {
+			#	NOT = {
+			#		this = scope:potential_promoter_temp
+			#	}
+			#}
 		}
 	}
 
@@ -5422,6 +5432,9 @@ legend_spread_events.5305 = {
 		random_neighboring_realm_same_rank_owner = {
 			limit = {
 				is_available_healthy_ai_adult = yes
+				promoted_legend ?= { #Unop Check correct conditions
+					NOT = { legend_owner ?= root }
+				}
 			}
 
 			save_scope_as = potential_promoter
@@ -6307,10 +6320,8 @@ legend_spread_events.5320 = {
 
 		random_character_artifact = {
 			limit = {
+				artifact_can_be_gift_to_trigger = { RECIPIENT = scope:vassal }
 				NOR = {
-					#Ensure it's not trash
-					has_variable = unwanted_artifact
-
 					#And doesn't have a claim on it
 					any_artifact_claimant = {
 						is_alive = no

@@ -1,5 +1,39 @@
 ﻿# Various music triggers
 
+# Trigger that blocks generic music groups for specific cultures/governments that should only use their own
+should_not_use_bespoke_music_trigger = {
+	trigger_if = {
+		limit = {
+			has_tgp_dlc_trigger = yes
+			should_use_chinese_music_trigger = yes
+		}
+		always = no
+	}
+	trigger_else_if = {
+		limit = {
+			has_mpo_dlc_trigger = yes
+			should_use_nomadic_music_trigger = yes
+		}
+		always = no
+	}
+	trigger_else = {
+		always = yes
+	}
+}
+
+should_not_be_valid_if_asian_music_is_valid_trigger = {
+	trigger_if = {
+		limit = {
+			has_tgp_dlc_trigger = yes
+			should_use_asian_music_trigger = yes
+		}
+		always = no
+	}
+	trigger_else = {
+		always = yes
+	}
+}
+
 should_use_asian_music_trigger = {
 	OR = {
 		AND = {
@@ -11,11 +45,12 @@ should_use_asian_music_trigger = {
 				culture = { any_parent_culture_or_above = { has_cultural_pillar = heritage_khiindai } }
 				# culture = { has_cultural_pillar = heritage_tungusic }
 				# culture = { any_parent_culture_or_above = { has_cultural_pillar = heritage_tungusic } }
-			}
-			capital_province ?= {
-				OR = {
-					geographical_region = world_asia_north_east
-					geographical_region = world_steppe_east
+				capital_province ?= {
+					OR = {
+						geographical_region = world_asia_north_east
+						geographical_region = world_steppe_east
+						geographical_region = world_siberia
+					}
 				}
 			}
 		}
@@ -63,14 +98,14 @@ should_use_nomadic_music_trigger = {
 		culture = {
 			has_cultural_pillar = heritage_khuzic
 		}
+		culture = { any_parent_culture_or_above = { has_cultural_pillar = heritage_khiindai } }
+		culture = { any_parent_culture_or_above = { has_cultural_pillar = heritage_khuzic } }
 		faith.religion = religion:khuzait_religion
+		faith.religion = religion:guzzic_religion
 		AND = {
-			exists = root.capital_county
 			government_has_flag = government_is_nomadic
-			situation:the_great_steppe = {
-				any_situation_sub_region = {
-					situation_sub_region_has_county = root.capital_county
-				}
+			any_character_situation = {
+				this = situation:the_great_steppe
 			}
 		}
 	}
@@ -79,18 +114,18 @@ should_use_nomadic_music_trigger = {
 should_use_sami_music_trigger = {
 	OR = {
 		culture = {
-			# OR = {
+			OR = {
 				has_cultural_pillar = heritage_anburian
-				# has_cultural_pillar = heritage_balto_finnic
+				has_cultural_pillar = heritage_chertygic
 				# has_cultural_pillar = heritage_nivkh
-			# }
+			}
 		}
 		culture = {
-			# OR = {
+			OR = {
 				any_parent_culture_or_above = { has_cultural_pillar = heritage_anburian }
-				# any_parent_culture_or_above = { has_cultural_pillar = heritage_balto_finnic }
+				any_parent_culture_or_above = { has_cultural_pillar = heritage_chertygic }
 				# any_parent_culture_or_above = { has_cultural_pillar = heritage_nivkh }
-			# }
+			}
 		}
 		AND = {
 			exists = capital_province
@@ -113,11 +148,13 @@ should_use_iberian_music_trigger = {
 		culture = { has_cultural_pillar = heritage_lotkian }
 		culture = {
 			any_parent_culture_or_above = { has_cultural_pillar = heritage_geroian }
+		}
+		culture = {
 			any_parent_culture_or_above = { has_cultural_pillar = heritage_lotkian }
 		}
 		AND = {
 			exists = capital_province
-			capital_province = { geographical_region = region_perassic_isles }
+			capital_province = { geographical_region = region_perassic }
 		}
 	}
 }
@@ -134,14 +171,16 @@ should_use_iranian_music_trigger = {
 			religion = religion:aserai_religion
 			NAND = {
 				government_has_flag = government_is_nomadic
-				situation:the_great_steppe ?= {
-					any_situation_sub_region = {
-						situation_sub_region_has_county = root.capital_county
-					}
+				any_character_situation = {
+					this = situation:the_great_steppe
 				}
 			}
 		}
 		religion = religion:darshi_religion
+		AND = {
+			exists = capital_province
+			capital_province = { geographical_region = world_persian_empire }
+		}
 	}
 }
 
@@ -156,6 +195,60 @@ should_use_specifically_persian_music_trigger = {
 		AND = {
 			exists = capital_province
 			capital_province = { geographical_region = world_persian_empire }
+		}
+	}
+}
+
+should_use_european_christian_music_trigger = {
+	NOT = { government_has_flag = government_is_nomadic }
+	religion = religion:calradian_religion
+	OR = {
+		AND = {
+			religion = religion:calradian_religion
+			faith ?= { has_graphical_faith = catholic_gfx }
+		}
+		AND = {
+			exists = capital_province
+			capital_province = {
+				OR = {
+					geographical_region = world_europe_west
+					geographical_region = world_europe_north
+					geographical_region = world_europe_south
+				}
+			}
+		}
+	}
+}
+
+should_use_broadly_european_music_trigger = {
+	NOT = { government_has_flag = government_is_nomadic }
+	OR = {
+		AND = {
+			exists = capital_province
+			capital_province = {
+				OR = {
+					geographical_region = world_europe_west
+					geographical_region = world_europe_north
+					geographical_region = world_europe_south
+				}
+			}
+			religion != religion:aserai_religion
+		}
+		culture ?= {
+			OR = {
+				has_graphical_iberian_culture_group_trigger = yes
+				has_graphical_western_culture_group_trigger = yes
+				has_graphical_norse_culture_group_trigger = yes
+				has_building_gfx = east_slavic_building_gfx
+				has_building_gfx = caucasian_building_gfx
+				has_cultural_pillar = heritage_balian
+				has_cultural_pillar = heritage_esbalian
+				has_cultural_pillar = heritage_gottic
+				has_cultural_pillar = heritage_battanian
+				has_cultural_pillar = heritage_palaic
+				has_cultural_pillar = heritage_sturgic
+				has_cultural_pillar = heritage_byalic
+			}
 		}
 	}
 }

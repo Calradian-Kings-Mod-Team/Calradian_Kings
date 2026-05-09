@@ -750,13 +750,13 @@ ep3_laamps.8040 = {
 				is_courtier_of = root
 			}
 			custom = every_child_in_camp
-			root = {
+			#root = { #Unop: Commented the root re-scope since it's the children that are gaining opinion to root
 				progress_towards_friend_effect = {
 					REASON = friend_gave_them_a_dog
-					CHARACTER = prev
+					CHARACTER = root #Unop: See comment above (was prev)
 					OPINION = default_friend_opinion
 				}
-			}
+			#} #Unop: See comment above
 			start_dog_story_cycle_effect = yes
 		}
 		if = {
@@ -822,6 +822,7 @@ ep3_laamps.8040 = {
 		name = ep3_laamps.8040.c
 		trigger = {
 			domicile = {
+				free_external_domicile_building_slots >= 1
 				NOT = {
 					has_domicile_building = baggage_train_kennel
 				}
@@ -1175,6 +1176,7 @@ ep3_laamps.8060 = {
 		is_available_allow_travelling = yes
 		domicile ?= {
 			domicile_location = {
+				this = root.location #Unop Prevent the event if root is at sea or traveling without domicile
 				# Water should be precious
 				is_desert_trigger = yes
 				NOT = { terrain = oasis }
@@ -1606,8 +1608,16 @@ ep3_laamps.8080 = {
 		location = {
 			OR = {
 				is_coastal = yes
-				any_neighboring_province = { is_river_province = yes }
+				any_neighboring_province = {
+					OR = {
+						is_riverside_province = yes #Unop: Was is_river_province but it should have been riverside
+						is_coastal = yes #Unop: Also allow coastal neighboring province
 			}
+					is_sea_province = no
+					is_river_province = no
+				}
+			}
+			is_sea_province = no #Unop: Forbid this event to fire while at sea (hard to be in a bar at sea)
 		}
 		NOT = { employs_court_position = quartermaster_camp_officer }
 		can_employ_court_position_type = quartermaster_camp_officer
@@ -1624,11 +1634,31 @@ ep3_laamps.8080 = {
 		root.location = {
 			random_neighboring_province = {
 				limit = {
+					OR = {
+						is_riverside_province = yes
+						is_coastal = yes
+					}
 					is_sea_province = no
+					is_river_province = no
 				}
 				save_scope_as = sailor_home
 			}
 		}
+		if = { #Unop: Fallback in case there is no neighboring province (like madeira)
+			limit = { 
+				NOT = { exists = scope:sailor_home }
+			}
+			root.location = { save_scope_as = sailor_home }
+		}
+		if = { #Unop: Debug traces just in case (and still got this trace in 1.18.2 sadly)
+			limit = {
+				NOT = { exists = scope:sailor_home.culture }
+			}
+			root = { location = { save_scope_as = unop_ep3_laamps_8080_root_location } }
+			error_log = "Unop: ep3_laamps.8080 sailor_home culture is undef"
+			debug_log_scopes = yes
+		}
+
 		hidden_effect = {
 			random_pool_character = {
 				province = scope:sailor_home
@@ -1938,6 +1968,7 @@ ep3_laamps.8090 = {
 		is_adult = yes
 		is_available_allow_travelling = yes
 		is_location_valid_for_travel_event_on_land = yes
+		domicile.domicile_location.county.culture != root.culture # It's been firing for same culture locations which doesn't make sense
 		OR = {
 			AND = {
 				root.domicile.domicile_location = {
@@ -2125,7 +2156,9 @@ ep3_laamps.8101 = {
 	trigger = {
 		any_claim = {
 			count > 1
+			exists = holder
 			tier >= tier_kingdom
+			holder != scope:petitioned_ruler
 		}
 		NOT = {
 			has_variable = legitimist_claimed_title
@@ -2135,7 +2168,9 @@ ep3_laamps.8101 = {
 	immediate = {
 		ordered_claim = {
 			limit = {
+				exists = holder
 				tier >= tier_kingdom
+				holder != scope:petitioned_ruler
 			}
 			order_by = tier
 			max = 4
@@ -2271,7 +2306,9 @@ ep3_laamps.8102 = {
 			}
 			random_claim = {
 				limit = {
+					exists = holder
 					tier >= tier_kingdom
+					holder != scope:petitioned_ruler
 				}
 				save_scope_as = claimed_title
 			}

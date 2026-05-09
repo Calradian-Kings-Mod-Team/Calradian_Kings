@@ -254,10 +254,14 @@
 			custom_tooltip = {
 				text = activity_pilgrimage.serving_diarch
 				county.holder = {
-					any_liege_or_above = { this = scope:host.liege }
+					OR = {
+						any_liege_or_above = { this = scope:host.liege }
+						this = scope:host.liege
+					}
 				}
 			}
 		}
+
 		trigger_if = {
 			limit = {
 				scope:host = {
@@ -835,13 +839,13 @@
 		gold = {
 			add = {
 				add = {
-					value = root.pilgrimage_base_cost
+					value = pilgrimage_base_cost
 					desc = pilgrimage_base_cost
 				}
 				add = {
-					value = root.pilgrimage_base_cost
+					value = pilgrimage_base_cost
 					multiply = activity_cost_scale_by_era
-					subtract = root.pilgrimage_base_cost
+					subtract = pilgrimage_base_cost
 					desc = activity_cost_scale_by_era_desc
 				}
 				if = {
@@ -865,7 +869,7 @@
 						dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
 					}
 					subtract = {
-						value = root.pilgrimage_base_cost
+						value = pilgrimage_base_cost
 						multiply = ep2_activities_legacy_1_pilgrimages_discount_value
 						desc = ep2_activities_legacy_track
 					}
@@ -898,7 +902,7 @@
 				#House Aspiration Humility
 				if = {
 					limit = {
-						house ?= { has_house_power_parameter = humility_pilgrimage_discount }
+						house ?= { has_house_aspiration_parameter = humility_pilgrimage_discount }
 					}
 					multiply = {
 						value = 0.75
@@ -1138,7 +1142,7 @@
 					dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
 				}
 				subtract = {
-					value = root.pilgrimage_base_cost
+					value = pilgrimage_base_cost
 					multiply = ep2_activities_legacy_1_pilgrimages_discount_value
 					desc = ep2_activities_legacy_track
 				}
@@ -1296,16 +1300,13 @@
 
 				is_valid = {
 					# No Hajj
-					trigger_if = {
-						custom_tooltip = {
-							text = activity_pilgrimage.is_valid.other.mandatory_or_impatient
-							OR = {
-								faith = { has_doctrine_parameter = mandatory_pilgrimage }
-								has_trait = impatient
-							}
+					custom_tooltip = {
+						text = activity_pilgrimage.is_valid.other.mandatory_or_impatient
+						OR = {
+							faith = { has_doctrine_parameter = mandatory_pilgrimage }
+							has_trait = impatient
 						}
 					}
-
 				}
 
 				# Travel modifier given in on_enter_travel_state.
@@ -1991,11 +1992,11 @@
 
 			#Sets the departure activity log entry
 			add_activity_log_entry = {
-					key = pilgrimage_departed_log
-					score = 25
-					tags = { departure }
-					character = scope:activity.activity_host
-				}
+				key = pilgrimage_departed_log
+				score = 25
+				tags = { departure }
+				character = scope:activity.activity_host
+			}
 
 			# Check what faith the pilgrimage is supposed to be for.
 			set_variable = {

@@ -131,7 +131,6 @@ fp2_yearly.1001 = {
 # Compromising Position
 # By Daniel Moore
 ###################################
-# Edited out for now #
 fp2_yearly.1002 = {
 	type = character_event
 	title = fp2_yearly.1002.t
@@ -1321,10 +1320,12 @@ fp2_yearly.4001 = {
 		is_playable_character = yes
 		is_available_at_peace_adult = yes
 
-		#is Calradian or Nahasan
+		#is Calradian, Nahasan, Lotkian, or Geroian
 		OR = {
 			culture = { has_cultural_pillar = heritage_calradian }
 			culture = { has_cultural_pillar = heritage_nahasi }
+			culture = { has_cultural_pillar = heritage_lotkian }
+			culture = { has_cultural_pillar = heritage_geroian }
 		}
 		#has more than 5 stress
 		stress > 5
@@ -1407,6 +1408,8 @@ fp2_yearly.4002 = {
 		OR = {
 			culture = { has_cultural_pillar = heritage_calradian }
 			culture = { has_cultural_pillar = heritage_nahasi }
+			culture = { has_cultural_pillar = heritage_lotkian }
+			culture = { has_cultural_pillar = heritage_geroian }
 		}
 		#has a court chaplain
 		exists = cp:councillor_court_chaplain
@@ -1589,6 +1592,8 @@ fp2_yearly.4008 = {
 		OR = {
 			culture = { has_cultural_pillar = heritage_calradian }
 			culture = { has_cultural_pillar = heritage_nahasi }
+			culture = { has_cultural_pillar = heritage_lotkian }
+			culture = { has_cultural_pillar = heritage_geroian }
 		}
 
 		#and capital is located in Perassic Region
@@ -1612,6 +1617,25 @@ fp2_yearly.4008 = {
 				limit = {
 					age = { 50 80 }
 					culture = { has_cultural_pillar = heritage_nahasi }
+					is_available_healthy_ai_adult = yes
+				}
+				save_scope_as = old_crone
+			}
+		}
+		else_if = {
+			limit = {
+				any_pool_character = {
+					province = root.capital_province
+					age = { 50 80 }
+					culture = { has_cultural_pillar = heritage_geroian }
+					is_available_healthy_ai_adult = yes
+				}
+			}
+			random_pool_character = {
+				province = root.capital_province
+				limit = {
+					age = { 50 80 }
+					culture = { has_cultural_pillar = heritage_geroian }
 					is_available_healthy_ai_adult = yes
 				}
 				save_scope_as = old_crone
@@ -1983,8 +2007,10 @@ fp2_yearly.8003 = {
 		}
 		has_trait = eccentric
 		OR = {
-			capital_province = { geographical_region = region_north_nahasa_coast }
+			capital_province = { geographical_region = region_perassic }
 			culture = { has_cultural_pillar = heritage_nahasi }
+			culture = { has_cultural_pillar = heritage_geroian }
+			culture = { has_cultural_pillar = heritage_lotkian }
 		}
 	}
 
@@ -2339,6 +2365,8 @@ fp2_yearly.8005 = {
 		OR = {
 			capital_province = { geographical_region = region_perassic }
 			culture = { has_cultural_pillar = heritage_balian }
+			culture = { has_cultural_pillar = heritage_geroian }
+			culture = { has_cultural_pillar = heritage_lotkian }
 		}
 	}
 
@@ -2527,8 +2555,10 @@ fp2_yearly.8006 = {
 		any_held_county = { any_county_province = {	fp2_yearly.8006_province_trigger = yes } }
 
 		OR = { #implemented for FP3 to prevent triggering in Iran
-			capital_province = { geographical_region = world_nahasa }
+			capital_province = { geographical_region = region_perassic }
 			culture = { has_cultural_pillar = heritage_nahasi }
+			culture = { has_cultural_pillar = heritage_geroian }
+			culture = { has_cultural_pillar = heritage_lotkian }
 		}
 	}
 
@@ -2843,7 +2873,10 @@ fp2_yearly.9005 = {
 			limit = {
 				faith = scope:fp2_james_0004_place_of_murder.faith
 			}
-			add_county_modifier = fp2_toledo_nights_fallout_modifier
+			add_county_modifier = { #Unop: Made it a 10 years modifier just like above instead of a forever one
+				modifier = fp2_toledo_nights_fallout_modifier
+				years = 10
+			}
 		}
 		add_hook = {
 			type = favor_hook

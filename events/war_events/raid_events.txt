@@ -892,7 +892,12 @@ raiding.0013 = {
 				}
 
 				modifier = {
-					root = { raid_intent = capture_intent_nomadic }
+					root = {
+						OR = {
+							raid_intent = capture_intent_nomadic
+							raid_intent = capture_intent_norse
+						}
+					}
 					has_raid_intent_immunity = no
 					add = {
 						value = 15
@@ -1230,11 +1235,193 @@ raiding.0023 = {
 		else = {
 			capital_province = { save_scope_as = capital_province }
 		}
+		if = {
+			limit = {
+				NOT = {
+					exists = scope:raid_leader
+				}
+			}
+			root = { save_scope_as = raid_leader }
+		}
 	}
 
 	#Accept the trait.
 	option = {
 		name = raiding.0023.a
+		trigger = {
+			OR = {
+				can_raid_across_water_trigger = yes
+				culture = { has_innovation = innovation_longboats }
+			}
+		}
+		# reason = has_cultrad
+		# custom_tooltip = innovation_longboats_desc
+		if = {
+			limit = {
+				OR = {
+					has_any_nickname = no
+					has_bad_nickname = yes
+					is_ai = no
+				}
+			}
+			give_nickname = nick_the_viking_ck
+		}
+		add_martial_lifestyle_xp = major_lifestyle_xp
+		ai_chance = {
+			base = 30
+			ai_value_modifier = {
+				ai_boldness = 0.5
+				ai_compassion = -0.5
+			}
+			modifier = {
+				add = 30
+				should_use_norse_music_trigger = yes
+			}
+		}
+	}
+	# +prowess but gallowsbait
+	option = {
+		name = raiding.0023.b
+		trait = gallowsbait
+		reason = dread
+		trigger = {
+			OR = {
+				dread >= high_dread
+				has_trait = gallowsbait
+				is_landed_or_landless_administrative = no
+			}
+		}
+		if = {
+			limit = {
+				has_trait = gallowsbait
+			}
+			add_trait_xp = {
+				trait = gallowsbait
+				track = marauder
+				value = age
+			}
+		}
+		else = {
+			add_trait = gallowsbait
+		}
+		add_dread = minor_dread_gain
+		add_prowess_skill = 1
+		if = {
+			limit = {
+				OR = {
+					has_any_nickname = no
+					has_bad_nickname = yes
+					is_ai = no
+				}
+			}
+			if = {
+				limit = {
+					is_male = yes
+				}
+				give_nickname = nick_the_bandit_king
+			}
+			else_if = {
+				limit = {
+					is_female = yes
+				}
+				give_nickname = nick_the_bandit_queen
+			}
+		}
+		ai_chance = {
+			base = 10
+			ai_value_modifier = {
+				ai_energy = 0.5
+				ai_rationality = -0.5
+			}
+			modifier = {
+				add = 30
+				has_realm_law = camp_purpose_brigands
+			}
+			modifier = {
+				add = 20
+				OR = {
+					has_any_criminal_trait_in_faith_trigger = {
+						CHARACTER = scope:raid_leader
+						FAITH = scope:raid_leader.faith
+					}
+					has_trait = gallowsbait
+				}
+			}
+		}
+	}
+	# +gold -legitimacy & piety
+	option = {
+		name = raiding.0023.c
+		trigger = {
+			OR = {
+				has_trait = maimed
+				has_trait = one_eyed
+				has_trait = one_legged
+				culture = { has_cultural_pillar = heritage_geroian }
+				culture = { has_cultural_tradition = tradition_practiced_pirates }
+			}
+		}
+		add_gold = {
+			value = battle_winner_gold_gain
+			add = tiny_gold_max_value_static
+		}
+		add_legitimacy_effect = { LEGITIMACY = minor_legitimacy_loss }
+		add_piety = medium_piety_loss
+		reason = hook
+		custom_tooltip = diarch_loyalty_score.regency.tradition_practiced_pirates
+		if = {
+			limit = {
+				OR = {
+					has_any_nickname = no
+					has_bad_nickname = yes
+					is_ai = no
+				}
+			}
+			if = {
+				limit = {
+					is_male = yes
+				}
+				give_nickname = nick_the_pirate_king
+			}
+			else_if = {
+				limit = {
+					is_female = yes
+				}
+				give_nickname = nick_the_pirate_queen
+			}
+		}
+		ai_chance = {
+			base = 10
+			ai_value_modifier = {
+				ai_greed = 0.5
+				ai_honor = -0.5
+			}
+			modifier = {
+				add = 30
+				culture = { has_cultural_pillar = heritage_geroian }
+			}
+			modifier = {
+				add = 20
+				has_permanent_physical_injury = yes
+			}
+		}
+	}
+	option = {
+		name = raiding.0023.d
+		add_piety = medium_piety_gain
+		add_prestige_experience = minor_fame_loss
+		if = {
+			limit = {
+				has_any_nickname = yes
+			}
+			remove_nickname = yes
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+
+	after = {
 		add_trait = viking
 	}
 }

@@ -80,8 +80,8 @@ fp3_yearly.8000 = { #Ghazi Gone Bad
 		is_ruler = yes
 		any_held_county = {
 			any_county_province = {
-				# NEED TO CHANGE THIS WITH FULL DARSHI EMPIRE ADDITION. THIS NEEDS TO BE CHANGED TO region_darshi_east FOR THE EVENT TO FIRE PROPERLY CK_UPDATE CK_DARSHI
-				geographical_region = region_darshi_west 
+				# Changed from region_darshi_west to back to dlc_fp3_greater_persian_frontier_regions because region_darshi_west is currently in that region, but when the Darshi are added, darshi west will be removed from it | CK_UPDATE CK_DARSHI
+				geographical_region = dlc_fp3_greater_persian_frontier_regions 
 				fp3_yearly.8000_province_trigger = yes
 			}
 		}
@@ -304,7 +304,7 @@ fp3_yearly.8001 = { #Frontier Fortress Benefactor
 
 		is_healthy = yes #the councillor's request wouldn't make much sense otherwise 
 
-		root.capital_province = { geographical_region = region_darshi_west } #so that this inside-to-outside worldview makes sense 
+		root.capital_province = { geographical_region = world_persian_empire } #so that this inside-to-outside worldview makes sense 
 
 		faith = {
 			NOT = {
@@ -333,7 +333,7 @@ fp3_yearly.8001 = { #Frontier Fortress Benefactor
 				modifier = {
 					factor = 100
 					any_county_province = { 
-						geographical_region = region_darshi_west
+						geographical_region = dlc_fp3_greater_persian_frontier_regions
 					}
 				}
 			}
@@ -684,7 +684,483 @@ scripted_trigger fp3_yearly.8002_zealous_vassal_or_spouse_trigger = {
 	}
 }
 
-## No Aserai heresies at start
+## Should add some Aserai / Darshi heresies back in when they're ready #CK_RELIGION CK_ASERAI CK_DARSHI
+# fp3_yearly.8002 = { #Faith at the Frontier
+# 	type = character_event
+# 	title = fp3_yearly.8002.t
+# 	desc = fp3_yearly.8002.desc
+# 	theme = faith 
+
+# 	left_portrait = {
+# 		character = root
+# 		animation = stress
+# 	}
+# 	right_portrait = {
+# 		character = scope:concerned_person
+# 		animation = worry
+# 	}
+
+# 	trigger = {
+# 		has_fp3_dlc_trigger = yes
+# 		age >= 12
+# 		is_ruler = yes
+# 		any_held_county = {
+# 			any_county_province = {
+# 				fp3_yearly.8001_outlying_province_trigger = yes 
+# 			}
+# 		}
+
+# 		root.capital_province = { geographical_region = world_persian_empire } #so that this inside-to-outside worldview makes sense 
+
+# 		faith = { #so that the plot makes sense 
+# 			NOR = {
+# 				has_doctrine_parameter = unreformed # Unreformed Pagans don't need frontier fortresses, generally speaking
+# 				has_doctrine = doctrine_pluralism_pluralistic
+# 			}
+# 		}
+
+# 		OR = { #Either could make sense, may as well make it as flexible as possible
+# 			any_spouse = { 
+# 				fp3_yearly.8002_zealous_vassal_or_spouse_trigger = yes
+# 			}
+# 			any_powerful_vassal = { 
+# 				fp3_yearly.8002_zealous_vassal_or_spouse_trigger = yes
+# 			}
+# 			exists = cp:councillor_court_chaplain 
+# 		}	
+# 	}
+
+# 	cooldown = {
+# 		years = 50 
+# 	}
+
+# 	immediate = { #finding a nice location for the event
+# 		random_held_county = {
+# 			limit = {
+# 				any_county_province = { 
+# 					fp3_yearly.8001_outlying_province_trigger = yes  		
+# 				}			
+# 			}
+# 			weight = {
+# 				modifier = {
+# 					factor = 100
+# 					any_county_province = { 
+# 						geographical_region = dlc_fp3_greater_persian_frontier_regions
+# 					}
+# 				}
+# 			}
+# 			save_scope_as = frontier_fort_county	
+# 		}
+
+# 		scope:frontier_fort_county = {
+# 			add_county_modifier = {
+# 				modifier = fp3_frontier_heresy_county_modifier
+# 				years = 40
+# 			} 
+# 		}
+
+# 		if = {
+# 			limit = { current_year >= 1050 	}
+# 			faith.religion = {
+# 				random_faith = { #here we're setting up a nice heresy for the event
+# 					limit = { #some faiths didn't exist in the early period, and were extinct by the latter
+# 						this != root.faith
+# 						fervor > medium_fervor_value
+# 						OR = {
+# 							this = faith:nizari
+# 							this = faith:zayidi 
+# 							this = faith:qarmatian
+# 							this = faith:zurvanism
+# 							this = faith:khurramism
+# 							this = faith:nestorian
+# 							this = faith:manichean
+# 							this = faith:mahayana
+# 						}
+# 					}
+# 					alternative_limit = { #just a failsafe to avoid errors
+# 						this != root.faith
+# 					}
+# 					save_scope_as = regional_heresy
+# 				}		
+# 			}
+# 		}
+# 		else = {
+# 			faith.religion = {
+# 				random_faith = { #here we're setting up a nice heresy for the event
+# 					limit = { #some faiths didn't exist in the early period
+# 						this != root.faith
+# 						fervor > medium_fervor_value
+# 						OR = {
+# 							this = faith:azariqa 
+# 							this = faith:mutazila 
+# 							this = faith:ghulat
+# 							this = faith:zayidi 
+# 							this = faith:zurvanism
+# 							this = faith:khurramism
+# 							this = faith:mazdakism 
+# 							this = faith:nestorian
+# 							this = faith:manichean #the "Arch-Heresy" according to Cambridge History of Iran ^_^
+# 							this = faith:zun_pagan
+# 							this = faith:mahayana
+# 						}
+# 					}
+# 					alternative_limit = { #just a failsafe to avoid errors
+# 						this != root.faith
+# 					}
+# 					save_scope_as = regional_heresy
+# 				}		
+# 			}
+# 		}
+		
+# 		if = {
+# 			limit = { 
+# 				any_spouse = { 
+# 					fp3_yearly.8002_zealous_vassal_or_spouse_trigger = yes
+# 				}
+# 			}
+# 			random_spouse = {
+# 				limit = { 
+# 					fp3_yearly.8002_zealous_vassal_or_spouse_trigger = yes
+# 				}
+# 				save_scope_as = concerned_person	
+# 			}
+# 		}
+# 		else_if = {
+# 			limit = { 
+# 				any_powerful_vassal = { 											fp3_yearly.8002_zealous_vassal_or_spouse_trigger = yes 	
+# 				}
+# 			}
+# 			random_powerful_vassal = {
+# 				limit = { 
+# 					fp3_yearly.8002_zealous_vassal_or_spouse_trigger = yes
+# 				}
+# 				save_scope_as = concerned_person	
+# 			}
+# 		}
+# 		else = {
+# 			cp:councillor_court_chaplain = { save_scope_as = concerned_person }
+# 		}
+# 	}
+
+# 	option = { #Burn them all and let God sort them out
+# 		name = fp3_yearly.8002.a
+
+# 		trigger = {
+# 			OR = {
+# 				has_trait = zealous
+# 				has_trait = wrathful
+# 				has_trait = paranoid 
+# 				has_trait = faith_warrior
+# 				has_trait = crusader_king 
+# 				dread >= high_dread
+# 			}
+# 		}
+
+# 		add_dread = major_dread_gain
+
+# 		scope:concerned_person = {
+# 			if = {
+# 				limit = {
+# 					OR = { #if the concerned person has a... certain personality, they appreciate this
+# 						has_trait = sadistic
+# 						has_trait = callous 
+# 						has_trait = paranoid
+# 						has_trait = vengeful 
+# 					}
+# 				}
+# 				add_opinion = {
+# 					target = root
+# 					opinion = 20
+# 					modifier = fp3_admires_resolve_opinion
+# 				}
+# 			}
+# 			else = { 
+# 				add_opinion = { #but otherwise, they're kinda shocked
+# 					target = root
+# 					opinion = -20
+# 					modifier = fp3_mildly_terrified_opinion
+# 				}
+# 			}
+# 		}
+
+# 		scope:frontier_fort_county = {
+# 			add_county_modifier = {
+# 				modifier = fp3_garrison_decimated_county_modifier 
+# 				years = 10
+# 			} 
+# 		}
+
+
+# 		random_list = {
+# 			75 = {
+# 				custom_tooltip = fp3_county_pacified.tt
+# 				scope:frontier_fort_county = {
+# 					remove_county_modifier = fp3_frontier_heresy_county_modifier
+# 				}
+# 			}
+# 			25 = {
+# 				custom_tooltip = fp3_county_galvanized.tt
+# 				scope:frontier_fort_county = {
+# 					set_county_faith = scope:regional_heresy 
+# 				}
+# 			}
+# 		}
+
+# 		stress_impact = { 
+#    			sadistic = major_stress_impact_loss
+#    			callous = medium_stress_impact_loss
+#    			wrathful = minor_stress_impact_loss 
+#    			zealous = minor_stress_impact_loss
+#    			greedy = minor_stress_impact_loss  
+#    			compassionate = massive_stress_impact_gain 
+#    			just = major_stress_impact_gain 
+
+   			
+#    		}
+
+# 		ai_chance = { #cruel, zealous AI prefer this option
+#         	base = 100
+#         	ai_value_modifier = {
+#            		ai_zeal = 1
+#            		ai_vengefulness = 1
+#            		ai_compassion = -1
+#            		ai_honor = -0.5
+#            		ai_rationality = -0.5 
+#         	}
+#    		} 
+# 	}
+
+# 	option = { #Join their faith
+# 		name = fp3_yearly.8002.b
+
+# 		trigger = {
+# 			OR = {
+# 				has_trait = cynical
+# 				has_trait = fickle
+# 				has_trait = humble
+# 				has_trait = depressed
+# 				has_trait = lunatic
+# 				has_trait = possessed
+# 				has_trait = lifestyle_mystic
+# 				stress_level >= 3
+# 			}
+# 			NOT = {
+# 				has_trait = zealous
+# 			}
+# 		}
+
+# 		add_piety = medium_piety_loss
+# 		set_character_faith_with_conversion = scope:regional_heresy
+# 		if = {
+# 			limit = { 
+# 				scope:regional_heresy = { has_doctrine = doctrine_monotheist }
+# 			}
+# 			custom_description_no_bullet = { text = mandala_monotheist_warning_tt }
+# 		}
+
+# 		scope:frontier_fort_county = {
+# 			add_county_modifier = {
+# 				modifier = tensions_eased_province_modifier
+# 				years = 20
+# 			}
+# 		}
+
+# 		scope:concerned_person = {
+# 			add_opinion = {	
+# 				target = root 
+# 				modifier = perplexed_opinion
+# 				opinion = -20
+# 			}
+# 		}
+
+# 		stress_impact = { 
+#    			cynical = major_stress_impact_loss
+#    			humble = medium_stress_impact_loss
+#    			brave = minor_stress_impact_loss 
+#    			fickle = minor_stress_impact_loss 
+#    			content = medium_stress_impact_gain 
+#    			craven = medium_stress_impact_gain 
+   			
+#    		}
+
+# 		ai_chance = { #bold, cynical AI prefer this option
+#         	base = 40 #so that the AI is less likely to take this option
+#         	ai_value_modifier = {
+#            		ai_boldness = 0.7
+#            		ai_energy = 0.5
+#            		ai_rationality = 0.7
+#            		ai_zeal = -1 
+#         	}
+#    		} 	
+# 	}
+
+# 	option = { #Send them to preach
+# 		name = fp3_yearly.8002.c
+
+# 		scope:concerned_person = {
+# 			if = {
+# 				limit = {
+# 					OR = { #if the concerned person has a... certain personality, or is very able to perform the task, they're okay with this
+# 						has_trait = dull
+# 						has_trait = intellect_bad
+# 						has_trait = diligent
+# 						learning >= good_skill_level
+# 					}
+# 				}
+# 				add_opinion = {
+# 					target = root
+# 					opinion = 10
+# 					modifier = trusted_me_opinion
+# 				}
+# 			}
+# 			else = { 
+# 				add_opinion = { #but otherwise, they see it for what it is; a mild insult
+# 					target = root
+# 					opinion = -10
+# 					modifier = unfair_expectations_opinion
+# 				}
+# 			}
+# 		}
+
+# 		scope:concerned_person = {
+# 			add_character_modifier = {	
+# 				modifier = fp3_visited_the_frontier_modifier
+# 				years = 5
+# 			}
+# 		}
+
+# 		scope:concerned_person = {
+# 			duel = {
+# 			skill = learning
+# 			value = average_skill_rating
+
+# 				20 = {
+# 					compare_modifier = {
+# 						value = scope:duel_value
+# 						multiplier = 2
+# 					}
+# 					root = {
+# 						send_interface_toast = {
+# 							title = dealing_with_soldier_heresy_toast.success
+# 							left_icon = scope:concerned_person
+				
+# 							custom_tooltip = fp3_county_converted.tt
+# 							scope:frontier_fort_county = {
+# 								remove_county_modifier = fp3_frontier_heresy_county_modifier
+# 							} 
+# 						}
+# 					}	
+# 				}
+# 				20 = {
+# 					compare_modifier = {
+# 						value = scope:duel_value
+# 						multiplier = -1
+# 					}
+# 					root = {
+# 						send_interface_toast = {
+# 							title = dealing_with_soldier_heresy_toast.failure
+# 							left_icon = scope:concerned_person
+
+# 							custom_tooltip = fp3_county_galvanized.tt
+# 							scope:frontier_fort_county = {
+# 								set_county_faith = scope:regional_heresy 
+# 							}
+# 							if = {
+# 								limit = { 
+# 									NOT = {
+# 										scope:concerned_person = { has_trait = depressed }
+# 									}
+# 								}
+# 								random = {
+# 									chance = 10
+# 									scope:concerned_person = { add_trait = depressed_1 }
+# 								}	
+# 							}
+# 						}
+# 					}
+# 				}
+# 			}
+# 		}
+
+# 		stress_impact = { 
+#    			lazy = major_stress_impact_loss
+#    			shy = minor_stress_impact_loss
+#    			trusting = minor_stress_impact_loss 
+#    			arrogant = minor_stress_impact_loss 
+#    			brave = minor_stress_impact_loss 
+#    			zealous = minor_stress_impact_loss 
+#    			ambitious = minor_stress_impact_gain 
+#    			diligent = medium_stress_impact_gain 	
+#    		}
+
+# 		ai_chance = { #hands-off/rational AI prefer this option
+#         	base = 100
+#         	ai_value_modifier = {
+#            		ai_vengefulness = 0.5
+#            		ai_rationality = 0.5
+#            		ai_zeal = 0.2 
+#            		ai_energy = -0.5   		   		
+#         	}
+#    		} 
+# 	}
+
+# 	option = { #We should wait and see how the situation develops 
+# 		name = fp3_yearly.8002.d
+
+# 		random_list = {	
+# 			50 = {
+# 				send_interface_toast = {
+# 					title = frontier_heresy_eased
+# 					left_icon = scope:root
+					
+# 					scope:frontier_fort_county = {
+# 						add_county_modifier = {
+# 							modifier = tensions_eased_province_modifier
+# 							years = 20
+# 						}
+# 					}
+# 				}
+# 			}
+# 			50 = {
+# 				send_interface_toast = {
+# 					title = frontier_heresy_mega_outbreak
+# 					left_icon = scope:root
+						
+# 					scope:frontier_fort_county = {	set_county_faith = scope:regional_heresy }
+# 				}
+# 			}
+# 		}
+
+# 		scope:concerned_person = {
+# 			add_opinion = {	
+# 				target = root 
+# 				modifier = disappointed_opinion
+# 				opinion = -20
+# 			}
+# 		}
+
+# 		stress_impact = { 
+#    			patient = medium_stress_impact_loss 
+#    			calm = minor_stress_impact_loss
+#    			cynical = minor_stress_impact_loss
+#    			content = minor_stress_impact_loss 
+#    			wrathful = minor_stress_impact_gain
+#    			zealous = massive_stress_impact_gain
+#    			paranoid = medium_stress_impact_gain
+#    			impatient = medium_stress_impact_gain 	
+#    		}
+
+# 		ai_chance = { #passive or compassionate AI prefer this optio
+#         	base = 100
+#         	ai_value_modifier = {
+#            		ai_compassion = 1
+#            		ai_honor = 0.5
+#            		ai_zeal = -1
+#            		ai_vengefulness = -0.5
+#         	}
+#    		} 			
+# 	}						
+# }
 
 
 #######Exotic Espand, by Ola Jentzsch#####
@@ -726,7 +1202,7 @@ fp3_yearly.8003 = { #Exotic Espand
 
 		root.capital_province = { 
 			OR = {
-				geographical_region = region_darshi_west
+				geographical_region = world_persian_empire
 				geographical_region = world_steppe 
 			}
 		} 
@@ -734,6 +1210,9 @@ fp3_yearly.8003 = { #Exotic Espand
 		any_county_in_region = {
 			region = region_darshi_west
 			region = world_steppe
+			# region = world_steppe_tarim
+			# region = world_himalaya
+			# region = world_middle_east_arabia
 			fp3_yearly_8003_far_away_mountain_trigger = yes
 		}
 
@@ -803,9 +1282,11 @@ fp3_yearly.8003 = { #Exotic Espand
 		}
 
 		random_county_in_region = {
-			region = region_darshi_west
+			region = world_persian_empire
 			region = world_steppe_east
-			region = world_india
+			# region = world_steppe_tarim
+			# region = world_himalaya
+			# region = world_middle_east_arabia
 			limit = { fp3_yearly_8003_far_away_mountain_trigger = yes }
 			save_scope_as = espad_mountain_province #this is only used for loc
 		}
@@ -1238,7 +1719,7 @@ fp3_yearly.8004 = { #The Frontier Beckons
 
 		is_available = yes 
 		
-		root.capital_province = { geographical_region = region_darshi_west }
+		root.capital_province = { geographical_region = world_persian_empire }
 
 		NAND = { #because this event is a Persian variant of an FP1 event, it's better that both cannot trigger for vikings
 			has_fp1_dlc_trigger = yes
@@ -1260,7 +1741,7 @@ fp3_yearly.8004 = { #The Frontier Beckons
 			}
 			in_diplomatic_range = root 
 			any_realm_province = { 
-				geographical_region = region_darshi_west
+				geographical_region = dlc_fp3_greater_persian_frontier_regions
 				save_temporary_scope_as = place		
 			}
 		}
@@ -1308,7 +1789,7 @@ fp3_yearly.8004 = { #The Frontier Beckons
 				}
 				in_diplomatic_range = root
 				any_realm_province = {	
-					geographical_region = region_darshi_west
+					geographical_region = dlc_fp3_greater_persian_frontier_regions
 					save_temporary_scope_as = place 
 				}
 				scope:place = {
@@ -1320,7 +1801,7 @@ fp3_yearly.8004 = { #The Frontier Beckons
 			}
 			random_realm_province = {
 				limit = {
-					geographical_region = region_darshi_west
+					geographical_region = dlc_fp3_greater_persian_frontier_regions
 					save_temporary_scope_as = place
 					scope:place = {
 						squared_distance = {
@@ -1945,7 +2426,7 @@ fp3_yearly.8014 = {
 	trigger = { 
 		has_fp3_dlc_trigger = yes
 
-		root.capital_province = { geographical_region = region_darshi_west }
+		root.capital_province = { geographical_region = world_persian_empire }
 
 		faith = { trait_is_sin = drunkard }
 
@@ -2193,7 +2674,7 @@ fp3_yearly.8016 = {
 		any_powerful_vassal = {
 			any_held_county = {
    				title_province = {
-   					geographical_region = region_darshi_west # CK_UPDATE / WE MUST MAKE THIS THE REGION THAT LIES TO THE NORTHEAST OF THE DARSHI, THAT MASSIVE SEA/LAKE.
+   					geographical_region = world_daylam # CK_UPDATE / WE MUST MAKE THIS THE REGION THAT LIES TO THE NORTHEAST OF THE DARSHI, THAT MASSIVE SEA/LAKE.
    				}
    			}
    			fp3_not_norse_trigger = yes
@@ -2209,7 +2690,7 @@ fp3_yearly.8016 = {
 			limit = {
 				any_held_county = {
    					title_province = {
-   						geographical_region = region_darshi_west 
+   						geographical_region = world_daylam 
    					}
    				}
    				fp3_not_norse_trigger = yes
@@ -2222,7 +2703,7 @@ fp3_yearly.8016 = {
 			random_held_county = {
 				limit = { 
 					title_province = {
-						geographical_region = region_darshi_west
+						geographical_region = world_daylam
 					}
 				}
 				save_scope_as = runestone_county 

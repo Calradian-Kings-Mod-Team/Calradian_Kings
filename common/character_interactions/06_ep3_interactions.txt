@@ -20,6 +20,8 @@ influence_candidacy_interaction = {
 	target_type = title
 	target_filter = recipient_de_jure_titles
 
+	custom_character_sort = { governor_efficiency candidate_score }
+
 	populate_recipient_list = {
 		scope:actor = {
 			house ?= {
@@ -63,6 +65,7 @@ influence_candidacy_interaction = {
 				TOP_LIEGE = scope:recipient
 			}
 		}
+		tgp_ceremonial_candidacy_restriction_trigger = yes #Unop: Prevent selecting invalid title
 	}
 
 	has_valid_target_showing_failures_only = {
@@ -409,7 +412,7 @@ influence_candidacy_interaction = {
 			# House Aspiration Service
 			if = {
 				limit = {
-					scope:actor.house ?= { has_house_power_parameter = service_house_cheaper_influence_candidacy_investments }
+					scope:actor.house ?= { has_house_aspiration_parameter = service_house_cheaper_influence_candidacy_investments }
 				}
 				add = {
 					value = scope:calculated_base_cost
@@ -429,6 +432,18 @@ influence_candidacy_interaction = {
 	}
 
 	on_accept = {
+		if = {
+			limit = {
+				scope:target = {
+					this != holder.primary_title
+					OR = { 
+						has_title_law = acclamation_succession_law
+						holder = { has_realm_law = acclamation_succession_law }
+					}
+				}
+			}
+			custom_tooltip = acclamation_succession_warning_tt
+		}
 		switch = {
 			trigger = yes
 			scope:as_much_as_needed_influence_option = {
@@ -1146,24 +1161,26 @@ support_candidacy_interaction = {
 			factor = 5
 		}
 		modifier = {
-			scope:secondary_recipient = {
+			scope:secondary_recipient ?= {
 				is_close_family_of = scope:actor
 			}
 			factor = 3
 		}
 		modifier = {
-			scope:secondary_recipient = {
+			scope:secondary_recipient ?= {
 				is_extended_family_of = scope:actor
 			}
 			factor = 1.5
 		}
 		modifier = {
+			exists = scope:secondary_recipient
 			scope:actor = {
 				has_relation_friend = scope:secondary_recipient
 			}
 			factor = 2
 		}
 		modifier = {
+			exists = scope:secondary_recipient
 			scope:actor = {
 				has_relation_best_friend = scope:secondary_recipient
 			}
@@ -1172,6 +1189,7 @@ support_candidacy_interaction = {
 
 		# For the imperial title, we want to promote ourselves
 		modifier = {
+			exists = scope:secondary_recipient
 			scope:target.tier >= tier_empire
 			scope:actor = scope:secondary_recipient
 			factor = 5
@@ -1180,7 +1198,7 @@ support_candidacy_interaction = {
 		# Prefer unlanded relatives
 		modifier = {
 			scope:target.tier < tier_empire
-			scope:secondary_recipient = {
+			scope:secondary_recipient ?= {
 				is_ruler = no
 			}
 			factor = 2
@@ -1202,7 +1220,7 @@ support_candidacy_interaction = {
 
 		# Try to avoid promoting the same candidate for multiple titles if they are winning a title already
 		modifier = {
-			scope:secondary_recipient = {
+			scope:secondary_recipient ?= {
 				any_heir_title = {
 					is_noble_family_title = no
 					holder = {
@@ -1226,7 +1244,7 @@ support_candidacy_interaction = {
 					"appointment_candidate_accumulated_score(scope:target)" > 0
 				}
 			}
-			scope:secondary_recipient = {
+			scope:secondary_recipient ?= {
 				exists = house
 				exists = scope:actor.house
 				house = scope:actor.house
@@ -1237,6 +1255,7 @@ support_candidacy_interaction = {
 
 		# Don't promote rivals
 		modifier = {
+			exists = scope:secondary_recipient
 			scope:actor = {
 				has_relation_rival = scope:secondary_recipient
 			}
@@ -1263,6 +1282,7 @@ support_candidacy_interaction = {
 
 		# Don't promote your candidate if they are first in line
 		modifier = {
+			exists = scope:secondary_recipient
 			scope:target = {
 				any_title_heir = {
 					this = scope:secondary_recipient
@@ -1279,10 +1299,13 @@ support_candidacy_interaction = {
 
 		# Don't promote lowborn or characters of a different house
 		modifier = {
-			NOT = { exists = scope:secondary_recipient.house }
+			scope:secondary_recipient ?= {
+				is_lowborn = yes
+			}
 			factor = 0
 		}
 		modifier = {
+			exists = scope:secondary_recipient
 			exists = scope:secondary_recipient.house
 			exists = scope:actor.house
 			scope:actor.house != scope:secondary_recipient.house
@@ -1783,6 +1806,7 @@ request_appointment_support = {
 				}
 			}
 		}
+		tgp_ceremonial_candidacy_restriction_trigger = yes #Unop: Prevent selecting invalid title
 	}
 
 	has_valid_target_showing_failures_only = {
@@ -1854,6 +1878,7 @@ request_appointment_support = {
 				}
 			}
 		}
+		tgp_ceremonial_candidacy_restriction_trigger = yes #Unop: Prevent promoting heir on governorship
 	}
 
 	is_highlighted = {
@@ -1879,6 +1904,18 @@ request_appointment_support = {
 	send_options_exclusive = no
 
 	on_accept = {
+		if = {
+			limit = {
+				scope:target = {
+					this != holder.primary_title
+					OR = { 
+						has_title_law = acclamation_succession_law
+						holder = { has_realm_law = acclamation_succession_law }
+					}
+				}
+			}
+			custom_tooltip = acclamation_succession_warning_tt
+		}
 		scope:actor = {
 			if = {
 				limit = {
@@ -2159,6 +2196,7 @@ request_appointment_support = {
 			desc = requesting_my_title_reason
 		}
 		modifier = { # Don't support actor if there is a close family member within the top 3 candidates
+			exists = scope:recipient
 			scope:target ?= {
 				any_title_heir = {
 					scope:target ?= {
@@ -2549,41 +2587,7 @@ demand_admin_interaction = {
 			is_ai = yes
 			is_landed = yes
 			is_ruler = yes
-			trigger_if = {
-				limit = {
-					scope:actor = {
-						government_has_flag = government_is_administrative
-					}
-				}
-				NOT = { government_has_flag = government_is_administrative }
-			}
-			trigger_else_if = {
-				limit = {
-					scope:actor = {
-						government_has_flag = government_is_celestial
-					}
-				}
-				NOT = { government_has_flag = government_is_celestial }
-			}
-			trigger_else_if = {
-				limit = {
-					scope:actor = {
-						government_has_flag = government_is_japan_administrative
-					}
-				}
-				NOT = { government_has_flag = government_is_japan_administrative }
-			}
-			trigger_else_if = {
-				limit = {
-					scope:actor = {
-						government_has_flag = government_has_merit
-					}
-				}
-				NOT = { government_has_flag = government_has_merit }
-			}
-			trigger_else = {
-				NOT = { government_has_flag = government_is_steppe_admin }
-			}
+			NOT = { has_same_government = scope:actor }
 		}
 	}
 
@@ -3558,7 +3562,7 @@ request_council_interaction = {
 			# Admin only
 			government_allows = administrative
 			# Except for Merit based realms - they should compete with merit and score instead
-			NOT = { government_allows = merit }
+			#NOT = { government_allows = merit } #Unop You can't really compete for council positions with "merit and score"
 		}
 		scope:recipient = {
 			government_allows = administrative
@@ -3584,10 +3588,7 @@ request_council_interaction = {
 			NAND = {
 				has_council_position = councillor_court_chaplain
 				faith = {
-					OR = {
-						has_doctrine = doctrine_clerical_succession_temporal_fixed_appointment
-						has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment
-					}
+					has_doctrine_parameter = clerical_appointment_fixed
 				}
 			}
 			tgp_is_ceremonial_liege_trigger = no
@@ -3636,17 +3637,7 @@ request_council_interaction = {
 			if = {
 				limit = {
 					scope:target.councillor.primary_title ?= {
-						OR = {
-							this = title:e_minister_chancellor
-							this = title:e_minister_censor
-							this = title:e_minister_grand_marshal
-							this = title:e_minister_of_personnel
-							this = title:e_minister_of_revenue
-							this = title:e_minister_of_rites
-							this = title:e_minister_of_war
-							this = title:e_minister_of_justice
-							this = title:e_minister_of_works
-						}
+						tgp_is_minister_title = yes
 					}
 					scope:recipient = {
 						NOT = { has_appointment_level_for_title = scope:target.councillor.primary_title }
@@ -4024,7 +4015,6 @@ transfer_county_interaction = {
 
 	target_type = title
 	target_filter = actor_domain_titles
-	interface_priority = 60
 
 	# actor character giving the title
 	# recipient character receiving the title
@@ -5651,6 +5641,7 @@ boost_efficiency_interaction = {
 	icon = icon_boost_efficiency
 	interface_priority = 19
 	popup_on_receive = yes
+	common_interaction = no
 
 	ai_targets = {
 		ai_recipients = peer_vassals
@@ -6538,7 +6529,7 @@ governor_removal_interaction = {
 					save_scope_as = landed_title
 					current_heir = { save_scope_as = next_candidate }
 					if = {
-						limit = { tier >= main_administrative_tier }
+						limit = { tier >= scope:recipient.main_administrative_tier } #Unop main_administrative_tier needs a character
 						scope:next_candidate = { custom_tooltip = force_governor_removal_interaction_pass_effect_tt }
 					}
 				}
@@ -8065,7 +8056,7 @@ request_governorship_interaction = {
 	cooldown_against_recipient = { years = 10 }
 
 	redirect = {
-		scope:recipient = { save_scope_as = secondary_recipient }
+		scope:recipient ?= { save_scope_as = secondary_recipient }
 	}
 
 	cost = {
@@ -8193,6 +8184,10 @@ request_governorship_interaction = {
 						text = request_governorship_interaction_created_tt
 						any_de_jure_county = { holder = scope:recipient }
 					}
+					# trigger_if = {
+					# 	limit = { tier = tier_kingdom }
+					# 	scope:recipient = { japan_government_japan_kingdom_restriction_trigger = yes }
+					# }
 				}
 				custom_tooltip = {
 					text = request_governorship_interaction_liege_duchy_tt
@@ -8804,13 +8799,13 @@ noble_family_adoption_interaction = {
 				type = event_toast_effect_bad
 				title = noble_family_adoption_effect_toast
 				left_icon = scope:recipient
-				right_icon = scope:actor.house
+				right_icon = scope:actor #Unop: Toast icon cannot display houses
 				scope:recipient = {
 					send_interface_toast = {
 						type = event_toast_effect_bad
 						title = noble_family_adoption_effect_toast
 						left_icon = scope:recipient
-						right_icon = scope:actor.house
+						right_icon = scope:actor #Unop: Toast icon cannot display houses
 						if = {
 							limit = { scope:actor = { is_ai = yes } }
 							reverse_add_opinion = {
@@ -9890,21 +9885,21 @@ request_emperor_title_troops_interaction = {
 		# Family attribute bonus
 		modifier = {
 			scope:actor.house ?= {
-				has_house_power_parameter = increased_request_troops_acceptance_3
+				has_house_aspiration_parameter = increased_request_troops_acceptance_3
 			}
 			add = increased_request_troops_acceptance_3_value
 			desc = family_attribute_desc_with_value
 		}
 		modifier = {
 			scope:actor.house ?= {
-				has_house_power_parameter = increased_request_troops_acceptance_2
+				has_house_aspiration_parameter = increased_request_troops_acceptance_2
 			}
 			add = increased_request_troops_acceptance_2_value
 			desc = family_attribute_desc_with_value
 		}
 		modifier = {
 			scope:actor.house ?= {
-				has_house_power_parameter = increased_request_troops_acceptance_1
+				has_house_aspiration_parameter = increased_request_troops_acceptance_1
 			}
 			add = increased_request_troops_acceptance_1_value
 			desc = family_attribute_desc_with_value
@@ -10094,9 +10089,11 @@ request_title_troops_back_interaction = {
 				remove_variable = title_troops_lent_out
 			}
 		}
-		tgp_activate_catalyst_against_hegemon_effect = {
-			HEGEMON = scope:recipient
-			CATALYST = catalyst_hegemon_influenced_by_interaction
+		scope:actor = { #Unop: Add this missing actor scope
+			tgp_activate_catalyst_against_hegemon_effect = {
+				HEGEMON = scope:recipient
+				CATALYST = catalyst_hegemon_influenced_by_interaction
+			}
 		}
 	}
 
@@ -10242,10 +10239,12 @@ request_raid_remit_interaction = {
 	on_accept = {
 		if = {
 			limit = { scope:gold = yes }
-			scope:actor = {
-				pay_short_term_gold = {
-					target = scope:recipient
-					gold = scope:actor.minor_gold_value
+			show_as_tooltip = { #Unop Only show as tooltip since the gold is paid also in ep3_interactions_events.0421
+				scope:actor = {
+					pay_short_term_gold = {
+						target = scope:recipient
+						gold = scope:actor.minor_gold_value
+					}
 				}
 			}
 		}
@@ -10705,10 +10704,16 @@ request_co_emperor_interaction = {
 				value = scope:recipient
 			}
 		}
+
 		# Your designated heir is _very_ pissed.
+		if = {
+			limit = {
+				exists = scope:old_heir
+			}
 		diarch_overwrites_old_designated_heir_apply_opinions_effect = {
 			LIEGE = scope:recipient
 			CO_RULER = scope:actor
+			}
 		}
 	}
 
@@ -11042,6 +11047,22 @@ frontier_influence_war_interaction = {
 		scope:target = {
 			is_title_created = yes
 			tier = tier_duchy
+			custom_tooltip = {
+				text = neighbor_with_recipient_trigger
+				scope:recipient = {
+					trigger_if = {
+						limit = { vassal_contract_has_flag = admin_theme_naval }
+						any_character_to_title_neighboring_and_across_water_duchy = {
+							this = scope:target
+						}
+					}
+					trigger_else = {
+						any_character_to_title_neighboring_duchy = {
+							this = scope:target
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -11102,7 +11123,7 @@ frontier_influence_war_interaction = {
 	}
 
 	has_valid_target = {
-		scope:target = {
+		scope:target ?= {
 			is_title_created = yes
 			tier = tier_duchy
 			holder.top_liege != scope:actor
@@ -11590,8 +11611,7 @@ house_head_request_interaction = {
 			}
 		}
 		is_shown = {
-			scope:actor.domicile ?= { has_domicile_building_or_higher = cabinet_of_curiosities_01 }
-
+			scope:actor.domicile ?= { has_domicile_parameter = house_head_can_ask_for_artifacts } #Unop Use domicile parameter to support all domicile buildings
 		}
 		flag = artifact
 		localization = ASK_FOR_ARTIFACT
@@ -11610,10 +11630,7 @@ house_head_request_interaction = {
 			}
 		}
 		is_shown = {
-			OR = {
-				scope:actor.domicile ?= { has_domicile_building_or_higher = guardhouse_01 }
-				scope:actor.domicile ?= { has_domicile_building_or_higher = barracks_01 }
-			}
+			scope:actor.domicile ?= { has_domicile_parameter = house_head_can_ask_for_knight } #Unop Use domicile parameter to support all domicile buildings
 		}
 		flag = knight
 		localization = ASK_FOR_KNIGHT
@@ -11656,21 +11673,14 @@ house_head_request_interaction = {
 			}
 		}
 		is_shown = {
-			OR = {
-				scope:actor.domicile ?= { has_domicile_building_or_higher = guardhouse_03 }
-				scope:actor.domicile ?= { has_domicile_building_or_higher = barracks_01 }
-				scope:actor.domicile ?= { has_domicile_building_or_higher = watchtower_04 }
-			}
+			scope:actor.domicile ?= { has_domicile_parameter = house_head_can_ask_for_maa } #Unop Use domicile parameter to support all domicile buildings
 		}
 		flag = maa
 		localization = ASK_FOR_MAA
 	}
 	send_option = {
 		is_shown = {
-			OR = {
-				scope:actor.domicile ?= { has_domicile_building_or_higher = storage_01 }
-				scope:actor.domicile ?= { has_domicile_building_or_higher = storage_warehouse_03 }
-			}
+			scope:actor.domicile ?= { has_domicile_parameter = house_head_can_ask_building_support } #Unop Use domicile parameter to support all domicile buildings
 		}
 		flag = building
 		localization = ASK_FOR_BUILDING
@@ -12378,11 +12388,11 @@ ep3_hof_ask_for_influence_interaction = {
 				OR = {
 					AND = {
 						has_trait = fornicator
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = fornicator GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:fornicator GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = adulterer
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = adulterer GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:adulterer GENDER_CHARACTER = scope:actor }
 					}
 				}
 			}
@@ -12412,15 +12422,15 @@ ep3_hof_ask_for_influence_interaction = {
 				OR = {
 					AND = {
 						has_trait = kinslayer_1
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_1 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_1 GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = kinslayer_2
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_2 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_2 GENDER_CHARACTER = scope:actor }
 					}
 					AND = {
 						has_trait = kinslayer_3
-						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = kinslayer_3 GENDER_CHARACTER = scope:actor }
+						trait_is_shunned_or_criminal_in_faith_trigger = { FAITH = faith TRAIT = trait:kinslayer_3 GENDER_CHARACTER = scope:actor }
 					}
 				}
 			}
@@ -12498,7 +12508,7 @@ ep3_hof_ask_for_influence_interaction = {
 
 		modifier = { # Parent of the Head of Faith
 			add = 25
-			desc = YOU_ARE_MY_PARENT
+			desc = PARENTS #Unop: YOU_ARE_MY_PARENT does not exists
 			scope:recipient = {
 				is_child_of = scope:actor
 			}
@@ -12577,13 +12587,13 @@ ep3_hof_ask_for_influence_interaction = {
 				value = 0
 				if = {
 					limit = {
-						scope:actor.house ?= { has_house_power_parameter = increased_clerical_influence_acceptance_3 }
+						scope:actor.house ?= { has_house_aspiration_parameter = increased_clerical_influence_acceptance_3 }
 					}
 					add = increased_clerical_influence_acceptance_3_value
 				}
 				else_if = {
 					limit = {
-						scope:actor.house ?= { has_house_power_parameter = increased_clerical_influence_acceptance_2 }
+						scope:actor.house ?= { has_house_aspiration_parameter = increased_clerical_influence_acceptance_2 }
 					}
 					add = increased_clerical_influence_acceptance_2_value
 				}
@@ -12593,9 +12603,9 @@ ep3_hof_ask_for_influence_interaction = {
 			}
 			scope:actor.house ?= {
 				OR = {
-					has_house_power_parameter = increased_clerical_influence_acceptance_1
-					has_house_power_parameter = increased_clerical_influence_acceptance_2
-					has_house_power_parameter = increased_clerical_influence_acceptance_3
+					has_house_aspiration_parameter = increased_clerical_influence_acceptance_1
+					has_house_aspiration_parameter = increased_clerical_influence_acceptance_2
+					has_house_aspiration_parameter = increased_clerical_influence_acceptance_3
 				}
 			}
 			desc = you_have_faithful_nobles_attribute_with_value_desc
@@ -12867,22 +12877,22 @@ ep3_join_faction_war_interaction = {
 		modifier = { # Reluctant to join against Friends
 			add = -50
 			has_relation_friend = scope:secondary_recipient
-			desc = WONT_FIGHT_FRIEND
+			desc = WONT_FIGHT_FRIEND_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Best Friends
 			add = -100
 			has_relation_best_friend = scope:secondary_recipient
-			desc = WONT_FIGHT_BEST_FRIEND
+			desc = WONT_FIGHT_BEST_FRIEND_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Lovers
 			add = -100
 			has_relation_lover = scope:secondary_recipient
-			desc = WONT_FIGHT_LOVER
+			desc = WONT_FIGHT_LOVER_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Soulmate
 			add = -200
 			has_relation_soulmate = scope:secondary_recipient
-			desc = WONT_FIGHT_SOULMATE
+			desc = WONT_FIGHT_SOULMATE_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = {  # Refuse call for hostages' safety
 			any_home_court_hostage = {
@@ -13264,25 +13274,25 @@ ep3_switch_faction_war_sides_interaction = {
 			add = -50
 			exists = scope:secondary_recipient
 			has_relation_friend = scope:secondary_recipient
-			desc = WONT_FIGHT_FRIEND
+			desc = WONT_FIGHT_FRIEND_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Best Friends
 			add = -100
 			exists = scope:secondary_recipient
 			has_relation_best_friend = scope:secondary_recipient
-			desc = WONT_FIGHT_BEST_FRIEND
+			desc = WONT_FIGHT_BEST_FRIEND_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Lovers
 			add = -100
 			exists = scope:secondary_recipient
 			has_relation_lover = scope:secondary_recipient
-			desc = WONT_FIGHT_LOVER
+			desc = WONT_FIGHT_LOVER_REASON #Unop: Missing _REASON suffix
 		}
 		modifier = { # Reluctant to join against Soulmate
 			add = -200
 			exists = scope:secondary_recipient
 			has_relation_soulmate = scope:secondary_recipient
-			desc = WONT_FIGHT_SOULMATE
+			desc = WONT_FIGHT_SOULMATE_REASON #Unop: Missing _REASON suffix
 		}
 	}
 

@@ -815,7 +815,12 @@ china_seize_duchy_cb = {
 			}
 			every_de_jure_county = {
 				limit = {
-					holder = scope:defender
+					holder = {
+						OR = {
+							this = scope:defender
+							is_vassal_or_below_of = scope:defender
+						}
+					}
 				}
 				# Grab the Counties held directly by the Defender
 				change_title_holder = {
@@ -1138,7 +1143,12 @@ china_hegemon_seize_duchy_cb = {
 				}
 				every_de_jure_county = {
 					limit = {
-						holder = scope:defender
+						holder = {
+							OR = {
+								this = scope:defender
+								is_vassal_or_below_of = scope:defender
+							}
+						}
 					}
 					# Grab the Counties held directly by the Defender
 					change_title_holder = {
@@ -1511,6 +1521,7 @@ claim_the_mandate_cb = {
 			}
 			scope:defender = {
 				every_held_title = {
+					title_tier > barony
 					limit = {
 						is_noble_family_title = no
 						is_landless_type_title = no
@@ -1525,6 +1536,8 @@ claim_the_mandate_cb = {
 			# Hand over the capital - Unless it's a player holding
 			if = {
 				limit = {
+					# or your capital already inside h_china - that means you keep old capital.
+					capital_county.hegemony != title:h_china
 					title:h_china.title_capital_county.holder = {
 						is_ai = yes
 						this != scope:defender
@@ -1538,12 +1551,6 @@ claim_the_mandate_cb = {
 				}
 			}
 			resolve_title_and_vassal_change = scope:change_capital_and_direct_holdings
-			if = {
-				limit = {
-					capital_county != title:h_china.title_capital_county
-				}
-				set_realm_capital = title:h_china.title_capital_county
-			}
 		}
 
 		# Prestige loss for the defender
@@ -1725,23 +1732,13 @@ chinese_consolidation_cb = {
 
 	allowed_for_character = {
 		situation:dynastic_cycle ?= {
-			OR = {
 				situation_current_phase = situation_dynastic_cycle_phase_chaos
-				AND = {
-					NOT = { situation_current_phase = situation_dynastic_cycle_phase_chaos }
-					root = {
-						top_participant_group:dynastic_cycle ?= {
-							participant_group_type = hegemon_ruler
-						}
-					}
-				}
-			}
 		}
 		# NAND = {
 		# 	is_ai = yes
 		# 	any_owned_story = {
 		# 		story_type = story_mongol_invasion
-		# 	} 
+		# 	}
 		# }
 		trigger_if = { # Pace foreign invasions into Chaos-era China a bit
 			limit = {
@@ -1775,8 +1772,12 @@ chinese_consolidation_cb = {
 				}
 			}
 		}
+		any_character_to_title_neighboring_and_across_water_empire = {
+			hegemony ?= title:h_china
+		}
 	}
 	allowed_for_character_display_regardless = {
+		tgp_dynastic_cycle_offensive_wars_ban_trigger = yes
 		custom_tooltip = {
 			text = has_gok_story_tt
 			# NOT = {
@@ -1789,35 +1790,6 @@ chinese_consolidation_cb = {
 	allowed_against_character = {
 		#Must be within Dynastic Cycle
 		exists = top_participant_group:dynastic_cycle
-		#Allow the Hegemon to consolidate the core.
-		trigger_if = {
-			limit = {
-				situation:dynastic_cycle ?= {
-					NOT = { situation_current_phase = situation_dynastic_cycle_phase_chaos }
-				}
-			}
-			primary_title = { ## #CK_CHINA CK_EAST - Need to expand upon the core of Serica to include equivalents of the below titles
-				any_in_de_facto_hierarchy = {
-					empire ?= {
-						OR = {
-							this = title:e_zhongyuan
-							# this = title:e_jingyang
-							# this = title:e_liangyi
-							# this = title:e_yongliang
-							# this = title:e_lingnan
-						}
-					}
-					# kingdom ?= {
-					# 	NOR = {
-					# 		this = title:k_xia
-					# 		this = title:k_hexi
-					# 		this = title:k_dali
-					# 		this = title:k_viet
-					# 	}
-					# }
-				}
-			}
-		}
 	}
 
 	target_titles = neighbor_land_or_water
@@ -1841,6 +1813,23 @@ chinese_consolidation_cb = {
 				}
 			}
 			multiply = 3
+		}
+	}
+
+	should_invalidate = {
+		NOT = {
+			any_in_list = {
+				list = target_titles
+				any_in_de_jure_hierarchy = {
+					tier = tier_county
+					holder = {
+						OR = {
+							this = scope:defender
+							target_is_liege_or_above = scope:defender
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -2503,7 +2492,12 @@ grand_campaign_kingdom_invasion_cb = {
        		any_in_list = {
                 variable = grand_campaign_titles
                 holder ?= {
+					OR = {
                 	this = scope:defender
+						any_liege_or_above = {
+							this = scope:defender
+						}
+					}
                 	this != title:h_china.holder
                 	top_overlord != title:h_china.holder
                 }
@@ -2561,25 +2555,37 @@ grand_campaign_kingdom_invasion_cb = {
 	}
 
 	should_invalidate = {
-		NOT = {
-			any_in_list = {
-				list = target_titles
-				any_in_de_jure_hierarchy = {
-					tier = tier_county
-					holder = {
-						OR = {
-							this = scope:defender
-							target_is_liege_or_above = scope:defender
+		OR = {
+			NOT = {
+				any_in_list = {
+					list = target_titles
+					any_in_de_jure_hierarchy = {
+						tier = tier_county
+						holder = {
+							OR = {
+								this = scope:defender
+								target_is_liege_or_above = scope:defender
+							}
 						}
 					}
 				}
 			}
+			#invalidate when China gets into Chaos
+			NOT = { exists = title:h_china.holder }
 		}
-		#invalidate when China gets into Chaos
-		NOT = { exists = title:h_china.holder }
 	}
 
-	on_invalidated_desc = msg_duchy_conquest_war_invalidated_message
+	on_invalidated_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = title:h_china.holder }
+				}
+				desc = msg_celestial_war_invalidation_chaos
+			}
+			desc = msg_religious_war_invalidation_region_message
+		}
+	}
 	on_invalidated = {}
 
 	cost = {
@@ -2600,6 +2606,19 @@ grand_campaign_kingdom_invasion_cb = {
 
 	on_declaration = {
 		on_declared_war = yes
+		if = {
+			limit = {
+				NOT = {
+					any_great_project = {
+						great_project_type = grand_campaign_project
+						great_project_owner = scope:attacker.top_liege
+						exists = var:grand_campaign_war
+					}
+				}
+			}
+			scope:defender = {
+				save_scope_as = title_holder
+			}
 		scope:war ?= {
 			save_scope_as = grand_campaign_war
 		}
@@ -2611,36 +2630,40 @@ grand_campaign_kingdom_invasion_cb = {
 			save_scope_as = great_project
 			great_project_owner = {
 				save_scope_as = owner
+				}
+				# only update if previous war ended
+				if = {
+					limit = {
+						NOT = { exists = var:grand_campaign_war }
 			}
 			set_variable = {
 				name = grand_campaign_war
 				value = scope:grand_campaign_war
 			}
-			every_contribution = {
-				limit = {
-					contribution_is_funded = yes
 				}
-				contributor = {
-					if = {
+				random_in_list = {
+					variable = grand_campaign_titles
 						limit = {
-							this != scope:attacker
-							this != scope:owner
-							NOT = {
-								any_character_war = {
-									this = scope:grand_campaign_war
-								}
+						holder = {
+							OR = {
+								this = scope:defender
+								target_is_liege_or_above = scope:defender
 							}
+							top_overlord != scope:attacker.top_overlord
 						}
-						save_scope_as = contributor
-						trigger_event = tgp_china_ministry.0004
 					}
+					save_scope_as = target_title
 				}
+				scope:attacker = {
+					save_scope_as = contributor
+					trigger_event = tgp_china_ministry.0004
 			}
 		}
 		scope:war ?= {
 			set_variable = {
 				name = grand_campaign_project
 				value = scope:great_project
+				}
 			}
 		}
 	}
@@ -2786,7 +2809,7 @@ grand_campaign_kingdom_invasion_cb = {
  				arrogant = medium_stress_impact_gain
  			}
 		}
-		war.var:grand_campaign_project = {
+		war.var:grand_campaign_project ?= {
 			every_in_list = {
 				variable = grand_campaign_titles
 				add_to_list = target_titles
@@ -2868,7 +2891,7 @@ grand_campaign_kingdom_invasion_cb = {
 			add_prestige = medium_prestige_loss
 		}
 
-		war.var:grand_campaign_project = {
+		war.var:grand_campaign_project ?= {
 			every_in_list = {
 				variable = grand_campaign_titles
 				add_to_list = target_titles

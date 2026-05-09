@@ -5,7 +5,7 @@
 
 purchase_land_interaction = {
 	category = interaction_category_laamp
-	interface_priority = 30
+	#interface_priority = 30 #Unop ck3-tiger already defined below
 	icon = purchase_land_interaction
 
 	desc = purchase_land_interaction_desc
@@ -161,6 +161,15 @@ purchase_land_interaction = {
 				}
 			}
 		}
+		custom_tooltip = {
+			text = PURCHASE_LAND_COMPLETE_CONTROL_TT
+			trigger_if = {
+				limit = { scope:target = { tier = tier_duchy } }
+				scope:recipient = {
+					completely_controls = scope:target
+				}
+			}
+		}
 		trigger_if = {
 			limit = { exists = scope:target.holder }
 			scope:target.holder = scope:recipient
@@ -168,21 +177,18 @@ purchase_land_interaction = {
 	}
 
 	is_valid_showing_failures_only = {
-		scope:actor = { top_liege = this }
 		scope:actor = {
+			top_liege = this
 			prestige_level >= 2
-		}
-		scope:actor = {
-			NOT = {
+			NOR = {
 				has_trait = gallowsbait
-			}
-		}
-		scope:actor = {
-			NOT = {
 				has_trait = gallivanter
 			}
 		}
-		scope:recipient = { is_at_war = no }
+		scope:recipient = {
+			is_at_war = no
+			NOT = { has_strong_hook = scope:actor }
+		}
 		trigger_if = { # Can't purchase Baronies
 			limit = {
 				scope:target ?= { tier = tier_barony }
@@ -240,9 +246,6 @@ purchase_land_interaction = {
 				always = no
 			}
 		}
-		scope:recipient = {
-			NOT = { has_strong_hook = scope:actor }
-		}
 		#Has to be used instead of diplo range checks in laamp to landed interactions
 		ep3_laamp_diplo_range_trigger = {
 			TARGET = scope:recipient
@@ -275,6 +278,12 @@ purchase_land_interaction = {
 					}
 				}
 			}
+			if = { # Unop: This check was missing from this block, (found inside on_accept)
+				limit = {
+					scope:actor = { has_variable = ep3_grace_to_the_family_var }
+				}
+				multiply = 0.5
+			}
 			if = {
 				limit = { scope:offer_gold = yes }
 				multiply = 2
@@ -285,12 +294,43 @@ purchase_land_interaction = {
 	on_accept = {
 		scope:actor = { save_scope_as = adventurer }
 		scope:target = {
+			save_scope_as = purchase_land_target
 			add_to_list = purchased_titles
 			if = {
 				limit = { tier = tier_duchy }
 				every_de_jure_county = {
-					limit = { ep3_purchase_land_valid_county_trigger = yes }
-					add_to_list = purchased_titles
+					limit = {
+						holder ?= {
+							OR = {
+								this = scope:recipient
+								target_is_liege_or_above = scope:recipient
+							}
+						}
+					}
+					if = {
+						limit = { holder = scope:recipient }
+						add_to_list = purchased_titles
+					}
+					else_if = {
+						limit = {
+							holder ?= {
+								highest_held_title_tier < scope:purchase_land_target.tier
+								NOT = { government_has_flag = government_is_administrative }
+								target_is_liege_or_above = scope:recipient
+							}
+						}
+						holder = {
+							if = {
+								limit = {
+									NOT = { is_in_list = purchase_land_vassals_taken }
+								}
+								add_to_list = purchase_land_vassals_taken
+							}
+						}
+					}
+					else = {
+						add_to_list = purchased_titles
+					}
 				}
 			}
 		}
@@ -302,15 +342,17 @@ purchase_land_interaction = {
 		save_scope_value_as = {
 			name = purchase_land_cost
 			value = {
-				every_in_list = {
-					list = purchased_titles
-					if = {
-						limit = { tier = tier_county }
-						add = purchase_land_county_cost_value
-					}
-					else_if = {
-						limit = { tier = tier_duchy }
-						add = purchase_land_duchy_cost_value
+				if = {
+					limit = { scope:target.tier = tier_county }
+					add = purchase_land_county_cost_value
+				}
+				else = {
+					add = purchase_land_duchy_cost_value
+					scope:target = {
+						every_de_jure_county = {
+							limit = { ep3_purchase_land_valid_county_trigger = yes }
+							add = purchase_land_county_cost_value
+						}
 					}
 				}
 				if = {
@@ -320,9 +362,7 @@ purchase_land_interaction = {
 					multiply = 0.5
 				}
 				if = {
-					limit = {
-						scope:offer_gold = yes
-					}
+					limit = { scope:offer_gold = yes }
 					multiply = 2
 				}
 			}
@@ -346,12 +386,19 @@ purchase_land_interaction = {
 				}	
 			}
 		}
-		show_as_tooltip = { purchase_land_interaction_shortened_effect = yes }
+		show_as_tooltip = { 
+			scope:actor = { purchase_land_interaction_effect = yes }
+		}
 		if = {
 			limit = { always = scope:hook }
 			scope:actor = { use_hook = scope:recipient }
 		}
 		scope:actor = { trigger_event = ep3_laamps.0100 }
+		hidden_effect = { # Unop: Give the actor the gold that was taken from the cost = {} block, since it will be taken inside purchase_land_interaction_effect to be given to the recipient
+			scope:actor = {
+				add_gold = scope:purchase_land_cost
+			}
+		}
 	}
 
 	on_decline = {
@@ -440,7 +487,7 @@ purchase_land_interaction = {
 		}
 		modifier = { # Land is foreign
 			add = 10
-			desc = PURCHASE_LAND_FOREIGN_COUNTY_CULTURE_REASON
+			#desc = PURCHASE_LAND_FOREIGN_COUNTY_CULTURE_REASON #Unop: Desc already defined below but this yml does not exists
 			add = {
 				value = 0
 				if = {
@@ -1520,7 +1567,7 @@ negotiate_settlement_interaction = {
 				multiply = scope:actor.highest_held_title_tier
 			}
 		}
-		show_as_tooltip = { negotiate_settlement_interaction_effect = yes }
+		show_as_tooltip = { scope:actor = { negotiate_settlement_interaction_effect = yes } } #Unop ck3-tiger
 		scope:actor = { trigger_event = ep3_laamps.0300 }
 	}
 
@@ -2010,10 +2057,7 @@ negotiate_settlement_interaction = {
 				any_claim = {
 					OR = {
 						holder ?= {
-							OR = {
-								this = scope:actor
-								target_is_liege_or_above = scope:actor
-							}
+							target_is_same_character_or_above = scope:actor
 						}
 						target_is_de_jure_liege_or_above = scope:actor.primary_title
 					}
@@ -2025,12 +2069,13 @@ negotiate_settlement_interaction = {
 		modifier = { # Defending against a LAAMP
 			any_character_war = {
 				primary_defender = scope:actor
+				save_temporary_scope_as = war #Unop ck3-tiger
 				any_war_attacker = {
 					scope:recipient ?= this
 					has_government = landless_adventurer_government
 					NOT = { has_realm_law = camp_purpose_legitimists }
 					# Attacking laamp's troops at least 10% of defender's total troops
-					current_military_strength > war_defender_total_strength_tenth_value
+					current_military_strength > scope:war.war_defender_total_strength_tenth_value #Unop ck3-tiger
 				}
 				OR = {
 					attacker_war_score >= 25
@@ -2044,12 +2089,13 @@ negotiate_settlement_interaction = {
 				every_character_war = {
 					limit = {
 						primary_defender = scope:actor
+						save_temporary_scope_as = war #Unop ck3-tiger
 						any_war_attacker = {
 							scope:recipient ?= this
 							has_government = landless_adventurer_government
 							NOT = { has_realm_law = camp_purpose_legitimists }
 							# Attacking laamp's troops at least 10% of defender's total troops
-							current_military_strength > war_defender_total_strength_tenth_value
+							current_military_strength > scope:war.war_defender_total_strength_tenth_value #Unop ck3-tiger
 						}
 					}
 					add = {
@@ -2075,11 +2121,12 @@ negotiate_settlement_interaction = {
 		modifier = { # Attacking a LAAMP
 			any_character_war = {
 				primary_attacker = scope:actor
+				save_temporary_scope_as = war #Unop ck3-tiger
 				any_war_defender = {
 					scope:recipient ?= this
 					has_government = landless_adventurer_government
 					# Defending laamp's troops at least 10% of attacker's total troops
-					current_military_strength > war_attacker_total_strength_tenth_value
+					current_military_strength > scope:war.war_attacker_total_strength_tenth_value #Unop ck3-tiger
 				}
 				OR = {
 					defender_war_score >= 25
@@ -2093,11 +2140,12 @@ negotiate_settlement_interaction = {
 				every_character_war = {
 					limit = {
 						primary_attacker = scope:actor
+						save_temporary_scope_as = war #Unop ck3-tiger
 						any_war_defender = {
 							scope:recipient ?= this
 							has_government = landless_adventurer_government
 							# Defending laamp's troops at least 10% of attacker's total troops
-							current_military_strength > war_attacker_total_strength_tenth_value
+							current_military_strength > scope:war.war_attacker_total_strength_tenth_value #Unop ck3-tiger
 						}
 					}
 					add = {
@@ -2638,6 +2686,10 @@ complete_task_contract_interaction = {
 	}
 	
 	is_valid_showing_failures_only = {
+		#Unop Check full availability before starting travel
+		scope:actor = {
+			is_available = yes
+		}
 	}
 
 	is_highlighted = {
@@ -2649,6 +2701,17 @@ complete_task_contract_interaction = {
 	}
 
 	send_option = {
+		#Unop Ensure the LAAMP can't move camp to provinces they are exiled from
+		is_valid = {
+			custom_tooltip = {
+				text = the_wake_1
+				NOT = {
+					scope:recipient = {
+						is_laamp_exiled_from_holder_or_liege_trigger = { LAAMP = scope:actor }
+					}
+				}
+			}
+		}
 		flag = with_domicile
 	}
 
@@ -3130,7 +3193,7 @@ contact_list_request_interaction = { # make a request, make_a_request
 			}
 			scope:actor = {
 				custom_tooltip = {
-					text = ACTIVITY_SUMMARY_COOLDOWN_HEADER
+					text = contact_list_request_interaction.request_feast_cooldown #Unop
 					NOT = { has_character_flag = laamp_recently_requested_feast }
 				}
 			}
@@ -4599,7 +4662,7 @@ reinforce_soldiers_interaction = {
 			custom_tooltip = {
 				text = reinforce_soldiers_option_dread_tt
 				OR = {
-					scope:actor.dread >= reinforce_soldiers_dread_cost_value
+					scope:actor.dread >= scope:actor.reinforce_soldiers_dread_cost_value #Unop ck3-tiger
 					scope:actor = {
 						has_character_modifier = ep3_friend_to_old_soldiers_modifier
 					}
@@ -4801,6 +4864,11 @@ hire_laamp_mercenaries_interaction = {
 					is_ai = yes
 				}
 				scope:recipient.current_military_strength >= 100
+				scope:recipient = {
+					NOT = {
+						has_character_flag = ai_hire_blocker
+					}
+				}
 			}
 		}
 	}
@@ -4922,9 +4990,20 @@ hire_laamp_mercenaries_interaction = {
 			}
 		}
 		scope:actor = {
-			pay_short_term_gold = {
-				target = scope:recipient
-				gold = ep3_hire_laamp_mercs_cost_value
+			if = {
+				limit = {
+					has_treasury = no
+				}
+				pay_short_term_gold = {
+					target = scope:recipient
+					gold = ep3_hire_laamp_mercs_cost_value
+				}
+			}
+			else = {
+				pay_short_term_treasury = {
+					target = scope:recipient
+					treasury = ep3_hire_laamp_mercs_cost_value
+				}
 			}
 			add_to_variable_list = {
 				name = hired_mercenaries
@@ -4938,14 +5017,19 @@ hire_laamp_mercenaries_interaction = {
 						situation_top_has_catalyst = catalyst_hegemon_hired_mercenary
 					}
 				}
-				trigger_situation_catalyst = {
-					catalyst = catalyst_hegemon_hired_mercenary
-					character = scope:actor
+				situation:dynastic_cycle ?= { #Unop: Missing scope
+					trigger_situation_catalyst = {
+						catalyst = catalyst_hegemon_hired_mercenary
+						character = scope:actor
+					}
 				}
 			}
 		}
 		scope:recipient = {
-			add_character_flag = joined_as_mercenary
+			set_variable = {
+				name = joined_as_mercenary
+				value = scope:actor
+			}
 		}
 		add_clan_unity_interaction_effect = {
 			CHARACTER = scope:actor
@@ -5665,10 +5749,7 @@ evict_adventurer_interaction = {
 		scope:recipient = {
 			# Adventurer must be in the subrealm
 			domicile.domicile_location.county.holder ?= {
-				OR = {
-					this = scope:actor
-					any_liege_or_above = { this ?= scope:actor }
-				}
+				target_is_same_character_or_above = scope:actor
 			}
 		}
 		# AI should not against hired adventurers
@@ -5709,10 +5790,7 @@ evict_adventurer_interaction = {
 					every_character_task_contract = {
 						limit = {
 							task_contract_location.county.holder = {
-								OR = {
-									this = scope:actor
-									any_liege_or_above = { this = scope:actor }
-								}
+								target_is_same_character_or_above = scope:actor
 							}
 						}
 						invalidate_contract = yes
@@ -5733,14 +5811,14 @@ evict_adventurer_interaction = {
 				modifier = demanded_eviction_opinion
 			}
 			custom_tooltip = evict_adventurer_contracts_tt
-		}
-		scope:actor = {
 			custom_description_no_bullet = {
 				text = evict_adventurer_consequences_tt
-				object = scope:recipient
-				subject = scope:actor
+				object = scope:actor
+				subject = scope:recipient
 			}
 			custom_tooltip = evict_adventurer_casus_belli_tt
+		}
+		scope:actor = {
 			show_as_tooltip = {
 				add_opinion = {
 					target = scope:recipient
@@ -5834,6 +5912,10 @@ evict_adventurer_interaction = {
 				modifier = switched_sides_in_war
 				target = scope:recipient
 			}
+		}
+		modifier = {
+			add = 100
+			has_imprisonment_reason = scope:recipient
 		}
 		modifier = {
 			add = {
@@ -6913,9 +6995,11 @@ relocate_camp_to_interaction = {
 			scope:actor.domicile.domicile_location != scope:recipient.capital_province
 		}
 		scope:actor = {
-			is_travelling = no
-			is_in_army = no
-			is_imprisoned = no
+			#Unop Check full availability before starting travel
+			#is_travelling = no
+			#is_in_army = no
+			#is_imprisoned = no
+			is_available = yes
 		}
 		# Adventurers can't join wars in places they're exiled from.
 		custom_tooltip = {
@@ -7314,6 +7398,16 @@ laamp_war_change_sides_interaction = {
 					var:task_contract_war = scope:war
 				}
 				complete_task_contract = failure_standard
+			}
+			# Clear Offer Assistance.
+			if = {
+				limit = {
+					has_variable = owed_contract_assistance_war
+					scope:recipient = { is_participant_in_war = scope:actor.var:owed_contract_assistance_war }
+				}
+				remove_variable = owed_contract_assistance_war
+				remove_variable = owed_contract_assistance_contribution
+				remove_variable = owed_contract_assistance_gold
 			}
 		}
 		scope:war = {
@@ -7775,6 +7869,16 @@ laamp_leave_war_interaction = {
 				humble = medium_stress_impact_gain
 				content = medium_stress_impact_gain
 				loyal = major_stress_impact_gain
+			}
+			# Clear Offer Assistance.
+			if = {
+				limit = {
+					has_variable = owed_contract_assistance_war
+					scope:recipient = { is_participant_in_war = scope:actor.var:owed_contract_assistance_war }
+				}
+				remove_variable = owed_contract_assistance_war
+				remove_variable = owed_contract_assistance_contribution
+				remove_variable = owed_contract_assistance_gold
 			}
 		}
 		scope:recipient = {

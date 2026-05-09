@@ -2526,7 +2526,10 @@ bp1_yearly.5306 = {
 		}
 	}
 	after = {
-		remove_character_flag = single_combat_stripped_to_waist
+		if = { #Unop: Since we can die and I do not want the log that the char died during effect
+			limit = { is_alive = yes }
+			remove_character_flag = single_combat_stripped_to_waist
+		}
 	}
 }
 
@@ -3317,6 +3320,7 @@ bp1_yearly.5706 = {
 		random_relation = {
 			type = rival
 			limit = {
+				is_available_ai_adult = yes #Unop: To match what is in the trigger block
 				any_child = {
 					exists = this
 					this != root
@@ -4402,6 +4406,7 @@ bp1_yearly.5709 = {
 			faith = scope:rival_on_sight.faith
 			culture = scope:rival_on_sight.culture
 			age = scope:rival_on_sight.age
+			dynasty = none
 			gender_female_chance = root_faith_dominant_gender_adjusted_female_chance
 			save_scope_as = rival_friend
 		}
@@ -7160,6 +7165,7 @@ bp1_yearly.5725 = {
 	cooldown = { years = 25 }
 
 	trigger = {
+		is_ai = no
 
 		# DLC trigger
 		has_bp1_dlc_trigger = yes
@@ -7429,7 +7435,18 @@ bp1_yearly.5727 = {
 	option = {
 		name = bp1_yearly.5727.a
 
-		marry = scope:khutulun
+		trigger = { #Unop: We need to ensure we can still marry him/her
+			can_marry_trigger = yes
+			could_marry_character_trigger = { CHARACTER = scope:khutulun }
+		}
+
+		if = { #Unop: Need to matrilineal marry if we are a female ruler
+			limit = { is_female = yes }
+			marry_matrilineal = scope:khutulun
+		}
+		else = {
+			marry = scope:khutulun
+		}
 
 		reverse_add_opinion = {
 			target = scope:khutulun
@@ -7463,6 +7480,8 @@ bp1_yearly.5727 = {
 		trigger = {
 			has_ep2_dlc_trigger = yes
 			is_landed = yes
+			can_marry_trigger = yes #Unop: We need to ensure we can still marry him/her
+			could_marry_character_trigger = { CHARACTER = scope:khutulun }
 		}
 		name = bp1_yearly.5727.c
 		create_grand_wedding_betrothal = {
@@ -7471,6 +7490,8 @@ bp1_yearly.5727 = {
 			HOST = root
 			PROMISEE = scope:khutulun
 		}
+		add_courtier = scope:khutulun #Unop: Since they won't be married right now, we need to ensure khutulun joins our court
+
 		reverse_add_opinion = {
 			target = scope:khutulun
 			modifier = impressed_opinion
@@ -7588,6 +7609,7 @@ bp1_yearly.5728 = {
 					rarity = common
 					rarity = masterwork
 				}
+				NOT = { has_variable = artifact_prevent_transfer }
 			}
 			save_scope_as = burned_artifact
 		}
@@ -8401,6 +8423,10 @@ bp1_yearly.5804 = {
 			days = 14
 		}
 
+		stress_impact = { #Unop: Add the medium-stress for greedy to be harmonized with the other events
+			greedy = medium_stress_impact_gain
+		}
+
 		ai_chance = {
 			base = 100
 		}
@@ -8421,6 +8447,10 @@ bp1_yearly.5804 = {
 			days = 14
 		}
 
+		stress_impact = { #Unop: Add the medium-stress for greedy to be harmonized with the other events
+			greedy = medium_stress_impact_gain
+		}
+
 		ai_chance = {
 			base = 100
 		}
@@ -8437,9 +8467,9 @@ bp1_yearly.5804 = {
 			days = 14
 		}
 
-		stress_impact = {
-			greedy = medium_stress_impact_gain
-		}
+		# stress_impact = {
+		# 	greedy = medium_stress_impact_gain
+		# }
 
 		ai_chance = {
 			base = 100
@@ -12068,8 +12098,10 @@ bp1_yearly.8120 = {
 					is_spouse_of = root
 					is_spouse_of = scope:story.var:sycophant_character
 					this = scope:story.var:sycophant_character
+					has_any_bad_relationship_with_character_trigger = { CHARACTER = root } #Unop Ensure conditions match trigger
 					has_any_bad_relationship_with_character_trigger = { CHARACTER = scope:story.var:sycophant_character }
 				}
+				save_temporary_scope_as = matchmaker_temp #Unop ck3-tiger Used in bp1_yearly_8120_sanity_trigger
 				NOT = {
 					any_known_secret = {
 						secret_type = secret_lover
@@ -12886,12 +12918,13 @@ bp1_yearly.8130 = {
 				desc = bp1_yearly.8130.e.success
 				compare_modifier = {
 					value = scope:duel_value
-					multiplier = -1.5
+					multiplier = 1.5 #Unop This was negative and make no sense that the more intrigue we have, the less success chance there is !
 				}
-				modifier = {
-					scope:spymaster_scope = scope:murderous_scope
-					factor = 0
-				}
+				#Unop: This modifier made sense in the option where the spymaster is the investigator, but in this one OUR char is investigating !
+				#modifier = {
+				#	scope:spymaster_scope = scope:murderous_scope
+				#	factor = 0
+				#}
 				custom_tooltip = bp1_yearly.8130.exposed
 				show_as_tooltip = {
 					add_dread = minor_dread_gain
@@ -12970,14 +13003,15 @@ bp1_yearly.8131 = {
 			triggered_desc = {
 				trigger = {
 					exists = scope:spymaster_scope
-					scope:spymaster = scope:sycophant_scope
+					scope:spymaster_scope = scope:sycophant_scope #Unop: The scope was "spymaster" instead of "spymaster_scope"
 				}
 				desc = bp1_yearly.8131.desc.sycophant
 			}
 			triggered_desc = {
 				trigger = {
 					exists = scope:spymaster_scope
-					scope:spymaster != scope:sycophant_scope
+					scope:spymaster_scope != scope:sycophant_scope #Unop: The scope was "spymaster" instead of "spymaster_scope"
+					scope:spymaster_scope != scope:murderous_scope #Unop: If the spymaster if the killer, the text make no sense
 				}
 				desc = bp1_yearly.8131.desc.spymaster
 			}
@@ -13020,8 +13054,10 @@ bp1_yearly.8131 = {
 		trigger = {
 			exists = scope:spymaster_scope
 			scope:spymaster_scope != scope:sycophant_scope
+			scope:spymaster_scope != scope:investigator_scope #Unop: Added this to not have a duplicate portrait if the spymaster is also the investigator_scope
+			scope:spymaster_scope != scope:murderous_scope #Unop: Added this to not have a duplicate portrait if the spymaster is also the murderous_scope
 		}
-		character = scope:murderous_scope
+		character = scope:spymaster_scope #Unop: Was murderous_scope but it's already in right_portrait block
 	}
 	lower_left_portrait = {
 		trigger = {
@@ -13039,7 +13075,11 @@ bp1_yearly.8131 = {
 
 	immediate = {
 		if = {
-			limit = { exists = scope:spymaster_scope }
+			limit = {
+				exists = scope:spymaster_scope
+				exists = scope:investigator_scope #Unop: Just to be sure it exists
+				scope:spymaster_scope = scope:investigator_scope #Unop: Only apply the modifier if the spymaster is the investigator
+			}
 			scope:spymaster_scope = {
 				add_character_modifier = {
 					modifier = effective_agents_modifier
@@ -13088,6 +13128,7 @@ bp1_yearly.8131 = {
 			TARGET = scope:murderous_scope
 			IMPRISONER = root
 		}
+		bp1_sycophant_chain_anger_vassals_effect = yes # Remove Placated or add Disgruntled (powerful vassal opinion)
 		stress_impact = {
 			forgiving = minor_stress_impact_gain
 			arbitrary = minor_stress_impact_gain
@@ -13129,7 +13170,7 @@ bp1_yearly.8131 = {
 				modifier = released_attempted_murderer_opinion
 			}
 		}
-		bp1_sycophant_chain_please_vassals_effect = yes # Remove Disgruntled or add Placated (powerful vassal opinion)
+		bp1_sycophant_chain_please_vassals_effect = yes #Unop: Added this since every other "mean action" on the other events options have this
 		bp1_sycophant_chain_downgrade_effect = yes
 		stress_impact = {
 			vengeful = minor_stress_impact_gain
@@ -13208,15 +13249,15 @@ bp1_yearly.8132 = {
 		first_valid = {
 			triggered_desc = {
 				trigger = {
-					exists = scope:spymaster_scope
-					scope:spymaster = scope:sycophant_scope
+					exists = scope:investigator_scope #Unop: Changed to be more clear on who's doing what
+					scope:investigator_scope = scope:sycophant_scope #Unop: Changed to be more clear on who's doing what
 				}
 				desc = bp1_yearly.8132.desc.sycophant
 			}
 			triggered_desc = {
 				trigger = {
-					exists = scope:spymaster_scope
-					scope:spymaster != scope:sycophant_scope
+					exists = scope:investigator_scope #Unop: Changed to be more clear on who's doing what
+					scope:investigator_scope != scope:sycophant_scope #Unop: Changed to be more clear on who's doing what
 				}
 				desc = bp1_yearly.8132.desc.spymaster
 			}
@@ -13238,7 +13279,7 @@ bp1_yearly.8132 = {
 		animation = boredom
 	}
 
-	trigger = {
+	trigger = { #Unop: There should be a on_trigger_fail for this event as if one of them dies, you'll never be notified
 		bp1_sycophant_chain_base_trigger = yes
 		exists = scope:sycophant_scope
 		exists = scope:murderous_scope
@@ -13247,7 +13288,10 @@ bp1_yearly.8132 = {
 
 	immediate = {
 		if = {
-			limit = { exists = scope:spymaster_scope }
+			limit = { #Unop: Tweak this to ensure the spymaster was the investigator
+				exists = scope:spymaster_scope
+				scope:spymaster_scope = scope:investigator
+			}
 			scope:spymaster_scope = {
 				add_character_modifier = {
 					modifier = spyamateur_modifier
@@ -13255,7 +13299,10 @@ bp1_yearly.8132 = {
 				}
 			}
 		}
-		else = { add_prestige = miniscule_prestige_loss }
+		if = {
+			limit = { scope:investigator_scope = root } #Unop: If you were the investigator & fail, you lose prestige
+			add_prestige = miniscule_prestige_loss
+		}
 		custom_tooltip = bp1_yearly.8130.progress
 		hidden_effect = {
 			scope:sycophant_scheme = {
@@ -13331,7 +13378,7 @@ bp1_yearly.8134 = {
 		character = root
 		animation = worry
 	}
-	lower_right_portrait = { character = scope:sycophant_scope  }
+	lower_right_portrait = { character = scope:sycophant_scope }
 
 	trigger = { bp1_sycophant_chain_base_trigger = yes }
 

@@ -62,13 +62,6 @@ portrait_wear_no_headgear_trigger = {
 
 		has_character_flag = roaming_character
 
-		AND = { # No headgear for characters without crowns
-			exists = this
-			portrait_wear_no_crown_trigger = yes
-			# Should still wear armor when going to war
-			portrait_wear_armor_trigger = no
-		}
-
 		AND = {
 			OR = {
 				should_be_naked_trigger = yes # Deliberately not the "fully naked" one since dropping your crown's intended even if nudity is disabled
@@ -200,7 +193,6 @@ portrait_wear_armor_trigger = {
 			OR = {
 				vassal_contract_has_flag = celestial_province_protectorate
 				vassal_contract_has_flag = celestial_province_military
-				vassal_contract_has_flag = meritocratic_province_protectorate
 				vassal_contract_has_flag = meritocratic_province_military
 				has_title = title:e_minister_grand_marshal
 			}
@@ -257,7 +249,6 @@ portrait_accoladed_knight_trigger = {
 				highest_held_title_tier = tier_duchy
 			}
 			accolade = {
-				is_accolade_active = yes
 				accolade_rank >= 5
 			}
 		}
@@ -266,16 +257,12 @@ portrait_accoladed_knight_trigger = {
 				highest_held_title_tier = tier_kingdom
 			}
 			accolade = {
-				is_accolade_active = yes
 				accolade_rank >= 3
 			}
 		}
 		AND = {
 			liege ?= {
 				highest_held_title_tier = tier_empire
-			}
-			accolade = {
-				is_accolade_active = yes
 			}
 		}
 	}
@@ -380,7 +367,6 @@ portrait_wear_helmet_trigger = { # Different from Armor, as (crowned) Kings and 
 			OR = {
 				vassal_contract_has_flag = celestial_province_protectorate
 				vassal_contract_has_flag = celestial_province_military
-				vassal_contract_has_flag = meritocratic_province_protectorate
 				vassal_contract_has_flag = meritocratic_province_military
 				has_title = title:e_minister_grand_marshal
 			}
@@ -418,6 +404,8 @@ portrait_wear_helmet_trigger = { # Different from Armor, as (crowned) Kings and 
 portrait_wear_no_crown_trigger = { # Rulers should be coronated to wear a crown barring exceptions
 	exists = this
 	OR = {
+		is_governor = yes
+
 		trigger_if = { # No crowns for uncoronated characters
 			limit = { has_ach_dlc_trigger = yes }
 			has_realm_law = uncrowned
@@ -1533,7 +1521,7 @@ portrait_tangut_clothing_spouse_trigger = {
 	}
 }
 
-portrait_jurchen_clothing_trigger = {
+portrait_jurchen_clothing_trigger = { #TANGUT DYNASTY
 	#has_cp9_dlc_trigger = yes
 	portrait_shared_clothing_contents_trigger = {
 		CULTURE_SCOPE = culture
@@ -1624,7 +1612,6 @@ portrait_era4_trigger = { # Intended to primarily cover the years 1300 to 1450
 	}
 }
 
-
 portrait_era1_armor_trigger = {
 	current_year >= 0
 	current_year < 1020
@@ -1641,12 +1628,6 @@ portrait_era3_armor_trigger = {
 }
 
 portrait_era4_armor_trigger = {
-	# trigger_if = {
-	# 	limit = {
-	# 		scope:culture ?= culture:rhodok
-	# 	}
-	# 	always = no # block them from having the same helmet as swadians
-	# }
 	current_year >= 1240 # This is anachronistic and should historically be around 1300 (transitional mail and plate armor)
 }
 
@@ -2128,7 +2109,7 @@ portrait_high_nobles_headgear_trigger = {
 					limit = { culture = { has_clothing_gfx = japanese_clothing_gfx } }
 					tgp_japanese_high_nobility_clothing_trigger = yes
 				}
-				trigger_else = { highest_held_title_tier >= tier_duchy }
+				trigger_else = { highest_held_title_tier = tier_duchy }
 				AND = {
 					government_has_flag = government_is_republic
 					primary_title.tier > tier_county
@@ -2140,6 +2121,17 @@ portrait_high_nobles_headgear_trigger = {
 				AND = {
 					highest_held_title_tier >= tier_kingdom
 					is_governor = yes
+				}
+				AND = { # Uncoronated kings and emperors can use high nobility headgear
+					OR = {
+						portrait_royalty_trigger = {
+							CULTURE_INPUT = $CULTURE_INPUT$
+						}
+						portrait_imperial_trigger = {
+							CULTURE_INPUT = $CULTURE_INPUT$
+						}
+					}
+					portrait_wear_no_crown_trigger = yes 
 				}
 			}
 			NOR = { # Blocked for mercenaries and adventurers
@@ -2269,6 +2261,11 @@ portrait_royalty_trigger = {
 				OR = {
 					is_ruler = no
 					highest_held_title_tier = tier_barony
+					AND = {
+						is_landed = no
+						exists = primary_spouse
+						target_is_liege_or_above = primary_spouse
+					}
 				}
 				primary_spouse ?= {
 					is_governor = no
@@ -2320,7 +2317,13 @@ portrait_royalty_clothing_trigger = {
 	portrait_wear_no_armor_trigger = yes
 }
 
-## CK_UPDATE CK_TRIGGER - Need to modify this for future Nahasa expansion
+portrait_royalty_headgear_trigger = {
+	portrait_royalty_trigger = {
+		CULTURE_INPUT = $CULTURE_INPUT$
+	}
+	portrait_wear_no_crown_trigger = no
+}
+
 portrait_royalty_african_headgear_trigger = {
 	trigger_if = {
 		limit = { exists = this }
@@ -2463,6 +2466,13 @@ portrait_imperial_clothing_trigger = {
 		CULTURE_INPUT = $CULTURE_INPUT$
 	}
 	portrait_wear_no_armor_trigger = yes
+}
+
+portrait_imperial_headgear_trigger = {
+	portrait_imperial_trigger = {
+		CULTURE_INPUT = $CULTURE_INPUT$
+	}
+	portrait_wear_no_crown_trigger = no
 }
 
 portrait_imperial_nobles_headgear_trigger = {
@@ -2608,39 +2618,38 @@ portrait_war_nobles_helmet_trigger = {
 		portrait_wear_helmet_trigger = yes
 	}
 	portrait_$CULTURE_INPUT$_clothing_trigger = yes
-	trigger_if = {
-		limit = {
-			religion ?= religion:calradian_religion
-		}
-		NOR = {
+	NOR = {
+		AND = {
+			religion = religion:calradian_religion
 			government_has_flag = government_is_holy_order
-			AND = {
-				is_playable_character = no
-				portrait_wear_armor_trigger = yes
-				liege ?= {
-					government_has_flag = government_is_holy_order
-				}
+		}
+		AND = {
+			religion = religion:calradian_religion
+			is_playable_character = no
+			portrait_wear_armor_trigger = yes
+			liege ?= {
+				government_has_flag = government_is_holy_order
 			}
-			AND = {
-				# religion = religion:calradian_religion
-				portrait_wear_armor_trigger = yes
-				OR = {
+		}
+		AND = {
+			religion = religion:calradian_religion
+			portrait_wear_armor_trigger = yes
+			OR = {
+				any_character_war = {
+					OR = {
+						using_cb = undirected_great_holy_war
+						using_cb = directed_great_holy_war
+					}
+					is_attacker = prev
+				}
+				any_liege_or_above = {
+					faith = prev.faith
 					any_character_war = {
 						OR = {
 							using_cb = undirected_great_holy_war
 							using_cb = directed_great_holy_war
 						}
 						is_attacker = prev
-					}
-					any_liege_or_above = {
-						faith = prev.faith
-						any_character_war = {
-							OR = {
-								using_cb = undirected_great_holy_war
-								using_cb = directed_great_holy_war
-							}
-							is_attacker = prev
-						}
 					}
 				}
 			}
@@ -2955,16 +2964,16 @@ portrait_religious_head_popes_trigger = {
 	exists = this
 	OR = {
 		AND = {
-			faith = faith:darusan
+			faith = { has_doctrine = special_doctrine_darusian }
 			is_adult = yes
 			religion = religion:calradian_religion
 			primary_title ?= {
 				is_head_of_faith = yes
 			}
 		}
-		# any_equipped_character_artifact = {
-		# 	has_variable = pope_hat
-		# }
+		any_equipped_character_artifact = {
+			has_variable = pope_hat
+		}
 	}
 }
 
@@ -3045,20 +3054,17 @@ portrait_religious_norse_trigger = {
 	OR = {
 		religion = religion:jumne_religion
         religion = religion:vakken_religion
-        religion = religion:northern_gods_religion
 		religion = religion:paganism_religion
+        religion = religion:northern_gods_religion
 	}
 }
 
 ## CCP4 KHANTY / SAMI ##
 
-portrait_religious_siberian_trigger = { # these probably need dlc check?
+portrait_religious_siberian_trigger = { # these probably need dlc check? ### CK_NORTHEAST CK_VAKKEN CK_JUMNE - uncomment when religions added
 	has_cp4_dlc_trigger = yes
 	culture = {
-		OR = {
-			this = culture:idogkeran
-			this = culture:musarti
-		}
+		has_cultural_pillar = heritage_anburian
 	}
 	# always = no
 }
@@ -3067,20 +3073,21 @@ portrait_religious_siberian_trigger = { # these probably need dlc check?
 portrait_religious_sami_trigger = { ### CK_NORTHEAST CK_VAKKEN CK_JUMNE - uncomment when religions added
 	has_cp4_dlc_trigger = yes
 	culture = {
-		OR = {
-			this = culture:idogkeran
-			this = culture:musarti
-		}
+		has_cultural_pillar = heritage_anburian
 	}
 	portrait_sami_clothing_trigger = yes
 }
 
 ## CCP7 EMISHI AINU / NIVKH NANAI ##
 
-portrait_religious_emishi_trigger = {
+portrait_religious_emishi_trigger = { # Isolated it to unreformed Eastern faiths because it looks anachronistic/out-of-place to the further western cultures & my vision for them
 	has_cp7_dlc_trigger = yes
-	# religion = religion:kamuyism_religion
-	faith ?= { has_doctrine_parameter = unreformed }
+	AND = {
+		faith ?= { has_doctrine_parameter = unreformed }
+		religion = {
+			is_in_family = rf_eastern
+		}
+	}
 }
 portrait_religious_shamanism_trigger = {
 	# technically this just makes it so shamanists wear vanilla steppe religious clothing so probably doesn't need a dlc check
@@ -3282,10 +3289,5 @@ portrait_shared_makeup_trigger = {
 }
 
 use_longsword_default_trigger = {
-	culture ?= { 
-		OR = {
-			has_cultural_pillar = heritage_japonic_ck
-			has_clothing_gfx = emishi_clothing_gfx
-		}
-	}
+	culture = { has_cultural_pillar = heritage_japonic_ck } # Removed the clothing gfx from here and the Battanians because of the aesthetic doesn't entirely match my vision. There is no need to put these gfx's onto existing cultures
 }

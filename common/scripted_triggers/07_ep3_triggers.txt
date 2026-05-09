@@ -1,5 +1,23 @@
-﻿ep3_should_use_byzantine_graphics_trigger = {
-	culture = { has_building_gfx = byzantine_building_gfx }
+﻿eligible_for_ep3_administrative_legacy_trigger = {
+	has_ep3_dlc_trigger = yes
+	OR = {
+		game_rule_unrestricted_dynasty_legacies_trigger = yes
+		dynasty = {
+			OR = {
+				dynast = {
+					government_allows = administrative
+				}
+				has_dynasty_perk = ep3_administrative_legacy_1
+			}
+		}
+	}
+}
+
+ep3_should_use_byzantine_graphics_trigger = {
+	OR = {
+		culture = { has_building_gfx = byzantine_building_gfx }
+		culture = { has_building_gfx = caucasian_building_gfx }
+	}
 }
 
 is_roman_emperor_trigger = {
@@ -34,20 +52,17 @@ is_roman_emperor_primary_title_excluding_byzantium_trigger = {
 
 valid_for_byz_emperor_content_trigger = {
 	has_ep3_dlc_trigger = yes
-	culture = {
-		has_cultural_pillar = heritage_calradian
-	}
+	character_is_calradian = yes
 	OR = {
 		is_roman_emperor_primary_title_trigger = yes
-		primary_title ?= title:e_calradian_empire
-		primary_title ?= title:e_southern_empire
-		primary_title ?= title:e_western_empire
-		primary_title ?= title:e_northern_empire
+		has_trait = claimant_emperor
 		AND = {
 			culture = {
 				OR = {
-					this = culture:calradian
-					any_parent_culture_or_above = { this = culture:calradian }
+					has_cultural_pillar = heritage_calradian
+					any_parent_culture_or_above = {
+						has_cultural_pillar = heritage_calradian
+					}
 				}
 			}
 			highest_held_title_tier >= tier_empire
@@ -59,22 +74,21 @@ valid_for_byz_governor_content_trigger = {
 	has_ep3_dlc_trigger = yes
 	is_governor = yes
 	top_liege.culture = {
-		has_cultural_pillar = heritage_calradian
+		character_is_calradian = yes
 	}
 	top_liege = {
 		OR = {
 			is_roman_emperor_primary_title_trigger = yes
-			primary_title ?= title:e_calradian_empire
-			primary_title ?= title:e_southern_empire
-			primary_title ?= title:e_western_empire
-			primary_title ?= title:e_northern_empire
+			has_trait = claimant_emperor
 			AND = {
 				culture = {
-					OR = {
-						this = culture:calradian
-						any_parent_culture_or_above = { this = culture:calradian }
+				OR = {
+					has_cultural_pillar = heritage_calradian
+					any_parent_culture_or_above = {
+						has_cultural_pillar = heritage_calradian
 					}
 				}
+			}
 				highest_held_title_tier >= tier_empire
 			}
 		}
@@ -1007,19 +1021,28 @@ can_recruit_archer_cavalry_trigger = {
 	custom_tooltip = {
 		text = can_recruit_archer_cavalry_trigger_desc
 		OR = {
-			can_create_maa = horse_archers
-			can_create_maa = mangudai
-			can_create_maa = asawira
-			can_create_maa = accolade_maa_horse_archers
-			can_create_maa = emishi_horse_archers
-			can_create_maa = japanese_horse_archers
-			can_create_maa = kheshig
-			can_create_maa = heavy_horse_archers
-			can_create_maa = heavy_horse_archers
+			has_access_to_maa = horse_archers
+			has_access_to_maa = mangudai
+			has_access_to_maa = asawira
+			has_access_to_maa = accolade_maa_horse_archers
+			has_access_to_maa = emishi_horse_archers
+			has_access_to_maa = japanese_horse_archers
+			has_access_to_maa = kheshig
+			has_access_to_maa = heavy_horse_archers
+			has_access_to_maa = imperial_horse_archers
+			has_access_to_maa = geroian_horse_archers
+			has_access_to_maa = aserai_horse_archers
+			has_access_to_maa = khuzait_horse_archers_1
+			has_access_to_maa = khuzait_horse_archers_2
 		}
 	}
 }
 
+
+## Is this contract a transport contract?
+#
+# root (task contract) – The contract to be checked.
+#
 ep3_transport_contract_trigger = {
 	OR = {
 		has_task_contract_type = laamp_transport_vip
@@ -1070,6 +1093,7 @@ ep3_is_clan_inclined_trigger = {
 			OR = {
 				has_cultural_pillar = heritage_nahasi
 				has_cultural_pillar = heritage_darshi
+				has_cultural_pillar = heritage_khuzic
 			}
 		}
 	}
@@ -1234,7 +1258,7 @@ ep3_admin_faction_trigger = {
 		$FACTION_TARGET$ = { government_allows = administrative }
 	}
 	trigger_else = { # Enabled for Byzantium without EP3
-		$FACTION_TARGET$ = { has_title = title:e_calradian_empire }
+		$FACTION_TARGET$ = { is_calradian_claimant_or_emperor = yes }
 	}
 }
 
@@ -1708,3 +1732,53 @@ influence_candidacy_valid_succession_law_trigger = {
 		has_$TYPE$_law = japanese_regency_succession_law
 	}
 }
+
+laamp_as_mercenary_payout_trigger = {
+	save_temporary_scope_as = merc_temp
+	$WAR$ = { save_temporary_scope_as = war_temp }
+	scope:merc_temp ?= {
+		var:joined_as_mercenary ?= {
+			is_leader_in_war = scope:war_temp
+			trigger_if = {
+				limit = { is_attacker_in_war = scope:war_temp }
+				scope:merc_temp = { is_attacker_in_war = scope:war_temp }
+			}
+			trigger_else = {
+				scope:merc_temp = { is_attacker_in_war = scope:war_temp }
+			}
+		}
+		NOT = { is_leader_in_war = scope:war_temp }
+		OR = {
+			has_raised_armies = yes
+			scope:war_temp = {
+				war_contribution = {
+					target = scope:merc_temp
+					value > 0
+				}
+			}
+		}
+	}
+}
+
+laamp_as_mercenary_payout_last_war_trigger = {
+	save_temporary_scope_as = merc_temp
+	$WAR$ = { save_temporary_scope_as = war_temp }
+	scope:merc_temp ?= {
+		# ENSURE THIS IS THE LAST WAR YOU ARE FIGHTING IN WITH THE EMPLOYER
+		NOT = {
+			any_character_war = {
+				NOT = { this = scope:war_temp }
+				is_war_leader = scope:merc_temp.var:joined_as_mercenary
+				trigger_if = {
+					limit = { is_attacker = scope:merc_temp.var:joined_as_mercenary }
+					is_attacker = scope:merc_temp
+				}
+				trigger_else = {
+					is_defender = scope:merc_temp
+				}
+			}
+		}
+	}
+}
+
+		

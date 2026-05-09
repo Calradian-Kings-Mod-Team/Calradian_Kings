@@ -107,10 +107,12 @@ ep3_laamps.0001 = {
 	}
 
 	immediate = {
+		play_music_cue = adventure_begin_cue
 		add_character_flag = {
 			flag = become_laamp_event_cooldown
 			days = 5
 		}
+		clear_saved_scope = lost_primary_title
 		# Save highest lost title for loc
 		ordered_in_list = {
 			list = target_titles
@@ -124,6 +126,7 @@ ep3_laamps.0001 = {
 				NOT = { exists = scope:lost_primary_title }
 				exists = scope:conquered
 			}
+			clear_saved_scope = lost_primary_title
 			scope:conquered = { save_scope_as = lost_primary_title }
 		}
 		# Find alternative rulers to play as
@@ -221,6 +224,7 @@ ep3_laamps.0002 = {
 			random = {
 				chance = scope:ai_laamp_chance
 				# Plus for our memory variable.
+				clear_saved_scope = lost_primary_title
 				ordered_in_list = {
 					list = target_titles
 					order_by = tier
@@ -324,10 +328,12 @@ ep3_laamps.0004 = {
 	}
 
 	immediate = {
+		play_music_cue = adventure_begin_cue
 		add_character_flag = {
 			flag = become_laamp_event_cooldown
 			days = 5
 		}
+		clear_saved_scope = lost_primary_title
 		var:deposed_primary_title ?= {
 			# Save highest lost title for loc
 			save_scope_as = conquered
@@ -428,10 +434,12 @@ ep3_laamps.0005 = {
 	}
 
 	immediate = {
+		play_music_cue = adventure_begin_cue
 		add_character_flag = {
 			flag = become_laamp_event_cooldown
 			days = 5
 		}
+		clear_saved_scope = lost_primary_title
 		var:deposed_primary_title ?= {
 			# Save highest lost title for loc
 			save_scope_as = conquered
@@ -598,6 +606,7 @@ ep3_laamps.0010 = {
 	}
 
 	immediate = {
+		play_music_cue = adventure_begin_cue
 		add_character_flag = {
 			flag = become_laamp_event_cooldown
 			days = 5
@@ -783,6 +792,7 @@ ep3_laamps.0020 = {
 	}
 
 	immediate = {
+		play_music_cue = adventure_begin_cue
 		add_character_flag = {
 			flag = become_laamp_event_cooldown
 			days = 5
@@ -790,6 +800,7 @@ ep3_laamps.0020 = {
 		save_scope_as = adventurer
 		liege = { save_scope_as = liege }
 		# Save highest lost title for loc
+		clear_saved_scope = lost_primary_title
 		ordered_held_title = {
 			order_by = tier
 			position = 0
@@ -943,6 +954,7 @@ ep3_laamps.0021 = {
 	immediate = {
 		save_scope_as = adventurer
 		liege = { save_scope_as = liege }
+		clear_saved_scope = lost_primary_title
 		# Save highest lost title for loc
 		ordered_held_title = {
 			order_by = tier
@@ -1084,6 +1096,7 @@ ep3_laamps.0030 = {
 	trigger = { exists = scope:laamp_inheritor }
 
 	immediate = {
+		play_music_cue = adventure_begin_cue
 		# Save scopes for loc
 		primary_title = { save_scope_as = old_primary_title }
 		capital_province = { save_scope_as = old_capital_province }
@@ -1220,6 +1233,7 @@ ep3_laamps.0040 = {
 	}
 
 	immediate = {
+		play_music_cue = adventure_begin_cue
 		add_character_flag = {
 			flag = become_laamp_event_cooldown
 			days = 5
@@ -1681,6 +1695,14 @@ ep3_laamps.0100 = {
 			limit = { scope:vassal_obligation = yes }
 			vassal_contract_set_obligation_level = { type = feudal_government_taxes level = 4 }
 			vassal_contract_set_obligation_level = { type = feudal_government_levies level = 4 }
+		}
+	}
+
+	#Unop Finally, courtiers are sometimes going walk about, so make sure they're all in the right spot.
+	after = {
+		hidden_effect = {
+			every_courtier = { set_location_to_default = yes }
+			every_prisoner = { set_location_to_default = yes }
 		}
 	}
 }
@@ -3587,6 +3609,7 @@ scripted_effect ep3_laamps_1001_generate_prowess_char_effect = {
 		after_creation = { add_to_list = spawned_chars_list }
 	}
 }
+
 scripted_effect ep3_laamps_1001_boost_courtier_opinion_effect = {
 	hidden_effect = {
 		# Improve their opinion of us.
@@ -3613,6 +3636,7 @@ scripted_effect ep3_laamps_1001_boost_courtier_opinion_effect = {
 		}
 	}
 }
+
 scripted_effect ep3_laamps_1001_add_courtiers_effect = {
 	# Nab our dudes.
 	add_courtier = scope:$SKILL$_1
@@ -3958,7 +3982,6 @@ ep3_laamps.1001 = {
 		}
 	}
 }
-
 
 # Error suppression for the history files.
 ep3_laamps.1002 = {
@@ -4798,6 +4821,7 @@ ep3_laamps.5005 = {
 		#Standard checks
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
+		is_available_allow_travelling = yes #Unop Ensure availability
 		is_location_valid_for_travel_event_on_land = yes
 		#Ensure we're in a place that's held by someone
 		exists = location.county.holder
@@ -5051,17 +5075,24 @@ ep3_laamps.5010 = {
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
 		age < 65 #Just for loc tonality
+		is_available_allow_travelling = yes #Unop Ensure availability
 		is_location_valid_for_travel_event_on_land = yes
 		any_courtier = {
+			is_available_allow_travelling = yes #Unop Ensure availability
 			is_valid_active_event_recurrer_trigger = { LIEGE = ROOT }
 			is_adult = yes # is an adult
 			age < 65 # but not too old, so wincing in pain isn't just from being real old
+		}
+		#Unop Prevent wasting money on an upgrade that can't be built
+		domicile = {
+			has_ongoing_domicile_construction = no
 		}
 	}
 	
 	immediate = {
 		random_courtier = {
 			limit = {
+				is_available_allow_travelling = yes #Unop Ensure availability
 				is_valid_active_event_recurrer_trigger = { LIEGE = ROOT }
 				is_adult = yes # is an adult
 				age < 65 # but not too old, so wincing in pain isn't just from being real old
@@ -5243,7 +5274,7 @@ ep3_laamps.5010 = {
 					type = event_toast_effect_bad
 					title = ep3_laamps.5010.c.failure
 					left_icon = root
-					right_icon = scope:hunter
+					right_icon = scope:follower #Unop: Was scope:hunter that do not exists here
 
 					add_stress = minor_stress_gain
 					add_character_modifier = {
@@ -5287,6 +5318,7 @@ ep3_laamps.5015 = {
 		#Standard checks
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
+		is_available_allow_travelling = yes #Unop Ensure availability
 		is_location_valid_for_travel_event_on_land = yes
 	}
 
@@ -5568,6 +5600,7 @@ ep3_laamps.5020 = {
 		#Standard checks
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
+		is_available_allow_travelling = yes #Unop Ensure availability
 		is_location_valid_for_travel_event_on_land = yes
 		culture != location.culture
 		any_courtier = {
@@ -5854,6 +5887,7 @@ ep3_laamps.5025 = {
 		#Standard checks
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
+		is_available_allow_travelling = yes #Unop Ensure availability
 	}
 
 	immediate = {
@@ -6045,6 +6079,7 @@ ep3_laamps.5030 = {
 		#Standard checks
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
+		is_available_allow_travelling = yes #Unop Ensure availability
 		is_location_valid_for_travel_event_on_land = yes
 	}
 
@@ -6148,7 +6183,7 @@ ep3_laamps.5030 = {
 			}
 		}
 
-		reason = ep3_laamps.5030.a.tt
+		reason = ck_reason_house_prestige # ep3_laamps.5030.a.tt
 
 		flavor = ep3_laamps.5030.b.tt
 
@@ -6427,6 +6462,7 @@ ep3_laamps.5035 = {
 		#Standard checks
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
+		is_available_allow_travelling = yes #Unop Ensure availability
 		is_location_valid_for_travel_event_on_land = yes
 	}
 
@@ -6449,30 +6485,7 @@ ep3_laamps.5035 = {
 		location = {
 			save_scope_as = location
 		}
-		if = { #Grab a random, inexpensive artifact if you have it
-			limit = {
-				any_character_artifact = {
-					NOT = {
-						has_artifact_modifier = artifact_guide_map_modifier
-					}
-				}
-			}
-			random_character_artifact = {
-				limit = {
-					NOT = {
-						has_artifact_modifier = artifact_guide_map_modifier
-					}
-				}
-				weight = {
-					base = 1
-					modifier = {
-						rarity = common
-						add = 2
-					}
-				}
-				save_scope_as = random_artifact
-			}
-		}
+		#Unop ck3-tiger save scope:guide before referencing it in artifact_can_be_gift_to_trigger below
 		if = {
 			limit = {
 				any_pool_character = {
@@ -6510,6 +6523,33 @@ ep3_laamps.5035 = {
 			# Plus give 'em a nickname.
 			hidden_effect = {
 				scope:guide = { assign_random_nickname_effect = yes }
+			}
+		}
+		#Unop Moved from above
+		if = { #Grab a random, inexpensive artifact if you have it
+			limit = {
+				any_character_artifact = {
+					NOT = {
+						has_artifact_modifier = artifact_guide_map_modifier
+					}
+					artifact_can_be_gift_to_trigger = { RECIPIENT = scope:guide }
+				}
+			}
+			random_character_artifact = {
+				limit = {
+					NOT = {
+						has_artifact_modifier = artifact_guide_map_modifier
+					}
+					artifact_can_be_gift_to_trigger = { RECIPIENT = scope:guide }
+				}
+				weight = {
+					base = 1
+					modifier = {
+						rarity = common
+						add = 2
+					}
+				}
+				save_scope_as = random_artifact
 			}
 		}
 		hidden_effect = {
@@ -6705,6 +6745,7 @@ ep3_laamps.5040 = {
 		#Standard checks
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
+		is_available_allow_travelling = yes #Unop Ensure availability
 		is_location_valid_for_travel_event_on_land = yes
 	}
 
@@ -6866,6 +6907,7 @@ ep3_laamps.5045 = {
 		#Standard checks
 		has_ep3_dlc_trigger = yes
 		has_government = landless_adventurer_government
+		is_available_allow_travelling = yes #Unop Ensure availability
 		is_location_valid_for_travel_event_on_land = yes
 		location.barony.holder ?= {
 			is_available_ai_adult = yes

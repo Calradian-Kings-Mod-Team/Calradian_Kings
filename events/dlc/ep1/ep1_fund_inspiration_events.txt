@@ -941,7 +941,7 @@ fund_inspiration.0022 = {
 
 
 
-# Book - choose subject
+# Book - choose subject # CK_UPDATE CK_LORE CK_EVENTS - Add Found Kingdom/Titles to this list
 # by Linnéa Thimrén
 scripted_trigger fund_inspiration_0031_title_based_option_trigger = {
 
@@ -1994,7 +1994,7 @@ fund_inspiration.0031 = {
 				if = {
 					limit = {
 						NOT = { is_witch_trigger = yes }
-						trait_is_criminal_in_faith_trigger = { TRAIT = witch FAITH = root.faith GENDER_CHARACTER = root }
+						trait_is_criminal_in_faith_trigger = { TRAIT = trait:witch FAITH = root.faith GENDER_CHARACTER = root }
 					}
 					if = {
 						limit = {
@@ -2101,19 +2101,19 @@ fund_inspiration.0031 = {
 				add = -70
 				exists = scope:lifestyle_option_witch
 				NOT = { has_trait = witch }
-				trait_is_criminal_in_faith_trigger = { TRAIT = witch FAITH = root.faith GENDER_CHARACTER = root }
+				trait_is_criminal_in_faith_trigger = { TRAIT = trait:witch FAITH = root.faith GENDER_CHARACTER = root }
 			}
 			modifier = { # If it's hidden secrets it's rare that they write about it
 				add = -70
 				exists = scope:lifestyle_option_deviant
 				NOT = { has_trait = deviant }
-				trait_is_criminal_in_faith_trigger = { TRAIT = deviant FAITH = root.faith GENDER_CHARACTER = root }
+				trait_is_criminal_in_faith_trigger = { TRAIT = trait:deviant FAITH = root.faith GENDER_CHARACTER = root }
 			}
 			modifier = { # If it's hidden secrets it's rare that they write about it
 				add = -70
 				exists = scope:lifestyle_option_cannibal
 				NOT = { has_trait = cannibal }
-				trait_is_criminal_in_faith_trigger = { TRAIT = cannibal FAITH = root.faith GENDER_CHARACTER = root }
+				trait_is_criminal_in_faith_trigger = { TRAIT = trait:cannibal FAITH = root.faith GENDER_CHARACTER = root }
 			}
 			modifier = { #However, the might if they're arrogant
 				add = 50
@@ -3198,11 +3198,7 @@ fund_inspiration.0043 = {
 				}
 				NOR = {
 					any_artifact = {
-						trigger_if = {
-							limit = { exists = var:banner_dynasty }
-							var:banner_dynasty = root.dynasty
-						}
-						trigger_else = { always = no }
+						var:banner_dynasty ?= root.dynasty
 						OR = {
 							artifact_owner = root
 							artifact_owner = { in_diplomatic_range = root }
@@ -3660,11 +3656,11 @@ scripted_effect fund_adventure_inspiration_start_effect = {
 		if = { #Should always exists, but we add this check to avoid the tooltip errors
 			limit = {
 				exists = scope:location
-				exists = scope:location.title_province
+				#exists = scope:location.title_province #Unop ck3-tiger
 			}
 			start_adventure_effect = {
 				ADVENTURER = $ADVENTURER$
-				LOCATION = scope:location.title_province
+				LOCATION = scope:location #Unop ck3-tiger
 			}
 		}
 	}
@@ -4751,13 +4747,13 @@ scripted_trigger fund_inspiration_0071_option_aquamanile_trigger = {
 	has_fp2_dlc_trigger = yes
 	NOT = { exists = scope:smith_type_aquamanile_option }
 	# These occurred in other faiths too, so we don't restrict their religious usage, but were much more ubiquitous in Islam.
-	religion = religion:aserai_religion
+	ep3_is_clan_inclined_trigger = yes
 }
 scripted_trigger fund_inspiration_0071_option_incense_burner_sculpture_trigger = {
 	has_fp3_dlc_trigger = yes
 	NOT = { exists = scope:smith_type_incense_burner_sculpture_option }
 	# These occurred in other faiths too, so we don't restrict their religious usage, but were much more ubiquitous in Islam.
-	religion = religion:aserai_religion
+	ep3_is_clan_inclined_trigger = yes
 }
 scripted_effect fund_inspiration_0071_pick_options_to_show_effect = {
 	#What options do we show?
@@ -6151,15 +6147,15 @@ fund_inspiration.1031 = {
 						OR = {
 							AND = {
 								scope:newly_created_artifact = { has_artifact_feature = book_subject_witch }
-								trait_is_criminal_in_faith_trigger = { TRAIT = witch FAITH = root.faith GENDER_CHARACTER = root }
+								trait_is_criminal_in_faith_trigger = { TRAIT = trait:witch FAITH = root.faith GENDER_CHARACTER = root }
 							}
 							AND = {
 								scope:newly_created_artifact = { has_artifact_feature = book_subject_cannibal }
-								trait_is_criminal_in_faith_trigger = { TRAIT = cannibal FAITH = root.faith GENDER_CHARACTER = root }
+								trait_is_criminal_in_faith_trigger = { TRAIT = trait:cannibal FAITH = root.faith GENDER_CHARACTER = root }
 							}
 							AND = {
 								scope:newly_created_artifact = { has_artifact_feature = book_subject_deviant }
-								trait_is_criminal_in_faith_trigger = { TRAIT = deviant FAITH = root.faith GENDER_CHARACTER = root }
+								trait_is_criminal_in_faith_trigger = { TRAIT = trait:deviant FAITH = root.faith GENDER_CHARACTER = root }
 							}
 						}
 					}
@@ -7226,7 +7222,7 @@ fund_inspiration.1061 = {
 					faith = {
 						OR = {
 							has_doctrine = tenet_aniconism
-							religion = religion:aserai_religion
+							ep3_is_clan_inclined_trigger = yes
 						}
 					}
 				}
@@ -7704,6 +7700,19 @@ fund_inspiration.1071 = {
 		}
 		else_if = {
 			limit = {
+				scope:inspiration_owner.var:artifact_smith_type = flag:smith_type_aquamanile
+			}
+			create_artifact_fp2_andalusian_aquamanile_effect = {
+				OWNER = root
+				SMITH = scope:inspiration_owner
+			}
+			save_scope_value_as = {
+				name = aquamanile
+				value = yes
+			}
+		}
+		else_if = {
+			limit = {
 				scope:inspiration_owner.var:artifact_smith_type = flag:smith_type_incense_burner_sculpture
 				has_fp3_dlc_trigger = yes
 			}
@@ -7716,6 +7725,25 @@ fund_inspiration.1071 = {
 				value = yes
 			}
 		}
+		else = { #Unop: For this effect to be error & future proof we need to have a fallback case
+			if = {
+				limit = {
+					#debug_only = yes
+					always = yes #Unop: It seems debug_only is false even in debug ??
+				}
+				debug_log = "Unop: For fund_inspiration.1071 diagnostic, no var artifact_smith_type defined, fallback on a brooch"
+				debug_log_scopes = yes
+			}
+			create_artifact_brooch_effect = {
+				OWNER = root
+				SMITH = scope:inspiration_owner
+			}
+			save_scope_value_as = {
+				name = brooch
+				value = yes
+			}
+		}
+
 		# Add a dedication to the description - fund_inspiration.7001
 		if = {
 			limit = {
@@ -11751,7 +11779,7 @@ fund_inspiration.2080 = {
 		animation = dismissal
 	}
 	right_portrait = {
-		character = scope:antiquarian
+		character = scope:rival # Unop: This was: scope:antiquarian but that scope could be undefined and so should be rival
 		animation = disapproval
 	}
 	cooldown = { years = 5 }
@@ -12346,7 +12374,7 @@ fund_inspiration.2100 = {
 			20 = {
 				compare_modifier = {
 					value = scope:duel_value
-					multiplier = 2
+					multiplier = -2 #Unop: Multiplier need to be reversed in the duel (was 2)
 				}
 				min = 5
 				send_interface_toast = {
@@ -13774,7 +13802,12 @@ scripted_trigger fi_2131_artifact_type_trigger = {
 			}
 		}
 		trigger_else_if = {
-			limit = { scope:inspiration_owner.var:artifact_artisan_type = flag:artisan_type_sculpture }
+			limit = {				
+				scope:inspiration_owner = {
+					has_variable = artifact_artisan_type #Unop: Failed to fetch variable for 'artifact_artisan_type' due to not being set
+					var:artifact_artisan_type = flag:artisan_type_sculpture
+				}
+			}
 			artifact_type = sculpture
 		}
 		trigger_else = {
@@ -14329,7 +14362,7 @@ scripted_trigger fund_inspiration_3001_witch_topic_trigger = {
 	exists = scope:inspiration_owner.var:book_subject
 	scope:inspiration_owner.var:book_subject = flag:witch
 	trait_is_shunned_or_criminal_in_faith_trigger = {
-		TRAIT = witch
+		TRAIT = trait:witch
 		GENDER_CHARACTER = root
 		FAITH = root.faith
 	}
@@ -14338,7 +14371,7 @@ scripted_trigger fund_inspiration_3001_cannibal_topic_trigger = {
 	exists = scope:inspiration_owner.var:book_subject
 	scope:inspiration_owner.var:book_subject = flag:cannibal
 	trait_is_criminal_in_faith_trigger = {
-		TRAIT = cannibal
+		TRAIT = trait:cannibal
 		GENDER_CHARACTER = root
 		FAITH = root.faith
 	}
@@ -14347,7 +14380,7 @@ scripted_trigger fund_inspiration_3001_deviant_topic_trigger = {
 	exists = scope:inspiration_owner.var:book_subject
 	scope:inspiration_owner.var:book_subject = flag:deviant
 	trait_is_shunned_or_criminal_in_faith_trigger = {
-		TRAIT = deviant
+		TRAIT = trait:deviant
 		GENDER_CHARACTER = root
 		FAITH = root.faith
 	}
@@ -16131,6 +16164,15 @@ fund_inspiration.5021 = {
 			}
 			else_if = {
 				limit = {
+					exists = scope:world_india_location
+				}
+				set_variable = {
+					name = adventure_destination
+					value = flag:india
+				}
+			}
+			else_if = {
+				limit = {
 					exists = scope:world_steppe_location
 				}
 				set_variable = {
@@ -16753,7 +16795,7 @@ fund_inspiration.6100 = {
 	desc = fund_inspiration.6100.desc
 	theme = realm
 
-	theme = realm
+	#theme = realm #Unop ck3-tiger Already defined above
 	left_portrait = {
 		character = scope:inspiration_owner
 		animation = worry
@@ -16844,7 +16886,7 @@ fund_inspiration.6101 = {
 	desc = fund_inspiration.6101.desc
 	theme = realm
 
-	theme = realm
+	#theme = realm #Unop ck3-tiger Already defined above
 	left_portrait = {
 		character = scope:inspiration_owner
 		animation = personality_honorable
@@ -17628,8 +17670,8 @@ scripted_trigger homosexual_poet_trigger = {
 		has_sexuality = bisexual
 	}
 	OR = {
-		trait_is_shunned_in_faith_trigger = { TRAIT = sodomite FAITH = root.faith GENDER_CHARACTER = scope:inspiration_owner }
-		trait_is_criminal_in_faith_trigger = { TRAIT = sodomite FAITH = root.faith GENDER_CHARACTER = scope:inspiration_owner }
+		trait_is_shunned_in_faith_trigger = { TRAIT = trait:sodomite FAITH = root.faith GENDER_CHARACTER = scope:inspiration_owner }
+		trait_is_criminal_in_faith_trigger = { TRAIT = trait:sodomite FAITH = root.faith GENDER_CHARACTER = scope:inspiration_owner }
 	}
 }
 
@@ -17637,14 +17679,14 @@ scripted_trigger unloved_poet_trigger = {
 	NOR = {
 		any_relation = {
 			type = lover
-			exists = yes
+			exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 		}
 		any_child = {
-			exists = yes
+			exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 			even_if_dead = yes
 		}
 		any_spouse = {
-			exists = yes
+			exists = this #Unop: Was exists = yes but it will ALWAYS return true !
 			even_if_dead = yes
 		}
 	}
@@ -17949,7 +17991,7 @@ fund_inspiration.6301 = {
 		}
 		triggered_desc = {
 			trigger = {
-				trait_is_criminal_in_faith_trigger = { TRAIT = sodomite FAITH = root.faith GENDER_CHARACTER = scope:inspiration_owner }
+				trait_is_criminal_in_faith_trigger = { TRAIT = trait:sodomite FAITH = root.faith GENDER_CHARACTER = scope:inspiration_owner }
 			}
 			desc = fund_inspiration.6301.crime_desc
 		}
@@ -18050,7 +18092,7 @@ fund_inspiration.6301 = {
 			limit = {
 				NOR = {
 					has_trait = compassionate
-					this = inspiration_owner
+					this = scope:inspiration_owner #Unop ck3-tiger
 					is_close_family_of = root
 				}
 			}
@@ -19102,7 +19144,7 @@ fund_inspiration.6513 = {
 			if = {
 				limit = {
 					sex_same_as = scope:adventurer_lover
-					trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = sodomite GENDER_CHARACTER = scope:inspiration_owner }
+					trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = trait:sodomite GENDER_CHARACTER = scope:inspiration_owner }
 				}
 				if = {
 					limit = {
@@ -19123,7 +19165,7 @@ fund_inspiration.6513 = {
 			if = {
 				limit = {
 					sex_same_as = scope:inspiration_owner
-					trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = sodomite GENDER_CHARACTER = scope:adventurer_lover }
+					trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = trait:sodomite GENDER_CHARACTER = scope:adventurer_lover }
 				}
 				if = {
 					limit = {
@@ -19885,7 +19927,8 @@ fund_inspiration.6508 = {
 		animation = personality_bold
 	}
 	lower_left_portrait = {
-		character = scope:royal_architect
+		trigger = { exists = scope:court_architect } #Unop: Ensure scope exists
+		character = scope:court_architect #Unop: Was royal_architect
 	}
 	lower_right_portrait = {
 		character = scope:child
@@ -20180,9 +20223,13 @@ fund_inspiration.6509 = {
 	option = { #you know what crocodiles are, see em everyday
 		name = fund_inspiration.6509.c
 		trigger = {
-			any_held_title = {
-				this = title:d_scorched_gates
-				this = title:d_lower_damar
+			any_sub_realm_county = {
+				title_province ?= {
+					OR = {
+						geographical_region = custom_roman_aegyptus
+						geographical_region = region_far_southwest_nahasa
+					}
+				}
 			}
 		}
 		add_learning_lifestyle_xp = medium_lifestyle_xp
@@ -21040,7 +21087,7 @@ fund_inspiration.8012 = {
 			NOT = {  has_character_flag = had_event_fund_inspiration_8012 }
 			has_no_inspiration_event_cooldown = yes
 		}
-		has_faith = faith:darusan #Basically the Christian church were the only ones complaining about this
+		faith = { has_doctrine = special_doctrine_darusian }
 		exists = cp:councillor_court_chaplain
 		cp:councillor_court_chaplain = { is_physically_able_adult = yes }
 	}

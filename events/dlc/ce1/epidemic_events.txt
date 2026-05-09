@@ -196,6 +196,7 @@ epidemic_events.0110 = {
 			limit = { # A new capital potential?
 				highest_held_title_tier >= tier_kingdom
 				any_sub_realm_duchy = {
+					exists = title_capital_county #Unop: No landless duchies
 					title_capital_county = {
 						NOT = { exists = var:epidemic_cooldown_general }
 						holder = {
@@ -396,7 +397,7 @@ epidemic_events.0110 = {
 			limit = {
 				has_legitimacy = yes
 			}
-			add_legitimacy = miniscule_legitimacy_loss
+			add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 		}
 		ai_chance = {
 			base = 50
@@ -1831,7 +1832,7 @@ epidemic_events.1060 = {
 						NOT = {
 							# No attacking the puppos for Zoroastrians and Canary Islanders
 							root.faith.religion = religion:darshi_religion
-							root.faith = faith:jawwal_faith
+							root.faith.religion = religion:west_nahasan_religion
 						}
 					}
 					set_variable = {
@@ -1853,7 +1854,7 @@ epidemic_events.1060 = {
 				20 = {
 					trigger = {
 						trait_is_shunned_or_criminal_in_faith_trigger = {
-								TRAIT = witch
+								TRAIT = trait:witch
 								FAITH = root.faith
 								GENDER_CHARACTER = root
 							}
@@ -2175,7 +2176,7 @@ epidemic_events.1061 = {
 				years = 10
 			}
 		}
-		add_legitimacy = miniscule_legitimacy_loss
+		add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 		stress_impact = {
 			lazy = minor_stress_impact_gain
 			paranoid = medium_stress_impact_gain
@@ -2534,7 +2535,7 @@ epidemic_events.1063 = {
 			AND = {
 				is_witch_trigger = yes
 				trait_is_shunned_or_criminal_in_faith_trigger = {
-					TRAIT = witch
+					TRAIT = trait:witch
 					FAITH = root.faith
 					GENDER_CHARACTER = root
 				}
@@ -2542,7 +2543,7 @@ epidemic_events.1063 = {
 			AND = {
 				is_incestuous_trigger = yes
 				trait_is_shunned_or_criminal_in_faith_trigger = {
-					TRAIT = incestuous
+					TRAIT = trait:incestuous
 					FAITH = root.faith
 					GENDER_CHARACTER = root
 				}
@@ -2713,7 +2714,7 @@ epidemic_events.1063 = {
 				years = 10
 			}
 		}
-		add_legitimacy = miniscule_legitimacy_loss
+		add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 		stress_impact = {
 			base = minor_stress_impact_gain
 			cynical = medium_stress_impact_loss # Am I *really* a sinner tho?
@@ -3193,7 +3194,7 @@ epidemic_events.1066 = {
 	cooldown = { years = 5 }
 
 	immediate = {
-		add_legitimacy = miniscule_legitimacy_loss
+		add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 	}
 
 	option = { # Offer minorities asylum in the capital
@@ -4046,6 +4047,14 @@ epidemic_events.1101 = {
 	}
 
 	immediate = {
+		if = {
+			limit = {
+				NOT = { exists = scope:province }
+			}
+			error_log = "Unop: epidemic_events.1101 called but scope:province is not defined"
+			debug_log_scopes = yes
+		}
+
 		play_music_cue = apocalyptic_plague
 		scope:province.county = {
 			save_scope_as = infected_county
@@ -4420,7 +4429,11 @@ epidemic_events.1120 = {
 		hidden_effect = {
 			if = {
 				limit = {
-					scope:corpse_flingee = { location.county = scope:flung_corpse_location }
+					scope:corpse_flingee = { 
+						exists = location #Unop: Prevent to log error if holder is at sea
+						location = { is_sea_province = no } #Unop: Prevent to log error if holder is at sea
+						location.county = scope:flung_corpse_location 
+					}
 				}
 				scope:corpse_flingee = {
 					trigger_event = epidemic_events.1121
@@ -4556,7 +4569,15 @@ epidemic_events.1121 = {
 							years = 15
 						}
 					}
-					infect_with_epidemic = scope:epidemic_scope
+					if = {
+						limit = {
+							exists = scope:epidemic_scope #Unop This seems to be null sometimes, causing crashes
+							unop_can_contract_disease_trigger = { DISEASE = scope:epidemic_scope.epidemic_type.epidemic_trait }
+							NOT = { scope:epidemic_scope.epidemic_type.epidemic_trait = trait:ergotism } #Unop: Ergotism is from food
+						}
+						show_as_tooltip = { add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait }
+						hidden_effect = { infect_with_epidemic = scope:epidemic_scope }
+					}
 				}
 			}
 		}
@@ -4597,8 +4618,8 @@ epidemic_events.1121 = {
 					left_icon = root
 					right_icon = scope:peasant_1
 
-					scope:location = {
-						add_province_modifier = {
+					scope:flung_corpse_location = { #Unop: Was scope:location and it does not exists
+						add_county_modifier = { #Unop: Was add_province_modifier but the desc of this modifier specify only a county is affected
 							modifier = ce1_quarantined_corpse
 							years = 10
 						}
@@ -4622,7 +4643,15 @@ epidemic_events.1121 = {
 							years = 15
 						}
 					}
-					infect_with_epidemic = scope:epidemic_scope
+					if = {
+						limit = {
+							exists = scope:epidemic_scope #Unop This seems to be null sometimes, causing crashes
+							unop_can_contract_disease_trigger = { DISEASE = scope:epidemic_scope.epidemic_type.epidemic_trait }
+							NOT = { scope:epidemic_scope.epidemic_type.epidemic_trait = trait:ergotism } #Unop: Ergotism is from food
+						}
+						show_as_tooltip = { add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait }
+						hidden_effect = { infect_with_epidemic = scope:epidemic_scope }
+					}
 				}
 			}
 		}
@@ -4692,7 +4721,15 @@ epidemic_events.1122 = {
 
 	option = { # God damn it
 		name = epidemic_events.1122.a
-		infect_with_epidemic = scope:epidemic_scope
+		if = {
+			limit = {
+				exists = scope:epidemic_scope #Unop This seems to be null sometimes, causing crashes
+				unop_can_contract_disease_trigger = { DISEASE = scope:epidemic_scope.epidemic_type.epidemic_trait }
+				NOT = { scope:epidemic_scope.epidemic_type.epidemic_trait = trait:ergotism } #Unop: Ergotism is from food
+			}
+			show_as_tooltip = { add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait }
+			hidden_effect = { infect_with_epidemic = scope:epidemic_scope }
+		}
 		add_stress = major_stress_gain
 		ai_chance = {
 			base = 100
@@ -4730,7 +4767,15 @@ epidemic_events.1122 = {
 						modifier = ce1_heavily_ill
 						years = 5
 					}
-					infect_with_epidemic = scope:epidemic_scope
+					if = {
+						limit = {
+							exists = scope:epidemic_scope #Unop This seems to be null sometimes, causing crashes
+							unop_can_contract_disease_trigger = { DISEASE = scope:epidemic_scope.epidemic_type.epidemic_trait }
+							NOT = { scope:epidemic_scope.epidemic_type.epidemic_trait = trait:ergotism } #Unop: Ergotism is from food
+						}
+						show_as_tooltip = { add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait }
+						hidden_effect = { infect_with_epidemic = scope:epidemic_scope }
+					}
 				}
 			}
 		}
@@ -4917,6 +4962,9 @@ epidemic_events.3000 = {
 				faith = root.location.faith
 				gender_female_chance = 50
 				save_scope_as = sick_peasant
+				after_creation = { #Unop Add created flag so we could only disappear created characters
+					add_character_flag = created
+				}
 			}
 			scope:sick_peasant = {
 				add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait
@@ -4992,7 +5040,15 @@ epidemic_events.3000 = {
 						title = epidemic_events.3000.b.sick
 						left_icon = scope:companion
 						scope:companion = {
-							add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait
+							if = {
+								limit = {
+									exists = scope:epidemic_scope #Unop This seems to be null sometimes, causing crashes
+									unop_can_contract_disease_trigger = { DISEASE = scope:epidemic_scope.epidemic_type.epidemic_trait }
+									NOT = { scope:epidemic_scope.epidemic_type.epidemic_trait = trait:ergotism } #Unop: Ergotism is from food
+								}
+								show_as_tooltip = { add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait }
+								hidden_effect = { infect_with_epidemic = scope:epidemic_scope }
+							}
 						}
 					}
 				}
@@ -5043,7 +5099,7 @@ epidemic_events.3000 = {
 		hidden_effect = {
 			if = {
 				limit = { is_ai = yes }
-				scope:sick_peasant = { silent_disappearance_effect = yes }
+				scope:sick_peasant = { silent_disappearance_ai_if_created_effect = yes } #Unop Only disappear created characters
 			}
 			else = {
 				scope:sick_peasant = { move_to_pool = yes }
@@ -5077,8 +5133,12 @@ epidemic_events.3010 = {
 	trigger = {
 		is_travelling = yes
 		location = {
-			any_province_epidemic = { }
+			any_province_epidemic = {
+				save_temporary_scope_as = temp_epidemic_scope #Unop Check if can contract disease
 		}
+		}
+		#Unop Check if can contract disease
+		unop_can_contract_disease_trigger = { DISEASE = scope:temp_epidemic_scope.epidemic_type.epidemic_trait }
 	}
 
 	immediate = {
@@ -5090,20 +5150,28 @@ epidemic_events.3010 = {
 				save_scope_as = epidemic_scope
 			}
 		}
-		hidden_effect = {
-			create_character = {
-				template = peasant_character
-				dynasty = none
-				location = root.location
-				culture = root.location.culture
-				faith = root.location.faith
-				gender_female_chance = 50
-				save_scope_as = sick_peasant
-			}
-			scope:sick_peasant = {
-				add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait
-			}
-		}
+		#Unop Remove sick_peasant
+		#hidden_effect = {
+		#	create_character = {
+		#		template = peasant_character
+		#		dynasty = none
+		#		location = root.location
+		#		culture = root.location.culture
+		#		faith = root.location.faith
+		#		gender_female_chance = 50
+		#		save_scope_as = sick_peasant
+		#	}
+		#	scope:sick_peasant = {
+		#		if = {
+		#			limit = {
+		#				#unop_can_contract_disease_trigger = { DISEASE = scope:epidemic_scope.epidemic_type.epidemic_trait }
+		#				always = yes
+		#			}
+		#			show_as_tooltip = { add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait }
+		#			hidden_effect = { infect_with_epidemic = scope:epidemic_scope }
+		#		}
+		#	}
+		#}
 	}
 	
 	option = { # You are very clever
@@ -5143,7 +5211,15 @@ epidemic_events.3010 = {
 			send_interface_toast = {
 				title = epidemic_events.3010.b.sick
 				left_icon = root
-				add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait
+				if = {
+					limit = {
+						exists = scope:epidemic_scope
+						unop_can_contract_disease_trigger = { DISEASE = scope:epidemic_scope.epidemic_type.epidemic_trait }
+						NOT = { scope:epidemic_scope.epidemic_type.epidemic_trait = trait:ergotism } #Unop: Ergotism is from food
+					}
+					show_as_tooltip = { add_trait = scope:epidemic_scope.epidemic_type.epidemic_trait }
+					hidden_effect = { infect_with_epidemic = scope:epidemic_scope }
+				}
 			}
 			modifier = {
 				add = {
@@ -5202,15 +5278,16 @@ epidemic_events.3010 = {
 	}
 	
 	after = {
-		hidden_effect = {
-			if = {
-				limit = { is_ai = yes }
-				scope:sick_peasant = { silent_disappearance_effect = yes }
-			}
-			else = {
-				scope:sick_peasant = { move_to_pool = yes }
-			}
-		}
+		#Unop Remove sick_peasant
+		#hidden_effect = {
+		#	if = {
+		#		limit = { is_ai = yes }
+		#		scope:sick_peasant = { silent_disappearance_effect = yes }
+		#	}
+		#	else = {
+		#		scope:sick_peasant = { move_to_pool = yes }
+		#	}
+		#}
 	}
 }
 
@@ -6739,7 +6816,7 @@ epidemic_events.5007 = {
 	trigger = {
 		is_available = yes
 		trait_is_shunned_or_criminal_in_faith_trigger = {
-			TRAIT = witch
+			TRAIT = trait:witch
 			FAITH = root.faith
 			GENDER_CHARACTER = root
 		}
@@ -6780,7 +6857,7 @@ epidemic_events.5007 = {
 			is_available_healthy_ai_adult = yes
 			is_ai = yes
 			trait_is_shunned_or_criminal_in_faith_trigger = {
-				TRAIT = witch
+				TRAIT = trait:witch
 				FAITH = this.faith
 				GENDER_CHARACTER = this
 			}
@@ -7323,7 +7400,7 @@ epidemic_events.5009 = {
 	}
 	after = {
 		scope:merchant = {
-			silent_disappearance_ai_effect = yes
+			silent_disappearance_ai_if_created_effect = yes #Unop Only disappear created characters
 		}
 	}
 }
@@ -7476,7 +7553,7 @@ epidemic_events.5010 = {
 
 	option = { # Be sad
 		name = epidemic_events.5010.b
-		add_legitimacy = miniscule_legitimacy_loss
+		add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 		random_list = {
 			1 = {
 				send_interface_toast = {
@@ -7672,21 +7749,27 @@ epidemic_events.5901 = {
 			}
 		}
 
+		if = { #Unop Check if can contract disease, use correct effect
+			limit = { can_contract_disease_trigger = { DISEASE = bubonic_plague } }
 		random = {
 			chance = 10
 			send_interface_toast = {
 				title = epidemic_events.5901.a.tt.plague
 				left_icon = root
-				
-				add_trait = bubonic_plague
+					show_as_tooltip = { add_trait = bubonic_plague }
+					hidden_effect = { contract_disease_notify_effect = { DISEASE = bubonic_plague } }
+				}
 			}
 		}
 
 		scope:physician = {
+			if = { #Unop Check if can contract disease, use correct effect
+				limit = { can_contract_disease_trigger = { DISEASE = bubonic_plague } }
 			random = {
 				chance = 10
-
-				add_trait = bubonic_plague
+					show_as_tooltip = { add_trait = bubonic_plague }
+					hidden_effect = { contract_disease_notify_effect = { DISEASE = bubonic_plague } }
+				}
 			}
 
 			add_opinion = {
@@ -8248,7 +8331,7 @@ epidemic_events.5904 = {
 						title = epidemic_events.5904.c.tt.failure
 						left_icon = root
 						right_icon = scope:doomsday_preacher
-						add_legitimacy = miniscule_legitimacy_loss
+						add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 						scope:doomsday_province = {
 							add_province_modifier = {
 								modifier = mass_panic
@@ -8278,7 +8361,7 @@ epidemic_events.5904 = {
 
 	option = { # Bah, nobody will take them seriously
 		name = epidemic_events.5904.d
-		add_legitimacy = miniscule_legitimacy_loss
+		add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 		scope:doomsday_province = {
 			random = {
 				chance = 15
@@ -8479,7 +8562,7 @@ epidemic_events.5905 = {
 						title = epidemic_events.5905.b.tt.failure
 						left_icon = root
 						right_icon = scope:peasant
-						add_legitimacy = miniscule_legitimacy_loss
+						add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 						scope:province = {
 							hidden_effect = {
 								every_neighboring_province = {
@@ -8526,7 +8609,7 @@ epidemic_events.5905 = {
 
 		random = {
 			chance = 50
-			add_legitimacy = miniscule_legitimacy_loss
+			add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 			scope:province = {
 				add_province_modifier = {
 					modifier = uncaring_ruler
@@ -8668,7 +8751,7 @@ epidemic_events.5906 = {
 					title = epidemic_events.5906.a.tt.failure
 					left_icon = root
 					right_icon = scope:flagellant
-					add_legitimacy = miniscule_legitimacy_loss
+					add_legitimacy_effect = { LEGITIMACY = miniscule_legitimacy_loss } #Unop Use correct effect
 					scope:doomsday_province = {
 						add_province_modifier = {
 							modifier = unrestrained_flagellants
@@ -8733,21 +8816,21 @@ epidemic_events.5906 = {
 			IMPRISONER = root
 		}
 
+		scope:doomsday_province = { #Unop
 		random = {
 			chance = 50
-			scope:doomsday_province = {
 				add_province_modifier = {
 					modifier = pacified_flagellants
 					years = 10
 				}
-				hidden_effect = {
-					every_neighboring_province = {
-						random = {
-							chance = 25
-							add_province_modifier = {
-								modifier = pacified_flagellants
-								years = 10
-							}
+			}
+			hidden_effect = {
+				every_neighboring_province = {
+					random = {
+						chance = 25
+						add_province_modifier = {
+							modifier = pacified_flagellants
+							years = 10
 						}
 					}
 				}

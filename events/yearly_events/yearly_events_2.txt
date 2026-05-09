@@ -1341,6 +1341,8 @@ yearly.1010 = { #by Mathilda Bjarnehed
 								target = scope:abductor
 								value >= -30
 							}
+							NOT = { has_trait = celibate } #Unop Also check if the char is not celibate
+							might_cheat_on_every_partner_trigger = yes #Unop Also make sure the target would cheat (and so flee willingly)
 						}
 						modifier = {
 							is_attracted_to_gender_of = scope:abductor
@@ -2874,7 +2876,7 @@ scripted_trigger yearly_1030_could_get_deviant_secret_trigger = {
 	}
 	is_adult = yes
 	save_temporary_scope_as = shunned_or_criminal_check
-	trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = deviant GENDER_CHARACTER = scope:shunned_or_criminal_check }
+	trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = trait:deviant GENDER_CHARACTER = scope:shunned_or_criminal_check }
 }
 
 
@@ -2891,7 +2893,7 @@ scripted_trigger yearly_1030_could_get_homosexual_secret_trigger = {
 		has_sexuality = bisexual
 	}
 	save_temporary_scope_as = shunned_or_criminal_check
-	trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = sodomite GENDER_CHARACTER = scope:shunned_or_criminal_check }
+	trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = trait:sodomite GENDER_CHARACTER = scope:shunned_or_criminal_check }
 }
 
 scripted_trigger yearly_1030_could_get_cannibal_secret_trigger = {
@@ -2902,7 +2904,7 @@ scripted_trigger yearly_1030_could_get_cannibal_secret_trigger = {
 	}
 	is_adult = yes
 	save_temporary_scope_as = shunned_or_criminal_check
-	trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = cannibal GENDER_CHARACTER = scope:shunned_or_criminal_check }
+	trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = trait:cannibal GENDER_CHARACTER = scope:shunned_or_criminal_check }
 }
 
 scripted_trigger yearly_1030_could_get_non_believer_secret_trigger = {
@@ -2922,7 +2924,7 @@ scripted_trigger yearly_1030_could_get_witch_secret_trigger = {
 	}
 	is_adult = yes
 	save_temporary_scope_as = shunned_or_criminal_check
-	trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = witch GENDER_CHARACTER = scope:shunned_or_criminal_check }
+	trait_is_shunned_or_criminal_in_my_or_lieges_faith_trigger = { TRAIT = trait:witch GENDER_CHARACTER = scope:shunned_or_criminal_check }
 }
 
 scripted_trigger yearly_1030_suitable_target_trigger = {
@@ -4880,7 +4882,12 @@ scripted_trigger yearly_1060_possible_flirt_trigger = {
 		has_relation_potential_lover = root
 		is_spouse_of = root
 		AND = { #A new possible romantic interest
-			root = { is_attracted_to_gender_of = scope:joker_check }
+			root = {
+				OR = { #Unop Add unshackled_lust_perk
+					is_attracted_to_gender_of = scope:joker_check
+					has_perk = unshackled_lust_perk
+				}
+			}
 			OR = {
 				NOT = { relation_with_character_is_incestuous_in_my_faith_trigger = { CHARACTER = root } }
 				sexually_liberal_trigger = yes
@@ -4903,7 +4910,10 @@ scripted_trigger yearly_1060_joker_trigger = {
 	}
 	OR = { #They like you or you're pretty
 		AND = {
-			is_attracted_to_gender_of = root
+			OR = { #Unop Add unshackled_lust_perk
+				is_attracted_to_gender_of = root
+				has_perk = unshackled_lust_perk
+			}
 			root = { attraction >= medium_positive_attraction }
 		}
 		opinion = {
@@ -4950,7 +4960,10 @@ yearly.1060 = {
 			}
 			triggered_desc = {
 				trigger = {
-					is_attracted_to_gender_of = scope:joker
+					OR = { #Unop Add unshackled_lust_perk
+						is_attracted_to_gender_of = scope:joker
+						has_perk = unshackled_lust_perk
+					}
 					OR = {
 						scope:joker = { liege = root }
 						has_relation_friend = scope:joker
@@ -5076,7 +5089,10 @@ yearly.1060 = {
 						factor = 1.5
 					}
 					modifier = {
-						is_attracted_to_gender_of = root
+						OR = { #Unop Add unshackled_lust_perk
+							is_attracted_to_gender_of = root
+							has_perk = unshackled_lust_perk
+						}
 						factor = 2
 					}
 				}
@@ -5088,7 +5104,10 @@ yearly.1060 = {
 				2 = { #Flirting
 					trigger = {
 						scope:joker = {
-							is_attracted_to_gender_of = root
+							OR = { #Unop Add unshackled_lust_perk
+								is_attracted_to_gender_of = root
+								has_perk = unshackled_lust_perk
+							}
 							yearly_1060_possible_flirt_trigger = yes
 						}
 					}
@@ -5141,7 +5160,12 @@ yearly.1060 = {
 				desc = yearly.1060.charmed.message
 				modifier = {
 					factor = 0 #Only available if they're into your gender
-					scope:joker = { NOT = { is_attracted_to_gender_of = root } }
+					scope:joker = {
+						NOR = { #Unop Add unshackled_lust_perk
+							is_attracted_to_gender_of = root
+							has_perk = unshackled_lust_perk
+						}
+					}
 				}
 				modifier = {
 					has_trait = seducer
@@ -5221,7 +5245,12 @@ yearly.1060 = {
 		}
 
 		if = {
-			limit = { is_attracted_to_gender_of = scope:joker }
+			limit = {
+				OR = { #Unop Add unshackled_lust_perk
+					is_attracted_to_gender_of = scope:joker
+					has_perk = unshackled_lust_perk
+				}
+			}
 			stress_impact = {
 				lustful = minor_stress_impact_gain
 				shy = minor_stress_impact_gain
@@ -5257,7 +5286,12 @@ yearly.1060 = {
 				desc = yearly.1060.charmed.message
 				modifier = {
 					factor = 0 #Only available if they're into your gender
-					scope:joker = { NOT = { is_attracted_to_gender_of = root } }
+					scope:joker = {
+						NOR = { #Unop Add unshackled_lust_perk
+							is_attracted_to_gender_of = root
+							has_perk = unshackled_lust_perk
+						}
+					}
 				}
 				modifier = {
 					has_trait = seducer
@@ -5335,7 +5369,12 @@ yearly.1060 = {
 		}
 
 		if = {
-			limit = { is_attracted_to_gender_of = scope:joker }
+			limit = { 
+				OR = { #Unop Add unshackled_lust_perk
+					is_attracted_to_gender_of = scope:joker
+					has_perk = unshackled_lust_perk
+				}
+			}
 			stress_impact = {
 				lustful = minor_stress_impact_gain
 				shy = minor_stress_impact_gain
@@ -5401,7 +5440,10 @@ yearly.1060 = {
 					NOR = {
 						has_trait = celibate
 						has_sexuality = asexual
-						NOT = { is_attracted_to_gender_of = scope:joker }
+						NOR = { #Unop Add unshackled_lust_perk
+							is_attracted_to_gender_of = scope:joker
+							has_perk = unshackled_lust_perk
+						}
 					}
 				}
 				modifier = {
@@ -5409,7 +5451,12 @@ yearly.1060 = {
 					NOR = {
 						scope:intention = flag:flirt
 						AND = {
-							scope:joker = { is_attracted_to_gender_of = root }
+							scope:joker = { 
+								OR = {
+									is_attracted_to_gender_of = root
+									has_perk = unshackled_lust_perk
+								}
+							}
 							has_trait = seducer
 						}
 					}
@@ -5457,7 +5504,12 @@ yearly.1060 = {
 				desc = yearly.1060.charmed.message
 				modifier = {
 					factor = 0 #Only available if they're into your gender
-					scope:joker = { NOT = { is_attracted_to_gender_of = root } }
+					scope:joker = {
+						NOR = { #Unop Add unshackled_lust_perk
+							is_attracted_to_gender_of = root
+							has_perk = unshackled_lust_perk
+						}
+					}
 				}
 				modifier = {
 					has_trait = seducer
@@ -5554,7 +5606,10 @@ yearly.1060 = {
 
 		if = {
 			limit = {
-				is_attracted_to_gender_of = scope:joker
+				OR = { #Unop Add unshackled_lust_perk
+					is_attracted_to_gender_of = scope:joker
+					has_perk = unshackled_lust_perk
+				}
 			}
 			stress_impact = {
 				lustful = medium_stress_impact_gain

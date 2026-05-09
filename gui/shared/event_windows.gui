@@ -45,11 +45,13 @@ types Events
 			coa_realm_small_crown = {
 				visible = "[Character.HasLandedTitles]"
 				parentanchor = bottom
+				block "coa_bg" {}
 			}
 
 			portrait_status_icons = {
+				block "status_bg" {}
 				parentanchor = bottom
-				margin_bottom = 5
+				margin_bottom = 10
 			}
 		}
 	}
@@ -58,10 +60,17 @@ types Events
 		flowcontainer = {
 			ignoreinvisible = yes
 			direction = horizontal
+			block "right_icons" {}
 
-			portrait_status_icons = {}
+			portrait_status_icons = {
+				block "status_bg" {}
+				parentanchor = bottom
+				margin_bottom = 10
+			}
 
 			coa_realm_small_crown = {
+				parentanchor = bottom
+				block "coa_bg" {}
 				visible = "[Character.HasLandedTitles]"
 			}
 		}
@@ -78,6 +87,15 @@ types Events
 		default_clicksound = "event:/SFX/UI/Generic/sfx_ui_generic_icon_select"
 		onclick = "[EventOption.Select]"
 		clicksound = "[EventOption.GetClickSound]"
+		block "eventoption_down" {
+			down = "[And(GetVariableSystem.HasValue('event_tooltip', EventOption.GetText), PdxGuiFoldOut.IsUnfolded)]"
+		}
+
+		# shift: select option
+		button_event_shortcut = {}
+		
+		# alt: preview option
+		button_event_preview = {}
 
 		block "onmousehierarchy_callbacks" {
 			onmousehierarchyenter = "[EventOption.OnEnter]"
@@ -104,7 +122,7 @@ types Events
 
 		# Trick to not have the option text steal tooltips from the trait/skill grid
 		hbox = {
-			tooltip = "[EventOption.GetTooltip]"
+			tooltip = "EVENT_TOOLTIP_SHORTCUT"
 			tooltip_visible = "[Not( StringIsEmpty( EventOption.GetTooltip ) )]"
 
 			block "option_tooltip_position"
@@ -142,6 +160,9 @@ types Events
 		### BUTTON CONTENT ####
 		hbox = {
 			margin = { 5 0 }
+
+			# number
+			widget_event_shortcut = {}
 
 			hbox = {
 				fixedgridbox = {
@@ -869,6 +890,7 @@ types Events
 								texture = "gfx/interface/icons/court_position_types/court_physician_court_position.dds"
 								tooltip = "EVENT_WINDOW_OPTION_AVAILABLE_VISIT_SETTLEMENT_CHURCH_HOLDING_PHYSICIAN"
 							}
+
 							##CASTLE HOLDING
 							icon = {
 								name = "training_grounds_icon"
@@ -897,6 +919,20 @@ types Events
 								size = { 34 34 }
 								texture = "gfx/interface/icons/court_position_types/bodyguard_court_position.dds"
 								tooltip = "EVENT_WINDOW_OPTION_AVAILABLE_VISIT_SETTLEMENT_CASTLE_HOLDING_BODYGUARD"
+							}
+							icon = {
+								name = "available_bodyguard_icon"
+								visible = "[ReasonItem.IsFlag( 'has_bodyguard' )]"
+								size = { 34 34 }
+								texture = "gfx/interface/icons/court_position_types/bodyguard_court_position.dds"
+								tooltip = "EVENT_WINDOW_OPTION_AVAILABLE_BODYGUARD"
+							}
+							icon = {
+								name = "tutor_icon"
+								visible = "[ReasonItem.IsFlag( 'has_tutor' )]"
+								size = { 34 34 }
+								texture = "gfx/interface/icons/court_position_types/court_tutor_court_position.dds"
+								tooltip = "EVENT_WINDOW_OPTION_AVAILABLE_TUTOR"
 							}
 
 							##CITY HOLDING
@@ -1257,17 +1293,17 @@ types Events
 								size = { 34 34 }
 								texture = "gfx/interface/icons/title_status/icon_claim_pressed.dds"
 							}
-							# icon = {
-							# 	name  = "end_the_struggle_oath_icon"
-							# 	visible = "[ReasonItem.IsFlag( 'end_the_struggle_oath' )]"
-							# 	size = { 34 34 }
-							# 	texture = "gfx/interface/icons/struggle_types/struggle.dds"
-							# }
+							icon = {
+								name  = "end_the_struggle_oath_icon"
+								visible = "[ReasonItem.IsFlag( 'end_the_struggle_oath' )]"
+								size = { 34 34 }
+								texture = "gfx/interface/icons/struggle_types/struggle.dds"
+							}
 							icon = {
 								name  = "greatest_hunter_oath_icon"
 								visible = "[ReasonItem.IsFlag( 'greatest_hunter_oath' )]"
 								size = { 34 34 }
-								texture = "gfx/interface/icons/traits/hunter.dds"
+								texture = "gfx/interface/icons/activities/activity_hunt.dds" #Unop: Replace the hunter lifestyle icon with the activity one (to not have one icon with a background)
 							}
 							icon = {
 								name  = "heir_preparation_oath_icon"
@@ -1319,6 +1355,30 @@ types Events
 								texture = "[GetPlayer.GetInvolvedActivity.GetType.GetIcon]"
 								tooltip = "EVENT_WINDOW_OPTION_AVAILABLE_HOST_ACTIVITY_INTENT"
 							}
+
+							icon = {
+								name = "caravan_master_icon"
+								visible = "[ReasonItem.IsFlag( 'caravan_master' )]"
+								size = { 34 34 }
+								texture = "gfx/interface/icons/court_position_types/travel_leader_court_position.dds"
+								tooltip = "EVENT_WINDOW_OPTION_AVAILABLE_CARAVAN_MASTER"
+							}
+
+							# Calradian Kings Icons 
+							icon = {
+								name = "ck_reason_house_prestige"
+								visible = "[ReasonItem.IsFlag( 'ck_reason_house_prestige' )]"
+								size = { 34 34 }
+								texture = "gfx/interface/icons/character_interactions/icon_dynasty.dds"
+								tooltip = "ep3_laamps.5030.a.tt"
+							}
+							# icon = { ## Recomment when merging my S.A.M. branch (Eastwood) into main
+							# 	name = "ck_reason_gallowsbait_icon"
+							# 	visible = "[ReasonItem.IsFlag( 'ck_reason_gallowsbait' )]"
+							# 	size = { 34 34 }
+							# 	texture = "gfx/interface/icons/traits/gallowsbait.dds"
+							# 	tooltip = "ck_reason_gallowsbait_tt"
+							# }
 						}
 					}
 				}
@@ -1379,6 +1439,9 @@ types Events
 			}
 
 			##### SPACER #####
+			# number spacer
+			widget_event_shortcut_base = {}
+			
 			hbox = {
 				hbox = {
 					name = "reason_spacers"
@@ -1642,8 +1705,6 @@ types Events
 	}
 }
 
-
-
 template artifact_event_flowcontainer {
 
 	tooltipwidget = {
@@ -1651,13 +1712,16 @@ template artifact_event_flowcontainer {
 	}
 
 	icon_artifact = {
-		parentanchor = hcenter
+		block "artifact_anchor" {
+			parentanchor = hcenter
+		}
 	}
 
 	text_label_center = {
 		alwaystransparent = yes
 		text = "[Artifact.GetNameNoTooltip]"
-		max_width = 160
+		max_width = 130
+		max_height = 60
 		parentanchor = hcenter
 		align = center
 		fontsize_min = 12
@@ -1695,6 +1759,8 @@ template Event_Window_Debug_Info
 			tooltip = "TOGGLE_DEBUG_OPTION_TOOLTIPS"
 			using = tooltip_below
 			onclick = "[EventWindowData.ToggleDebugOptionTooltips]"
+			onclick = "[GetVariableSystem.Clear('event_tooltip')]"
+			onclick = "[PdxGuiFoldOut.Fold]"
 			fontsize = 24
 		}
 	}
@@ -1781,6 +1847,161 @@ template Event_Window_Debug_Info
 }
 
 template Event_Window_Debug_OptionTooltips
+{		
+	using = Event_Window_Clean_OptionTooltips
+	
+	container = {
+		name = "event_window_preview_tooltips_list"
+		visible_at_creation = no
+		visible = "[PdxGuiFoldOut.IsUnfolded]"
+		
+		state = {
+			name = "hide_clean_previews"
+			trigger_when = "[And(EventWindowData.ShowDebugOptionTooltips, PdxGuiFoldOut.IsUnfolded)]"
+			on_finish = "[EventWindowData.ToggleDebugOptionTooltips]"
+		}
+		
+		state = {
+			name = auto_close
+			block "is_event_on_top_close" {}
+			on_finish = "[PdxGuiFoldOut.Fold]"
+			on_finish = "[GetVariableSystem.Clear('event_tooltip')]"
+		}
+		
+		button = {
+			shortcut = close_window
+			onclick = "[PdxGuiFoldOut.Fold]"
+			onclick = "[GetVariableSystem.Clear('event_tooltip')]"
+		}
+		
+		block "event_tooltips_position" {
+			position = { 25 -18 }
+			parentanchor = left|bottom
+			widgetanchor = right|bottom
+		}
+		
+		scrollbox = {
+			max_width = 600
+			block "tooltip_scroll_height" {
+				max_height = 800
+			}
+			autoresizescrollarea = yes
+			alwaystransparent = yes
+			blockoverride "scrollbox_background" {}
+			blockoverride "scrollbox_background_fade" {}
+			blockoverride "scrollbox_margins" {}
+			blockoverride "scrollbox_content" {
+				hbox = {
+					layoutpolicy_horizontal = expanding
+					layoutpolicy_vertical = expanding
+					margin_right = 10
+					alwaystransparent = yes
+					block "flip_tooltips" {}
+					
+					expand = {}
+					
+					vbox = {
+						datamodel = "[EventWindowData.GetOptions]"
+						alwaystransparent = yes
+						layoutpolicy_vertical = expanding
+						blockoverride "bg_color" {}
+						blockoverride "frame_color" {}
+						expand = {}
+						
+						item = {
+							hbox = {
+								layoutpolicy_horizontal = expanding
+								min_height = 42
+								datacontext = "[GetDeepestTooltipInfo]"
+
+								block "flip_tooltips" {}
+								
+								expand = {}
+								
+								alwaystransparent = no
+								# This is a copy of gui template 'DefaultTooltipWidget'
+								container = {
+									visible = "[Or(GetVariableSystem.HasValue('event_tooltip', EventOption.GetText), Not(GetVariableSystem.Exists('event_tooltip')))]"
+									using = GeneralTooltipSetup
+									
+									container = {
+										button = {
+											onclick = "[EventOption.Select]"
+											onclick = "[GetVariableSystem.Clear('event_tooltip')]"
+											clicksound = "[EventOption.GetClickSound]"
+											visible = "[GetVariableSystem.Exists('event_tooltip')]"
+											using = SubTabShortcut
+										}
+										visible = "[Not(IsPauseMenuShown)]"
+									}
+									
+									
+									widget = {
+										name = "background"
+										using = DefaultTooltipBackground
+										size = { 100% 100% }
+										
+										animation_glow_event = {
+											name = "special_option"
+											visible = "[And(EventOption.HasFlag('special'), Not(EventOption.HasFlag('dangerous')))]"
+										}
+										
+										animation_glow_event = {
+											name = "dangerous_option"
+											visible = "[EventOption.HasFlag('dangerous')]"
+											using = Color_Red
+										}
+									}
+									
+									flowcontainer = {
+										direction = vertical
+										margin_right = 10
+										
+										textbox = {
+											name = "TooltipText"
+											block "max_tooltip_width" {
+												max_width = 410
+											}
+											min_width = 230
+											text = "[EventOption.GetTooltip]"
+											using = DefaultTooltipText
+											margin = { 20 20 }
+											margin_top = 10
+											alwaystransparent = yes
+											autoresize = yes
+											multiline = yes
+										}
+										
+										flowcontainer = {
+											ignoreinvisible = yes
+											margin_top = -20
+											margin_bottom = 15
+											margin_right = 15
+											parentanchor = right
+											visible = "[EventOption.IsValid]"
+											
+											container = {
+												using = Disable_Event_Previews
+												ignoreinvisible = yes
+												
+												textbox = {
+													raw_text = "CONFIRM_EVENT_OPTION"
+													using = DefaultTooltipText
+												}
+											}
+										}							
+									}
+								}
+							}
+						}
+					}
+				}
+			}			
+		}
+	}
+}
+
+template Event_Window_Clean_OptionTooltips
 {
 	vbox = {
 		name = "event_window_debug_tooltip_list"
@@ -1788,10 +2009,12 @@ template Event_Window_Debug_OptionTooltips
 		visible = "[EventWindowData.ShowDebugOptionTooltips]"
 		alwaystransparent = yes
 
-		position = { 20 -18 }
 		size = { 600 100% }
-		parentanchor = left|bottom
-		widgetanchor = right|bottom
+		block "clean_event_tooltips_position" {
+			position = { 0 -18 }
+			parentanchor = left|bottom
+			widgetanchor = right|bottom
+		}
 
 		vbox = {
 			layoutpolicy_vertical = expanding
@@ -1806,6 +2029,7 @@ template Event_Window_Debug_OptionTooltips
 					alwaystransparent = no
 
 					layoutpolicy_horizontal = expanding
+					block "clean_flip_tooltips" {}
 					expand = {}
 					# This is a copy of gui template 'DefaultTooltipWidget'
 					container = {
@@ -1848,6 +2072,7 @@ template Event_Window_Debug_OptionTooltips
 	}
 }
 
+
 template Event_Window_Default_Transition_States
 {
 	state = {
@@ -1866,6 +2091,39 @@ template Event_Window_Default_Transition_States
 template Event_Window_Debug_EventTools
 {
 	allow_outside = "[EventWindowData.ShowEventTools]"
+	
+	oncreate = "[BindFoldOutContext]"
+	oncreate = "[PdxGuiFoldOut.SetShownBehavior( 'folded' )]"
+	
+	# alt+E
+	# first, show all options
+	container = {
+		# we have multiple blocks is_event_on_top to disable shortcuts for events in the background
+		visible = "[Not(IsPauseMenuShown)]"
+		block "is_event_on_top" {}
+		
+		button = {
+			visible = "[And(PdxGuiFoldOut.IsFolded, LessThan_int32(GetDataModelSize(EventWindowData.GetOptions), '(int32)10'))]"
+			onclick = "[PdxGuiFoldOut.Unfold]"
+			onclick = "[GetVariableSystem.Clear('event_tooltip')]"
+			shortcut = "event_tooltips"
+		}
+		
+		# if one is selected, clear the selection and keep it open
+		button = {
+			visible = "[And(GetVariableSystem.Exists('event_tooltip'), PdxGuiFoldOut.IsUnfolded)]"
+			onclick = "[GetVariableSystem.Clear('event_tooltip')]"
+			shortcut = "event_tooltips"
+		}
+		
+		# if none is selected, close yourself
+		button = {
+			visible = "[And(Not(GetVariableSystem.Exists('event_tooltip')), PdxGuiFoldOut.IsUnfolded)]"
+			onclick = "[PdxGuiFoldOut.Fold]"
+			shortcut = "event_tooltips"
+		}
+	}
+	
 	widget = {
 		name = "event_window_event_tools"
 		visible_at_creation = no
@@ -2117,5 +2375,84 @@ template Event_Window_Debug_EventTools
 
 			expand = {}
 		}
+	}
+}
+
+
+### shortcuts
+
+types Events {
+	type widget_event_shortcut = widget_event_shortcut_base {
+		allow_outside = yes
+		
+		text_single = {
+			autoresize = no
+			alwaystransparent = yes
+			
+			 # to make it easier to tooltip
+			margin_left = 5
+			size = { 30 36 }
+			parentanchor = vcenter
+			alpha = "[Select_float( Or(EventOption.HasFlag('dangerous'), Not(EventOption.IsValid)), '(float)0.3', '(float)0.75' )]"
+			
+			block "shortcut_format" {
+				default_format = "#low"
+			}
+			block "shortcut_tip" {
+				tooltip = "EVENT_NUMBER_TIP"
+			}
+			align = nobaseline
+			raw_text = "[Add_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)1')]"
+		}
+	}
+	
+	type button_event_shortcut = button {
+		onclick = "[EventOption.Select]"
+		clicksound = "[EventOption.GetClickSound]"
+		onclick = "[GetVariableSystem.Clear('event_tooltip')]"
+		# shift+number
+		shortcut = "[Concatenate('event_option_', IntToString(Add_int32(PdxGuiWidget.GetIndexInDataModel, '(int32)1')))]"
+		visible = "[And(Not(EventOption.HasFlag('dangerous')), Not(IsPauseMenuShown))]"
+		block "is_event_on_top" {}
+	}
+	
+	type button_event_preview = button {
+		# alt+ number
+		using = SubTabShortcut
+		onclick = "[GetVariableSystem.Set('event_tooltip', EventOption.GetText)]"
+		onclick = "[PdxGuiFoldOut.Unfold]"
+		
+		# to disable it so the confirm shortcut takes priority
+		block "button_event_preview" {
+			visible = "[And(And(Or(Not(GetVariableSystem.HasValue('event_tooltip', EventOption.GetText)), PdxGuiFoldOut.IsFolded), Not(IsPauseMenuShown)), LessThan_int32(GetDataModelSize(EventWindowData.GetOptions), '(int32)10'))]"
+		}
+		block "is_event_on_top" {}
+	}
+	type widget_event_shortcut_base = widget {
+		block "shortcut_size" {
+			size = { 15 20 }
+		}
+		using = Show_Event_Number
+	}
+}
+
+template Show_Event_Number {
+	visible = "[And(IsGameSettingOptionSelected('show_event_shortcuts', 'options_and_tooltips'), LessThan_int32(GetDataModelSize(EventWindowData.GetOptions), '(int32)10'))]"
+}
+template Disable_Event_Previews {
+	visible = "[And(And(Not(IsGameSettingOptionSelected('show_event_shortcuts', 'nowhere')), LessThan_int32(GetDataModelSize(EventWindowData.GetOptions), '(int32)10')), Not(IsPauseMenuShown))]"
+}
+template Event_Window_Right_Tooltips {
+	using = Event_Window_Debug_OptionTooltips
+	blockoverride "event_tooltips_position" {
+		position = { -25 -18 }
+		parentanchor = right|bottom
+		widgetanchor = left|bottom
+	}
+	blockoverride "flip_tooltips" {
+		righttoleft = yes
+	}
+	blockoverride "max_tooltip_width" {
+		max_width = 330
 	}
 }

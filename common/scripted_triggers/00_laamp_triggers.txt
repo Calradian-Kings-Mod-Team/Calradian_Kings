@@ -161,7 +161,7 @@ laamp_request_likely_marriable_man_trigger = {
 
 ## Allow the Vaegir LAAMP to take the Vaegir Guard MAA
 vaegir_laamp_vaegir_guards_trigger = {
-	this = character:vaegir_laamp_1
+	primary_title ?= title:d_laamp_vaegirs
 }
 
 
@@ -191,10 +191,12 @@ is_valid_for_laampdom = {
 		limit = { tgp_realm_has_ceremonial_liege_trigger = yes }
 		custom_tooltip = {
 			text = tgp_japan_imperial_branch_decision_imperial_heir_trigger
-			top_liege.primary_title.var:administrative_ui_special_title = {
-				place_in_line_of_succession = {
-					target = root
-					value > 5
+			NOT = {
+				top_liege.primary_title.var:administrative_ui_special_title = {
+					place_in_line_of_succession = {
+						target = scope:potential_laamp_temp
+						value <= 4
+					}
 				}
 			}
 		}
@@ -492,7 +494,16 @@ valid_laamp_basic_accept_only_trigger = {
 employer_has_treasury_to_offer_job_trigger = {
 	trigger_if = {
 		limit = { is_ai = no }
-		scope:employer.treasury_or_gold >= 50
+		scope:employer = {
+			OR = {
+				treasury_or_gold >= 50
+				trigger_if = {
+					limit = { government_allows = barter }
+					# no define:NBarter|BARTER_GOODS_TO_LOOT_MULT here. wanua rulers start as lower than 100 barter goods
+					barter_goods >= 50
+				}
+			}
+		}
 	}
 }
 

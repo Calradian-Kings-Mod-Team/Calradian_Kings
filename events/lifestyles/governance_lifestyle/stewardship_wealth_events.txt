@@ -65,7 +65,7 @@ stewardship_wealth.1001 = {
 	weight_multiplier = {
 		base = 1
 
-		#Higher chance of occuring the more in-debt you are.
+		#Higher chance of occurring the more in-debt you are.
 		modifier = {
 			gold < -100
 			add = 5
@@ -75,7 +75,7 @@ stewardship_wealth.1001 = {
 			add = 15
 		}
 
-		#Additional chance of occuring if you're actively bleeding money.
+		#Additional chance of occurring if you're actively bleeding money.
 		modifier = {
 			monthly_character_income <= monthly_character_expenses
 			factor = 10
@@ -823,12 +823,10 @@ stewardship_wealth.1051 = {
 	desc = stewardship_wealth.1051.desc
 	
 	theme = stewardship_wealth_focus
-	override_background = {
-		reference = throne_room
-	}
+	override_background = { reference = garden }
 	left_portrait = {
 		character = scope:freeman
-		animation = idle
+		animation = bribing
 	}
 	
 	trigger = {
@@ -933,7 +931,6 @@ stewardship_wealth.1051 = {
 		name = stewardship_wealth.1051.b
 		add_gold = medium_gold_value
 		scope:target_county = {
-			change_county_control = -20
 			add_county_modifier = {
 				modifier = governance_1051_independent_farmlands_modifier
 				days = 1825
@@ -964,7 +961,18 @@ stewardship_wealth.1051 = {
 	option = {
 		name = stewardship_wealth.1051.d
 		scope:target_county = {
-			change_county_control = 10
+			if = {
+				limit = {
+					county_control < 100
+				}
+				change_county_control = 20
+			}
+			else = {
+				add_county_modifier = {
+					modifier = stewardship_domain_personal_ownership_modifier
+					days = 1825
+				}
+			}
 		}
 		hidden_effect = {
 			scope:freeman = {
@@ -1022,9 +1030,9 @@ scripted_trigger stewardship_wealth_1061_valid_vassal = {
 	# Must not be a Baron.
 	trigger_if = {
 		limit = {
-			is_vassal_or_below_of = root
+			is_vassal_of = root
 		}
-		highest_held_title_tier > 1
+		highest_held_title_tier > tier_county
 	}
 	# Must be available for events.
 	is_available_ai_adult = yes
@@ -1065,6 +1073,7 @@ stewardship_wealth.1061 = {
 	desc = stewardship_wealth.1061.desc
 	
 	theme = stewardship_wealth_focus
+	cooldown = { years = 10 }
 	left_portrait = {
 		character = scope:vassal
 		animation = idle
@@ -1078,12 +1087,11 @@ stewardship_wealth.1061 = {
 					stewardship_wealth_1061_valid_vassal = yes					
 				}
 			}
-			any_vassal = {
+			any_vassal_or_below = {
 				stewardship_wealth_1061_valid_vassal = yes
 			}
 		}
-		NOR = { 
-			has_character_flag = had_stewardship_wealth_1061_event 
+		NOT = {
 			any_character_artifact = {
 				has_artifact_feature = book_topic_stewardship_old_ledger
 			}
@@ -1107,10 +1115,6 @@ stewardship_wealth.1061 = {
 	}
 
 	immediate = {
-		add_character_flag = {
-			flag = had_stewardship_wealth_1061_event
-			days = 3650
-		}
 		liege = {
 			random_vassal_or_below = {
 				limit = {
@@ -1501,6 +1505,9 @@ stewardship_wealth.5001 = {
 	}
 	
 	option = { #slaughter and sell
+		trigger = {
+			is_vegetarian_trigger = no
+		}
 		name = stewardship_wealth.5001.c
 		add_gold = medium_gold_value
 		stress_impact = {
@@ -1631,7 +1638,7 @@ stewardship_wealth.5002 = { #by Mathilda Bjarnehed
 				trigger = {
 					faith = {
 						NOR = {
-							has_doctrine = tenet_aniconism
+							has_doctrine_parameter = destroying_artifacts_is_pious
 							religion = religion:aserai_religion
 						}
 					}
@@ -1670,7 +1677,7 @@ stewardship_wealth.5002 = { #by Mathilda Bjarnehed
 					NOT = { scope:safe_investment = flag:religious_sculptor }
 					faith = {
 						NOR = {
-							has_doctrine = tenet_aniconism
+							has_doctrine_parameter = destroying_artifacts_is_pious
 							religion = religion:aserai_religion
 						}
 					}
@@ -1705,7 +1712,7 @@ stewardship_wealth.5002 = { #by Mathilda Bjarnehed
 				scope:safe_investment = flag:religious_sculptor
 				faith = {
 					NOR = {
-						has_doctrine = tenet_aniconism
+						has_doctrine_parameter = destroying_artifacts_is_pious
 						religion = religion:aserai_religion
 					}
 				}
@@ -1797,7 +1804,7 @@ stewardship_wealth.5002 = { #by Mathilda Bjarnehed
 				scope:risky_investment = flag:religious_sculptor
 				faith = {
 					NOR = {
-						has_doctrine = tenet_aniconism
+						has_doctrine_parameter = destroying_artifacts_is_pious
 						religion = religion:aserai_religion
 					}
 				}
@@ -1998,8 +2005,13 @@ stewardship_wealth.6001 = {
 		reference = market
 	}
 
+	cooldown = { years = 10 }
+
 	trigger = {
 		is_at_war = no
+		NOT = {
+			faith = { has_doctrine_parameter = destroying_artifacts_is_pious }
+		}
 		NOT = {
 			any_character_artifact = {
 				has_variable = small_wooden_carving_artifact

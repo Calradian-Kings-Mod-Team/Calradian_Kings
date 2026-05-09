@@ -22,9 +22,17 @@ defenders_of_highgod_decision = {
 		OR = {
 			faith = faith:northern_gods
 			faith = faith:vakken_faith
+			#faith = faith:anburian_faith # CK_NORTHEAST CK_JUMNE - Add an Anburian religion in the future
 		}
 		#Only once per faith
 		NOR = {
+			# AND = {
+			# 	faith = faith:anburian_faith
+			# 	is_target_in_global_variable_list = {
+			# 		name = unavailable_unique_decisions
+			# 		target = flag:defenders_of_highgod_baltic_decision
+			# 	}
+			# }
 			AND = {
 				faith = faith:northern_gods
 				is_target_in_global_variable_list = {
@@ -42,13 +50,25 @@ defenders_of_highgod_decision = {
 		}
 	}
 
+	widget = { #Unop: The goal is to prevent players to waste this decision that IMHO is hard to setup
+		controller = create_holy_order #revoke_holy_order_lease #create_holy_order
+		barony_valid = {
+			trigger_if = {
+				limit = { exists = this }
+				title_province = { has_special_building_slot = no }
+				holder = scope:ruler
+				is_leased_out = no
+			}
+		}
+	}
+
 	is_valid = {
 		#Holds a holy site
 		faith = {
 			any_holy_site = {
 				county = {
 					holder = root
-					title_province = { has_special_building = no  }
+					#title_province = { has_special_building = no  } #Unop: We do not check if the building have been constructed or not
 				}
 			}
 		}
@@ -101,38 +121,46 @@ defenders_of_highgod_decision = {
 
 
 	effect = {
+		scope:barony = { save_scope_as = holy_site } #Unop: Save the county as the holy_site
 		save_scope_as = defender_of_highgod
 
 		show_as_tooltip = { defenders_of_highgod_decision_effects = yes } #Actually applied in east_europe.0010 - prestige, laws, title, innovation effects
 
 		#Events
-		if = {
-			limit = {
-				faith = {
-					any_holy_site = {
-						count > 1
-						county.holder = root
-						title_province = { has_special_building = no  }
-					}
-				}
-			}	
-			trigger_event = east_europe.0015
-		}
-		else = {
-			faith = {
-				random_holy_site = {
-					limit = {
-						county.holder = root
-						title_province = { has_special_building = no  }
-					}
-					save_scope_as = holy_site
-				}
-			}
+		#if = { #Unop: As we are now using the widget in the decision to allow county selection, the events below are obsolete, leaving only the call to east_europe.0016 to actually build the building
+		#	limit = {
+		#		faith = {
+		#			any_holy_site = {
+		#				count > 1
+		#				county.holder = root
+		#				title_province = { has_special_building = no  }
+		#			}
+		#		}
+		#	}	
+		#	trigger_event = east_europe.0015
+		#}
+		#else = {
+		#	faith = {
+		#		random_holy_site = {
+		#			limit = {
+		#				county.holder = root
+		#				title_province = { has_special_building = no  }
+		#			}
+		#			save_scope_as = holy_site
+		#		}
+		#	}
 			trigger_event = east_europe.0016
-		}
+		#}
 		#Event to every player (east_europe.0017) is actually send through east_europe.0016 to make sure the right holy site scope is set
 
 		#Can only happen once per faith
+		# if = {
+		# 	limit = { faith = faith:anburian_faith }
+		# 	add_to_global_variable_list = {
+		# 		name = unavailable_unique_decisions
+		# 		target = flag:defenders_of_highgod_baltic_decision
+		# 	}
+		# }
 		if = {
 			limit = { faith = faith:northern_gods }
 			add_to_global_variable_list = {

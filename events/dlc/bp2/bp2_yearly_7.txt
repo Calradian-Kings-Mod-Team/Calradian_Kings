@@ -410,6 +410,8 @@ bp2_yearly.7001 = { #Spouse is jealous about a Wet Nurse
 				has_trait = arbitrary
 				has_trait = paranoid
 			}
+			#Unop: Ensure the spouse is not the actual wet nurse (yes this is possible if you are in a clan government)
+			NOT = { this = scope:wet_nurse_temp }
 		}
 	}
 	immediate = {
@@ -425,7 +427,7 @@ bp2_yearly.7001 = { #Spouse is jealous about a Wet Nurse
 						secret_owner = root
 						AND = {
 							secret_type = secret_lover
-							secret_target = scope:wet_nurse_temp
+							secret_target = scope:wet_nurse #Unop Use correct scope
 						}
 					}
 				}
@@ -442,6 +444,8 @@ bp2_yearly.7001 = { #Spouse is jealous about a Wet Nurse
 						}
 					}
 				}
+				#Unop: Ensure the spouse is not the actual wet nurse (yes this is possible if you are in a clan government)
+				NOT = { this = scope:wet_nurse }
 			}
 			save_scope_as = jealous_spouse
 		}
@@ -1610,7 +1614,8 @@ bp2_yearly.7005 = { #Wet Nurse informs you about first fallen teeth of your chil
 		}
 		random_courtier = {
 			limit = {
-				child_not_teen_trigger = yes
+				child_not_infant_trigger = yes #Unop Ensure this limit matches the trigger
+				age <= 8
 				this = root.player_heir
 				is_available_ai = yes
 				location = root.location
@@ -1621,7 +1626,8 @@ bp2_yearly.7005 = { #Wet Nurse informs you about first fallen teeth of your chil
 				}
 			}
 			alternative_limit = {
-				child_not_teen_trigger = yes
+				child_not_infant_trigger = yes #Unop Ensure this limit matches the trigger
+				age <= 8
 				NOT = {
 					any_sibling = {
 						age > prev.age
@@ -1632,13 +1638,15 @@ bp2_yearly.7005 = { #Wet Nurse informs you about first fallen teeth of your chil
 				is_child_of = root
 			}
 			alternative_limit = {
-				child_not_teen_trigger = yes
+				child_not_infant_trigger = yes #Unop Ensure this limit matches the trigger
+				age <= 8
 				is_available_ai = yes
 				location = root.location
 				is_child_of = root
 			}
 			alternative_limit = {
-				child_not_teen_trigger = yes
+				child_not_infant_trigger = yes #Unop Ensure this limit matches the trigger
+				age <= 8
 				is_available_ai = yes
 				location = root.location
 				OR = {
@@ -3254,6 +3262,9 @@ bp2_yearly.7012 = { #if any child has positive realtion with the fired nurse tri
 		scope:nursed_child = {
 			is_alive = yes
 		}
+		scope:former_wet_nurse = {
+			is_alive = yes
+		}
 	}
 
 	immediate = {
@@ -4439,11 +4450,14 @@ bp2_yearly.7022 = { #Duel outcome
 			}
 		}
 		clean_rites_flags_success = yes
-		scope:duelist_1 = {
+		scope:duelist_1 ?= {
 			silent_disappearance_ai_if_created_effect = yes
 		}
-		scope:duelist_2 = {
+		scope:duelist_2 ?= {
+			if = { #Unop: prevent scope is dead during effect execution
+				limit = { is_alive = yes }
 			silent_disappearance_ai_if_created_effect = yes
+			}
 		}
 	}
 }

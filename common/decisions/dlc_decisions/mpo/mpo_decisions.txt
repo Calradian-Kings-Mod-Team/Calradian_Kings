@@ -91,21 +91,13 @@ call_for_confederation_decision = {
 
 	is_valid_showing_failures_only = {
 		age >= 6
+		NOT = { has_trait = infirm }
+		is_available = yes
 		trigger_if = {
 			limit = {
-				is_ai = no
+				is_ai = yes
 			}
-			NOT = { exists = involved_activity }
-			NOT = { has_trait = infirm }
-			is_physically_able = yes
-			is_travelling = no
-		}
-		trigger_else = {
-			is_imprisoned = no
-			is_incapable = no
-			is_alive = yes
 			is_migrating = no
-			NOT = { has_trait = infirm }
 		}
 	}
 
@@ -430,20 +422,7 @@ leave_confederation_decision = {
 	}
 
 	is_valid_showing_failures_only = {
-		trigger_if = {
-			limit = {
-				is_ai = no
-			}
-			NOT = { exists = involved_activity }
-			is_physically_able = yes
-			is_travelling = no
-		}
-		trigger_else = {
-			is_alive = yes
-			is_imprisoned = no
-			is_incapable = no
-			NOT = { exists = involved_activity }
-		}
+		is_available = yes
 	}
 
 	cost = {
@@ -1806,6 +1785,19 @@ mpo_decision_fertility_dance = {
         }
     }
 
+    widget = {
+        controller = create_holy_order
+        barony_valid = {
+            trigger_if = {
+                limit = { exists = this }
+                is_capital_barony = yes
+                county = {
+                    uses_county_fertility = yes
+                }
+            }
+        }
+    }
+
     effect = {
         scope:barony.county = { save_scope_as = fertility_county }
         custom_tooltip = {
@@ -1839,19 +1831,6 @@ mpo_decision_fertility_dance = {
 				}
 			}		
 		}
-    }
-
-    widget = {
-        controller = create_holy_order
-        barony_valid = {
-            trigger_if = {
-                limit = { exists = this }
-                is_capital_barony = yes
-                county = {
-                    uses_county_fertility = yes
-                }
-            }
-        }
     }
 	
 	ai_check_interval_by_tier = {

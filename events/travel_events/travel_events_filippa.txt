@@ -124,6 +124,7 @@ travel_events.2000 = {
 				geographical_region = world_steppe_east
 				geographical_region = world_india
 				geographical_region = world_nahasa
+				# geographical_region = world_himalaya
 				geographical_region = region_darshi_west
 			}
 			NOR = {
@@ -1954,6 +1955,7 @@ travel_events.2005 = {
 	#Friendly: improve their pastures for friendship!
 	option = { 
 		name = travel_events.2005.b
+		
 		location.county = {
 			add_county_modifier = {
 				modifier = travel_improved_pasture_modifier
@@ -4091,7 +4093,7 @@ travel_events.2012 = {
 				}
 			}
 			#To avoid bloating the tooltip if we have a bunch of entourage members
-			custom_tooltip = travel_events.2012.c_tt
+			custom_tooltip = travel_events.2012.b_tt #Unop: Fix wrong text used, entourage will be happy about this
 			hidden_effect = {
 				current_travel_plan = {
 					every_entourage_character = {
@@ -7183,6 +7185,10 @@ scripted_effect inform_player_about_secret_effect = {
 	}
 }
 
+# this replaces witch_rejected = yes inside faith scope
+scripted_trigger witch_rejected = {
+	NOT = { has_doctrine_parameter = witchcraft_accepted } #Unop: Check doctrine param instead since witchcraft can be virtuous
+}
 #You found a very weird mendicant character
 travel_events.2020 = { 
 	type = character_event
@@ -7279,7 +7285,7 @@ travel_events.2020 = {
 		if = {
 			limit = {
 				faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					witch_rejected = yes
 				}
 			}
 			add_piety = major_piety_loss
@@ -7322,7 +7328,7 @@ travel_events.2020 = {
 		if = {
 			limit = {
 				faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					witch_rejected = yes
 				}
 			}
 			add_piety = massive_piety_loss
@@ -7380,7 +7386,7 @@ travel_events.2020 = {
 		if = {
 			limit = {
 				faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					witch_rejected = yes
 				}
 			}
 			add_piety = massive_piety_loss
@@ -7459,7 +7465,7 @@ travel_events.2020 = {
 		if = {
 			limit = {
 				faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					witch_rejected = yes
 				}
 			}
 			add_piety = major_piety_gain
@@ -7561,13 +7567,11 @@ travel_events.2021 = {
 		play_music_cue = "mx_cue_low_key_positive"
 		#Generate a random trinket
 		hidden_effect = {
-			scope:estate_character = {
-				generate_trinket_effect = {
-					TRINKET_RECEIVER = root
-					TRINKET_GIVER = root
-					GRAB_ALL_TRINKETS = yes
-					HISTORY_TYPE = stolen_unknown
-				}
+			generate_trinket_effect = {
+				TRINKET_RECEIVER = root
+				TRINKET_GIVER = root
+				GRAB_ALL_TRINKETS = yes
+				HISTORY_TYPE = stolen_unknown
 			}
 		}
 	}
@@ -8003,12 +8007,12 @@ travel_events.2022 = {
 				AND = {
 					scope:county_liege != root
 					scope:county_liege.faith = {
-						NOT = { has_doctrine = doctrine_witchcraft_accepted }
+						witch_rejected = yes
 					}
 				}
 				AND = {
 					faith = {
-						NOT = { has_doctrine = doctrine_witchcraft_accepted }
+						witch_rejected = yes
 					}
 				}	
 			}
@@ -8018,7 +8022,7 @@ travel_events.2022 = {
 			limit = {
 				scope:county_liege = root
 				faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					witch_rejected = yes
 				}
 			}
 			#Get reward
@@ -8030,7 +8034,7 @@ travel_events.2022 = {
 		if = {
 			limit = { 
 				scope:county_liege.faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					witch_rejected = yes
 				}
 			}
 			#Get reward
@@ -8125,11 +8129,11 @@ travel_events.2022 = {
 				AND = {
 					scope:county_liege != root
 					scope:county_liege.faith = {
-						NOT = { has_doctrine = doctrine_witchcraft_accepted }
+						NOT = { has_doctrine_parameter = witchcraft_accepted } #Unop: Check doctrine param instead since witchcraft can be virtuous
 					}
 				}
 				faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					NOT = { has_doctrine_parameter = witchcraft_accepted }
 				}
 			}
 		}
@@ -8138,7 +8142,7 @@ travel_events.2022 = {
 			limit = {
 				scope:county_liege = root
 				faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					NOT = { has_doctrine_parameter = witchcraft_accepted }
 				}
 			}
 			#Get reward
@@ -8166,14 +8170,14 @@ travel_events.2022 = {
 			limit = { 
 				scope:county_liege != root
 				scope:county_liege.faith = {
-					NOT = { has_doctrine = doctrine_witchcraft_accepted }
+					NOT = { has_doctrine_parameter = witchcraft_accepted }
 				}
 			}
 			#Get reward
 			if = {
 				limit = {
 					faith = {
-						NOT = { has_doctrine = doctrine_witchcraft_accepted }
+						NOT = { has_doctrine_parameter = witchcraft_accepted }
 					}
 				}
 				add_piety = massive_piety_gain
@@ -12901,8 +12905,7 @@ travel_events.2038 = {
 					#Don't need a bunch of rabbit paws
 					if = {
 						limit = {
-							any_artifact = {
-								artifact_owner = root
+							any_character_artifact = {
 								has_variable = rabbits_paw
 							}
 							NOT = { has_trait = lifestyle_hunter }
@@ -12911,8 +12914,7 @@ travel_events.2038 = {
 					}
 					else_if = {
 						limit = {
-							any_artifact = {
-								artifact_owner = root
+							any_character_artifact = {
 								has_variable = rabbits_paw
 							}
 							has_trait = lifestyle_hunter
@@ -13034,8 +13036,7 @@ travel_events.2038 = {
 			scope:entourage_character = {
 				is_adult = no
 				NOT = {
-					any_artifact = {
-						artifact_owner = scope:entourage_character
+					any_character_artifact = {
 						has_variable = rabbits_paw
 					}
 				}
@@ -13247,8 +13248,7 @@ travel_events.2039 = {
 			#Don't need a bunch of rabbit paws
 			if = {
 				limit = {
-					any_artifact = {
-						artifact_owner = root
+					any_character_artifact = {
 						has_variable = rabbits_paw
 					}
 					NOT = { has_trait = lifestyle_hunter }
@@ -13257,8 +13257,7 @@ travel_events.2039 = {
 			}
 			else_if = {
 				limit = {
-					any_artifact = {
-						artifact_owner = root
+					any_character_artifact = {
 						has_variable = rabbits_paw
 					}
 					has_trait = lifestyle_hunter
