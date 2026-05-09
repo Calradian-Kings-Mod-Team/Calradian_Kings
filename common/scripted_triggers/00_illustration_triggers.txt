@@ -120,7 +120,7 @@ graphical_wilderness_steppe_trigger = {
 			OR = {
 				geographical_region = world_steppe
 				geographical_region = region_darshi_west
-				geographical_region = region_darshi_west
+				geographical_region = world_steppe_khergits
 			}
 		}
 	}
@@ -531,10 +531,23 @@ has_graphical_western_region_trigger = {
 has_graphical_iberia_region_trigger = {
 	trigger_if = {
 		limit = {
+			game_start_date >= 1257.3.23
+		}
+		# expansion of graphical_mediterranean to account for sarranid capital in shariz
+		has_graphical_mediterranean_region_trigger = yes
+	}
+	trigger_else_if = {
+		limit = {
 			exists = capital_province
 		}
 		capital_province = {
-			geographical_region = region_perassic_isles
+			geographical_region = world_europe_west_iberia
+			trigger_if = {
+				limit = {
+					geographical_region = region_north_nahasa_coast
+				}
+				province_owner ?= { NOT = { government_allows = always_use_patronym } } # tribal + clan catchall 
+			}
 		}
 	}
 	trigger_else_if = {
@@ -544,7 +557,7 @@ has_graphical_iberia_region_trigger = {
 		trigger_if = { 
 			limit = { exists = host.capital_province }
 			host.capital_province = {
-				geographical_region = region_perassic_isles
+				geographical_region = world_europe_west_iberia
 			}
 		}
 		trigger_else_if = {
@@ -552,7 +565,7 @@ has_graphical_iberia_region_trigger = {
 				exists = liege.capital_province
 			}
 			liege.capital_province = {
-				geographical_region = region_perassic_isles
+				geographical_region = world_europe_west_iberia
 			}
 		}
 		trigger_else_if = {
@@ -560,7 +573,7 @@ has_graphical_iberia_region_trigger = {
 				exists = location.province_owner.capital_province
 			}
 			location.province_owner.capital_province = {
-				geographical_region = region_perassic_isles
+				geographical_region = world_europe_west_iberia
 			}
 		}
 		trigger_else = { always = yes }
@@ -576,10 +589,14 @@ has_graphical_iran_region_trigger = {
 			exists = capital_province
 		}
 		capital_province = {
-			OR = {
-				geographical_region = world_middle_east_persia
-				geographical_region = world_steppe_tarim
-				geographical_region = world_steppe_central
+			trigger_if = { # block true nomad/herder
+				limit = {
+					steppe_building_gfx_use_iranian_trigger = yes
+				}
+				province_owner ?= { government_allows = buildings }
+			}
+			trigger_else = {
+				iranian_province_trigger = yes
 			}
 		}
 	}
@@ -590,10 +607,14 @@ has_graphical_iran_region_trigger = {
 		trigger_if = { 
 			limit = { exists = host.capital_province }
 			host.capital_province = {
-				OR = {
-					geographical_region = world_middle_east_persia
-					geographical_region = world_steppe_tarim
-					geographical_region = world_steppe_central
+				trigger_if = { # block true nomad/herder
+					limit = {
+						steppe_building_gfx_use_iranian_trigger = yes
+					}
+					host ?= { government_allows = buildings }
+				}
+				trigger_else = {
+					iranian_province_trigger = yes
 				}
 			}
 		}
@@ -602,10 +623,14 @@ has_graphical_iran_region_trigger = {
 				exists = liege.capital_province
 			}
 			liege.capital_province = {
-				OR = {
-					geographical_region = world_middle_east_persia
-					geographical_region = world_steppe_tarim
-					geographical_region = world_steppe_central
+				trigger_if = { # block true nomad/herder
+					limit = {
+						steppe_building_gfx_use_iranian_trigger = yes
+					}
+					province_owner ?= { government_allows = buildings }
+				}
+				trigger_else = {
+					iranian_province_trigger = yes
 				}
 			}
 		}
@@ -614,11 +639,7 @@ has_graphical_iran_region_trigger = {
 				exists = location.province_owner.capital_province
 			}
 			location.province_owner.capital_province = {
-				OR = {
-					geographical_region = world_middle_east_persia
-					geographical_region = world_steppe_tarim
-					geographical_region = world_steppe_central
-				}
+				iranian_province_trigger = yes
 			}
 		}
 		trigger_else = { always = yes }
@@ -673,12 +694,25 @@ steppe_building_gfx_use_mediterranean_trigger = {
 		}
 	}	
 }
+# both of these are also used for has_graphical_iran_region_trigger
+iranian_province_trigger = {
+	OR = {
+		geographical_region = world_middle_east_persia
+		geographical_region = world_steppe_tarim
+		geographical_region = world_steppe_central
+		trigger_if = {
+			limit = {
+				has_game_rule = ck_khergit_clan
+				game_start_date >= 1257.3.23
+			}
+			geographical_region = region_warband_khergits # khergit settled
+		}
+	}
+}
+# most cultures do not have both steppe_building_gfx and iranian_building_gfx
 steppe_building_gfx_use_iranian_trigger = {
 	AND = {
-		OR = {
-			geographical_region = world_steppe_central
-			geographical_region = world_middle_east_persia
-		}
+		iranian_province_trigger = yes
 		culture ?= { has_building_gfx = steppe_building_gfx }
 	}
 }
@@ -711,6 +745,116 @@ steppe_building_gfx_use_southeast_asian_trigger = {
 	AND = {
 		culture ?= { has_building_gfx = steppe_building_gfx }
 		geographical_region = world_asia_southeast
+	}
+}
+
+steppe_building_gfx_use_borteq_camp_character_trigger = {
+	AND = {
+		culture ?= {
+			has_cultural_pillar = heritage_khuzic
+			has_building_gfx = steppe_building_gfx
+		}
+		exists = host
+		is_imprisoned = no # can't be "house" arrested in the open
+		trigger_if = {
+			limit = {
+				government_has_flag = government_is_clan
+			}
+			host.capital_province ?= {
+				has_holding_type = castle_holding
+				steppe_building_gfx_use_iranian_trigger = no # skip khergits
+			}
+		}
+		# trigger_else_if = {
+		# 	limit = {
+		# 		government_has_flag = government_is_tribal
+		# 	}
+		# 	capital_province ?= {
+		# 		has_holding_type = tribal_holding
+		# 	}
+		# }
+		trigger_else_if = { #use other tents
+			limit = {
+				government_has_flag = government_is_nomadic
+			}
+			host.capital_county ?= {
+				NOT = {
+					any_county_situation = {
+						situation_type = the_great_steppe
+					}
+				}
+			}
+		}
+		trigger_else = { # tribal gov is evaluated earlier
+			highest_held_title_tier <= tier_duchy # meant for e_arkits
+		}
+	}
+}
+steppe_building_gfx_use_khiindai_camp_character_trigger = {
+	AND = {
+		culture ?= {
+			has_cultural_pillar = heritage_khiindai
+			has_building_gfx = steppe_building_gfx
+		}
+		mpo_has_gok_mongol_empire_trigger = no
+		# highest_held_title_tier <= tier_kingdom # skip e_great_horde
+		exists = host
+		is_imprisoned = no # can't be "house" arrested in the open
+		trigger_if = {
+			limit = {
+				government_has_flag = government_is_clan
+			}
+			host.capital_province ?= {
+				has_holding_type = castle_holding
+			}
+		}
+		trigger_else_if = { #use other tents
+			limit = {
+				government_has_flag = government_is_nomadic
+			}
+			host.capital_county ?= {
+				NOT = {
+					any_county_situation = {
+						situation_type = the_great_steppe
+					}
+				}
+			}
+		}
+		trigger_else = { # tribal gov is evaluated earlier
+			highest_held_title_tier <= tier_duchy
+		}
+	}
+}
+
+# catchall to shorten the code inside ingame.txt
+secondary_background_trigger = {
+	OR = {
+		# trigger_if = {
+		# 	limit = {
+		# 		is_character_window_main_character = yes
+		# 	}
+		# 	$TRIGGER$ = yes
+		# }
+		trigger_if = {
+			limit = {
+				$FAMILY$ = yes
+			}
+			any_close_family_member = {
+				#is_at_same_location = still broken
+				location ?= prev.location
+				$TRIGGER$ = yes
+			}
+		}
+		primary_spouse ?= {
+			$TRIGGER$ = yes
+		}
+		betrothed ?= {
+			$TRIGGER$ = yes
+		}
+		liege ?= {
+			diarch ?= this
+			$TRIGGER$ = yes
+		}
 	}
 }
 
@@ -750,7 +894,16 @@ high_tier_throne_room_spouse_trigger = {
 
 byzantine_governor_trigger = {
 	is_landed = yes
-	government_allows = administrative
+	trigger_if = {
+		limit = {
+			has_trait = ck_royalist
+		}
+		ai_honor > 15
+	}
+	trigger_else = {
+		government_allows = administrative
+		# has_trait = governor
+	}
 	liege ?= {
 		# OR = {
 			AND = {
@@ -766,7 +919,10 @@ byzantine_governor_trigger = {
 byzantine_governor_close_family_trigger = {
 	location = prev.location
 	is_landed = yes
-	government_has_flag = government_is_administrative
+	OR = {
+		has_trait = ck_royalist
+		government_has_flag = government_is_administrative
+	}
 	exists = top_liege
 	top_liege = {
 		# OR = {
@@ -870,7 +1026,16 @@ has_graphical_korean_region_trigger = {
 	}
 	trigger_else = { always = yes }
 }
-
+has_graphical_calradic_empire_character_trigger = {
+	is_landed_or_landless_administrative = yes
+	culture = {
+		has_cultural_pillar = heritage_calradian
+		# relax this via traditions for warband bookmark?
+	}
+	top_liege ?= {
+		valid_for_byz_emperor_content_trigger = yes
+	}
+}
 #Northern Empire
 has_graphical_northern_empire_trigger = {
 	trigger_if = {
