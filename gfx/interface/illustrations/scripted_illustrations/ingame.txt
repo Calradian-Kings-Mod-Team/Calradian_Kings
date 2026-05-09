@@ -2427,13 +2427,18 @@ character_view_bg = {
 		reference = "event_scenes/mpo_temple_steppe.dds"
 
 		trigger = {
-			involved_activity ?= { has_activity_type = activity_pilgrimage }
-			# OR = {
+			involved_activity ?= {
+				OR = {
+					has_activity_type = activity_pilgrimage
+					has_activity_type = activity_funeral
+				}
+			}
+			OR = {
 				involved_activity.activity_location.religion = religion:khuzait_religion
 				involved_activity.activity_location.religion = religion:guzzic_religion
 				# involved_activity.activity_location.religion = religion:magyar_religion
 				# involved_activity.activity_location.religion = religion:siberian_religion
-			# }
+			}
 			location ?= involved_activity.activity_location
 		}
 	}
@@ -9472,6 +9477,35 @@ character_view_bg = {
 		}
 	}
 
+	texture = { # senatorial militarist (ai in western empire)
+		reference = "event_scenes/ep3_city_gate.dds" #ep3_military_tent for interior?
+		trigger = {
+			has_trait = ck_militarist
+			ai_energy >= 10
+			has_graphical_calradic_empire_character_trigger = yes
+		}
+	}
+	texture = { # senatorial oligarchs (ai in northern empire)
+		reference = "event_scenes/ep3_medi_market.dds"
+		trigger = {
+			has_trait = ck_oligarch
+			ai_greed >= 20
+			has_graphical_calradic_empire_character_trigger = yes
+		}
+	}
+	texture = { # senatorial populist (that 1 guy)
+		reference = "event_scenes/ep3_holysite_orthodox.dds"
+		trigger = {
+			OR = {
+				has_trait = ck_populist
+				has_trait = peasant_leader
+				has_trait = heresiarch
+			}
+			ai_sociability >= 20
+			has_graphical_calradic_empire_character_trigger = yes
+		}
+	}
+
 	texture = { # Governors
 		reference = "event_scenes/ep3_relaxing_room.dds"
 
@@ -9512,35 +9546,6 @@ character_view_bg = {
 				any_close_family_member = { byzantine_governor_close_family_trigger = yes } # Close family in the same location
 			}
 			is_character_window_main_character = no
-		}
-	}
-
-	texture = { # senatorial militarist (ai in western empire)
-		reference = "event_scenes/ep3_city_gate.dds" #ep3_military_tent for interior?
-		trigger = {
-			has_trait = ck_militarist
-			ai_energy >= 10
-			has_graphical_calradic_empire_character_trigger = yes
-		}
-	}
-	texture = { # senatorial oligarchs (ai in northern empire)
-		reference = "event_scenes/ep3_medi_market.dds"
-		trigger = {
-			has_trait = ck_oligarch
-			ai_greed >= 20
-			has_graphical_calradic_empire_character_trigger = yes
-		}
-	}
-	texture = { # senatorial populist (that 1 guy)
-		reference = "event_scenes/ep3_holysite_orthodox.dds"
-		trigger = {
-			OR = {
-				has_trait = ck_populist
-				has_trait = peasant_leader
-				has_trait = heresiarch
-			}
-			ai_sociability >= 20
-			has_graphical_calradic_empire_character_trigger = yes
 		}
 	}
 
@@ -10363,50 +10368,53 @@ character_view_bg = {
 
 		trigger = {
 			has_fp3_dlc_trigger = yes
-			exists = primary_title
-			primary_title.tier >= tier_kingdom
+			trigger_if = {
+				limit = {
+					highest_held_title_tier >= tier_kingdom
+				}
+				high_tier_throne_room_trigger = { REGION = iran }
+			}
+			trigger_else = {
+				# limit = {
+					high_tier_throne_room_spouse_trigger = { REGION = iran }
+				# }
+				# is_character_window_main_character = no
+				# secondary_background_trigger = {
+				# 	TRIGGER = has_graphical_iran_region_trigger
+				# 	FAMILY = yes
+				# }
+			}
+		}
+	}
+	texture = { # prayer room on one side
+		reference = "/decisions/fp3/fp3_decision_secret_faith.dds"
+		trigger = {
+			is_courtier = yes
+			has_graphical_iran_region_trigger = yes
+		}
+	}
+	texture = { # people arguing under blue throne # /music_player/fp3_mood_soundtrack_list.dds
+		reference = "/event_scenes/bp2_tavern_mena.dds" # open area, table covered up by portrait
+		trigger = {
+			top_liege != this
+			highest_held_title_tier >= tier_duchy
 			has_graphical_iran_region_trigger = yes
 		}
 	}
 
 	environment = {
-		reference = "environment_cw_fp2_iberian_throneroom_main"
-
+		reference = "environment_fp3_frontend_iranian_main"
 		trigger = {
 			has_fp3_dlc_trigger = yes
-			exists = primary_title
-			primary_title.tier >= tier_kingdom
-			has_graphical_iran_region_trigger = yes
+			high_tier_throne_room_trigger = { REGION = iran }
 			is_character_window_main_character = yes
 		}
 	}
-
 	environment = {
-		reference = "environment_cw_fp2_iberian_throneroom_main"
-
+		reference = "environment_fp3_frontend_iranian_secondary"
 		trigger = {
-			OR = {
-				primary_spouse ?= {
-					has_fp3_dlc_trigger = yes
-					exists = primary_title
-					primary_title.tier >= tier_kingdom
-					has_graphical_iran_region_trigger = yes
-				}
-				betrothed ?= {
-					has_fp3_dlc_trigger = yes
-					exists = primary_title
-					primary_title.tier >= tier_kingdom
-					has_graphical_iran_region_trigger = yes
-				}
-				AND = {
-					liege.diarch ?= this
-					liege ?= {
-						exists = primary_title
-						primary_title.tier >= tier_empire
-						has_graphical_iberia_region_trigger = yes
-					}
-				}
-			}
+			has_fp3_dlc_trigger = yes
+			high_tier_throne_room_spouse_trigger = { REGION = iran }
 			is_character_window_main_character = no
 		}
 	}
@@ -11007,8 +11015,8 @@ character_view_bg = {
 
 		trigger = {
 			steppe_building_gfx_use_borteq_camp_character_trigger = yes
-			exists = default_location
-			location ?= default_location
+			# exists = default_location
+			# location ?= default_location
 		}
 	}
 
@@ -11025,19 +11033,9 @@ character_view_bg = {
 				location ?= default_location
 			}
 			trigger_else = {
-				OR = {
-					primary_spouse ?= {
-						steppe_building_gfx_use_borteq_camp_character_trigger = yes
-					}
-					betrothed ?= {
-						steppe_building_gfx_use_borteq_camp_character_trigger = yes
-					}
-					AND = {
-						liege.diarch ?= this
-						liege ?= {
-							steppe_building_gfx_use_borteq_camp_character_trigger = yes
-						}
-					}
+				secondary_background_trigger = {
+					TRIGGER = steppe_building_gfx_use_borteq_camp_character_trigger
+					FAMILY = yes
 				}
 			}
 		}
@@ -11065,19 +11063,9 @@ character_view_bg = {
 				location ?= default_location
 			}
 			trigger_else = {
-				OR = {
-					primary_spouse ?= {
-						steppe_building_gfx_use_khiindai_camp_character_trigger = yes
-					}
-					betrothed ?= {
-						steppe_building_gfx_use_khiindai_camp_character_trigger = yes
-					}
-					AND = {
-						liege.diarch ?= this
-						liege ?= {
-							steppe_building_gfx_use_khiindai_camp_character_trigger = yes
-						}
-					}
+				secondary_background_trigger = {
+					TRIGGER = steppe_building_gfx_use_khiindai_camp_character_trigger
+					FAMILY = yes
 				}
 			}
 		}
