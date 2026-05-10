@@ -490,6 +490,8 @@
 		remove_character_flag = recruits_rhoyd_troops
 		remove_character_flag = recruits_heimarkel_troops
 		remove_character_flag = recruits_eilander_troops
+		remove_character_flag = recruits_kohayan_troops
+		remove_character_flag = recruits_kartinakh_troops
 		if = {
 			limit = {
 				domicile.domicile_location.county.culture = {
@@ -736,26 +738,26 @@
 			add_character_flag = recruits_nordic_troops	
 			custom_tooltip = will_recruit_nordic
 		}
-		# else_if = { ## CK_MAA - Uncomment once we have a set of Kartinakh troops
-		# 	limit = {
-		# 		domicile.domicile_location.county.culture = culture:kartinakh
-		# 	}
-		# 	send_interface_toast = {
-		# 		title = recruit_local_troops_message
-		# 	}
-		# 	add_character_flag = recruits_kartinakh_troops	
-		# 	custom_tooltip = will_recruit_kartinakh
-		# }
-		# else_if = { ## CK_MAA - Uncomment once we have a set of Kohayan troops
-		# 	limit = {
-		# 		domicile.domicile_location.county.culture = culture:kohayan
-		# 	}
-		# 	send_interface_toast = {
-		# 		title = recruit_local_troops_message
-		# 	}
-		# 	add_character_flag = recruits_kohayan_troops	
-		# 	custom_tooltip = will_recruit_kohayan
-		# }
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = culture:kartinakh
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_kartinakh_troops	
+			custom_tooltip = will_recruit_kartinakh
+		}
+		else_if = {
+			limit = {
+				domicile.domicile_location.county.culture = culture:kohayan
+			}
+			send_interface_toast = {
+				title = recruit_local_troops_message
+			}
+			add_character_flag = recruits_kohayan_troops	
+			custom_tooltip = will_recruit_kohayan
+		}
 		else = {
 			custom_tooltip = will_recruit_local
 		}
@@ -831,6 +833,8 @@ recruit_cultural_troops_decision = {
 		remove_character_flag = recruits_heimarkel_troops
 		remove_character_flag = recruits_eilander_troops
 		remove_character_flag = recruits_local_troops
+		remove_character_flag = recruits_kohayan_troops
+		remove_character_flag = recruits_kartinakh_troops
 	}
 	
 	ai_potential = {
@@ -1088,7 +1092,60 @@ recruit_local_troops_landed_decision = {
 				}
 			}
 		}
-		trigger_if = { ### For heritages with unique maas
+		trigger_if = { ### For Kohinik Cultures
+			limit = {
+				culture = { has_cultural_pillar = heritage_kohinik }
+			}
+			trigger_if = { ### Kartinakh
+				limit = {
+					OR = {
+						has_culture = culture:kartinakh
+						culture = { has_variable = kartinakh_troops_var }
+					}
+				}
+				custom_tooltip = {
+					text = half_of_realm_foreign_and_valid_tt
+					any_sub_realm_county = {
+						percent > 0.5
+						culture = {
+							NOR = {
+								this = culture:kartinakh
+								has_variable = kartinakh_troops_var
+							}
+						}
+					}
+					OR = {
+						heritages_NB_cultures_OR_trigger = yes
+						balian_cultures_OR_trigger = yes
+					}
+				}
+			}
+			trigger_if = { ### Kohayan
+				limit = {
+					OR = {
+						has_culture = culture:kohayan
+						culture = { has_variable = kohayan_troops_var }
+					}
+				}
+				custom_tooltip = {
+					text = half_of_realm_foreign_and_valid_tt
+					any_sub_realm_county = {
+						percent > 0.5
+						culture = {
+							NOR = {
+								this = culture:kohayan
+								has_variable = kohayan_troops_var
+							}
+						}
+					}
+					OR = {
+						heritages_NB_cultures_OR_trigger = yes
+						balian_cultures_OR_trigger = yes
+					}
+				}
+			}
+		}
+		trigger_else_if = { ### For heritages with unique maas
 			limit = {
 				NOT = { culture = { has_cultural_pillar = heritage_balian } }
 			}
@@ -1484,6 +1541,8 @@ recruit_cultural_troops_landed_decision = {
 		remove_character_flag = recruits_heimarkel_troops
 		remove_character_flag = recruits_eilander_troops
 		remove_character_flag = recruits_local_troops
+		remove_character_flag = recruits_kohayan_troops
+		remove_character_flag = recruits_kartinakh_troops
 	}
 	
 	ai_potential = {
