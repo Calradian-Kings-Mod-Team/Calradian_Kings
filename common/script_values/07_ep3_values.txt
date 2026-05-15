@@ -413,7 +413,7 @@ granary_modifier_scaling_value = {
 				}
 				add = {
 					value = 100
-					subtract = domicile.domicile_location.county.county_control
+					subtract = domicile_location.county.county_control #Unop ck3-tiger Use correct scope
 					multiply = 0.1
 					round = yes
 					min = 1
@@ -791,16 +791,38 @@ eparch_aptitude_modifier_scaling_value = {
 }
 university_cost_reduction_value = 0.25
 eparch_scheme_secrecy_bonus_value = {
-	if = {
+	if = { #Unop: We need to handle being called from both scheme that target a character or a landed title
 		limit = {
-			scope:owner ?= { has_court_position = eparch_court_position }
-			scope:target = {
-				domicile ?= { domicile_location = owner.top_liege.capital_province }
+			is_scheme_target_type = character
+		}
+		if = {
+			limit = {
+				scope:owner ?= { has_court_position = eparch_court_position }
+				scope:target = {
+					domicile ?= { domicile_location = owner.top_liege.capital_province }
+				}
+			}
+			add = {
+				value = 15
+				desc = eparch_scheme_bonus_desc
 			}
 		}
-		add = {
-			value = 15
-			desc = eparch_scheme_bonus_desc
+	}
+	else_if = {
+		limit = {
+			is_scheme_target_type = title
+		}
+		if = {
+			limit = {
+				scope:owner ?= { has_court_position = eparch_court_position }
+				scope:target.holder = {
+					domicile ?= { domicile_location = owner.top_liege.capital_province }
+				}
+			}
+			add = {
+				value = 15
+				desc = eparch_scheme_bonus_desc
+			}
 		}
 	}
 }
@@ -1054,7 +1076,7 @@ ep3_hire_laamp_mercs_payment_value = {
 	min = scope:employer.medium_gold_value
 	if = {
 		limit = {
-			scope:laamp_temp.domicile ?= { has_domicile_parameter = camp_improved_mercenary_contract_rewards }
+			domicile ?= { has_domicile_parameter = camp_improved_mercenary_contract_rewards }
 		}
 		multiply = camp_improved_mercenary_contract_rewards_value
 	}
@@ -1069,9 +1091,13 @@ ep3_hire_laamp_mercs_payment_value = {
 	}
 	if = {
 		limit = {
-			scope:laamp_temp ?= { has_perk = hard_rule_perk }
+			has_perk = hard_rule_perk
 		}
 		multiply = adventurer_hard_rule_contract_rewards_value
+	}
+	if = {
+		limit = { exists = var:aggregate_war_contribution_value }
+		add = var:aggregate_war_contribution_value
 	}
 	max = {
 		value = scope:employer.yearly_character_income
@@ -3091,7 +3117,27 @@ task_contract_failure_provisions_gain_minor_value = 0
 
 adventurer_siege_replenish_amount = {
 	value = 0
-	add = scope:barony.title_province.available_loot
+	add = { #Unop: Because the recently_looted_modifier set the available_loot of the province to 0 and I don't know any way to get the potential value of the county I had to find a workaround to still make this work.
+		value = 0
+		if = {
+			limit = {
+				scope:barony.title_province = {
+					has_province_modifier = recently_looted_modifier
+				}
+			}
+			if = {
+				limit = {
+					scope:barony.title_province = { 
+						has_variable = unop_potential_province_loot 
+					}
+				}
+				add = scope:barony.title_province.var:unop_potential_province_loot
+			}
+		}
+		else = {
+			add = scope:barony.title_province.available_loot
+		}
+	}
 	multiply = {
 		value = 2
 		if = {
@@ -3105,7 +3151,27 @@ adventurer_siege_replenish_amount = {
 
 adventurer_siege_provisions_amount = {
 	value = 0
-	add = scope:barony.title_province.available_loot
+	add = { #Unop: Because the recently_looted_modifier set the available_loot of the province to 0 and I don't know any way to get the potential value of the county I had to find a workaround to still make this work.
+		value = 0
+		if = {
+			limit = {
+				scope:barony.title_province = {
+					has_province_modifier = recently_looted_modifier
+				}
+			}
+			if = {
+				limit = {
+					scope:barony.title_province = { 
+						has_variable = unop_potential_province_loot 
+					}
+				}
+				add = scope:barony.title_province.var:unop_potential_province_loot
+			}
+		}
+		else = {
+			add = scope:barony.title_province.available_loot
+		}
+	}
 	multiply = 20
 }
 
@@ -3165,6 +3231,7 @@ laamp_base_2011_actual_surveyable_holdings_per_tier_value = {
 	value = sub_realm_size
 	every_sub_realm_barony = {
 		limit = {
+			exists = holder #Unop
 			holder.highest_held_title_tier = tier_barony
 			title_province != root.domicile.domicile_location
 		}
@@ -4124,95 +4191,52 @@ appointment_investment_cap = {
 		##### ESTATE BUILDINGS
 		if = {
 			limit = { exists = house.house_head.domicile }
-			house.house_head.domicile = {
+			house.house_head.domicile = { #Unop: Rewrote all this to check for parameters instead of building (since some buildings are missing and is not future proof)
 				add = {
 					value = 0
 					if = {
-						limit = { has_domicile_building = estate_main_02 }
+						limit = { has_domicile_parameter = estate_increase_house_member_investment_cap_1 }
 						add = 10
 					}
 					else_if = {
-						limit = { has_domicile_building = estate_main_03 }
+						limit = { has_domicile_parameter = estate_increase_house_member_investment_cap_2 }
 						add = 20
 					}
 					else_if = {
-						limit = { has_domicile_building = estate_main_04 }
+						limit = { has_domicile_parameter = estate_increase_house_member_investment_cap_3 }
 						add = 30
 					}
 					else_if = {
-						limit = { has_domicile_building = estate_main_05 }
+						limit = { has_domicile_parameter = estate_increase_house_member_investment_cap_4 }
 						add = 40
 					}
-					if = {
-						limit = { has_domicile_building = reception_hall_02 }
-						add = 10
-					}
-					else_if = {
-						limit = { has_domicile_building = reception_hall_03 }
-						add = 20
-					}
-					else_if = {
-						limit = { has_domicile_building = reception_hall_04 }
-						add = 30
-					}
-					else_if = {
-						limit = { has_domicile_building = reception_hall_05 }
-						add = 40
+					else_if = { #Unop: No building have this ATM, but it exists in the YML, adding it here just in case to be future proof
+						#tiger-ignore(key=missing-item)
+						limit = { has_domicile_parameter = estate_increase_house_member_investment_cap_5 }
+						add = 50
 					}
 					if = {
-						limit = { has_domicile_building = east_asian_estate_main_02 }
-						add = 10
-					}
-					else_if = {
-						limit = { has_domicile_building = east_asian_estate_main_03 }
-						add = 20
-					}
-					else_if = {
-						limit = { has_domicile_building = east_asian_estate_main_04 }
-						add = 30
-					}
-					else_if = {
-						limit = { has_domicile_building = east_asian_estate_main_05 }
-						add = 40
-					}
-					if = {
-						limit = { has_domicile_building = east_asian_estate_reception_hall_02 }
-						add = 10
-					}
-					else_if = {
-						limit = { has_domicile_building = east_asian_estate_reception_hall_03 }
-						add = 20
-					}
-					else_if = {
-						limit = { has_domicile_building = east_asian_estate_reception_hall_04 }
-						add = 30
-					}
-					else_if = {
-						limit = { has_domicile_building = east_asian_estate_reception_hall_05 }
-						add = 40
-					}
-					if = {
-						limit = { has_domicile_building = japanese_manor_office_01 }
+						limit = { has_domicile_parameter = japanese_manor_increase_house_member_investment_cap_1 }
 						add = 5
 					}
 					else_if = {
-						limit = { has_domicile_building = japanese_manor_office_02 }
+						limit = { has_domicile_parameter = japanese_manor_increase_house_member_investment_cap_2 }
 						add = 10
 					}
 					else_if = {
-						limit = { has_domicile_building = japanese_manor_office_03 }
+						limit = { has_domicile_parameter = japanese_manor_increase_house_member_investment_cap_3 }
 						add = 15
 					}
 					else_if = {
-						limit = { has_domicile_building = japanese_manor_office_04 }
+						limit = { has_domicile_parameter = japanese_manor_increase_house_member_investment_cap_4 }
 						add = 20
 					}
 					else_if = {
-						limit = { has_domicile_building = japanese_manor_office_05 }
+						limit = { has_domicile_parameter = japanese_manor_increase_house_member_investment_cap_5 }
 						add = 25
 					}
 					else_if = {
-						limit = { has_domicile_building = japanese_manor_office_06 }
+						limit = { has_domicile_parameter = japanese_manor_increase_house_member_investment_cap_6 }
 						add = 30
 					}
 					desc = appointment_investment_cap_estate_buildings
@@ -4356,14 +4380,14 @@ ep3_foreign_ruler_interest_in_coup_value = {
 
 ep3_distance_to_comparator_claim = {
 	value = 0
-	add = "title_capital_county.squared_distance(scope:comparator.capital_county)"
+	add = "title_capital_county.squared_distance(scope:comparator.capital_province)" #Unop
 	abs = yes
 	multiply = -1
 }
 
 ep3_distance_to_comparator_capital_county = {
 	value = 0
-	add = "squared_distance(scope:comparator.capital_county)"
+	add = "squared_distance(scope:comparator.capital_province)" #Unop
 	abs = yes
 	multiply = -1
 }
@@ -4397,6 +4421,21 @@ number_of_granaries_in_egypt_value = {
 # 	multiply = 150
 # }
 # ep3_byz_regiments_gained_value = {
+# 	value = 0
+# 	if = {
+# 		limit = {
+# 			exists = scope:regiment_1
+# 		}
+# 		add = 2
+# 	}
+# 	if = {
+# 		limit = {
+# 			exists = scope:regiment_2
+# 		}
+# 		add = 3
+# 	}
+# }
+# ep3_byz_regiments_ck_value = {
 # 	value = 0
 # 	if = {
 # 		limit = {
@@ -4938,7 +4977,7 @@ replenishable_troops_max_gold_tt_value = {
 }
 
 replenishable_troops_provision_cost_value = {
-	value = scope:actor.replenishable_troops_value
+	scope:actor = { every_maa_regiment = { add = replenishable_troops_value } } #Unop ck3-tiger
 	max = scope:actor.domicile.max_provisions
 	multiply = -1
 }

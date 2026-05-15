@@ -255,7 +255,7 @@ on_county_occupied = {
 				}
 			}
 		}
-		# Mongol Devastation
+		# # Mongol Devastation
 		# if = {
 		# 	limit = {
 		# 		# Check that it's relevant so we don't fire it *all* the time
@@ -273,6 +273,7 @@ on_county_occupied = {
 		# 		}
 		# 		NOT = { exists = scope:county.var:looted_by_mongols }
 		# 	}
+		# 	save_scope_as = mongol_emperor #Unop Moved before first use in mongols_devastate_county_effect
 		# 	# Each County should only be devastated once
 		# 	scope:county = {
 		# 		set_variable = {
@@ -327,7 +328,7 @@ on_county_occupied = {
 		# 			}
 		# 		}
 		# 	}
-		# 	save_scope_as = mongol_emperor
+		# 	#save_scope_as = mongol_emperor #Unop moved above
 		# 	# Send a message to the County's owner
 		# 	scope:county.holder = {
 		# 		send_interface_message = {
@@ -599,7 +600,14 @@ on_siege_looting = {
 	}
 
 	effect = {
+		#Unop: As there is no way to get the "available_loot" and keep this modifier, store this in a variable for the duration of the modifier.
+		#Unop: The goal is to still be able to use it in the on_siege_completion just above but there might be other effect/event that would need to check this new variable.
 		scope:barony.title_province ?= {
+			set_variable = {
+				name = unop_potential_province_loot
+				value = available_loot
+				years = 5
+			}
 			# Adventurer Siege replenish
 			every_army_in_location = {
 				limit = {
@@ -662,7 +670,14 @@ on_siege_looting = {
 				multiply = 5
 			}
 		}
-		tgp_treasury_raided_effect = yes
+
+		#Unop Use correct scope: tgp_treasury_raided_effect expects army scope
+		scope:barony.title_province ?= {
+			random_army_in_location = {
+				limit = { army_owner = root }
+				tgp_treasury_raided_effect = yes
+			}
+		}
 
 	}
 }
