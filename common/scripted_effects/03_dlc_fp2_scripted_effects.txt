@@ -658,9 +658,9 @@ fp2_contract_assistance_war_pay_effect = {
 						title = contract_assistance_war_msg_title
 						left_icon = scope:contract_assistance_helper
 						custom_tooltip = contract_assistance_war_msg_hirer_paid_desc
-						pay_short_term_gold = {
+						pay_treasury_or_gold = {
 							target = scope:contract_assistance_helper
-							gold = scope:contract_assistance_helper.var:owed_contract_assistance_gold
+							value = scope:contract_assistance_helper.var:owed_contract_assistance_gold
 						}
 					}
 				}
@@ -672,11 +672,22 @@ fp2_contract_assistance_war_pay_effect = {
 						custom_tooltip = contract_assistance_war_msg_helper_paid_desc
 						show_as_tooltip = {
 							scope:contract_assistance_hirer = {
-								pay_short_term_gold = {
+								pay_treasury_or_gold = {
 									target = scope:contract_assistance_helper
-									gold = scope:contract_assistance_helper.var:owed_contract_assistance_gold
+									value = scope:contract_assistance_helper.var:owed_contract_assistance_gold
 								}
 							}
+						}
+						if = {
+							limit = { # add 0 to 100 not raw gold value
+								has_variable = owed_contract_assistance_contribution
+								OR = { # from the interaction in lieu of struggle
+									has_trait_with_flag = unlocks_contract_assistance
+									culture = { has_cultural_parameter = unlocks_contract_assistance }
+									government_has_flag = government_is_landless_adventurer
+								}
+							}
+							add_martial_lifestyle_xp = var:owed_contract_assistance_contribution
 						}
 					}
 				}
