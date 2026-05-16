@@ -725,7 +725,12 @@ apply_random_location_effect = {
 		# 	visit_court_of = location.county.holder
 		# }
 		# else = {
+		if = {
+			limit = {
+				NOT = { exists = employer }
+			}
 			set_employer = location.county.holder
+		}
 		# }
 	}
 	else = { # log name + location
@@ -1638,11 +1643,6 @@ warband_king_armor = {
 			random_vassal = {
 				limit = { artifact_use_mongol_unit_visuals_trigger = yes }
 				save_scope_as = smith
-				# for history since smith doesn't work?
-				save_scope_as = adventurer
-				capital_province = {
-					save_scope_as = location
-				}
 			}
 			create_artifact_weapon_effect = {
 				OWNER = scope:owner
@@ -1658,9 +1658,14 @@ warband_king_armor = {
 					ck_khergit_tribe = { add_artifact_modifier = artifact_prowess_mult_10_modifier }
 					# ck_khergit_clan = { add_artifact_modifier = artifact_martial_mult_10_modifier  }
 				}
+				add_artifact_history = {
+					date = 1234.5.6
+					actor = scope:smith
+					recipient = scope:owner
+					type = won_in_duel
+				}
 				equip_artifact_to_owner = yes
 			}
-			clear_saved_scope = adventurer # otherwise next few will get polluted
 
 			set_artifact_rarity_illustrious = yes
 			create_artifact = {
@@ -1814,11 +1819,6 @@ warband_king_armor = {
 			random_vassal = {
 				limit = { artifact_use_iberian_muslim_unit_visuals_trigger = yes }
 				save_scope_as = smith
-				# for history since smith doesn't work?
-				save_scope_as = adventurer
-				capital_province = {
-					save_scope_as = location
-				}
 			}
 			create_artifact_weapon_effect = {
 				OWNER = scope:owner
@@ -1832,6 +1832,13 @@ warband_king_armor = {
 				random_list = {
 					1 = { add_artifact_modifier = artifact_owned_personal_scheme_success_chance_add_12_modifier }
 					1 = { add_artifact_modifier = artifact_personal_scheme_phase_duration_add_12_modifier }
+				}
+				add_artifact_history = {
+					date = 1234.5.6
+					location = scope:owner.capital_province
+					# actor = scope:smith
+					recipient = scope:smith
+					type = reforged
 				}
 				equip_artifact_to_owner = yes
 			}
