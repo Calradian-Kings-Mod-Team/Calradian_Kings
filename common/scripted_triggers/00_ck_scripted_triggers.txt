@@ -136,7 +136,116 @@ ck_unique_culture_troop_vars_trigger = {
 		has_variable = rhoyd_troops_var
 		has_variable = heimarkel_troops_var
 		has_variable = eilander_troops_var
+		# has_variable = nordic_troops_var
+		has_variable = vaegir_troops_var
+		has_variable = khergit_troops_var
+		has_variable = sarranid_troops_var
 	}
+}
+
+
+# validate if the heritage matches culture vars
+ck_unique_culture_troop_heritage_match = {
+	# single-tree heritages
+	trigger_if = {
+		limit = {
+			OR = {
+				has_cultural_pillar = heritage_calradian
+				has_cultural_pillar = heritage_battanian
+				has_cultural_pillar = heritage_byalic
+				has_cultural_pillar = heritage_geroian
+			}
+		}
+		ck_unique_culture_troop_vars_trigger = no
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_balian
+		}
+		OR = {
+			has_variable = swadian_troops_var
+			has_variable = rhodok_troops_var
+			has_variable = vlandian_troops_var
+			has_variable = togerd_troops_var
+			has_variable = sudican_troops_var
+			has_variable = kassen_troops_var
+			has_variable = rhoyd_troops_var
+			has_variable = heimarkel_troops_var
+			has_variable = eilander_troops_var
+			# has_variable = balian_troops_var
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_esbalian
+		}
+		OR = {
+			has_variable = swadian_troops_var
+			has_variable = rhodok_troops_var
+			# has_variable = esbalian_troops_var
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_sturgic
+		}
+		OR = {
+			has_variable = sturgic_troops_var
+			has_variable = vaegir_troops_var
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_khuzic
+		}
+		OR = {
+			has_variable = khuzic_troops_var
+			has_variable = khergit_troops_var
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_nahasi
+		}
+		OR = {
+			has_variable = nahasi_troops_var
+			has_variable = sarranid_troops_var
+		}
+	}
+	trigger_else = {
+		always = no
+	}
+}
+# TODO check with scope:title.title_capital_county.culture for admin maas
+ck_can_recruit_culture_troop_vars = {
+	OR = {
+		trigger_if = {
+			limit = {  # not all parameters exist as cultures
+				exists = culture:$CULTURE$
+			}
+			has_culture = culture:$CULTURE$
+		}
+		culture ?= {
+			# has_cultural_pillar = heritage_$HERITAGE$
+			has_variable = $CULTURE$_troops_var
+		}
+		has_character_flag = recruits_$CULTURE$_troops
+	}
+}
+# version applied to the base heritage as a blocker when there are branches
+ck_can_recruit_culture_heritage_troops = {
+	trigger_if = {
+		limit = { # do not check heritage here
+			has_character_flag = recruits_local_troops
+		}
+		has_character_flag = recruits_$CULTURE$_troops
+	}
+	trigger_else = {
+		culture = { has_cultural_pillar = heritage_$HERITAGE$ }
+		ck_can_recruit_culture_troop_vars = { CULTURE = $CULTURE$ }
+	}
+	# 	has_character_flag = recruits_$CULTURE$_troops
+	# }
 }
 ck_traded_resources_food = {
 	OR = {

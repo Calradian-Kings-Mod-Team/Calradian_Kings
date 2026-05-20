@@ -2278,3 +2278,23 @@ add_canon_buildings_effect = {
 		}
 	}
 }
+
+# takes $HERITAGE$, branching off at $CULTURE$
+ck_reassign_culture_troop_vars = {
+	every_culture_global = {
+		limit = {
+			has_cultural_pillar = heritage_$HERITAGE$
+			ck_unique_culture_troop_vars_trigger = no # otherwise next loop will replace it
+		}
+		if = { # this could've been a $CULTURE$_unit_gfx
+			limit = {
+				exists = culture:$CULTURE$
+				culture_is_or_has_ancestor_trigger = { CULTURE = culture:$CULTURE$ }
+			}
+			set_variable = $CULTURE$_troops_var
+		}
+		else = {
+			set_variable = $HERITAGE$_troops_var
+		}
+	}
+}
