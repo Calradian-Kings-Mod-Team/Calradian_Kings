@@ -38,6 +38,7 @@ has_graphical_mediterranean_culture_group_trigger = {
 	OR = {
 		has_building_gfx = mediterranean_building_gfx
 		has_building_gfx = byzantine_building_gfx
+		has_building_gfx = caucasian_building_gfx
 	}
 }
 
@@ -1080,4 +1081,155 @@ has_graphical_northern_empire_trigger = {
 		trigger_else = { always = yes }
 	}
 	trigger_else = { always = yes }
+}
+
+
+title_steppe_season_trigger = {
+	title_illustration_save_province_temporary = yes
+	scope:province = {
+		OR = {
+			has_holding_type = herder_holding
+			has_holding_type = nomad_holding
+		}
+		county ?= {
+			any_county_situation_sub_region = {
+				sub_region_current_phase = $PHASE$
+			}
+		}
+	}
+}
+title_empire_nomadic = {
+	OR = {
+		this = title:e_great_horde
+		this = title:e_nachagan
+		this = title:e_arkits
+		holder ?= { government_has_flag = government_is_nomadic }
+		trigger_if = {
+			limit = {
+				this = title:e_khergits
+			}
+			has_game_rule = ck_khergit_nomad
+		}
+		trigger_if = {
+			limit = {
+				this = title:e_khuzait_khanate
+			}
+			NOT = { has_game_rule = ck_no_nomads }
+			# has_game_rule = ck_whole_khuzait
+		}
+		# trigger_if = {
+		# 	limit = {
+		# 		this = title:e_nahasa
+		# 	}
+		# 	has_game_rule = nahasa_nomad_region_on_on
+		# }
+	}
+}
+title_empire_norse = {
+	OR = {
+		this = title:e_nords
+		this = title:e_grand_principality_of_sturgia
+		this = title:e_minadoria
+		holder ?= {
+			government_has_flag = government_is_tribal
+			should_use_norse_music_trigger = yes
+		}
+	}
+}
+# calradian/mediterranean
+title_empire_iberian = {
+	OR = {
+		title_is_calradian_empire = { TIER = empire }
+		this = title:e_calsean_empire
+		this = title:e_southern_empire # both bookmarks
+		this = title:e_antipari
+		holder ?= {
+			is_calradian_claimant_or_emperor = yes
+		}
+	}
+}
+title_empire_mena = {
+	OR = {
+		this = title:h_dar_al_islam
+		this = title:e_nahasa
+		this = title:e_eastern_sultanate
+		holder ?= {
+			government_has_flag = government_is_clan
+			ep3_is_clan_inclined_trigger = yes
+		}
+	}
+}
+title_empire_asia = {
+	OR = {
+		this = title:h_china
+		this = title:e_japan
+		# holder ?= {
+		# 	government_has_flag = government_is_celestial
+		# }
+	}
+}
+title_empire_indian = {
+	OR = {
+		this = title:h_india
+		this = title:e_darshi
+		this = title:e_west_nahasa
+		this = title:e_southwest_nahasa
+		trigger_if = {
+			limit = {
+				this = title:e_khergits
+			}
+			holder ?= {
+				government_has_flag = government_is_clan
+			}
+		}
+		# holder ?= {
+		# 	government_has_flag = government_is_mandala
+		# }
+	}
+}
+title_empire_western = {
+	OR = {
+		this = title:e_west_calradia
+		this = title:e_battania
+		holder ?= {
+			government_has_flag = government_is_feudal
+		}
+	}
+}
+# check if they're stale then fresh or non-existent
+title_empire_stale_trigger = {
+	tier >= tier_empire
+	trigger_if = {
+		limit = {
+			exists = holder
+		}
+		holder = {
+			OR = {
+				has_active_diarchy = yes
+				has_legitimacy = no
+				primary_title != prev
+				is_adult = no
+				is_incapable = yes
+				is_imprisoned = yes
+			}
+		}
+	}
+	trigger_else = {
+		exists = previous_holder
+		recent_history = {
+			years = 100
+		}
+	}
+}
+title_empire_alive_trigger = {
+	tier >= tier_empire
+	exists = holder
+	this = holder.primary_title
+}
+title_empire_dead_trigger = {
+	tier >= tier_empire
+	NOT = { exists = holder }
+	# recent_history = {
+	# 	type = destroyed years = 1000
+	# }
 }

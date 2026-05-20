@@ -550,6 +550,10 @@ clean_revolt_county_modifiers_from_faction_members_effect = {
 }
 
 generate_troops_from_revolt_county_modifiers_effect = {
+	if = { #Unop ck3-tiger Used by spawn_army below
+		limit = { NOT = { exists = scope:war } }
+		war = { save_temporary_scope_as = war }
+	}
 	if = {
 		limit = {
 			scope:attacker = {
@@ -609,7 +613,7 @@ generate_troops_from_revolt_county_modifiers_effect = {
 					}
 				}
 
-		clean_revolt_county_modifiers_from_faction_members_effect = yes
+				clean_revolt_county_modifiers_from_faction_members_effect = yes
 
 			}
 		}
@@ -617,139 +621,148 @@ generate_troops_from_revolt_county_modifiers_effect = {
 	}
 }
 
-# fp2_contract_assistance_war_pay_effect = {
-# 	if = {
-# 		limit = {
-# 			has_fp2_dlc_trigger = yes
-# 			any_war_participant = {
-# 				has_variable = owed_contract_assistance_war
-# 				var:owed_contract_assistance_war = scope:war
-# 			}
-# 		}
-# 		every_war_participant = {
-# 			limit = {
-# 				has_variable = owed_contract_assistance_war
-# 				var:owed_contract_assistance_war = scope:war
-# 			}
-# 			remove_variable = owed_contract_assistance_war
-# 			save_scope_as = contract_assistance_helper
-# 			if = {
-# 				limit = { is_attacker_in_war = scope:war }
-# 				scope:war.primary_attacker = { save_scope_as = contract_assistance_hirer }
-# 			}
-# 			else = {
-# 				scope:war.primary_defender = { save_scope_as = contract_assistance_hirer }
-# 			}
-# 			if = {
-# 				limit = {
-# 					scope:war = {
-# 						war_contribution = {
-# 							target = scope:contract_assistance_helper
-# 							value >= scope:contract_assistance_helper.var:owed_contract_assistance_contribution
-# 						}
-# 					}
-# 				}
-# 				scope:contract_assistance_hirer = {
-# 					send_interface_message = {
-# 						type = event_gold_neutral
-# 						title = contract_assistance_war_msg_title
-# 						left_icon = scope:contract_assistance_helper
-# 						custom_tooltip = contract_assistance_war_msg_hirer_paid_desc
-# 						pay_short_term_gold = {
-# 							target = scope:contract_assistance_helper
-# 							gold = scope:contract_assistance_helper.var:owed_contract_assistance_gold
-# 						}
-# 					}
-# 				}
-# 				scope:contract_assistance_helper = {
-# 					send_interface_message = {
-# 						type = event_gold_good
-# 						title = contract_assistance_war_msg_title
-# 						left_icon = scope:contract_assistance_hirer
-# 						custom_tooltip = contract_assistance_war_msg_helper_paid_desc
-# 						show_as_tooltip = {
-# 							scope:contract_assistance_hirer = {
-# 								pay_short_term_gold = {
-# 									target = scope:contract_assistance_helper
-# 									gold = scope:contract_assistance_helper.var:owed_contract_assistance_gold
-# 								}
-# 							}
-# 						}
-# 					}
-# 				}
-# 			}
-# 			else = {
-# 				scope:contract_assistance_hirer = {
-# 					send_interface_message = {
-# 						type = event_gold_neutral
-# 						title = contract_assistance_war_msg_title
-# 						left_icon = scope:contract_assistance_helper
-# 						custom_tooltip = contract_assistance_war_msg_hirer_kept_desc
-# 					}
-# 				}
-# 				scope:contract_assistance_helper = {
-# 					add_character_flag = {
-# 						flag = fp2_contract_assistance_failure
-# 						years = 10
-# 					}
-# 					send_interface_message = {
-# 						type = event_gold_bad
-# 						title = contract_assistance_war_msg_title
-# 						left_icon = scope:contract_assistance_hirer
-# 						custom_tooltip = contract_assistance_war_msg_helper_kept_desc
-# 					}
-# 				}
-# 			}
-# 			remove_variable = owed_contract_assistance_contribution
-# 			remove_variable = owed_contract_assistance_gold
-# 		}
-# 	}
-# }
+fp2_contract_assistance_war_pay_effect = {
+	if = {
+		limit = {
+			any_war_participant = {
+				has_variable = owed_contract_assistance_war
+				var:owed_contract_assistance_war = scope:war
+			}
+		}
+		every_war_participant = {
+			limit = {
+				has_variable = owed_contract_assistance_war
+				var:owed_contract_assistance_war = scope:war
+			}
+			remove_variable = owed_contract_assistance_war
+			save_scope_as = contract_assistance_helper
+			if = {
+				limit = { is_attacker_in_war = scope:war }
+				scope:war.primary_attacker = { save_scope_as = contract_assistance_hirer }
+			}
+			else = {
+				scope:war.primary_defender = { save_scope_as = contract_assistance_hirer }
+			}
+			if = {
+				limit = {
+					scope:war = {
+						war_contribution = {
+							target = scope:contract_assistance_helper
+							value >= scope:contract_assistance_helper.var:owed_contract_assistance_contribution
+						}
+					}
+				}
+				scope:contract_assistance_hirer = {
+					send_interface_message = {
+						type = event_gold_neutral
+						title = contract_assistance_war_msg_title
+						left_icon = scope:contract_assistance_helper
+						custom_tooltip = contract_assistance_war_msg_hirer_paid_desc
+						pay_treasury_or_gold = {
+							target = scope:contract_assistance_helper
+							value = scope:contract_assistance_helper.var:owed_contract_assistance_gold
+						}
+					}
+				}
+				scope:contract_assistance_helper = {
+					send_interface_message = {
+						type = event_gold_good
+						title = contract_assistance_war_msg_title
+						left_icon = scope:contract_assistance_hirer
+						custom_tooltip = contract_assistance_war_msg_helper_paid_desc
+						show_as_tooltip = {
+							scope:contract_assistance_hirer = {
+								pay_treasury_or_gold = {
+									target = scope:contract_assistance_helper
+									value = scope:contract_assistance_helper.var:owed_contract_assistance_gold
+								}
+							}
+						}
+						if = {
+							limit = { # add 0 to 100 not raw gold value
+								has_variable = owed_contract_assistance_contribution
+								OR = { # from the interaction in lieu of struggle
+									has_trait_with_flag = unlocks_contract_assistance
+									culture = { has_cultural_parameter = unlocks_contract_assistance }
+									government_has_flag = government_is_landless_adventurer
+								}
+							}
+							add_martial_lifestyle_xp = var:owed_contract_assistance_contribution
+						}
+					}
+				}
+			}
+			else = {
+				scope:contract_assistance_hirer = {
+					send_interface_message = {
+						type = event_gold_neutral
+						title = contract_assistance_war_msg_title
+						left_icon = scope:contract_assistance_helper
+						custom_tooltip = contract_assistance_war_msg_hirer_kept_desc
+					}
+				}
+				scope:contract_assistance_helper = {
+					add_character_flag = {
+						flag = fp2_contract_assistance_failure
+						years = 10
+					}
+					send_interface_message = {
+						type = event_gold_bad
+						title = contract_assistance_war_msg_title
+						left_icon = scope:contract_assistance_hirer
+						custom_tooltip = contract_assistance_war_msg_helper_kept_desc
+					}
+				}
+			}
+			remove_variable = owed_contract_assistance_contribution
+			remove_variable = owed_contract_assistance_gold
+		}
+	}
+}
 
-# fp2_contract_assistance_invalidated_effect = {
-# 	if = {
-# 		limit = {
-# 			has_fp2_dlc_trigger = yes
-# 			any_war_participant = {
-# 				has_variable = owed_contract_assistance_war
-# 				var:owed_contract_assistance_war = scope:war
-# 			}
-# 		}
-# 		every_war_participant = {
-# 			limit = {
-# 				has_variable = owed_contract_assistance_war
-# 				var:owed_contract_assistance_war = scope:war
-# 			}
-# 			remove_variable = owed_contract_assistance_war
-# 			remove_variable = owed_contract_assistance_contribution
-# 			remove_variable = owed_contract_assistance_gold
-# 			save_scope_as = contract_assistance_helper
-# 			if = {
-# 				limit = { is_attacker_in_war = scope:war }
-# 				scope:war.primary_attacker = { save_scope_as = contract_assistance_hirer }
-# 			}
-# 			else = {
-# 				scope:war.primary_defender = { save_scope_as = contract_assistance_hirer }
-# 			}
-# 			scope:contract_assistance_hirer = {
-# 				send_interface_message = {
-# 					type = event_gold_neutral
-# 					title = contract_assistance_war_msg_title
-# 					left_icon = scope:contract_assistance_helper
-# 					custom_tooltip = contract_assistance_war_msg_hirer_invalidated_desc
-# 				}
-# 			}
-# 			scope:contract_assistance_helper = {
-# 				send_interface_message = {
-# 					type = event_gold_neutral
-# 					title = contract_assistance_war_msg_title					
-# 					left_icon = scope:contract_assistance_hirer
-# 					custom_tooltip = contract_assistance_war_msg_helper_invalidated_desc
-# 				}
-# 			}
-# 		}
-# 	}
-# }
+fp2_contract_assistance_invalidated_effect = {
+	if = {
+		limit = {
+			any_war_participant = {
+				has_variable = owed_contract_assistance_war
+				var:owed_contract_assistance_war = scope:war
+			}
+		}
+		every_war_participant = {
+			limit = {
+				has_variable = owed_contract_assistance_war
+				var:owed_contract_assistance_war = scope:war
+			}
+			remove_variable = owed_contract_assistance_war
+			remove_variable = owed_contract_assistance_contribution
+			remove_variable = owed_contract_assistance_gold
+			save_scope_as = contract_assistance_helper
+			if = {
+				limit = { is_attacker_in_war = scope:war }
+				scope:war.primary_attacker = { save_scope_as = contract_assistance_hirer }
+			}
+			else = {
+				scope:war.primary_defender = { save_scope_as = contract_assistance_hirer }
+			}
+			scope:contract_assistance_hirer = {
+				send_interface_message = {
+					type = event_gold_neutral
+					title = contract_assistance_war_msg_title
+					left_icon = scope:contract_assistance_helper
+					custom_tooltip = contract_assistance_war_msg_hirer_invalidated_desc
+				}
+			}
+			scope:contract_assistance_helper = {
+				send_interface_message = {
+					type = event_gold_neutral
+					title = contract_assistance_war_msg_title					
+					left_icon = scope:contract_assistance_hirer
+					custom_tooltip = contract_assistance_war_msg_helper_invalidated_desc
+				}
+			}
+		}
+	}
+}
 		
 invite_special_guest_to_activity_effect = {
 	if = {
@@ -831,7 +844,7 @@ fp2_border_raid_damage_effect = {
 	change_development_level = fp2_border_raid_development_change_value
 	if = {
 		limit = { exists = scope:raid_province }
-		show_as_tooltip = { destroy_random_building_effect = yes }
+		show_as_tooltip = { scope:raid_province = { destroy_random_building_effect = yes } } #Unop ck3-tiger Use correct scope
 	}
 	scope:attacker = { add_gold = fp2_border_raid_gold_change_value }
 }

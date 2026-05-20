@@ -4454,6 +4454,7 @@ pilgrimage.2021 = {
 			OR = {
 				religion = religion:calradian_religion
 				religion = religion:aserai_religion
+				religion = religion:surrani_religion
 			}
 			OR = {
 				has_trait = flagellant
@@ -6116,6 +6117,13 @@ pilgrimage.2511 = {
 		first_valid = {
 			triggered_desc = {
 				trigger = {
+					faith = { has_doctrine = special_doctrine_darusian }
+					faith = { trait_is_sin = vengeful }
+				}
+				desc = pilgrimage.2511.desc.vengeful.darusan
+			}
+			triggered_desc = {
+				trigger = {
 					faith = { trait_is_sin = vengeful }
 				}
 				desc = pilgrimage.2511.desc.vengeful
@@ -6330,7 +6338,7 @@ pilgrimage.2511 = {
 # pilgrimage.3302 - The Wisdom of Goats
 # pilgrimage.3303 - Kalama Sutta
 #
-## 3401-3500: Dharmic
+## 3401-3500: Dharmic ## CK_INDIA
 # pilgrimage.3401 - Brahmacharya Challenged
 #
 ###3001-3100: Christianity
@@ -8020,7 +8028,7 @@ pilgrimage.6004 = {
 	option = {
 		name = pilgrimage.6004.b
 		custom_tooltip = pilgrimage.6003.b.tt
-		# current_travel_plan = { resume_travel_plan = yes }
+		#current_travel_plan = { resume_travel_plan = yes } #Unop: will be done in pilgrimage.6005
 	}
 	after = {
 		trigger_event = {
@@ -8688,6 +8696,7 @@ pilgrimage.4002 = {
 	option = {
 		name = pilgrimage.4002.b
 		trigger = {
+			NOT = { has_trait = widow }
 			has_trait = lustful
 			scope:2010_mystic = {
 				NOR = {
@@ -9007,8 +9016,8 @@ pilgrimage.4020 = {
 #Charas
 pilgrimage.5001 = {
 	type = activity_event
-	title = pilgrimage.5001.t
-	desc = pilgrimage.5001.desc
+	title = pilgrimage.5001.t.ck
+	desc = pilgrimage.5001.desc.ck
 	theme = pilgrimage_destination
 	left_portrait = {
 		character = root
@@ -9085,8 +9094,8 @@ pilgrimage.5011 = {
 #Constantinople
 pilgrimage.5021 = {
 	type = activity_event
-	title = pilgrimage.5021.t
-	desc = pilgrimage.5021.desc
+	title = pilgrimage.5021.t.ck
+	desc = pilgrimage.5021.desc.ck
 	theme = pilgrimage_destination
 	left_portrait = {
 		character = root
@@ -9190,7 +9199,7 @@ pilgrimage.5021 = {
 pilgrimage.5201 = {
 	type = activity_event
 	title = pilgrimage.5201.t
-	desc = pilgrimage.5201.desc
+	desc = pilgrimage.5201.desc.ck
 	theme = pilgrimage_destination
 	left_portrait = {
 		character = root
@@ -9675,8 +9684,8 @@ pilgrimage.5445 = {
 #Paderborn
 pilgrimage.5901 = {
 	type = activity_event
-	title = pilgrimage.5901.t
-	desc = pilgrimage.5901.desc
+	title = pilgrimage.5901.t.ck
+	desc = pilgrimage.5901.desc.ck
 	theme = pilgrimage_destination
 	left_portrait = {
 		character = root
@@ -11686,6 +11695,7 @@ pilgrimage.6760 = {
 	cooldown = { years = 2 }
 	
 	trigger = {
+		game_start_date > 976.8.10 # Prepping this for an eventual 976 start date when Darusos is fighting his generals
 		faith.religion = religion:calradian_religion
 		OR = {
 			NOR = {
@@ -12299,6 +12309,16 @@ pilgrimage.6780 = {
 					save_scope_as = stolen_courtier
 				}
 			}
+		}
+
+		if = { #Unop Add debug logging
+			limit = {
+				NOT = { exists =  scope:stolen_courtier }
+				debug_only = yes 
+			}
+			debug_log = "#Unop:pilgrimage.6780 Scope stolen_courtier is undefined"
+			error_log = "#Unop:pilgrimage.6780 Scope stolen_courtier is undefined"
+			debug_log_scopes = yes
 		}
 	}
 	weight_multiplier = {
@@ -13489,7 +13509,10 @@ pilgrimage.6830 = {
 	cooldown = { years = 1 }
 	trigger = {
 		has_activity_intent = reflection_intent
-		NOT = { religion = religion:khuzait_religion }
+		NOR = {
+			religion = religion:khuzait_religion
+			religion = religion:guzzic_religion
+		}
 	}
 	immediate = {
 		if = {

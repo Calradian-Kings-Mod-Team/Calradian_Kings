@@ -26,7 +26,7 @@ maa_regiments_valid_to_refill_trigger = {
 	maa_current_troops_count < maa_max_troops_count
 	trigger_if = {
 		limit = {
-			scope:actor = { government_has_flag = government_is_landless_adventurer }
+			scope:actor ?= { government_has_flag = government_is_landless_adventurer } #Unop Check scope:author in case this trigger is used in events
 			is_unit_type = elephant_cavalry
 		}
 		scope:actor.domicile ?= { has_domicile_parameter = camp_reinforce_elephant_regiments_anywhere }
@@ -496,7 +496,23 @@ employer_has_treasury_to_offer_job_trigger = {
 		limit = { is_ai = no }
 		scope:employer = {
 			OR = {
+				#Unop Scale treasury requirement to be half of the standard contract reward for the tier
+				# See task_contract_tier_gold_multiplier_value
+				trigger_if = {
+					limit = { highest_held_title_tier >= define:NTaskContract|HIGH_TASK_CONTRACT_TIER }
+					treasury_or_gold >= 75
+				}
+				trigger_else_if = {
+					limit = { highest_held_title_tier >= define:NTaskContract|MEDIUM_TASK_CONTRACT_TIER }
 				treasury_or_gold >= 50
+				}
+				trigger_else_if = {
+					limit = { highest_held_title_tier <= 0 }
+					treasury_or_gold >= 12
+				}
+				trigger_else = {
+					treasury_or_gold >= 25
+				}
 				trigger_if = {
 					limit = { government_allows = barter }
 					# no define:NBarter|BARTER_GOODS_TO_LOOT_MULT here. wanua rulers start as lower than 100 barter goods
@@ -630,7 +646,7 @@ laamp_base_0011_valid_potential_rival_trigger = {
 
 # Search for counties that could be affected by the modifiers we apply at the conclusion of the contract.
 laamp_base_1001_valid_neighbouring_county_trigger = {
-	holder = root.task_contract_employer
+	holder = scope:scheme.task_contract.task_contract_employer #Unop Use correct scope
 	county_control < full_county_control
 }
 
@@ -696,7 +712,7 @@ council_task_contract_valid_employer_trigger = {
 # Travel Triggers
 
 is_laamp_exiled_from_province_trigger = {
-	$PROVINCE$.county.holder = {
+	$PROVINCE$.county.holder ?= { #Unop Fix to keep log quiet
 		is_laamp_exiled_from_holder_or_liege_trigger = { LAAMP = $LAAMP$ }
 	}
 }

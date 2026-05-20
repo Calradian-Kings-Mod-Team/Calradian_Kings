@@ -39,6 +39,74 @@ mpo_the_great_steppe.0001 = { # Fullscreen Intro Event
 		name = mpo_the_great_steppe.0001.a
 		clicksound = "event:/DLC/FP2/SFX/UI/fp2_struggle_start_select"
 	}
+	option = {
+		trigger = {
+			has_tgp_dlc_trigger = yes
+			is_independent_ruler = yes
+			government_allows = administrative
+			NOT = {
+				government_has_flag = government_is_steppe_admin
+			}
+		}
+		name = tgp_china_ministry.0200.b
+		reason = governor_efficiency
+		clicksound = "event:/DLC/FP2/SFX/UI/fp2_ui_war_declare_war"
+		capital_county ?= { # some buildup otherwise only 1k levies from capital
+			title_province = {
+				set_holding_type = castle_holding # primary for steppe_admin_government
+			}
+			if = {
+				limit = {
+					years_from_game_start <= 0
+				}
+				hidden_effect = { # un-raze the capital
+					every_county_province = {
+						if = {
+							limit = {
+								county.title_province = this
+							}
+							upgrade_building_effect = castle_01
+							generate_building = yes
+						}
+						else_if = {
+							limit = {
+								has_holding = no
+								# is_leased_out = no
+							}
+							random_list = {
+								3 = { set_holding_type = city_holding }
+								2 = { set_holding_type = castle_holding }
+								1 = { set_holding_type = church_holding }
+								1 = { set_holding_type = tribal_holding } # for fun
+							}
+							province_owner ?= {
+								remove_short_term_gold = 200 # feudalize_holding_interaction basic cost
+							}
+						}
+						generate_building = yes
+						if = { # this can generate capital bureaus which don't actually work with steppe admin
+							limit = {
+								has_building_or_higher = capital_bureau_01
+							}
+							remove_building = capital_bureau_01
+							random_list = {
+								1 = { add_building = watermills_01 }
+								1 = { add_building = windmills_01 }
+							}
+						}
+					}
+				}
+			}
+		}
+		tgp_domicile_conversion_when_changing_government_type = {
+			NEW_DOMICILE_TYPE = east_asian_estate
+			NEW_GOVERNMENT_TYPE = steppe_admin_government
+		}
+		change_government = steppe_admin_government
+		ai_chance = {
+			base = 100
+		}
+	}
 }
 
 # Start Phase

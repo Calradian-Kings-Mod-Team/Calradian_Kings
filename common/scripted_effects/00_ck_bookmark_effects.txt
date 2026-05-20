@@ -725,7 +725,12 @@ apply_random_location_effect = {
 		# 	visit_court_of = location.county.holder
 		# }
 		# else = {
+		if = {
+			limit = {
+				NOT = { exists = employer }
+			}
 			set_employer = location.county.holder
+		}
 		# }
 	}
 	else = { # log name + location
@@ -1548,6 +1553,7 @@ warband_king_armor = {
 				wealth = scope:wealth
 				quality = scope:quality
 				modifier = legendary_feast_legend_modifier
+				generate_history = no
 				title_history = title:k_battania
 				title_history_date = 1185.1.1 # skip the empty holder
 				save_scope_as = newly_created_artifact
@@ -1567,6 +1573,9 @@ warband_king_armor = {
 				set_artifact_feature = armor_helmet_tourney_swadia
 				set_artifact_feature = artifact_armor_descriptor_swadian
 				set_variable = ungiftable
+				character:isolla_wb ?= {
+					add_personal_artifact_claim = prev
+				}
 				equip_artifact_to_owner = yes
 			}
 		}
@@ -1603,6 +1612,7 @@ warband_king_armor = {
 				wealth = scope:wealth
 				quality = scope:quality
 				modifier = artifact_propaganda_chronicle_modifier
+				generate_history = no
 				title_history = scope:owner.primary_title
 				save_scope_as = newly_created_artifact
 				# visual_source = scope:owner.primary_title
@@ -1615,8 +1625,10 @@ warband_king_armor = {
 				set_artifact_feature = artifact_armor_descriptor_vaegir
 				set_variable = ungiftable
 				equip_artifact_to_owner = yes
-				scope:owner.house ?= {
-					add_house_artifact_claim = prev
+				scope:owner.dynasty = {
+					every_dynasty_house = {
+						add_house_artifact_claim = scope:newly_created_artifact
+					}
 				}
 			}
 		}
@@ -1629,6 +1641,7 @@ warband_king_armor = {
 			# give him a bow instead?
 			get_artifact_wealth_effect = yes
 			random_vassal = {
+				limit = { artifact_use_mongol_unit_visuals_trigger = yes }
 				save_scope_as = smith
 			}
 			create_artifact_weapon_effect = {
@@ -1638,7 +1651,19 @@ warband_king_armor = {
 			}
 			scope:newly_created_artifact = {
 				set_artifact_name = artifact_sanjar_sword
-				# add_artifact_modifier = artifact_raid_speed_4_modifier
+				add_artifact_modifier = artifact_raid_speed_4_modifier
+				switch = { # this tanks quality due to realm size downscaling from all the razing
+					trigger = has_game_rule
+					ck_khergit_nomad = { add_artifact_modifier = artifact_martial_mult_10_modifier }
+					ck_khergit_tribe = { add_artifact_modifier = artifact_prowess_mult_10_modifier }
+					# ck_khergit_clan = { add_artifact_modifier = artifact_martial_mult_10_modifier  }
+				}
+				add_artifact_history = {
+					date = 1234.5.6
+					actor = scope:smith
+					recipient = scope:owner
+					type = won_in_duel
+				}
 				equip_artifact_to_owner = yes
 			}
 
@@ -1653,6 +1678,7 @@ warband_king_armor = {
 				wealth = scope:wealth
 				quality = scope:quality
 				modifier = artifact_plains_advantage_2_modifier
+				generate_history = no
 				title_history = scope:owner.primary_title
 				save_scope_as = newly_created_artifact
 			}
@@ -1666,6 +1692,9 @@ warband_king_armor = {
 				set_artifact_feature = artifact_armor_descriptor_khergit
 				set_variable = ungiftable
 				equip_artifact_to_owner = yes
+				character:dustum_wb ?= {
+					add_personal_artifact_claim = prev
+				}
 			}
 		}
 		character:ragnar_wb ?= {
@@ -1686,6 +1715,9 @@ warband_king_armor = {
 			scope:newly_created_artifact = {
 				set_artifact_name = artifact_ragnar_axe
 				add_artifact_modifier = artifact_belligerent_vassal_opinion_3_modifier
+				character:lethwin_wb ?= {
+					add_personal_artifact_claim = prev
+				}
 				equip_artifact_to_owner = yes
 			}
 			random_vassal = {
@@ -1701,7 +1733,7 @@ warband_king_armor = {
 				wealth = scope:wealth
 				quality = scope:quality
 				modifier = bp3_conqueror_black_sea_modifier
-				
+				generate_history = no
 				title_history = title:e_nords
 				save_scope_as = newly_created_artifact
 
@@ -1734,6 +1766,9 @@ warband_king_armor = {
 			scope:newly_created_artifact = {
 				reforge_artifact = { type = sword visuals = longsword }
 				set_artifact_name = artifact_graveth_sword
+				character:kastor_wb ?= {
+					add_personal_artifact_claim = prev
+				}
 				equip_artifact_to_owner = yes
 			}
 			random_vassal = {
@@ -1753,7 +1788,7 @@ warband_king_armor = {
 				visuals = graveth_armor
 				wealth = scope:wealth
 				quality = scope:quality
-				modifier = artifact_armor_2_artifact_modifier
+				modifier = artifact_durable_materials_02
 				title_history = scope:smith.capital_county # random landed title since we don't have rebellion history
 				title_history_date = 1085.1.1
 				# visual_source = scope:owner.primary_title
@@ -1782,12 +1817,13 @@ warband_king_armor = {
 			}
 			get_artifact_wealth_effect = yes
 			random_vassal = {
+				limit = { artifact_use_iberian_muslim_unit_visuals_trigger = yes }
 				save_scope_as = smith
 			}
 			create_artifact_weapon_effect = {
 				OWNER = scope:owner
 				CREATOR = scope:smith
-				SET_WEAPON_TYPE = flag:artifact_weapon_type_dagger
+				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
 			}
 			scope:newly_created_artifact = {
 				set_artifact_name = artifact_hakim_sword
@@ -1797,23 +1833,29 @@ warband_king_armor = {
 					1 = { add_artifact_modifier = artifact_owned_personal_scheme_success_chance_add_12_modifier }
 					1 = { add_artifact_modifier = artifact_personal_scheme_phase_duration_add_12_modifier }
 				}
+				add_artifact_history = {
+					date = 1234.5.6
+					location = scope:owner.capital_province
+					# actor = scope:smith
+					recipient = scope:smith
+					type = reforged
+				}
 				equip_artifact_to_owner = yes
-			}
-			random_vassal = {
-				save_scope_as = smith
 			}
 			get_artifact_wealth_effect = yes
 			create_artifact = {
 				name = artifact_hakim_armor
 				description = artifact_hakim_armor_desc
 				template = ck_wb_king_armor_template
-				creator = scope:smith
+				creator = character:arwa_wb # why not
 				type = armor_mail
 				visuals = hakim_armor
 				wealth = scope:wealth
 				quality = scope:quality
 				modifier = artifact_armor_2_artifact_modifier
-				title_history = scope:owner.primary_title # random landed title since we don't have rebellion history
+				generate_history = no
+				title_history = scope:owner.primary_title # k_sarranid_2
+				title_history_date = 1200.1.1
 				save_scope_as = newly_created_artifact
 
 			}
@@ -1824,6 +1866,9 @@ warband_king_armor = {
 				set_artifact_feature = armor_helmet_turban_helmet
 				set_artifact_feature = artifact_armor_descriptor_sarranid
 				set_variable = ungiftable
+				character:arwa_wb ?= {
+					add_personal_artifact_claim = prev
+				}
 				equip_artifact_to_owner = yes
 			}
 		}
