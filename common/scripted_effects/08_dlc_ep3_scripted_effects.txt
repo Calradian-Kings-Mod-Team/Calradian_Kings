@@ -2048,6 +2048,789 @@ admin_government_reset_effect = {
 add_randomised_double_moon_modifier_effect = {
 }
 
+
+
+
+#Complete war group task contracts, used in war_on_actions
+war_task_contracts_completion_effect = {
+	#Join War Contract and Help Claimant Contract
+	scope:war = {
+		if = {
+			limit = {
+				any_war_participant = {
+					any_character_active_contract = {
+						OR = {
+							AND = {
+								has_task_contract_type = laamp_join_war_contract
+								var:task_contract_war ?= scope:war
+							}
+							AND = {
+								has_task_contract_type = laamp_help_claimant_contract
+								task_contract_employer = scope:war.primary_attacker
+							}
+						}
+						save_temporary_scope_as = relevant_contract
+					}
+				}
+			}
+			scope:relevant_contract = {
+				if = {
+					limit = {
+						scope:war = {
+							war_contribution = {
+								target = scope:relevant_contract.task_contract_taker
+								value > 0
+							}
+						}
+					}
+					complete_task_contract = success_standard
+				}
+				else = {
+					complete_task_contract = failure_standard
+				}
+			}
+		}
+		if = {
+			limit = {
+				primary_attacker = {
+					has_variable = valuable_prisoners
+				}
+			}
+			primary_attacker = {
+				remove_variable = valuable_prisoners
+			}
+		}
+		if = {
+			limit = {
+				primary_defender = {
+					has_variable = valuable_prisoners
+				}
+			}
+			primary_defender = {
+				remove_variable = valuable_prisoners
+			}
+		}
+		if = {
+			limit = {
+				using_civil_war_cb_trigger = yes
+				any_war_participant = {
+					any_character_active_contract = {
+						task_contract_type = laamp_join_faction_contract
+						task_contract_employer = {
+							is_participant_in_war = scope:war
+						}
+					}
+				}
+			}
+			every_war_participant = {
+				every_character_active_contract = {
+					task_contract_type = laamp_join_faction_contract
+					limit = {
+						task_contract_employer = {
+							is_participant_in_war = scope:war
+						}
+					}
+					if = {
+						limit = {
+							exists = scope:winner #Unop: scope:winner doesn't exist if the war ended in white peace or was invalidated
+							task_contract_taker = scope:winner
+						}
+						complete_task_contract = success_standard
+					}
+					else = {
+						complete_task_contract = failure_standard
+					}
+				}
+			}
+		}
+	}
+}
+
+#If a landless adventurer was hired as a mercenary and contributed in a war they get paid, used in war_on_actions, relevant flag set by hire_laamp_mercenaries_interaction or ep3_interactions_events.0112
+laamp_as_mercenary_payout_effect = {
+	scope:war = {
+		every_war_participant = {
+			limit = {
+				laamp_as_mercenary_payout_trigger = { WAR = scope:war }
+			}
+			if = {
+				limit = {
+					laamp_as_mercenary_payout_last_war_trigger = { WAR = scope:war }
+				}
+				save_scope_as = laamp_temp
+				add_to_list = laamp_mercenaries
+				var:joined_as_mercenary = {
+					save_scope_as = employer
+					trigger_event = {
+						id = ep3_interactions_events.0121
+						days = { 3 7 }
+					}
+				}
+				every_in_list = {
+					list = laamp_mercenaries
+					scope:employer = {
+						remove_list_variable = {
+						 	name = hired_mercenaries
+						 	target = scope:laamp_temp
+						}
+					}
+				}
+				remove_variable = joined_as_mercenary
+			}
+			else = {
+				save_scope_as = laamp_temp
+				save_scope_value_as = { #Unop ck3-tiger ep3_hire_laamp_mercs_payment_value depends on scope:war_contribution_value
+					name = war_contribution_value
+					value = "scope:war.war_contribution(scope:laamp_temp)"
+				}
+				var:joined_as_mercenary = { save_scope_as = employer }
+				if = {
+					limit = { exists = var:aggregate_war_contribution_value }
+					change_variable = {
+						name = aggregate_war_contribution_value
+						add = scope:laamp_temp.ep3_hire_laamp_mercs_payment_value
+					}
+					# Average
+					change_variable = {
+						name = aggregate_war_contribution_value
+						divide = 2
+					}
+				}
+				else = {
+					set_variable = {
+						name = aggregate_war_contribution_value
+						value = scope:laamp_temp.ep3_hire_laamp_mercs_payment_value
+					}
+				}
+			}
+		}
+	}
+}
+
+disburse_camp_party_reward_effect = {
+	involved_activity ?= {
+		###Non-progression linked
+		#Drinks
+		scope:host = {
+			#For highest level drinks
+			if = {
+				limit = {
+					involved_activity = {
+						has_activity_option = {
+							category = camp_party_option_drinks
+							option = camp_party_drinks_abundant
+						}
+					}
+				}
+				add_character_modifier = {
+					modifier = ep3_master_of_ceremonies
+					years = 3
+				}
+			}
+
+			#For any level of drinks
+			#Opinion
+			if = {
+				limit = {
+					involved_activity = {
+						OR = {
+							has_activity_option = {
+								category = camp_party_option_drinks
+								option = camp_party_drinks_abundant
+							}
+							has_activity_option = {
+								category = camp_party_option_drinks
+								option = camp_party_drinks_adequate
+							}
+						}
+					}
+				}
+				involved_activity = {
+					every_attending_character = {
+						limit = {
+							this != scope:host
+						}
+						custom = every_attending_guest
+						add_opinion = {
+							modifier = feast_life_of_the_party_opinion
+							target = scope:host
+							opinion = 35
+						}
+					}
+				}
+			}
+
+			# Reveler Trait
+			if = {
+				limit = {
+					involved_activity = {
+						OR = {
+							has_activity_option = {
+								category = camp_party_option_drinks
+								option = camp_party_drinks_abundant
+							}
+							has_activity_option = {
+								category = camp_party_option_drinks
+								option = camp_party_drinks_adequate
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_trait = lifestyle_reveler
+						}
+					}
+					add_trait = lifestyle_reveler
+				}
+				add_trait_xp = {
+					trait = lifestyle_reveler
+					value = {
+						integer_range = {
+							min = small_lifestyle_random_xp_low
+							max = small_lifestyle_random_xp_high
+						}
+					}
+				}
+			}
+		}
+
+		#100 Carousing
+		if = {
+			limit = { var:activity_special_type_progression >= 100 }
+
+			#Stress Loss
+			every_attending_character = {
+				custom = every_attending_guest
+				add_stress = -150
+			}
+
+			#Host effects
+			scope:host = {
+				if = {
+					limit = {
+						NOT = {
+							exists = scope:domicile_building #already saved
+						}
+					}
+					hidden_effect = {
+						domicile = {
+							random_list = {
+								1 = {
+									trigger = {
+										has_domicile_building_or_higher = camp_main_01
+										NOT = { has_domicile_building = camp_main_04 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										camp_main_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_main_01
+											}
+										}
+										camp_main_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_main_02
+											}
+										}
+										camp_main_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_main_03
+											}
+										}
+									}
+								}
+								1 = {
+									trigger = {
+										has_domicile_building_or_higher = supply_tent_01
+										NOT = { has_domicile_building = supply_tent_06 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										supply_tent_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:supply_tent_01
+											}
+										}
+										supply_tent_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:supply_tent_02
+											}
+										}
+										supply_tent_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:supply_tent_03
+											}
+										}
+										supply_tent_04 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:supply_tent_04
+											}
+										}
+										supply_tent_05 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:supply_tent_05
+											}
+										}
+									}
+								}
+								1 = {
+									trigger = {
+										has_domicile_building_or_higher = barber_tent_01
+										NOT = { has_domicile_building = barber_tent_06 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										barber_tent_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:barber_tent_01
+											}
+										}
+										barber_tent_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:barber_tent_02
+											}
+										}
+										barber_tent_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:barber_tent_03
+											}
+										}
+										barber_tent_04 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:barber_tent_04
+											}
+										}
+										barber_tent_05 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:barber_tent_05
+											}
+										}
+									}
+								}
+								1 = {
+									trigger = {
+										has_domicile_building_or_higher = baggage_train_01
+										NOT = { has_domicile_building = baggage_train_06 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										baggage_train_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:baggage_train_01
+											}
+										}
+										baggage_train_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:baggage_train_02
+											}
+										}
+										baggage_train_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:baggage_train_03
+											}
+										}
+										baggage_train_04 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:baggage_train_04
+											}
+										}
+										baggage_train_05 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:baggage_train_05
+											}
+										}
+									}
+								}
+								1 = {
+									trigger = {
+										has_domicile_building_or_higher = camp_fire_01
+										NOT = { has_domicile_building = camp_fire_06 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										camp_fire_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_fire_01
+											}
+										}
+										camp_fire_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_fire_02
+											}
+										}
+										camp_fire_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_fire_03
+											}
+										}
+										camp_fire_04 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_fire_04
+											}
+										}
+										camp_fire_05 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_fire_05
+											}
+										}
+									}
+								}
+								1 = {
+									trigger = {
+										has_domicile_building_or_higher = proving_grounds_01
+										NOT = { has_domicile_building = proving_grounds_06 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										proving_grounds_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:proving_grounds_01
+											}
+										}
+										proving_grounds_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:proving_grounds_02
+											}
+										}
+										proving_grounds_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:proving_grounds_03
+											}
+										}
+										proving_grounds_04 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:proving_grounds_04
+											}
+										}
+										proving_grounds_05 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:proving_grounds_05
+											}
+										}
+									}
+								}
+								1 = {
+									trigger = {
+										has_domicile_building_or_higher = camp_perimeter_01
+										NOT = { has_domicile_building = camp_perimeter_06 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										camp_perimeter_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_perimeter_01
+											}
+										}
+										camp_perimeter_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_perimeter_02
+											}
+										}
+										camp_perimeter_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_perimeter_03
+											}
+										}
+										camp_perimeter_04 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_perimeter_04
+											}
+										}
+										camp_perimeter_05 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:camp_perimeter_05
+											}
+										}
+									}
+								}
+								1 = { #Unop: Add the missing mess_tent_01
+									trigger = {
+										has_domicile_building_or_higher = mess_tent_01
+										NOT = { has_domicile_building = mess_tent_06 }
+									}
+									switch = {
+										trigger = has_domicile_building
+										mess_tent_01 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_01
+											}
+										}
+										mess_tent_02 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_02
+											}
+										}
+										mess_tent_03 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_03
+											}
+										}
+										mess_tent_04 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_04
+											}
+										}
+										mess_tent_05 = {
+											save_scope_value_as = {
+												name = domicile_building
+												value = flag:mess_tent_05
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				domicile = {
+					switch = {
+						trigger = scope:domicile_building
+						flag:camp_main_01 = { add_domicile_building = camp_main_02 }
+						flag:camp_main_02 = { add_domicile_building = camp_main_03 }
+						flag:camp_main_03 = { add_domicile_building = camp_main_04 }
+						flag:supply_tent_01 = { add_domicile_building = supply_tent_02 }
+						flag:supply_tent_02 = { add_domicile_building = supply_tent_03 }
+						flag:supply_tent_03 = { add_domicile_building = supply_tent_04 }
+						flag:supply_tent_04 = { add_domicile_building = supply_tent_05 }
+						flag:supply_tent_05 = { add_domicile_building = supply_tent_06 }
+						flag:barber_tent_01 = { add_domicile_building = barber_tent_02 }
+						flag:barber_tent_02 = { add_domicile_building = barber_tent_03 }
+						flag:barber_tent_03 = { add_domicile_building = barber_tent_04 }
+						flag:barber_tent_04 = { add_domicile_building = barber_tent_05 }
+						flag:barber_tent_05 = { add_domicile_building = barber_tent_06 }
+						flag:baggage_train_01 = { add_domicile_building = baggage_train_02 }
+						flag:baggage_train_02 = { add_domicile_building = baggage_train_03 }
+						flag:baggage_train_03 = { add_domicile_building = baggage_train_04 }
+						flag:baggage_train_04 = { add_domicile_building = baggage_train_05 }
+						flag:baggage_train_05 = { add_domicile_building = baggage_train_06 }
+						flag:camp_fire_01 = { add_domicile_building = camp_fire_02 }
+						flag:camp_fire_02 = { add_domicile_building = camp_fire_03 }
+						flag:camp_fire_03 = { add_domicile_building = camp_fire_04 }
+						flag:camp_fire_04 = { add_domicile_building = camp_fire_05 }
+						flag:camp_fire_05 = { add_domicile_building = camp_fire_06 }
+						flag:proving_grounds_01 = { add_domicile_building = proving_grounds_02 }
+						flag:proving_grounds_02 = { add_domicile_building = proving_grounds_03 }
+						flag:proving_grounds_03 = { add_domicile_building = proving_grounds_04 }
+						flag:proving_grounds_04 = { add_domicile_building = proving_grounds_05 }
+						flag:proving_grounds_05 = { add_domicile_building = proving_grounds_06 }
+						flag:camp_perimeter_01 = { add_domicile_building = camp_perimeter_02 }
+						flag:camp_perimeter_02 = { add_domicile_building = camp_perimeter_03 }
+						flag:camp_perimeter_03 = { add_domicile_building = camp_perimeter_04 }
+						flag:camp_perimeter_04 = { add_domicile_building = camp_perimeter_05 }
+						flag:camp_perimeter_05 = { add_domicile_building = camp_perimeter_06 }
+						#Unop: Add the missing mess_tent_01
+						flag:mess_tent_01 = { add_domicile_building = mess_tent_02 }
+						flag:mess_tent_02 = { add_domicile_building = mess_tent_03 }
+						flag:mess_tent_03 = { add_domicile_building = mess_tent_04 }
+						flag:mess_tent_04 = { add_domicile_building = mess_tent_05 }
+						flag:mess_tent_05 = { add_domicile_building = mess_tent_06 }
+					}
+				}
+
+				custom_tooltip = camp_party_100_contracts_get
+
+				hidden_effect = {
+					contract_passive_spawn_effect = {
+						SPAWN_CONTRACTS = 2
+					}
+				}
+
+				#Provisions
+				domicile = {
+					change_provisions = massive_provisions_gain
+				}
+
+				#Lifestyle XP
+				bp2_lifestyle_xp_gain_per_type_effect = { VALUE = major }
+
+				add_character_flag = {
+					flag = better_recruitment_visit_holding_flag
+					years = 1
+				}
+			}
+		}
+
+		#75+ Carousing
+		else_if = {
+			limit = {
+				var:activity_special_type_progression < 100
+				var:activity_special_type_progression >= 75
+			}
+
+			#Stress Loss
+			every_attending_character = {
+				custom = every_attending_guest
+				add_stress = -100
+			}
+
+			#Contract spawn & flag assign
+			scope:host = {
+				custom_tooltip = camp_party_75_contracts_get
+
+				hidden_effect = {
+					contract_passive_spawn_effect = {
+						SPAWN_CONTRACTS = 1
+					}
+				}
+
+				#Provisions
+				domicile = {
+					change_provisions = major_provisions_gain
+				}
+
+				#Lifestyle XP
+				bp2_lifestyle_xp_gain_per_type_effect = { VALUE = medium }
+
+				add_character_flag = {
+					flag = better_recruitment_visit_holding_flag
+					years = 1
+				}
+			}
+		}
+		#50+ Carousing
+		else_if = {
+			limit = {
+				var:activity_special_type_progression < 75
+				var:activity_special_type_progression >= 50
+			}
+
+			#Stress Loss
+			every_attending_character = {
+				custom = every_attending_guest
+				add_stress = -75
+			}
+
+			#Contract spawn and flag assign
+			scope:host = {
+				#Provisions
+				domicile = {
+					change_provisions = medium_provisions_gain
+				}
+
+				#Lifestyle XP
+				bp2_lifestyle_xp_gain_per_type_effect = { VALUE = minor }
+
+				add_character_flag = {
+					flag = better_recruitment_visit_holding_flag
+					years = 1
+				}
+			}
+		}
+		#25+ Carousing
+		else = {
+			#Stress Loss
+			every_attending_character = {
+				custom = every_attending_guest
+				add_stress = -50
+			}
+
+			scope:host = {
+				add_character_flag = {
+					flag = cheaper_provisions_visit_holding_flag
+					years = 1
+				}
+			}
+		}
+
+		scope:host = {
+			if = {
+				limit = {
+					has_activity_intent = fireside_chat_intent
+				}
+				hidden_effect = {
+					remove_character_modifier = ep3_fireside_chat_modifier_3
+					remove_character_modifier = ep3_fireside_chat_modifier_2
+					remove_character_modifier = ep3_fireside_chat_modifier_1
+				}
+				if = {
+					limit = {
+						involved_activity = {
+							any_attending_character = {
+								count >= 4
+								OR = {
+									has_character_modifier = ep3_fireside_chat_diplomacy
+									has_character_modifier = ep3_fireside_chat_learning
+									has_character_modifier = ep3_fireside_chat_intrigue
+									has_character_modifier = ep3_fireside_chat_stewardship
+									has_character_modifier = ep3_fireside_chat_martial
+								}
+							}
+						}
+					}
+					add_character_modifier = {
+						modifier = ep3_fireside_chat_modifier_3
+						years = 10
+					}
+				}
+				else_if = {
+					limit = {
+						involved_activity = {
+							any_attending_character = {
+								count >= 2
+								OR = {
+									has_character_modifier = ep3_fireside_chat_diplomacy
+									has_character_modifier = ep3_fireside_chat_learning
+									has_character_modifier = ep3_fireside_chat_intrigue
+									has_character_modifier = ep3_fireside_chat_stewardship
+									has_character_modifier = ep3_fireside_chat_martial
+								}
+							}
+						}
+					}
+					add_character_modifier = {
+						modifier = ep3_fireside_chat_modifier_2
+						years = 10
+					}
+				}
+				else = {
+					add_character_modifier = {
+						modifier = ep3_fireside_chat_modifier_1
+						years = 10
+					}
+				}
+			}
+		}
+	}
+}
 #Setting up the Fens as a pseudo-custom region
 ep3_the_fens_list_effect = {
 }
