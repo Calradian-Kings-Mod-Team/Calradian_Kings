@@ -220,9 +220,12 @@ ck_unique_culture_troop_heritage_match = {
 ck_can_recruit_culture_troop_vars = {
 	OR = {
 		trigger_if = {
-			limit = {  # not all parameters exist as cultures
-				exists = culture:$CULTURE$
+			limit = {  # not all parameters exist as cultures - no variable needed in that case
+				NOT = { exists = culture:$CULTURE$ }
 			}
+			culture = { ck_unique_culture_troop_vars_trigger = no } # your variable should match below
+		}
+		trigger_else = {
 			has_culture = culture:$CULTURE$
 		}
 		culture ?= {
@@ -230,7 +233,7 @@ ck_can_recruit_culture_troop_vars = {
 			has_variable = $CULTURE$_troops_var
 		}
 		has_character_flag = recruits_$CULTURE$_troops
-		primary_title ?= { is_mercenary_company = yes } # they'll take anybody these days
+		# primary_title ?= { is_mercenary_company = yes } # they'll take anybody these days
 	}
 }
 # version applied to the base heritage as a blocker when there are branches
