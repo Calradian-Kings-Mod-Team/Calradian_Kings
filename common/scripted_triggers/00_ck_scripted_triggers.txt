@@ -232,7 +232,12 @@ ck_can_recruit_culture_troop_vars = {
 			# has_cultural_pillar = heritage_$HERITAGE$
 			has_variable = $CULTURE$_troops_var
 		}
-		has_character_flag = recruits_$CULTURE$_troops
+		trigger_if = {
+			limit = {
+				has_variable = recruits_local_troops
+			}
+			var:recruits_local_troops = culture:$CULTURE$
+		}
 		# primary_title ?= { is_mercenary_company = yes } # they'll take anybody these days
 	}
 }
@@ -240,9 +245,17 @@ ck_can_recruit_culture_troop_vars = {
 ck_can_recruit_culture_heritage_troops = {
 	trigger_if = {
 		limit = { # do not check heritage here
-			has_character_flag = recruits_local_troops
+			has_variable = recruits_local_troops
+			# exist = culture:$CULTURE$
 		}
-		has_character_flag = recruits_$CULTURE$_troops
+		var:recruits_local_troops = culture:$CULTURE$
+		# has_character_flag = recruits_$CULTURE$_troops
+	}
+	trigger_else_if = { # switched pillars still keep old
+		limit = {
+			culture = culture:$CULTURE$
+		}
+		always = yes
 	}
 	trigger_else = {
 		culture = { has_cultural_pillar = heritage_$HERITAGE$ }
@@ -283,8 +296,11 @@ ck_syncretic_faiths_trigger = {
 		has_doctrine = tenet_eastern_syncretism
 		has_doctrine = tenet_unreformed_syncretism
 		has_doctrine = tenet_islamic_syncretism
+		has_doctrine = tenet_sinitic_syncretism
 		has_doctrine = tenet_christian_syncretism
 		has_doctrine = special_doctrine_northern_hostility_other_northern
+		has_doctrine = special_doctrine_khuzic_tolerance_kholradyan
+		has_doctrine = special_doctrine_khuzic_tolerance_khuzic
 	}
 }
 
