@@ -948,9 +948,14 @@ faiths_are_in_orthodox_christianity_group = {
 		$FAITH_1$ = faith:agreki
 		$FAITH_1$ = faith:aekekartel
 		$FAITH_1$ = faith:aren
-		AND = {
-			$FAITH_1$ = faith:kholradya
-			scope:heretic_capital.title_province = { geographical_region = world_steppe_west }
+		trigger_if = {
+			limit = {
+				exists = scope:heretic_capital
+			}
+			AND = {
+				$FAITH_1$ ?= { has_doctrine = tenger_unreformed_faith_doctrine }
+				scope:heretic_capital.title_province ?= { geographical_region = world_steppe_west }
+			}
 		}
 	}
 	OR = {
@@ -958,9 +963,14 @@ faiths_are_in_orthodox_christianity_group = {
 		$FAITH_2$ = faith:agreki
 		$FAITH_2$ = faith:aekekartel
 		$FAITH_2$ = faith:aren
-		AND = {
-			$FAITH_2$ = faith:kholradya
-			scope:heretic_capital.title_province = { geographical_region = world_steppe_west }
+		trigger_if = {
+			limit = {
+				exists = scope:heretic_capital
+			}
+			AND = {
+				$FAITH_2$ ?= { has_doctrine = tenger_unreformed_faith_doctrine }
+				scope:heretic_capital.title_province = { geographical_region = world_steppe_west }
+			}
 		}
 	}
 }
@@ -1160,9 +1170,12 @@ valid_demand_conversion_conditions_trigger = {
 				domicile = { has_domicile_parameter = camp_enable_conversion }
 			}
 		}
-		NAND = {
-			has_trait = nomadic_philosophy
-			has_trait = zealous
+		custom_tooltip = { #Unop: Add a tooltip so char with both trait will know they cannot convert people
+			text = unop_zealous_nomad_cannot_convert
+			NAND = {
+				has_trait = nomadic_philosophy
+				has_trait = zealous
+			}
 		}
 	}
 
@@ -1453,13 +1466,16 @@ can_afford_create_head_of_faith_title_cost_trigger = {
 		}
 		piety >= major_piety_value
 	}
-	trigger_else = {
+	trigger_else_if = { #Unop: Made this a trigger_else_if
 		limit = {
 			faith = {
 				has_doctrine_parameter = spiritual_head_of_faith
 			}
 		}
 		gold >= medium_gold_max_value
+	}
+	trigger_else = { #Unop: Fallback case
+		always = yes
 	}
 }
 
