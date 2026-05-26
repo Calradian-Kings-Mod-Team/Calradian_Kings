@@ -1,0 +1,345 @@
+﻿namespace = eastwood_flavor
+
+### Some of these were pulled from the new events Bannerlord added
+
+## Educational Advancements - Well-educated man offers to teach children to read
+eastwood_flavor.0001 = {
+	type = character_event
+	title = eastwood_flavor.0001.t
+	desc = {
+		desc = eastwood_flavor.0001.desc
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:fascinated_child_ck ?= {
+						is_child_of = root
+					}
+				}
+				desc = eastwood_flavor.0001.desc.my_child
+			}
+			triggered_desc = {
+				trigger = {
+					scope:fascinated_child_ck ?= {
+						NOT = {
+							is_child_of = root
+						}
+					}
+				}
+				desc = eastwood_flavor.0001.desc.random_child
+			}
+		}
+	}
+	theme = realm
+
+	left_portrait = {
+		trigger = { # Child must exists
+			exists = scope:fascinated_child_ck
+		}
+		character = scope:fascinated_child_ck
+		animation = happiness
+	}
+	right_portrait = {
+		character = scope:wandering_educator_ck
+		animation = debating
+	}
+	override_background = {
+		reference = terrain_scope
+	}
+
+	trigger = {
+		is_ai = no # Sooooo many heresiarchs across the world without this
+		is_landed = yes
+		highest_held_title_tier >= tier_county
+		NOR = {
+			any_courtier = { # Don't trigger if you have a courtier with the character flag
+				has_character_flag = ew_flavor_0001_flag
+			}
+			has_character_flag = ew_flavor_0001_cooldown # Cooldown trigger
+		}
+	}
+
+	immediate = {
+		capital_province ?= {
+			save_scope_as = background_terrain_scope
+		}
+		# Create the educated man & save him as a scope
+		create_character = {
+			template = ck_wandering_educator_template
+			dynasty = none
+			location = root.capital_province
+			save_scope_as = wandering_educator_ck
+			after_creation = {
+				add_trait = scholar
+				add_trait = heresiarch
+			}
+		}
+		# Pull a random child from court, if one exists. Prioritize your own children first
+		if = {
+			limit = {
+				any_child = {
+					is_adult = no
+					is_ai = yes
+					age >= 10
+				}
+			}
+			random_child = {
+				limit = {
+					is_adult = no
+					is_ai = yes
+					age >= 10
+				}
+				save_scope_as = fascinated_child_ck
+			}
+		}
+		else_if = {
+			limit = {
+				any_courtier_or_guest = {
+					is_adult = yes
+					is_ai = yes
+					age >= 10
+				}
+			}
+			random_courtier_or_guest = {
+				limit = {
+					is_adult = no
+					is_ai = yes
+					age >= 10
+				}
+				save_scope_as = fascinated_child_ck
+			}
+		}
+	}
+
+	option = { # Let him stay
+		name = eastwood_flavor.0001.a
+		# Add neutral modifier to increase hostile scheme success against you and decreases county control
+		add_character_modifier = {
+			modifier = ck_hired_wandering_educator
+			years = 2
+		}
+		# Child is happy at this news
+		if = {
+			limit = {
+				exists = scope:fascinated_child_ck
+			}
+			reverse_add_opinion = {
+				modifier = grateful_opinion
+				target = scope:fascinated_child_ck
+				opinion = 30
+			}
+			# Give the child two increases to a single stat
+			scope:fascinated_child_ck = {
+				random_list = {
+					1 = {
+						add_stewardship_skill = 1
+					}
+					1 = {
+						add_learning_skill = 1
+					}
+					1 = {
+						add_martial_skill = 1
+					}
+					1 = {
+						add_diplomacy_skill = 1
+					}
+					1 = {
+						add_intrigue_skill = 1
+					}
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_trait = zealous
+						}
+					}
+					custom_tooltip = {
+						text = eastwood_flavor.0001.a.tt
+						random_list = {
+							75 = {
+								show_chance = no
+							}
+							25 = {
+								show_chance = no
+								add_trait = zealous
+							}
+						}
+					}
+				}
+				set_relation_friend = {
+					target = scope:wandering_educator_ck
+					reason = friend_old_mentor
+				}
+			}
+		}
+		# The man's preachings are causing discontent
+		capital_county = {
+			change_county_control = -15
+			add_county_modifier = {
+				modifier = ck_paid_wandering_education
+				years = 2
+			}
+		}
+		# Hire the man
+		add_courtier = scope:wandering_educator_ck
+		# If you have an empty tutor spot, fill it.
+		if = {
+			limit = {
+				is_valid_to_hire_court_position_type = court_tutor_court_position
+				NOT = { employs_court_position = court_tutor_court_position }
+			}
+			appoint_court_position = {
+				recipient = scope:wandering_educator_ck
+				court_position = court_tutor_court_position
+			}
+		}
+		hidden_effect = {
+			add_character_flag = {
+				flag = ew_flavor_0001_cooldown
+				years = 3
+			}
+			scope:wandering_educator_ck = {
+				add_character_flag = ew_flavor_0001_flag
+			}
+		}
+	}
+	option = { # Kick him out (text depends on arrogance)
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							has_trait = arrogant
+						}
+						desc = eastwood_flavor.0001.b.arrogant
+					}
+					triggered_desc = {
+						trigger = {
+							NOT = { has_trait = arrogant }
+							has_trait = zealous
+						}
+						desc = eastwood_flavor.0001.b.zealous
+					}
+					triggered_desc = {
+						trigger = {
+							NOR = { 
+								has_trait = arrogant
+								has_trait = zealous
+							}
+						}
+						desc = eastwood_flavor.0001.b.normal
+					}
+				}
+			}
+		}
+		# Child is upset
+		if = {
+			limit = {
+				exists = scope:fascinated_child_ck
+			}
+			reverse_add_opinion = {
+				modifier = upset_opinion
+				target = scope:fascinated_child_ck
+				opinion = -20
+			}
+		}
+		# With the man's preachings gone, the county is a bit more stable
+		capital_county = {
+			change_county_control = 5
+		}
+		# Make him disappear
+		custom_tooltip = {
+			text = eastwood_flavor.0001.b.tt
+			scope:wandering_educator_ck = {
+				silent_disappearance_effect = yes
+			}
+		}
+		# Cooldown
+		hidden_effect = {
+			add_character_flag = {
+				flag = ew_flavor_0001_cooldown
+				years = 3
+			}
+		}
+	}
+	option = { # Pay him to shut his heretical mouth up, stewardship duel. If fail, he leaves
+		name = eastwood_flavor.0001.c
+		custom_tooltip = eastwood_flavor.0001.c.tt
+		# Pay out gold, county gets positive modifier for increased development, you get a positive modifier for children education
+		pay_short_term_gold = {
+			target = scope:wandering_educator_ck
+			gold = 100
+		}
+		# The man stops preaching and starts helping with development and tutoring
+		capital_county = {
+			add_county_modifier = {
+				modifier = ck_paid_wandering_education
+				years = 2
+			}
+		}
+		add_character_modifier = {
+			modifier = ck_hired_wandering_educator_positive
+			years = 2
+		}
+		# Hire the man
+		add_courtier = scope:wandering_educator_ck
+		# If you have an empty tutor spot, fill it.
+		if = {
+			limit = {
+				is_valid_to_hire_court_position_type = court_tutor_court_position
+				NOT = { employs_court_position = court_tutor_court_position }
+			}
+			appoint_court_position = {
+				recipient = scope:supporter
+				court_position = court_tutor_court_position
+			}
+		}
+		# Child is happy
+		if = {
+			limit = {
+				exists = scope:fascinated_child_ck
+			}
+			reverse_add_opinion = {
+				modifier = grateful_opinion
+				target = scope:fascinated_child_ck
+				opinion = 30
+			}
+			# Give the child two increases to a single stat
+			scope:fascinated_child_ck = {
+				random_list = {
+					1 = {
+						add_stewardship_skill = 2
+					}
+					1 = {
+						add_learning_skill = 2
+					}
+					1 = {
+						add_martial_skill = 2
+					}
+					1 = {
+						add_diplomacy_skill = 2
+					}
+					1 = {
+						add_intrigue_skill = 2
+					}
+				}
+				set_relation_friend = {
+					target = scope:wandering_educator_ck
+					reason = friend_old_mentor
+				}
+			}
+		}
+		# All is forgiven?
+		scope:wandering_educator_ck = {
+			remove_trait_force_tooltip = heresiarch
+		}
+		hidden_effect = {
+			add_character_flag = {
+				flag = ew_flavor_0001_cooldown
+				years = 3
+			}
+			scope:wandering_educator_ck = {
+				add_character_flag = ew_flavor_0001_flag
+			}
+		}
+	}
+}
