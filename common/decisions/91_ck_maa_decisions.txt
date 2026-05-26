@@ -1,0 +1,609 @@
+﻿recruit_local_troops_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_recruitment.dds"
+	}
+	desc = recruit_local_troops_decision_desc
+	decision_group_type = adventurer
+
+	is_shown = { # nomad probably needs to convert domicile culture first
+		government_allows = conditional_maa_refill
+		is_available_quick = {
+			ai = no
+			landed = no
+			adult = yes
+			travel = no
+			# at_war = no
+			imprisoned = no
+			incapable = no
+		}
+		domicile ?= {
+			domicile_uses_culture_and_faith = no
+			domicile_location ?= {
+				has_holding = yes
+				county ?= {
+					exists = culture
+				}
+			}
+		}
+	}
+	cooldown = {
+		weeks = 12
+	}
+	is_valid_showing_failures_only = {
+		trigger_if = {
+			limit = { # common/lifestyle_perks/00_learning_2_scholarship_tree_perks.txt
+				government_has_flag = government_is_landless_adventurer
+			}
+			OR = {
+				has_realm_law = camp_purpose_mercenaries
+				# has_trait_with_flag = unlock_voluntary_laampdom_trait
+				has_perk = planned_cultivation_perk
+			}
+			# check as a blocker if they're culture_head as well?
+			custom_tooltip = {
+				text = can_move_domicile_camp_exile.tt
+				is_laamp_exiled_from_holder_or_liege_trigger = {
+					PROVINCE = domicile.domicile_location
+					LAAMP = root
+				}
+			}
+			has_domicile_temperament_low = no
+		}
+	}
+	is_valid = {
+		domicile ?= {
+			trigger_if = {
+				limit = {
+					domicile_uses_provisions = yes
+				}
+				provisions >= {
+					value = 100
+					multiply = root.maa_regiments_count
+				}
+			}
+			domicile_location.county ?= {
+				ck_unique_county_troops_trigger = yes
+			}
+		}
+		trigger_if = {
+			limit = {
+				has_variable = recruits_local_troops
+			}
+			
+			custom_tooltip = {
+				text = recruits_local_troops_tt_desc
+				var:recruits_local_troops != domicile.domicile_location.county.culture
+			}
+		}
+	}
+	cost = {
+		gold = {
+			value = 50
+			multiply = maa_regiments_count
+		}
+		herd = {
+			value = 100
+			if = { 
+				limit = {
+					NOT = { government_has_flag = government_has_herd }
+				}
+				value = 0
+			}
+			else = {
+				multiply = maa_regiments_count
+			}
+		}
+	}
+
+	effect = {
+		set_variable = {
+			name = recruits_local_troops
+			value = domicile.domicile_location.county.culture
+		}
+		# enumerate the available options via custom loc? this needs to coerced values in that case
+		var:recruits_local_troops ?= {
+			custom_tooltip = will_recruit_variable
+			if = {
+				limit = {
+					ck_single_heritage_trigger = yes
+				}
+				switch = {
+					trigger = has_cultural_pillar
+					heritage_calradian = { custom_tooltip = calradian_tooltip }
+					heritage_battanian = { custom_tooltip = battanian_tooltip }
+					heritage_geroian = { custom_tooltip = geroian_tooltip }
+					heritage_byalic = { custom_tooltip = nord_tooltip }
+				}
+			}
+			else = {
+				switch = {
+					trigger = has_variable
+					swadian_troops_var = { custom_tooltip = swadian_tooltip }
+					vaegir_troops_var = { custom_tooltip = vaegir_tooltip }
+					khergit_troops_var = { custom_tooltip = khergit_tooltip }
+					nord_troops_var = { custom_tooltip = nord_tooltip }
+					rhodok_troops_var = { custom_tooltip = rhodok_tooltip }
+					sarranid_troops_var = { custom_tooltip = sarranid_tooltip }
+					strugic_troops_var = { custom_tooltip = sturgic_tooltip }
+					nahasi_troops_var = { custom_tooltip = nahasi_tooltip }
+					khuzic_troops_var = { custom_tooltip = khuzic_tooltip }
+					vlandian_troops_var = { custom_tooltip = vlandian_tooltip }
+					togerd_troops_var = { custom_tooltip = togerd_tooltip }
+					sudican_troops_var = { custom_tooltip = sudican_tooltip }
+					kassen_troops_var = { custom_tooltip = kassen_tooltip }
+					rhoyd_troops_var = { custom_tooltip = rhoyd_tooltip }
+					fallback = { custom_tooltip = NOT_ck_unique_troops_global }
+				}
+				# put the other ones
+			}
+		}
+
+		# custom_tooltip = will_recruit_variable
+		every_knight = {
+			if = {
+				limit = {
+					culture = domicile.domicile_location.county.culture
+				}
+				# non-stacking default is 25
+				add_opinion = {
+					target = root
+					modifier = loyalty_opinion
+					opinion = 15
+				}
+			}
+			else_if = {
+				limit = {
+					culture = {
+						has_same_culture_heritage = root.culture
+					}
+				}
+				# stacking
+				add_opinion = {
+					target = root
+					modifier = unimpressed_opinion
+					opinion = -10
+				}
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					has_character_modifier = recruits_local_troops
+				}
+			}
+			add_character_modifier = {
+				modifier = recruits_local_troops
+				desc = will_recruit_variable
+				weeks = 12
+			}
+		}
+		domicile ?= {
+			if = {
+				limit = {
+					 domicile_uses_provisions = yes
+				}
+				change_provisions = {
+					value = 100
+					multiply = prev.maa_regiments_count
+				}
+			}
+		}
+		open_view = {
+			view = military
+			player = root
+		}
+		# custom_tooltip = will_receive_cooldown
+	}
+	ai_check_interval = 0
+}
+recruit_cultural_troops_decision = {
+	picture = {
+		trigger = { culture = { has_cultural_pillar = heritage_byalic } }
+		reference = "gfx/interface/illustrations/decisions/fp1_decision_forge_jomsvikings.dds"
+	}
+	picture = {
+		trigger = { culture = { has_cultural_pillar = heritage_sturgic } }
+		reference = "gfx/interface/illustrations/decisions/ep3_decision_varangian_guard.dds"
+	}
+	picture = {
+		trigger = { culture = { has_cultural_pillar = heritage_nahasi } }
+		reference = "gfx/interface/illustrations/decisions/fp2_decision_struggle_compromise.dds"
+	}
+	picture = {
+		trigger = { culture = { has_cultural_pillar = heritage_balian } }
+		reference = "gfx/interface/illustrations/decisions/decision_destiny_goal.dds"
+	}
+	picture = {
+		trigger = { culture = { has_cultural_pillar = heritage_khuzic } }
+		reference = "gfx/interface/illustrations/decisions/mpo_decision_confederation.dds"
+	}
+	picture = {
+		trigger = { culture = { has_graphical_east_asia_culture_group_trigger = yes } }
+		reference = "gfx/interface/illustrations/decisions/tgp_dominance.dds"
+	}
+	picture = {
+		trigger = { is_landed = no }
+		reference = "gfx/interface/illustrations/decisions/decision_levy_outcasts.dds"
+	}
+	picture = {
+		trigger = { character_ceremonial_calradian_decision_trigger = yes }
+		reference = "gfx/interface/illustrations/decisions/ep3_cerimonial_decision.dds"
+	}
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_knight_kneeling.dds"
+	}
+	desc = return_to_cultural_troops_decision_desc
+	decision_group_type = realm
+	
+	is_shown = {
+		has_variable = recruits_local_troops
+	}
+	
+	is_valid_showing_failures_only = {
+		is_available_quick = {
+			ai = no
+			adult = yes
+			at_war = no
+			imprisoned = no
+		}
+		custom_tooltip = {
+			text = recruits_local_cooldown_desc
+			NOR = {
+				is_decision_on_cooldown = recruit_local_troops_decision
+				is_decision_on_cooldown = recruit_local_troops_landed_decision
+			}
+		}
+	}
+	
+	effect = {
+		send_interface_toast = {
+			title = recruit_local_troops_message
+			left_icon = root
+			right_icon = primary_title
+			remove_character_modifier = recruits_local_troops
+		}
+		custom_tooltip = returns_to_cultural_troops_desc
+		remove_variable = recruits_local_troops
+		open_view = {
+			view = military
+			player = root
+		}
+	}
+	
+	ai_check_interval = 0
+}
+recruit_local_troops_landed_decision = {
+	decision_group_type = realm
+	picture = {
+		trigger = { character_ceremonial_calradian_decision_trigger = yes }
+		reference = "gfx/interface/illustrations/decisions/ep3_decision_hold_triumph.dds"
+	}
+	picture = {
+		trigger = { culture = { has_graphical_east_asia_culture_group_trigger = yes } }
+		reference = "gfx/interface/illustrations/decisions/tgp_career.dds"
+	}
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_castle_view.dds"
+	}
+	desc = recruit_local_troops_landed_decision_desc
+
+	is_shown = { # nomad probably needs to convert domicile culture first
+		highest_held_title_tier >= tier_duchy
+		NOT = {
+			has_variable = recruits_local_troops
+		}
+	}
+	
+	ai_check_interval_by_tier = {
+		barony = 0
+		county = 0
+		# 72/96/120?
+		duchy = 0
+		kingdom = 0
+		empire = 0
+		# probably never
+		hegemony = 0
+	}
+	cooldown = { years = 6 }
+	
+	is_valid_showing_failures_only = {
+		is_available_quick = {
+			ai = no
+			landed = yes
+			adult = yes
+			# at_war = no
+			imprisoned = no
+		}
+		# you don't need a decision to pay extra gold
+		government_disallows = subject_men_at_arms
+		custom_tooltip = {
+			text = recruits_local_troops_tt_desc
+			NOT = {
+				has_variable = recruits_local_troops
+			}
+		}
+	}
+	
+	is_valid = {
+		OR = {
+			trigger_if = {
+				limit = {
+					government_disallows = deny_powerful_vassal
+				}
+				any_powerful_vassal = {
+					custom_tooltip = {
+						text = happy_powerful_vassal_local
+						NOR = {
+							is_at_war_with_liege = yes
+							has_variable = recruits_local_troops
+						}
+						OR = {
+							is_councillor_of = liege
+							is_allied_to = liege
+							opinion = {
+								target = liege
+								value >= 100
+							}
+						}
+						culture ?= { # explicitly must be different heritage, not just alternate culture
+							NOT = { has_same_culture_heritage = prev.liege.culture }
+						}
+					}
+					count > 2
+				}
+			}
+			any_sub_realm_county = {
+			# != doesn't tooltip well
+				NOT = {
+					culture = prev.culture
+				}
+				percent >= 0.5 # the title-scoped tooltip shows a random one...
+				ck_unique_troops_trigger = yes
+			}
+		}
+	}
+	widget = {
+		gui = "decision_view_widget_generic_multichoice_with_effects"
+		controller = decision_option_list_controller
+		decision_to_second_step_button = "recruit_local_troops_decision_next"
+		show_from_start = no
+
+		#the hover is not current_description but $value$_tooltip instead
+		item = {
+			value = calradian
+			current_description = bm_1084_empire_desc
+			localization = calradian_collective_tt
+			icon = "gfx/interface/icons/concept_icons/conceptccw.dds"
+			is_shown = { ck_local_heritage_shown = { CULTURE = calradian } }
+			is_valid = { NOT = { ck_can_recruit_culture_heritage_troops = { HERITAGE = calradian CULTURE = calradian } } }
+		}
+		item = {
+			value = battanian
+			current_description = bm_1084_battania_desc
+			localization = battanian_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/bowmen.dds"
+			is_shown = { ck_local_heritage_shown = { CULTURE = battanian } }
+			is_valid = { NOT = { ck_can_recruit_culture_heritage_troops = { HERITAGE = battanian CULTURE = battanian } } }
+		}
+		item = {
+			value = sturgic
+			current_description = sturgic_desc
+			localization = sturgic_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/nord_heavy_infantry_1.dds"
+			is_shown = { ck_local_heritage_shown = { CULTURE = sturgic } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = sturgic } } }
+		}
+		item = {
+			value = khuzic
+			current_description = khuzait_desc
+			localization = khuzic_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/horse_archers.dds"
+			is_shown = { ck_local_heritage_shown = { CULTURE = khuzic } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = khuzic } } }
+		}
+		item = {
+			value = geroian
+			current_description = geroian_desc
+			localization = geroian_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/ck_geroian_horse_archers.dds"
+			is_shown = { ck_local_heritage_shown = { CULTURE = geroian } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = geroian } } }
+		}
+		item = {
+			value = nahasi
+			current_description = bm_1084_aserai_desc
+			localization = nahasi_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/camel_riders.dds"
+			is_shown = { ck_local_heritage_shown = { CULTURE = nahasi } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = nahasi } } }
+		}
+		item = {
+			value = sarranid
+			current_description = sarranid_desc
+			localization = sarranid_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/warhorse_sarranid.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = sarranid } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = sarranid } } }
+		}
+		item = {
+			value = vaegir
+			current_description = vaegir_desc
+			localization = vaegir_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/warhorse_chain.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = vaegir } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = vaegir } } }
+		}
+		item = {
+			value = khergit
+			current_description = khergit_desc
+			localization = khergit_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/warhorse_steppe.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = khergit } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = khergit } } }
+		}
+		item = { # was nordic but renamed
+			value = nord
+			current_description = nord_desc
+			localization = nord_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/nord_heavy_infantry_2.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = nord } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = nord } } }
+		}
+		item = {
+			value = rhodok
+			current_description = rhodok_desc
+			localization = rhodok_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/pikemen.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = rhodok } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = rhodok } } }
+		}
+		item = {
+			value = swadian
+			current_description = swadian_desc
+			localization = swadian_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/charger.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = swadian } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = swadian } } }
+		}
+		item = {
+			value = eilander
+			current_description = eilander_desc
+			localization = eilander_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/heavy_infantry.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = eilander } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = eilander } } }
+		}
+		item = {
+			value = heimarkel
+			current_description = heimarkel_desc
+			localization = heimarkel_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/heavy_cavalry_western.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = heimarkel } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = heimarkel } } }
+		}
+		item = {
+			value = rhoyd
+			current_description = rhoyd_desc
+			localization = rhoyd_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/pikemen_militia.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = rhoyd } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = rhoyd } } }
+		}
+		item = {
+			value = kassen
+			current_description = kassen_desc
+			localization = kassen_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/skirmishers.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = kassen } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = kassen } } }
+		}
+		item = {
+			value = sudican
+			current_description = sudican_desc
+			localization = sudican_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/jomsviking_pirates.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = sudican } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = sudican } } }
+		}
+		item = {
+			value = togerd
+			current_description = togerd_desc
+			localization = togerd_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/light_cavalry.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = togerd } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = togerd } } }
+		}
+		item = {
+			value = vlandian
+			current_description = vlandian_desc
+			localization = vlandian_collective_tt
+			icon = "gfx/interface/icons/regimenttypes/heavy_cavalry.dds"
+			is_shown = { ck_local_culture_shown = { CULTURE = vlandian } }
+			is_valid = { NOT = { ck_can_recruit_culture_troop_vars = { CULTURE = vlandian } } }
+		}
+	}
+	effect = {
+		# custom_description_no_bullet = {
+		# 	text = recruits_local_troops_modifier
+			add_character_modifier = {
+				modifier = recruits_local_troops_maint
+				years = 6
+			}
+		# }
+		# hidden_effect = { recruit_local_landed_ruler_effect = yes } 
+		switch = {
+			trigger = yes
+			# x => culture:x
+			scope:swadian = { set_variable = { name = recruits_local_troops value = culture:sarranid } }
+			scope:vaegir = { set_variable = { name = recruits_local_troops value = culture:vaegir } }
+			scope:khergit = { set_variable = { name = recruits_local_troops value = culture:khergit } }
+			scope:nord = { set_variable = { name = recruits_local_troops value = culture:nord } }
+			scope:rhodok = { set_variable = { name = recruits_local_troops value = culture:rhodok } }
+			scope:sarranid = { set_variable = { name = recruits_local_troops value = culture:sarranid } }
+			scope:vlandian = { set_variable = { name = recruits_local_troops value = culture:vlandian } }
+			scope:togerd = { set_variable = { name = recruits_local_troops value = culture:togerd } }
+			scope:sudican = { set_variable = { name = recruits_local_troops value = culture:sudican } }
+			scope:kassen = { set_variable = { name = recruits_local_troops value = culture:kassen } }
+			scope:heimarkel = { set_variable = { name = recruits_local_troops value = culture:heimarkel } }
+			scope:eilander = { set_variable = { name = recruits_local_troops value = culture:eilander } }
+			scope:rhoyd = { set_variable = { name = recruits_local_troops value = culture:rhoyd } }
+			# heritage_x => culture:y
+			# scope:byalic = { set_variable = { name = recruits_local_troops value = culture:nord } }
+			scope:nahasi = { set_variable = { name = recruits_local_troops value = culture:aserai } }
+			scope:khuzic = { set_variable = { name = recruits_local_troops value = culture:khuzait } }
+			# heritage_x == culture:x
+			scope:sturgic = { set_variable = { name = recruits_local_troops value = culture:sturgic } }
+			scope:geroian = { set_variable = { name = recruits_local_troops value = culture:geroian } }
+			scope:battanian = { set_variable = { name = recruits_local_troops value = culture:battanian } }
+			scope:calradian = { set_variable = { name = recruits_local_troops value = culture:calradian } }
+		}
+		if = {
+			limit = {
+				root = culture.culture_head
+				any_vassal = {
+					culture = prev.culture
+				}
+			}
+			custom_tooltip = cc_lose_legitimacy
+			if = {
+				limit = {
+					has_legitimacy = yes
+				}
+				add_legitimacy = {
+					value = massive_legitimacy_loss
+					subtract = sub_realm_size
+					add = primary_title.title_held_years
+				}
+			}
+			else_if = {
+				limit = {
+					is_house_head = yes
+				}
+				dynasty ?= {
+					add_dynasty_prestige_level = -1
+				}
+			}
+			else = {
+				add_prestige_level = -1
+			}
+			add_prestige_experience = massive_fame_loss
+		}
+		# tooltip might be broken don't hover pls
+		add_character_modifier = {
+			modifier = recruits_local_troops_landed
+			desc = will_recruit_variable
+		}
+		open_view = {
+			view = military
+			player = root
+		}
+	}
+	
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
