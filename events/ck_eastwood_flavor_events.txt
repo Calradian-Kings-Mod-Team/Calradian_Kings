@@ -343,3 +343,319 @@ eastwood_flavor.0001 = {
 		}
 	}
 }
+
+scripted_trigger eastwood_flavor_0002_nomad_trigger = {
+	OR = {
+		holder ?= { # If anyone has a herder or nomadic government
+			OR = {
+				government_has_flag = government_is_herder
+				government_has_flag = government_is_nomadic
+			}
+		}
+		culture = { # If the culture has one of the big nomadic cultures
+			OR = {
+				has_cultural_pillar = heritage_khuzic
+				has_cultural_pillar = heritage_khiindai
+				has_cultural_pillar = heritage_lir_ovus
+				has_cultural_parameter = unlock_maa_horse_archers
+			}
+		}
+	}
+}
+### Nomads Wish to Settle
+eastwood_flavor.0002 = {
+	type = character_event
+	title = eastwood_flavor.0002.t
+	desc = eastwood_flavor.0002.desc
+	theme = nomads
+
+	left_portrait = {
+		character = root
+		animation = thinking
+		camera = camera_event_center
+	}
+
+	lower_right_portrait = {
+		character = scope:ck_0002_nomad_2
+		animation = personality_bold
+	}
+	lower_center_portrait = {
+		character = scope:ck_0002_nomad_1
+		animation = beg
+	}
+	lower_left_portrait = {
+		character = scope:ck_0002_nomad_3
+		animation = personality_rational
+	}
+
+	override_background = {
+		reference = terrain_scope
+	}
+	
+	trigger = {
+		# is_ai = no ## Give AI a chance here but make it rare for them
+		is_landed = yes
+		highest_held_title_tier >= tier_county
+		NOR = {
+			has_character_flag = ew_flavor_0002_cooldown # Cooldown trigger
+			
+			government_has_flag = government_is_nomadic # Makes no sense you'd be settling other nomads as a nomad
+		}
+		any_held_title = {
+			title_tier = county
+			any_neighboring_county = {
+				eastwood_flavor_0002_nomad_trigger = yes
+			}
+		}
+		culture = { # Not a nomadic culture yourself
+			NOR = {
+				has_cultural_pillar = heritage_khuzic
+				has_cultural_pillar = heritage_khiindai
+				has_cultural_pillar = heritage_lir_ovus
+				has_cultural_parameter = unlock_maa_horse_archers
+			}
+		}
+	}
+
+	immediate = {
+		capital_county = {
+			save_scope_as = root_capital_county
+		}
+		# Find that neighboring realm and scope it
+		random_held_title = {
+			title_tier = county
+			limit = {
+				any_neighboring_county = {
+					eastwood_flavor_0002_nomad_trigger = yes
+				}
+			}
+			random_neighboring_county = {
+				limit = {
+					OR = {
+						holder = { # If anyone has a herder or nomadic government
+							OR = {
+								government_has_flag = government_is_herder
+								government_has_flag = government_is_nomadic
+							}
+						}
+						culture = { # If the culture has one of the big nomadic cultures
+							OR = {
+								has_cultural_pillar = heritage_khuzic
+								has_cultural_pillar = heritage_khiindai
+								has_cultural_pillar = heritage_lir_ovus
+								has_cultural_parameter = unlock_maa_horse_archers
+							}
+						}
+					}
+				}
+				save_scope_as = ew_0002_nomad_county
+			}
+		}
+		faith = { save_scope_as = root_faith_ck }
+		# Create three nomad characters from this county and give them the appropriate nomadic traits
+		# First character
+		create_character = {
+			location = root.location
+			template = ck_nomadic_wanderer_0002
+			culture = scope:ew_0002_nomad_county.culture
+			faith = scope:ew_0002_nomad_county.faith
+			gender_female_chance = {
+				if = {
+					limit = { scope:ew_0002_nomad_county.faith = { has_doctrine = doctrine_gender_male_dominated } }
+					add = 0
+				}
+				else_if = {
+					limit = { scope:ew_0002_nomad_county.faith = { has_doctrine = doctrine_gender_female_dominated } }
+					add = 100
+				}
+				else = {
+					add = 0
+				}
+			}
+			save_scope_as = ck_0002_nomad_1
+		}
+		# Second character
+		create_character = {
+			location = root.location
+			template = ck_nomadic_wanderer_0002
+			culture = scope:ew_0002_nomad_county.culture
+			faith = scope:ew_0002_nomad_county.faith
+			save_scope_as = ck_0002_nomad_2
+		}
+		# Third character
+		create_character = {
+			location = root.location
+			template = ck_nomadic_wanderer_0002
+			culture = scope:ew_0002_nomad_county.culture
+			faith = scope:ew_0002_nomad_county.faith
+			save_scope_as = ck_0002_nomad_3
+		}
+	}
+
+	# Welcome them openly / Malus to control / Increased development / Cost ( 300 / Paid out in thirds to each )
+	option = {
+		name = eastwood_flavor_0002.a
+
+		show_as_tooltip = {
+			pay_short_term_gold = {
+				target = scope:ck_0002_nomad_1
+				gold = 300
+			}
+		}
+		capital_county = {
+			add_county_modifier = {
+				modifier = ck_settled_nomads_2
+				years = 2
+			}
+		}
+		# Setup Unique Nomadic MAA's below:
+		# Khuzic MAAs
+		if = {
+			limit = {
+				scope:ck_0002_nomad_1.culture = {
+					has_cultural_pillar = heritage_khuzic # unique maa's
+				}
+			}
+			hidden_effect = {
+				add_character_flag = ck_can_recruit_khuzic_maas
+			}
+		}
+		# County Changes
+		capital_county = {
+			change_county_control = -10
+			change_development_level = 3
+		}
+		# Add Courtiers
+		add_courtier = scope:ck_0002_nomad_1
+		add_courtier = scope:ck_0002_nomad_2
+		add_courtier = scope:ck_0002_nomad_3
+		# Inform Player of Recruitment Choice
+		send_interface_message = {
+			type = msg_troops_gained
+			title = eastwood_flavor_0002.a.recruit_nomads
+			left_icon = root
+			right_icon = scope:ck_0002_nomad_1
+		}
+		# Payout Gold and Add Event Cooldown
+		hidden_effect = {
+			pay_short_term_gold = {
+				target = scope:ck_0002_nomad_1
+				gold = 100
+			}
+			pay_short_term_gold = {
+				target = scope:ck_0002_nomad_2
+				gold = 100
+			}
+			pay_short_term_gold = {
+				target = scope:ck_0002_nomad_3
+				gold = 100
+			}
+			add_character_flag = {
+				flag = ew_flavor_0002_cooldown
+				years = 20
+			} 
+			add_character_modifier = {
+				modifier = ck_settled_nomads_character
+				years = 2
+			}
+		}
+	}
+	# Welcome them but demand faith conversion / No Cost / Increased Development / No MAAs
+	option = {
+		name = eastwood_flavor_0002.b
+		if = {
+			limit = {
+				scope:ck_0002_nomad_1.faith != root.faith
+			}
+			custom_tooltip = {
+				text = eastwood_flavor_0002.b.tt
+				scope:ck_0002_nomad_1 = {
+					set_character_faith = root.faith
+				}
+				scope:ck_0002_nomad_2 = {
+					set_character_faith = root.faith
+				}
+				scope:ck_0002_nomad_3 = {
+					set_character_faith = root.faith
+				}
+				add_courtier = scope:ck_0002_nomad_1
+				add_courtier = scope:ck_0002_nomad_2
+				add_courtier = scope:ck_0002_nomad_3
+			}
+		}
+		capital_county = {
+			change_development_level = 3
+			add_county_modifier = {
+				modifier = ck_settled_nomads
+				years = 2
+			}
+		}
+		hidden_effect = {
+			add_character_flag = {
+				flag = ew_flavor_0002_cooldown
+				years = 10
+			} 
+		}
+	}
+	# Kick them out / Longer cooldown / May cause trouble in a neighboring county, regardless of if it's yours
+	option = {
+		name = eastwood_flavor_0002.c
+		duel = {
+			target = scope:ck_0002_nomad_1
+			skill = martial
+			value = medium_skill_rating
+			50 = {
+				desc = eastwood_flavor_0002.c.success
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3
+					min = -49
+				}
+				send_interface_toast = {
+					type = event_toast_effect_good
+					title = eastwood_flavor_0002.c.success
+					left_icon = root
+					right_icon = scope:ck_0002_nomad_1
+				}
+			}
+			50 = {
+				desc = eastwood_flavor_0002.c.failure
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3
+					min = -49
+				}
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = eastwood_flavor_0002.c.failure
+					left_icon = root
+					right_icon = scope:ck_0002_nomad_1
+					add_prestige = medium_prestige_loss
+					root.capital_county = {
+						add_county_modifier = {
+							modifier = ck_expelled_nomads
+							months = 18
+						}
+						change_county_control = -15
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			add_character_flag = {
+				flag = ew_flavor_0002_cooldown
+				years = 10
+			} 
+			scope:ck_0002_nomad_1 = {
+				silent_disappearance_effect = yes
+			}
+			scope:ck_0002_nomad_2 = {
+				silent_disappearance_effect = yes
+			}
+			scope:ck_0002_nomad_3 = {
+				silent_disappearance_effect = yes
+			}
+		}
+	}
+
+}
