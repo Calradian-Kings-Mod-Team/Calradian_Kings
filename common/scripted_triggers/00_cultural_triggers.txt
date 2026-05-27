@@ -282,10 +282,13 @@ culture_has_pikemen_maa = { #I.e. Spearmen
 		has_cultural_parameter = unlock_maa_zupin_warrior
 		has_cultural_parameter = unlock_warrior_monk_units
 		has_innovation = innovation_rectilinear_schiltron #Schiltron - Later Era MAA
-		has_innovation = innovation_pike_columns #Picchieri - Later Era MAA
+		# has_innovation = innovation_pike_columns #Picchieri - Later Era MAA
 		has_innovation = innovation_zweihanders #Later Era MAA
-		has_cultural_pillar = heritage_battanian
-		has_variable = rhodok_troops_var
+		# has_cultural_pillar = heritage_battanian
+		# move vars to "specialized" trigger instead?
+		var:troops_culture ?= culture:battanian
+		var:troops_culture ?= culture:rhodok
+		var:troops_culture ?= culture:geroian
 	}
 }
 
@@ -308,15 +311,28 @@ culture_has_light_cavalry_maa = {
 culture_has_heavy_cavalry_maa = {
 	OR = {
 		has_cultural_pillar = heritage_calradian
-		has_cultural_pillar = heritage_balian
+		# has_cultural_pillar = heritage_balian
 		has_cultural_pillar = heritage_kohinik
 		has_cultural_parameter = unlock_maa_tarkhan
 		has_cultural_parameter = unlock_maa_cataphract_archers
 		has_innovation = innovation_tiefutu
 		has_cultural_parameter = unlock_maa_black_armor_cavalry
 		has_innovation = innovation_valets #Gendarme - Later Era MAA
-		# has_variable = vlandian_troops_var
-		has_variable = swadian_troops_var
+		trigger_if = {
+			limit = {
+				has_innovation = innovation_arched_saddle
+			}
+			OR = {
+				var:troops_culture ?= culture:swadian
+				var:troops_culture ?= culture:vaegir
+				var:troops_culture ?= culture:khergit
+				var:troops_culture ?= culture:sarranid
+				var:troops_culture ?= culture:vlandian
+				var:troops_culture ?= culture:togerd
+				var:troops_culture ?= culture:heimarkel
+			}
+		}
+		# var:troops_culture ?= culture:rhodok
 	}
 }
 
@@ -328,6 +344,13 @@ culture_has_archer_cavalry_maa = {
 		has_cultural_parameter = unlock_mounted_samurai_units
 		has_cultural_pillar = heritage_khuzic
 		has_cultural_pillar = heritage_khiindai
+		trigger_if = {
+			limit = {
+				has_innovation = innovation_ghilman
+			}
+			var:troops_culture ?= culture:aserai
+		}
+		var:troops_culture ?= culture:calradian
 		culture_head ?= {
 			mpo_can_recruit_nomad_maa_trigger = yes
 		}

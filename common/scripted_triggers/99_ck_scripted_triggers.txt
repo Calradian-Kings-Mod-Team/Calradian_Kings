@@ -1,130 +1,4 @@
 ﻿### MAA triggers ###
-balian_cultures_OR_trigger = {
-	OR = {
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				OR = {
-					this = culture:vlandian
-					has_variable = vlandian_troops_var
-				}
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				OR = {
-					this = culture:swadian
-					has_variable = swadian_troops_var
-				}
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				OR = {
-					this = culture:rhodok
-					has_variable = rhodok_troops_var
-				}
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {	
-				OR = {
-					this = culture:kassen
-					has_variable = kassen_troops_var
-				}
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {	
-				OR = {
-					this = culture:rhoyd
-					has_variable = rhoyd_troops_var
-				}
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {	
-				OR = {
-					this = culture:togerd
-					has_variable = togerd_troops_var
-				}
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {	
-				OR = {
-					this = culture:heimarkel
-					has_variable = heimarkel_troops_var
-				}
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {	
-				OR = {
-					this = culture:sudican
-					has_variable = sudican_troops_var
-				}
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {	
-				OR = {
-					this = culture:eilander
-					has_variable = eilander_troops_var
-				}
-			}
-		}
-	}
-}
-heritages_NB_cultures_OR_trigger = {
-	OR = {
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				has_cultural_pillar = heritage_calradian
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				has_cultural_pillar = heritage_battanian
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				has_cultural_pillar = heritage_khuzic
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				has_cultural_pillar = heritage_nahasi
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				has_cultural_pillar = heritage_sturgic
-			}
-		}
-		any_sub_realm_county = {
-			percent > 0.5
-			culture = {
-				has_cultural_pillar = heritage_geroian
-			}
-		}
-	}
-}
-
 can_recruit_crossbowmen_trigger = {
 	custom_tooltip = {
 		# subject = root
@@ -140,6 +14,252 @@ can_recruit_crossbowmen_trigger = {
 			has_access_to_maa = swadian_crossbowmen_1
 			has_access_to_maa = rhodok_crossbowmen_1
 			has_access_to_maa = geroian_crossbowmen_1
+		}
+	}
+}
+
+# initialized via ck_reassign_culture_troop_vars or culture_on_actions
+ck_unique_troops_trigger = { ## Any time a heritage gets new units, please add it here (Calradian Kings) # CK_MAA
+	culture ?= {
+		has_variable = troops_culture
+	}
+}
+
+# heritage_x, that have no branching troop trees
+ck_single_heritage_trigger = {
+	OR = {
+		has_cultural_pillar = heritage_calradian
+		has_cultural_pillar = heritage_battanian
+		has_cultural_pillar = heritage_byalic
+		has_cultural_pillar = heritage_geroian
+		# has_cultural_pillar = heritage_kohinik
+	}
+}
+# base version of what was assigned via ck_reassign_culture_troop_vars, usually not used
+ck_unique_heritage_troop_vars_trigger = {
+	has_variable = troops_culture
+	OR = {
+		var:troops_culture = culture:aserai
+		var:troops_culture = culture:khuzait
+		var:troops_culture = culture:calradian
+		var:troops_culture = culture:battanian
+		var:troops_culture = culture:geroian
+		var:troops_culture = culture:nord
+	}
+}
+ck_unique_culture_troop_vars_trigger = {
+	has_variable = troops_culture
+	OR = {
+		var:troops_culture ?= culture:swadian
+		var:troops_culture ?= culture:rhodok
+		var:troops_culture ?= culture:vlandian
+		var:troops_culture ?= culture:togerd
+		var:troops_culture ?= culture:sudican
+		var:troops_culture ?= culture:kassen
+		var:troops_culture ?= culture:rhoyd
+		var:troops_culture ?= culture:heimarkel
+		var:troops_culture ?= culture:eilander
+		var:troops_culture ?= culture:nord
+		var:troops_culture ?= culture:vaegir
+		var:troops_culture ?= culture:khergit
+		var:troops_culture ?= culture:sarranid
+	}
+}
+# tooltipping in decisions - we want the title's county's culture's name in there not character
+ck_unique_county_troops_trigger = {
+	title_capital_county ?= {
+		# OR = {
+		# 	culture = { has_cultural_pillar = heritage_calradian }
+		# 	culture = { has_cultural_pillar = heritage_balian }
+		# 	culture = { has_cultural_pillar = heritage_battanian }
+		# 	culture = { has_cultural_pillar = heritage_nahasi }
+		# 	culture = { has_cultural_pillar = heritage_sturgic }
+		# 	culture = { has_cultural_pillar = heritage_khuzic }
+		# 	culture = { has_cultural_pillar = heritage_geroian }
+		# 	culture = { has_cultural_pillar = heritage_byalic }
+
+		# 	culture = { ck_unique_culture_troop_vars_trigger = yes }
+		# 	# culture = { has_cultural_pillar = heritage_kohinik }
+		# }
+		ck_unique_troops_trigger = yes
+	}
+}
+
+# validate if the heritage matches culture vars
+ck_unique_culture_troop_heritage_match = {
+	# single-tree heritages
+	trigger_if = {
+		limit = {
+			ck_single_heritage_trigger = yes
+			has_variable = troops_culture
+		}
+		switch = {
+			trigger = var:troops_culture
+			culture:calradian = { has_cultural_pillar = heritage_calradian }
+			culture:battanian = { has_cultural_pillar = heritage_battanian }
+			culture:nord = { has_cultural_pillar = heritage_byalic }
+			culture:geroian = { has_cultural_pillar = heritage_geroian }
+			# culture:kohinik = { has_cultural_pillar = heritage_kohinik }
+		}
+		# ck_unique_heritage_troop_vars_trigger = yes
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_balian
+		}
+		OR = {
+			var:troops_culture ?= culture:swadian
+			var:troops_culture ?= culture:rhodok
+			var:troops_culture ?= culture:vlandian
+			var:troops_culture ?= culture:togerd
+			var:troops_culture ?= culture:sudican
+			var:troops_culture ?= culture:kassen
+			var:troops_culture ?= culture:rhoyd
+			var:troops_culture ?= culture:heimarkel
+			var:troops_culture ?= culture:eilander
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_esbalian
+		}
+		OR = {
+			var:troops_culture ?= culture:swadian
+			var:troops_culture ?= culture:rhodok
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_sturgic
+		}
+		OR = {
+			var:troops_culture ?= culture:sturgic
+			var:troops_culture ?= culture:vaegir
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_khuzic
+		}
+		OR = {
+			var:troops_culture ?= culture:khzuait
+			var:troops_culture ?= culture:khergit
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			has_cultural_pillar = heritage_nahasi
+		}
+		OR = {
+			var:troops_culture ?= culture:aserai
+			var:troops_culture ?= culture:sarranid
+		}
+	}
+	trigger_else = {
+		always = no
+	}
+}
+# TODO check with scope:title.title_capital_county.culture for admin maas
+ck_can_recruit_culture_troop_vars = {
+	trigger_if = {
+		limit = {
+			has_variable = troops_culture
+		}
+		var:troops_culture = culture:$CULTURE$
+	}
+	trigger_else = {
+		this = culture:$CULTURE$
+	}
+	# primary_title ?= { is_mercenary_company = yes } # they'll take anybody these days
+}
+# no more base heritage blockers
+ck_can_recruit_culture_heritage_troops = {
+	trigger_if = {
+		limit = { # do not check heritage here
+			has_variable = recruits_local_troops
+		}
+		# exists = culture:$CULTURE$
+		var:recruits_local_troops = {
+			ck_can_recruit_culture_troop_vars = { CULTURE = $CULTURE$ }
+		}
+	}
+	trigger_else = {
+		culture ?= {
+			ck_can_recruit_culture_troop_vars = { CULTURE = $CULTURE$ }
+		}
+	}
+}
+
+ck_local_heritage_shown = {
+	OR = {
+		trigger_if = {
+			limit = {
+				government_disallows = deny_powerful_vassal
+			}
+			any_powerful_vassal = {
+				NOR = {
+					is_at_war_with_liege = yes
+					has_variable = recruits_local_troops
+				}
+				OR = {
+					is_councillor_of = liege
+					is_allied_to = liege
+					opinion = {
+						target = liege
+						value >= 100
+					}
+				}
+				culture = {
+					has_cultural_pillar = heritage_$CULTURE$
+				}
+				count > 2
+			}
+		}
+		any_sub_realm_county = {
+			# ratio scripted from game rule, acceptance etc?
+			# percent > 0.5
+			culture = {
+				has_cultural_pillar = heritage_$CULTURE$
+			}
+		}
+	}
+}
+ck_local_culture_shown = {
+	OR = {
+		trigger_if = {
+			limit = {
+				government_disallows = deny_powerful_vassal
+			}
+			# check tier_difference?
+			any_powerful_vassal = {
+				NOR = {
+					is_at_war_with_liege = yes
+					has_variable = recruits_local_troops
+				}
+				OR = {
+					is_councillor_of = liege
+					is_allied_to = liege
+					opinion = {
+						target = liege
+						value >= 100
+					}
+				}
+				culture = {
+					NOT = { has_same_culture_heritage = prev.liege.culture }
+					var:troops_culture ?= culture:$CULTURE$
+				}
+				count > 2
+			}
+		}
+		any_sub_realm_county = {
+			# ratio scripted from game rule, acceptance etc?
+			# percent > 0.5
+			culture = {
+				OR = {
+					this = culture:$CULTURE$
+					var:troops_culture ?= culture:$CULTURE$
+				}
+			}
 		}
 	}
 }
