@@ -1331,3 +1331,92 @@ culture_emergence_events.0004 = {
 		#}
 	}
 }
+
+# choose your fighter
+culture_emergence_events.1084 = {
+	type = character_event
+	title = culture_emergence_events.0005.t
+	desc = culture_emergence_events.0005.desc
+	theme = travel_tour
+
+	left_portrait = {
+		character = root
+		animation = thinking
+		camera = camera_event_very_left
+	}
+	right_portrait = {
+		character = scope:knight
+		animation = marshal_random_weapon
+	}
+
+	immediate = {
+		root = {
+			capital_county = {
+				save_scope_as = county_scope
+			}
+			culture = {
+				save_scope_as = new_culture_scope
+			}
+			
+			random_councillor = {
+				weight = martial
+				save_scope_as = knight
+			}
+			if = {
+				limit = {
+					NOT = {
+						exists = scope:knight
+					}
+				}
+				random_knight = {
+					weight = prowess
+					save_scope_as = knight
+				}
+			}
+		}
+	}
+
+	option = {
+		name = culture_emergence_events.0005.a
+
+		trigger = {
+			exists = scope:parent_culture_1
+		}
+
+		ai_chance = {
+			base = scope:parent_culture_1.culture_number_of_counties
+		}
+	}
+
+	option = {
+		name = culture_emergence_events.0005.b
+		trigger = {
+			exists = scope:parent_culture_2
+		}
+
+		ai_chance = {
+			base = scope:parent_culture_2.culture_number_of_counties
+		}
+	}
+
+	option = {
+		name = culture_emergence_events.0005.c
+		trigger = {
+			has_variable = recruits_local_troops
+			NOR = {
+				scope:parent_culture_1 ?= var:recruits_local_troops
+				scope:parent_culture_2 ?= var:recruits_local_troops
+			}
+		}
+		custom_tooltip = culture_emergence_events.0005.c.tt
+
+		ai_chance = {
+			base = ai_boldness
+		}
+	}
+
+	after = {
+		remove_variable = recruits_local_troops
+		remove_decision_cooldown = recruit_local_troops_landed_decision
+	}
+}
