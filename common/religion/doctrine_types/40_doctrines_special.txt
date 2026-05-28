@@ -7,6 +7,9 @@
 		# We don't localise these because Adoptionists are supposed to be a bit of a surprise.
 		hostility_override_special_doctrine_adoptionist_school_felicitous_doctrine = 3
 		hostility_override_special_doctrine_adoptionist_school_radical_doctrine = 3
+		# Don't localize the Radical Marcorionist hostility, we all know they're radicals
+		hostility_override_special_doctrine_marcorionist = 2
+		hostility_override_special_doctrine_marcorionist_radical = 3
 	}
 }
 
@@ -88,7 +91,12 @@ special_doctrine_ecumenical_christian = { #Mandatist CK
 	}
 
 	can_pick = { 
-		always = yes
+		custom_description = {
+			text = only_marcorionist_calradian_trigger
+			NOT = { # Only available to Marcorionist
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+		}
 	}
 
 	parameters = {
@@ -114,7 +122,12 @@ special_doctrine_anti_mandatist = { #CK
 	}
 
 	can_pick = { 
-		always = yes
+		custom_description = {
+			text = only_marcorionist_calradian_trigger
+			NOT = { # Only available to Marcorionist
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+		}
 	}
 	
 	parameters = {
@@ -140,7 +153,12 @@ special_doctrine_ascensionist = { #CK
 	}
 
 	can_pick = { 
-		always = yes
+		custom_description = {
+			text = only_marcorionist_calradian_trigger
+			NOT = { # Only available to Marcorionist
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+		}
 	}
 	
 	parameters = {
@@ -165,7 +183,12 @@ special_doctrine_postmandatist = { #CK
 	}
 
 	can_pick = { 
-		always = yes
+		custom_description = {
+			text = only_marcorionist_calradian_trigger
+			NOT = { # Only available to Marcorionist
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+		}
 	}
 	
 	parameters = {
@@ -191,7 +214,12 @@ special_doctrine_darusian = { #CK
 	}
 
 	can_pick = { 
-		always = yes
+		custom_description = {
+			text = only_marcorionist_calradian_trigger
+			NOT = { # Only available to Marcorionist
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+		}
 	}
 	
 	parameters = {
@@ -216,12 +244,141 @@ special_doctrine_amandatist = { #CK
 		}
 	}
 
-	can_pick = { 
-		always = yes
+	can_pick = {
+		custom_description = {
+			text = only_marcorionist_calradian_trigger
+			NOT = { # Only available to Marcorionist
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+		}
 	}
 	
 	parameters = {
 		amandatist_hostility_parameter = yes
+	}
+}
+special_doctrine_marcorionist = {
+	icon = "special_doctrine_marcorionist"
+	is_shown = {
+		religion_tag = calradian_religion
+	}
+
+	piety_cost = {
+		value = faith_doctrine_cost_mid
+		if = {
+			limit = {
+				has_doctrine = special_doctrine_marcorionist
+			}
+			multiply = faith_unchanged_doctrine_cost_mult
+		}
+	}
+
+	traits = {
+		virtues = { compassionate }
+		sins = { callous }
+	}
+
+	can_pick = {
+		trigger_if = {
+			limit = {
+				OR = {
+					doctrine:special_doctrine_amandatist = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_darusian = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_postmandatist = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_ascensionist = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_anti_mandatist = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_ecumenical_christian = { is_in_list = selected_doctrines }
+				}
+			}
+			# NOT = {
+			custom_description = {
+				text = marcorion_requires_gnosticism_trigger
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+			# }
+		}
+		trigger_else_if = {
+			limit = {
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+			OR = {
+				doctrine:special_doctrine_marcorionist = { is_in_list = selected_doctrines }
+				doctrine:special_doctrine_marcorionist_radical = { is_in_list = selected_doctrines }
+			}
+		}
+		doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+	}
+	
+	parameters = {
+		hostility_override_special_doctrine_marcorionist = yes
+		marcorionist_parameter_1 = yes
+	}
+}
+special_doctrine_marcorionist_radical = {
+	icon = "special_doctrine_marcorionist_radical"
+	is_shown = {
+		religion_tag = calradian_religion
+	}
+
+	piety_cost = {
+		value = faith_doctrine_cost_mid
+		if = {
+			limit = {
+				OR = {
+					has_doctrine = special_doctrine_marcorionist
+					has_doctrine = special_doctrine_marcorionist_radical
+					has_doctrine = tenet_warmonger # Believe in unlimited holy war
+				}
+			}
+			multiply = faith_unchanged_doctrine_cost_mult
+		}
+	}
+
+	traits = {
+		virtues = { zealous }
+		sins = { cynical }
+	}
+
+	can_pick = { 
+		NOR = { # Funamentally incompatible with pacifism
+			doctrine:tenet_pacifism = { is_in_list = selected_doctrines }
+			doctrine:tenet_dharmic_pacifism = { is_in_list = selected_doctrines }
+		}
+		trigger_if = {
+			limit = {
+				OR = {
+					doctrine:special_doctrine_amandatist = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_darusian = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_postmandatist = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_ascensionist = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_anti_mandatist = { is_in_list = selected_doctrines }
+					doctrine:special_doctrine_ecumenical_christian = { is_in_list = selected_doctrines }
+				}
+			}
+			# NOT = {
+			custom_description = {
+				text = radical_marcorion_requires_gnosticism_trigger
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+			# }
+		}
+		trigger_else_if = {
+			limit = {
+				doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+			}
+			OR = {
+				doctrine:special_doctrine_marcorionist = { is_in_list = selected_doctrines }
+				doctrine:special_doctrine_marcorionist_radical = { is_in_list = selected_doctrines }
+			}
+		}
+		doctrine:tenet_gnosticism = { is_in_list = selected_doctrines }
+		
+	}
+	
+	parameters = {
+		hostility_override_special_doctrine_marcorionist_radical = yes
+		hostility_override_special_doctrine_is_christian_faith = 3
+		marcorionist_parameter_2 = yes
 	}
 }
 
