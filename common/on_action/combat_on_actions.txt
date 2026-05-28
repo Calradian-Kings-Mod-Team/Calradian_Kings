@@ -743,8 +743,10 @@ on_combat_end_loser = {
 			limit = {
 				exists = scope:wipe
 			}
+			combat.location = { save_scope_as = battle_province } # Save this for event localization
 			side_primary_participant = {
 				save_temporary_scope_as = ck_participant
+				## Landless Adventurer  -  Companion Objections
 				if = {
 					limit = {
 						is_landless_adventurer = yes
@@ -833,6 +835,27 @@ on_combat_end_loser = {
 						left_icon = scope:ck_participant
 						right_icon = scope:ck_companion_casualty_scope
 						title = wb_companion_broke_promise
+					}
+				}
+				## HAUNTED DREAMS  -  (NON-AI) / Get a future nightmare of the battle
+				if = {
+					limit = {
+						is_ai = no # 
+						NOR = { # Don't have an existing nightmare flag
+							has_character_flag = ck_battle_wipe_nightmare_flag # The general flag used in the event / Also used as a cooldown
+							has_character_flag = ck_battle_wipe_nightmare_cooldown
+						}
+					}
+					scope:battle_province = { # Save the battle location
+						save_scope_as = ck_battle_province
+					}
+					add_character_flag = {
+						flag = ck_battle_wipe_nightmare_flag
+						years = 5 # A decent amount of time before you forget about it
+					}
+					trigger_event = {
+						id = eastwood_flavor.0003
+						days = { 60 300 }
 					}
 				}
 			}

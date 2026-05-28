@@ -659,3 +659,129 @@ eastwood_flavor.0002 = {
 	}
 
 }
+
+## HAUNTED DREAMS  -  Get a nightmare from a defeat in battle
+eastwood_flavor.0003 = {
+	type = character_event
+	title = eastwood_flavor.0003.t
+	desc = eastwood_flavor.0003.desc
+	theme = mental_health
+	override_background = {
+		reference = bedchamber
+	}
+	left_portrait = {
+		character = root
+		animation = fear
+	}
+
+	trigger = {
+		is_adult = yes
+		is_ai = no
+		has_character_flag = ck_battle_wipe_nightmare_flag
+	}
+
+	immediate = {
+		play_music_cue = "mx_cue_stress"
+	}
+
+	option = {
+		name = eastwood_flavor.0003.a
+
+		if = {
+			limit = {
+				faith = {
+					NOR = {
+						has_doctrine = tenet_pacifism
+						has_doctrine = tenet_dharmic_pacifism
+					}
+				}
+			}
+			custom_tooltip = {
+				text = eastwood_flavor.0003.a.tt_discount
+				add_character_flag = { # Add character flag for discount on pacifism tenets
+					flag = eastwood_flavor_3_a_flag
+					years = 5
+				}
+			}
+		}
+
+		if = {
+			limit = {
+				faith = {
+					trait_is_virtue = brave
+				}
+			}
+			add_piety = medium_piety_loss
+		}
+			
+		stress_impact = {
+			zealous = medium_stress_impact_gain
+		}
+
+		add_character_modifier = {
+			modifier = pacifist_mindset_modifier
+			years = 5
+		}
+
+		# Add the cooldown
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_battle_wipe_nightmare_cooldown
+				years = 8
+			}
+		}
+	}
+	option = {
+		name = eastwood_flavor.0003.b
+		
+		if = {
+			limit = {
+				faith = {
+					trait_is_virtue = brave
+				}
+			}
+			add_piety = medium_piety_gain
+		}
+		if = { # To hell with pacifism I guess? If you had it
+			limit = {
+				has_character_modifier = pacifist_mindset_modifier
+			}
+			remove_character_modifier = pacifist_mindset_modifier
+		}
+		
+		# If your faith is Pacifist, gain stress for being zealous
+		if = {
+			limit = {
+				faith = {
+					OR = {
+						has_doctrine = tenet_pacifism
+						has_doctrine = tenet_dharmic_pacifism
+					}
+				}
+			}
+			add_piety = major_piety_loss
+			stress_impact = {
+				zealous = massive_stress_impact_gain
+			}
+		}
+
+		# Add the cooldown
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_battle_wipe_nightmare_cooldown
+				years = 8
+			}
+		}
+	}
+	option = {
+		name = eastwood_flavor.0003.c
+
+		# Add the cooldown
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_battle_wipe_nightmare_cooldown
+				years = 8
+			}
+		}
+	}
+}
