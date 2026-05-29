@@ -1349,6 +1349,13 @@ culture_emergence_events.1084 = {
 		animation = marshal_random_weapon
 	}
 
+	trigger = {
+		OR = {
+			has_variable = recruits_local_troops
+			scope:parent_culture_1 ?= { has_variable = troops_culture }
+			scope:parent_culture_2 ?= { has_variable = troops_culture }
+		}
+	}
 	immediate = {
 		root = {
 			capital_county = {
@@ -1380,22 +1387,41 @@ culture_emergence_events.1084 = {
 		name = culture_emergence_events.0005.a
 
 		trigger = {
-			exists = scope:parent_culture_1
+			scope:parent_culture_1 ?= { has_variable = troops_culture }
+		}
+
+		scope:new_culture_scope = {
+			set_variable = {
+				name = troops_culture
+				value = scope:parent_culture_1
+			}
 		}
 
 		ai_chance = {
-			base = scope:parent_culture_1.culture_number_of_counties
+			base = 0
+			scope:parent_culture_1 ?= {
+				add = culture_number_of_counties
+			}
 		}
 	}
 
 	option = {
 		name = culture_emergence_events.0005.b
 		trigger = {
-			exists = scope:parent_culture_2
+			scope:parent_culture_2 ?= { has_variable = troops_culture }
 		}
 
+		scope:new_culture_scope = {
+			set_variable = {
+				name = troops_culture
+				value = scope:parent_culture_2
+			}
+		}
 		ai_chance = {
-			base = scope:parent_culture_2.culture_number_of_counties
+			base = 0
+			scope:parent_culture_2 ?= {
+				add = culture_number_of_counties
+			}
 		}
 	}
 
@@ -1408,15 +1434,22 @@ culture_emergence_events.1084 = {
 				scope:parent_culture_2 ?= var:recruits_local_troops
 			}
 		}
-		custom_tooltip = culture_emergence_events.0005.c.tt
-
+		scope:new_culture_scope = {
+			set_variable = {
+				name = troops_culture
+				value = root.var:recruits_local_troops
+			}
+		}
+		remove_variable = recruits_local_troops
 		ai_chance = {
 			base = ai_boldness
+			scope:new_culture_scope = {
+				add = culture_number_of_counties
+			}
 		}
 	}
 
 	after = {
-		remove_variable = recruits_local_troops
 		remove_decision_cooldown = recruit_local_troops_landed_decision
 	}
 }
