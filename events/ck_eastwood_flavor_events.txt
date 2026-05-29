@@ -678,6 +678,9 @@ eastwood_flavor.0003 = {
 		is_adult = yes
 		is_ai = no
 		has_character_flag = ck_battle_wipe_nightmare_flag
+		NOT = {
+			has_character_flag = ck_battle_wipe_nightmare_cooldown
+		}
 	}
 
 	immediate = {
@@ -781,6 +784,101 @@ eastwood_flavor.0003 = {
 			add_character_flag = {
 				flag = ck_battle_wipe_nightmare_cooldown
 				years = 8
+			}
+		}
+	}
+}
+
+## FERTILITY FESTIVAL - Palaic county itself & you are Calradic
+eastwood_flavor.0004 = {
+	type = character_event
+	title = eastwood_flavor.0004.t
+	desc = eastwood_flavor.0004.desc
+	theme = cultural_festival
+
+	cooldown = { years = 10 }
+
+	override_background = {
+		reference = market
+	}
+
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+
+	trigger = {
+		is_adult = yes
+		is_landed = yes # Need to be landed
+
+		# Check for a Palaic county, whether neighboring or owned by you
+		any_held_county = {
+			culture = {
+				has_cultural_pillar = heritage_palaic
+			}
+		}
+		# Ensure your Calradic, or a denomination of it
+		faith = {
+			religion_tag = calradian_religion
+		}
+	}
+
+	immediate = {
+		# Scope the Palaic county
+		random_held_county = {
+			limit = {
+				culture = { has_cultural_pillar = heritage_palaic }
+			}
+			save_scope_as = ck_ew_0004_county
+		}
+		# Scope the county's culture
+		scope:ck_ew_0004_county.culture = {
+			save_scope_as = ck_ew_0004_culture
+		}
+	}
+
+	## Option A: Offer wine to the locals
+	option = {
+		name = eastwood_flavor_0004.a
+
+		remove_short_term_gold = medium_gold_value
+		stress_impact = {
+			zealous = medium_stress_impact_gain
+		}
+		scope:ck_ew_0004_county = {
+			add_county_modifier = {
+				modifier = ew_0004_modifier_A
+				years = 5
+			}
+		}
+	}
+	## Option B: Lecture the villagers on proper customs and worship
+	option = {
+		name = eastwood_flavor_0004.b
+
+		add_piety = minor_piety_gain
+
+		stress_impact = {
+			zealous = medium_stress_impact_loss
+		}
+		scope:ck_ew_0004_county = {
+			add_county_modifier = {
+				modifier = ew_0004_modifier_B
+				years = 5
+			}
+		}
+	}
+	## Option C: Don't offer anything but have them keep things discrete
+	option = {
+		name = eastwood_flavor_0004.c
+
+		stress_impact = {
+			zealous = medium_stress_impact_gain
+		}
+		scope:ck_ew_0004_county = {
+			add_county_modifier = {
+				modifier = ew_0004_modifier_C
+				years = 5
 			}
 		}
 	}
