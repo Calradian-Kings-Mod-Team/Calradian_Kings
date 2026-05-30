@@ -30,9 +30,7 @@ vigmen = {
 	
 	can_recruit = {
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_vigmen }
-		NOT = {
-			ck_unique_troops_trigger = yes
-		}
+		ck_tradition_troops_enabled = yes
 	}
 	
 	terrain_bonus = {
@@ -70,9 +68,7 @@ bondi = {
 	
 	can_recruit = {
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_bondi }
-		NOT = {
-			ck_unique_troops_trigger = yes
-		}
+		ck_tradition_troops_enabled = yes
 	}
 	
 	terrain_bonus = {
@@ -114,12 +110,15 @@ varangian_veterans = {
 	can_recruit = {
 		OR = {
 			vaegir_laamp_vaegir_guards_trigger = yes
-			valid_for_maa_trigger = { PARAMETER = unlock_maa_varangian_veterans }
-		}
-		NOR = {
-			has_variable = recruits_local_troops
-			has_access_to_maa = vaegir_shock_infantry
-			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
+			AND = {
+				valid_for_maa_trigger = { PARAMETER = unlock_maa_varangian_veterans }
+				# ck_tradition_troops_enabled = yes
+				NOR = {
+					# has_variable = recruits_local_troops
+					has_access_to_maa = vaegir_shock_infantry
+					culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
+				}
+			}
 		}
 	}
 	
@@ -160,7 +159,16 @@ varangian_veterans = {
 	# max_regiments = 1
 	stack = 100
 	hired_stack_size = 50
-	ai_quality = { value = @cultural_maa_extra_ai_score }
+	ai_quality = {
+		value = @cultural_maa_extra_ai_score
+		if = { # different warband faction
+			limit = {
+				exists = title:e_nords
+				has_access_to_maa = nordic_shock_infantry
+			}
+			add = -60
+		}
+	}
 	icon = varangian_veterans
 }
 

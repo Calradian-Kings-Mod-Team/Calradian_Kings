@@ -1,5 +1,4 @@
-﻿### MAA triggers ###
-can_recruit_crossbowmen_trigger = {
+﻿can_recruit_crossbowmen_trigger = {
 	custom_tooltip = {
 		# subject = root
 		text = can_recruit_crossbow_trigger_desc
@@ -19,9 +18,17 @@ can_recruit_crossbowmen_trigger = {
 }
 
 # initialized via ck_reassign_culture_troop_vars or culture_on_actions
-ck_unique_troops_trigger = { ## Any time a heritage gets new units, please add it here (Calradian Kings) # CK_MAA
+ck_unique_troops_trigger = {
 	culture ?= {
 		has_variable = troops_culture
+	}
+}
+ck_tradition_troops_enabled = {
+	switch = {
+		trigger = has_game_rule
+		tradition_troops_disable = { ck_unique_troops_trigger = no }
+		tradition_troops_enable = { always = yes }
+		tradition_troops_local = { has_variable = recruits_local_troops }
 	}
 }
 
@@ -35,6 +42,7 @@ ck_single_heritage_trigger = {
 		# has_cultural_pillar = heritage_kohinik
 	}
 }
+## Any time a heritage gets new units, please add it here (Calradian Kings) # CK_MAA
 # base version of what was assigned via ck_reassign_culture_troop_vars, usually not used
 ck_unique_heritage_troop_vars_trigger = {
 	has_variable = troops_culture
@@ -47,6 +55,7 @@ ck_unique_heritage_troop_vars_trigger = {
 		var:troops_culture = culture:nord
 	}
 }
+# when a culture diverges from its heritage troop tree
 ck_unique_culture_troop_vars_trigger = {
 	has_variable = troops_culture
 	OR = {
@@ -260,6 +269,49 @@ ck_local_culture_shown = {
 					var:troops_culture ?= culture:$CULTURE$
 				}
 			}
+		}
+	}
+}
+
+ck_local_county_valid = {
+	# != doesn't tooltip well
+	custom_tooltip = {
+		text = recruits_local_troops_valid_desc
+		ck_unique_troops_trigger = yes
+		culture ?= {
+			trigger_if = {
+				limit = {
+					root = {
+						ck_unique_troops_trigger = yes
+					}
+				}
+				root.culture.var:troops_culture != var:troops_culture
+			}
+			trigger_else = {
+				this != root.culture
+			}
+		}
+	}
+}
+ck_happy_vassal_valid = {
+	custom_tooltip = {
+		text = happy_powerful_vassal_local
+		NOR = {
+			is_at_war_with_liege = yes
+			has_variable = recruits_local_troops
+		}
+		OR = {
+			is_councillor_of = liege
+			is_allied_to = liege
+			opinion = {
+				target = liege
+				value >= 100
+			}
+		}
+		ck_local_county_valid = yes
+		culture ?= { # explicitly must be different heritage?
+			NOT = { has_same_culture_heritage = prev.liege.culture }
+			# }
 		}
 	}
 }
