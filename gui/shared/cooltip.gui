@@ -5474,19 +5474,60 @@ template culture_pillar_tooltip {
 				vbox = {
 					visible = "[ObjectsEqual( Culture.GetHeritage, CulturePillar.Self )]"
 
-					cooltip_paragraph = {
-						text = "CULTURE_PILLAR_TOOLTIP_HERITAGE_SAME"
-						visible = "[ObjectsEqual( GetPlayer.GetCulture.GetHeritage, CulturePillar.Self )]"
-					}
+					# cooltip_paragraph = {
+					# 	text = "CULTURE_PILLAR_TOOLTIP_HERITAGE_SAME"
+					# 	visible = "[ObjectsEqual( GetPlayer.GetCulture.GetHeritage, CulturePillar.Self )]"
+					# }
 
-					cooltip_paragraph = {
-						text = "CULTURE_PILLAR_TOOLTIP_HERITAGE_DIFF"
-						visible = "[Not(ObjectsEqual( GetPlayer.GetCulture.GetHeritage, CulturePillar.Self ))]"
-					}
+					# cooltip_paragraph = {
+					# 	text = "CULTURE_PILLAR_TOOLTIP_HERITAGE_DIFF"
+					# 	visible = "[Not(ObjectsEqual( GetPlayer.GetCulture.GetHeritage, CulturePillar.Self ))]"
+					# }
 
 					cooltip_paragraph = {
 						text = "CULTURE_PILLAR_TOOLTIP_HERITAGE_EFFECT"
 
+					}
+					dynamicgridbox = {
+						visible = "[GreaterThan_int32(GetDataModelSize(CulturePillar.GetCulturesWithPillar), '(int32)1')]"
+						# text_label_left = {
+						# 	text = culture_gui_heritage_label
+						# }
+						background = {
+							using = Background_Area_Dark
+							alpha = 0.7
+							margin = { 5 0 }
+						}
+						datamodel_wrap = 6
+						maxhorizontalslots = 9
+						# flipdirection = yes
+						# name = "cultures"
+						layoutpolicy_horizontal = preferred
+						datamodel = "[CulturePillar.GetCulturesWithPillar]"
+						item = {
+							datacontext = "[Culture]"
+							text_single = {
+								fonttintcolor = "[GetOpinionTint(FixedPointToInt(Culture.GetAcceptance(GetPlayer.GetCulture)))]"
+								text = culture_gui_heritage_item
+								# background = {
+								# 	visible = "[And( NotEqualTo_uint32(Culture.GetID, GetPlayer.GetCulture.GetID), EqualTo_CFixedPoint( Culture.GetAcceptance( GetPlayer.GetCulture ), '(CFixedPoint)100') )]"
+								# 	margin = { 5 0 }
+								# 	using = Status_Good
+								# }
+
+								# background = {
+								# 	visible = "[And(And( NotEqualTo_uint32(Culture.GetID, GetPlayer.GetCulture.GetID), NotEqualTo_CFixedPoint( Culture.GetAcceptance( GetPlayer.GetCulture ), '(CFixedPoint)100') ), NotEqualTo_CFixedPoint( Culture.GetAcceptance( GetPlayer.GetCulture ), '(CFixedPoint)0') )]"
+								# 	margin = { 5 0 }
+								# 	using = Status_Mixed
+								# }
+
+								# background = {
+								# 	visible = "[EqualTo_CFixedPoint( Culture.GetAcceptance( GetPlayer.GetCulture ), '(CFixedPoint)0')]"
+								# 	margin = { 5 0 }
+								# 	using = Status_Bad
+								# }
+							}
+						}
 					}
 
 				}
@@ -5531,6 +5572,15 @@ template culture_pillar_tooltip {
 			blockoverride "concept_link" {
 				text = "[CulturePillar.GetTypeName]"
 			}
+			# blockoverride "concept_link" = {
+			# 	text = "CULTURE_PILLAR_TOOLTIP_HERITAGE_SAME"
+			# 	visible = "[ObjectsEqual( GetPlayer.GetCulture.GetHeritage, CulturePillar.Self )]"
+			# }
+
+			# blockoverride "concept_link" = {
+			# 	text = "CULTURE_PILLAR_TOOLTIP_HERITAGE_DIFF"
+			# 	visible = "[Not(ObjectsEqual( GetPlayer.GetCulture.GetHeritage, CulturePillar.Self ))]"
+			# }
 		}
 	}
 }
