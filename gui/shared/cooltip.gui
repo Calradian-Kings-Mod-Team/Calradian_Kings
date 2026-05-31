@@ -4610,7 +4610,45 @@ types CultureTooltips
 			using = DefaultTooltipBackgroundNoLockedFrame
 			size = { 100% 100% }
 			alwaystransparent = no
+			datamodel = "[DataModelFirst(Culture.GetTraditions,'(int32)1')]"
+			item = {
+				icon = {
+					name = "items"
+					position = { 0 50 }
+					size = { 400 200 } # to keep proportions
+					parentanchor = hcenter
+					texture = "[CultureTradition.GetLayeredIcon.GetTexture( '(int32)4' )]"
+					color = { 0.2 0.16 0.12 0.33 }
+					# allow_outside = no
+					scale = 1.5
+					mirror = horizontal
+				}
+
+				# using = Background_Full_Dim
+				# modify_texture = {
+				# 	name = "paper_texture_overlay"
+				# 	texture = "gfx/interface/window_event/overlay_letter_texture.dds"
+				# 	spriteType = Corneredstretched
+				# 	blend_mode = colordodge
+				# }
+				# widget_tradition_icon = {
+				# 	size = { 276 138 } # to keep proportions
+				# 	scale = 0.33
+				# 	parentanchor = center
+				# 	datacontext = "[CultureTradition.GetLayeredIcon]"
+				# }
+			}
+
 		}
+
+		# # yoinked from ledger
+		# widget = {
+		# 	size = { 100% 100% }
+		# 	# parentanchor = top|center
+
+
+		# }
+
 
 		vbox = {
 			set_parent_size_to_minimum = yes
@@ -4623,17 +4661,21 @@ types CultureTooltips
 				margin_bottom = 10
 
 				background = {
+					texture = "[Culture.GetEthos.GetIcon]"
+					using = Feed_Message_Header
+					margin = { 4 0 }
+					margin_top = 8
+					# mirror = horizontal
+					blend_mode = overlay
+					alpha = 0.6
 					using = Background_Header
-					margin = { 4 0 }
-					margin_top = 8
 				}
 
-				background = {
-					using = Background_Header_Pattern
-					margin = { 4 0 }
-					margin_top = 8
-				}
-
+				# background = {
+				# 	using = Background_Header
+				# 	margin = { 4 0 }
+				# 	margin_top = 8
+				# }
 				vbox = {
 					layoutpolicy_horizontal = expanding
 					layoutpolicy_vertical = expanding
@@ -4658,43 +4700,14 @@ types CultureTooltips
 						text_single = {
 							layoutpolicy_horizontal = expanding
 							layoutpolicy_vertical = expanding
-							text = "[culture|E]"
-							fonttintcolor = "[TooltipInfo.GetTintColor]"
+							raw_text = "[Culture.GetCultureEra.GetName]#weak ([Culture.GetNumberOfDiscoveredInnovations] [innovations|El])#!"
+							# fonttintcolor = "[TooltipInfo.GetTintColor]"
 							align = vcenter|right
 						}
 					}
 
-					text_single = {
-						layoutpolicy_horizontal = expanding
-						fonttintcolor = "[TooltipInfo.GetTintColor]"
-						text = "[Culture.GetPlayerRelationString]"
-						align = nobaseline
-					}
-
 					expand = {
 						layoutpolicy_vertical = growing
-					}
-
-					hbox = {
-						visible = "[Not( ObjectsEqual( Culture.Self, GetPlayer.GetCulture ) )]"
-						layoutpolicy_horizontal = expanding
-						spacing = 5
-						margin_top = 1
-						margin_bottom = 3
-
-						tooltip = "CULTURE_ACCEPTANCE_TOOLTIP"
-
-						text_single = {
-							fonttintcolor = "[TooltipInfo.GetTintColor]"
-							text = "CULTURE_VIEW_ACCEPTANCE"
-						}
-
-						text_single = {
-							fonttintcolor = "[TooltipInfo.GetTintColor]"
-							text = "CULTURE_VIEW_ACCEPTANCE_DIFF_BRACKETS"
-						}
-
-						expand = {}
 					}
 				}
 			}
@@ -4706,7 +4719,7 @@ types CultureTooltips
 				margin_top = 5
 
 				hbox = {
-					layoutpolicy_horizontal = growing
+					layoutpolicy_horizontal = expanding
 					spacing = 5
 
 					icon_doctrine = {
@@ -4735,47 +4748,79 @@ types CultureTooltips
 					}
 
 					expand = {}
+
+					text_single = {
+						fonttintcolor = "[TooltipInfo.GetTintColor]"
+						text = "[Culture.GetPlayerRelationString]"
+					}
 				}
 
 				hbox = {
-					layoutpolicy_horizontal = growing
+					datacontext = "[Culture.GetMartial]"
+					layoutpolicy_horizontal = expanding
 					spacing = 5
 
 					icon_doctrine = {
-						visible = "[ObjectsEqual( Culture.GetLanguage, GetPlayer.GetCulture.GetLanguage )]"
+						texture = "[CulturePillar.GetIcon]"
 						size = { 30 30 }
-						texture = "gfx/interface/icons/flat_icons/map_modes/court_languages.dds"
 						color = "[TooltipInfo.GetTintColor]"
 					}
-
-					icon_doctrine = {
-						visible = "[Not(ObjectsEqual( Culture.GetLanguage, GetPlayer.GetCulture.GetLanguage ))]"
-						size = { 30 30 }
-						texture = "gfx/interface/icons/culture_pillars/language_diverge.dds"
-						color = "[TooltipInfo.GetTintColor]"
-					}
-
+					
 					text_single = {
-						datacontext = "[Culture.GetLanguage]"
-						layoutpolicy_horizontal = growing
-						text = "CULTURE_VIEW_LANGUAGE_TEXT"
-
-						tooltipwidget = {
-							using = culture_pillar_tooltip
-						}
-						fonttintcolor = "[TooltipInfo.GetTintColor]"
+						text = "CULTURE_VIEW_MARTIAL_CUSTOM_TEXT"
+						visible = "[Not(Culture.MakeScope.Var('troops_culture').Culture.IsValid)]"
+						tooltip = "generic_maa_tooltip"
 					}
-
+					text_single = {
+						text = "CULTURE_VIEW_MARTIAL_CUSTOM_TEXT_CK"
+						visible = "[Culture.MakeScope.Var('troops_culture').Culture.IsValid]"
+						tooltip = "will_recruit_tree"
+					}
 					expand = {}
+					hbox = {
+						visible = "[Not( ObjectsEqual( Culture.Self, GetPlayer.GetCulture ) )]"
+
+						tooltip = "CULTURE_ACCEPTANCE_TOOLTIP"
+
+						text_single = {
+							fonttintcolor = "[TooltipInfo.GetTintColor]"
+							text = "CULTURE_VIEW_ACCEPTANCE"
+						}
+
+						text_single = {
+							fonttintcolor = "[TooltipInfo.GetTintColor]"
+							text = "CULTURE_VIEW_ACCEPTANCE_DIFF_BRACKETS"
+						}
+					}
+					hbox = {
+						visible = "[ObjectsEqual( Culture.Self, GetPlayer.GetCulture )]"
+						datacontext = "[Culture.GetLanguage]"
+						text_single = {
+							datacontext = "[Culture.GetLanguage]"
+							layoutpolicy_horizontal = growing
+							text = "CULTURE_VIEW_LANGUAGE_TEXT"
+
+							tooltipwidget = {
+								using = culture_pillar_tooltip
+							}
+							fonttintcolor = "[TooltipInfo.GetTintColor]"
+						}
+						icon_doctrine = {
+							# visible = "[ObjectsEqual( Culture.GetLanguage, GetPlayer.GetCulture.GetLanguage )]"
+							size = { 30 30 }
+							texture = "gfx/interface/icons/flat_icons/map_modes/court_languages.dds"
+							color = "[TooltipInfo.GetTintColor]"
+						}
+					}
 				}
 
-				text_single = {
-					layoutpolicy_horizontal = growing
-					text = "CULTURE_COOLTIP_ERA"
-					fonttintcolor = "[TooltipInfo.GetTintColor]"
+				# text_single = {
+				# 	layoutpolicy_horizontal = growing
+				# 	text = "CULTURE_COOLTIP_ERA"
+				# 	fonttintcolor = "[TooltipInfo.GetTintColor]"
 
-					using = DefaultTooltipText
-				}
+				# 	using = DefaultTooltipText
+				# }
 
 				spacer = {
 					size = { 0 5 }
@@ -4829,16 +4874,25 @@ types CultureTooltips
 					}
 				}
 
-				text_single = {
-					visible = "[And( Culture.IsPlayerCultureHead, And( ObjectsEqual( GetPlayer.GetCulture, Culture.Self ), Culture.HasAvailableInnovation ) )]"
-					layoutpolicy_horizontal = growing
-					fonttintcolor = "[TooltipInfo.GetTintColor]"
-					text = "INGAME_TOPBAR_CULTURE_HEAD"
-					default_format = "#weak"
+				# text_single = {
+				# 	visible = "[And( Culture.IsPlayerCultureHead, And( ObjectsEqual( GetPlayer.GetCulture, Culture.Self ), Culture.HasAvailableInnovation ) )]"
+				# 	layoutpolicy_horizontal = growing
+				# 	fonttintcolor = "[TooltipInfo.GetTintColor]"
+				# 	text = "INGAME_TOPBAR_CULTURE_HEAD"
+				# 	default_format = "#weak"
 
-					using = DefaultTooltipText
+				# 	using = DefaultTooltipText
+				# }
+
+				background = {
+					visible = "[ObjectsEqual( GetPlayer.GetCulture, Culture.Self )]"
+					texture = "gfx/interface/window_tax_collector/letter_pattern.dds"
+					# mirror = horizontal
+					blend_mode = colordodge
+					alpha = 0.5
+					fittype = start
+					layoutstretchfactor_vertical = 1
 				}
-
 				text_single = {
 					visible = "[And( ObjectsEqual( GetPlayer.GetCulture, Culture.Self ), Not( Culture.HasAvailableInnovation ) )]"
 					layoutpolicy_horizontal = growing
@@ -4866,47 +4920,86 @@ types CultureTooltips
 						}
 					}
 
-					text_single = {
-						visible = "[Culture.GetCultureHead.IsValid]"
-						layoutpolicy_horizontal = growing
-						layoutpolicy_vertical = growing
-						fonttintcolor = "[TooltipInfo.GetTintColor]"
-						text = "CULTURE_COOLTIP_HEAD"
-						align = top
-						max_width = 320
+					vbox = {
+						text_single = {
+							visible = "[Culture.GetCultureHead.IsValid]"
+							layoutpolicy_horizontal = growing
+							# layoutpolicy_vertical = growing
+							fonttintcolor = "[TooltipInfo.GetTintColor]"
+							text = "CULTURE_COOLTIP_HEAD"
+							align = top
+							max_width = 320
 
-						using = DefaultTooltipText
+							using = DefaultTooltipText
+						}
+
+						text_single = {
+							visible = "[Not( Culture.GetCultureHead.IsValid )]"
+							layoutpolicy_horizontal = growing
+							# layoutpolicy_vertical = growing
+							text = "CULTURE_COOLTIP_NO_HEAD"
+							fonttintcolor = "[TooltipInfo.GetTintColor]"
+							align = top
+
+							using = DefaultTooltipText
+							tooltip = "[Culture.GetNoHeadReason]"
+						}
+						# text_single = {
+						# 	visible = "[Not( Culture.GetCultureHead.IsValid )]"
+						# 	layoutpolicy_horizontal = growing
+						# 	layoutpolicy_vertical = growing
+						# 	text = "CULTURE_COOLTIP_NO_HEAD"
+						# 	fonttintcolor = "[TooltipInfo.GetTintColor]"
+						# 	align = bottom
+
+						# 	using = DefaultTooltipText
+						# 	tooltip = "[Culture.GetNoHeadReason]"
+						# }
+						text_single = {
+							text = "[Culture.GetNumberOfRulers] [Culture.GetPrefixNoTooltip] [rulers|E]"
+							visible = "[NotZero(Culture.GetNumberOfRulers)]"
+						}
+						text_single = {
+							text = "[Culture.GetNumberOfCounties] [counties|E] are [Culture.GetCollectiveNounNoTooltip]"
+							visible = "[NotZero(Culture.GetNumberOfCounties)]"
+							# onclick = "[ToggleMapMode( 'council_accept_culture_task' )]"
+						}
+						text_single = {
+							text = "[Culture.GetNumberOfCharacters] [wanderers|E]"
+							visible = "[And(IsZero(Culture.GetNumberOfRulers),IsZero(Culture.GetNumberOfCounties))]"
+						}
 					}
-
-					text_single = {
-						visible = "[Not( Culture.GetCultureHead.IsValid )]"
-						layoutpolicy_horizontal = growing
-						layoutpolicy_vertical = growing
-						text = "CULTURE_COOLTIP_NO_HEAD"
-						fonttintcolor = "[TooltipInfo.GetTintColor]"
-						align = top
-
-						using = DefaultTooltipText
-					}
+				}
+				text_label_center = {
+					raw_text = "#size:1 [GetScriptedGui('culture_descriptions').BuildTooltip(GuiScope.SetRoot(Culture.MakeScope).End)]#!#!"
+					visible = "[GetScriptedGui('culture_descriptions').IsShown(GuiScope.SetRoot(Culture.MakeScope).End)]"
+					max_width = 420
+					layoutpolicy_vertical = expanding
+					align = nobaseline
+					autoresize = yes
+					multiline = yes
+					margin = { 5 5 }
+					using = Background_Letter
+					default_format = "#light_background"
+					using = Text_Light_Background_Overrides
+					# fonttintcolor = "[TooltipInfo.GetTintColor]"
 				}
 				
 				divider_light = {
 					layoutpolicy_horizontal = growing
 				}
-				
-				text_multi = {
-					raw_text = "#size:1 [GetScriptedGui('culture_descriptions').BuildTooltip(GuiScope.SetRoot(Culture.MakeScope).End)]#!#!"
-					visible = "[GetScriptedGui('culture_descriptions').IsShown(GuiScope.SetRoot(Culture.MakeScope).End)]"
-					max_width = 400
-					layoutpolicy_vertical = expanding
-					align = nobaseline
-					autoresize = yes
-					margin_right = 10
-					margin_top = 10
-				}
-				
 				block "extra_info"
-				{}
+				{
+					text_label_center = {
+						text = "[Culture.GetCreationString]"
+						default_format = "#F;ck_bl_yellow"
+						max_width = 320
+						autoresize = yes
+						multiline = yes
+						fontsize_min = 12
+						visible = "[And(Not(IsGameViewOpen('culture_window')), GreaterThan_int32(GetCurrentDate.GetYear, Culture.GetCreationDate.GetYear))]"
+					}
+				}
 			}
 		}
 
