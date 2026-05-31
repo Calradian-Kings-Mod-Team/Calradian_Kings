@@ -1335,20 +1335,52 @@ culture_emergence_events.0004 = {
 # choose your fighter
 culture_emergence_events.1084 = {
 	type = character_event
-	title = culture_emergence_events.0005.t
-	desc = culture_emergence_events.0005.desc
-	theme = travel_tour
+	title = culture_emergence_events.hybrid.t
+	desc = {
+		desc = culture_emergence_events.hybrid.desc
+		random_valid = {
+			triggered_desc = {
+				trigger = { has_variable = recruits_local_troops }
+				desc = culture_emergence_events.hybrid.desc_neutral_3
+			}
+			triggered_desc = {
+				trigger = { scope:parent_culture_1 ?= { has_variable = troops_culture } }
+				desc = {
+					random_valid = {
+						desc = culture_emergence_events.hybrid.desc_approve_1
+						desc = culture_emergence_events.hybrid.desc_disapprove_1
+					}
+				}
+			}
+			triggered_desc = {
+				trigger = { scope:parent_culture_2 ?= { has_variable = troops_culture } }
+				desc = {
+					random_valid = {
+						desc = culture_emergence_events.hybrid.desc_approve_2
+						desc = culture_emergence_events.hybrid.desc_disapprove_2
+					}
+				}
+			}
+			desc = culture_emergence_events.hybrid.desc_neutral
+		}
+	}
+	theme = martial_strategy_focus
+	window = visit_settlement_window
 
 	left_portrait = {
 		character = root
 		animation = thinking
-		camera = camera_event_very_left
+		camera = camera_head_designer_30_up
 	}
 	right_portrait = {
 		character = scope:knight
-		animation = marshal_random_weapon
+		animation = marshal_shield
+		camera = camera_event_crowd
 	}
+	override_background = courtyard_scope
+	override_effect_2d = smoke
 
+	# note that scope:parent_culture_1 may not equal scope:parent_1 (as set in the other event chain)
 	trigger = {
 		OR = {
 			has_variable = recruits_local_troops
@@ -1357,76 +1389,192 @@ culture_emergence_events.1084 = {
 		}
 	}
 	immediate = {
-		root = {
-			capital_county = {
-				save_scope_as = county_scope
-			}
-			culture = {
-				save_scope_as = new_culture_scope
-			}
-			
+		scope:founder = {
+			# capital_county = {
+			# 	save_scope_as = county_scope
+			# }
 			random_councillor = {
-				weight = martial
+				limit = { 
+					is_available_healthy_ai_adult = yes
+					culture = scope:new_culture
+					# location ?= default_location
+				}
+				weight = {
+					base = 1
+					modifier = {
+						add = martial
+					}
+					modifier = {
+						add = age
+						has_council_position = councillor_marshal
+					}
+					modifier = {
+						add = -99
+						# has_council_position = councillor_spouse
+						NOT = { can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = scope:founder } }
+					}
+				}
 				save_scope_as = knight
 			}
 			if = {
 				limit = {
-					NOT = {
-						exists = scope:knight
-					}
+					NOT = { exists = scope:knight }
 				}
 				random_knight = {
-					weight = prowess
+					limit = {
+						culture = scope:new_culture
+					}
+					weight = {
+						base = 1
+						modifier = {
+							add = prowess
+						}
+					}
 					save_scope_as = knight
 				}
+				if = {
+					limit = {
+						NOT = { exists = scope:knight }
+					}
+					create_character = {
+						location = scope:county_scope.title_province
+						template = challenger_peasant_character
+						# employer = scope:founder
+						save_scope_as = knight
+					}
+					scope:knight = {
+						add_character_flag = created
+						add_character_flag = wear_armor
+					}
+				}
+			}
+			scope:knight = {
+				get_quirk_character_effect = yes
+				save_scope_as = background_courtyard_scope
 			}
 		}
 	}
 
 	option = {
-		name = culture_emergence_events.0005.a
+		name = culture_emergence_events.hybrid.parent_1
 
 		trigger = {
 			scope:parent_culture_1 ?= { has_variable = troops_culture }
 		}
 
-		scope:new_culture_scope = {
+		scope:new_culture = {
 			set_variable = {
 				name = troops_culture
-				value = scope:parent_culture_1
+				value = scope:parent_culture_1.var:troops_culture
+			}
+			change_cultural_acceptance = {
+				target = scope:parent_culture_1
+				value = scope:founder.highest_held_title_tier
+				desc = culture_emergence_events.hybrid.change
 			}
 		}
+		# disappointed
+		if = {
+			limit = {
+				exists = scope:parent_culture_2
+			}
+			every_vassal = {
+				limit = {
+					culture = {
+						OR = {
+							trigger_if = {
+								limit = {
+									has_variable = troops_culture
+								}
+								var:troops_culture != scope:parent_culture_1.var:troops_culture
+							}
+							trigger_else = {
+								this = scope:parent_culture_2
+							}
+						}
+						# has_same_culture_heritage = scope:parent_culture_2
+						# NAND = {
+						# 	this = scope:parent_culture_2
+						# 	has_same_culture_heritage = scope:parent_culture_1
+						# }
+					}
+					OR = {
+						has_vassal_stance = glory_hound
+						has_vassal_stance = belligerent
+					}
+				}
+				add_opinion = {
+					target = liege
+					modifier = disappointed_opinion
+					opinion = -10
+				}
+			}
+		}
+		flavor = culture_emergence_events.hybrid.tt.1
 
 		ai_chance = {
 			base = 0
-			scope:parent_culture_1 ?= {
-				add = culture_number_of_counties
+			modifier = {
+				add = scope:parent_culture_1.culture_number_of_counties
 			}
 		}
 	}
 
 	option = {
-		name = culture_emergence_events.0005.b
+		name = culture_emergence_events.hybrid.parent_2
 		trigger = {
-			scope:parent_culture_2 ?= { has_variable = troops_culture }
-		}
-
-		scope:new_culture_scope = {
-			set_variable = {
-				name = troops_culture
-				value = scope:parent_culture_2
+			scope:parent_culture_2 ?= {
+				has_variable = troops_culture
+				trigger_if = {
+					limit = {
+						scope:parent_culture_1 = { has_variable = troops_culture }
+					}
+					var:troops_culture != scope:parent_culture_1.var:troops_culture
+				}
 			}
 		}
+		scope:new_culture = {
+			set_variable = {
+				name = troops_culture
+				value = scope:parent_culture_2.var:troops_culture
+			}
+			change_cultural_acceptance = {
+				target = scope:parent_culture_2
+				value = scope:founder.highest_held_title_tier
+				desc = culture_emergence_events.hybrid.change
+			}
+		}
+		# disappointed
+		every_vassal = {
+			limit = {
+				culture = {
+					OR = {
+						this = scope:parent_culture_1
+						var:troops_culture ?= scope:parent_culture_1.var:troops_culture
+					}
+				}
+				OR = {
+					has_vassal_stance = glory_hound
+					has_vassal_stance = belligerent
+				}
+			}
+			add_opinion = {
+				target = liege
+				modifier = disappointed_opinion
+				opinion = -10
+			}
+		}
+		flavor = culture_emergence_events.hybrid.tt.2
 		ai_chance = {
 			base = 0
-			scope:parent_culture_2 ?= {
-				add = culture_number_of_counties
+			modifier = {
+				add = scope:parent_culture_2.culture_number_of_counties
 			}
 		}
 	}
 
 	option = {
-		name = culture_emergence_events.0005.c
+		name = culture_emergence_events.hybrid.parent_3
 		trigger = {
 			has_variable = recruits_local_troops
 			NOR = {
@@ -1434,22 +1582,133 @@ culture_emergence_events.1084 = {
 				scope:parent_culture_2 ?= var:recruits_local_troops
 			}
 		}
-		scope:new_culture_scope = {
+		scope:new_culture = {
 			set_variable = {
 				name = troops_culture
-				value = root.var:recruits_local_troops
+				value = scope:founder.var:recruits_local_troops
+			}
+			# change_cultural_acceptance = {
+			# 	target = scope:founder.var:recruits_local_troops
+			# 	value = scope:founder.highest_held_title_tier
+			# 	desc = debug
+			# }
+		}
+		flavor = culture_emergence_events.hybrid.tt.3
+		remove_variable = recruits_local_troops
+		#keep recruits_local_troops_maint and the recruits_local_troops (adventurer) timed modifiers
+		remove_character_modifier = recruits_local_troops_landed
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = scope:new_culture.culture_number_of_counties
 			}
 		}
-		remove_variable = recruits_local_troops
-		ai_chance = {
-			base = ai_boldness
-			scope:new_culture_scope = {
-				add = culture_number_of_counties
+	}
+	option = {
+		name = culture_emergence_events.hybrid.fallback
+		fallback = yes
+		trigger = { always = no }
+	}
+
+	after = {
+		if = {
+			limit = {
+				is_decision_on_cooldown = recruit_local_troops_landed_decision
+			}
+			remove_decision_cooldown = recruit_local_troops_landed_decision
+		}
+		scope:knight ?= {
+			if = {
+				limit = {
+					has_character_flag = created
+				}
+				silent_disappearance_effect = yes
+			}
+		}
+		if = {
+			limit = {
+				has_game_rule = local_troops_armor_on
+			}
+			every_knight = {
+				limit = {
+					is_ruler = no
+				}
+				set_variable = {
+					name = recruits_local_troops
+					value = scope:new_culture.var:troops_culture
+				}
+			}
+		}
+	}
+}
+
+# you have chosen for your fighter
+culture_emergence_events.1085 = {
+	type = character_event
+	title = culture_emergence_events.0005.t
+	desc = culture_emergence_events.0005.desc
+	theme = travel_tour
+
+	left_portrait = {
+		character = root
+		animation = marshal_random_weapon
+		camera = camera_event_very_left
+	}
+	right_portrait = {
+		character = liege
+		animation = marshal_random_weapon
+	}
+
+	trigger = {
+		is_knight_of = liege
+		exists = scope:liege_troops
+		liege ?= {
+			has_variable = recruits_local_troops
+		}
+	}
+	immediate = {
+		culture ?= {
+			save_scope_as = current_troops
+		}
+		liege = {
+			capital_county ?= {
+				save_scope_as = county_scope
+			}
+			culture ?= {
+				save_scope_as = liege_culture
+			}
+			var:recruits_local_troops ?= {
+				save_scope_as = liege_troops
 			}
 		}
 	}
 
+	option = {
+		name = recruit_local_troops.knight.approve
+		add_opinion = {
+			target = liege
+			modifier = loyalty_opinion
+			opinion = 15
+		}
+		set_variable = {
+			name = recruits_local_troops
+			value = scope:liege_troops
+		}
+	}
+
+	option = {
+		name = recruit_local_troops.knight.disapprove
+		add_opinion = {
+			target = root
+			modifier = unimpressed_opinion
+			opinion = -10
+		}
+	}
+
+	option = {
+		name = recruit_local_troops.knight.ambivalent
+	}
+
 	after = {
-		remove_decision_cooldown = recruit_local_troops_landed_decision
 	}
 }
