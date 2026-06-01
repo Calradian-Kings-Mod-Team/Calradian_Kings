@@ -261,7 +261,7 @@ eastwood_flavor.0001 = {
 			}
 		}
 	}
-	option = { # Pay him to shut his heretical mouth up, stewardship duel. If fail, he leaves
+	option = { # Pay him to shut his heretical mouth up
 		name = eastwood_flavor.0001.c
 		custom_tooltip = eastwood_flavor.0001.c.tt
 		# Pay out gold, county gets positive modifier for increased development, you get a positive modifier for children education
@@ -733,6 +733,25 @@ eastwood_flavor.0003 = {
 				years = 8
 			}
 		}
+
+		ai_chance = {
+			base = 100
+			modifier = {
+				faith = {
+					OR = {
+						has_doctrine = tenet_pacifism
+						has_doctrine = tenet_dharmic_pacifism
+					}
+				}
+				add = 15
+			}
+			modifier = {
+				factor = 0.5
+				faith = {
+					trait_is_virtue = brave
+				}
+			}
+		}
 	}
 	option = {
 		name = eastwood_flavor.0003.b
@@ -775,6 +794,25 @@ eastwood_flavor.0003 = {
 				years = 8
 			}
 		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				# If your faith is Pacifist, gain stress for being zealous
+				faith = {
+					OR = {
+						has_doctrine = tenet_pacifism
+						has_doctrine = tenet_dharmic_pacifism
+					}
+				}
+				factor = 0.25
+			}
+			modifier = {
+				faith = {
+					trait_is_virtue = brave
+				}
+				add = 10
+			}
+		}
 	}
 	option = {
 		name = eastwood_flavor.0003.c
@@ -784,6 +822,13 @@ eastwood_flavor.0003 = {
 			add_character_flag = {
 				flag = ck_battle_wipe_nightmare_cooldown
 				years = 8
+			}
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 2
+				has_trait = cynical
 			}
 		}
 	}
@@ -851,6 +896,38 @@ eastwood_flavor.0004 = {
 				years = 5
 			}
 		}
+
+		# Stress impacts
+		stress_impact = {
+			gregarious = minor_stress_impact_loss
+			zealous = medium_stress_impact_gain
+			lifestyle_reveler = miniscule_stress_impact_loss
+		}
+		# AI chances
+		ai_chance = {
+			base = 50
+			ai_value_modifier = {
+   				ai_compassion = 1
+   				ai_zeal = -2
+   				ai_boldness = 2
+			}
+			modifier = {	#Weight down for stress.
+				add = -15
+				has_trait = zealous
+			}
+			modifier = {
+				add = 5
+				has_trait = gregarious
+			}
+			modifier = {
+				add = 5
+				has_trait = lifestyle_reveler
+			}
+			modifier = {
+				factor = 0
+				gold < medium_gold_value
+			}
+		}
 	}
 	## Option B: Lecture the villagers on proper customs and worship
 	option = {
@@ -867,13 +944,40 @@ eastwood_flavor.0004 = {
 				years = 5
 			}
 		}
+
+		# Stress impacts
+		stress_impact = {
+			zealous = minor_stress_impact_loss
+			lifestyle_reveler = minor_stress_impact_gain
+		}
+		# AI chances
+		ai_chance = {
+			base = 100
+			ai_value_modifier = {
+   				ai_compassion = -1
+   				ai_zeal = 2
+   				ai_boldness = -1
+			}
+			modifier = {
+				add = 15
+				has_trait = zealous
+			}
+			modifier = {
+				add = -5
+				has_trait = lifestyle_reveler
+			}
+			modifier = {
+				factor = 0
+				gold < medium_gold_value
+			}
+		}
 	}
 	## Option C: Don't offer anything but have them keep things discrete
 	option = {
 		name = eastwood_flavor_0004.c
 
 		stress_impact = {
-			zealous = medium_stress_impact_gain
+			zealous = miniscule_stress_impact_gain
 		}
 		scope:ck_ew_0004_county = {
 			add_county_modifier = {
@@ -881,5 +985,558 @@ eastwood_flavor.0004 = {
 				years = 5
 			}
 		}
+		ai_chance = {
+			base = 100
+			modifier = {	#Weight down for stress.
+				add = -5
+				has_trait = zealous
+			}
+		}
 	}
 }
+
+# scripted_effect eastwood_flavor_0005_fling_effect = {
+# 	# Courtier might sleep with entertainer
+# 	if = {
+# 		limit = { exists = scope:ck_fawning_courtier }
+# 		scope:ck_fawning_courtier = {
+# 			add_character_flag = {
+# 				flag = ck_ew_flavor_flag_0005
+# 				years = 30
+# 			}
+# 			random = {
+# 				chance = 70
+# 				random_list = {
+# 					50 = {}
+# 					50 = {
+# 						# Was it a fling or something deeper?
+# 						progress_towards_lover_effect = {
+# 							CHARACTER = scope:ck_entertainer
+# 							REASON = lover_seducing_courtier
+# 							OPINION = default_lover_opinion
+# 						}
+# 					}
+# 				}
+# 				had_sex_with_effect = { CHARACTER = scope:ck_entertainer PREGNANCY_CHANCE = $PREGNANCY_CHANCE$ }
+# 				root = {
+# 					trigger_event = {
+# 						id = eastwood_flavor.0006
+# 						days = $DELAY_DAYS$
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
+# }
+scripted_effect eastwood_flavor_0005_delay_days_effect = {
+	current_travel_plan = {
+		delay_travel_plan = { days = $DELAY_DAYS$ }
+		# Opinion for paying for partying
+		every_entourage_character = {
+			custom = eastwood_flavor.entourage.tt
+			limit = {
+				this != root
+				is_adult = yes
+			}
+			add_opinion = {
+				target = root
+				modifier = ew_0005_opinion_$MODIFIER_TYPE$
+			}
+		}
+	}
+}
+
+
+## The Pavillion - Enticing Entertainers
+eastwood_flavor.0005 = {
+	type = character_event
+	title = eastwood_flavor.0005.t
+	desc = {
+		desc = eastwood_flavor.0005.desc
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:ck_fawning_courtier ?= {
+						is_of_major_interest_trigger = { CHARACTER = root }
+					}
+				}
+				desc = eastwood_flavor.0005.desc.fawning
+			}
+			triggered_desc = { # Fallback
+				trigger = {
+					scope:ck_fawning_courtier ?= {
+						NOT = { is_of_major_interest_trigger = { CHARACTER = root } }
+					}
+				}
+				desc = eastwood_flavor.0005.desc.fawning_no_relation
+			}
+		}
+	}
+	
+	theme = travel
+	override_background = { reference = ep2_village_festival }
+
+	cooldown = { years = 10 }
+
+	left_portrait = {
+		character = scope:left_portrait_scope
+		triggered_animation = {
+			trigger = {
+				exists = scope:ck_fawning_courtier
+			}
+			animation = love
+		}
+		animation = personality_bold
+	}
+	right_portrait = {
+		character = scope:ck_entertainer
+		animation = flirtation_left
+	}
+	trigger = {
+		# For debugging: is_ai = no
+		is_ai = no
+		is_available_travelling_adult = yes
+		is_playable_character = yes
+		is_location_valid_for_travel_event_on_land = yes
+		# Don't want those ladies standing out in the cold
+		middle_of_year_season_trigger = yes
+		location = { # "As you leave town" - Needs a holding
+			has_holding = yes
+		}
+	}
+
+	immediate = {
+		# Scope the county holder
+		location.county.holder = {
+			save_scope_as = county_holder
+		}
+		# Create a beautiful entertainer, remove her after the event | COMMENTED OUT: "unless a courtier falls in love"
+		create_character = {
+			location = root.location
+			age = { 19 32 }
+			template = bard_template
+			gender_female_chance = 100
+			culture = location.county.holder.culture
+			faith = location.county.holder.faith
+			random_traits = no
+			random_traits_list = {
+				count = 2
+				deceitful = {}
+				brave = {}
+				gregarious = {}
+				ambitious = {}
+				vengeful = {}
+				gluttonous = {}
+				temperate  = {}
+				greedy = {}
+				generous = {}
+				diligent = {}
+				calm = {}
+				patient = {}
+				honest = {}
+				arbitrary = {}
+				just = {}
+				paranoid = {}
+				trusting = {}
+				compassionate = {}
+				stubborn = {}
+				fickle = {}
+				forgiving = {}
+			}
+			trait = education_intrigue_4
+			trait = lustful
+			trait = shrewd
+			trait = beauty_good_3
+			save_scope_as = ck_entertainer
+		}
+		# If you have courtiers in your entourage, pull the first one that's lustful, regardless of whether they are married or not (excluding loyal trait). Else pull from any other unmarried. Otherwise, don't scope anything
+		current_travel_plan = {
+			random_entourage_character = {
+				limit = { # Find lustful w/o loyal
+					is_adult = yes
+					is_ai = yes
+					this != root
+					# Must be attracted to the entertainer
+					is_attracted_to_gender_of = scope:ck_entertainer
+					# Lustful and not Loyal
+					AND = {
+						has_trait = lustful
+						NOT = { has_trait = loyal }
+					}
+					# Avoid back to back fawning for the same character
+					NOT = {
+						has_character_flag = ck_ew_flavor_flag_0005
+					}
+				}
+				alternative_limit = { # Find any other unmarried courtiers attracted to entertainer
+					is_adult = yes
+					is_ai = yes
+					this != root
+					is_married = no
+					# Must be attracted to the entertainer
+					is_attracted_to_gender_of = scope:ck_entertainer
+					# Avoid back to back fawning for the same character
+					NOT = {
+						has_character_flag = ck_ew_flavor_flag_0005
+					}
+				}
+				save_scope_as = ck_fawning_courtier
+			}
+		}
+
+		# Scope Portraits
+		if = {
+			limit = {
+				exists = scope:ck_fawning_courtier
+			}
+			scope:ck_fawning_courtier = {
+				save_scope_as = left_portrait_scope
+			}
+		}
+		else = {
+			root = {
+				save_scope_as = left_portrait_scope
+			}
+		}
+	}
+
+	option = { # Steer clear
+		name = ck_flavor.0005.a
+
+		# Upset the fawning courtier
+		if = {
+			limit = { exists = scope:ck_fawning_courtier }
+			scope:ck_fawning_courtier = {
+				add_opinion = {
+					target = root
+					modifier = disappointed_opinion
+					opinion = -10
+				}
+			}
+		}
+
+		add_prestige = minor_prestige_loss
+
+		# Stress impacts
+		stress_impact = {
+			gregarious = miniscule_stress_impact_gain
+			shy = medium_stress_impact_loss
+			lifestyle_reveler = miniscule_stress_impact_gain
+		}
+		# AI chances
+		ai_chance = {
+			base = 50
+			modifier = {
+				factor = 0.5
+				has_trait = lifestyle_reveler
+			}
+			modifier = {
+				factor = 2
+				has_trait = shy
+			}
+		}
+	}
+	option = { # Allow the men their fun - COMMENTED OUT: "chance of preganancy if courtier sleeps with the entertainer"
+		name = ck_flavor.0005.b
+
+		add_character_modifier = {
+			modifier = ew_0005_modifier_B
+			months = 18
+		}
+		add_prestige = minor_prestige_gain
+		eastwood_flavor_0005_delay_days_effect = { DELAY_DAYS = 5  MODIFIER_TYPE = B }
+		hidden_effect = {
+			# eastwood_flavor_0005_fling_effect = { PREGNANCY_CHANCE = 20 DELAY_DAYS = 5 }
+
+			# Disappear the entertainer
+			scope:ck_entertainer = {
+				silent_disappearance_effect = yes
+			}
+		}
+
+		# Stress impacts
+		stress_impact = {
+			gregarious = minor_stress_impact_loss
+			shy = minor_stress_impact_gain
+			lifestyle_reveler = miniscule_stress_impact_loss
+		}
+		# AI chances
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = 10
+				has_trait = lifestyle_reveler
+			}
+			modifier = {
+				factor = 0.25
+				has_trait = shy
+			}
+			modifier = {
+				factor = 0
+				gold < medium_gold_value
+			}
+		}
+	}
+	option = { # Pay for men's fun. Higher morale - COMMENTED OUT: "higher chance of pregnancy if courtier sleeps with the entertainer (more time for symptoms to occur)"
+		name = ck_flavor.0005.c
+
+		remove_short_term_gold = major_gold_value
+
+		add_character_modifier = {
+			modifier = ew_0005_modifier_C
+			months = 18
+		}
+		add_prestige = medium_prestige_gain
+		# A lot of partying, bigger delay
+		eastwood_flavor_0005_delay_days_effect = { DELAY_DAYS = 20  MODIFIER_TYPE = C }
+		hidden_effect = {
+			# eastwood_flavor_0005_fling_effect = { PREGNANCY_CHANCE = 50 DELAY_DAYS = 20 }
+
+			# Disappear the entertainer
+			scope:ck_entertainer = {
+				silent_disappearance_effect = yes
+			}
+		}
+
+		# Stress impacts
+		stress_impact = {
+			gregarious = medium_stress_impact_loss
+			greedy = major_stress_impact_gain
+			shy = minor_stress_impact_gain
+			lifestyle_reveler = minor_stress_impact_loss
+		}
+		# AI chances
+		ai_chance = {
+			base = 30
+			modifier = {
+				factor = 0.25
+				has_trait = shy
+			}
+			modifier = {
+				OR = {
+					has_trait = compassionate
+					has_trait = generous
+				}
+				add = 10
+			}
+			modifier = {
+				factor = 2
+				has_trait = lifestyle_reveler
+			}
+			modifier = {
+				factor = 0
+				gold < medium_gold_value
+			}
+		}
+
+	}
+	option = { # Rob the entertainers
+		name = ck_flavor.0005.d
+
+		# Upset the county holder
+		scope:county_holder = {
+			add_opinion = {
+				target = root
+				modifier = ew_0005_opinion_robbed
+			}
+		}
+		add_prestige = medium_prestige_loss
+		# Upset the fawning courtier, less of an opinion malus if they're callous (considering this is afterall a callous action to take)
+		if = {
+			limit = {
+				scope:ck_fawning_courtier ?= {
+					NOT = {
+						has_trait = callous
+					}
+				}
+			}
+			scope:ck_fawning_courtier = {
+				add_opinion = {
+					target = root
+					modifier = disappointed_opinion
+					opinion = -20
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				scope:ck_fawning_courtier ?= {
+					has_trait = callous
+				}
+			}
+			scope:ck_fawning_courtier = {
+				add_opinion = {
+					target = root
+					modifier = disappointed_opinion
+					opinion = -15
+				}
+			}
+		}
+		## You stole! THIEF!
+		if = {
+			limit = {
+				NOT = { has_trait = gallowsbait }
+			}
+			add_trait = gallowsbait
+		}
+		add_trait_xp = {
+			trait = gallowsbait
+			track = thief
+			value = 15
+		}
+		add_gold = { 20 80 }
+		hidden_effect = {
+			# Disappear the entertainer
+			scope:ck_entertainer = {
+				silent_disappearance_effect = yes
+			}
+		}
+
+		# Stress impacts
+		stress_impact = {
+			callous = medium_stress_impact_loss
+			sadistic = medium_stress_impact_loss
+			compassionate = major_stress_impact_gain
+			generous = minor_stress_impact_gain
+			gallowsbait = miniscule_stress_impact_loss
+		}
+		# AI chances
+		ai_chance = {
+			base = 10
+			modifier = {
+				factor = 0.25
+				has_trait = shy
+			}
+			modifier = {
+				OR = {
+					has_trait = compassionate
+					has_trait = generous
+				}
+				factor = 0
+			}
+			modifier = {
+				add = 20
+				AND = {
+					has_trait = gallowsbait
+					has_trait_xp = {
+						trait = gallowsbait
+						track = thief
+						value >= 10
+					}
+				}
+			}
+		}
+	}
+	after = {
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_ew_flavor_flag_0005
+				years = 30
+			}
+		}
+	}
+}
+## The Pavillion - Enticing Entertainers (Part II) - Entourage member brings back the entertainer with excuses varying
+# eastwood_flavor.0006 = {
+# 	type = character_event
+# 	title = eastwood_flavor.0006.t
+# 	desc = {
+# 		# Is she pregnant or not?
+# 		first_valid = {
+# 			triggered_desc = {
+# 				trigger = {
+# 					exists = ew_flavor_0006_pregnant
+# 				}
+# 				desc = eastwood_flavor.0006.desc.preamble_pregnant
+# 			}
+# 			triggered_desc = {
+# 				trigger = {
+# 					NOT = {
+# 						exists = ew_flavor_0006_pregnant
+# 					}
+# 					exists = scope:ew_flavor_0006_lovers
+# 				}
+# 				desc = eastwood_flavor.0006.desc.preamble_lovers
+# 			}
+# 		}
+# 		first_valid = {
+# 			# Pregnant:
+# 			triggered_desc = {
+# 				# Pregnant, Lovers
+# 				trigger = {
+# 					exists = ew_flavor_0006_pregnant
+# 					exists = scope:ew_flavor_0006_lovers
+# 				}
+# 			}
+# 			triggered_desc = {
+# 				# Pregnant, Non-Lovers, Physician Exists
+# 				trigger = {
+# 					exists = ew_flavor_0006_pregnant
+# 					NOT = {
+# 						exists = scope:ew_flavor_0006_lovers
+# 					}
+# 				}
+# 			}
+# 			triggered_desc = {
+# 				# Pregnant, Non-Lovers, No Physician
+# 				trigger = {
+# 					exists = ew_flavor_0006_pregnant
+# 				}
+# 			}
+# 			# Lovers:
+# 		}
+# 	}
+	
+# 	eastwood_flavor.0006.desc
+# 	theme = travel
+# 	override_background = { reference = ep2_village_festival }
+
+# 	immediate = {
+# 		# Scope the current location
+# 		location = {
+# 			save_scope_as = current_location
+# 		}
+# 		if = {
+# 			limit = {
+# 				exists = scope:ck_entertainer
+# 				exists = scope:ck_fawning_courtier
+# 			}
+# 			if = {
+# 				limit = { # Check if the courtier is in love with the entertainer
+# 					scope:ck_fawning_courtier = {
+# 						has_relation_lover = scope:ck_entertainer
+# 					}
+# 				}
+# 				scope:ck_fawning_courtier = {
+# 					save_scope_as = ew_flavor_0006_lovers
+# 				}
+# 			}
+# 			if = { # Check if she's pregnant and if the courtier is in the list of possible fathers
+# 				limit = {
+# 					scope:ck_entertainer = {
+# 						is_pregnant = yes
+# 						is_target_in_variable_list = {
+# 							name = potential_father_variable_list
+# 							target = scope:ck_fawning_courtier
+# 						}
+# 					}
+# 				}
+# 				scope:ck_entertainer = {
+# 					save_scope_as = ew_flavor_0006_pregnant
+# 				}
+# 			}
+# 		}
+# 	}
+
+# 	option = { # Accept her into the court, apply appropriate adulterer effects
+# 		name = eastwood_flavor.0006.a
+# 	}
+
+# 	option = { # Give her some coin to leave and shut her up
+# 		name = eastwood_flavor.0006.b
+# 	}
+
+# 	option = { # Forcefully kick her out, chance of secret leaking
+# 		name = eastwood_flavor.0006.c
+# 	}
+# }
