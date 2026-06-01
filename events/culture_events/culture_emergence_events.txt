@@ -1379,6 +1379,7 @@ culture_emergence_events.1084 = {
 	}
 	override_background = courtyard_scope
 	override_effect_2d = smoke
+	override_icon = "gfx/interface/icons/event_types/type_prowess.dds"
 
 	# note that scope:parent_culture_1 may not equal scope:parent_1 (as set in the other event chain)
 	trigger = {
@@ -1630,13 +1631,8 @@ culture_emergence_events.1084 = {
 				has_game_rule = local_troops_armor_on
 			}
 			every_knight = {
-				limit = {
-					is_ruler = no
-				}
-				set_variable = {
-					name = recruits_local_troops
-					value = scope:new_culture.var:troops_culture
-				}
+				custom = every_knight_troops_approval
+				trigger_event = culture_emergence_events.1085
 			}
 		}
 	}
@@ -1645,9 +1641,11 @@ culture_emergence_events.1084 = {
 # you have chosen for your fighter
 culture_emergence_events.1085 = {
 	type = character_event
-	title = culture_emergence_events.0005.t
-	desc = culture_emergence_events.0005.desc
-	theme = travel_tour
+	title = culture_emergence_events.liege_troops.t
+	desc = culture_emergence_events.liege_troops.desc
+	window = visit_settlement_window
+	theme = war
+	override_icon = "gfx/interface/icons/event_types/type_prowess.dds"
 
 	left_portrait = {
 		character = root
@@ -1661,54 +1659,238 @@ culture_emergence_events.1085 = {
 
 	trigger = {
 		is_knight_of = liege
-		exists = scope:liege_troops
-		liege ?= {
-			has_variable = recruits_local_troops
+		scope:liege_troops ?= {
+			has_variable = troops_culture
 		}
+		# liege ?= {
+		# 	has_variable = recruits_local_troops
+		# }
 	}
 	immediate = {
-		culture ?= {
-			save_scope_as = current_troops
+		# if it was previously set
+		if = {
+			limit = {
+				has_variable = recruits_local_troops
+			}
+			var:recruits_local_troops ?= {
+				save_scope_as = current_troops
+			}
 		}
-		liege = {
-			capital_county ?= {
-				save_scope_as = county_scope
+		else = {
+			culture = {
+				var:troops_culture ?= {
+					save_scope_as = current_troops
+				}	
+			}
+		}
+		liege ?= {
+			save_scope_as = liege
+			if = {
+				limit = {
+					is_landed = yes
+				}
+				capital_county ?= {
+					save_scope_as = county_scope
+				}
+			}
+			else = {
+				domicile.domicile_location.county = {
+					save_scope_as = county_scope
+				}
 			}
 			culture ?= {
 				save_scope_as = liege_culture
 			}
-			var:recruits_local_troops ?= {
-				save_scope_as = liege_troops
+			if = {
+				limit = {
+					has_variable = recruits_local_troops
+				}
+				var:recruits_local_troops ?= {
+					save_scope_as = liege_troops
+				}
+			}
+			else = {
+				scope:liege_culture ?= {
+					var:troops_culture ?= {
+						save_scope_as = liege_troops
+					}
+				}
 			}
 		}
+		if = {
+			limit = {
+				# is_landed = yes
+				ck_can_recruit_scoped_troops = { SCOPE = scope:liege_troops }
+			}
+			save_scope_value_as = { name = maa value = yes }
+		}
+	}
+	triggered_desc = {
+		trigger = {
+			exists = scope:maa
+		}
+		desc = culture_emergence_events.liege_troops.matching
+	}
+	triggered_desc = {
+		trigger = {
+			is_landed = yes
+			NOT = {
+				exists = scope:maa
+			}
+		}
+		desc = culture_emergence_events.liege_troops.landed
+	}
+	triggered_desc = {
+		trigger = {
+			exists = scope:current_troops
+		}
+		desc = culture_emergence_events.liege_troops.old_troops
 	}
 
 	option = {
-		name = recruit_local_troops.knight.approve
+		name = culture_emergence_events.liege_troops.approve
+		trait = loyal
+		trigger = {
+			OR = {
+				has_trait = loyal
+				culture = scope:liege_culture
+				exists = scope:maa
+				trigger_if = {
+					limit = {
+						exists = scope:current_troops
+					}
+					scope:current_troops = scope:liege_troops
+				}
+				trigger_if = {
+					limit = {
+						liege = { is_landless_adventurer = yes}
+					}
+					liege = { has_domicile_temperament_high = yes }
+				}
+				trigger_else = {
+					any_sub_realm_county = {
+						culture ?= { var:troops_culture ?= scope:liege_troops }
+					}
+				}
+			}
+		}
 		add_opinion = {
 			target = liege
 			modifier = loyalty_opinion
 			opinion = 15
 		}
+		reverse_add_opinion = {
+			target = liege
+			modifier = one_of_us_opinion
+			opinion = 10
+		}
+
+		add_prestige = minor_prestige_gain
+		# add_prestige_experience = "culture.cultural_acceptance(scope:liege_culture)"
 		set_variable = {
 			name = recruits_local_troops
 			value = scope:liege_troops
 		}
+		stress_impact = {
+			arbitrary = sub_medium_stress_impact_gain
+			arrogant = minor_stress_impact_gain
+			content = minor_stress_impact_loss
+			loyal = medium_stress_impact_loss
+			lazy = medium_stress_impact_gain
+			disloyal = medium_stress_impact_gain
+			shy = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 50
+			opinion_modifier = {
+				who = root
+				opinion_target = scope:liege
+				multiplier = 1
+				# desc = AI_OPINION_REASON
+			}
+			modifier = {
+				add = age
+				has_any_good_relationship_with_character_trigger = {
+					CHARACTER = scope:liege
+				}
+			}
+		}
 	}
 
 	option = {
-		name = recruit_local_troops.knight.disapprove
+		trait = disloyal
+		name = culture_emergence_events.liege_troops.disapprove
+		trigger = {
+			OR = {
+				has_trait = disloyal
+				trigger_if = {
+					limit = {
+						liege = { is_landless_adventurer = yes}
+					}
+					liege = { has_domicile_temperament_low = yes }
+				}
+				trigger_else = {
+					NOT = {
+						ck_can_recruit_culture_troop_vars = { }
+					}
+					any_sub_realm_county = {
+						culture ?= { var:troops_culture != scope:liege_troops }
+					}
+				}
+				culture ?= { 
+					NOR = {
+						has_same_culture_heritage = scope:liege_troops
+						trigger_if = {
+							limit = { has_variable = troops_culture }
+							var:troops_culture = scope:liege_troops
+						}
+						cultural_acceptance = { target = scope:liege_troops value > 50 }
+					}
+				}
+			}
+		}
+		add_prestige_experience = minor_prestige_loss # { value = "culture.cultural_acceptance(scope:liege_culture)" subtract = 100 }
 		add_opinion = {
 			target = root
 			modifier = unimpressed_opinion
 			opinion = -10
 		}
+		stress_impact = {
+			arbitrary = sub_medium_stress_impact_loss
+			ambitious = minor_stress_impact_gain
+			arrogant = medium_stress_impact_gain
+			zealous = major_stress_impact_gain
+			loyal = major_stress_impact_gain
+			disloyal = major_stress_impact_loss
+			content = sub_medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 0
+			opinion_modifier = {
+				who = root
+				opinion_target = scope:liege
+				multiplier = 1
+				# desc = AI_OPINION_REASON
+			}
+			modifier = {
+				add = age
+				has_any_bad_relationship_with_character_trigger = {
+					CHARACTER = scope:liege
+				}
+			}
+		}
 	}
 
 	option = {
-		name = recruit_local_troops.knight.ambivalent
-	}
-
-	after = {
+		trigger = {
+			OR = {
+				NOT = {
+					exists = scope:current_troops
+				}
+				is_ai = no
+			}
+		}
+		fallback = yes
+		name = culture_emergence_events.liege_troops.neutral
 	}
 }
