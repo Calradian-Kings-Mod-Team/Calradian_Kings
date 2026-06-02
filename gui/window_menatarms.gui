@@ -11,11 +11,16 @@ window = {
 	size = { 400 200 }
 	parentanchor = top|right
 	position = { -630 120 }
-	movable = no
+	movable = yes
 	layer = middle
 
 	using = Window_Background_Subwindow
-
+	icon = {
+		size = { 384 144 }
+		position = { 0 -60 }
+		parentanchor = hcenter
+		texture = "gfx/interface/skinned/raise_armies_button.dds"
+	}
 	state = {
 		name = _show
 		using = Animation_FadeIn_Quick
@@ -67,11 +72,11 @@ window = {
 		vbox = {
 			layoutpolicy_horizontal = expanding
 			margin = { 0 0 }
-			min_width = 380
+			min_width = 420
 
 			widget = {
 				layoutpolicy_horizontal = expanding
-				size = { 340 200 }
+				size = { 420 200 }
 
 				vbox = {
 					background = {
@@ -79,20 +84,22 @@ window = {
 						datacontext = "[Regiment.GetMAAType]"
 						texture = "[MenAtArmsType.GetHorizontalImageForCulture( Regiment.GetOwner.GetCulture )]"
 						fittype = centercrop
+						mirror = horizontal
 						using = Mask_Rough_Edges
 					}
 
 					expand = {}
 
 					hbox = {
-						layoutpolicy_horizontal = expanding
+						layoutpolicy_horizontal = preferred
 						margin_bottom = 5
-						margin_left = 15
+						# margin_left = 15
 						spacing = 6
 
 						icon = {
 							size = { 40 40 }
 							texture = "[MenAtArmsType.GetIcon]"
+							mirror = horizontal
 						}
 
 						text_label_left = {
@@ -115,9 +122,9 @@ window = {
 							align = nobaseline
 						}
 
-						spacer = {
-							size = {8 0}
-						}
+						# spacer = {
+						# 	size = {8 0}
+						# }
 					}
 				}
 			}
@@ -141,6 +148,7 @@ window = {
 
 					button_primary = {
 						layoutpolicy_horizontal = expanding
+						oversound = "event:/SFX/UI/Generic/sfx_ui_generic_increment"
 
 						onclick = "[MenAtArmsView.BuyMaa]"
 						enabled = "[MenAtArmsView.CanBuyMaa]"
@@ -213,6 +221,7 @@ window = {
 							layoutpolicy_horizontal = expanding
 							enabled = "[MenAtArmsView.CanSellMaa]"
 							onclick = "[MenAtArmsView.SellMaa]"
+							oversound = "event:/SFX/UI/Generic/sfx_ui_generic_decrement"
 
 							tooltipwidget = {
 								change_maa_tooltip = {
@@ -259,6 +268,7 @@ window = {
 				button_round  = {
 					enabled = "[MenAtArmsView.CanDestroyMaa]"
 					onclick = "[MenAtArmsView.DestroyMaaRegiment]"
+					clicksound = "event:/SFX/UI/Unit/Army/sfx_ui_unit_army_disband"
 
 					tooltipwidget = {
 						change_maa_tooltip = {
@@ -283,6 +293,7 @@ window = {
 					tooltip = "MAA_DESTROY_TOOLTIP"
 
 					button_cancel = {
+						texture = "gfx/interface/icons/flat_icons/army_disband.dds"
 						parentanchor = center
 						alwaystransparent = yes
 					}
@@ -307,6 +318,7 @@ window = {
 					change_men_at_arms_origin_button = {
 						button_ignore = none
 						onrightclick = "[MenAtArmsView.RemoveOriginProvince]"
+						clicksound = "event:/SFX/UI/Unit/Army/sfx_ui_raise_army"
 					}
 				}
 			}
@@ -430,6 +442,9 @@ window = {
 
 				vbox_maa_active_regiment_stats_numbers = {
 					layoutpolicy_horizontal = expanding
+					background = {
+						using = Feed_Message_Header
+					}
 				}
 
 				# hbox_maa_type_text = {
@@ -439,35 +454,33 @@ window = {
 				vbox_maa_info = {
 					layoutpolicy_horizontal = expanding
 				}
-				
-				scrollbox = {
-					name = "maa_desc_box"
-					size = { 400 150 }
-					layoutpolicy_vertical = expanding
-					blockoverride "scrollbox_background" {}
-					blockoverride "scrollbox_background_fade" {}
-					blockoverride "scrollbox_margins" {}
-					blockoverride "scrollbox_content" {
-						hbox = {
-							layoutpolicy_horizontal = expanding
-
-							text_multi = {
-								margin = { 5 5 }
-								max_width = 390
-								text = "[MenAtArmsType.GetFlavorString]"
-								autoresize = yes
-								align = nobaseline|hcenter
-								fontsize_min = 7
-							}
-
-							expand = {}
-						}
-					}
-				}
-				
 			}
 
-			expand = {}
+			scrollbox = {
+				name = "maa_desc_box"
+				size = { 400 150 }
+				# parentanchor = bottom
+				layoutpolicy_vertical = shrinking
+				layoutpolicy_horizontal = expanding
+			
+				visible = "[Not(StringIsEmpty(MenAtArmsType.GetFlavorString))]"
+				using = Window_Decoration_Frontend_Spike
+				# blockoverride "scrollbox_background" {}
+				blockoverride "scrollbox_background_fade" {}
+				blockoverride "scrollbox_margins" { margin = { 0 15 } }
+				blockoverride "scrollbox_content" {
+						text_multi = {
+							align = nobaseline|hcenter
+							size = { 100% 80% }
+							text = "[MenAtArmsType.GetFlavorString]"
+							# autoresize = yes
+							fontsize_min = 8
+							# background = {
+							# 	using = Background_Area_Dark
+							# }
+						}
+				}
+			}
 		}
 	}
 }
