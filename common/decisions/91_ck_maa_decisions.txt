@@ -21,7 +21,7 @@
 			domicile_location ?= {
 				has_holding = yes
 				county ?= {
-					exists = culture
+					ck_unique_troops_trigger = yes
 				}
 			}
 		}
@@ -30,41 +30,20 @@
 		weeks = 12
 	}
 	is_valid_showing_failures_only = {
+		# common/lifestyle_perks/00_learning_2_scholarship_tree_perks.txt
 		trigger_if = {
-			limit = { # common/lifestyle_perks/00_learning_2_scholarship_tree_perks.txt
-				government_has_flag = government_is_landless_adventurer
+			limit = {
+				NOT = { has_realm_law = camp_purpose_mercenaries }
 			}
-			OR = {
-				has_realm_law = camp_purpose_mercenaries
-				# has_trait_with_flag = unlock_voluntary_laampdom_trait
-				has_perk = planned_cultivation_perk
-			}
-			# check as a blocker if they're culture_head as well?
-			custom_tooltip = {
-				text = can_move_domicile_camp_exile.tt
-				is_laamp_exiled_from_holder_or_liege_trigger = {
-					PROVINCE = domicile.domicile_location
-					LAAMP = root
-				}
-			}
-			has_domicile_temperament_low = no
+			has_perk = planned_cultivation_perk
 		}
-	}
-	is_valid = {
-		domicile ?= {
-			trigger_if = {
-				limit = {
-					domicile_uses_provisions = yes
-				}
-				provisions >= {
-					value = 100
-					multiply = root.maa_regiments_count
-				}
+		trigger_if = {
+			limit = {
+				NOT = { has_perk = planned_cultivation_perk }
 			}
-			domicile_location.county ?= {
-				ck_unique_county_troops_trigger = yes
-			}
+			has_realm_law = camp_purpose_mercenaries
 		}
+		#the above are trigger_ifs because or = {} doesn't tooltip well
 		trigger_if = {
 			limit = {
 				has_variable = recruits_local_troops
@@ -73,6 +52,46 @@
 			custom_tooltip = {
 				text = recruits_local_troops_tt_desc
 				var:recruits_local_troops != domicile.domicile_location.county.culture
+			}
+		}
+		#no bungler allowed
+		domicile.domicile_location.province_owner ?= {
+			NOT = {
+				has_opinion_modifier = {
+					modifier = failed_task_contract_opinion
+					target = root
+				}
+			}
+		}
+		# check as a blocker if they're culture_head as well?
+		custom_tooltip = {
+			text = can_move_domicile_camp_exile.tt
+			is_laamp_exiled_from_holder_or_liege_trigger = {
+				PROVINCE = domicile.domicile_location
+				LAAMP = root
+			}
+		}
+		has_domicile_temperament_low = no
+	}
+	is_valid = {
+		domicile ?= {
+			trigger_if = {
+				limit = {
+					domicile_uses_provisions = yes
+					root.maa_regiments_count > 0
+				}
+				provisions >= {
+					value = 100
+					multiply = root.maa_regiments_count
+				}
+			}
+			custom_tooltip = {
+				text = domicile_location_patronage
+				domicile_location.barony ?= {
+					any_in_de_facto_hierarchy = {
+						holder ?= { is_contact_of = root }
+					}
+				}
 			}
 		}
 	}
@@ -98,71 +117,31 @@
 	effect = {
 		set_variable = {
 			name = recruits_local_troops
-			value = domicile.domicile_location.county.culture
+			value = domicile.domicile_location.county.culture.var:troops_culture
 		}
-		# enumerate the available options via custom loc? this needs to coerced values in that case
-		var:recruits_local_troops ?= {
-			custom_tooltip = will_recruit_variable
-			if = {
-				limit = {
-					ck_single_heritage_trigger = yes
-				}
-				switch = {
-					trigger = has_cultural_pillar
-					heritage_calradian = { custom_tooltip = calradian_tooltip }
-					heritage_battanian = { custom_tooltip = battanian_tooltip }
-					heritage_geroian = { custom_tooltip = geroian_tooltip }
-					heritage_byalic = { custom_tooltip = nord_tooltip }
-				}
-			}
-			else = {
-				switch = {
-					trigger = var:troops
-					culture:swadian = { custom_tooltip = swadian_tooltip }
-					culture:vaegir = { custom_tooltip = vaegir_tooltip }
-					culture:khergit = { custom_tooltip = khergit_tooltip }
-					culture:nord = { custom_tooltip = nord_tooltip }
-					culture:rhodok = { custom_tooltip = rhodok_tooltip }
-					culture:sarranid = { custom_tooltip = sarranid_tooltip }
-					culture:strugic = { custom_tooltip = sturgic_tooltip }
-					culture:nahasi = { custom_tooltip = nahasi_tooltip }
-					culture:khuzic = { custom_tooltip = khuzic_tooltip }
-					culture:vlandian = { custom_tooltip = vlandian_tooltip }
-					culture:togerd = { custom_tooltip = togerd_tooltip }
-					culture:sudican = { custom_tooltip = sudican_tooltip }
-					culture:kassen = { custom_tooltip = kassen_tooltip }
-					culture:rhoyd = { custom_tooltip = rhoyd_tooltip }
-					fallback = { custom_tooltip = NOT_ck_unique_troops_global }
-				}
-				# put the other ones
-			}
-		}
-
 		# custom_tooltip = will_recruit_variable
-		every_knight = {
-			if = {
-				limit = {
-					culture = domicile.domicile_location.county.culture
-				}
-				# non-stacking default is 25
-				add_opinion = {
-					target = root
-					modifier = loyalty_opinion
-					opinion = 15
+		domicile.domicile_location.county.culture ?= {
+			# var:troops_culture = {
+			custom_description_no_bullet = {
+				text = local_recruit_tree
+				object = var:troops_culture
+				subject = this
+			}
+			# }
+			root.culture = { 
+				change_cultural_acceptance = {
+					target = prev
+					desc = recruits_local_troops
+					value = 1
 				}
 			}
-			else_if = {
-				limit = {
-					culture = {
-						has_same_culture_heritage = root.culture
-					}
-				}
-				# stacking
-				add_opinion = {
-					target = root
-					modifier = unimpressed_opinion
-					opinion = -10
-				}
+		}
+		# add_contact = domicile.domicile_location.province_owner
+		every_knight = {
+			custom = every_knight_troops_approval
+			trigger_event = {
+				id = culture_emergence_events.1085
+				delayed = yes
 			}
 		}
 		if = {
@@ -181,9 +160,10 @@
 			if = {
 				limit = {
 					 domicile_uses_provisions = yes
+					 prev.maa_regiments_count > 0
 				}
 				change_provisions = {
-					value = 100
+					value = -100
 					multiply = prev.maa_regiments_count
 				}
 			}
@@ -214,7 +194,12 @@ recruit_cultural_troops_decision = {
 		reference = "gfx/interface/illustrations/decisions/decision_destiny_goal.dds"
 	}
 	picture = {
-		trigger = { culture = { has_cultural_pillar = heritage_khuzic } }
+		trigger = {
+			OR = {
+				culture = { has_cultural_pillar = heritage_khuzic }
+				government_disallows = affected_by_development
+			}
+		}
 		reference = "gfx/interface/illustrations/decisions/mpo_decision_confederation.dds"
 	}
 	picture = {
@@ -237,6 +222,7 @@ recruit_cultural_troops_decision = {
 	
 	is_shown = {
 		has_variable = recruits_local_troops
+		# ck_unique_troops_trigger = yes # do people want to go back to generics?
 	}
 	
 	is_valid_showing_failures_only = {
@@ -253,11 +239,24 @@ recruit_cultural_troops_decision = {
 				is_decision_on_cooldown = recruit_local_troops_landed_decision
 			}
 		}
+		trigger_if = {
+			limit = {
+				is_landed = yes
+				ck_unique_troops_trigger = yes
+			}
+			top_liege ?= {
+				any_sub_realm_county = {
+					culture ?= {
+						var:troops_culture ?= root.culture.var:troops_culture
+					}
+				}
+			}
+		}
 	}
 	
 	effect = {
 		send_interface_toast = {
-			title = recruit_local_troops_message
+			title = recruit_cultural_troops_message
 			left_icon = root
 			right_icon = primary_title
 			remove_character_modifier = recruits_local_troops
@@ -273,14 +272,39 @@ recruit_cultural_troops_decision = {
 	ai_check_interval = 0
 }
 recruit_local_troops_landed_decision = {
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {  has_game_rule = local_troops_vassals }
+				desc = recruit_local_troops_landed_vassals
+			}
+			triggered_desc = {
+				trigger = {  has_game_rule = local_troops_plurality }
+				desc = recruit_local_troops_landed_plurality
+			}
+			triggered_desc = {
+				trigger = { has_game_rule = local_troops_majority }
+				desc = recruit_local_troops_landed_decision
+			}
+			desc = recruit_local_troops_landed_unrestricted
+		}
+	}
 	decision_group_type = realm
 	picture = {
-		trigger = { character_ceremonial_calradian_decision_trigger = yes }
+		trigger = { character_ceremonial_calradian_decision_trigger = yes  highest_held_title_tier >= tier_kingdom }
 		reference = "gfx/interface/illustrations/decisions/ep3_decision_hold_triumph.dds"
 	}
 	picture = {
 		trigger = { culture = { has_graphical_east_asia_culture_group_trigger = yes } }
 		reference = "gfx/interface/illustrations/decisions/tgp_career.dds"
+	}
+	picture = {
+		trigger = { government_disallows = affected_by_development }
+		reference = "gfx/interface/illustrations/decisions/mpo_decision_confederation.dds"
+	}
+	picture = {
+		trigger = { government_has_flag = government_is_clan }
+		reference = "gfx/interface/illustrations/event_story/fp3_concession.dds"
 	}
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/decision_castle_view.dds"
@@ -289,11 +313,15 @@ recruit_local_troops_landed_decision = {
 
 	is_shown = { # nomad probably needs to convert domicile culture first
 		highest_held_title_tier >= tier_duchy
-		NOT = {
+		NOR = {
 			has_variable = recruits_local_troops
+			is_landless_adventurer = yes
+			has_game_rule = local_troops_off
 		}
 	}
-	
+	should_create_alert = {			# Should this decision have an alert made for it, applied on top of the usual requirements that the decision will be alerted for
+		ck_unique_troops_trigger = no
+	}
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 0
