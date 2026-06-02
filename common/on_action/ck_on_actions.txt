@@ -216,6 +216,66 @@ ck_game_start = {
 }
 ck_game_start_after_lobby = {
 	effect = {
+		# Destroy the titles of AI claimants, if game rule is enabled
+		if = {
+			limit = {
+				has_game_rule = ck_claimants_no_camps
+			}
+			warband_claimant_destroy_title_effect = yes
+			warband_claimant_location_effect = yes
+		}
+		else_if = {
+			every_duchy = {
+				limit = {
+					is_landless_type_title = yes
+					var:adventurer_creation_reason ?= flag:exile
+					holder ?= { has_variable = wb_claimant }
+				}
+				holder = {
+					if = {
+						limit = {
+							has_game_rule = ck_claimants_off
+							is_ai = yes # Need a chance for the player to not just instantly game over
+						}
+						var:wb_claimant = {
+							holder ?= {
+								save_temporary_scope_as = killer
+							}
+						}
+						if = {
+							limit = {
+								exists = scope:killer
+							}
+							death = {
+								killer = scope:killer
+								death_reason = death_coup_successful
+							}
+						}
+						else = {
+							silent_disappearance_effect = yes
+						}
+					}
+					else_if = {
+						limit = {
+							has_game_rule = ck_claimants_invert
+						}
+						if = {
+							limit = {
+								primary_title.var:can_keep_realm_law ?= flag:equal_law
+							}
+							var:wb_claimant = {
+								set_variable = { name = can_keep_realm_law value = flag:equal_law }
+							}
+						}
+						warband_claimants_retake_effect = yes
+					}
+					else = { # populate contracts without any visits
+						trigger_event = ep3_laamps.9982
+					}
+				}
+			}
+		}
+		
 		if = {
 			limit = {
 				game_start_date >= 1257.3.23
@@ -233,64 +293,6 @@ ck_game_start_after_lobby = {
 			# else = {
  			# 	# disappear the fake family if true?
 			# }
-			# Destroy the titles of AI claimants, if game rule is enabled
-			if = {
-				limit = {
-					has_game_rule = ck_claimants_no_camps
-				}
-				warband_claimant_destroy_title_effect = yes
-				warband_claimant_location_effect = yes
-			}
-			else_if = {
-				every_duchy = {
-					limit = {
-						is_landless_type_title = yes
-						var:adventurer_creation_reason ?= flag:exile
-						holder ?= { has_variable = wb_claimant }
-					}
-					holder = {
-						if = {
-							limit = {
-								has_game_rule = ck_claimants_off
-							}
-							var:wb_claimant = {
-								holder ?= {
-									save_temporary_scope_as = killer
-								}
-							}
-							if = {
-								limit = {
-									exists = scope:killer
-								}
-								death = {
-									killer = scope:killer
-									death_reason = death_coup_successful
-								}
-							}
-							else = {
-								silent_disappearance_effect = yes
-							}
-						}
-						else_if = {
-							limit = {
-								has_game_rule = ck_claimants_invert
-							}
-							if = {
-								limit = {
-									primary_title.var:can_keep_realm_law ?= flag:equal_law
-								}
-								var:wb_claimant = {
-									set_variable = { name = can_keep_realm_law value = flag:equal_law }
-								}
-							}
-							warband_claimants_retake_effect = yes
-						}
-						else = { # populate contracts without any visits
-							trigger_event = ep3_laamps.9982
-						}
-					}
-				}
-			}
 		}
 	}
 }
