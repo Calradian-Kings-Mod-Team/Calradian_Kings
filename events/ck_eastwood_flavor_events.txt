@@ -453,41 +453,37 @@ eastwood_flavor.0002 = {
 		}
 		faith = { save_scope_as = root_faith_ck }
 		# Create three nomad characters from this county and give them the appropriate nomadic traits
-		# First character
+		# First character - Father
+		# Second character - Mother
 		create_character = {
 			location = root.location
 			template = ck_nomadic_wanderer_0002
 			culture = scope:ew_0002_nomad_county.culture
 			faith = scope:ew_0002_nomad_county.faith
-			gender_female_chance = {
-				if = {
-					limit = { scope:ew_0002_nomad_county.faith = { has_doctrine = doctrine_gender_male_dominated } }
-					add = 0
-				}
-				else_if = {
-					limit = { scope:ew_0002_nomad_county.faith = { has_doctrine = doctrine_gender_female_dominated } }
-					add = 100
-				}
-				else = {
-					add = 0
-				}
-			}
-			save_scope_as = ck_0002_nomad_1
-		}
-		# Second character
-		create_character = {
-			location = root.location
-			template = ck_nomadic_wanderer_0002
-			culture = scope:ew_0002_nomad_county.culture
-			faith = scope:ew_0002_nomad_county.faith
+			gender = female
+			age = { 38 45 }
 			save_scope_as = ck_0002_nomad_2
 		}
-		# Third character
 		create_character = {
 			location = root.location
 			template = ck_nomadic_wanderer_0002
 			culture = scope:ew_0002_nomad_county.culture
 			faith = scope:ew_0002_nomad_county.faith
+			gender = male
+			age = { 38 45 }
+			save_scope_as = ck_0002_nomad_1
+			after_creation = { marry = scope:ck_0002_nomad_2 }
+		}
+		# Third character - Child
+		create_character = {
+			location = root.location
+			template = ck_nomadic_wanderer_0002
+			culture = scope:ew_0002_nomad_county.culture
+			faith = scope:ew_0002_nomad_county.faith
+			gender_female_chance = 50
+			age = { 16 21 }
+			father = scope:ck_0002_nomad_1
+			mother = scope:ck_0002_nomad_2
 			save_scope_as = ck_0002_nomad_3
 		}
 	}
@@ -786,6 +782,18 @@ eastwood_flavor.0003 = {
 				zealous = massive_stress_impact_gain
 			}
 		}
+		# If your faith is not pacifist, get some prestige
+		if = {
+			limit = {
+				faith = {
+					NOR = {
+						has_doctrine = tenet_pacifism
+						has_doctrine = tenet_dharmic_pacifism
+					}
+				}
+			}
+			add_prestige = medium_prestige_gain
+		}
 
 		# Add the cooldown
 		hidden_effect = {
@@ -823,6 +831,9 @@ eastwood_flavor.0003 = {
 				flag = ck_battle_wipe_nightmare_cooldown
 				years = 8
 			}
+		}
+		stress_impact = {
+			cynical = minor_stress_impact_loss
 		}
 		ai_chance = {
 			base = 100
@@ -1091,6 +1102,7 @@ eastwood_flavor.0005 = {
 	right_portrait = {
 		character = scope:ck_entertainer
 		animation = flirtation_left
+		hide_info = yes
 	}
 	trigger = {
 		# For debugging: is_ai = no
@@ -1540,3 +1552,318 @@ eastwood_flavor.0005 = {
 # 		name = eastwood_flavor.0006.c
 # 	}
 # }
+
+eastwood_flavor.0006 = {
+	scope = combat_side
+	hidden = yes
+
+	cooldown = { years = 50 }
+
+	trigger = {		
+		# Only if you commanded the army yourself
+		side_commander = side_primary_participant
+		is_ai = no # Don't want numerous Wise Men coming out of the woods across the continent now do we? Besides, if we make it a global flag that expires, it could be forever before you get a chance to have this event if the AI can have it too
+	}
+	immediate = {
+		
+		combat.location = {
+			save_scope_as = combat_location
+		}
+
+		side_primary_participant = {
+			trigger_event = { id = eastwood_flavor.0007 }
+		}
+
+	}
+}
+
+## Saint of the Woods - Man in white robes approaches victorious army and requests you leave an offering to Hageos at a local shrine to feed the poor
+eastwood_flavor.0007 = {
+	type = character_event
+	title = eastwood_flavor.0007.t
+	desc = eastwood_flavor.0007.desc
+	theme = battle
+	override_background = { reference = battlefield  }
+
+	left_portrait = {
+		character = root
+		animation = marshal_random_weapon
+	}
+	right_portrait = {
+		character = scope:ck_holy_man
+		animation = personality_zealous
+		hide_info = yes
+	}
+	trigger = {
+		# Will eventually be an OR = {} when the 976 startdate is added and Hageos has a chance to gain sainthood ## CK_976
+		game_start_date >= 1000.6.27 # Date Hageos became a saint
+		# You don't need to be Calradic, but you do get increased piety and stress loss if so
+		# Must be in an area of influence where Hageos' legend would've reasonably spread to
+		scope:combat_location = {
+			county = {
+				faith = { religion_tag = calradian_religion }
+				NOR = {
+					has_county_modifier = ew_0007_modifier_A
+					has_county_modifier = ew_0007_modifier_D
+				}
+			}
+			OR = {
+				geographical_region = region_imperial_calradia
+				geographical_region = region_vlandia
+			}
+		}
+	}
+
+	immediate = {
+		# Scope the location exactly
+		# Create the old stranger
+		create_character = {
+			age = { 53 73 }
+			dynasty = none
+			trait = education_learning_4
+			trait = zealous
+			trait = generous
+			trait = compassionate
+			trait = devoted
+			faith = scope:combat_location.county.faith
+			culture = scope:combat_location.county.culture
+			gender_female_chance = 0
+			save_scope_as = ck_holy_man
+		}
+	}
+
+	option = {
+		name = ck_flavor.0007.a
+		remove_short_term_gold = medium_gold_value
+		add_prestige = miniscule_prestige_value
+
+		scope:combat_location.county = {
+			change_county_control = minor_county_control_gain
+			change_development_level = 1
+			add_county_modifier = {
+				modifier = ew_0007_modifier_A
+				months = 30
+			}
+		}
+		if = {
+			limit = {
+				faith = { religion_tag = calradian_religion }
+			}
+			add_piety = major_piety_value
+			stress_impact = {
+				zealous = medium_stress_impact_loss
+			}
+		}
+		else = {
+			add_piety = minor_piety_gain
+			stress_impact = {
+				zealous = miniscule_stress_impact_gain
+			}
+		}
+		stress_impact = {
+			greedy = minor_stress_impact_gain
+			arrogant = miniscule_stress_impact_gain
+			compassionate = medium_stress_impact_loss
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				AND = {
+					faith = { religion_tag = calradian_religion }
+					has_trait = zealous
+				}
+				add = 30
+			}
+			modifier = {
+				add = 15
+				has_trait = compassionate
+			}
+			modifier = {
+				add = -20
+				has_trait = greedy
+			}
+			modifier = {
+				add = -15
+				has_trait = arrogant
+			}
+			modifier = {
+				factor = 0
+				gold < medium_gold_value
+			}
+		}
+	}
+
+	option = {
+		name = ck_flavor.0007.b
+		flavor = ck_flavor.0007.b.tt
+		add_character_modifier = {
+			modifier = ew_0007_modifier_B
+			months = 30
+		}
+		remove_short_term_gold = medium_gold_value
+		add_prestige = minor_prestige_gain
+
+		if = {
+			limit = {
+				faith = { religion_tag = calradian_religion }
+			}
+			add_piety = medium_piety_loss
+			stress_impact = {
+				zealous = medium_stress_impact_gain
+			}
+		}
+		else = {
+			add_piety = minor_piety_loss
+			stress_impact = {
+				zealous = miniscule_stress_impact_loss
+			}
+		}
+		stress_impact = {
+			greedy = minor_stress_impact_loss
+			arrogant = miniscule_stress_impact_loss
+			compassionate = medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				AND = {
+					faith = { religion_tag = calradian_religion }
+					has_trait = zealous
+				}
+				add = -50
+			}
+			modifier = {
+				has_trait = compassionate
+				add = -20
+			}
+			modifier = {
+				has_trait = greedy
+				add = 10
+			}
+			modifier = {
+				has_trait = arrogant
+				add = 10
+			}
+			modifier = {
+				gold < medium_gold_value
+				factor = 0
+			}
+		}
+	}
+
+	option = {
+		name = ck_flavor.0007.c
+		add_character_modifier = {
+			modifier = ew_0007_modifier_C
+			months = 30
+		}
+		add_gold = medium_gold_value
+		add_prestige = minor_prestige_loss
+		if = {
+			limit = {
+				faith = { religion_tag = calradian_religion }
+			}
+			add_piety = medium_piety_loss
+			stress_impact = {
+				zealous = major_stress_impact_gain
+			}
+		}
+		else = {
+			add_piety = minor_piety_loss
+			stress_impact = {
+				zealous = miniscule_stress_impact_loss
+			}
+		}
+		stress_impact = {
+			arrogant = medium_stress_impact_loss
+			greedy = medium_stress_impact_loss
+			humble = medium_stress_impact_gain
+			compassionate = major_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				AND = {
+					faith = { religion_tag = calradian_religion }
+					has_trait = zealous
+				}
+				add = -50
+			}
+			modifier = {
+				has_trait = compassionate
+				add = -15
+			}
+			modifier = {
+				has_trait = humble
+				add = -15
+			}
+			modifier = {
+				has_trait = greedy
+				add = 10
+			}
+			modifier = {
+				has_trait = arrogant
+				add = 20
+			}
+			modifier = {
+				gold < 0 # You really need that gold right about now
+				add = 50
+			}
+		}
+	}
+
+	option = { # Only available if Calradian Religion & Zealous
+		name = ck_flavor.0007.d
+		flavor = ck_flavor.0007.d.tt
+		trigger = {
+			faith = { religion_tag = calradian_religion }
+			has_trait = zealous
+		}
+		remove_short_term_gold = massive_gold_value
+		add_piety = massive_piety_gain
+		add_prestige = minor_prestige_loss
+
+		scope:combat_location.county = {
+			change_county_control = major_county_control_gain
+			change_development_level = 2
+			add_county_modifier = {
+				modifier = ew_0007_modifier_D
+				months = 30
+			}
+		}
+
+		ai_chance = {
+			base = 100
+			modifier = {
+				AND = {
+					faith = { religion_tag = calradian_religion }
+					has_trait = zealous
+				}
+				add = 50
+			}
+			modifier = {
+				has_trait = humble
+				add = 30
+			}
+			modifier = {
+				has_trait = greedy
+				add = -50
+			}
+			modifier = {
+				has_trait = arrogant
+				add = -30
+			}
+			modifier = {
+				gold < massive_gold_value
+				factor = 0
+			}
+		}
+	}
+	after = {
+		hidden_effect = {
+			scope:ck_holy_man = {
+				silent_disappearance_effect = yes
+			}
+		}
+	}
+}
