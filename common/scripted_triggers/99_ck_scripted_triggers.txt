@@ -200,89 +200,39 @@ ck_can_recruit_culture_heritage_troops = {
 }
 # when not passing in culture:X
 ck_can_recruit_scoped_troops = {
-	trigger_if = {
-		limit = { # do not check heritage here
-			has_variable = recruits_local_troops
+	custom_description = {
+		text = ck_can_recruit_culture_troop_vars
+		object = $SCOPE$
+		trigger_if = {
+			limit = { # do not check heritage here
+				has_variable = recruits_local_troops
+			}
+			var:recruits_local_troops = {
+				var:troops_culture ?= $SCOPE$
+			}
 		}
-		# exists = culture:$CULTURE$
-		var:recruits_local_troops = {
-			var:troops_culture ?= $SCOPE$
+		trigger_else = {
+			culture.var:troops_culture ?= $SCOPE$
 		}
-	}
-	trigger_else = {
-		culture.var:troops_culture ?= { this = $SCOPE$ }
 	}
 }
 
-ck_local_heritage_shown = {
-	OR = {
-		trigger_if = {
-			limit = {
-				government_disallows = deny_powerful_vassal
-			}
-			any_powerful_vassal = {
-				NOR = {
-					is_at_war_with_liege = yes
-					has_variable = recruits_local_troops
-				}
-				OR = {
-					is_councillor_of = liege
-					is_allied_to = liege
-					opinion = {
-						target = liege
-						value >= 100
-					}
-				}
-				culture = {
-					has_cultural_pillar = heritage_$CULTURE$
-				}
-				count > 2
-			}
+ck_local_culture_shown = {
+	trigger_if = {
+		limit = {
+			has_game_rule = local_troops_vassals
 		}
-		any_sub_realm_county = {
-			# ratio scripted from game rule, acceptance etc?
-			# percent > 0.5
+		any_powerful_vassal = {
+			ck_happy_vassal_valid = yes
 			culture = {
-				has_cultural_pillar = heritage_$CULTURE$
+				var:troops_culture ?= culture:$CULTURE$
 			}
 		}
 	}
-}
-ck_local_culture_shown = {
-	OR = {
-		trigger_if = {
-			limit = {
-				government_disallows = deny_powerful_vassal
-			}
-			# check tier_difference?
-			any_powerful_vassal = {
-				NOR = {
-					is_at_war_with_liege = yes
-					has_variable = recruits_local_troops
-				}
-				OR = {
-					is_councillor_of = liege
-					is_allied_to = liege
-					opinion = {
-						target = liege
-						value >= 100
-					}
-				}
-				culture = {
-					NOT = { has_same_culture_heritage = prev.liege.culture }
-					var:troops_culture ?= culture:$CULTURE$
-				}
-				count > 2
-			}
-		}
+	trigger_else = {
 		any_sub_realm_county = {
-			# ratio scripted from game rule, acceptance etc?
-			# percent > 0.5
 			culture = {
-				OR = {
-					this = culture:$CULTURE$
-					var:troops_culture ?= culture:$CULTURE$
-				}
+				var:troops_culture ?= culture:$CULTURE$
 			}
 		}
 	}
@@ -309,24 +259,69 @@ ck_local_county_valid = {
 	}
 }
 ck_happy_vassal_valid = {
-	custom_tooltip = {
-		text = happy_powerful_vassal_local
-		NOR = {
-			is_at_war_with_liege = yes
-			has_variable = recruits_local_troops
+	is_at_war_with_liege = no
+	OR = {
+		is_councillor_of = liege
+		is_allied_to = liege
+		opinion = {
+			target = liege
+			value >= 50
 		}
-		OR = {
-			is_councillor_of = liege
-			is_allied_to = liege
-			opinion = {
-				target = liege
-				value >= 100
+	}
+	ck_local_county_valid = yes
+	culture ?= { # explicitly must be different heritage?
+		NOT = { has_same_culture_heritage = prev.liege.culture }
+		# }
+	}
+}
+ck_local_culture_valid = {
+	trigger_if = {
+		limit = {
+			culture.var:troops_culture ?= culture:$CULTURE$
+		}
+		is_decision_on_cooldown = recruit_cultural_troops_decision
+	}
+	NOT = { ck_can_recruit_culture_heritage_troops = { CULTURE = $CULTURE$ } }
+	save_temporary_scope_as = liege
+	switch = {
+		trigger = has_game_rule
+		local_troops_third = {
+			custom_description = {
+				text = ck_local_culture_invalid
+				value = culture:$CULTURE$.culture_player_holdings
+				subject = culture:$CULTURE$
+				any_sub_realm_barony = {
+					culture ?= { var:troops_culture ?= culture:$CULTURE$ }
+					count > sub_realm_holdings_three_fiddy
+				}
 			}
 		}
-		ck_local_county_valid = yes
-		culture ?= { # explicitly must be different heritage?
-			NOT = { has_same_culture_heritage = prev.liege.culture }
-			# }
+		local_troops_plurality = {
+			custom_description = {
+				text = ck_local_culture_invalid
+				value = culture:$CULTURE$.culture_player_holdings
+				subject = culture:$CULTURE$
+				any_sub_realm_barony = {
+					culture ?= { var:troops_culture ?= culture:$CULTURE$ }
+					count >= sub_realm_holdings_plurality
+				}
+			}
+		}
+		local_troops_majority = {
+			any_sub_realm_barony = {
+				culture ?= { var:troops_culture ?= culture:$CULTURE$ }
+				count > sub_realm_holdings_supermajority
+			}
+		}
+		local_troops_vassals = {
+			custom_tooltip = {
+				text = happy_vassal_invalid_decision
+				any_powerful_vassal = {
+					count > 2
+					ck_happy_vassal_valid = yes
+					ck_can_recruit_culture_heritage_troops = { CULTURE = $CULTURE$ }
+				}
+			}
 		}
 	}
 }

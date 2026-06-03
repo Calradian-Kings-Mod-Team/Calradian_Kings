@@ -94,7 +94,8 @@ estate_building_ai_drunk_value = {
 
 sub_realm_holdings_three_fiddy = {
 	round = no
-	value = 30
+	value = sub_realm_holdings_count
+	multiply = 30
 	divide = 100
 }
 sub_realm_holdings_supermajority = {
@@ -112,7 +113,7 @@ sub_realm_holdings_count = {
 culture_player_holdings = {
 	value = 0
 	save_temporary_scope_as = troops_culture
-	every_player = {
+	scope:liege = {
 		ordered_sub_realm_county = {
 			limit = {
 				culture = {
@@ -120,14 +121,7 @@ culture_player_holdings = {
 					var:troops_culture ?= scope:troops_culture
 				}
 			}
-			add = {
-				every_county_province = {
-					limit = {
-						has_holding = yes
-					}
-					add = 1
-				}
-			}
+			add = num_county_holdings
 			# save_temporary_scope_as = culture
 			desc = sub_realm_culture_counter
 		}
@@ -154,51 +148,20 @@ sub_realm_culture_holdings = {
 				var:troops_culture ?= scope:troops_culture
 			}
 		}
-		add = {
-			every_county_province = {
-				limit = {
-					has_holding = yes
-				}
-				add = 1
-			}
-		}
+		add = num_county_holdings
 		# save_temporary_scope_as = culture
 		desc = sub_realm_culture_counter
 	}
 }
 sub_realm_holdings_plurality = {
 	value = 0
-	every_sub_realm_barony = {
-		if = {
-			limit = {
-				ck_unique_troops_trigger = yes
-			}
-			culture.var:troops_culture ?= {
-				add_to_temporary_list = {
-					name = holdings
-					value = prev
-				}
-			}
-		}
-		else = { # group together in one batch?
-			culture ?= {
-				add_to_temporary_list = {
-					name = holdings
-					value = prev
-				}
-			}
-		}
-		add = 1
-	}
+	save_temporary_scope_as = liege
 	every_culture_global = {
-		if = {
-			limit = {
-				has_variable_list = holdings
-			}
-			max = list_size:holdings
-			clear_local_variable_list = holdings
+		limit = {
+			has_variable = troops_culture
+			culture_number_of_counties > 0
 		}
+		min = var:troops_culture.culture_player_holdings
 	}
 	# divide = sub_realm_holdings_count
-
 }
