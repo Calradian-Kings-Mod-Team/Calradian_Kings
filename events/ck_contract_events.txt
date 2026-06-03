@@ -1795,3 +1795,934 @@ ck_contract_events.0003 = {
 		}
 	}
 }
+scripted_effect ck_contract_events_0004_organise_travel_effect = {
+	start_travel_plan = {
+		destination = scope:ck_vedmak_home_province
+		destination = root.domicile.domicile_location
+		on_arrival_event = ck_contract_events.0005
+		travel_with_domicile = $DOMICILE$
+		return_trip = $RETURN$
+		on_travel_planner_cancel_event = ck_contract_events.0006
+		players_use_planner = no
+		on_arrival_destinations = $EVENT_FIRE$
+	}
+}
+## Vedmak's Treasure - Deal with a local Sturgic witch
+ck_contract_events.0004 = {
+	type = character_event
+	title = ck_contract_events.0004.t
+	desc = ck_contract_events.0004.desc
+	theme = landless_adventurer
+	override_background = { reference = tavern } # Meet the locals in a tavern
+
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	right_portrait = {
+		character = scope:ck_worried_local
+		animation = beg
+	}
+
+	immediate = {
+		set_global_variable = { # Don't wanna spam this unique contract
+			name = laamp_blocked_vedmak_contract
+			value = yes
+			months = 18
+		}
+		# Add a personal cooldown
+		add_character_flag = {
+			flag = ck_vedmak_treasure_cooldown
+			years = 10
+		}
+		scope:task_contract.task_contract_employer = {
+			save_scope_as = employer
+			save_scope_as = bg_override_char
+		}
+		scope:employer = {
+			capital_province ?= {
+				save_scope_as = employer_capital_province
+			}
+			capital_county ?= {
+				save_scope_as = employer_capital_county
+				random_county_province = { # The witch will live outside of "civilization"
+					limit = {
+						has_holding = no
+					}
+					weight = {
+						base = 1
+						modifier = {
+							add = 10
+							OR = {
+								terrain = forest
+								terrain = taiga
+							}
+						}
+					}
+					save_scope_as = ck_vedmak_home_province
+				}
+			}
+		}
+		## Pull a courtier from the employer's court, otherwise create someone
+		if = {
+			limit = {
+				any_pool_character = {
+					province = scope:employer_capital_province
+				}
+				is_available_healthy_ai_adult = yes
+			}
+			random_pool_character = {
+				province = scope:task_contract_destination
+				limit = {
+					is_available_healthy_ai_adult = yes
+				}
+				save_scope_as = ck_worried_local
+			}
+		}
+		else = {
+			create_character = {
+				template = peasant_character
+				location = root.location
+				dynasty = none
+				culture = scope:employer_capital_county.culture
+				faith = scope:employer_capital_county.faith
+				gender_female_chance = 50
+				after_creation = {
+					set_to_lowborn = yes
+					if = {
+						limit = {
+							has_trait = peasant_leader
+						}
+						remove_trait = peasant_leader
+					}
+					add_character_flag = created
+				}
+				save_scope_as = ck_worried_local
+			}
+		}
+	}
+
+	option = { # Go to the Vedmak's location
+		name = ck_contract_events.0004.a
+
+		flavor = ck_contract_events.0004.tt.explanation
+		custom_tooltip = travel.stationary_domicile.tt
+
+		ck_contract_events_0004_organise_travel_effect = {
+			DOMICILE = no
+			RETURN = no
+			EVENT_FIRE = all_but_last
+		}
+		stress_impact = {
+			craven = medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0.5
+				has_trait = craven
+			}
+		}
+	}
+	option = { # Forget about this / Fails
+		name = ck_contract_events.0004.b
+		flavor = ck_contract_events.0004.b.tt
+		
+		scope:employer_capital_county = {
+			add_county_modifier = {
+				modifier = ck_failed_vedmek_contract
+				years = 2
+			}
+			holder ?= {
+				add_opinion = {
+					target = root
+					modifier = ck_failed_vedmek_contract_opinion
+				}
+			}
+		}
+		scope:task_contract = {
+			complete_task_contract = failure_standard
+		}
+		stress_impact = {
+			craven = medium_stress_impact_loss
+			brave = major_stress_impact_gain
+			diligent = major_stress_impact_gain
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 100
+				has_trait = craven
+			}
+		}
+	}
+
+}
+ck_contract_events.0005 = { # Confront the Vedmak
+	type = character_event
+	title = ck_contract_events.0005.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:ck_vedmak_home_province = {
+						OR = {
+							terrain = forest
+							terrain = taiga
+						}
+					}
+					current_military_strength >= 200
+				}
+				desc = ck_contract_events.0005.desc.forest_troops
+			}
+			triggered_desc = {
+				trigger = {
+					current_military_strength >= 200
+				}
+				desc = ck_contract_events.0005.desc.troops
+			}
+			triggered_desc = {
+				trigger = {
+					scope:ck_vedmak_home_province = {
+						OR = {
+							terrain = forest
+							terrain = taiga
+						}
+					}
+					any_courtier_or_guest = { count > 2 }
+				}
+				desc = ck_contract_events.0005.desc.forest_courtiers
+			}
+			triggered_desc = {
+				trigger = {
+					any_courtier_or_guest = { count > 0 }
+				}
+				desc = ck_contract_events.0005.desc.courtiers
+			}
+			triggered_desc = {
+				trigger = {
+					scope:ck_vedmak_home_province = {
+						OR = {
+							terrain = forest
+							terrain = taiga
+						}
+					}
+					any_courtier_or_guest = { count = 0 }
+				}
+				desc = ck_contract_events.0005.desc.desc_alone_forest
+			}
+			desc = ck_contract_events.0005.desc_alone
+		}
+	}
+	theme = landless_adventurer
+	override_background = { reference = wilderness } 
+	override_effect_2d = {
+		trigger = {
+			scope:ck_vedmak_home_province = {
+				OR = {
+					terrain = forest
+					terrain = taiga
+				}
+			}
+		}
+		reference = fog
+	}
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	right_portrait = {
+		character = scope:ck_vedmak_scope
+		animation = personality_callous
+	}
+	immediate = {
+		# If the worried peasant was created, remove them
+		scope:ck_worried_local ?= {
+			silent_disappearance_ai_if_created_effect = yes
+		}
+		# Create the Vedmak
+		create_character = {
+			template = witchy_template
+			age = { 50 70 }
+			location = scope:ck_vedmak_home_province
+			culture = scope:employer_capital_county.culture
+			faith = scope:employer_capital_county.faith
+			dynasty = none
+			gender = male
+			trait = witch
+			trait = lifestyle_herbalist
+			prowess = 15 # Give it some challenge
+			random_traits_list = {
+				count = 1
+				giant = {}
+				hunchbacked = {}
+				beauty_bad_1 = {}
+				beauty_bad_2 = {}
+				albino = {}
+				scaly = {}
+				beauty_good_1 = {}
+				intellect_good_1 = {}
+				shrewd  = {}
+				fecund = {}
+				dwarf = {}
+				giant = {}
+				albino = {}
+				bleeder = {}
+				lunatic_1 = {}
+				possessed_1 = {}
+			}
+			save_scope_as = ck_vedmak_scope
+		}
+		scope:ck_vedmak_scope = {
+			save_scope_as = bg_override_char
+		}
+	}
+
+	option = { # Negotiate for the Vedmak to leave, if fails you can still try to force him out
+		name = ck_contract_events.0005.a
+		duel = {
+			skills = { diplomacy prowess }
+			target = scope:ck_vedmak_scope
+			25 = {
+				show_chance = no
+				desc = ck_contract_events.0005.a.succeed
+				custom_tooltip = ck_contract_events.0005_persuasion_success
+				hidden_effect = {
+					add_character_flag = 0005_resolution_convinced
+				}
+				trigger_event = ck_contract_events.0008
+			}
+			75 = {
+				show_chance = no
+				desc = ck_contract_events.0005.a.failure
+				custom_tooltip = ck_contract_events.0005.c.failure.tt.2
+				hidden_effect = {
+					save_scope_value_as = {
+						name = 0005_resolution
+						value = flag:failed_negotiation
+					}
+				}
+				trigger_event = ck_contract_events.0007
+			}
+		}
+	}
+	option = { # Straight up duel him
+		name = ck_contract_events.0005.b
+
+		trigger = {
+			can_start_single_combat_trigger = yes
+			# Tell the AI not to kill itself if it sucks.
+			trigger_if = {
+				limit = { is_ai = yes }
+				prowess >= @laamp_base_contract_schemes_1301_ai_min_prowess_value
+			}
+		}
+		skill = prowess
+		custom_tooltip = ck_contract_events.0005.b.tt
+
+		scope:task_contract = { set_variable = duel_engaged }
+
+		if = {
+			limit = { is_ai = no }
+			configure_start_single_combat_effect = {
+				SC_INITIATOR = root
+				SC_ATTACKER = root
+				SC_DEFENDER = scope:ck_vedmak_scope
+				FATALITY = possible
+				FIXED = no
+				LOCALE = terrain_scope
+				INVALIDATION_EVENT = single_combat.1006
+				OUTPUT_EVENT = ck_contract_events.0009
+			}
+		}
+		else = {
+			configure_start_single_combat_effect = {
+				SC_INITIATOR = root
+				SC_ATTACKER = root
+				SC_DEFENDER = scope:ck_vedmak_scope
+				FATALITY = possible
+				FIXED = no
+				LOCALE = terrain_scope
+				INVALIDATION_EVENT = single_combat.1006
+				OUTPUT_EVENT = ck_contract_events.0009
+			}
+		}
+		stress_impact = {
+			brave = minor_stress_impact_loss
+			craven = medium_stress_impact_gain
+		}
+	}
+	option = { # Throw your cowardly men at him. Now that they have the numbers, they're more confident
+		name = ck_contract_events.0005.e
+		custom_tooltip = ck_contract_events.0005.e.tt
+		custom_tooltip = ck_contract_events.0005_persuasion_success
+		trigger = {
+			current_military_strength >= 200
+		}
+		hidden_effect = {
+			add_character_flag = 0005_resolution_soldiers
+		}
+		trigger_event = ck_contract_events.0008
+		stress_impact = {
+			craven = major_stress_impact_gain
+			brave = medium_stress_impact_loss
+		}
+	}
+	option = { # Offer him to join your party, combined diplo and learning duel, if fails you can still try to force him out. Lose piety if succeeds
+		name = ck_contract_events.0005.c
+
+		skill = diplomacy
+		duel = {
+			skills = { diplomacy learning }
+			value = very_high_skill_rating
+			20 = {
+				show_chance = no
+				desc = ck_contract_events.0005.c.succeed
+				custom_tooltip = ck_contract_events.0005_persuasion_success
+				trigger_event = ck_contract_events.0008
+				if = {
+					limit = {
+						scope:ck_vedmak_scope = { is_alive = yes }
+					}
+					add_courtier = scope:ck_vedmak_scope
+					add_character_flag = 0005_resolution_recruitment
+					hidden_effect = {
+						reverse_add_opinion = {
+							target = scope:ck_vedmak_scope
+							modifier = respect_opinion
+							opinion = 20
+						}
+					}
+				}
+			}
+			80 = {
+				show_chance = no
+				desc = ck_contract_events.0005.c.failure.tt
+				custom_tooltip = ck_contract_events.0005.c.failure.tt.2
+				hidden_effect = {
+					trigger_event = ck_contract_events.0007
+					save_scope_value_as = {
+						name = 0005_resolution
+						value = flag:failed_recruitment
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				faith = {
+					has_doctrine_parameter = doctrine_witchcraft_crime
+				}
+			}
+			add_piety = medium_piety_loss
+		}
+		else_if = {
+			limit = {
+				faith = {
+					has_doctrine_parameter = doctrine_witchcraft_shunned
+				}
+			}
+			add_piety = minor_piety_loss
+		}
+		else_if = {
+			limit = {
+				faith = {
+					has_doctrine_parameter = doctrine_witchcraft_virtuous
+				}
+			}
+			add_piety = medium_piety_gain
+		}
+	}
+	option = { # Forget this! I will not be bewitched! (NOT CYNICAL) / Fail contract
+		name = ck_contract_events.0005.d
+		flavor = ck_contract_events.0005.d.flavor
+		
+		scope:employer_capital_county = {
+			add_county_modifier = {
+				modifier = ck_failed_vedmek_contract
+				years = 2
+			}
+			holder ?= {
+				add_opinion = {
+					target = root
+					modifier = ck_failed_vedmek_contract_opinion
+				}
+			}
+		}
+		scope:task_contract = {
+			complete_task_contract = failure_standard
+		}
+		hidden_effect = {
+			scope:ck_vedmak_scope ?= {
+				silent_disappearance_effect = yes
+			}
+		}
+		stress_impact = {
+			craven = medium_stress_impact_loss
+			brave = major_stress_impact_gain
+			diligent = major_stress_impact_gain
+		}
+		ai_chance = {
+			base = 20
+			modifier = {
+				add = 40
+				has_trait = craven
+			}
+		}
+	}
+}
+ck_contract_events.0006 = { # Invalidated - Failure
+	hidden = yes
+
+	trigger = { is_alive = yes }
+
+	immediate = {
+		random_character_active_contract = {
+			task_contract_type = laamp_ck_vedmak_treasure
+			save_scope_as = task_contract
+		}
+		send_interface_message = {
+			title = contract_invalidated_title
+			type = stewardship_contract_scheme_invalidated_message
+			right_icon = scope:task_contract.task_contract_employer
+			scope:task_contract = { complete_task_contract = failure_standard }
+		}
+	}
+}
+ck_contract_events.0007 = { # Fail to convince the Vedmak
+	type = character_event
+	title = ck_contract_events.0007.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:0005_resolution = flag:failed_negotiation}
+				desc = ck_contract_events.0007.desc_negotiation
+			}
+			triggered_desc = {
+				trigger = { scope:0005_resolution = flag:failed_recruitment}
+				desc = ck_contract_events.0007.desc_recruitment
+			}
+			desc = ck_contract_events.0007.desc
+		}
+	}
+	theme = landless_adventurer
+	override_background = { reference = wilderness } 
+	override_effect_2d = {
+		trigger = {
+			scope:ck_vedmak_home_province = {
+				OR = {
+					terrain = forest
+					terrain = taiga
+				}
+			}
+		}
+		reference = fog
+	}
+	left_portrait = {
+		character = root
+		animation = war_attacker
+	}
+	right_portrait = {
+		character = scope:ck_vedmak_scope
+		animation = laugh
+	}
+
+	option = { # Okay, duel him
+		name = ck_contract_events.0007.a
+
+		trigger = {
+			can_start_single_combat_trigger = yes
+			# Tell the AI not to kill itself if it sucks.
+			trigger_if = {
+				limit = { is_ai = yes }
+				prowess >= @laamp_base_contract_schemes_1301_ai_min_prowess_value
+			}
+		}
+		skill = prowess
+		custom_tooltip = ck_contract_events.0005.b.tt
+
+		scope:task_contract = { set_variable = duel_engaged }
+
+		if = {
+			limit = { is_ai = no }
+			configure_start_single_combat_effect = {
+				SC_INITIATOR = root
+				SC_ATTACKER = root
+				SC_DEFENDER = scope:ck_vedmak_scope
+				FATALITY = possible
+				FIXED = no
+				LOCALE = terrain_scope
+				INVALIDATION_EVENT = single_combat.1006
+				OUTPUT_EVENT = ck_contract_events.0009
+			}
+		}
+		else = {
+			configure_start_single_combat_effect = {
+				SC_INITIATOR = root
+				SC_ATTACKER = root
+				SC_DEFENDER = scope:ck_vedmak_scope
+				FATALITY = possible
+				FIXED = no
+				LOCALE = terrain_scope
+				INVALIDATION_EVENT = single_combat.1006
+				OUTPUT_EVENT = ck_contract_events.0009
+			}
+		}
+		stress_impact = {
+			brave = minor_stress_impact_loss
+			craven = medium_stress_impact_gain
+		}
+	}
+	option = { # Send the troops
+		name = ck_contract_events.0007.b
+		custom_tooltip = ck_contract_events.0005.e.tt
+		custom_tooltip = ck_contract_events.0005_persuasion_success
+		trigger = {
+			current_military_strength >= 200
+		}
+		trigger_event = ck_contract_events.0008
+		hidden_effect = {
+			add_character_flag = 0005_resolution_soldiers
+		}
+		stress_impact = {
+			craven = major_stress_impact_gain
+			brave = medium_stress_impact_loss
+		}
+	}
+	option = { # Forget it
+		name = ck_contract_events.0007.c
+		flavor = ck_contract_events.0004.b.tt
+
+		scope:employer_capital_county = {
+			add_county_modifier = {
+				modifier = ck_failed_vedmek_contract
+				years = 2
+			}
+			holder ?= {
+				if = {
+					limit = {
+						this != scope:employer
+					}
+					add_opinion = {
+						target = root
+						modifier = ck_failed_vedmek_contract_opinion
+					}
+				}
+			}
+		}
+		scope:task_contract = {
+			complete_task_contract = failure_standard
+		}
+		hidden_effect = {
+			scope:ck_vedmak_scope ?= {
+				silent_disappearance_effect = yes
+			}
+		}
+		stress_impact = {
+			craven = medium_stress_impact_loss
+			brave = major_stress_impact_gain
+			diligent = major_stress_impact_gain
+		}
+		ai_chance = {
+			base = 20
+			modifier = {
+				add = 40
+				has_trait = craven
+			}
+		}
+	}
+}
+scripted_effect ck_contract_events_0008_gold_reward = {
+	scope:task_contract = {
+		set_variable = {
+			name = ck_0008_gold_reward
+			value = {
+				value = { 50 100 }
+				round = yes
+			}
+		}
+		set_variable = {
+			name = ck_0008_gold_reward_half
+			value = {
+				value = scope:task_contract.var:ck_0008_gold_reward
+				divide = 3
+				round = yes
+			}
+		}
+		debug_log = "VEDMAK_REWARD_GOLD_SET"
+	}
+}
+scripted_effect ck_remove_flags_0008 = {
+	if = {
+		limit = {
+			has_character_flag = 0005_resolution_$TYPE$
+		}
+		remove_character_flag = 0005_resolution_$TYPE$
+	}
+}
+ck_contract_events.0008 = { # Choose what to do with the spoils
+	type = character_event
+	title = ck_contract_events.0008.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { has_character_flag = 0005_resolution_convinced }
+				desc = ck_contract_events.0008.desc_convinced
+			}
+			triggered_desc = {
+				trigger = { has_character_flag = 0005_resolution_recruitment }
+				desc = ck_contract_events.0008.desc_recruitment
+			}
+			triggered_desc = {
+				trigger = { has_character_flag = 0005_resolution_dueled }
+				desc = ck_contract_events.0008.desc_dueled
+			}
+			triggered_desc = {
+				trigger = { has_character_flag = 0005_resolution_soldiers }
+				desc = ck_contract_events.0008.desc_soldiers
+			}
+			desc = ck_contract_events.0008.desc_convinced
+		}
+	}
+	theme = landless_adventurer
+	override_background = { reference = wilderness } 
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	
+	right_portrait = {
+		trigger = {
+			scope:task_contract = {
+				has_variable = ck_vedmak_slain
+			}
+		}
+		character = scope:ck_vedmak_scope
+		animation = map_fear
+	}
+	
+	override_effect_2d = {
+		trigger = {
+			has_character_flag = 0005_resolution_dueled
+		}
+		reference = legend_glow
+	}
+
+	immediate = {
+		ck_contract_events_0008_gold_reward = yes
+	}
+	option = {
+		name = ck_contract_events.0008.a
+
+		custom_tooltip = {
+			text = ck_contract_events.0008.a.tt
+			add_gold = {
+				value = scope:task_contract.var:ck_0008_gold_reward
+			}
+		}
+
+		hidden_effect = {
+			scope:task_contract = {
+				remove_variable = ck_0008_gold_reward
+			}
+			ck_remove_flags_0008 = { TYPE = dueled }
+			ck_remove_flags_0008 = { TYPE = recruitment }
+			ck_remove_flags_0008 = { TYPE = convinced }
+			ck_remove_flags_0008 = { TYPE = soldiers }
+		}
+		scope:task_contract = { complete_task_contract = success_standard }
+
+		stress_impact = {
+			greedy = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = 15
+				has_trait = greedy
+			}
+			modifier = {
+				add = -15
+				faith = {
+					OR = {
+						has_doctrine_parameter = doctrine_witchcraft_crime
+						has_doctrine_parameter = doctrine_witchcraft_shunned
+					}
+				}
+				has_trait = zealous
+			}
+		}
+	}
+	option = {
+		name = ck_contract_events.0008.b
+
+		if = {
+			limit = {
+				faith = {
+					has_doctrine_parameter = doctrine_witchcraft_crime
+				}
+			}
+			add_piety = medium_piety_gain
+		}
+		else_if = {
+			limit = {
+				faith = {
+					has_doctrine_parameter = doctrine_witchcraft_shunned
+				}
+			}
+			add_piety = minor_piety_gain
+		}
+		else_if = {
+			limit = {
+				faith = {
+					has_doctrine_parameter = doctrine_witchcraft_virtuous
+				}
+			}
+			custom_tooltip = ck_contract_events.0008.b.virtuous
+			add_piety = medium_piety_loss
+		}
+		else = {
+			add_piety = 200
+		}
+
+		hidden_effect = {
+			scope:task_contract = {
+				remove_variable = ck_0008_gold_reward
+			}
+			ck_remove_flags_0008 = { TYPE = dueled }
+			ck_remove_flags_0008 = { TYPE = recruitment }
+			ck_remove_flags_0008 = { TYPE = convinced }
+			ck_remove_flags_0008 = { TYPE = soldiers }
+		}
+		scope:task_contract = { complete_task_contract = success_standard }
+
+		stress_impact = {
+			zealous = medium_stress_impact_loss
+			greedy = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				add = -15
+				has_trait = greedy
+			}
+			modifier = {
+				add = 15
+				faith = {
+					OR = {
+						has_doctrine_parameter = doctrine_witchcraft_crime
+						has_doctrine_parameter = doctrine_witchcraft_shunned
+					}
+				}
+				has_trait = zealous
+			}
+		}
+	}
+	option = { # Give it back to the people!
+		name = ck_contracts_event.0008.c
+
+		custom_tooltip = {
+			text = ck_contract_events.0008.c.tt
+			add_gold = {
+				value = scope:task_contract.var:ck_0008_gold_reward_half
+			}
+		}
+		scope:task_contract = { complete_task_contract = success_critical }
+		stress_impact = {
+			arrogant = minor_stress_impact_gain
+			greedy = medium_stress_impact_gain
+			compassionate = major_stress_impact_loss
+		}
+	}
+}
+ck_contract_events.0009 = { # Dueling the Vedmak
+	hidden = yes
+	immediate = {
+		if = {
+			limit = {
+				scope:sc_victor = scope:ck_vedmak_scope
+			}
+			scope:sc_loser = {
+				if = {
+					limit = {
+						is_alive = yes
+					}
+					trigger_event = ck_contract_events.0010
+				}
+			}
+		}
+		else = {
+			scope:sc_loser = {
+				if = {
+					limit = { is_alive = yes }
+					death = {
+						death_reason = death_battle
+						killer = scope:sc_victor
+					}
+				}
+			}
+			scope:sc_victor = {
+				trigger_event = ck_contract_events.0008
+				add_character_flag = 0005_resolution_dueled
+			}
+			scope:task_contract = {
+				set_variable = {
+					name = ck_vedmak_slain
+					value = yes
+				}
+			}
+		}
+	}
+}
+ck_contract_events.0010 = {
+	type = character_event
+	title = ck_contract_events.0010.t
+	desc = ck_contract_events.0010.desc
+	theme = landless_adventurer
+
+	override_background = { reference = wilderness } 
+	override_effect_2d = {
+		trigger = {
+			scope:ck_vedmak_home_province = {
+				OR = {
+					terrain = forest
+					terrain = taiga
+				}
+			}
+		}
+		reference = fog
+	}
+	left_portrait = {
+		character = root
+		animation = severelywounded
+	}
+	immediate = {
+		scope:employer_capital_county = {
+			add_county_modifier = {
+				modifier = ck_failed_vedmek_contract
+				years = 2
+			}
+			holder ?= {
+				if = {
+					limit = {
+						this != scope:employer
+					}
+					add_opinion = {
+						target = root
+						modifier = ck_failed_vedmek_contract_opinion
+					}
+				}
+			}
+		}
+		scope:ck_vedmak_scope = {
+			silent_disappearance_effect = yes
+		}
+		scope:task_contract = { complete_task_contract = failure_standard }
+	}
+	option = {
+		name = ck_contract_events.0010.a
+
+		custom_tooltip = ck_contract_events.0010.a.tt
+	}
+
+}

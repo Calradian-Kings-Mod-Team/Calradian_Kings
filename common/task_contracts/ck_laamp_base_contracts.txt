@@ -242,6 +242,7 @@ laamp_ck_deliver_herd = {
 	# Rewards
 	task_contract_reward = {
 		success_critical = { # More livestock than desired
+			should_print_on_complete = yes
 			effect = {
 				task_contract_taker = { play_sound_effect = "event:/DLC/EP3/SFX/UI/Contracts/ep3_ui_contracts_success_on_contract" }
 				save_scope_value_as = { name = extra_reward value = flag:no }
@@ -257,9 +258,11 @@ laamp_ck_deliver_herd = {
 					CONTACT_HOOK = yes
 					EXTRA_REWARD = scope:extra_reward
 				}
+				task_contract_taker = { task_successful_noncrim_contract_count_effect = yes }
 			}
 		}
 		success_standard = { # Desired amount of livestock
+			should_print_on_complete = yes
 			effect = {
 				task_contract_taker = { play_sound_effect = "event:/DLC/EP3/SFX/UI/Contracts/ep3_ui_contracts_success_on_contract" }
 				save_scope_value_as = { name = extra_reward value = flag:no }
@@ -275,9 +278,11 @@ laamp_ck_deliver_herd = {
 					CONTACT_HOOK = no
 					EXTRA_REWARD = scope:extra_reward
 				}
+				task_contract_taker = { task_successful_noncrim_contract_count_effect = yes }
 			}
 		}
 		success_substandard = { # Less livestock than desired
+			should_print_on_complete = yes
 			effect = {
 				task_contract_taker = { play_sound_effect = "event:/DLC/EP3/SFX/UI/Contracts/ep3_ui_contracts_success_on_contract" }
 				save_scope_value_as = { name = extra_reward value = flag:no }
@@ -293,10 +298,12 @@ laamp_ck_deliver_herd = {
 					CONTACT_HOOK = no
 					EXTRA_REWARD = scope:extra_reward
 				}
+				task_contract_taker = { task_successful_noncrim_contract_count_effect = yes }
 			}
 
 		}
 		failure_standard = { # No livestock remaining by end of contract
+			should_print_on_complete = yes
 			positive = no
 			effect = {
 				task_contract_taker = { play_sound_effect = "event:/DLC/EP3/SFX/UI/Contracts/ep3_ui_contracts_failure_on_contract" }
@@ -317,6 +324,7 @@ laamp_ck_deliver_herd = {
 
 		}
 		failure_stole_herd = { # Stole the herd for provisions
+			should_print_on_complete = yes
 			visible = no
 			positive = no
 			effect = {
@@ -358,41 +366,229 @@ laamp_ck_deliver_herd = {
 
 		}
 	}
-
 }
 
-# Putting this down here for future event
+### Vedmak's Treasure - Sturgic "warlock" is extorting the local populace with threats of black magic (Justicar Contract)
+laamp_ck_vedmak_treasure = {
+	group = laamp_contracts_justicar_group
+	icon = "gfx/interface/icons/scheme_types/martial.dds"
 
-			# task_contract_employer = {
-			# 	random_neighboring_top_liege_realm_owner = {
-			# 		limit = {
-			# 			is_within_diplo_range = { CHARACTER = scope:employer }
-			# 			NOT = {
-			# 				has_character_flag = ck_stolen_herd_flag # Their herd was recently stolen (Steppe Interaction)
-			# 			}
-			# 		}
-			# 		random_realm_province = {
-			# 			limit = {
-			# 				exists = holder
-			# 				has_holding = yes
-			# 				squared_distance = {
-			# 					target = scope:employer.capital_province # We want a nearby county to pull from within reasonable distance of the employer
-			# 					value = 85000 # Wales + Ireland (Top-to-bottom distance, given our own map size too)
-			# 				}
-			# 				NOT = { # Avoid provinces in the uninhabitable parts of the Nahasa, shouldn't be a problem but just being sure.
-			# 					geographical_region = custom_nahasa_unhabitable
-			# 				}
-			# 				county ?= {
-			# 					NOT = {
-			# 						has_county_modifier = martial_chivalry_stolen_livestock_modifier # A modifier added if someone's livestock is stolen (Chivalry Lifestyle Event - martial_chivalry.4000), shouldn't pull from another county with stolen livestock
-			# 					}
-			# 					development_level > 10 # Specifically chose the because we want a county with higher development, meaning possibly more cattle & population
-			# 				}
-			# 			}
-			# 			save_temporary_scope_as = ck_herd_neighbor_province
-			# 		}
-			# 	}
-			# }
-			# scope:ck_herd_neighbor_province = {
-			# 	save_scope_as = 
-			# }
+	travel = yes
+	use_diplomatic_range = no
+
+	# Validity Triggers
+	valid_to_create = {
+		# Standard triggers.
+		valid_laamp_basic_trigger = {
+			EMPLOYER = scope:employer
+			LAAMP = root
+		}
+		employer_has_treasury_to_offer_job_trigger = yes
+		valid_laamp_sensible_start_trigger = yes
+		scope:employer = {
+			capital_county ?= {
+				culture = {
+					has_name_list = name_list_sturgian # It's a cultural-specific sort of thing, a witch that is
+				}
+				any_county_province = { # The witch will be living outside of "civilization"
+					has_holding = no
+				}
+			}
+			NOR = { # Dukes and above are not concerned about the whims and superstitions of the peasantry
+				faith.religious_head ?= this
+				highest_held_title_tier >= tier_duchy
+			}
+		}
+		NOT = {
+			exists = global_var:laamp_blocked_vedmak_contract
+		}
+	}
+	valid_to_keep = {
+		# exists = root:var:escorted_ck_herd
+		# Standard triggers.
+		valid_laamp_basic_trigger = {
+			EMPLOYER = root.task_contract_employer
+			LAAMP = root.task_contract_taker
+		}
+		task_contract_employer = { is_landed = yes }
+	}
+	valid_to_accept = {
+		# Standard triggers.
+		valid_laamp_basic_accept_only_trigger = yes
+		valid_laamp_basic_trigger = {
+			EMPLOYER = scope:employer
+			LAAMP = root
+		}
+		scope:employer = { is_landed = yes }
+	}
+	valid_to_continue = {
+		# exists = var:escorted_ck_herd
+		# Standard triggers.
+		valid_laamp_basic_trigger = {
+			EMPLOYER = root.task_contract_employer
+			LAAMP = root.task_contract_taker
+		}
+		task_contract_employer = { is_landed = yes }
+	}
+
+	weight = {
+		# Standard weights.
+		value = task_contract_weight_default_value
+		add = laamp_contracts_weight_up_martial_value
+		add = laamp_contracts_weight_up_martial_slight_value
+		# Employer Weights
+		scope:employer = {
+			add = {
+				# Arrogant a-holes don't like asking for things
+				if = {
+					limit = { has_trait = arrogant }
+					add = task_contract_weight_malus_employer_has_associated_traits_value
+				}
+				# Impatient Employers want this done FAST
+				if = {
+					limit = { has_trait = impatient }
+					add = task_contract_weight_bonus_employer_has_associated_traits_value
+				}
+				# Zealots want this sorceror dealt with!
+				if = {
+					limit = { has_trait = zealous }
+					add = task_contract_weight_bonus_employer_has_associated_traits_value
+				}
+				# Restrictions.
+				min = task_contract_weight_employer_associated_traits_min_value
+				max = task_contract_weight_employer_associated_traits_max_value
+			}
+			multiply = task_contract_weight_by_tier_value
+			# This weight is an override, so make sure it's placed at the bottom.
+			add = task_contract_weight_employer_contact_list_value # This is if they're your contact and know to trust you
+		}
+	}
+
+	# On_Actions
+	on_create = {
+		scope:contract = {
+			# Make our gold rewards static.
+			grab_gold_fuzz_number_effect = yes
+			save_scope_as = task_contract
+			set_variable = {
+				name = gold_success_standard
+				value = task_contract_taker.task_contract_success_gold_gain_third_value
+			}
+			# Make sure critical values are a bit higher.
+			save_scope_value_as = { name = gold_safety_margin value = flag:yes }
+		}
+	}
+
+	on_accepted = {
+		task_contract_taker = { play_sound_effect = "event:/DLC/EP3/SFX/UI/Contracts/ep3_ui_contracts_accept_contract" }
+		# For the intro event.
+		save_scope_as = task_contract
+		task_contract_employer = {
+			save_scope_as = employer
+		}
+		# Then we start the travel.
+		task_contract_taker ?= {
+			trigger_event = ck_contract_events.0004
+		}
+		debug_log = "VEDMAK_ACCEPTED_TT"
+	}
+	
+	on_invalidated = {
+		task_contract_taker = {
+			remove_character_flag = is_in_task_contract_event_chain 
+			set_variable = {
+				name = invalidated_task_contract_type
+				value = flag:laamp_ck_vedmak_treasure
+			}
+		}
+	}
+	# Rewards
+	task_contract_reward = {
+		success_critical = { # Give the Vedmak's ill-gotten wealth to the people
+			visible = no
+			should_print_on_complete = yes
+			effect = {
+				task_contract_taker = { play_sound_effect = "event:/DLC/EP3/SFX/UI/Contracts/ep3_ui_contracts_success_on_contract" }
+				save_scope_value_as = { name = extra_reward value = flag:no }
+				# Critical Rewards.
+				laamp_rewards_disburse_ordinary_currency_effect = {
+					GOLD = 0
+					PRESTIGE = task_contract_success_prestige_gain_critical_value
+					PIETY = 0
+					PROVISIONS = task_contract_success_provisions_gain_major_value
+					OPINION = task_contract_opinion_excelled_reward_value
+					OPINION_TYPE = critically_succeeded_task_contract_opinion
+					CONTACT = yes
+					CONTACT_HOOK = yes
+					EXTRA_REWARD = scope:extra_reward
+				}
+				task_contract_taker = { task_successful_noncrim_contract_count_effect = yes }
+				# Update Knight-Errant score.
+				task_contract_taker = {
+					laamp_rewards_apply_knight_errant_xp_effect = {
+						XP_MAX = knight_errant_xp_major_gain
+						XP_MIN = knight_errant_xp_major_gain
+					}
+					hidden_effect = { task_successful_noncrim_contract_count_effect = yes }
+				}
+				scope:task_contract_employer = {
+					capital_county ?= {
+						add_county_modifier = {
+							modifier = ck_success_vedmek_contract_critical
+							years = 2
+						}
+					}
+				}
+			}
+		}
+		success_standard = { # Drive off the Vedmak, recruit him, or kill him - Either way, the people are rid of him
+			should_print_on_complete = yes
+			effect = {
+				task_contract_taker = { play_sound_effect = "event:/DLC/EP3/SFX/UI/Contracts/ep3_ui_contracts_success_on_contract" }
+				save_scope_value_as = { name = extra_reward value = flag:no }
+				# Standard Rewards.
+				laamp_rewards_disburse_ordinary_currency_effect = {
+					GOLD = 0
+					PRESTIGE = task_contract_success_prestige_gain_critical_value
+					PIETY = 0
+					PROVISIONS = task_contract_success_provisions_gain_minor_value
+					OPINION = task_contract_opinion_standard_reward_value
+					OPINION_TYPE = succeeded_task_contract_opinion
+					CONTACT = yes
+					CONTACT_HOOK = no
+					EXTRA_REWARD = scope:extra_reward
+				}
+				task_contract_taker = { hidden_effect = { task_successful_noncrim_contract_count_effect = yes } }
+				scope:task_contract_employer = {
+					capital_county ?= {
+						add_county_modifier = {
+							modifier = ck_success_vedmek_contract
+							years = 2
+						}
+					}
+				}
+			}
+		}
+		failure_standard = { # Vedmak either fled or continues to menace the local populace
+			positive = no
+			should_print_on_complete = yes
+			effect = {
+				task_contract_taker = { play_sound_effect = "event:/DLC/EP3/SFX/UI/Contracts/ep3_ui_contracts_failure_on_contract" }
+				save_scope_value_as = { name = extra_reward value = flag:no }
+				# Standard Penalties.
+				laamp_rewards_disburse_ordinary_currency_effect = {
+					GOLD = 0
+					PRESTIGE = task_contract_failure_prestige_loss_full_value
+					PIETY = 0
+					PROVISIONS = task_contract_failure_provisions_gain_minor_value
+					OPINION = task_contract_opinion_standard_failure_value
+					OPINION_TYPE = failed_task_contract_opinion
+					CONTACT = no
+					CONTACT_HOOK = no
+					EXTRA_REWARD = scope:extra_reward
+				}
+			}
+
+		}
+	}
+}
