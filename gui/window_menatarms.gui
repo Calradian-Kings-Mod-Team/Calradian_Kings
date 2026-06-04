@@ -38,7 +38,6 @@ window = {
 	vbox = {
 		set_parent_size_to_minimum = yes
 		margin = { 4 4 }
-
 		state = {
 			name = "menatarms_refresh"
 			alpha = 0.5
@@ -56,16 +55,31 @@ window = {
 
 		header_pattern = {
 			layoutpolicy_horizontal = expanding
-
+			# blockoverride "header_pattern_visibility"
+			# {
+			# 	visible = "[LessThan_int32(Regiment.GetArmy.GetArmyId, '(int32)0')]"
+			# }
+			datacontext = "[Regiment.GetOwner.GetPrimaryTitle.GetTitleCoA]"
+			blockoverride "header_background"
+			{
+				visible = "[Regiment.GetOwner.IsIndependentRuler]"
+				color = "[CoatOfArms.GetColor('(int32)1')]"
+			}
 			blockoverride "header_text"
 			{
 				text = "[Regiment.GetNameNoTooltip]"
 			}
-
+			blockoverride "button_go_to" {
+				datacontext = "[Regiment.GetArmy]"
+				visible = "[GreaterThan_int32(Army.GetArmyId, '(int32)0')]"
+				# onclick = "[OpenGameViewData('army_window', Army.Self)]"
+				clicksound = "event:/SFX/UI/Unit/Army/sfx_ui_unit_army_attach"
+				onclick = "[Regiment.GetArmy.GetLocation.ZoomCameraTo]"
+				tooltip = "[Army.GetDescription]"
+			}
 			blockoverride "button_close"
 			{
 				onclick = "[MenAtArmsView.Close]"
-
 			}
 		}
 
@@ -75,8 +89,8 @@ window = {
 			min_width = 420
 
 			widget = {
-				layoutpolicy_horizontal = expanding
-				size = { 420 200 }
+				layoutpolicy_horizontal = growing
+				size = { 400 200 }
 
 				vbox = {
 					background = {
@@ -87,11 +101,24 @@ window = {
 						mirror = horizontal
 						using = Mask_Rough_Edges
 					}
-
+					text_label_center = {
+						# name = "type"
+						text = "[MenAtArmsType.GetBaseTypeName]"
+						align = nobaseline
+					}
 					expand = {}
 
 					hbox = {
-						layoutpolicy_horizontal = preferred
+						background = {
+							visible = "[GreaterThan_int32(Regiment.GetArmy.GetArmyId, '(int32)0')]"
+							texture = "[Regiment.GetArmy.GetArmyStatusIllustration]"
+							fittype = start
+							modify_texture = {
+								texture = "gfx/interface/component_masks/mask_header_text_bg.dds"
+								blend_mode = alphaMultiply
+							}
+						}
+						layoutpolicy_horizontal = shrinking
 						margin_bottom = 5
 						# margin_left = 15
 						spacing = 6
@@ -110,9 +137,12 @@ window = {
 						}
 
 						text_label_center = {
-							# name = "type"
-							text = "[MenAtArmsType.GetBaseTypeName]"
 							align = nobaseline
+							autoresize = yes
+							max_width = 200
+							visible = "[GreaterThan_int32(Regiment.GetArmy.GetArmyId, '(int32)0')]"
+							# text = "MAA_ARMY"
+							text = "[Regiment.GetArmy.GetName]"
 						}
 
 						text_label_right = {
@@ -328,7 +358,24 @@ window = {
 				margin = { 15 0 }
 				margin_bottom = 15
 				spacing = 5
-
+				datacontext = "[Regiment.GetOriginProvince]"
+				datacontext = "[Regiment.GetOwningTitle]"
+				background = {
+					visible = "[Not(Province.GetHolding.IsEmpty)]"
+					# datacontext = "[GetIllustration('title_holding')]"
+					
+					# alpha = 0.3
+					texture = "[Province.GetHolding.GetIllustration]"
+					color = { 0.725 0.55 0.67 0.5 }
+					mirror = horizontal
+					modify_texture = {
+						blend_mode = alphaMultiply
+						texture = "gfx/lines/line_mask_08.dds"
+					}
+					# using = Toast_Header
+					fittype = end
+					# margin_right = 10%
+				}
 				### INFO TEXT
 				hbox = {
 					visible = "[Not( Regiment.IsAtFullStength )]"
@@ -435,7 +482,105 @@ window = {
 			divider_light = {
 				layoutpolicy_horizontal = expanding
 			}
+			widget = {
+				name = "coa_regiment_title"
 
+				coat_of_arms_icon = {
+					visible = "[Regiment.GetOwningTitle.IsValid]"
+					datacontext = "[Regiment.GetOwningTitle]"
+					parentanchor = top|left
+					position = { -15 -40 }
+					size = { 240 240 }
+					alpha = 0.7
+					coat_of_arms = "[Title.GetTitleCoA.GetTexture( '(int32)256', '(int32)256' )]"
+					coat_of_arms_slot = "[Title.GetTitleCoA.GetSlot( '(int32)256', '(int32)256' )]"
+					coat_of_arms_mask = "gfx/interface/frontend/mask_coa_flag.dds"
+					modify_texture = {
+						texture = "gfx/interface/skinned/hud_maintab_bg_bottom.dds"
+						blend_mode = alphamultiply
+					}
+					modify_texture = {
+						texture = "gfx/interface/component_masks/mask_fade_horizontal_middle_thick.dds"
+						blend_mode = alphamultiply
+					}
+				}
+				
+				coat_of_arms_icon = {
+					visible = "[And(Regiment.GetOwner.IsValid, Not(Regiment.GetOwningTitle.IsValid))]"
+					datacontext = "[Regiment.GetOwner.GetPrimaryTitle]"
+					parentanchor = top|left
+					position = {-15 -40 }
+					size = { 240 240 }
+					alpha = 0.6
+
+					coat_of_arms = "[Title.GetTitleCoA.GetTexture( '(int32)256', '(int32)256' )]"
+					coat_of_arms_slot = "[Title.GetTitleCoA.GetSlot( '(int32)256', '(int32)256' )]"
+					coat_of_arms_mask = "gfx/interface/frontend/mask_coa_flag.dds"
+					modify_texture = {
+						texture = "gfx/interface/skinned/hud_maintab_bg_bottom.dds"
+						blend_mode = alphamultiply
+					}
+					modify_texture = {
+						texture = "gfx/interface/component_masks/mask_fade_horizontal_middle_thick.dds"
+						blend_mode = alphamultiply
+					}
+				}
+			}
+			widget = {
+				name = "coa_regiment_house"
+				# parentanchor = top|right
+				visible = "[And(Regiment.GetOwner.IsValid, Regiment.GetOwner.HasDynasty)]"
+				coat_of_arms_icon = {
+					datacontext = "[Regiment.GetOwner.GetDynasty.GetDynastyCoA]"
+					visible = "[Regiment.GetOwner.IsDynast]"
+					parentanchor = top|right
+					position = { 0 -40 }
+					size = { 240 240 }
+					alpha = 0.75
+
+					coat_of_arms = "[CoatOfArms.GetTexture( '(int32)256', '(int32)256' )]"
+					coat_of_arms_slot = "[CoatOfArms.GetSlot( '(int32)256', '(int32)256' )]"
+					coat_of_arms_mask = "gfx/interface/frontend/mask_coa_flag.dds"
+					mirror = horizontal
+					modify_texture = {
+						texture = "gfx/interface/skinned/hud_maintab_bg_top.dds"
+						blend_mode = alphamultiply
+					}
+				}
+				coat_of_arms_icon = {
+					datacontext = "[Regiment.GetOwner.GetHouse.GetHouseCoA]"
+					parentanchor = top|right
+					visible = "[Not(Regiment.GetOwner.IsDynast)]"
+					position = { 0 -40 }
+					size = { 240 240 }
+					alpha = 0.75
+
+					coat_of_arms = "[CoatOfArms.GetTexture( '(int32)256', '(int32)256' )]"
+					coat_of_arms_slot = "[CoatOfArms.GetSlot( '(int32)256', '(int32)256' )]"
+					coat_of_arms_mask = "gfx/interface/frontend/mask_coa_flag.dds"
+					mirror = horizontal
+					modify_texture = {
+						texture = "gfx/interface/skinned/hud_maintab_bg_top.dds"
+						blend_mode = alphamultiply
+					}
+				}
+				# modify_texture = {
+				# 	texture = "gfx/interface/coat_of_arms/coa_overlay.dds"
+				# 	blend_mode = overlay
+				# 	spritetype = corneredTiled
+				# 	alpha = 0.25
+				# }
+				# modify_texture = {
+				# 	texture = "gfx/interface/component_masks/mask_fade_horizontal_middle_thick_vertical.dds"
+				# 	blend_mode = alphamultiply
+				# 	# mirror = horizontal
+				# }
+				# modify_texture = {
+				# 	texture = "gfx/interface/component_masks/mask_fade_horizontal_middle_thick.dds"
+				# 	blend_mode = alphamultiply
+				# 	mirror = horizontal
+				# }
+			}
 			vbox = {
 				layoutpolicy_horizontal = expanding
 				spacing = 10
@@ -467,13 +612,12 @@ window = {
 				using = Window_Decoration_Frontend_Spike
 				# blockoverride "scrollbox_background" {}
 				blockoverride "scrollbox_background_fade" {}
-				blockoverride "scrollbox_margins" { margin = { 0 15 } }
+				blockoverride "scrollbox_margins" { margin = { 0 10 } }
 				blockoverride "scrollbox_content" {
 						text_multi = {
 							align = nobaseline|hcenter
-							size = { 100% 80% }
+							size = { 90% 75% }
 							text = "[MenAtArmsType.GetFlavorString]"
-							# autoresize = yes
 							fontsize_min = 8
 							# background = {
 							# 	using = Background_Area_Dark
