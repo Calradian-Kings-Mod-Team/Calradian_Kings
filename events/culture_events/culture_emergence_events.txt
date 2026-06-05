@@ -1630,9 +1630,16 @@ culture_emergence_events.1084 = {
 			limit = {
 				has_game_rule = local_troops_armor_on
 			}
+			save_temporary_scope_as = liege
+			scope:new_culture ?= {
+				save_temporary_scope_as = liege_troops
+			}
 			every_knight = {
 				custom = every_knight_troops_approval
-				trigger_event = culture_emergence_events.1085
+				trigger_event = {
+					id = culture_emergence_events.1085
+					delayed = yes
+				}
 			}
 		}
 	}
@@ -1642,29 +1649,55 @@ culture_emergence_events.1084 = {
 culture_emergence_events.1085 = {
 	type = character_event
 	title = culture_emergence_events.liege_troops.t
-	desc = culture_emergence_events.liege_troops.desc
+	desc = {
+		desc = culture_emergence_events.liege_troops.desc
+		triggered_desc = {
+			trigger = {
+				exists = scope:maa
+			}
+			desc = culture_emergence_events.liege_troops.matching
+		}
+		triggered_desc = {
+			trigger = {
+				is_landed = yes
+				NOT = {
+					exists = scope:maa
+				}
+			}
+			desc = culture_emergence_events.liege_troops.landed
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:current_troops
+			}
+			desc = culture_emergence_events.liege_troops.old_troops
+		}
+	}
 	window = visit_settlement_window
 	theme = war
 	override_icon = "gfx/interface/icons/event_types/type_prowess.dds"
-
+	override_effect_2d = { reference = flies }
 	left_portrait = {
-		character = root
-		animation = marshal_random_weapon
-		camera = camera_event_very_left
+		character = liege
+		animation = go_to_your_room
+		camera = camera_event_group_talking_left_left
 	}
 	right_portrait = {
-		character = liege
-		animation = marshal_random_weapon
+		character = this
+		animation = standing_horse
+		camera = camera_event_far_right_very_right
+		# camera = camera_event_very_left
 	}
 
 	trigger = {
-		is_knight_of = liege
+		is_knight = yes
+		# is_knight_of = scope:liege
 		scope:liege_troops ?= {
 			has_variable = troops_culture
 		}
-		# liege ?= {
-		# 	has_variable = recruits_local_troops
-		# }
+	}
+	on_trigger_fail = {
+		debug_log_scopes = yes
 	}
 	immediate = {
 		# if it was previously set
@@ -1724,27 +1757,7 @@ culture_emergence_events.1085 = {
 			}
 			save_scope_value_as = { name = maa value = yes }
 		}
-	}
-	triggered_desc = {
-		trigger = {
-			exists = scope:maa
-		}
-		desc = culture_emergence_events.liege_troops.matching
-	}
-	triggered_desc = {
-		trigger = {
-			is_landed = yes
-			NOT = {
-				exists = scope:maa
-			}
-		}
-		desc = culture_emergence_events.liege_troops.landed
-	}
-	triggered_desc = {
-		trigger = {
-			exists = scope:current_troops
-		}
-		desc = culture_emergence_events.liege_troops.old_troops
+		debug_log_scopes = yes
 	}
 
 	option = {
@@ -1755,6 +1768,7 @@ culture_emergence_events.1085 = {
 				has_trait = loyal
 				culture = scope:liege_culture
 				exists = scope:maa
+				is_acclaimed = yes
 				trigger_if = {
 					limit = {
 						exists = scope:current_troops
@@ -1803,7 +1817,6 @@ culture_emergence_events.1085 = {
 		ai_chance = {
 			base = 50
 			opinion_modifier = {
-				who = root
 				opinion_target = scope:liege
 				multiplier = 1
 				# desc = AI_OPINION_REASON
@@ -1821,6 +1834,10 @@ culture_emergence_events.1085 = {
 		trait = disloyal
 		name = culture_emergence_events.liege_troops.disapprove
 		trigger = {
+			NOR = {
+				is_acclaimed = yes
+				has_trait = loyal
+			}
 			OR = {
 				has_trait = disloyal
 				trigger_if = {
@@ -1829,9 +1846,12 @@ culture_emergence_events.1085 = {
 					}
 					liege = { has_domicile_temperament_low = yes }
 				}
-				trigger_else = {
-					NOT = {
-						ck_can_recruit_culture_troop_vars = { }
+				trigger_if = {
+					limit = {
+						is_landed = yes
+						NOT = {
+							exists = scope:maa
+						}
 					}
 					any_sub_realm_county = {
 						culture ?= { var:troops_culture != scope:liege_troops }
@@ -1851,7 +1871,7 @@ culture_emergence_events.1085 = {
 		}
 		add_prestige_experience = minor_prestige_loss # { value = "culture.cultural_acceptance(scope:liege_culture)" subtract = 100 }
 		add_opinion = {
-			target = root
+			target = liege
 			modifier = unimpressed_opinion
 			opinion = -10
 		}
@@ -1867,9 +1887,8 @@ culture_emergence_events.1085 = {
 		ai_chance = {
 			base = 0
 			opinion_modifier = {
-				who = root
 				opinion_target = scope:liege
-				multiplier = 1
+				multiplier = -1
 				# desc = AI_OPINION_REASON
 			}
 			modifier = {
