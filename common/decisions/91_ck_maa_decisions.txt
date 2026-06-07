@@ -138,9 +138,10 @@
 		save_temporary_scope_as = liege
 		every_knight = {
 			custom = every_knight_troops_approval
+			# add_piety = age
 			trigger_event = {
 				id = culture_emergence_events.1085
-				days = { 6 7 }
+				delayed = no 
 			}
 		}
 		if = {
@@ -270,17 +271,48 @@ recruit_cultural_troops_decision = {
 				}
 				remove_character_modifier = recruits_local_troops
 			}
+			else_if = {
+				limit = {
+					has_character_modifier = recruits_local_troops_landed
+				}
+				remove_character_modifier = recruits_local_troops_landed
+			}
 			custom_tooltip = NOT_ck_unique_troops_first
 			custom_tooltip = generic_maa_tooltip
+			if = {
+				limit = {
+					is_landless_adventurer = yes
+				}
+				every_knight = {
+					remove_variable = recruits_local_troops
+				}
+			}
 		}
 		else = {
 			send_interface_toast = {
 				title = recruit_cultural_troops_message
 				left_icon = root
 				right_icon = primary_title
-				remove_character_modifier = recruits_local_troops
+				# remove_character_modifier = recruits_local_troops
+				if = {
+					limit = {
+						has_character_modifier = recruits_local_troops_landed
+					}
+					remove_character_modifier = recruits_local_troops_landed
+				}
 			}
 			custom_tooltip = returns_to_cultural_troops_desc
+			if = {
+				limit = {
+					is_landless_adventurer = yes
+				}
+				every_knight = {
+					set_variable = {
+						name = recruits_local_troops
+						value = root.culture.var:troops_culture
+					}
+				}
+			}
 			root.culture = {
 				custom_description_no_bullet = {
 					text = local_recruit_tree
@@ -289,12 +321,7 @@ recruit_cultural_troops_decision = {
 				}
 			}
 		}
-		if = {
-			limit = {
-				has_character_modifier = recruits_local_troops_landed
-			}
-			remove_character_modifier = recruits_local_troops_landed
-		}
+		
 		remove_variable = recruits_local_troops
 		open_view = {
 			view = military
@@ -658,62 +685,30 @@ recruit_local_troops_landed_decision = {
 		switch = {
 			trigger = yes
 			# x => culture:x
-			scope:swadian = { set_variable = { name = recruits_local_troops value = culture:sarranid } }
-			scope:vaegir = { set_variable = { name = recruits_local_troops value = culture:vaegir } }
-			scope:khergit = { set_variable = { name = recruits_local_troops value = culture:khergit } }
-			scope:nord = { set_variable = { name = recruits_local_troops value = culture:nord } }
-			scope:rhodok = { set_variable = { name = recruits_local_troops value = culture:rhodok } }
-			scope:sarranid = { set_variable = { name = recruits_local_troops value = culture:sarranid } }
-			scope:vlandian = { set_variable = { name = recruits_local_troops value = culture:vlandian } }
-			scope:togerd = { set_variable = { name = recruits_local_troops value = culture:togerd } }
-			scope:sudican = { set_variable = { name = recruits_local_troops value = culture:sudican } }
-			scope:kassen = { set_variable = { name = recruits_local_troops value = culture:kassen } }
-			scope:heimarkel = { set_variable = { name = recruits_local_troops value = culture:heimarkel } }
-			scope:eilander = { set_variable = { name = recruits_local_troops value = culture:eilander } }
-			scope:rhoyd = { set_variable = { name = recruits_local_troops value = culture:rhoyd } }
+			scope:swadian = { set_variable = { name = recruits_local_troops value = culture:swadian } culture:swadian = { save_scope_as = liege_troops }}
+			scope:vaegir = { set_variable = { name = recruits_local_troops value = culture:vaegir } culture:vaegir = { save_scope_as = liege_troops }}
+			scope:khergit = { set_variable = { name = recruits_local_troops value = culture:khergit } culture:khergit = { save_scope_as = liege_troops }}
+			scope:nord = { set_variable = { name = recruits_local_troops value = culture:nord } culture:nord = { save_scope_as = liege_troops }}
+			scope:rhodok = { set_variable = { name = recruits_local_troops value = culture:rhodok } culture:rhodok = { save_scope_as = liege_troops }}
+			scope:sarranid = { set_variable = { name = recruits_local_troops value = culture:sarranid } culture:sarranid = { save_scope_as = liege_troops }}
+			scope:vlandian = { set_variable = { name = recruits_local_troops value = culture:vlandian } culture:vlandian = { save_scope_as = liege_troops }}
+			scope:togerd = { set_variable = { name = recruits_local_troops value = culture:togerd } culture:togerd = { save_scope_as = liege_troops }}
+			scope:sudican = { set_variable = { name = recruits_local_troops value = culture:sudican } culture:sudican = { save_scope_as = liege_troops }}
+			scope:kassen = { set_variable = { name = recruits_local_troops value = culture:kassen } culture:kassen = { save_scope_as = liege_troops }}
+			scope:heimarkel = { set_variable = { name = recruits_local_troops value = culture:heimarkel } culture:heimarkel = { save_scope_as = liege_troops }}
+			scope:eilander = { set_variable = { name = recruits_local_troops value = culture:eilander } culture:eilander = { save_scope_as = liege_troops }}
+			scope:rhoyd = { set_variable = { name = recruits_local_troops value = culture:rhoyd } culture:rhoyd = { save_scope_as = liege_troops }}
 			# heritage_x => culture:y
 			# scope:byalic = { set_variable = { name = recruits_local_troops value = culture:nord } }
-			scope:gottic = { set_variable = { name = recruits_local_troops value = culture:gotts } }
-			scope:nahasi = { set_variable = { name = recruits_local_troops value = culture:aserai } }
-			scope:khuzic = { set_variable = { name = recruits_local_troops value = culture:khuzait } }
+			scope:gottic = { set_variable = { name = recruits_local_troops value = culture:gotts } culture:gotts = { save_scope_as = liege_troops }}
+			scope:nahasi = { set_variable = { name = recruits_local_troops value = culture:aserai } culture:aserai = { save_scope_as = liege_troops }}
+			scope:khuzic = { set_variable = { name = recruits_local_troops value = culture:khuzait } culture:khuzait = { save_scope_as = liege_troops }}
 			# heritage_x == culture:x
-			scope:palaic = { set_variable = { name = recruits_local_troops value = culture:palaic } }
-			scope:sturgic = { set_variable = { name = recruits_local_troops value = culture:sturgic } }
-			scope:geroian = { set_variable = { name = recruits_local_troops value = culture:geroian } }
-			scope:battanian = { set_variable = { name = recruits_local_troops value = culture:battanian } }
-			scope:calradian = { set_variable = { name = recruits_local_troops value = culture:calradian } }
-		}
-		if = {
-			limit = {
-				root = culture.culture_head
-				any_vassal = {
-					is_culture_or_descended_from_trigger = { CULTURE = root.culture }
-				}
-			}
-			custom_tooltip = cc_lose_legitimacy
-			if = {
-				limit = {
-					has_legitimacy = yes
-				}
-				add_legitimacy = {
-					value = medium_legitimacy_loss
-					multiply = highest_held_title_tier
-					subtract = sub_realm_size
-					add = primary_title.title_held_years
-				}
-			}
-			else_if = {
-				limit = {
-					is_house_head = yes
-				}
-				dynasty ?= {
-					add_dynasty_prestige_level = -1
-				}
-			}
-			else = {
-				add_prestige_level = -1
-			}
-			add_prestige_experience = massive_fame_loss
+			scope:palaic = { set_variable = { name = recruits_local_troops value = culture:palaic } culture:palaic = { save_scope_as = liege_troops }}
+			scope:sturgic = { set_variable = { name = recruits_local_troops value = culture:sturgic } culture:sturgic = { save_scope_as = liege_troops }}
+			scope:geroian = { set_variable = { name = recruits_local_troops value = culture:geroian } culture:geroian = { save_scope_as = liege_troops }}
+			scope:battanian = { set_variable = { name = recruits_local_troops value = culture:battanian } culture:battanian = { save_scope_as = liege_troops }}
+			scope:calradian = { set_variable = { name = recruits_local_troops value = culture:calradian } culture:calradian = { save_scope_as = liege_troops }}
 		}
 		save_temporary_scope_as = liege
 		every_knight = {
@@ -723,29 +718,95 @@ recruit_local_troops_landed_decision = {
 				days = { 6 7 }
 			}
 		}
-		hidden_effect_new_object = { # this doesn't change when you pick a widget
-			ordered_culture_global = {
-				limit = {
-					this != root.culture
-					any_culture_duchy = {
-						root.primary_title ?= {
-							is_de_facto_liege_or_above_target = prev
-						}
+		ordered_culture_global = {
+			limit = {
+				this != root.culture
+				any_culture_duchy = {
+					root.primary_title ?= {
+						is_de_facto_liege_or_above_target = prev
 					}
-					var:troops_culture ?= root.var:recruits_local_troops
 				}
-				check_range_bounds = no
-				max = root.highest_held_title_tier_minus_one
-				order_by = culture_number_of_counties
-				change_cultural_acceptance = { 
-					target = root.culture
-					desc = recruits_local_troops
-					value = { value = root.prestige_level add = root.influence_level add = root.legitimacy_level }
+				var:troops_culture ?= scope:liege_troops
+			}
+			check_range_bounds = no
+			max = root.highest_held_title_tier_minus_one
+			order_by = culture_number_of_counties
+			change_cultural_acceptance = { 
+				target = root.culture
+				desc = recruits_local_troops
+				value = { value = root.prestige_level add = root.influence_level add = root.legitimacy_level }
+			}
+			add_to_temporary_list = local_culture
+		}
+
+		if = {
+			limit = {
+				# NOT = { has_game_rule = local_troops_unrestricted }
+				root = culture.culture_head
+				any_vassal = {
+					culture ?= {
+						NOT = {
+							is_in_list = local_culture
+						}
+						culture_is_or_has_ancestor_trigger = { CULTURE = root.culture }
+					}
 				}
 			}
+			custom_tooltip = cc_lose_legitimacy
+			# send_interface_toast = {
+			# 	type = msg_culture_conversion
+			# 	title = cc_lose_legitimacy_title
+			# 	custom_tooltip = cc_lose_legitimacy
+			# 	right_icon = root
+			# }
+			if = {
+				limit = {
+					has_legitimacy = yes
+					list_size = {
+						name = local_culture
+						size > 0
+					}
+				}
+				ordered_in_list = {
+					list = local_culture
+					max = 1
+					order_by = "cultural_acceptance(root.culture)"
+					root = {
+						add_legitimacy = {
+							value = minor_legitimacy_loss
+							multiply = root.highest_held_title_tier_minus_one
+							subtract = {
+								value = root.sub_realm_size
+								multiply = {
+									value = 150
+									subtract = "prev.cultural_acceptance(root.culture)"
+									divide = 100
+									round = no
+								}
+								round = no
+							}
+							add = primary_title.title_held_years
+							ceiling = yes
+						}
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					is_house_head = yes
+				}
+				dynasty ?= {
+					add_dynasty_prestige_level = -1
+				}
+				# add_prestige_experience = {
+				# 	value = minor_fame_loss
+				# 	multiply = highest_held_title_tier_minus_one
+				# }
+			}
+			else = {
+				add_prestige_level = -1
+			}
 		}
-		
-		# tooltip might be broken don't hover pls
 		add_character_modifier = {
 			modifier = recruits_local_troops_landed
 			desc = will_recruit_variable
