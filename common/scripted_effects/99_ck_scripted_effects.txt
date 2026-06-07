@@ -1946,6 +1946,17 @@ add_canon_buildings_effect = {
 }
 
 # takes $HERITAGE$, branching off at $CULTURE$
+assign_culture_troop_vars = {
+	custom_description = {
+		text = set_martial_custom_from
+		object = $CULTURE$
+		set_variable = {
+			name = troops_culture
+			value = $CULTURE$
+		}
+	}
+}
+# takes $HERITAGE$, branching off at $CULTURE$
 ck_reassign_culture_troop_vars = {
 	every_culture_global = {
 		limit = {
@@ -1957,17 +1968,10 @@ ck_reassign_culture_troop_vars = {
 				exists = culture:$CULTURE$
 				culture_is_or_has_ancestor_trigger = { CULTURE = culture:$CULTURE$ }
 			}
-			set_variable = {
-				name = troops_culture
-				value = culture:$CULTURE$
-			}
+			assign_culture_troop_vars = { CULTURE = culture:$CULTURE$ }
 		}
 		else = {
-			set_variable = {
-				name = troops_culture
-				# value = culture_pillar:heritage_$HERITAGE$
-				value = culture:$BASE$
-			}
+			assign_culture_troop_vars = { CULTURE = culture:$BASE$ }
 		}
 	}
 }
@@ -2039,30 +2043,24 @@ ck_initialize_troops_culture = {
 			limit = {
 				culture_is_or_has_ancestor_trigger = { CULTURE = culture:swadian }
 			}
-			set_variable = {
-				name = troops_culture
-				value = culture:swadian
-			}
+			assign_culture_troop_vars = { CULTURE = culture:swadian }
 		}
 		else_if = {
 			limit = {
 				culture_is_or_has_ancestor_trigger = { CULTURE = culture:rhodok }
 			}
-			set_variable = {
-				name = troops_culture
-				value = culture:rhodok
-			}
+			assign_culture_troop_vars = { CULTURE = culture:rhodok }
 		}
 		else = {
-			set_variable = {
-				name = troops_culture
-				value = this
-			}
+			assign_culture_troop_vars = { CULTURE = this }
 		}
 	}
 	# randomize which one it gets? or reset via culture head decision?
 	culture:balian = {
-		remove_variable = troops_culture
+		custom_tooltip = {
+			text = NOT_ck_unique_troops_global
+			remove_variable = troops_culture
+		}
 	}
 	if = {
 		limit = {
@@ -2070,34 +2068,19 @@ ck_initialize_troops_culture = {
 		}
 		# lock this behind a decision after leaving island?
 		culture:sinaysian = {
-			set_variable = {
-				name = troops_culture
-				value = culture:calradian
-			}			
+			assign_culture_troop_vars = { CULTURE = culture:calradian }
 		}
 		culture:kalasradian = {
-			set_variable = {
-				name = troops_culture
-				value = culture:sudican
-			}
+			assign_culture_troop_vars = { CULTURE = culture:sudican }
 		}
 		culture:tyvallian = { # swadified
-			set_variable = {
-				name = troops_culture
-				value = culture:swadian
-			}
+			assign_culture_troop_vars = { CULTURE = culture:swadian }
 		}
 		culture:qadnic = { # proximity & 5/6 traditions blended
-			set_variable = {
-				name = troops_culture
-				value = culture:sarranid
-			}
+			assign_culture_troop_vars = { CULTURE = culture:sarranid }
 		}
 		culture:tojjeredi = { # use the extinct togerd maa (not heritage_balian)
-			set_variable = {
-				name = troops_culture
-				value = culture:togerd
-			}
+			assign_culture_troop_vars = { CULTURE = culture:togerd }
 		}
 	}
 }

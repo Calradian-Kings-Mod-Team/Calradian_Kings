@@ -441,10 +441,19 @@ recruit_local_troops_landed_decision = {
 					percent > 0.5
 				}
 			}
-			trigger_else = {
+			trigger_else_if = {
+				limit = {
+					has_game_rule = local_troops_plurality
+				}
 				any_sub_realm_barony = {
 					ck_local_county_valid = yes
 					count >= sub_realm_holdings_plurality
+				}
+			}
+			trigger_else = {
+				any_sub_realm_county = {
+					ck_local_county_valid = yes
+					# count > 0
 				}
 			}
 		}
@@ -700,21 +709,25 @@ recruit_local_troops_landed_decision = {
 				days = { 6 7 }
 			}
 		}
-		ordered_culture_global = {
-			limit = {
-				any_culture_duchy = {
-					root.primary_title ?= {
-						is_de_facto_liege_or_above_target = prev
+		hidden_effect = { # this doesn't change when you pick a widget
+			ordered_culture_global = {
+				limit = {
+					this != root.culture
+					any_culture_duchy = {
+						root.primary_title ?= {
+							is_de_facto_liege_or_above_target = prev
+						}
 					}
+					var:troops_culture ?= root.var:recruits_local_troops
 				}
-			}
-			check_range_bounds = no
-			max = 3
-			order_by = culture_number_of_counties
-			change_cultural_acceptance = { 
-				target = root.culture
-				desc = recruits_local_troops
-				value = { value = root.highest_held_title_tier add = root.prestige_level add = root.influence_level add = root.legitimacy_level }
+				check_range_bounds = no
+				max = root.highest_held_title_tier_minus_one
+				order_by = culture_number_of_counties
+				change_cultural_acceptance = { 
+					target = root.culture
+					desc = recruits_local_troops
+					value = { value = root.prestige_level add = root.influence_level add = root.legitimacy_level }
+				}
 			}
 		}
 		
@@ -735,5 +748,32 @@ recruit_local_troops_landed_decision = {
 
 	ai_will_do = {
 		base = 0
+	}
+}
+
+reset_culture_troops_decision = {
+	picture = {
+		reference = "gfx/interface/skinned/illustrations/header_illustrations/header_military.dds"
+	}
+	decision_group_type = debug
+	is_shown = {
+		OR = {
+			debug_only = yes
+			any_culture_global = {
+				ck_single_heritage_trigger = yes
+				NOT = {
+					has_variable = troops_culture
+				}
+			}
+		}
+	}
+	extra_picture = "gfx/interface/illustrations/struggle_decision_buttons/fp2_decision_hostility.dds"
+	should_create_alert = {
+		ck_unique_troops_trigger = no
+	}
+	ai_check_interval = 0
+	effect = {
+		ck_initialize_troops_culture = yes
+		open_view = military
 	}
 }
