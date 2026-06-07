@@ -431,7 +431,9 @@ recruit_local_troops_landed_decision = {
 						government_allows = noble_families
 					}
 					any_powerful_family = {
-						ck_happy_vassal_valid = yes
+						house_head ?= {
+							ck_happy_vassal_valid = yes
+						}
 						count > 2
 					}
 				}
@@ -459,8 +461,10 @@ recruit_local_troops_landed_decision = {
 				has_game_rule = local_troops_vassals
 			}
 			any_powerful_family = {
-				ck_happy_vassal_valid = yes
-				# count > 2
+				house_head ?= {
+					ck_happy_vassal_valid = yes
+				}
+				count > 2
 			}
 		}
 		trigger_else = { # block this out in the other section?
@@ -468,7 +472,7 @@ recruit_local_troops_landed_decision = {
 				limit = {
 					has_game_rule = local_troops_third
 				}
-				any_sub_realm_county = {
+				any_sub_realm_barony = {
 					ck_local_county_valid = yes
 					percent > 0.3
 				}
@@ -477,7 +481,7 @@ recruit_local_troops_landed_decision = {
 				limit = {
 					has_game_rule = local_troops_majority
 				}
-				any_sub_realm_county = {
+				any_sub_realm_barony = {
 					ck_local_county_valid = yes
 					percent > 0.5
 				}
@@ -709,6 +713,12 @@ recruit_local_troops_landed_decision = {
 			scope:geroian = { set_variable = { name = recruits_local_troops value = culture:geroian } culture:geroian = { save_scope_as = liege_troops }}
 			scope:battanian = { set_variable = { name = recruits_local_troops value = culture:battanian } culture:battanian = { save_scope_as = liege_troops }}
 			scope:calradian = { set_variable = { name = recruits_local_troops value = culture:calradian } culture:calradian = { save_scope_as = liege_troops }}
+			fallback = {
+				custom_tooltip = recruits_local_gamerule
+				culture = {
+					save_scope_as = liege_troops
+				}
+			}
 		}
 		save_temporary_scope_as = liege
 		every_knight = {
@@ -718,15 +728,60 @@ recruit_local_troops_landed_decision = {
 				days = { 6 7 }
 			}
 		}
+		if = {
+			limit = {
+				has_game_rule = local_troops_vassals
+			}
+			every_powerful_vassal = {
+				limit = {
+					culture.var:troops_culture ?= scope:liege_troops
+					ck_happy_vassal_valid = yes
+				}
+				culture ?= {
+					add_to_temporary_list = local_culture
+				}
+				add_opinion = {
+					opinion = 15
+					modifier = duel_mutual_respect_opinion
+					target = root
+				}
+			}
+			every_powerful_family = {
+				house_head ?= {
+					if = {
+						limit = {
+							culture.var:troops_culture ?= scope:liege_troops
+							ck_happy_vassal_valid = yes
+						}
+						culture ?= {
+							add_to_temporary_list = local_culture
+						}
+						add_opinion = {
+							target = root
+							modifier = emulating_culture_opinion
+							opinion = 10
+						}
+					}
+				}
+			}
+		}
 		ordered_culture_global = {
 			limit = {
 				this != root.culture
-				any_culture_duchy = {
-					root.primary_title ?= {
-						is_de_facto_liege_or_above_target = prev
+				any_culture_county = {
+					any_in_de_facto_hierarchy = {
+						holder ?= {
+							top_overlord ?= root
+						}
 					}
 				}
-				var:troops_culture ?= scope:liege_troops
+				trigger_if = {
+					limit = {
+						exists = scope:liege_troops
+						# scope:liege_troops != root.culture
+					}
+					var:troops_culture ?= scope:liege_troops
+				}
 			}
 			check_range_bounds = no
 			max = root.highest_held_title_tier_minus_one
@@ -752,19 +807,13 @@ recruit_local_troops_landed_decision = {
 					}
 				}
 			}
-			custom_tooltip = cc_lose_legitimacy
-			# send_interface_toast = {
-			# 	type = msg_culture_conversion
-			# 	title = cc_lose_legitimacy_title
-			# 	custom_tooltip = cc_lose_legitimacy
-			# 	right_icon = root
-			# }
+			custom_tooltip = ch_lose_legitimacy
 			if = {
 				limit = {
 					has_legitimacy = yes
 					list_size = {
 						name = local_culture
-						size > 0
+						value > 0
 					}
 				}
 				ordered_in_list = {
