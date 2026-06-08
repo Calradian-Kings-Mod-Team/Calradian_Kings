@@ -1627,6 +1627,9 @@ warband_king_armor = {
 				equip_artifact_to_owner = yes
 				scope:owner.dynasty = {
 					every_dynasty_house = {
+						limit = { # idk why there's 3 of them
+							exists = house_head
+						}
 						add_house_artifact_claim = scope:newly_created_artifact
 					}
 				}
@@ -1638,31 +1641,49 @@ warband_king_armor = {
 				name = quality
 				value = { value = sub_realm_size add = prowess }
 			}
-			# give him a bow instead?
 			get_artifact_wealth_effect = yes
 			random_vassal = {
 				limit = { artifact_use_mongol_unit_visuals_trigger = yes }
 				save_scope_as = smith
 			}
-			create_artifact_weapon_effect = {
-				OWNER = scope:owner
-				CREATOR = scope:smith
-				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
+			create_artifact = {
+				name = artifact_sanjar_sword
+				description = placeholder
+				visuals = sword
+				type = sword
+				rarity = illustrious # extra heavy
+				modifier = artifact_prowess_1_modifier
+				creator = scope:smith
+				wealth = scope:wealth
+				quality = scope:quality
+				save_scope_as = newly_created_artifact
+				history = {
+					date = 1234.5.6
+					actor = scope:owner.father
+					recipient = scope:owner
+					type = won_in_duel
+				}
 			}
 			scope:newly_created_artifact = {
-				set_artifact_name = artifact_sanjar_sword
+				set_variable = {
+					name = quality
+					value = scope:quality
+				}
+				set_variable = {
+					name = wealth
+					value = scope:wealth
+				}
+				get_sword_decoration_effect = yes
+				get_artifact_feature_references_effect = yes
+				set_artifact_description = artifact_sword_description
+				add_scaled_artifact_modifier_prowess_effect = yes
+				add_scaled_artifact_modifier_combat_effect = yes
 				add_artifact_modifier = artifact_raid_speed_4_modifier
 				switch = { # this tanks quality due to realm size downscaling from all the razing
 					trigger = has_game_rule
 					ck_khergit_nomad = { add_artifact_modifier = artifact_martial_mult_10_modifier }
 					ck_khergit_tribe = { add_artifact_modifier = artifact_prowess_mult_10_modifier }
 					# ck_khergit_clan = { add_artifact_modifier = artifact_martial_mult_10_modifier  }
-				}
-				add_artifact_history = {
-					date = 1234.5.6
-					actor = scope:smith
-					recipient = scope:owner
-					type = won_in_duel
 				}
 				equip_artifact_to_owner = yes
 			}
@@ -1820,25 +1841,43 @@ warband_king_armor = {
 				limit = { artifact_use_iberian_muslim_unit_visuals_trigger = yes }
 				save_scope_as = smith
 			}
-			create_artifact_weapon_effect = {
-				OWNER = scope:owner
-				CREATOR = scope:smith
-				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
+			create_artifact = {
+				name = artifact_hakim_sword
+				description = easteregg_artifact_chad_dagger_description
+				visuals = sword
+				type = dagger
+				rarity = famed # 3rd tier
+				modifier = artifact_prowess_1_modifier
+				creator = scope:smith
+				wealth = scope:wealth
+				quality = scope:quality
+				save_scope_as = newly_created_artifact
+				history = {
+					date = 1234.5.6
+					location = scope:smith.capital_province
+					actor = scope:smith
+					recipient = scope:owner
+					type = given
+				}
 			}
 			scope:newly_created_artifact = {
+				set_variable = {
+					name = quality
+					value = scope:quality
+				}
+				set_variable = {
+					name = wealth
+					value = scope:wealth
+				}
 				set_artifact_name = artifact_hakim_sword
 				set_artifact_description = easteregg_artifact_chad_dagger_description
 				set_artifact_feature = blade_metal_damascus_steel
+				add_scaled_artifact_modifier_intrigue_effect = yes
+				add_scaled_artifact_modifier_combat_effect = yes
+				add_scaled_artifact_modifier_prowess_effect = yes
 				random_list = {
 					1 = { add_artifact_modifier = artifact_owned_personal_scheme_success_chance_add_12_modifier }
 					1 = { add_artifact_modifier = artifact_personal_scheme_phase_duration_add_12_modifier }
-				}
-				add_artifact_history = {
-					date = 1234.5.6
-					location = scope:owner.capital_province
-					# actor = scope:smith
-					recipient = scope:smith
-					type = reforged
 				}
 				equip_artifact_to_owner = yes
 			}
