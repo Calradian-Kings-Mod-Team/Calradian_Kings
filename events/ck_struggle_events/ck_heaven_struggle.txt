@@ -1,0 +1,541 @@
+﻿namespace = ck_heaven_struggle
+
+# Setting AI Intent
+ck_heaven_struggle.0001 = {
+	hidden = yes
+	scope = none
+	scope = struggle
+
+	trigger = { # Should not need this, but, redundancy check!
+		exists = struggle:heaven_mandate_struggle
+		struggle:heaven_mandate_struggle = { any_involved_ruler = { } } # For when the conflict is ongoing but nobody is left to fight it
+	}
+
+	immediate = {
+		# prepare needed variables; they will be destroyed at the end of the immediate
+		set_variable = {
+			name = agents_for_escalation
+			value = 0
+		}
+		set_variable = {
+			name = agents_for_deescalation
+			value = 0
+		}
+
+		# Go through the characters to distribute them between the potential transitions
+		struggle:heaven_mandate_struggle = {
+			every_involved_ruler = {
+				limit = { is_alive = yes }
+				#######################
+				# Play cue track
+				######################
+				if = {
+					limit = { is_ai = no }
+					play_music_cue = "mx_Struggle_Opening"
+				}
+
+				#######################
+				# Check existing flags
+				######################
+				if = {
+					limit = { has_character_flag = agenda_towards_escalation }
+					root = {
+						change_variable = {
+							name = agents_for_escalation
+							add = 1
+						}
+					}
+				}
+				else_if = {
+					limit = { has_character_flag = agenda_towards_deescalation }
+					root = {
+						change_variable = {
+							name = agents_for_deescalation
+							add = 1
+						}
+					}
+				}
+				else = { # Set a flag
+					#############################
+					# Current Phase: Tension
+					#############################
+					if = {
+						limit = { root = { is_struggle_phase = struggle_heaven_phase_tension } }
+						random_list = {
+							# Working towards Hostility
+							# It should be for characters looking for direct conflicts and domination, with the will and ability to expand their realms
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = chaos
+									INTENT = escalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = escalation
+								}
+							}
+							# Working towards Compromise
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = compromise
+									INTENT = deescalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = deescalation
+								}
+							}
+						}
+					}
+
+					#############################
+					# Current Phase: Chaos
+					#############################
+					if = {
+						limit = { root = { is_struggle_phase = struggle_heaven_phase_chaos } }
+						random_list = {
+							# Working towards Hostility: it means that the character wants to stay in
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = chaos
+									INTENT = escalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = escalation
+								}
+							}
+							# Working towards Armistice
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = armistice
+									INTENT = deescalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = deescalation
+								}
+							}
+						}
+					}
+
+					#############################
+					# Current Phase: Compromise
+					#############################
+					if = {
+						limit = { root = { is_struggle_phase = struggle_iberia_phase_compromise } }
+						random_list = {
+
+							# Working towards Tension
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = tension
+									INTENT = escalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = escalation
+								}
+							}
+							# Working towards Compromise: they want to stay in the same phase
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = compromise
+									INTENT = deescalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = deescalation
+								}
+							}
+						}
+					}
+
+					#############################
+					# Current Phase: Armistice
+					#############################
+					if = {
+						limit = { root = { is_struggle_phase = struggle_heaven_phase_armistice } }
+						random_list = {
+							# Working towards Compromise
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = compromise
+									INTENT = escalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = escalation
+								}
+							}
+							# Working towards Armistice: they want to stay in the same phase
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = armistice
+									INTENT = deescalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = deescalation
+								}
+							}
+						}
+					}
+
+					#############################
+					# Current Phase: Supremacy
+					#############################
+					if = {
+						limit = { root = { is_struggle_phase = struggle_heaven_phase_supremacy } }
+						random_list = {
+							# Working towards Tension
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = tension
+									INTENT = escalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = escalation
+								}
+							}
+							# Working towards Supremacy: they want to stay in the same phase
+							100 = {
+								# Odds modifiers
+								ck_hm_struggle_set_ai_agenda_common_modifiers = {
+									PHASE = supremacy
+									INTENT = deescalation
+								}
+
+								# Apply effects
+								ck_hm_struggle_apply_ai_agenda_effect = {
+									INTENT = deescalation
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		# Clean variables
+		remove_variable = agents_for_escalation
+		remove_variable = agents_for_deescalation
+	}
+}
+
+# Set AI Intent on Join
+ck_heaven_struggle.0002 = {
+	hidden = yes
+	scope = none
+
+	immediate = {
+		set_variable = {
+			name = agents_for_escalation
+			value = 0
+		}
+		set_variable = {
+			name = agents_for_deescalation
+			value = 0
+		}
+
+		############################
+		# Update the variables
+		############################
+		every_character_struggle = {
+			every_involved_ruler = {
+				limit = { is_alive = yes }
+				if = {
+					limit = { has_character_flag = agenda_towards_escalation }
+					root = {
+						change_variable = {
+							name = agents_for_escalation
+							add = 1
+						}
+					}
+				}
+				else_if = {
+					limit = { has_character_flag = agenda_towards_deescalation }
+					root = {
+						change_variable = {
+							name = agents_for_deescalation
+							add = 1
+						}
+					}
+				}
+			}
+		}
+
+		if = {
+			limit = {
+				NOR = {
+					has_character_flag = agenda_towards_escalation
+					has_character_flag = agenda_towards_deescalation
+				}
+			}
+
+			#############################
+			# Current Phase: Tension
+			#############################
+			if = {
+				limit = { any_character_struggle = { is_struggle_phase = struggle_heaven_phase_tension } }
+				random_list = {
+					# Working towards Hostility
+					# It should be for characters looking for direct conflicts and domination, with the will and ability to expand their realms
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = chaos
+							INTENT = escalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = escalation
+						}
+					}
+					# Working towards Compromise
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = compromise
+							INTENT = deescalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = deescalation
+						}
+					}
+				}
+			}
+
+			#############################
+			# Current Phase: Chaos
+			#############################
+			if = {
+				limit = { any_character_struggle = { is_struggle_phase = struggle_heaven_phase_chaos } }
+				random_list = {
+					# Working towards Hostility: it means that the character wants to stay in
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = chaos
+							INTENT = escalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = escalation
+						}
+					}
+					# Working towards Compromise
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = armistice
+							INTENT = deescalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = deescalation
+						}
+					}
+				}
+			}
+
+			#############################
+			# Current Phase: Compromise
+			#############################
+			if = {
+				limit = { any_character_struggle = { is_struggle_phase = struggle_heaven_phase_compromise } }
+				random_list = {
+
+					# Working towards Opportunity
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = tension
+							INTENT = escalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = escalation
+						}
+					}
+					# Working towards Compromise: they want to stay in the same phase
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = compromise
+							INTENT = deescalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = deescalation
+						}
+					}
+				}
+			}
+
+			#############################
+			# Current Phase: Armistice
+			#############################
+			if = {
+				limit = { any_character_struggle = { is_struggle_phase = struggle_heaven_phase_armistice } }
+				random_list = {
+					# Working towards Compromise
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = compromise
+							INTENT = escalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = escalation
+						}
+					}
+					# Working towards Armistice: they want to stay in the same phase
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = armistice
+							INTENT = deescalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = deescalation
+						}
+					}
+				}
+			}
+
+			#############################
+			# Current Phase: Supremacy
+			#############################
+			if = {
+				limit = { any_character_struggle = { is_struggle_phase = struggle_heaven_phase_supremacy } }
+				random_list = {
+					# Working towards Tension
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = tension
+							INTENT = escalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = escalation
+						}
+					}
+					# Working towards Conciliation: they want to stay in the same phase
+					100 = {
+						# Odds modifiers
+						ck_hm_struggle_set_ai_agenda_common_modifiers = {
+							PHASE = supremacy
+							INTENT = deescalation
+						}
+
+						# Apply effects
+						ck_hm_struggle_apply_ai_agenda_effect = {
+							INTENT = deescalation
+						}
+					}
+				}
+			}
+		}
+
+		# Clean variables
+		remove_variable = agents_for_escalation
+		remove_variable = agents_for_deescalation
+	}
+}
+
+###################################
+# Heaven's Mandate Struggle Intro Events
+# 0100 - 
+###################################
+ck_heaven_struggle.0100 = { # Fullscreen Intro Event
+	type = character_event
+	window = fullscreen_event
+	title = ck_heaven_struggle.0100.t
+	desc = {
+		desc = ck_heaven_struggle.0100.desc
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					any_character_struggle = {
+						involvement = involved
+						is_struggle_type = heaven_mandate_struggle
+					}
+				}
+				desc = ck_heaven_struggle.0100.desc.involved
+			}
+			triggered_desc = {
+				trigger = {
+					any_character_struggle = {
+						involvement = interloper
+						is_struggle_type = heaven_mandate_struggle
+					}
+				}
+				desc = ck_heaven_struggle.0100.desc.interloper
+			}
+		}
+	}
+	theme = realm
+	trigger = { # we need to prevent this from firing for all players when a new player joins in MP
+		is_ai = no
+		NOT = { has_character_flag = ck_heaven_intro_event_flag }
+		ck_hm_character_any_involvement_heaven_mandate_struggle_trigger = yes
+ 	}
+	override_background = { reference = ck_fullscreen_calradian_empire }
+	override_sound = { reference = "event:/DLC/FP2/SFX/UI/fp2_struggle_ui_intro_animate" }
+
+	cooldown = { years = 100 }
+
+	widgets = {
+		widget = {
+ 			gui = "event_window_widget_struggle_info"
+ 			container = "dynamic_content_widget"
+ 			controller = struggle_info
+ 			setup_scope = { struggle:heaven_mandate_struggle = { save_scope_as = struggle } }
+		}
+	}
+	immediate = {
+		play_music_cue = "mx_Struggle_Opening"
+		add_character_flag = ck_heaven_intro_event_flag
+		save_scope_value_as = {
+			name = start
+			value = yes
+		}
+	}
+	option = {
+		name = ck_heaven_struggle.0100.a
+		clicksound = "event:/DLC/FP2/SFX/UI/fp2_struggle_start_select"
+	}
+}

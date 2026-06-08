@@ -1,0 +1,224 @@
+﻿#### Struggles
+## Struggle for Heaven's Mandate
+ck_hm_struggle_set_ai_agenda_common_modifiers = {
+	# Auto-balance due to nb of agents towards Hostility
+	modifier = {
+		factor = {
+			value = 1
+			subtract =  {
+				value = root.var:agents_for_$INTENT$
+				multiply = 0.05
+			}
+			min = 0.1
+		}
+	}
+	# Internal drama creator: try to have a different stance than your liege
+	modifier = {
+		liege ?= {
+			has_character_flag = agenda_towards_$INTENT$
+		}
+		factor = 0.5
+	}
+
+	# Rival consistency: try to have the same stance
+	modifier = {
+		factor = {
+			value = 1
+			every_relation = {
+				type = rival
+				limit = { has_character_flag = agenda_towards_$INTENT$ }
+				add = -0.1
+			}
+			min = 0.1
+		}
+	}
+
+	# Nemesis consistency: try to have the same stance
+	modifier = {
+		factor = {
+			value = 1
+			every_relation = {
+				type = nemesis
+				limit = { has_character_flag = agenda_towards_$INTENT$ }
+				add = -0.2
+			}
+			min = 0.1
+		}
+	}
+
+	# Friends consistency: try to have the same stance
+	modifier = {
+		factor = {
+			value = 1
+			every_relation = {
+				type = friend
+				limit = { has_character_flag = agenda_towards_$INTENT$ }
+				add = 0.1
+			}
+		}
+	}
+
+	# Lover consistency: try to have the same stance
+	modifier = {
+		factor = {
+			value = 1
+			every_relation = {
+				type = lover
+				limit = { has_character_flag = agenda_towards_$INTENT$ }
+				add = 0.1
+			}
+		}
+	}
+
+	# Best Friends consistency: try to have the same stance
+	modifier = {
+		factor = {
+			value = 1
+			every_relation = {
+				type = best_friend
+				limit = { has_character_flag = agenda_towards_$INTENT$ }
+				add = 0.2
+			}
+		}
+	}
+
+	# Soulmates consistency: try to have the same stance
+	modifier = {
+		factor = {
+			value = 1
+			every_relation = {
+				type = soulmate
+				limit = { has_character_flag = agenda_towards_$INTENT$ }
+				add = 0.2
+			}
+		}
+	}
+
+	# Phase specific modifiers
+	ck_hm_struggle_set_ai_agenda_$PHASE$_modifiers = yes
+
+}
+
+ck_hm_struggle_set_ai_agenda_chaos_modifiers = {
+	# High tier rulers are more likely to go down that road
+	modifier = {
+		highest_held_title_tier >= tier_kingdom
+		factor = 1.5
+	}
+
+	# People with lots of claim will want to lean towards Hostility; Polish: boost depends on the Title tier of the claim
+	modifier = {
+		any_claim = { }
+		factor = {
+			value = 1
+			every_claim ={
+				add = 0.2
+			}
+		}
+	}
+
+	# Strong AI wants to fight openly
+
+	# can trigger the ending decision
+	# modifier ={
+	# 	can_execute_decision = struggle_iberia_ending_hostility_decision
+	# 	factor = 5
+	# }
+
+	# AI personality: Zeal, Greed, Vengefulness, Boldness
+	ai_value_modifier = {
+		who = this
+		ai_zeal = 0.1
+		ai_boldness = 0.11
+		ai_vengefulness = 0.11
+		ai_greed = 0.11
+	}
+}
+ck_hm_struggle_set_ai_agenda_tension_modifiers = {
+	# AI personality: Greed, Vengefulness, Boldness
+	ai_value_modifier = {
+		who = this
+		ai_boldness = 0.1
+		ai_vengefulness = 0.1
+		ai_greed = 0.1
+		ai_honor = -0.1
+	}
+}
+ck_hm_struggle_set_ai_agenda_armistice_modifiers = {
+
+	# can trigger the ending decision: strong push
+	# modifier ={
+	# 	can_execute_decision = struggle_iberia_ending_compromise_decision
+	# 	factor = 5
+	# }
+
+	# AI personality: Compassion, Negative Boldness, Negative Zeal, Negative Vengefulness, Negative greed
+	ai_value_modifier = {
+		who = this
+		ai_compassion = 0.1
+		ai_zeal = -0.1
+		ai_boldness = -0.1
+		ai_vengefulness = -0.1
+		ai_greed = -0.1
+	}
+}
+ck_hm_struggle_set_ai_agenda_compromise_modifiers = {
+	# Weak AI wants to go for Conciliation
+
+	# can trigger the ending decision
+	# modifier ={
+	# 	can_execute_decision = struggle_iberia_ending_conciliation_decision
+	# 	factor = 5
+	# }
+
+	# AI personality: Compassion, Negative Boldness, Negative Zeal, Negative Vengefulness, Negative greed
+	ai_value_modifier = {
+		who = this
+		ai_compassion = 0.1
+		ai_zeal = -0.1
+		ai_boldness = -0.1
+		ai_vengefulness = -0.1
+		ai_greed = -0.1
+	}
+}
+ck_hm_struggle_set_ai_agenda_supremacy_modifiers = {
+	# Emperor-tiered rulers will want to reign supreme
+	modifier = {
+		highest_held_title_tier >= tier_empire
+		factor = 1.5
+	}
+
+	modifier = {
+		# Very large realms will go towards supremacy
+		sub_realm_size >= 160
+		factor = 2
+	}
+
+	# People with lots of claim will want to lean towards Hostility; Polish: boost depends on the Title tier of the claim
+	modifier = {
+		any_claim = { }
+		factor = {
+			value = 1
+			every_claim ={
+				add = 0.2
+			}
+		}
+	}
+
+	# Strong AI wants to fight openly
+
+	# can trigger the ending decision
+	# modifier ={
+	# 	can_execute_decision = struggle_iberia_ending_hostility_decision
+	# 	factor = 5
+	# }
+
+	# AI personality: Zeal, Greed, Vengefulness, Boldness
+	ai_value_modifier = {
+		who = this
+		ai_zeal = 0.1
+		ai_boldness = 0.11
+		ai_vengefulness = 0.11
+		ai_greed = 0.11
+	}
+}
