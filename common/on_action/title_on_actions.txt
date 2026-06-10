@@ -2134,118 +2134,116 @@ on_title_gain = {
 		#############
 		# STRUGGLES #
 		#############
-		# if = {
-		# 	limit = {
-		# 		exists = struggle:persian_struggle
-		# 	}
-		# 	#Struggle Catalysts
-		# 	if = {
-		# 		limit = {
-		# 			scope:title.empire ?= title:e_persia
-		# 			scope:title = {
-		# 				tier >= tier_county
-		# 				is_landless_type_title = no
-		# 			}
-		# 			NOR = {
-		# 				scope:transfer_type = flag:created
-		# 				scope:transfer_type = flag:inheritance
-		# 			}
-		# 		}
-		# 		if = {
-		# 			limit = {
-		# 				fp3_character_uninvolved_in_struggle_trigger = yes
-		# 				scope:previous_holder ?= {
-		# 					fp3_character_involved_in_struggle_trigger = yes
-		# 					any_character_struggle = {
-		# 						phase_has_catalyst = catalyst_interloper_uninvolved_gain_struggle_titles
-		# 					}
-		# 				}
-		# 			}
-		# 			scope:previous_holder ?= {
-		# 				every_character_struggle = {
-		# 					limit = { phase_has_catalyst = catalyst_interloper_uninvolved_gain_struggle_titles }
-		# 					activate_struggle_catalyst = {
-		# 						catalyst = catalyst_interloper_uninvolved_gain_struggle_titles
-		# 						character = root
-		# 					}
-		# 					log_debug_variable_for_persian_struggle_effect = { VAR = concession_catalyst_interloper_uninvolved_gain_struggle_titles }
-		# 				}
-		# 			}
-		# 		}
-		# 		if = {
-		# 			limit = {
-		# 				fp3_character_involved_in_struggle_trigger = yes
-		# 				any_character_struggle = {
-		# 					phase_has_catalyst = catalyst_gain_struggle_titles_from_interlopers_uninvolved
-		# 					# Stop catalyst from affecting those who are only just now uninvolved due to losing this title
-		# 					OR = {
-		# 						NOT = { is_culture_involved_in_struggle = scope:previous_holder.culture }
-		# 						NOT = { is_faith_involved_in_struggle = scope:previous_holder.faith }
-		# 					}
-		# 				}
-		# 				scope:previous_holder ?= {
-		# 					OR = {
-		# 						fp3_character_uninvolved_in_struggle_trigger = yes
-		# 						fp3_character_interloper_in_struggle_trigger = yes
-		# 					}
-		# 				}
-		# 			}
-		# 			every_character_struggle = {
-		# 				limit = { phase_has_catalyst = catalyst_gain_struggle_titles_from_interlopers_uninvolved }
-		# 				activate_struggle_catalyst = {
-		# 					catalyst = catalyst_gain_struggle_titles_from_interlopers_uninvolved
-		# 					character = root
-		# 				}
-		# 				log_debug_variable_for_persian_struggle_effect = { VAR = stabil_catalyst_gain_struggle_titles_from_interlopers_uninvolved }
-		# 			}
-		# 		}
-		# 	}
-		# 	# FP3 Struggle special cases
-		# 	if = {
-		# 		limit = {
-		# 			scope:title = {
-		# 				OR = {
-		# 					this = title:d_sunni
-		# 					this = title:e_arabia
-		# 				}
-		# 			}
-		# 		}
-		# 		## Convert detractors to supporters if they inherit either of the titles they're detracting against.
-		# 		if = {
-		# 			limit = {
-		# 				NOT = { has_trait = fp3_struggle_supporter }
-		# 			}
-		# 			if = {
-		# 				limit = { has_trait = fp3_struggle_detractor }
-		# 				remove_trait = fp3_struggle_detractor
-		# 			}
-		# 			add_trait = fp3_struggle_supporter
-		# 		}
-		# 		# FP3 Title Transfer Notification
-		# 		struggle:persian_struggle = { # Wet script
-		# 			every_involved_ruler = {
-		# 				send_interface_toast = {
-		# 					type = event_toast_effect_bad
-		# 					title = persian_struggle_central_title_transfer.t
-		# 					left_icon = scope:previous_holder
-		# 					right_icon = scope:title.holder
+		if = {
+			limit = {
+				exists = struggle:heaven_mandate_struggle
+			}
+			#Struggle Catalysts
+			if = {
+				limit = {
+					# scope:title.empire ?= title:e_persia
+					scope:title = {
+						tier >= tier_county
+						is_landless_type_title = no
+					}
+					NOR = {
+						scope:transfer_type = flag:created
+						scope:transfer_type = flag:inheritance
+					}
+				}
+				if = {
+					limit = {
+						ck_uninvolved_in_struggle = { STRUGGLE = heaven_mandate_struggle }
+						scope:previous_holder ?= {
+							ck_involved_in_struggle = { STRUGGLE = heaven_mandate_struggle }
+							any_character_struggle = {
+								phase_has_catalyst = catalyst_interloper_uninvolved_gain_struggle_titles
+							}
+						}
+					}
+					scope:previous_holder ?= {
+						every_character_struggle = {
+							limit = { phase_has_catalyst = catalyst_interloper_uninvolved_gain_struggle_titles }
+							activate_struggle_catalyst = {
+								catalyst = catalyst_interloper_uninvolved_gain_struggle_titles
+								character = root
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						ck_involved_in_struggle = { STRUGGLE = heaven_mandate_struggle }
+						any_character_struggle = {
+							phase_has_catalyst = catalyst_gain_struggle_titles_from_interlopers_uninvolved
+							# Stop catalyst from affecting those who are only just now uninvolved due to losing this title
+							OR = {
+								NOT = { is_culture_involved_in_struggle = scope:previous_holder.culture }
+								NOT = { is_faith_involved_in_struggle = scope:previous_holder.faith }
+							}
+						}
+						scope:previous_holder ?= {
+							OR = {
+								ck_uninvolved_in_struggle = { STRUGGLE = heaven_mandate_struggle }
+								ck_interloper_in_struggle = { STRUGGLE = heaven_mandate_struggle }
+							}
+						}
+					}
+					every_character_struggle = {
+						limit = { phase_has_catalyst = catalyst_gain_struggle_titles_from_interlopers_uninvolved }
+						activate_struggle_catalyst = {
+							catalyst = catalyst_gain_struggle_titles_from_interlopers_uninvolved
+							character = root
+						}
+					}
+				}
+			}
+			# FP3 Struggle special cases
+			# if = {
+			# 	limit = {
+			# 		scope:title = {
+			# 			OR = {
+			# 				this = title:d_sunni
+			# 				this = title:e_arabia
+			# 			}
+			# 		}
+			# 	}
+			# 	## Convert detractors to supporters if they inherit either of the titles they're detracting against.
+			# 	if = {
+			# 		limit = {
+			# 			NOT = { has_trait = fp3_struggle_supporter }
+			# 		}
+			# 		if = {
+			# 			limit = { has_trait = fp3_struggle_detractor }
+			# 			remove_trait = fp3_struggle_detractor
+			# 		}
+			# 		add_trait = fp3_struggle_supporter
+			# 	}
+			# 	# FP3 Title Transfer Notification
+			# 	struggle:persian_struggle = { # Wet script
+			# 		every_involved_ruler = {
+			# 			send_interface_toast = {
+			# 				type = event_toast_effect_bad
+			# 				title = persian_struggle_central_title_transfer.t
+			# 				left_icon = scope:previous_holder
+			# 				right_icon = scope:title.holder
 
-		# 					custom_tooltip = persian_struggle_central_title_transfer.desc
-		# 				}
-		# 			}
-		# 			every_interloper_ruler = {
-		# 				send_interface_toast = {
-		# 					type = event_toast_effect_bad
-		# 					title = persian_struggle_central_title_transfer.t
-		# 					left_icon = scope:previous_holder
-		# 					right_icon = scope:title.holder
+			# 				custom_tooltip = persian_struggle_central_title_transfer.desc
+			# 			}
+			# 		}
+			# 		every_interloper_ruler = {
+			# 			send_interface_toast = {
+			# 				type = event_toast_effect_bad
+			# 				title = persian_struggle_central_title_transfer.t
+			# 				left_icon = scope:previous_holder
+			# 				right_icon = scope:title.holder
 
-		# 					custom_tooltip = persian_struggle_central_title_transfer.desc
-		# 				}
-		# 			}
-		# 		}
-		# 	}
-		# }
+			# 				custom_tooltip = persian_struggle_central_title_transfer.desc
+			# 			}
+			# 		}
+			# 	}
+			# }
+		}
 
 		###############
 		# GOVERNMENTS #
@@ -4849,6 +4847,90 @@ on_title_gain_usurpation = {
 	}
 	effect = {
 		# Struggle Catalysts
+		if = {
+			limit = { # HM - Empire
+				scope:title = {
+					tier = tier_empire
+				}
+				scope:transfer_type = flag:usurped
+				## Ensure they're both in the same struggle
+				scope:previous_holder = {
+					any_character_struggle = {
+						involvement = involved
+						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+							CATALYST = catalyst_usurp_empire_hm
+							CHAR = root
+						}
+					}
+				}
+				root = {
+					any_character_struggle = {
+						involvement = involved
+						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+							CATALYST = catalyst_usurp_empire_hm
+							CHAR = root
+						}
+					}
+				}
+			}
+			root = {
+				every_character_struggle = {
+					involvement = involved
+					limit = {
+						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+							CATALYST = catalyst_usurp_empire_hm
+							CHAR = root
+						}
+					}
+					activate_struggle_catalyst = {
+						catalyst = catalyst_usurp_empire_hm
+						character = root
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = { # HM - Kingdom
+				scope:title = {
+					tier = tier_kingdom
+				}
+				scope:transfer_type = flag:usurped
+				## Ensure they're both in the same struggle
+				scope:previous_holder = {
+					any_character_struggle = {
+						involvement = involved
+						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+							CATALYST = catalyst_usurp_kingdom_hm
+							CHAR = root
+						}
+					}
+				}
+				root = {
+					any_character_struggle = {
+						involvement = involved
+						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+							CATALYST = catalyst_usurp_kingdom_hm
+							CHAR = root
+						}
+					}
+				}
+			}
+			root = {
+				every_character_struggle = {
+					involvement = involved
+					limit = {
+						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+							CATALYST = catalyst_usurp_kingdom_hm
+							CHAR = root
+						}
+					}
+					activate_struggle_catalyst = {
+						catalyst = catalyst_usurp_kingdom_hm
+						character = root
+					}
+				}
+			}
+		}
 		# if = {
 		# 	limit = { # FP2
 		# 		# We are only interested in the title within the Struggle Region

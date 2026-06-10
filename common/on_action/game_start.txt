@@ -778,13 +778,26 @@ on_game_start = {
 				}
 			}
 		}
-		
-		### STRUGGLES ###
-		# if = {
-		# 	limit = { current_date = 867.1.1 }
 
-		# 	# Persian Struggle can be reimplemented for future Darshi content
-		# }
+		### STRUGGLES ###
+		if = {
+			limit = { current_date = 1257.3.23 }
+
+			# Heaven's Mandate Struggle
+			if = { # If the load order ever changes this struggle is going to break. This must always be read before the struggle.
+				limit = { exists = struggle:heaven_mandate_struggle }
+				debug_log = "Heaven Struggle: Game start data has been set"
+				struggle:heaven_mandate_struggle = { # Use the object explorer to debug this data (yes, the time has come to learn how to use it)
+
+					# Struggle on_start
+					hm_remove_vassal_contract_cooldown_for_tension_effect = yes
+
+					# Flag some titles as un-dissolutionable within the struggle.
+					title:e_southern_empire = { set_variable = struggle_block_dissolution_faction }
+					title:e_calsean_empire = { set_variable = struggle_block_dissolution_faction }
+				}
+			}
+		}
 
 		### REGENCIES ###
 		# Pre-defined historic regencies setup.
@@ -2889,12 +2902,12 @@ on_game_start_after_lobby = {
 		}
 
 		### GAME RULE: SITUATION TOGGLES
-		# struggle:iberian_struggle ?= {
-		# 	if = {
-		# 		limit = { has_game_rule = struggle_iberia_toggle_off }
-		# 		end_struggle = yes
-		# 	}
-		# }
+		struggle:heaven_mandate_struggle ?= {
+			if = {
+				limit = { has_game_rule = ck_wb_heaven_struggle_toggle_off }
+				end_struggle = yes
+			}
+		}
 		# struggle:persian_struggle ?= {
 		# 		limit = { has_game_rule = struggle_persia_toggle_off }
 		# 		end_struggle = yes
@@ -2903,6 +2916,12 @@ on_game_start_after_lobby = {
 		situation:the_great_steppe ?= {
 			if = {
 				limit = { has_game_rule = situation_the_great_steppe_toggle_off }
+				end_situation = yes
+			}
+		}
+		situation:west_nahasan_nomads ?= {
+			if = {
+				limit = { has_game_rule = situation_west_nahasan_nomads_off }
 				end_situation = yes
 			}
 		}

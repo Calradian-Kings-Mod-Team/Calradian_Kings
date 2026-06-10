@@ -11,3 +11,45 @@ ck_hm_struggle_apply_ai_agenda_effect = {
 		}
 	}
 }
+
+hm_struggle_apply_catalyst_interloper_uninvolved_gain_struggle_titles = {
+	if = {
+		limit = {
+			scope:war = {
+				var:struggle_scope_defender ?= struggle:heaven_mandate_struggle
+				var:struggle_involvement_defender ?= flag:involved
+			}
+			scope:attacker = {
+				OR = {
+					ck_uninvolved_in_struggle = { STRUGGLE = heaven_mandate_struggle }
+					ck_interloper_in_struggle = { STRUGGLE = heaven_mandate_struggle }
+				}
+			}
+			struggle:heaven_mandate_struggle = {
+				phase_has_catalyst = catalyst_interloper_uninvolved_gain_struggle_titles
+			}
+		}
+		struggle:heaven_mandate_struggle = {
+			activate_struggle_catalyst = {
+				catalyst = catalyst_interloper_uninvolved_gain_struggle_titles
+				character = scope:attacker
+			}
+		}
+	}
+}
+hm_remove_vassal_contract_cooldown_for_tension_effect = {
+	if = {
+		limit = {
+			OR = {
+				is_struggle_phase = struggle_heaven_phase_armistice
+				is_struggle_phase = struggle_heaven_phase_compromise
+			}
+		}
+		every_involved_ruler = {
+			remove_interaction_cooldown = liege_modify_vassal_contract_interaction
+			remove_interaction_cooldown = vassal_modify_vassal_contract_interaction
+			remove_interaction_cooldown = ai_only_liege_modify_vassal_contract_interaction
+			remove_interaction_cooldown = ai_only_vassal_modify_vassal_contract_interaction
+		}
+	}
+}
