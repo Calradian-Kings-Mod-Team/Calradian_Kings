@@ -971,27 +971,30 @@ counter_synergy_ai_weight_archers = {
 	}
 }
 archer_doomstack_size = {
-	value = -2
-	add = legitimacy_title_era_value
+	value = legitimacy_title_era_value
 	multiply = 200
-	add = 100
+	add = current_year
+	subtract = 1100
 }
 penalty_ai_weight_toptier_archers = {
 	value = 0
 	if = {
 		limit = {
-			OR = {
-				number_maa_regiments_of_base_type = {
-					type = archers
-					value >= highest_held_title_tier_minus_one
-				}
-				number_maa_soldiers_of_base_type = {
-					type = archers
-					value >= archer_doomstack_size
-				}
+			number_maa_regiments_of_base_type = {
+				type = archers
+				value >= highest_held_title_tier_minus_one
 			}
 		}
-		subtract = 500
+		subtract = 300
+	}
+	else_if = {
+		limit = {
+			max_number_maa_soldiers_of_base_type = {
+				type = archers
+				value >= archer_doomstack_size
+			}
+		}
+		subtract = 200
 	}
 	# else_if = {
 	# 	limit = {
@@ -1031,7 +1034,12 @@ penalty_ai_weight_veterans = {
 		limit = {
 			any_top_realm_border_county = { }
 		}
-		divide = 2
+		if = {
+			limit = {
+				is_independent_ruler = no
+			}
+			divide = 2
+		}
 		add = age # the older the wiser I guess
 	}
 }
@@ -1044,7 +1052,7 @@ penalty_ai_weight_horse_archers = {
 				value >= archer_doomstack_size
 			}
 		}
-		subtract = archer_doomstack_size
+		subtract = 200
 	}
 }
 
