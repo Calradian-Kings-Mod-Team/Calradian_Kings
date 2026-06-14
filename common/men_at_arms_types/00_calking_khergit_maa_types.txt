@@ -60,7 +60,7 @@ khergit_peasant_militia = { #khergit rabble
 			limit = { # use other people's rabble
 				government_allows = subject_men_at_arms
 			}
-			add = -100
+			add = -1000
 		}
 	}
 	illustration = pikemen_militia_asia
@@ -133,12 +133,19 @@ khergit_nomadic_riders = { #khergit tribesmen
 	max = 5 # no nomadic horde size increase modifiers
 	stack = 100
 	ai_quality = {
-		if = {
+		value = 0
+		if = { # starting khergits, or game rule warband ones
+			limit = {
+				government_has_flag = government_is_tribal
+			}
+			add = government_ai_weight_tribal
+		}
+		else_if = {
 			limit = { # low priority when they're not nomadic
 				# government_allows = buildings
 				mpo_can_recruit_nomad_maa_trigger = no
 			}
-			value = -80
+			add = -50
 		}
 		add = counter_synergy_ai_weight_shock
 	}
@@ -328,7 +335,10 @@ khergit_horse_archers_1 = { #khergit horse archers
 	
 	stack = 100
 	hired_stack_size = 75
-	ai_quality = { value = culture_ai_weight_light_cavalry add = 50 }
+	ai_quality = {
+		value = culture_ai_weight_light_cavalry
+		add = penalty_ai_weight_horse_archers
+	}
 	illustration = horse_archers
 	icon = khergit_horse_archer
 }
@@ -381,7 +391,10 @@ khergit_horse_archers_2 = { #khergit Guard archers
 	provision_cost = @provisions_cost_cavalry_bankrupting
 
 	stack = 100
-	ai_quality = { value = @cultural_maa_extra_ai_score }
+	ai_quality = {
+		value = @cultural_maa_extra_ai_score
+		add = penalty_ai_weight_horse_archers
+	}
 	icon = keshig
 }
 
@@ -447,7 +460,7 @@ khergit_guards = { #khergit guards, the mercenary version of tarkhans
 	
 	stack = 75
 	max_regiments = 1
-	ai_quality = { value = @[cultural_maa_extra_ai_score] }
+	ai_quality = { value = culture_ai_weight_heavy_cavalry }
 	icon = tarkhan
 
 }

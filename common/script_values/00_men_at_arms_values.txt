@@ -489,6 +489,13 @@ culture_ai_weight_skirmishers = {
 		}
 		add = -500
 	}
+	if = {
+		limit = {
+			is_independent_ruler = no
+			highest_held_title_tier <= tier_county
+		}
+		add = 30
+	}
 }
 culture_ai_weight_toptier_archers = {
 	value = 0
@@ -686,7 +693,22 @@ culture_ai_weight_pikemen = {
 		}
 		add = 40
 	}
-	
+	if = {
+		limit = {
+			capital_county ?= {
+				any_county_province = {
+					has_holding = yes
+					OR = {
+						terrain = hills
+						terrain = terraced_hills
+						terrain = mountains
+						terrain = desert_mountains
+					}
+				}
+			}
+			add = 20
+		}
+	}
 	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
 		limit = {
 			culture = {
@@ -709,7 +731,7 @@ culture_ai_weight_shock = {
 				culture = { has_cultural_pillar = heritage_sturgic }
 			}
 		}
-		add = 40
+		add = 25
 	}
 	
 	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
@@ -721,6 +743,12 @@ culture_ai_weight_shock = {
 		}
 		add = -500
 	}
+	if = {
+		limit = {
+			highest_held_title_tier = tier_county
+		}
+		add = -15
+	}
 }
 
 culture_ai_weight_light_cavalry = {
@@ -730,7 +758,7 @@ culture_ai_weight_light_cavalry = {
 		limit = {
 			mpo_can_recruit_nomad_maa_trigger = no
 			OR = {
-				culture = { has_cultural_pillar = heritage_nahasi }
+				# culture = { has_cultural_pillar = heritage_nahasi }
 				culture = { has_cultural_pillar = heritage_darshi }
 				culture = { has_cultural_pillar = heritage_west_nahasan }
 				# Steppe cultures
@@ -747,9 +775,17 @@ culture_ai_weight_light_cavalry = {
 				OR = {
 					has_cultural_pillar = heritage_valanscau #nimps
 					has_cultural_pillar = heritage_calradian
-					has_cultural_pillar = heritage_balian
+					trigger_if = {
+						limit = {
+							NOT = {
+								has_innovation = innovation_arched_saddles
+							}
+						}
+						has_cultural_pillar = heritage_balian # the heavier the better
+					}
 					has_cultural_pillar = heritage_palaic
 					has_cultural_pillar = heritage_sturgic
+					has_cultural_pillar = heritage_nahasi # moved down due to stat rebalance
 				}
 			}
 		}
@@ -786,9 +822,11 @@ culture_ai_weight_light_cavalry = {
 	
 	if = { # Cultures with a preference for Camel Riders should buy those over normal light cavalry
 		limit = {
-			culture = {
-				has_innovation = innovation_war_camels
-			}
+			ck_tradition_troops_enabled = yes
+			has_access_to_maa = camel_rider
+			# culture = {
+			# 	has_innovation = innovation_war_camels
+			# }
 			OR = {
 				culture = { has_cultural_pillar = heritage_nahasi }
 				culture = { has_cultural_pillar = heritage_darshi }
@@ -932,6 +970,83 @@ counter_synergy_ai_weight_archers = {
 		add = 60
 	}
 }
+archer_doomstack_size = {
+	value = -2
+	add = legitimacy_title_era_value
+	multiply = 200
+	add = 100
+}
+penalty_ai_weight_toptier_archers = {
+	value = 0
+	if = {
+		limit = {
+			OR = {
+				number_maa_regiments_of_base_type = {
+					type = archers
+					value >= highest_held_title_tier_minus_one
+				}
+				number_maa_soldiers_of_base_type = {
+					type = archers
+					value >= archer_doomstack_size
+				}
+			}
+		}
+		subtract = 500
+	}
+	# else_if = {
+	# 	limit = {
+	# 		number_maa_regiments_of_base_type = {
+	# 			type = light_cavalry
+	# 			value >= highest_held_title_tier_minus_one
+	# 		}
+	# 		NOT = { #no need to add more if i.e. regional or inherited maa of that type already exists
+	# 			number_maa_regiments_of_base_type = {
+	# 				type = archers
+	# 				value >= 1
+	# 			}
+	# 		}
+	# 	}
+	# 	add = 60
+	# }
+	if = { # cancel out minor preference
+		limit = {
+			highest_held_title_tier <= tier_county
+		}
+		add = -30
+	}
+}
+government_ai_weight_tribal = {
+	value = -10
+	if = {
+		limit = {
+			government_has_flag = government_is_tribal
+		}
+		add = 120
+		divide = legend_cost_scale_by_era
+	}
+}
+penalty_ai_weight_veterans = {
+	value = -60
+	if = {
+		limit = {
+			any_top_realm_border_county = { }
+		}
+		divide = 2
+		add = age # the older the wiser I guess
+	}
+}
+penalty_ai_weight_horse_archers = {
+	value = 0
+	if = {
+		limit = {
+			max_number_maa_soldiers_of_base_type = {
+				type = archer_cavalry
+				value >= archer_doomstack_size
+			}
+		}
+		subtract = archer_doomstack_size
+	}
+}
 
 counter_synergy_ai_weight_pikemen = {
 	value = 0
@@ -1039,6 +1154,21 @@ counter_synergy_ai_weight_light_cavalry = {
 		}
 		add = 60
 	}
+	if = {
+		limit = {
+			number_maa_regiments_of_base_type = {
+				type = shock_troops
+				value >= 2
+			}
+			NOT = {
+				number_maa_regiments_of_base_type = {
+					type = light_cavalry
+					value >= 1
+				}
+			}
+		}
+		add = 40
+	}
 }
 
 culture_ai_weight_crossbowmen = {
@@ -1057,7 +1187,7 @@ culture_ai_weight_crossbowmen = {
 			add = -500
 		}
 		else = { # balians
-			add = 30
+			add = 15 
 		}
 	}
 	if = { # Cultures that favours crossbowmen
@@ -1068,7 +1198,21 @@ culture_ai_weight_crossbowmen = {
 				has_trait = ck_militarist
 			}
 		}
-		add = 25
+		add = 20
+	}
+	if = {
+		limit = {
+			capital_county ?= {
+				any_county_province = {
+					has_holding = yes
+					OR = {
+						terrain = hills
+						terrain = forests
+					}
+				}
+			}
+			add = 10
+		}
 	}
 }
 

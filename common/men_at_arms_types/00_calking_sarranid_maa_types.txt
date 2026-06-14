@@ -66,7 +66,11 @@ sarranid_peasant_militia = { #sarranid footmen
 	provision_cost = @provisions_cost_infantry_cheap
 
 	stack = 100
-	ai_quality = { value = culture_ai_weight_skirmishers }
+	ai_quality = {
+		value = highest_held_title_tier
+		multiply = -75
+		subtract = martial
+	}
 	icon = light_infantry
 }
 sarranid_light_infantry = { #sarranid (desert) skirmishers
@@ -142,6 +146,12 @@ sarranid_heavy_infantry = { #sarranid (clan) guards
 	ai_quality = {
 		value = culture_ai_weight_heavy_infantry
 		add = counter_synergy_ai_weight_heavy_infantry
+		if = {
+			limit = {
+				government_has_flag = government_is_clan
+			}
+			add = culture_ai_weight_vigmen
+		}
 	}
 	icon = mubarizun
 }
@@ -229,7 +239,7 @@ sarranid_bowmen_1 = { #sarranid (average) Archers
 	stack = 100
 	ai_quality = { 
 		value = culture_ai_weight_archers
-		add = counter_synergy_ai_weight_archers
+		add = penalty_ai_weight_toptier_archers
 	}
 	icon = bowmen
 }
@@ -268,8 +278,8 @@ sarranid_bowmen_2 = { # sarranid master archers
 
 	stack = 100
 	ai_quality = { 
-		value = culture_ai_weight_archers
-		add = counter_synergy_ai_weight_archers
+		value = culture_ai_weight_toptier_archers
+		add = penalty_ai_weight_toptier_archers
 	}
 	illustration = {
 		reference = bowmen_asia
@@ -377,7 +387,15 @@ sarranid_heavy_cavalry = { #sarranid mamlukes (real ones not horse archers)
 	provision_cost = @provisions_cost_cavalry_expensive
 	
 	stack = 50
-	ai_quality = { value = culture_ai_weight_heavy_cavalry }
+	ai_quality = {
+		value = culture_ai_weight_heavy_cavalry
+		if = {
+			limit = {
+				is_independent_ruler = yes
+			}
+			add = @cultural_maa_extra_ai_score
+		}
+	}
 	illustration = {
 		reference = asawira
 	}
@@ -429,6 +447,8 @@ sarranid_shock_infantry = { # sarranid Axemen
 	ai_quality = {
 		value = culture_ai_weight_shock
 		add = counter_synergy_ai_weight_shock
+		subtract = 50
+		add = prowess
 	}
 	icon = ayyar
 }
