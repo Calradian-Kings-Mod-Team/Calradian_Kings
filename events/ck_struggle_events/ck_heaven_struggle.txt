@@ -539,3 +539,378 @@ ck_heaven_struggle.0100 = { # Fullscreen Intro Event
 		clicksound = "event:/DLC/FP2/SFX/UI/fp2_struggle_start_select"
 	}
 }
+
+###################################
+# Heaven's Mandate Struggle - Decision Events
+# 1000 - 1999
+###################################
+scripted_effect ck_hm_struggle_1000_create_patriarchate_effect = {
+	# First, remove the variable from the Patriarchate to prevent reformation
+	title:k_calradic = {
+		remove_variable = ck_hm_disabled_patriarch
+	}
+	# Pull the court chaplain from your court and use him as the new Patriarch
+	# Otherwise pull a temple holder in your realm, oooootherwise, create one
+	if = {
+		limit = {
+			exists = cp:councillor_court_chaplain
+		}
+		cp:councillor_court_chaplain = {
+			save_scope_as = ck_hm_patriarch_candidate
+		}
+	}
+	else_if = {
+		limit = {
+			any_sub_realm_barony = {
+				exists = holder
+				title_province = { has_holding_type = church_holding }
+			}
+		}
+		holder = {
+			save_scope_as = ck_hm_patriarch_candidate
+		}
+	}
+	else = {
+		create_character = {
+			template = virtuous_priest_character_template
+			location = root.capital_province
+			gender = male # PATRIARCH, it's in the name
+			dynasty = none
+			save_scope_as = ck_hm_patriarch_candidate
+		}
+	}
+}
+scripted_effect ck_hm_1000_grant_patriarchate_effect = {
+	if = {
+		limit = {
+			title:k_calradic ?= {
+				NOR = {
+					exists = holder
+					holder = scope:ck_hm_patriarch_candidate
+				}
+			}
+		}
+		create_title_and_vassal_change = {
+			type = granted
+			save_scope_as = change2
+			add_claim_on_loss = no
+		}
+		title:k_calradic = {
+			change_title_holder = {
+				holder = scope:ck_hm_patriarch_candidate
+				change = scope:change2
+			}
+			scope:ck_hm_patriarch_candidate = {
+				change_liege = {
+					liege = root
+					change = scope:change2
+				}
+			}
+		}
+		resolve_title_and_vassal_change = scope:change2
+	}
+	# Set global variable that gets removed if the title is destroyed
+	hidden_effect = {
+		set_global_variable = {
+			name = restored_the_ck_patriarchy
+			value = yes
+		}
+	}
+	
+	every_character_struggle = {
+		limit = { phase_has_catalyst = catalyst_reformed_patriarchy }
+		activate_struggle_catalyst = {
+			catalyst = catalyst_reformed_patriarchy
+			character = root
+		}
+	}
+}
+ck_heaven_struggle.1000 = { # Give Lands to the Patriarchate
+	type = character_event
+	title = ck_heaven_struggle.1000.t
+	desc = ck_heaven_struggle.1000.desc
+	theme = ck_imperial
+	override_background = {
+		event_background = courtyard
+	}
+	left_portrait = {
+		character = scope:ck_hm_patriarch_candidate
+		animation = personality_zealous
+		camera = camera_event_right_forward
+	}
+	trigger = {
+		NOT = {
+			exists = global_var:restored_the_ck_patriarchy
+		}
+		exists = scope:ck_chose_my_lands
+		faith = {
+			has_doctrine = special_doctrine_ecumenical_christian
+		}
+		OR = {
+			NOT = { exists = faith.religious_head }
+			title:k_calradic ?= {
+				NOT = {
+					has_variable = ck_hm_disabled_patriarch
+				}
+			}
+		}
+	}
+	immediate = {
+		ck_hm_struggle_1000_create_patriarchate_effect = yes
+		# Pull the de jure duchies both without holders and 3 counties
+		primary_title = {
+			every_in_de_facto_hierarchy = {
+				limit = {
+					tier = tier_duchy
+					OR = {
+						NOT = { exists = holder } # Either doesn't exist
+						title_capital_county = { # Or does but isn't the capital of the player
+							AND = {
+								root.capital_county != this
+								holder = root # and the player holds it
+							}
+						}
+					}
+					any_de_jure_county = {
+						count >= 3
+						holder = root
+						this != root.capital_county
+					}
+				}
+				add_to_list = ck_hm_1000_duchies
+			}
+			every_in_de_jure_hierarchy = {
+				limit = {
+					tier = tier_duchy
+					NOT = { is_in_list = ck_hm_1000_duchies }
+					OR = {
+						NOT = { exists = holder } # Either doesn't exist
+						title_capital_county = { # Or does but isn't the capital of the player
+							AND = {
+								root.capital_county != this
+								holder = root # and the player holds it
+							}
+						}
+					}
+					any_de_jure_county = {
+						count >= 3
+						holder = root
+						this != root.capital_county
+					}
+				}
+				add_to_list = ck_hm_1000_duchies
+			}
+		}
+		if = {
+			limit = {
+				any_in_list = {
+					list = ck_hm_1000_duchies
+					count > 1 # Check for more than one qualifying duchy
+				}
+			} # Scope the first one
+			random_in_list = {
+				list = ck_hm_1000_duchies
+				save_scope_as = ck_hm_1000_option_A
+			} # Scope the second one
+			random_in_list = {
+				list = ck_hm_1000_duchies
+				limit = {
+					this != scope:ck_hm_1000_option_A
+				}
+				save_scope_as = ck_hm_1000_option_B
+			} # Scope a third one, if it even exists
+			if = {
+				limit = {
+					any_in_list = {
+						list = ck_hm_1000_duchies
+						count >= 3
+					}
+				}
+				random_in_list = {
+					list = ck_hm_1000_duchies
+					limit = {
+						NOR = {
+							this = scope:ck_hm_1000_option_A
+							this = scope:ck_hm_1000_option_B
+						}
+					}
+					save_scope_as = ck_hm_1000_option_C
+				}
+			}
+		}
+		else = { # Just scope the one otherwise
+			random_in_list = {
+				list = ck_hm_1000_duchies
+				save_scope_as = ck_hm_1000_option_A
+			}
+		}
+	}
+	option = {
+		name = ck_heaven_struggle.1000.a
+		trigger = {
+			exists = scope:ck_hm_1000_option_A
+		}
+		add_prestige = 1000
+		ck_hm_1000_grant_patriarchate_effect = yes
+		# if = {
+		# 	limit = {
+		# 		title:ck_hm_1000_option_A ?= {
+		# 			OR = {
+		# 				NOT = {
+		# 					exists = holder
+		# 				}
+		# 				holder = root
+		# 			}
+		# 		}
+		# 	}
+		title:k_calradic = {
+			set_capital_county = scope:ck_hm_1000_option_A.title_capital_county
+		}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			scope:ck_hm_1000_option_A = {
+				change_title_holder = {
+					holder = scope:ck_hm_patriarch_candidate
+					change = scope:change
+				}
+				scope:ck_hm_patriarch_candidate = {
+					change_liege = {
+						liege = root
+						change = scope:change
+					}
+				}
+				every_de_jure_county = {
+					limit = {
+						holder = root
+					}
+					change_title_holder = {
+						holder = scope:ck_hm_patriarch_candidate
+						change = scope:change
+						take_baronies = yes
+					}
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		# }
+	}
+	option = { # Two options
+		name = ck_heaven_struggle.1000.b
+		trigger = {
+			exists = scope:ck_hm_1000_option_B
+		}
+		add_prestige = 1000
+		ck_hm_1000_grant_patriarchate_effect = yes
+		# if = {
+		# 	limit = {
+		# 		title:ck_hm_1000_option_B ?= {
+		# 			OR = {
+		# 				NOT = {
+		# 					exists = holder
+		# 				}
+		# 				holder = root
+		# 			}
+		# 		}
+		# 	}
+		title:k_calradic = {
+			set_capital_county = scope:ck_hm_1000_option_B.title_capital_county
+		}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			scope:ck_hm_1000_option_B = {
+				change_title_holder = {
+					holder = scope:ck_hm_patriarch_candidate
+					change = scope:change
+				}
+				scope:ck_hm_patriarch_candidate = {
+					change_liege = {
+						liege = root
+						change = scope:change
+					}
+				}
+				every_de_jure_county = {
+					limit = {
+						holder = root
+					}
+					change_title_holder = {
+						holder = scope:ck_hm_patriarch_candidate
+						change = scope:change
+						take_baronies = yes
+					}
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		# }
+	}
+	option = { # Three Options
+		name = ck_heaven_struggle.1000.c
+		trigger = {
+			exists = scope:ck_hm_1000_option_C
+		}
+		add_prestige = 1000
+		ck_hm_1000_grant_patriarchate_effect = yes
+		# if = {
+		# 	limit = {
+		# 		scope:ck_hm_1000_option_C ?= {
+		# 			OR = {
+		# 				NOT = {
+		# 					exists = holder
+		# 				}
+		# 				holder = root
+		# 			}
+		# 		}
+		# 	}
+		title:k_calradic = {
+			set_capital_county = scope:ck_hm_1000_option_C.title_capital_county
+		}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			scope:ck_hm_1000_option_C = {
+				change_title_holder = {
+					holder = scope:ck_hm_patriarch_candidate
+					change = scope:change
+				}
+				scope:ck_hm_patriarch_candidate = {
+					change_liege = {
+						liege = root
+						change = scope:change
+					}
+				}
+				every_de_jure_county = {
+					limit = {
+						holder = root
+					}
+					change_title_holder = {
+						holder = scope:ck_hm_patriarch_candidate
+						change = scope:change
+						take_baronies = yes
+					}
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		# }
+	}
+	option = { # Nevermind
+		name = ck_heaven_struggle.1000.d
+		flavor = ck_heaven_struggle.1000.d.tt
+
+		# Give 'em their deposit back.
+		if = {
+			limit = {
+				has_treasury = yes
+			}
+			add_treasury = var:ck_hm_gold_cost
+		}
+		else = {
+			add_gold = var:ck_hm_gold_cost
+		}
+	}
+}

@@ -1,0 +1,290 @@
+﻿wb_restore_calradian_empire_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/event_story/ck_calradian_restoration.dds"
+	}
+	desc = wb_restore_calradian_empire_decision_desc
+	selection_tooltip = wb_restore_calradian_empire_decision_tooltip
+	decision_group_type = major_calradian
+	is_shown = {
+		any_character_struggle = {
+			involvement = involved
+		}
+	}
+	is_valid = {
+		highest_held_title_tier = tier_empire
+		custom_tooltip = {
+			text = ck_heaven_struggle_is_supremacy
+			any_character_struggle = {
+				involvement = involved
+				is_struggle_type = heaven_mandate_struggle
+				is_struggle_phase = struggle_heaven_phase_supremacy
+			}
+		}
+		OR = {
+			custom_tooltip = {
+				text = wb_restore_calradian_empire_decision_valid_tt
+				any_county_in_region = {
+					region = region_imperial_calradia
+					percent >= 0.5
+					holder.top_liege = root
+				}
+			}
+			custom_tooltip = {
+				text = wb_restore_calradian_empire_decision_valid_tt_2
+				any_held_title = {
+					tier = tier_empire
+					count >= 3
+					any_in_de_jure_hierarchy = {
+						tier = tier_county
+						any_county_province = {
+							geographical_region = region_imperial_calradia
+						}
+					}
+				}
+			}
+		}
+		trigger_if = {
+			limit = {
+				faith = {
+					# NOT = {
+						has_doctrine = special_doctrine_ecumenical_christian
+					# }
+				}
+			}
+			custom_tooltip = wb_restore_calradian_empire_decision_valid_tt_3
+		}
+	}
+	ai_check_interval = 0
+}
+restore_the_patriarchate_hm = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_byz_throne.dds"
+	}
+	desc = restore_the_patriarchate_hm_desc
+	selection_tooltip = restore_the_patriarchate_hm_tooltip
+	decision_group_type = major_calradian
+	is_shown = {
+		any_character_struggle = {
+			involvement = involved
+		}
+		NOT = {
+			exists = global_var:restored_the_ck_patriarchy
+		}
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = ck_heaven_struggle_is_involved
+			any_character_struggle = {
+				involvement = involved
+				is_struggle_type = heaven_mandate_struggle
+			}
+		}
+		faith = {
+			# NOT = {
+				has_doctrine = special_doctrine_ecumenical_christian
+			# }
+		}
+		custom_tooltip = {
+			text = hof_must_not_exist_tt
+			OR = {
+				NOT = { exists = faith.religious_head }
+				title:k_calradic ?= {
+					NOT = {
+						has_variable = ck_hm_disabled_patriarch
+					}
+				}
+			}
+		}
+		NOT = {
+			exists = global_var:restored_the_ck_patriarchy
+		}
+		highest_held_title_tier >= tier_empire
+		# any_realm_province = {
+		# 	custom_tooltip = {
+		# 		text = holy_site_of_root_faith_tt
+		# 		barony = {
+		# 			is_holy_site_of = root.faith
+		# 		}
+		# 	}
+		# }
+	}
+	is_valid_showing_failures_only = {
+		is_available_adult = yes
+		# is_at_war = no
+	}
+	cost = { 
+		piety = {
+			switch = {
+				trigger = yes
+				scope:restore_lycaron_patriarchate = { value = ck_hm_piety_cost_lycaron }
+				scope:restore_diathma_patriarchate = { value = ck_hm_piety_cost_diathma }
+				scope:restore_charas_patriarchate = { value = ck_hm_piety_cost_charas }
+				scope:restore_my_patriarchate = { value = ck_hm_piety_cost_mine }
+			}
+		}
+		gold = ck_hm_gold_cost
+	}
+	widget = {
+		gui = "decision_view_widget_generic_multichoice_with_effects"
+		controller = decision_option_list_controller
+		decision_to_second_step_button = "SELECT_ACTION"
+
+		item = { # Lycaron
+			value = restore_lycaron_patriarchate
+			is_valid = {
+				custom_tooltip = {
+					text = restorate_the_patriarchate_lycaron_tt
+					any_sub_realm_county = { this = title:c_lycaron }
+				}
+			}
+			current_description = restore_lycaron_patriarchate_desc
+			localization = restore_lycaron_patriarchate_name
+			icon = "gfx/interface/icons/celestial_administration_types/icon_game_concept_celestial_standard_administration.dds"
+			ai_chance = {
+				value = 100
+				if = {
+					limit = {
+						capital_barony ?= title:b_lycaron
+					}
+					add = -100 # Don't give up your capital
+				}
+			}
+		}
+		item = { # Diathma
+			value = restore_diathma_patriarchate
+			is_valid = {
+				custom_tooltip = {
+					text = restorate_the_patriarchate_diathma_tt
+					any_sub_realm_county = { this = title:c_diathma }
+				}
+			}
+			current_description = restore_diathma_patriarchate_desc
+			localization = restore_diathma_patriarchate_name
+			icon = "gfx/interface/icons/character_interactions/icon_liege.dds"
+			ai_chance = {
+				value = 100
+				if = {
+					limit = {
+						capital_barony ?= title:b_diathma
+					}
+					add = -100 # Don't give up your capital
+				}
+			}
+		}
+		item = { # Charasea
+			value = restore_charas_patriarchate
+			is_valid = {
+				custom_tooltip = {
+					text = restorate_the_patriarchate_charas_tt
+					any_sub_realm_county = { this = title:c_charas }
+				}
+			}
+			current_description = restore_charas_patriarchate_desc
+			localization = restore_charas_patriarchate_name
+			icon = "gfx/interface/icons/character_interactions/icon_liege.dds"
+			ai_chance = {
+				value = 100
+				if = {
+					limit = {
+						capital_barony ?= title:b_charas
+					}
+					add = -100 # Don't give up your capital
+				}
+			}
+		}
+		item = { # The Patriarch can have my lands!
+			value = restore_my_patriarchate
+			is_valid = {
+				# gold >= 500
+				# piety >= 1500
+				custom_tooltip = {
+					text = restore_the_patriarchate_mine_tt
+					any_held_county = {
+						duchy = {
+							OR = {
+								NOT = { exists = holder } # Either doesn't exist
+								title_capital_county = { # Or does but isn't the capital of the player
+									root.capital_county != this
+									holder = root # and the player holds it
+								}
+							}
+						}
+						holder = root
+						count >= 3
+						this != root.capital_county
+					}
+					# You must give the Patriarch a duchy with at least 3 counties
+					# Costly decision but don't you want the chance to restore the Calradian Empire?
+					# He also becomes a vassal and your court bishop, so bonus
+				}
+			}
+			current_description = restore_my_patriarchate_desc
+			localization = restore_my_patriarchate_name
+			icon = "gfx/interface/icons/character_interactions/icon_liege.dds"
+			ai_chance = {
+				value = 20
+				if = {
+					limit = {
+						OR = {
+							has_trait = greedy
+							has_trait = cynical
+						}
+					}
+					factor = -1 # Greedy and Cynical will not give up land to a HoF
+				}
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = {
+				scope:restore_lycaron_patriarchate = yes
+			}
+			add_prestige = 1000
+			hidden_effect = {
+				set_variable = {
+					name = ck_hm_gold_cost
+					value = 300
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				scope:restore_diathma_patriarchate = yes
+			}
+			add_prestige = 1000
+			hidden_effect = {
+				set_variable = {
+					name = ck_hm_gold_cost
+					value = 300
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				scope:restore_charas_patriarchate = yes
+			}
+			add_prestige = 1000
+			hidden_effect = {
+				set_variable = {
+					name = ck_hm_gold_cost
+					value = 300
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				scope:restore_my_patriarchate = yes
+			}
+			save_scope_as = ck_chose_my_lands
+			trigger_event = ck_heaven_struggle.1000
+			hidden_effect = {
+				set_variable = {
+					name = ck_hm_gold_cost
+					value = 300
+				}
+			}
+		}
+	}
+	ai_check_interval = 0
+}
