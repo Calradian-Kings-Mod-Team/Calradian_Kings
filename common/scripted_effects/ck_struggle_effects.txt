@@ -53,3 +53,358 @@ hm_remove_vassal_contract_cooldown_for_tension_effect = {
 		}
 	}
 }
+
+### Restoring the Calradian Empire - WB
+create_calradian_empire_wb_scripted_effect = {
+	primary_title = { save_scope_as = old_primary_title }
+	add_trait = augustus
+	every_character_struggle = {
+		limit = { phase_has_catalyst = catalyst_reformed_patriarchy }
+		activate_struggle_catalyst = {
+			catalyst = catalyst_restored_calradian_empire
+			character = root
+		}
+	}
+	if = {
+		limit = { has_dlc_feature = legends }
+		create_legend_seed = {
+			type = legitimizing
+			quality = illustrious
+			chronicle = new_title
+			properties = {
+				title = title:h_calradian_empire
+				founder = root
+			}
+		}
+	}
+
+	title:h_calradian_empire = {
+		set_capital_county = root.capital_county
+	}
+
+
+	hidden_effect = {
+		# Make sure the COA cannot change even if set in the effect previously
+		if = {
+			limit = {
+				title:h_calradian_empire = {
+					NOT = { has_variable = default_coa_var }
+				}
+			}
+			title:h_calradian_empire = {
+				set_variable = default_coa_var
+			}
+		}
+		every_held_title = { #Should shift all dejure of all Empires owned at the time.
+			title_tier = empire
+
+			set_de_jure_liege_title = title:h_calradian_empire
+		}
+		every_empire = {
+			limit = {
+				NOT = { exists = hegemony }
+				OR = {
+					any_de_jure_county = {
+						percent >= 0.6
+						holder = {
+							OR = {
+								this = root
+								any_liege_or_above = { this = root }
+							}
+						}
+					}
+					this = title:e_west_calradia
+					this = title:e_khergits
+					this = title:e_antipari
+					this = title:e_myzea
+				}
+			}
+			set_de_jure_liege_title = title:h_calradian_empire
+		}
+	}
+	create_title_and_vassal_change = {
+		type = created
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	title:h_calradian_empire = {
+		change_title_holder = {
+			holder = root
+			change = scope:change
+		}
+		copy_title_history = title:e_calradian_empire
+	}
+	resolve_title_and_vassal_change = scope:change
+
+	if = { # Move your Title MaAs to your new title if you have any
+		limit = {
+			government_allows = administrative
+			primary_title = {
+				any_title_maa_regiment = { }
+			}
+		}
+		hidden_effect = {
+			primary_title = { transfer_title_maa_ownership = title:h_calradian_empire }
+		}
+	}
+	if = { # If you have founded the Varangian Guard, you get to keep the benefits
+		limit = {
+			scope:old_primary_title = { has_variable = founded_varangian_guard }
+		}
+		hidden_effect = {
+			title:h_calradian_empire = { set_variable = founded_varangian_guard }
+		}
+	}
+	hidden_effect = {
+		every_player = {
+			limit = {
+				has_trait = claimant_emperor
+			}
+			remove_trait = claimant_emperor
+		}
+		set_primary_title_to = title:h_calradian_empire
+		set_variable = { # Make it harder to vassal duchies and above, drive the player to expand manually by war and intrigue 
+			name = ck_harder_vassalization
+			value = yes
+			years = 10
+		}
+		# If you hold the Southern Empire title or no one does, destroy it and give all de jure kingdoms to a new province
+		if = {
+			limit = {
+				title:e_southern_empire = {
+					OR = {
+						exists != holder
+						holder = root
+					}
+				}
+			}
+			create_dynamic_title = {
+				tier = empire
+				name = cn_province_lycaron
+				adj = cn_province_lycaron_adj
+			}
+			scope:new_title = {
+				save_scope_as = southern_empire_replacement
+			}
+			scope:southern_empire_replacement = {
+				set_color_from_title = title:e_southern_empire
+				set_can_be_named_after_dynasty = no
+				set_can_use_nomadic_naming = no
+				# set_definitive_form = no
+				set_de_jure_liege_title = title:h_calradian_empire
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			resolve_title_and_vassal_change = scope:change
+			scope:southern_empire_replacement = {
+				generate_coa = yes
+				copy_title_history = title:e_southern_empire
+			}
+			title:e_southern_empire = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						tier = tier_kingdom
+					}
+					set_de_jure_liege_title = scope:southern_empire_replacement # Move these kingdoms to the new province
+				}
+				set_variable = {
+					name = ck_block_catalyst
+					value = yes
+					days = 2 # To avoid catalyst firing for this particular thing
+				}
+				holder = {
+					destroy_title = prev
+				}
+			}
+		}
+		# If you hold the Calsean Empire title or no one does, destroy it and rename it
+		if = {
+			limit = {
+				title:e_calsean_empire = {
+					OR = {
+						exists != holder
+						holder = root
+					}
+				}
+			}
+			create_dynamic_title = {
+				tier = empire
+				name = d_vostrum
+				adj = d_vostrum_adj
+			}
+			scope:new_title = {
+				save_scope_as = calsean_replacement
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			scope:calsean_replacement = {
+				set_color_from_title = title:e_calsean_empire
+				set_can_be_named_after_dynasty = no
+				set_can_use_nomadic_naming = no
+				# set_definitive_form = no
+				generate_coa = yes
+				copy_title_history = title:e_calsean_empire
+				set_de_jure_liege_title = title:h_calradian_empire
+			}
+			resolve_title_and_vassal_change = scope:change
+			title:e_calsean_empire = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						tier = tier_kingdom
+					}
+					set_de_jure_liege_title = scope:calsean_replacement # Move these kingdoms to the new province
+				}
+				set_variable = {
+					name = ck_block_catalyst
+					value = yes
+					days = 2 # To avoid catalyst firing for this particular thing
+				}
+				holder = {
+					destroy_title = prev
+				}
+			}
+		}
+		# If you hold the Arkit Empire title or no one does, destroy it and give all de jure kingdoms to a new province
+		if = {
+			limit = {
+				title:e_arkits = {
+					OR = {
+						exists != holder
+						holder = root
+					}
+				}
+			}
+			create_dynamic_title = {
+				tier = empire
+				name = k_sempire_k_4
+				adj = k_sempire_k_4_adj
+			}
+			scope:new_title = {
+				save_scope_as = arkit_replacement
+			}
+			scope:arkit_replacement = {
+				set_color_from_title = title:e_arkits
+				set_can_be_named_after_dynasty = no
+				set_can_use_nomadic_naming = no
+				# set_definitive_form = no
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			resolve_title_and_vassal_change = scope:change
+			scope:arkit_replacement = {
+				generate_coa = yes
+				copy_title_history = title:e_arkits
+				set_de_jure_liege_title = title:h_calradian_empire
+			}
+			title:e_arkits = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						tier = tier_kingdom
+					}
+					set_de_jure_liege_title = scope:arkit_replacement # Move these kingdoms to the new province
+				}
+				set_variable = {
+					name = ck_block_catalyst
+					value = yes
+					days = 2 # To avoid catalyst firing for this particular thing
+				}
+				holder = {
+					destroy_title = prev
+				}
+			}
+			# Now, divide the kingdoms into two, west and east. If a titular kingdom exists in this area though, it becomes the de jure liege
+			if = {
+				limit = {
+					title:e_arkits = {
+						any_de_jure_county = {
+							holder = {
+								is_independent_ruler = yes
+								this != root
+								primary_title = {
+									is_titular = yes
+									tier = tier_kingdom
+								}
+							}
+						}
+					}
+				}
+				title:e_arkits = {
+					random_de_jure_county = {
+						limit = {
+							holder = {
+								this != root
+								primary_title = {
+									is_titular = yes
+									tier = tier_kingdom
+								}
+							}
+						}
+						holder = { save_scope_as = independent_khan_ck }
+					}
+				}
+				scope:independent_khan_ck = {
+					every_held_title = {
+						limit = {
+							tier = tier_duchy
+							kingdom = {
+								de_jure_liege = title:e_arkits
+							}
+						}
+						set_de_jure_liege_title = scope:independent_khan_ck
+					}
+				}
+			}
+			# No independent Khan in Anaeka, go ahead with creating a new kingdom in the west
+			else = {
+				create_dynamic_title = {
+					tier = kingdom
+					name = cn_province_sethys
+					adj = cn_province_sethys_adj
+				}
+				scope:new_title = {
+					save_scope_as = arkit_new_kingdom
+				}
+				scope:arkit_new_kingdom = {
+					set_color_from_title = title:d_sethys_valley
+					set_can_be_named_after_dynasty = no
+					set_can_use_nomadic_naming = no
+					# set_definitive_form = no
+				}
+				create_title_and_vassal_change = {
+					type = created
+					save_scope_as = change
+					add_claim_on_loss = no
+				}
+				resolve_title_and_vassal_change = scope:change
+				scope:arkit_new_kingdom = {
+					generate_coa = yes
+					copy_title_history = title:arkit_new_kingdom
+					set_de_jure_liege_title = scope:arkit_replacement
+				}
+				title:d_arkits_1 ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
+				title:d_sethys_valley ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
+				title:d_melion ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
+				title:d_emanis ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
+				title:d_ophthys ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
+			}
+		}
+	}
+	every_held_title = { #Should destroy all other Empires owned at the time.
+		title_tier = empire
+		set_variable = {
+			name = ck_block_catalyst
+			value = yes
+			days = 2 # To avoid catalyst firing for this particular thing
+		}
+		root = { destroy_title = prev }
+	}
+}
