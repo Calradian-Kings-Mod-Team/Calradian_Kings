@@ -260,6 +260,7 @@ proclaim_the_empire = {
 				}
 				NOR = {
 					exists = title:e_calradian_empire.holder
+					exists = title:h_calradian_empire.holder
 					primary_title = {
 						tier = tier_empire
 					}
@@ -275,6 +276,7 @@ proclaim_the_empire = {
 				}
 				NOR = {
 					exists = title:e_calradian_empire.holder
+					exists = title:h_calradian_empire.holder
 					primary_title = {
 						tier = tier_empire
 					}
@@ -484,7 +486,7 @@ restore_calradian_empire = { #Unite?
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/ep3_decision_roman_restoration.dds"
 	}
-	decision_group_type = calradian
+	decision_group_type = major_calradian
 	ai_check_interval = 18
 	desc = {
 		first_valid = {
@@ -499,6 +501,7 @@ restore_calradian_empire = { #Unite?
 	}
 
 	is_shown = {
+		game_start_date < 1150.1.1 # Irreconcilable after this point
 		culture = {
 			has_cultural_pillar = heritage_calradian
 		}
@@ -656,8 +659,12 @@ imperial_military_expedition = {
 	is_shown = {
 		is_landless_adventurer = no
 		highest_held_title_tier >= tier_duchy
-		culture = {
-			has_cultural_pillar = heritage_calradian
+		OR = {
+			culture = {
+				has_cultural_pillar = heritage_calradian
+			}
+			primary_title ?= title:h_calradian_empire
+			primary_title ?= title:e_calradian_empire
 		}
 	}
 	
@@ -677,13 +684,25 @@ imperial_military_expedition = {
 	}
 	
 	is_valid = {
+		trigger_if = {
+			limit = {
+				exists = struggle:heaven_mandate_struggle
+			}
+			custom_tooltip = {
+				text = ck_must_end_struggle_first
+				exists = global_var:ended_the_hm_struggle
+			}
+		}
 		custom_tooltip = {
 			text = is_emperor_in_empire_tt
 			primary_title = {
-				tier = tier_empire
+				tier >= tier_empire
 			}
 			capital_county = {
-				empire = title:e_calradian_empire
+				OR = {
+					empire = title:e_calradian_empire
+					hegemony = title:h_calradian_empire
+				}
 			}
 		}
 		is_at_war = no
@@ -697,7 +716,10 @@ imperial_military_expedition = {
 				}
 				NOT = {
 					capital_county = {
-						empire = title:e_calradian_empire
+						OR = {
+							empire = title:e_calradian_empire
+							hegemony = title:h_calradian_empire
+						}
 					}
 				}
 			}
