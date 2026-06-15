@@ -397,6 +397,20 @@ offer_vassalization_interaction = {
 			}
 			add = -60
 		}
+		# A newly formed Hegemon should not so easily gobble up vassals
+		modifier = {
+			desc = ck_vassalage_hegemon_ce
+			trigger = {
+				scope:actor = {
+					has_variable = ck_harder_vassalization
+					primary_title ?= title:h_calradian_empire
+				}
+				scope:recipient = {
+					highest_held_title_tier >= tier_duchy
+				}
+			}
+			add = -50
+		}
 		# Thonians should not accept Geroian king so easily
 		modifier = {
 			desc = ck_vassalage_interaction_desc_6
@@ -2590,6 +2604,34 @@ grant_independence_interaction = {
 					}
 					activate_struggle_catalyst = {
 						catalyst = catalyst_independence_from_non_dejure_vassal
+						character = scope:actor
+					}
+				}
+			}
+			if = { # Vassal Declares Independence from Calradian Emperor
+				limit = {
+					scope:recipient = { is_powerful_vassal_of = scope:actor}
+					scope:actor = {
+						primary_title ?= title:h_calradian_empire
+					}
+					any_character_struggle = {
+						involvement = involved
+						activate_struggle_catalyst_secondary_character_involvement_involved_trigger = {
+							CATALYST = catalyst_calradian_vassal_independent
+							CHAR = scope:recipient
+						}
+					}
+				}
+				every_character_struggle = {
+					involvement = involved
+					limit = {
+						activate_struggle_catalyst_secondary_character_involvement_either_trigger = {
+							CATALYST = catalyst_calradian_vassal_independent
+							CHAR = scope:recipient
+						}
+					}
+					activate_struggle_catalyst = {
+						catalyst = catalyst_calradian_vassal_independent
 						character = scope:actor
 					}
 				}
