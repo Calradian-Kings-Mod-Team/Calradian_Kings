@@ -7,18 +7,55 @@
 	decision_group_type = major_calradian
 	is_shown = {
 		any_character_struggle = {
-			involvement = involved
+			is_struggle_type = heaven_mandate_struggle
+		}
+		NOT = {
+			is_target_in_global_variable_list = {
+				name = unavailable_unique_decisions
+				target = flag:flag_restored_calradian_empire_wb
+			}
 		}
 	}
 	is_valid = {
 		highest_held_title_tier = tier_empire
+		AND = {
+			custom_tooltip = {
+				text = is_claimant_emperor_tt
+				has_trait = claimant_emperor
+			}
+			custom_tooltip = {
+				text = sole_claimant_tt
+				NOT = {
+					any_ruler = {
+						has_trait = claimant_emperor
+						NOT = { 
+							this = root
+						}
+					}
+				}
+			}
+		}
 		custom_tooltip = {
-			text = ck_heaven_struggle_is_supremacy
+			text = prestige_and_legitimacy_proclaim_tt
+			legitimacy_level >= 1
+			prestige_level >= 1
+		}
+		custom_tooltip = {
+			text = ck_heaven_struggle_is_involved
 			any_character_struggle = {
 				involvement = involved
 				is_struggle_type = heaven_mandate_struggle
-				is_struggle_phase = struggle_heaven_phase_supremacy
 			}
+		}
+		trigger_if = {
+			limit = {
+				faith = {
+					# NOT = {
+						has_doctrine = special_doctrine_ecumenical_christian
+					# }
+				}
+			}
+			custom_tooltip = wb_restore_calradian_empire_decision_valid_tt_3
 		}
 		OR = {
 			custom_tooltip = {
@@ -42,19 +79,44 @@
 					}
 				}
 			}
-		}
-		trigger_if = {
-			limit = {
-				faith = {
-					# NOT = {
-						has_doctrine = special_doctrine_ecumenical_christian
-					# }
-				}
+			AND = {
+				completely_controls = title:k_sempire_k_3
+				completely_controls = title:k_calspire_1
+				completely_controls = title:k_sempire_k_1
+				completely_controls = title:k_sempire_k_5
+				completely_controls = title:k_wempire_k_4
+				completely_controls = title:k_wempire_k_1
+				completely_controls = title:k_wempire_k_5
+				completely_controls = title:k_lsc1
+				completely_controls = title:k_arkits_1
 			}
-			custom_tooltip = wb_restore_calradian_empire_decision_valid_tt_3
 		}
 	}
-	ai_check_interval = 0
+	effect = {
+		custom_tooltip = restore_calradian_empire_wb_decision_effect_tooltip
+		show_as_tooltip = {
+			create_calradian_empire_wb_scripted_effect = yes
+		}
+		trigger_event = ck_heaven_struggle.1003
+		hidden_effect = {
+			add_to_global_variable_list = {
+				name = unavailable_unique_decisions
+				target = flag:flag_restored_calradian_empire_wb
+			}
+			set_global_variable = {
+				name = flag_restored_calradian_empire_wb
+				value = root
+			}
+		}
+	}
+	
+	ai_potential = {
+		always = yes
+	}
+
+	ai_will_do = {
+		base = 100
+	}
 }
 restore_the_patriarchate_hm = {
 	picture = {
@@ -112,17 +174,25 @@ restore_the_patriarchate_hm = {
 		is_available_adult = yes
 		# is_at_war = no
 	}
-	cost = { 
+	cost = {
 		piety = {
 			switch = {
 				trigger = yes
 				scope:restore_lycaron_patriarchate = { value = ck_hm_piety_cost_lycaron }
 				scope:restore_diathma_patriarchate = { value = ck_hm_piety_cost_diathma }
 				scope:restore_charas_patriarchate = { value = ck_hm_piety_cost_charas }
-				scope:restore_my_patriarchate = { value = ck_hm_piety_cost_mine }
+				scope:restore_my_patriarchate = { value = 0 } # No cost until you choose
 			}
 		}
-		gold = ck_hm_gold_cost
+		gold = {
+			switch = {
+				trigger = yes
+				scope:restore_lycaron_patriarchate = { value = ck_hm_gold_cost }
+				scope:restore_diathma_patriarchate = { value = ck_hm_gold_cost }
+				scope:restore_charas_patriarchate = { value = ck_hm_gold_cost }
+				scope:restore_my_patriarchate = { value = ck_hm_gold_cost_mine }
+			}
+		}
 	}
 	widget = {
 		gui = "decision_view_widget_generic_multichoice_with_effects"
@@ -132,10 +202,7 @@ restore_the_patriarchate_hm = {
 		item = { # Lycaron
 			value = restore_lycaron_patriarchate
 			is_valid = {
-				custom_tooltip = {
-					text = restorate_the_patriarchate_lycaron_tt
-					any_sub_realm_county = { this = title:c_lycaron }
-				}
+				completely_controls = title:d_lycaria
 			}
 			current_description = restore_lycaron_patriarchate_desc
 			localization = restore_lycaron_patriarchate_name
@@ -153,10 +220,7 @@ restore_the_patriarchate_hm = {
 		item = { # Diathma
 			value = restore_diathma_patriarchate
 			is_valid = {
-				custom_tooltip = {
-					text = restorate_the_patriarchate_diathma_tt
-					any_sub_realm_county = { this = title:c_diathma }
-				}
+				completely_controls = title:d_diathma
 			}
 			current_description = restore_diathma_patriarchate_desc
 			localization = restore_diathma_patriarchate_name
@@ -174,10 +238,7 @@ restore_the_patriarchate_hm = {
 		item = { # Charasea
 			value = restore_charas_patriarchate
 			is_valid = {
-				custom_tooltip = {
-					text = restorate_the_patriarchate_charas_tt
-					any_sub_realm_county = { this = title:c_charas }
-				}
+				completely_controls = title:d_charas
 			}
 			current_description = restore_charas_patriarchate_desc
 			localization = restore_charas_patriarchate_name
@@ -241,11 +302,15 @@ restore_the_patriarchate_hm = {
 				scope:restore_lycaron_patriarchate = yes
 			}
 			add_prestige = 1000
+			add_legitimacy_effect = { LEGITIMACY = medium_legitimacy_gain }
 			hidden_effect = {
 				set_variable = {
 					name = ck_hm_gold_cost
 					value = 300
 				}
+				save_scope_as = ck_patriarch_reformer
+				save_scope_as = ck_chose_lycaron
+				trigger_event = ck_heaven_struggle.1001
 			}
 		}
 		else_if = {
@@ -253,11 +318,15 @@ restore_the_patriarchate_hm = {
 				scope:restore_diathma_patriarchate = yes
 			}
 			add_prestige = 1000
+			add_legitimacy_effect = { LEGITIMACY = major_legitimacy_gain }
 			hidden_effect = {
 				set_variable = {
 					name = ck_hm_gold_cost
 					value = 300
 				}
+				save_scope_as = ck_patriarch_reformer
+				save_scope_as = ck_chose_diathma
+				trigger_event = ck_heaven_struggle.1001
 			}
 		}
 		else_if = {
@@ -265,11 +334,15 @@ restore_the_patriarchate_hm = {
 				scope:restore_charas_patriarchate = yes
 			}
 			add_prestige = 1000
+			add_legitimacy_effect = { LEGITIMACY = massive_legitimacy_gain }
 			hidden_effect = {
 				set_variable = {
 					name = ck_hm_gold_cost
 					value = 300
 				}
+				save_scope_as = ck_patriarch_reformer
+				save_scope_as = ck_chose_charas
+				trigger_event = ck_heaven_struggle.1001
 			}
 		}
 		else_if = {
@@ -281,10 +354,231 @@ restore_the_patriarchate_hm = {
 			hidden_effect = {
 				set_variable = {
 					name = ck_hm_gold_cost
-					value = 300
+					value = 600
 				}
 			}
 		}
 	}
-	ai_check_interval = 0
+	
+	ai_potential = {
+		always = yes
+	}
+
+	ai_will_do = {
+		base = 100
+	}
+}
+end_the_struggle_supremacy = {
+	decision_group_type = major_calradian
+	title = end_the_struggle_supremacy
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/fp3/fp3_decision_supremacy.dds"
+	}
+	extra_picture = "gfx/interface/illustrations/struggle_decision_buttons/ck_decision_supremacy.dds"
+	desc = end_the_struggle_supremacy_desc
+	selection_tooltip = end_the_struggle_supremacy_tooltip
+	confirm_click_sound = "event:/DLC/FP2/SFX/UI/fp2_struggle_ending_decision_confirm"
+	is_invisible = yes
+	sort_order = 80
+	
+	is_shown = {
+		is_landless_adventurer = no
+		# has_fp2_dlc_trigger = yes
+	}
+
+	# is_shown = {
+	# 	is_roman_emperor_trigger = yes
+	# 	NOT = {
+	# 		exists = global_var:ended_the_hm_struggle
+	# 	}
+	# }
+	# is_valid = {
+	# 	top_liege = this
+	# 	exists = struggle:heaven_mandate_struggle
+
+	# 	custom_tooltip = {
+	# 		text = ck_heaven_struggle_ending_supremacy
+	# 		struggle:heaven_mandate_struggle = {
+	# 			is_struggle_phase = struggle_heaven_phase_supremacy
+	# 		}
+	# 	}
+	# 	custom_tooltip = {
+	# 		text = struggle_hm_ending_holding_calradia_years
+	# 		# Control the new empire for three years
+	# 		title:h_calradian_empire =  {
+	# 			title_held_years >= 3
+	# 		}
+	# 	}
+	# 	custom_tooltip = {
+	# 		text = ck_calradian_emperor_trigger
+	# 		is_roman_emperor_trigger = yes
+	# 	}
+	# 	# Hold and completely control two de jure empires of the Calradian Empire
+	# 	custom_tooltip = { #
+	# 		text = struggle_hm_ending_supremacy_decision_empire_tt
+	# 		OR = {
+	# 			any_held_title = { # 1st kingdom
+	# 				title_tier = empire
+	# 				de_jure_liege = title:h_calradian_empire
+	# 				root = { completely_controls = prev }
+	# 				save_temporary_scope_as = calk_empire
+	# 			}
+	# 			any_vassal_or_below = {
+	# 				save_temporary_scope_as = ck_vassal_decision
+	# 				any_held_title = { # 1st kingdom
+	# 					title_tier = empire
+	# 					de_jure_liege = title:h_calradian_empire
+	# 					trigger_if = {
+	# 						limit = { exists = scope:calk_empire }
+	# 						this != scope:calk_empire
+	# 					}
+	# 					save_temporary_scope_as = calk_empire_2
+	# 				}
+	# 				completely_controls = prev
+	# 			}
+	# 		}
+	# 		OR = {
+	# 			any_held_title = { # 2nd kingdom
+	# 				title_tier = empire
+	# 				de_jure_liege = title:h_calradian_empire
+	# 				trigger_if = {
+	# 					limit = { exists = scope:calk_empire }
+	# 					this != scope:calk_empire
+	# 				}
+	# 				root = { completely_controls = prev }
+	# 				save_temporary_scope_as = calk_empire_2
+	# 			}
+	# 			any_vassal_or_below = {
+	# 				save_temporary_scope_as = ck_vassal_decision
+	# 				any_held_title = { # 1st kingdom
+	# 					title_tier = empire
+	# 					de_jure_liege = title:h_calradian_empire
+	# 					trigger_if = {
+	# 						limit = { exists = scope:calk_empire }
+	# 						this != scope:calk_empire
+	# 					}
+	# 					save_temporary_scope_as = calk_empire_2
+	# 				}
+	# 				completely_controls = prev
+	# 			}
+	# 		}
+	# 	}
+	# }
+	is_valid = {
+		always = yes
+	}
+	effect = {
+		custom_tooltip = ck_heaven_struggle.1003.a.tt
+		save_scope_value_as = {
+			name = ck_hs_cooldown
+			value = global_var:ck_hs_cooldown
+		}
+	}
+}
+testing_end_two = { ## WIP
+	decision_group_type = major_calradian
+	title = end_the_struggle_supremacy
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/fp3/fp3_decision_supremacy.dds"
+	}
+	extra_picture = "gfx/interface/illustrations/struggle_decision_buttons/fp2_decision_conciliation.dds"
+	desc = end_the_struggle_supremacy_desc
+	selection_tooltip = end_the_struggle_supremacy_tooltip
+	confirm_click_sound = "event:/DLC/FP2/SFX/UI/fp2_struggle_ending_decision_confirm"
+	is_invisible = yes
+	sort_order = 80
+	
+	is_shown = {
+		is_landless_adventurer = no
+		# has_fp2_dlc_trigger = yes
+	}
+
+	# is_shown = {
+	# 	is_roman_emperor_trigger = yes
+	# 	NOT = {
+	# 		exists = global_var:ended_the_hm_struggle
+	# 	}
+	# }
+	# is_valid = {
+	# 	top_liege = this
+	# 	exists = struggle:heaven_mandate_struggle
+
+	# 	custom_tooltip = {
+	# 		text = ck_heaven_struggle_ending_supremacy
+	# 		struggle:heaven_mandate_struggle = {
+	# 			is_struggle_phase = struggle_heaven_phase_supremacy
+	# 		}
+	# 	}
+	# 	custom_tooltip = {
+	# 		text = struggle_hm_ending_holding_calradia_years
+	# 		# Control the new empire for three years
+	# 		title:h_calradian_empire =  {
+	# 			title_held_years >= 3
+	# 		}
+	# 	}
+	# 	custom_tooltip = {
+	# 		text = ck_calradian_emperor_trigger
+	# 		is_roman_emperor_trigger = yes
+	# 	}
+	# 	# Hold and completely control two de jure empires of the Calradian Empire
+	# 	custom_tooltip = { #
+	# 		text = struggle_hm_ending_supremacy_decision_empire_tt
+	# 		OR = {
+	# 			any_held_title = { # 1st kingdom
+	# 				title_tier = empire
+	# 				de_jure_liege = title:h_calradian_empire
+	# 				root = { completely_controls = prev }
+	# 				save_temporary_scope_as = calk_empire
+	# 			}
+	# 			any_vassal_or_below = {
+	# 				save_temporary_scope_as = ck_vassal_decision
+	# 				any_held_title = { # 1st kingdom
+	# 					title_tier = empire
+	# 					de_jure_liege = title:h_calradian_empire
+	# 					trigger_if = {
+	# 						limit = { exists = scope:calk_empire }
+	# 						this != scope:calk_empire
+	# 					}
+	# 					save_temporary_scope_as = calk_empire_2
+	# 				}
+	# 				completely_controls = prev
+	# 			}
+	# 		}
+	# 		OR = {
+	# 			any_held_title = { # 2nd kingdom
+	# 				title_tier = empire
+	# 				de_jure_liege = title:h_calradian_empire
+	# 				trigger_if = {
+	# 					limit = { exists = scope:calk_empire }
+	# 					this != scope:calk_empire
+	# 				}
+	# 				root = { completely_controls = prev }
+	# 				save_temporary_scope_as = calk_empire_2
+	# 			}
+	# 			any_vassal_or_below = {
+	# 				save_temporary_scope_as = ck_vassal_decision
+	# 				any_held_title = { # 1st kingdom
+	# 					title_tier = empire
+	# 					de_jure_liege = title:h_calradian_empire
+	# 					trigger_if = {
+	# 						limit = { exists = scope:calk_empire }
+	# 						this != scope:calk_empire
+	# 					}
+	# 					save_temporary_scope_as = calk_empire_2
+	# 				}
+	# 				completely_controls = prev
+	# 			}
+	# 		}
+	# 	}
+	# }
+	is_valid = {
+		always = no
+	}
+	effect = {
+		custom_tooltip = ck_heaven_struggle.1003.a.tt
+		save_scope_value_as = {
+			name = ck_hs_cooldown
+			value = global_var:ck_hs_cooldown
+		}
+	}
 }
