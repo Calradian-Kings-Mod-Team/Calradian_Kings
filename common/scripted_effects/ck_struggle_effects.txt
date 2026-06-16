@@ -168,235 +168,6 @@ create_calradian_empire_wb_scripted_effect = {
 			value = yes
 			years = 10
 		}
-		# If you hold the Southern Empire title or no one does, destroy it and give all de jure kingdoms to a new province
-		if = {
-			limit = {
-				title:e_southern_empire = {
-					OR = {
-						exists != holder
-						holder = root
-					}
-				}
-			}
-			create_dynamic_title = {
-				tier = empire
-				name = cn_province_lycaron
-				adj = cn_province_lycaron_adj
-			}
-			scope:new_title = {
-				save_scope_as = southern_empire_replacement
-			}
-			scope:southern_empire_replacement = {
-				set_color_from_title = title:e_southern_empire
-				set_can_be_named_after_dynasty = no
-				set_can_use_nomadic_naming = no
-				# set_definitive_form = no
-				set_de_jure_liege_title = title:h_calradian_empire
-			}
-			create_title_and_vassal_change = {
-				type = created
-				save_scope_as = change
-				add_claim_on_loss = no
-			}
-			resolve_title_and_vassal_change = scope:change
-			scope:southern_empire_replacement = {
-				generate_coa = yes
-				copy_title_history = title:e_southern_empire
-			}
-			title:e_southern_empire = {
-				every_in_de_jure_hierarchy = {
-					limit = {
-						tier = tier_kingdom
-					}
-					set_de_jure_liege_title = scope:southern_empire_replacement # Move these kingdoms to the new province
-				}
-				set_variable = {
-					name = ck_block_catalyst
-					value = yes
-					days = 2 # To avoid catalyst firing for this particular thing
-				}
-				holder = {
-					destroy_title = prev
-				}
-			}
-		}
-		# If you hold the Calsean Empire title or no one does, destroy it and rename it
-		if = {
-			limit = {
-				title:e_calsean_empire = {
-					OR = {
-						exists != holder
-						holder = root
-					}
-				}
-			}
-			create_dynamic_title = {
-				tier = empire
-				name = d_vostrum
-				adj = d_vostrum_adj
-			}
-			scope:new_title = {
-				save_scope_as = calsean_replacement
-			}
-			create_title_and_vassal_change = {
-				type = created
-				save_scope_as = change
-				add_claim_on_loss = no
-			}
-			scope:calsean_replacement = {
-				set_color_from_title = title:e_calsean_empire
-				set_can_be_named_after_dynasty = no
-				set_can_use_nomadic_naming = no
-				# set_definitive_form = no
-				generate_coa = yes
-				copy_title_history = title:e_calsean_empire
-				set_de_jure_liege_title = title:h_calradian_empire
-			}
-			resolve_title_and_vassal_change = scope:change
-			title:e_calsean_empire = {
-				every_in_de_jure_hierarchy = {
-					limit = {
-						tier = tier_kingdom
-					}
-					set_de_jure_liege_title = scope:calsean_replacement # Move these kingdoms to the new province
-				}
-				set_variable = {
-					name = ck_block_catalyst
-					value = yes
-					days = 2 # To avoid catalyst firing for this particular thing
-				}
-				holder = {
-					destroy_title = prev
-				}
-			}
-		}
-		# If you hold the Arkit Empire title or no one does, destroy it and give all de jure kingdoms to a new province
-		if = {
-			limit = {
-				title:e_arkits = {
-					OR = {
-						exists != holder
-						holder = root
-					}
-				}
-			}
-			create_dynamic_title = {
-				tier = empire
-				name = k_sempire_k_4
-				adj = k_sempire_k_4_adj
-			}
-			scope:new_title = {
-				save_scope_as = arkit_replacement
-			}
-			scope:arkit_replacement = {
-				set_color_from_title = title:e_arkits
-				set_can_be_named_after_dynasty = no
-				set_can_use_nomadic_naming = no
-				# set_definitive_form = no
-			}
-			create_title_and_vassal_change = {
-				type = created
-				save_scope_as = change
-				add_claim_on_loss = no
-			}
-			resolve_title_and_vassal_change = scope:change
-			scope:arkit_replacement = {
-				generate_coa = yes
-				copy_title_history = title:e_arkits
-				set_de_jure_liege_title = title:h_calradian_empire
-			}
-			title:e_arkits = {
-				every_in_de_jure_hierarchy = {
-					limit = {
-						tier = tier_kingdom
-					}
-					set_de_jure_liege_title = scope:arkit_replacement # Move these kingdoms to the new province
-				}
-				set_variable = {
-					name = ck_block_catalyst
-					value = yes
-					days = 2 # To avoid catalyst firing for this particular thing
-				}
-				holder = {
-					destroy_title = prev
-				}
-			}
-			# Now, divide the kingdoms into two, west and east. If a titular kingdom exists in this area though, it becomes the de jure liege
-			if = {
-				limit = {
-					title:e_arkits = {
-						any_de_jure_county = {
-							holder = {
-								is_independent_ruler = yes
-								this != root
-								primary_title = {
-									is_titular = yes
-									tier = tier_kingdom
-								}
-							}
-						}
-					}
-				}
-				title:e_arkits = {
-					random_de_jure_county = {
-						limit = {
-							holder = {
-								this != root
-								primary_title = {
-									is_titular = yes
-									tier = tier_kingdom
-								}
-							}
-						}
-						holder = { save_scope_as = independent_khan_ck }
-					}
-				}
-				scope:independent_khan_ck = {
-					every_held_title = {
-						limit = {
-							tier = tier_duchy
-							kingdom = {
-								de_jure_liege = title:e_arkits
-							}
-						}
-						set_de_jure_liege_title = scope:independent_khan_ck
-					}
-				}
-			}
-			# No independent Khan in Anaeka, go ahead with creating a new kingdom in the west
-			else = {
-				create_dynamic_title = {
-					tier = kingdom
-					name = cn_province_sethys
-					adj = cn_province_sethys_adj
-				}
-				scope:new_title = {
-					save_scope_as = arkit_new_kingdom
-				}
-				scope:arkit_new_kingdom = {
-					set_color_from_title = title:d_sethys_valley
-					set_can_be_named_after_dynasty = no
-					set_can_use_nomadic_naming = no
-					# set_definitive_form = no
-				}
-				create_title_and_vassal_change = {
-					type = created
-					save_scope_as = change
-					add_claim_on_loss = no
-				}
-				resolve_title_and_vassal_change = scope:change
-				scope:arkit_new_kingdom = {
-					generate_coa = yes
-					copy_title_history = title:arkit_new_kingdom
-					set_de_jure_liege_title = scope:arkit_replacement
-				}
-				title:d_arkits_1 ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
-				title:d_sethys_valley ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
-				title:d_melion ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
-				title:d_emanis ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
-				title:d_ophthys ?= { set_de_jure_liege_title = scope:arkit_new_kingdom }
-			}
-		}
 	}
 	every_held_title = { #Should destroy all other Empires owned at the time.
 		title_tier = empire
@@ -406,5 +177,141 @@ create_calradian_empire_wb_scripted_effect = {
 			days = 2 # To avoid catalyst firing for this particular thing
 		}
 		root = { destroy_title = prev }
+	}
+}
+
+### Supremacy
+
+ck_hm_struggle_ending_culture_list_effect = {
+	every_culture_global = {		
+		limit = {
+			save_temporary_scope_as = this_culture
+			struggle:heaven_mandate_struggle = { is_culture_involved_in_struggle = scope:this_culture }
+			culture_number_of_counties > 0
+		}
+		save_scope_as = culture_scope
+		add_to_global_variable_list = {
+			name = ck_hm_struggle_ending_culture_list
+			target = scope:culture_scope
+		}
+	}
+}
+ck_hm_struggle_ending_involved_list_effect = {
+	save_scope_as = struggle_ender
+	struggle:heaven_mandate_struggle = {
+		every_involved_ruler = {
+			limit = {
+				top_liege = this
+				primary_title = { is_mercenary_company = no }
+			}
+			add_to_list = struggle_involvees
+		}
+	}
+	# Add all involved cultures with counties to a list, for war checks
+	ck_hm_struggle_ending_culture_list_effect = yes
+	# Add all involved faiths with counties to a list, for marriage and holy war checks
+	ck_hm_struggle_ending_faith_list_effect = yes
+}
+# Add all Involved faiths with counties to a list
+ck_hm_struggle_ending_faith_list_effect = {
+	every_religion_global = {
+		limit = {
+			any_faith = {
+				save_temporary_scope_as = this_faith
+				struggle:heaven_mandate_struggle = { is_faith_involved_in_struggle = scope:this_faith }
+				num_county_followers > 0
+			}
+		}
+		every_faith = {
+			limit = {
+				struggle:heaven_mandate_struggle = { is_faith_involved_in_struggle = prev }
+				num_county_followers > 0
+			}
+			save_scope_as = faith_scope
+			add_to_global_variable_list = {
+				name = ck_hm_struggle_ending_faith_list
+				target = scope:faith_scope
+			}
+		}
+	}
+}
+# Set cultural acceptance between all Involved cultures
+ck_struggle_supremacy_cultural_acceptance_effect = {
+	hidden_effect = {
+		while = {
+			limit = {
+				any_in_global_list = {
+					variable = ck_hm_struggle_ending_culture_list
+					NOT = { has_variable = ck_struggle_supremacy_flag }
+				}
+			}
+			ordered_in_global_list = {
+				variable = ck_hm_struggle_ending_culture_list
+				limit = {
+					NOT = { has_variable = ck_struggle_supremacy_flag }
+				}
+				order_by = culture_number_of_counties
+				save_scope_as = culture_scope
+				set_variable = ck_struggle_supremacy_flag # variable ensures acceptance is only lost once per couple
+			}
+			every_in_global_list = {
+				variable = ck_hm_struggle_ending_culture_list
+				limit = {
+					NOR = {
+						has_variable = ck_struggle_supremacy_flag
+						this = scope:culture_scope
+					}
+				}
+				change_cultural_acceptance = {
+					target = scope:culture_scope
+					value = fp2_struggle_hostility_culture_acceptance_value
+					desc = fp2_struggle_hostility_acceptance_tt
+				}
+			}
+		}
+		every_in_global_list = {
+			variable = ck_hm_struggle_ending_culture_list
+			remove_variable = ck_struggle_supremacy_flag
+		}
+	}
+}
+# Set cultural acceptance between all Involved cultures
+ck_struggle_supremacy_cultural_acceptance_large_effect = {
+	hidden_effect = {
+		while = {
+			limit = {
+				any_in_global_list = {
+					variable = ck_hm_struggle_ending_culture_list
+					NOT = { has_variable = ck_struggle_supremacy_flag }
+				}
+			}
+			ordered_in_global_list = {
+				variable = ck_hm_struggle_ending_culture_list
+				limit = {
+					NOT = { has_variable = ck_struggle_supremacy_flag }
+				}
+				order_by = culture_number_of_counties
+				save_scope_as = culture_scope
+				set_variable = ck_struggle_supremacy_flag # variable ensures acceptance is only lost once per couple
+			}
+			every_in_global_list = {
+				variable = ck_hm_struggle_ending_culture_list
+				limit = {
+					NOR = {
+						has_variable = ck_struggle_supremacy_flag
+						this = scope:culture_scope
+					}
+				}
+				change_cultural_acceptance = {
+					target = scope:culture_scope
+					value = fp2_struggle_hostility_culture_acceptance_value
+					desc = fp2_struggle_hostility_acceptance_tt
+				}
+			}
+		}
+		every_in_global_list = {
+			variable = ck_hm_struggle_ending_culture_list
+			remove_variable = ck_struggle_supremacy_flag
+		}
 	}
 }

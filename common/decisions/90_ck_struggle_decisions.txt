@@ -383,7 +383,10 @@ end_the_struggle_supremacy = {
 	
 	is_shown = {
 		is_landless_adventurer = no
-		# has_fp2_dlc_trigger = yes
+		any_character_struggle = {
+			involvement = involved
+			is_struggle_type = heaven_mandate_struggle
+		}
 	}
 
 	# is_shown = {
@@ -392,88 +395,131 @@ end_the_struggle_supremacy = {
 	# 		exists = global_var:ended_the_hm_struggle
 	# 	}
 	# }
-	# is_valid = {
-	# 	top_liege = this
-	# 	exists = struggle:heaven_mandate_struggle
-
-	# 	custom_tooltip = {
-	# 		text = ck_heaven_struggle_ending_supremacy
-	# 		struggle:heaven_mandate_struggle = {
-	# 			is_struggle_phase = struggle_heaven_phase_supremacy
-	# 		}
-	# 	}
-	# 	custom_tooltip = {
-	# 		text = struggle_hm_ending_holding_calradia_years
-	# 		# Control the new empire for three years
-	# 		title:h_calradian_empire =  {
-	# 			title_held_years >= 3
-	# 		}
-	# 	}
-	# 	custom_tooltip = {
-	# 		text = ck_calradian_emperor_trigger
-	# 		is_roman_emperor_trigger = yes
-	# 	}
-	# 	# Hold and completely control two de jure empires of the Calradian Empire
-	# 	custom_tooltip = { #
-	# 		text = struggle_hm_ending_supremacy_decision_empire_tt
-	# 		OR = {
-	# 			any_held_title = { # 1st kingdom
-	# 				title_tier = empire
-	# 				de_jure_liege = title:h_calradian_empire
-	# 				root = { completely_controls = prev }
-	# 				save_temporary_scope_as = calk_empire
-	# 			}
-	# 			any_vassal_or_below = {
-	# 				save_temporary_scope_as = ck_vassal_decision
-	# 				any_held_title = { # 1st kingdom
-	# 					title_tier = empire
-	# 					de_jure_liege = title:h_calradian_empire
-	# 					trigger_if = {
-	# 						limit = { exists = scope:calk_empire }
-	# 						this != scope:calk_empire
-	# 					}
-	# 					save_temporary_scope_as = calk_empire_2
-	# 				}
-	# 				completely_controls = prev
-	# 			}
-	# 		}
-	# 		OR = {
-	# 			any_held_title = { # 2nd kingdom
-	# 				title_tier = empire
-	# 				de_jure_liege = title:h_calradian_empire
-	# 				trigger_if = {
-	# 					limit = { exists = scope:calk_empire }
-	# 					this != scope:calk_empire
-	# 				}
-	# 				root = { completely_controls = prev }
-	# 				save_temporary_scope_as = calk_empire_2
-	# 			}
-	# 			any_vassal_or_below = {
-	# 				save_temporary_scope_as = ck_vassal_decision
-	# 				any_held_title = { # 1st kingdom
-	# 					title_tier = empire
-	# 					de_jure_liege = title:h_calradian_empire
-	# 					trigger_if = {
-	# 						limit = { exists = scope:calk_empire }
-	# 						this != scope:calk_empire
-	# 					}
-	# 					save_temporary_scope_as = calk_empire_2
-	# 				}
-	# 				completely_controls = prev
-	# 			}
-	# 		}
-	# 	}
-	# }
 	is_valid = {
-		always = yes
+		top_liege = this
+		is_at_war = no
+		exists = struggle:heaven_mandate_struggle
+
+		custom_tooltip = {
+			text = ck_heaven_struggle_ending_supremacy
+			struggle:heaven_mandate_struggle = {
+				is_struggle_phase = struggle_heaven_phase_supremacy
+			}
+		}
+		custom_tooltip = {
+			text = struggle_hm_ending_holding_calradia_years
+			# Control the new empire for three years
+			title:h_calradian_empire =  {
+				title_held_years >= 3
+			}
+		}
+		custom_tooltip = {
+			text = ck_calradian_emperor_trigger
+			is_roman_emperor_trigger = yes
+		}
+		# Hold and completely control two de jure empires of the Calradian Empire
+		custom_tooltip = { #
+			text = struggle_hm_ending_supremacy_decision_empire_tt
+			OR = {
+				any_held_title = { # 1st kingdom
+					title_tier = empire
+					de_jure_liege = title:h_calradian_empire
+					root = { completely_controls = prev }
+					save_temporary_scope_as = calk_empire
+				}
+				any_vassal_or_below = {
+					save_temporary_scope_as = ck_vassal_decision
+					any_held_title = { # 1st kingdom
+						title_tier = empire
+						de_jure_liege = title:h_calradian_empire
+						trigger_if = {
+							limit = { exists = scope:calk_empire }
+							this != scope:calk_empire
+						}
+						save_temporary_scope_as = calk_empire_2
+					}
+					completely_controls = prev
+				}
+			}
+			OR = {
+				any_held_title = { # 2nd kingdom
+					title_tier = empire
+					de_jure_liege = title:h_calradian_empire
+					trigger_if = {
+						limit = { exists = scope:calk_empire }
+						this != scope:calk_empire
+					}
+					root = { completely_controls = prev }
+					save_temporary_scope_as = calk_empire_2
+				}
+				any_vassal_or_below = {
+					save_temporary_scope_as = ck_vassal_decision
+					any_held_title = { # 1st kingdom
+						title_tier = empire
+						de_jure_liege = title:h_calradian_empire
+						trigger_if = {
+							limit = { exists = scope:calk_empire }
+							this != scope:calk_empire
+						}
+						save_temporary_scope_as = calk_empire_2
+					}
+					completely_controls = prev
+				}
+			}
+		}
 	}
 	effect = {
 		custom_tooltip = ck_heaven_struggle.1003.a.tt
-		save_scope_value_as = {
-			name = ck_hs_cooldown
-			value = global_var:ck_hs_cooldown
+		custom_tooltip = ck_hm_struggle_ending_unlock_form_province
+		if = {
+			limit = { has_dlc_feature = legends }
+			legend_seed_struggle_ending_effect = {
+				ENDER = root
+				STRUGGLE = heaven_mandate_struggle
+			}
 		}
+		if = {
+			limit = { has_ach_dlc_trigger = yes }
+			add_character_flag = ach_ended_struggle
+		}
+
+		##### Major Effects #####
+		show_as_tooltip = {
+			dynasty = { add_dynasty_prestige = 5000 }
+			# fp2_struggle_hostility_ender_effect = yes
+		}
+		custom_description_no_bullet = { text = fp2_struggle_house_tt }
+		custom_tooltip = ck_struggle_supremacy_conversion_tt
+		# Damage opinion with other culture/faiths
+		custom_tooltip = ck_hm_struggle_supremacy_opinion_tt
+		custom_tooltip = ck_hm_struggle_supremacy_opinion_negative_tt
+		# Choose Holy War boost, Culture War boost, or both
+		custom_description_no_bullet = { text = ck_hm_struggle_supremacy_list_tt }
+
+		show_as_tooltip = {
+			stress_impact = {
+				humble = medium_stress_impact_gain
+				cynical = medium_stress_impact_gain
+				ambitious = medium_stress_impact_loss
+			}
+		}
+
+		trigger_event = ck_heaven_struggle.1005
 	}
+	cost = {}
+
+	ai_check_interval_by_tier = {
+		barony = 0
+		county = 0
+		duchy = 0
+		kingdom = 120
+		empire = 120
+		hegemony = 120
+	}
+
+	ai_potential = { always = yes }
+
+	ai_will_do = { base = 100 }
 }
 testing_end_two = { ## WIP
 	decision_group_type = major_calradian
@@ -576,9 +622,84 @@ testing_end_two = { ## WIP
 	}
 	effect = {
 		custom_tooltip = ck_heaven_struggle.1003.a.tt
-		save_scope_value_as = {
-			name = ck_hs_cooldown
-			value = global_var:ck_hs_cooldown
+	}
+}
+form_imperial_province_ck = {
+	decision_group_type = major_calradian
+	title = form_imperial_province_ck_title
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/fp3/fp3_decision_supremacy.dds"
+	}
+	desc = form_imperial_province_ck_desc
+	selection_tooltip = end_the_struggle_supremacy_tooltip
+	
+	sort_order = 80
+	is_shown = {
+		OR = {
+			has_title = title:h_calradian_empire
+			has_title = title:h_eastern_calradian_empire
+		}
+	}
+	is_valid = {
+		OR = {
+			has_title = title:h_calradian_empire
+			trigger_if = {
+				limit = {
+					exists = title:h_eastern_calradian_empire.holder
+				}
+				has_title = title:h_eastern_calradian_empire
+			}
+		}
+		custom_tooltip = {
+			text = ck_hm_struggle_ended_tt
+			NOT = {
+				exists = struggle:heaven_mandate_struggle
+			}
+		}
+	}
+	widget = {
+		gui = "decision_view_widget_generic_multichoice_with_effects"
+		controller = decision_option_list_controller
+		decision_to_second_step_button = "form_province_decision_select_province"
+		show_from_start = yes
+
+		item = {
+			value = ck_province_paravenos
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_paravenos_tt
+					any_county_in_region = {
+						region = ck_wb_paravenos
+						percent >= 0.8
+						holder.top_liege = root
+					}
+				}
+			}
+			current_description = ck_province_paravenos_tt
+			localization = ck_province_paravenos
+			icon = "gfx/interface/icons/ck_paravenos.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_pamphia
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_pamphia_tt
+					any_county_in_region = {
+						region = ck_wb_charasea
+						percent >= 0.8
+						holder.top_liege = root
+					}
+				}
+			}
+			current_description = ck_province_pamphia_tt
+			localization = ck_province_pamphia
+			icon = "gfx/interface/icons/ck_pamphia.dds"
+			ai_chance = {
+				value = 0
+			}
 		}
 	}
 }
