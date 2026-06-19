@@ -134,6 +134,7 @@ aserai_pikemen = { #Aserai Tribal Spearmen
 		value = culture_ai_weight_pikemen
 		add = counter_synergy_ai_weight_pikemen
 		add = government_ai_weight_tribal
+		add = tier_ai_weight_county
 	}
 	icon = pikemen
 }
@@ -173,7 +174,6 @@ aserai_bowmen_1 = { #Aserai Archers
 	ai_quality = { 
 		value = culture_ai_weight_archers
 		add = counter_synergy_ai_weight_archers
-		subtract = 12
 		add = penalty_ai_weight_toptier_archers
 	}
 	icon = bowmen
@@ -216,7 +216,7 @@ aserai_bowmen_2 = { # Aserai Veterans
 		add = counter_synergy_ai_weight_archers
 		add = penalty_ai_weight_veterans
 		add = penalty_ai_weight_toptier_archers
-		subtract = 234  # oops all vets - we want at least half of them to not pick these from the cost/effect ratio
+		subtract = 210  # oops all vets - we want at least half of them to not pick these from the cost/effect ratio
 	}
 	icon = bowmen
 }
@@ -267,6 +267,7 @@ aserai_light_cavalry_1 = { #Aserai Tribal Horsemen
 		value = culture_ai_weight_light_cavalry
 		add = counter_synergy_ai_weight_light_cavalry
 		add = government_ai_weight_tribal
+		subtract = 40 # too popular after vets nerfed
 	}
 	icon = tawashi
 }
@@ -398,8 +399,8 @@ aserai_shock_infantry = { # Aserai Axemen
 	ai_quality = {
 		value = culture_ai_weight_shock
 		add = counter_synergy_ai_weight_shock
-		add = -50
-		add = prowess_no_portrait
+		subtract = 50
+		add = martial
 	}
 	icon = ayyar
 }
@@ -443,12 +444,23 @@ aserai_horse_archers = { # Aserai Mameluke Cavalry
 	ai_quality = {
 		value = culture_ai_weight_light_cavalry 
 		add = penalty_ai_weight_horse_archers
-		# if = {
-		# 	limit = {
-		# 		is_independent_ruler = yes
-		# 	}
-		# 	add = legitimacy
-		# }
+		if = {
+			limit = {
+				is_independent_ruler = yes
+			}
+			add = {
+				value = 30
+				multiply = highest_held_title_tier
+			}
+		}
+		if = {
+			limit = {
+				capital_province ?= {
+					geographical_region = region_east_nahasa
+				}
+			}
+			add = 100
+		}
 	}
 	icon = asawira
 }
