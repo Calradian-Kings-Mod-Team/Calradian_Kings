@@ -7,7 +7,7 @@
 
 	greeting = positive
 
-	desc = request_laamp_legitimist_support_interaction_desc
+	desc = request_laamp_use_troops_desc
 
 	is_shown = {
 		scope:actor = {
@@ -19,9 +19,10 @@
 		}
 		scope:recipient = {
 			is_landless_ruler = yes
+			government_has_flag = cannot_be_vassal_or_liege
 			NOR = {
 				has_variable = recruits_local_troops
-				culture = scope:actor.culture
+				ck_shares_unique_troops = { CHARACTER = scope:actor }
 			}
 		}
 	}
@@ -41,27 +42,36 @@
 				imprisoned = no
 				at_war = no
 			}
-			culture ?= {
-				has_variable = troops_culture
-			}
 			trigger_if = {
 				limit = {
 					scope:recipient = { is_landless_adventurer = yes }
 				}
 				is_contact_of = scope:recipient
+				ep3_laamp_diplo_range_trigger = {
+					TARGET = scope:actor
+					LAAMP = scope:recipient
+				}
 			}
 			trigger_if = {
 				limit = {
 					scope:recipient = { government_has_flag = government_is_mercenary }
 				}
-				any_hired_mercenary = {
-					mercenary_company_leader = scope:recipient
+				custom_tooltip = {
+					text = MERCENARY_COMPANY_NOT_HIRED_BY_ME
+					any_hired_mercenary = {
+						mercenary_company_leader = scope:recipient
+					}
 				}
 			}
-		}
-		ep3_laamp_diplo_range_trigger = {
-			TARGET = scope:actor
-			LAAMP = scope:recipient
+			trigger_if = {
+				limit = {
+					scope:recipient = { government_has_flag = government_is_holy_order }
+				}
+				scope:recipient.faith = scope:actor.faith
+				# any_patroned_holy_order = {
+				# 	leader = scope:recipient
+				# }
+			}
 		}
 		# # Adventurers can't join wars in places they're exiled from.
 		# custom_tooltip = {
@@ -75,6 +85,54 @@
 		# }
 	}
 
+	target_type = men_at_arms
+	target_filter = actor_personal_maa
+	can_be_picked_regiment = {
+		scope:target ?= {
+			maa_size > 1
+			NOT = {
+				is_unit_type = siege_weapon
+			}
+		}
+	}
+	has_valid_target_showing_failures_only = {
+		scope:target ?= {
+			# scope:actor ?= { has_access_to_maa = prev }
+			is_raised = no
+			custom_tooltip = {
+				text = request_laamp_troop_mismatch
+				# object = regiment_owner
+				trigger_if = {
+					limit = {
+						regiment_owner = { has_variable = recruits_local_troops }
+					}
+					ck_regiment_match_culture = { CULTURE = regiment_owner.var:recruits_local_troops}
+				}
+				trigger_else = {
+					ck_regiment_match_culture = { CULTURE = regiment_owner.culture.var:troops_culture}
+				}
+			}
+		}
+	}
+
+	#TODO add a secondary_actor list with knights to send off
+	auto_accept = {
+		custom_description = {
+			text = "spending_hook"
+			subject = scope:actor
+			object = scope:recipient
+			scope:hook = yes
+		}
+	}
+	send_option = {
+		is_valid = {
+			scope:actor = {
+				has_usable_hook = scope:recipient
+			}
+		}
+		flag = hook
+		localization = SCHEME_HOOK
+	}
 	send_options_exclusive = no
 
 	cost = {
@@ -102,20 +160,88 @@
 	}
 
 	on_accept = {
-		scope:actor = {
-			create_task_contract = {
-				task_contract_type = laamp_legitimist_support_contract
-				task_contract_tier = 3
-				location = scope:recipient.capital_province
-				task_contract_employer = scope:recipient
-				save_temporary_scope_as = legitimist_contract
+		scope:recipient = {
+			culture ?= {
+				change_cultural_acceptance = {
+					target = scope:actor.culture
+					desc = recruits_local_troops
+					value = 1
+				}
 			}
-			custom_tooltip = laamp_legitimist_support_contract_success
 			if = {
 				limit = {
-					is_ai = yes
+					is_landless_adventurer = yes
 				}
-				accept_task_contract = scope:legitimist_contract
+				create_maa_regiment = {
+					check_can_recruit = no
+					type_of = scope:target
+					size = 1
+				}
+				domicile ?= {
+					if = {
+						limit = {
+							domicile_uses_provisions = yes
+						}
+						change_provisions = human_provision_value
+					}
+				}
+			}
+			else = { # giving its holder maa doesn't do anything when hired...
+				hidden_effect = {
+					add_long_term_gold = scope:actor.major_gold_value # we do a little money laundering
+				}
+				if = {
+					limit = {
+						government_has_flag = government_is_holy_order
+					}
+					scope:actor = {
+						add_piety_experience = medium_gold_value
+					}
+				}
+				else = {
+					scope:actor = {
+						add_prestige_experience = medium_gold_loss
+					}
+				}
+			}
+			scope:target ?= {
+				change_maa_regiment_size = {
+					size = -1
+				}
+			}
+			if = {
+				limit = {
+					scope:actor = { has_variable = recruits_local_troops }
+				}
+				set_variable = {
+					name = recruits_local_troops
+					value = scope:actor.var:recruits_local_troops
+				}
+			}
+			else = {
+				set_variable = {
+					name = recruits_local_troops
+					value = scope:actor.culture.var:troops_culture
+				}
+			}
+			every_knight = {
+				# custom = every_knight_troops_approval
+				trigger_event = {
+					id = culture_emergence_events.1085
+					delayed = no 
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_character_modifier = recruits_local_troops
+					}
+				}
+				add_character_modifier = {
+					modifier = recruits_local_troops
+					# desc = will_recruit_variable
+					weeks = 12
+				}
 			}
 		}
 	}
@@ -242,7 +368,10 @@ debug_yoink_troops = {
 		flag = culture
 		is_shown = {
 			scope:recipient = {
-				number_of_maa_regiments > 0
+				# OR = {
+				# 	number_of_maa_regiments > 0
+				# 	any_vassal = { number_of_maa_regiments > 0 }
+				# }
 				ck_unique_troops_trigger = yes
 			}
 		}

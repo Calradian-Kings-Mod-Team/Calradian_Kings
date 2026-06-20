@@ -82,23 +82,37 @@ ck_unique_culture_troop_vars_trigger = {
 # tooltipping in decisions - we want the title's county's culture's name in there not character
 ck_unique_county_troops_trigger = {
 	title_capital_county ?= {
-		# OR = {
-		# 	culture = { has_cultural_pillar = heritage_calradian }
-		# 	culture = { has_cultural_pillar = heritage_balian }
-		# 	culture = { has_cultural_pillar = heritage_battanian }
-		# 	culture = { has_cultural_pillar = heritage_nahasi }
-		# 	culture = { has_cultural_pillar = heritage_sturgic }
-		# 	culture = { has_cultural_pillar = heritage_khuzic }
-		# 	culture = { has_cultural_pillar = heritage_geroian }
-		# 	culture = { has_cultural_pillar = heritage_byalic }
-
-		# 	culture = { ck_unique_culture_troop_vars_trigger = yes }
-		# 	# culture = { has_cultural_pillar = heritage_kohinik }
-		# }
 		ck_unique_troops_trigger = yes
 	}
 }
 
+# check if characters can hire from the same trees
+ck_shares_unique_troops = {
+	trigger_if = {
+		limit = {
+			$CHARACTER$ = {
+				has_variable = recruits_local_troops
+			}
+		}
+		ck_can_recruit_scoped_troops = {
+			SCOPE = $CHARACTER$.var:recruits_local_troops
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			$CHARACTER$.culture = {
+				has_variable = troops_culture 
+			}
+
+		}
+		ck_can_recruit_scoped_troops = {
+			SCOPE = $CHARACTER$.culture.var:troops_culture 
+		}
+	}
+	trigger_else = { # handle generic == generic?
+		always = no
+	}
+}
 # validate if the heritage matches culture vars
 ck_unique_culture_troop_heritage_match = {
 	# single-tree heritages
@@ -357,5 +371,243 @@ ck_obedient_maa_access = {
 		# the following are normally not blockers but they really shouldn't have "access"
 		highest_held_title_tier > tier_barony
 		NOT = { government_has_flag = government_is_herder }
+	}
+}
+# hardcoded list (ignoring innovations/traditions) to map corresponding regiments - can't save their CMenAtArmsTypeDatabase keys for checking has_access_to_maa
+ck_regiment_match_culture = {
+	switch = {
+		trigger = $CULTURE$
+		culture:calradian = { OR = {
+			is_maa_type = imperial_light_infantry
+			is_maa_type = imperial_heavy_infantry
+			is_maa_type = imperial_bowmen_1
+			is_maa_type = imperial_bowmen_2
+			is_maa_type = imperial_light_cavalry
+			is_maa_type = imperial_heavy_cavalry_1
+			is_maa_type = imperial_heavy_cavalry_2
+			is_maa_type = imperial_horse_archers
+			is_maa_type = imperial_crossbowmen
+			is_maa_type = imperial_pikemen
+		} }
+		culture:battanian = { OR = {
+			is_maa_type = battanian_light_infantry_1
+			is_maa_type = battanian_light_infantry_2
+			is_maa_type = battanian_heavy_infantry
+			is_maa_type = battanian_bowmen_1
+			is_maa_type = battanian_bowmen_2
+			is_maa_type = battanian_light_cavalry
+			is_maa_type = battanian_shock_infantry
+			is_maa_type = battanian_pikemen
+		} }
+		culture:geroian = { OR = {
+			is_maa_type = geroian_light_infantry
+			is_maa_type = geroian_pikemen_1
+			is_maa_type = geroian_pikemen_2
+			is_maa_type = geroian_crossbowmen_1
+			is_maa_type = geroian_crossbowmen_2
+			is_maa_type = geroian_light_cavalry
+			is_maa_type = geroian_horse_archers
+		} }
+		culture:nord = { OR = {
+			is_maa_type = nordic_light_infantry
+			is_maa_type = nordic_heavy_infantry_1
+			is_maa_type = nordic_heavy_infantry_2
+			is_maa_type = nordic_pikemen
+			is_maa_type = nordic_bowmen
+			is_maa_type = nordic_light_cavalry
+		} }
+		culture:swadian = { OR = {
+			is_maa_type = swadian_light_infantry
+			is_maa_type = swadian_heavy_infantry
+			is_maa_type = swadian_pikemen
+			is_maa_type = swadian_crossbowmen_1
+			is_maa_type = swadian_crossbowmen_2
+			is_maa_type = swadian_light_cavalry
+			is_maa_type = swadian_heavy_cavalry
+		} }
+		culture:vaegir = { OR = {
+			is_maa_type = vaegir_light_infantry
+			is_maa_type = vaegir_heavy_infantry
+			is_maa_type = vaegir_pikemen
+			is_maa_type = vaegir_bowmen_1
+			is_maa_type = vaegir_bowmen_2
+			is_maa_type = vaegir_light_cavalry
+			is_maa_type = vaegir_heavy_cavalry
+			is_maa_type = vaegir_shock_infantry
+		} }
+		culture:khergit = { OR = {
+			is_maa_type = khergit_peasant_militia
+			is_maa_type = khergit_nomadic_riders
+			is_maa_type = khergit_skirmish_cavalry
+			is_maa_type = khergit_light_cavalry
+			is_maa_type = khergit_heavy_cavalry
+			is_maa_type = khergit_horse_archers_1
+			is_maa_type = khergit_horse_archers_2
+			is_maa_type = khergit_guards
+		} }
+		culture:rhodok = { OR = {
+			is_maa_type = rhodok_light_infantry
+			is_maa_type = rhodok_heavy_infantry
+			is_maa_type = rhodok_pikemen
+			is_maa_type = rhodok_bowmen
+			is_maa_type = rhodok_crossbowmen_1
+			is_maa_type = rhodok_crossbowmen_2
+			is_maa_type = rhodok_light_cavalry
+			is_maa_type = rhodok_heavy_cavalry
+		} }
+		culture:sarranid = { OR = {
+			is_maa_type = sarranid_peasant_militia
+			is_maa_type = sarranid_light_infantry
+			is_maa_type = sarranid_heavy_infantry
+			is_maa_type = sarranid_pikemen
+			is_maa_type = sarranid_bowmen_1
+			is_maa_type = sarranid_bowmen_2
+			is_maa_type = sarranid_light_cavalry
+			is_maa_type = sarranid_heavy_cavalry
+			is_maa_type = sarranid_shock_infantry
+		} }
+		culture:sturgic = { OR = {
+			is_maa_type = sturgian_light_infantry_1
+			is_maa_type = sturgian_light_infantry_2
+			is_maa_type = sturgian_pikemen
+			is_maa_type = sturgian_heavy_infantry
+			is_maa_type = sturgian_bowmen
+			is_maa_type = sturgian_light_cavalry
+			is_maa_type = sturgian_shock_infantry
+			is_maa_type = sturgian_heavy_cavalry
+		} }
+		culture:aserai = { OR = {
+			is_maa_type = aserai_light_infantry
+			is_maa_type = aserai_heavy_infantry
+			is_maa_type = aserai_bowmen_1
+			is_maa_type = aserai_bowmen_2
+			is_maa_type = aserai_light_cavalry_1
+			is_maa_type = aserai_light_cavalry_2
+			is_maa_type = aserai_heavy_cavalry
+			is_maa_type = aserai_horse_archers
+			is_maa_type = aserai_shock_infantry
+			is_maa_type = aserai_pikemen
+		} }
+		culture:khuzait = { OR = {
+            is_maa_type = khuzait_light_infantry
+            is_maa_type = khuzait_heavy_infantry
+            is_maa_type = khuzait_pikemen
+            is_maa_type = khuzait_bowmen
+            is_maa_type = khuzait_light_cavalry
+            is_maa_type = khuzait_heavy_cavalry
+            is_maa_type = khuzait_horse_archers_1
+            is_maa_type = khuzait_horse_archers_2
+		} }
+		culture:vlandian = { OR = {
+			is_maa_type = vlandian_light_infantry
+			is_maa_type = vlandian_heavy_infantry
+			is_maa_type = vlandian_crossbowmen_1
+			is_maa_type = vlandian_crossbowmen_2
+			is_maa_type = vlandian_light_cavalry_1
+			is_maa_type = vlandian_light_cavalry_2
+			is_maa_type = vlandian_heavy_cavalry_1
+			is_maa_type = vlandian_heavy_cavalry_2
+			is_maa_type = vlandian_shock_infantry
+			is_maa_type = vlandian_bowmen
+			is_maa_type = vlandian_pikemen
+		} }
+		culture:togerd = { OR = {
+			is_maa_type = togerd_light_infantry
+			is_maa_type = togerd_heavy_infantry
+			is_maa_type = togerd_pikemen
+			is_maa_type = togerd_bowmen
+			is_maa_type = togerd_crossbowmen
+			is_maa_type = togerd_light_cavalry
+			is_maa_type = togerd_heavy_cavalry
+		} }
+		culture:sudican = { OR = {
+			is_maa_type = sudican_light_infantry_1
+			is_maa_type = sudican_light_infantry_2
+			is_maa_type = sudican_heavy_infantry
+			is_maa_type = sudican_pikemen
+			is_maa_type = sudican_bowmen
+			is_maa_type = sudican_light_cavalry
+			is_maa_type = sudican_shock_infantry
+		} }
+		culture:kassen = { OR = {
+			is_maa_type = kassen_light_infantry
+			is_maa_type = kassen_heavy_infantry
+			is_maa_type = kassen_pikemen
+			is_maa_type = kassen_bowmen
+			is_maa_type = kassen_crossbowmen
+			is_maa_type = kassen_light_cavalry
+		} }
+		culture:eilander = { OR = {
+			is_maa_type = eilander_light_infantry
+			is_maa_type = eilander_heavy_infantry
+			is_maa_type = eilander_pikemen
+			is_maa_type = eilander_bowmen
+			is_maa_type = eilander_light_cavalry_1
+			is_maa_type = eilander_light_cavalry_2
+			is_maa_type = eilander_shock_infantry
+		} }
+		culture:heimarkel = { OR = {
+			is_maa_type = heimarkel_light_infantry
+			is_maa_type = heimarkel_heavy_infantry
+			is_maa_type = heimarkel_pikemen
+			is_maa_type = heimarkel_bowmen
+			is_maa_type = heimarkel_crossbowmen
+			is_maa_type = heimarkel_light_cavalry
+			is_maa_type = heimarkel_heavy_cavalry
+		} }
+		culture:rhoyd = { OR = {
+			is_maa_type = rhoyd_light_infantry
+			is_maa_type = rhoyd_heavy_infantry
+			is_maa_type = rhoyd_pikemen
+			is_maa_type = rhoyd_bowmen
+			is_maa_type = rhoyd_crossbowmen
+			is_maa_type = rhoyd_light_cavalry
+		} }
+		culture:palaic = { OR = {
+			is_maa_type = palaic_peasant_militia
+			is_maa_type = palaic_heavy_infantry
+			is_maa_type = palaic_shock_infantry
+			is_maa_type = palaic_bowmen
+			is_maa_type = palaic_light_cavalry
+			is_maa_type = palaic_heavy_cavalry
+		} }
+		culture:gotts = { OR = {
+			is_maa_type = gottic_light_infantry
+			is_maa_type = gottic_heavy_infantry
+			is_maa_type = gottic_pikemen
+			is_maa_type = gottic_shock_infantry
+			is_maa_type = gottic_bowmen
+			is_maa_type = gottic_light_cavalry
+			is_maa_type = gottic_heavy_cavalry
+		} }
+		culture:kartinakh = { OR = {
+			is_maa_type = kartinakh_pike
+			is_maa_type = kartinakh_light_infantry
+			is_maa_type = kartinakh_archers
+			is_maa_type = kartinakh_heavy_infantry
+			is_maa_type = kartinakh_light_cavalry_1
+			is_maa_type = kartinakh_heavy_cavalry_1
+			is_maa_type = kartinakh_heavy_cavalry_2
+		} }
+		culture:kohayan = { OR = {
+			is_maa_type = kohayan_archers
+			is_maa_type = kohayan_crossbowmen
+			is_maa_type = kohayan_spear_infantry
+			is_maa_type = kohayan_light_infantry
+			is_maa_type = kohayan_heavy_infantry
+			is_maa_type = kohayan_special_unit_1
+			is_maa_type = kohayan_medium_cavalry
+			is_maa_type = kohayan_heavy_cavalry
+		} }
+		culture:vakken = { OR = {
+			is_maa_type = vakken_light_infantry_1
+			is_maa_type = vakken_light_infantry_2
+			is_maa_type = vakken_pikemen
+			is_maa_type = vakken_shock_infantry
+			is_maa_type = vakken_bowmen
+			is_maa_type = vakken_light_cavalry
+		}}
+		fallback = { always = no }
+	# CK_MAA add troop tree above
 	}
 }
