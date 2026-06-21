@@ -831,7 +831,36 @@ steppe_building_gfx_use_khiindai_camp_character_trigger = {
 		}
 	}
 }
-
+adventurer_mercenary_background_trigger = {
+	OR = {
+		AND = {
+			government_has_flag = government_is_landless_adventurer
+			OR = {
+				has_realm_law = camp_purpose_mercenaries
+				liege ?= { has_realm_law = camp_purpose_mercenaries }
+			}
+		}
+		government_has_flag = government_is_mercenary
+		# primary_title ?= { is_mercenary_company = yes }
+		# employer.primary_title ?= { is_mercenary_company = yes }
+	}
+	is_available_quick = {
+		travel = no
+		activity = no
+	}
+}
+# if you are imprisoned, host != employer/liege
+adventurer_steppe_background_trigger = {
+	host ?= {
+		government_has_flag = government_is_landless_adventurer
+		culture = { has_graphical_steppe_culture_group_trigger = yes }
+	}
+	is_available_quick = {
+		imprisoned = no
+		activity = no
+		travel = no
+	}
+}
 # catchall to shorten the code inside ingame.txt
 secondary_background_trigger = {
 	OR = {
@@ -858,7 +887,8 @@ secondary_background_trigger = {
 			$TRIGGER$ = yes
 		}
 		liege ?= {
-			diarch ?= this
+			# has_active_diarchy = yes
+			diarch ?= prev
 			$TRIGGER$ = yes
 		}
 	}
@@ -1208,9 +1238,13 @@ title_empire_stale_trigger = {
 				has_active_diarchy = yes
 				has_legitimacy = no
 				primary_title != prev
-				is_adult = no
-				is_incapable = yes
-				is_imprisoned = yes
+				NOT = {
+					is_available_quick = {
+						adult = yes
+						incapable = no
+						imprisoned = no
+					}
+				}
 			}
 		}
 	}
