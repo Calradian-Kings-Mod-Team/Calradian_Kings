@@ -165,36 +165,176 @@ mpo_misc.0001 = {
 		}
 		# Divergences are interesting, and the steppe is the perfect place for them.
 		# But avoid tiny, tiny divergences of less than 3 Counties.
+
 		if = {
 			limit = {
-				exists = scope:large_divergence_chance
+				has_game_rule = ck_nomad_divergence_on
+				OR = {
+					exists = scope:small_divergence_chance
+					exists = scope:large_divergence_chance
+					has_game_rule = relaxed_divergent_culture_ai_frequency
+				}
 				any_in_list = {
 					list = old_held_titles
 					count >= 3
 				}
-			}
-			random = {
-				chance = 0 #50 - disabled for now until we know if it feels good
-				scope:old_capital_county.holder = {
-					add_character_flag = suppress_culture_notifications_and_achievements
-					create_divergent_culture = yes
-					remove_character_flag = suppress_culture_notifications_and_achievements
-				}
-			}
-		}
-		else_if = {
-			limit = {
-				exists = scope:small_divergence_chance
-				any_in_list = {
-					list = old_held_titles
-					count >= 3
+				scope:old_capital_county.holder ?= {
+					trigger_if = {
+						limit = {
+							is_ai = yes
+						}
+						can_diverge_excluding_cost = yes
+					}
 				}
 			}
 			random = {
-				chance = 0 #10 - disabled for now until we know if it feels good
+				chance = {
+					value = 0
+					if = {
+						limit = {
+							exists = scope:large_divergence_chance
+						}
+						add = 50
+					}
+					else_if = {
+						limit = {
+							exists = scope:small_divergence_chance
+						}
+						add = 10
+					}
+					scope:old_capital_county.holder = {
+						switch = {
+							trigger = has_realm_law
+							nomadic_authority_5 = { add = -5 }
+							nomadic_authority_4 = { add = -3 }
+							nomadic_authority_3 = { add = -1 }
+							nomadic_authority_2 = { add = 1 }
+							nomadic_authority_1 = { add = 3 }
+						}
+						if = {
+							limit = {
+								is_ai = yes
+							}
+							multiply = divergence_yearly_chance
+						}
+					}
+				}
 				scope:old_capital_county.holder = {
 					add_character_flag = suppress_culture_notifications_and_achievements
-					create_divergent_culture = yes
+					culture ?= {
+						save_temporary_scope_as = original_character_culture
+					}
+					create_divergent_culture = yes # this one doesn't randomize but at least it doesn't fail silently
+					save_temporary_scope_as = ruler
+					# create_divergent_culture_with_side_effects_excluding_cost = yes
+					if = {
+						limit = {
+							scope:new_culture.free_tradition_slot < 3
+						}
+						scope:new_culture ?= {
+							remove_random_culture_tradition = yes  # whoops dropped this on the way out
+						}
+					}
+					if = {
+						limit = {
+							num_of_known_languages > 1
+						}
+						random_culture_global = {
+							limit = {
+								NOT = { has_same_culture_language = scope:new_culture }
+								scope:ruler = { knows_language_of_culture = prev }
+							}
+							 
+							scope:new_culture = {
+								set_language_from = prev
+							}
+						}
+					}
+					else = {
+						scope:original_character_culture = { 
+							random_parent_culture_or_above = {
+								limit = {
+									NOT = {
+										has_same_culture_language = prev
+									}
+								}
+								scope:new_culture = { set_language_from = prev }
+							}
+						}
+					}
+					clear_saved_scope = tradition
+					clear_saved_scope = advanced_culture
+					scope:confederation_left ?= {
+						random_confederation_member = {
+							limit = {
+								culture ?= {
+									this != scope:original_character_culture
+									has_same_culture_head_determination = scope:original_character_culture
+								}
+								any_tradition = {
+									scope:ruler = { can_embrace_tradition = { tradition = prev } }
+								}
+							}
+							# do not use the verbose bp2_save_traditions_to_consider_effect
+							random_culture_tradition = {
+								limit = {
+									scope:ruler = {
+										can_embrace_tradition = {
+											tradition = prev
+										}
+									}
+								}
+								save_scope_as = tradition
+							}
+							save_scope_as = advanced_culture
+						}
+					}
+					if = {
+						limit = {
+							NOT = { exists = scope:tradition }
+						}
+						scope:old_holder = { 
+							random_in_list = {
+								list = obedient_vassals
+								limit = {
+									culture ?= {
+										this != scope:original_character_culture
+										any_tradition = {
+											scope:ruler = { can_embrace_tradition = { tradition = prev } }
+										}
+									}
+								}
+								culture = {
+									random_culture_tradition = {
+										limit = {
+											scope:ruler = {
+												can_embrace_tradition = {
+													tradition = prev
+												}
+											}
+										}
+										save_scope_as = tradition
+									}
+									save_scope_as = advanced_culture
+								}
+							}
+						}
+					}
+					# also check scope:old_holder.top_overlord?
+					if = {
+						limit = {
+							exists = scope:advanced_culture
+							exists = scope:tradition
+						}
+						scope:new_culture = { add_culture_tradition = scope:tradition }
+						scope:advanced_culture = {
+							change_cultural_acceptance = {
+								target = scope:new_culture
+								value = miniscule_positive_culture_acceptance
+								desc = cultural_acceptance_gain_adapted_tradition
+							}
+						}
+					}
 					remove_character_flag = suppress_culture_notifications_and_achievements
 				}
 			}
@@ -213,6 +353,7 @@ mpo_misc.0001 = {
 				}
 				holder = {
 					set_culture = scope:old_capital_county.holder.culture
+					# set_character_faith = scope:old_capital_county.faith
 				}
 			}
 		}
