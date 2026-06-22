@@ -126,6 +126,56 @@ ck_heaven_struggle.0001 = {
 								}
 							}
 						}
+						# If the Calradian Empire exists, collapse it
+						if = {
+							limit = {
+								exists = title:h_calradian_empire
+							}
+							if = {
+								limit = {
+									exists = global_var:calradian_empire_collapse_cooldown
+								}
+								remove_global_variable = calradian_empire_collapse_cooldown
+							}
+							set_global_variable = {
+								name = calradian_empire_collapse_cooldown
+								value = {
+									value = current_year
+									add = 20
+								}
+							}
+							title:h_calradian_empire.holder ?= {
+								destroy_title = title:h_calradian_empire
+							}
+							# Destroy all Imperial Provinces
+							title:h_calradian_empire ?= {
+								every_in_de_jure_hierarchy = {
+									limit = {
+										has_variable = imperial_province
+									}
+									holder ?= {
+										destroy_title = prev
+									}
+								}
+							}
+							title:h_eastern_calradian_empire ?= {
+								every_in_de_jure_hierarchy = {
+									limit = {
+										has_variable = imperial_province
+									}
+									holder ?= {
+										destroy_title = prev
+									}
+								}
+							}
+							# Remove the temporary global variable to ensure it can be reformed
+							if = {
+								limit = {
+									exists = global_var:calradian_empire_restored_temp
+								}
+								remove_global_variable = calradian_empire_restored_temp
+							}
+						}
 					}
 
 					#############################
@@ -1464,7 +1514,11 @@ ck_heaven_struggle.1005 = {
 		# Add all involved rulers to a list, for ping event
 		play_music_cue = "mx_Struggle_ending_hostility"
 		ck_hm_struggle_ending_involved_list_effect = yes
+		hidden_effect = {
+			set_global_variable = ck_hm_struggle_ended_supremacy
+		}
 		dynasty = { add_dynasty_prestige = 5000 }
+		ck_end_struggle_form_provinces = yes
 	}
 
 	option = {

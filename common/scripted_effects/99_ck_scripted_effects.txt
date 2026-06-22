@@ -2342,3 +2342,2532 @@ ck_remove_flags_effect = {
 		remove_character_flag = $FLAG$
 	}
 }
+##### CALRADIAN EMPIRE EFFECTS
+#### FORM PROVINCE (SORTED BY BOOKMARK AS DUCHIES CAN CHANGE DE JURE) ($PROVINCE$)
+### BANNERLORD
+### WARBAND
+ck_wb_move_duchies_effect = {
+	# Move duchies with capitals in other regions to a nearby kingdom instead
+	if = {
+		limit = {
+			$WRONG_KINGDOM$ = {
+				any_de_jure_county = {
+					duchy = {
+						title_capital_county.title_province = {
+							ck_provinces_in_$GEO_REGION$ = yes
+						}
+					}
+				}
+			}
+		}
+		$WRONG_KINGDOM$ = {
+			while = {
+				limit = {
+					any_de_jure_county = {
+						duchy = {
+							title_capital_county.title_province = {
+								ck_provinces_in_$GEO_REGION$ = yes
+							}
+						}
+					}
+				}
+				random_de_jure_county = {
+					limit = {
+						duchy = {
+							title_capital_county.title_province = {
+								ck_provinces_in_$GEO_REGION$ = yes
+							}
+							any_title_to_title_neighboring_duchy = {
+								title_capital_county.title_province = {
+									ck_provinces_in_$GEO_REGION$ = yes
+								}
+							}
+						}
+					}
+					duchy = {
+						random_title_to_title_neighboring_duchy = {
+							limit = {
+								title_capital_county.title_province = {
+									ck_provinces_in_$GEO_REGION$ = yes
+								}
+							}
+							kingdom = {
+								save_temporary_scope_as = new_kingdom
+							}
+						}
+						set_de_jure_liege_title = scope:new_kingdom
+					}
+				}
+			}
+		}
+	}
+}
+ck_wb_destroy_old_empires_effect = {
+	every_county_in_region = {
+		region = wb_province_$PROVINCE_NAME$
+		limit = {
+			empire = {
+				NOT = {
+					has_variable = imperial_province
+				}
+			}
+		}
+		empire = {
+			if = {
+				limit = {
+					exists = holder
+					NOT = {
+						has_variable = imperial_province
+					}
+					title_capital_county.title_province = { # Only if the empire's de jure capital is inside the province, otherwise, give them a fighting chance
+						geographical_region = wb_province_$PROVINCE_NAME$
+					}
+				}
+				holder = { destroy_title = prev }
+			}
+		}
+	}
+}
+ck_wb_form_province_effect = {
+	# Create the Province (Empire) first so we can assign things to it
+	# Create the Catepanates (Kingdoms) and assign county duchies to them
+	# Then create the Province itself, assigning the kingdoms to it
+	# Finally, assign the Province (Empire) to the hegemon title, whether Calradian Empire or East Calradian
+	# Some counties will need to be moved over to new duchies (e.g. Abahris and Gereden to d_tiagys)
+	# Urikskala to d_rvonyich
+	# For the Kingdoms, we check the province and from there decide 
+	# switch = {
+		# trigger = has_variable # ce_province_paravenos
+		if = { # Originally, used a switch but the variable is removed afterwards anyways. Wanted chance for several provinces to be formed
+			limit = {
+				has_variable = forming_wb_paravenos
+			}
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = paravenos }
+			# Create the Province
+			title:e_province_paravenos = {
+				save_scope_as = paravenos_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_paravenos = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_paravenos
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			# Set kingdoms to de jure liege
+			title:k_swadia = {
+				set_de_jure_liege_title = scope:paravenos_province
+				set_capital_county = title:c_pravend
+				set_title_name = cn_paravenos
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = paravenos WRONG_KINGDOM = title:k_swadia }
+
+			title:k_eboria = {
+				set_de_jure_liege_title = scope:paravenos_province
+				set_capital_county = title:c_ostican
+				# Should already be set but will set it regardless
+				set_title_name = k_eboria
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = paravenos WRONG_KINGDOM = title:k_eboria }
+
+			title:k_rhodok = {
+				set_de_jure_liege_title = scope:paravenos_province
+				set_capital_county = title:c_galend
+				set_title_name = d_biscania
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = paravenos WRONG_KINGDOM = title:k_rhodok }
+
+			scope:paravenos_province = {
+				set_de_jure_liege_title =  root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_paravenos
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_vostrum
+			}
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = vostrum }
+			# Create the Province
+			title:e_province_vostrum = {
+				save_scope_as = vostrum_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_vostrum = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_vostrum
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_sempire_k_3 = { # Vostrum
+				set_de_jure_liege_title = scope:vostrum_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = vostrum WRONG_KINGDOM = title:k_sempire_k_3 }
+			# Move all duchies in "wb_cata_vostrum_2" to k_sempire_k_3
+			every_county_in_region = {
+				region = wb_cata_vostrum_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_vostrum_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_sempire_k_3
+				}
+			}
+
+			title:k_calspire_1 = {
+				set_de_jure_liege_title = scope:vostrum_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = vostrum WRONG_KINGDOM = title:k_calspire_1 }
+			# Move all duchies in "wb_cata_vostrum_2" to k_calspire_1
+			every_county_in_region = {
+				region = wb_cata_vostrum_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_vostrum_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_calspire_1
+				}
+			}
+
+			scope:vostrum_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_vostrum
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_lycarea
+			}
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = lycarea }
+			# Create the Province
+			title:e_province_lycarea = {
+				save_scope_as = lycarea_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_lycarea = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_lycarea
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_sempire_k_1 = {
+				set_de_jure_liege_title = scope:lycarea_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = lycarea WRONG_KINGDOM = title:k_sempire_k_1 }
+			# Move all duchies in "wb_cata_lycarea_1" to k_sempire_k_1
+			every_county_in_region = {
+				region = wb_cata_lycaria_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_lycaria_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_sempire_k_1
+				}
+			}
+
+			title:k_sempire_k_5 = {
+				set_de_jure_liege_title = scope:lycarea_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = lycarea WRONG_KINGDOM = title:k_sempire_k_5 }
+			# Move all duchies in "wb_cata_lycarea_2" to k_sempire_k_1
+			every_county_in_region = {
+				region = wb_cata_lycaria_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_lycaria_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_sempire_k_5
+				}
+			}
+
+			scope:lycarea_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_lycarea
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_pamphia
+			}
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = pamphia }
+			# Create the Province
+			title:e_province_pamphia = {
+				save_scope_as = pamphia_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_pamphia = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_pamphia
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			# k_sarranid_2 has a definite form, so we'll move it's duchies, destroy it, and use k_wempire_k_3 instead (it's already called Pamphia too)
+			every_sub_realm_county = {
+				limit = {
+					kingdom = title:k_sarranid_2
+				}
+				duchy = {
+					set_de_jure_liege = title:k_wempire_k_3
+				}
+			}
+			title:k_wempire_k_3 = {
+				set_de_jure_liege_title = scope:pamphia_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = charasea WRONG_KINGDOM = title:k_wempire_k_3 }
+			# Move all duchies in "wb_cata_pamphia_1" to k_wempire_k_3
+			every_county_in_region = {
+				region = wb_cata_charas_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_charas_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_wempire_k_3
+				}
+			}
+
+			title:k_mytophion = {
+				set_de_jure_liege_title = scope:pamphia_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = charasea WRONG_KINGDOM = title:k_mytophion }
+			# Move all duchies in "wb_cata_pamphia_2" to k_sempire_k_1
+			every_county_in_region = {
+				region = wb_cata_charas_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_charas_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_mytophion
+				}
+			}
+
+			scope:pamphia_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+
+			destroy_title = title:k_sarranid_2
+			# Remove the variable
+			remove_variable = forming_wb_pamphia
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_phycaon
+			}
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = phycaon }
+			# Create the Province
+			title:e_province_phycaon = {
+				save_scope_as = phycaon_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_phycaon = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_phycaon
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_sempire_k_4 = {
+				set_de_jure_liege_title = scope:phycaon_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = phycaon WRONG_KINGDOM = title:k_sempire_k_4 }
+			# Move all duchies in "wb_cata_phycaon_1" to k_sempire_k_4
+			every_county_in_region = {
+				region = wb_cata_phycaon_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_phycaon_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_sempire_k_4
+				}
+			}
+
+			title:k_sempire_k_2 = {
+				set_de_jure_liege_title = scope:phycaon_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = phycaon WRONG_KINGDOM = title:k_sempire_k_2 }
+			# Move all duchies in "wb_cata_phycaon_2" to k_sempire_k_2
+			every_county_in_region = {
+				region = wb_cata_phycaon_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_phycaon_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_sempire_k_2
+				}
+			}
+
+			scope:phycaon_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_phycaon
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_zeonica
+			}
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = zeonica }
+			# Create the Province
+			title:e_province_zeonica = {
+				save_scope_as = zeonica_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_zeonica = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_zeonica
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_wempire_k_4 = {
+				set_de_jure_liege_title = scope:zeonica_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = zeonica WRONG_KINGDOM = title:k_wempire_k_4 }
+			# Move all duchies in "wb_cata_zeonica_1" to k_wempire_k_4
+			every_county_in_region = {
+				region = wb_cata_zeonica_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_zeonica_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_wempire_k_4
+				}
+			}
+
+			scope:zeonica_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_zeonica
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_antipari
+			}
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = antipari }
+			# Create the Province
+			title:e_province_perassic = {
+				save_scope_as = perassic_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_perassic = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_perassic
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_geroia = {
+				set_de_jure_liege_title = scope:perassic_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = perassic WRONG_KINGDOM = title:k_geroia }
+			# Move all duchies in "wb_cata_perassic_1" to k_geroia
+			every_county_in_region = {
+				region = wb_cata_perassic_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_perassic_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_geroia
+				}
+			}
+
+			title:k_thlos = {
+				set_de_jure_liege_title = scope:perassic_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = perassic WRONG_KINGDOM = title:k_thlos }
+			# Move all duchies in "wb_cata_perassic_2" to k_thlos
+			every_county_in_region = {
+				region = wb_cata_perassic_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_perassic_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_thlos
+				}
+			}
+
+			title:k_lotki = {
+				set_de_jure_liege_title = scope:perassic_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = perassic WRONG_KINGDOM = title:k_lotki }
+			# Move all duchies in "wb_cata_perassic_3" to k_lotki
+			every_county_in_region = {
+				region = wb_cata_perassic_3
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_perassic_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_lotki
+				}
+			}
+
+			scope:perassic_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_antipari
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_ortysia
+			}
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = ortysia }
+			# Create the Province
+			title:e_province_ortysia = {
+				save_scope_as = ortysia_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_ortysia = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_ortysia
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_wempire_k_2 = {
+				set_de_jure_liege_title = scope:ortysia_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = ortysia WRONG_KINGDOM = title:k_wempire_k_2 }
+			# Move all duchies in "wb_cata_ortysia_1" to k_wempire_k_2
+			every_county_in_region = {
+				region = wb_cata_ortysia_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_ortysia_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_wempire_k_2
+				}
+			}
+
+			title:k_subprovince_ortysia_1 = {
+				set_de_jure_liege_title = scope:ortysia_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = ortysia WRONG_KINGDOM = title:k_subprovince_ortysia_1 }
+			# Move all duchies in "wb_cata_ortysia_2" to k_subprovince_ortysia_1
+			every_county_in_region = {
+				region = wb_cata_ortysia_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_ortysia_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_subprovince_ortysia_1
+				}
+			}
+
+			scope:ortysia_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_ortysia
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_aris
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = aris }
+			# Create the Province
+			title:e_province_aris = {
+				save_scope_as = aris_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_aris = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_aris
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_wempire_k_5 = {
+				set_de_jure_liege_title = scope:aris_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = aris WRONG_KINGDOM = title:k_wempire_k_5 }
+			# Move all duchies in "wb_cata_aris_1" to k_wempire_k_5
+			every_county_in_region = {
+				region = wb_cata_aris_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_aris_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_wempire_k_5
+				}
+			}
+
+			title:k_wempire_k_1 = {
+				set_de_jure_liege_title = scope:aris_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = aris WRONG_KINGDOM = title:k_wempire_k_1 }
+			# Move all duchies in "wb_cata_aris_2" to k_wempire_k_1
+			every_county_in_region = {
+				region = wb_cata_aris_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_aris_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_wempire_k_1
+				}
+			}
+
+			title:k_lsc1 = { # We'll use Lyvandos
+				set_de_jure_liege_title = scope:aris_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = aris WRONG_KINGDOM = title:k_lsc1 }
+			# Move all duchies in "wb_cata_aris_3" to k_lsc1
+			every_county_in_region = {
+				region = wb_cata_aris_3
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_aris_3
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_lsc1
+				}
+			}
+
+			scope:aris_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_aris
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_myzea
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = myzea }
+			# Create the Province
+			title:e_province_myzead = {
+				save_scope_as = myzea_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_myzead = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_myzea
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_nempire_k_2 = {
+				set_de_jure_liege_title = scope:myzea_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = myzea WRONG_KINGDOM = title:k_nempire_k_2 }
+			# Move all duchies in "wb_cata_myzea_1" to k_nempire_k_2
+			every_county_in_region = {
+				region = wb_cata_myzead_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_myzead_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_nempire_k_2
+				}
+			}
+
+			title:k_elef_1 = { # We'll use Eleftheia & rename it
+				set_de_jure_liege_title = scope:myzea_province
+				set_title_name = d_saneopa
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = myzea WRONG_KINGDOM = title:k_elef_1 }
+			# Move all duchies in "wb_cata_myzead_2" to k_elef_1
+			every_county_in_region = {
+				region = wb_cata_myzead_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_myzead_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_elef_1
+				}
+			}
+
+			scope:myzea_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_myzea
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_caraeda
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = caraeda }
+			# Create the Province
+			title:e_province_caraedes = {
+				save_scope_as = caraeda_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_caraedes = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_caraeda
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_esglaons = {
+				set_de_jure_liege_title = scope:caraeda_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = caraeda WRONG_KINGDOM = title:k_esglaons }
+			# Move all duchies in "wb_cata_caraedes_1" to k_nemk_esglaonspire_k_2
+			every_county_in_region = {
+				region = wb_cata_caraedes_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_caraedes_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_esglaons
+				}
+			}
+
+			scope:caraeda_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_myzea
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_uchalion
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = battania }
+			# Create the Province
+			title:e_province_uchalion = {
+				save_scope_as = battania_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_uchalion = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_uchalion
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_battania = {
+				set_de_jure_liege_title = scope:battania_province
+				set_capital_county = title:c_dunglanys
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = battania WRONG_KINGDOM = title:k_battania }
+			# Move all duchies in "wb_cata_battania_2" to k_battania
+			every_county_in_region = {
+				region = wb_cata_battania_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_battania_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_battania
+				}
+			}
+
+			title:k_uchalion_cat_2 = {
+				set_de_jure_liege_title = scope:battania_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = battania WRONG_KINGDOM = title:k_uchalion_cat_2 }
+			# Move all duchies in "wb_cata_battania_1" to k_uchalion_cat_2
+			every_county_in_region = {
+				region = wb_cata_battania_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_battania_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_uchalion_cat_2
+				}
+			}
+
+			title:k_uchalion_cat_3 = {
+				set_de_jure_liege_title = scope:battania_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = battania WRONG_KINGDOM = title:k_uchalion_cat_3 }
+			# Move all duchies in "wb_cata_battania_3" to k_uchalion_cat_3
+			every_county_in_region = {
+				region = wb_cata_battania_3
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_battania_3
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_uchalion_cat_3
+				}
+			}
+
+			title:k_uchalion_cat_4 = {
+				set_de_jure_liege_title = scope:battania_province
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = battania WRONG_KINGDOM = title:k_uchalion_cat_4 }
+			# Move all duchies in "wb_cata_battania_4" to k_uchalion_cat_4
+			every_county_in_region = {
+				region = wb_cata_battania_4
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_battania_4
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_uchalion_cat_4
+				}
+			}
+
+			scope:battania_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_uchalion
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_kachyar
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = kachyar }
+			# Create the Province
+			title:e_province_kachyar = {
+				save_scope_as = kachyar_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_kachyar = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_kachyar
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_byalia = {
+				set_de_jure_liege_title = scope:kachyar_province
+				set_capital_county = title:c_revyl
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = kachyar WRONG_KINGDOM = title:k_byalia }
+			# Move all duchies in "wb_cata_byalia_1" to k_byalia
+			every_county_in_region = {
+				region = wb_cata_byalia_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_byalia_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_byalia
+				}
+			}
+
+			scope:kachyar_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_kachyar
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_laconis
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = laconis }
+			# Create the Province
+			title:e_province_laconis = {
+				save_scope_as = laconis_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_laconis = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_laconis
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_nempire_k_3 = {
+				set_de_jure_liege_title = scope:laconis_province
+				set_capital_county = title:c_diathma
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = laconis WRONG_KINGDOM = title:k_nempire_k_3 }
+			# Move all duchies in "wb_cata_laconis_2" to k_nempire_k_3
+			every_county_in_region = {
+				region = wb_cata_laconis_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_laconis_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_nempire_k_3
+				}
+			}
+
+			title:k_nempire_k_1 = {
+				set_de_jure_liege_title = scope:laconis_province
+				set_capital_county = title:c_epicrotea
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = laconis WRONG_KINGDOM = title:k_nempire_k_1 }
+			# Move all duchies in "wb_cata_laconis_1" to k_nempire_k_1
+			every_county_in_region = {
+				region = wb_cata_laconis_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_laconis_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_nempire_k_1
+				}
+			}
+
+			scope:laconis_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_laconis
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_ircara
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = ircara }
+			# Create the Province
+			title:e_province_ircara = {
+				save_scope_as = ircara_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_ircara = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_ircara
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_varcheg = {
+				set_de_jure_liege_title = scope:ircara_province
+				set_capital_county = title:c_varcheg
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = ircara WRONG_KINGDOM = title:k_varcheg }
+			# Move all duchies in "wb_cata_ircara_1" to k_varcheg
+			every_county_in_region = {
+				region = wb_cata_ircara_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_ircara_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_varcheg
+				}
+			}
+
+			title:k_vaegir = {
+				set_de_jure_liege_title = scope:ircara_province
+				set_capital_county = title:c_mazhadan_castle # Curaw
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = ircara WRONG_KINGDOM = title:k_vaegir }
+			# Move all duchies in "wb_cata_ircara_2" to k_vaegir
+			every_county_in_region = {
+				region = wb_cata_ircara_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_ircara_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_vaegir
+				}
+			}
+
+			scope:ircara_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_ircara
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_minadoria
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = minadoria }
+			# Create the Province
+			title:e_province_minadoria = {
+				save_scope_as = minadoria_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_minadoria = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_minadoria
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_minadoria = {
+				set_de_jure_liege_title = scope:minadoria_province
+				set_capital_county = title:c_varnovapol
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = minadoria WRONG_KINGDOM = title:k_minadoria }
+			# Move all duchies in "wb_cata_minadoria_1" to k_minadoria
+			every_county_in_region = {
+				region = wb_cata_minadoria_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_minadoria_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_minadoria
+				}
+			}
+
+			title:k_sturgia = {
+				set_de_jure_liege_title = scope:minadoria_province
+				set_capital_county = title:c_balgard
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = minadoria WRONG_KINGDOM = title:k_sturgia }
+			# Move all duchies in "wb_cata_minadoria_2" to k_sturgia
+			every_county_in_region = {
+				region = wb_cata_minadoria_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_minadoria_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_sturgia
+				}
+			}
+
+			title:k_vakken = {
+				set_de_jure_liege_title = scope:minadoria_province
+				set_capital_county = title:c_turva
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = minadoria WRONG_KINGDOM = title:k_vakken }
+			# Move all duchies in "wb_cata_minadoria_3" to k_vakken
+			every_county_in_region = {
+				region = wb_cata_minadoria_3
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_minadoria_3
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_vakken
+				}
+			}
+
+			scope:minadoria_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_minadoria
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_tyal
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = tyal }
+			# Create the Province
+			title:e_province_tyal = {
+				save_scope_as = tyal_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_tyal = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_tyal
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_tyal = {
+				set_de_jure_liege_title = scope:tyal_province
+				set_capital_county = title:c_varnovapol
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = tyal WRONG_KINGDOM = title:k_tyal }
+			# Move all duchies in "wb_cata_tyal_1" to k_tyal
+			every_county_in_region = {
+				region = wb_cata_tyal_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_tyal_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_tyal
+				}
+			}
+
+			title:k_iltan = {
+				set_de_jure_liege_title = scope:tyal_province
+				set_capital_county = title:c_baltakhand
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = tyal WRONG_KINGDOM = title:k_iltan }
+			# Move all duchies in "wb_cata_tyal_2" to k_iltan
+			every_county_in_region = {
+				region = wb_cata_tyal_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_tyal_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_iltan
+				}
+			}
+
+			scope:tyal_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_tyal
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_agikoros
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = agikoros }
+			# Create the Province
+			title:e_province_agikoros = {
+				save_scope_as = agikoros_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_agikoros = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_agikoros
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_tsanghate = {
+				set_de_jure_liege_title = scope:agikoros_province
+				set_capital_county = title:c_akkalat
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = agikoros WRONG_KINGDOM = title:k_tsanghate }
+			# Move all duchies in "wb_cata_agi_1" to k_tsanghate
+			every_county_in_region = {
+				region = wb_cata_agi_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_agi_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_tsanghate
+				}
+			}
+
+			title:k_devseg = {
+				set_de_jure_liege_title = scope:agikoros_province
+				set_capital_county = title:c_ortongard
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = agikoros WRONG_KINGDOM = title:k_devseg }
+			# Move all duchies in "wb_cata_agi_2" to k_devseg
+			every_county_in_region = {
+				region = wb_cata_agi_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_agi_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_devseg
+				}
+			}
+
+			scope:agikoros_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_agikoros
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_kannicos
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = kannicos }
+			# Create the Province
+			title:e_province_kannicos = {
+				save_scope_as = kannicos_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_kannicos = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_kannicos
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_kanniq = {
+				set_de_jure_liege_title = scope:kannicos_province
+				set_capital_county = title:c_razih
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = kannicos WRONG_KINGDOM = title:k_kanniq }
+			# Move all duchies in "wb_cata_kannicos" to k_tsanghate
+			every_county_in_region = {
+				region = wb_cata_kannicos
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_kannicos
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_kanniq
+				}
+			}
+
+			scope:kannicos_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_kannicos
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_phalcos
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = phalcos }
+			# Create the Province
+			title:e_province_phalcos = {
+				save_scope_as = phalcos_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_phalcos = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_phalcos
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_ardiqa = {
+				set_de_jure_liege_title = scope:phalcos_province
+				set_capital_county = title:c_husn_fulq
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = phalcos WRONG_KINGDOM = title:k_ardiqa }
+			# Move all duchies in "wb_cata_phalcos" to k_tsanghate
+			every_county_in_region = {
+				region = wb_cata_phalcos_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_phalcos_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_ardiqa
+				}
+			}
+
+			title:k_darshi_1 = {
+				set_de_jure_liege_title = scope:phalcos_province
+				set_capital_county = title:c_mehrabad
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = phalcos WRONG_KINGDOM = title:k_darshi_1 }
+			# Move all duchies in "wb_cata_phalcos" to k_tsanghate
+			every_county_in_region = {
+				region = wb_cata_phalcos_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_phalcos_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_darshi_1
+				}
+			}
+
+			scope:phalcos_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_phalcos
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_yachios
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = yachios }
+			# Create the Province
+			title:e_province_yachios = {
+				save_scope_as = yachios_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_yachios = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_yachios
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_zilal_1 = {
+				set_de_jure_liege_title = scope:yachios_province
+				set_capital_county = title:c_iyakis
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = yachios WRONG_KINGDOM = title:k_zilal_1 }
+			# Move all duchies in "wb_cata_yachios" to k_zilal_1
+			every_county_in_region = {
+				region = wb_cata_yachios_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_yachios_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_zilal_1
+				}
+			}
+
+			title:k_jarjara = {
+				set_de_jure_liege_title = scope:yachios_province
+				set_capital_county = title:c_qasira
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = yachios WRONG_KINGDOM = title:k_jarjara }
+			# Move all duchies in "wb_cata_yachios" to k_tsanghate
+			every_county_in_region = {
+				region = wb_cata_yachios_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_yachios_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_jarjara
+				}
+			}
+
+			scope:yachios_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_yachios
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_askar
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = askar }
+			# Create the Province
+			title:e_province_askar = {
+				save_scope_as = askar_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_askar = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_askar
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_damari = {
+				set_de_jure_liege_title = scope:askar_province
+				set_capital_county = title:c_askar
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = askar WRONG_KINGDOM = title:k_damari }
+			# Move all duchies in "wb_cata_askar" to k_damari
+			every_county_in_region = {
+				region = wb_cata_askar_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_askar_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_damari
+				}
+			}
+
+			scope:askar_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_askar
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_sanala
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = sanala }
+			# Create the Province
+			title:e_province_sanala = {
+				save_scope_as = sanala_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_sanala = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_sanala
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_aserai = {
+				set_de_jure_liege_title = scope:sanala_province
+				set_capital_county = title:c_sanala
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = sanala WRONG_KINGDOM = title:k_aserai }
+			# Move all duchies in "wb_cata_sanala_1" to k_aserai
+			every_county_in_region = {
+				region = wb_cata_sanala_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_sanala_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_aserai
+				}
+			}
+
+			title:k_yashmin = {
+				set_de_jure_liege_title = scope:sanala_province
+				set_capital_county = title:c_quyaz
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = sanala WRONG_KINGDOM = title:k_yashmin }
+			# Move all duchies in "wb_cata_sanala_2" to k_yashmin
+			every_county_in_region = {
+				region = wb_cata_sanala_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_sanala_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_yashmin
+				}
+			}
+
+			scope:sanala_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_sanala
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_gold_coast
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = gold_coast }
+			# Create the Province
+			title:e_province_gold_coast = {
+				save_scope_as = gold_coast_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_gold_coast = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_gold_coast
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_sikadan = {
+				set_de_jure_liege_title = scope:gold_coast_province
+				set_capital_county = title:c_ibiehin
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = gold_coast WRONG_KINGDOM = title:k_sikadan }
+			# Move all duchies in "wb_cata_gold_coast_1" to k_sikadan
+			every_county_in_region = {
+				region = wb_cata_gold_coast_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_gold_coast_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_sikadan
+				}
+			}
+
+			title:k_gagan = {
+				set_de_jure_liege_title = scope:gold_coast_province
+				set_capital_county = title:c_janto
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = gold_coast WRONG_KINGDOM = title:k_gagan }
+			# Move all duchies in "wb_cata_gold_coast_2" to k_yashmin
+			every_county_in_region = {
+				region = wb_cata_gold_coast_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region = wb_cata_gold_coast_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_gagan
+				}
+			}
+
+			scope:gold_coast_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_gold_coast
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_transtanaesia
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = transtanaesia }
+			# Create the Province
+			title:e_province_transtanaesia = {
+				save_scope_as = transtanaesia_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_province_transtanaesia = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_transtanaesia
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_urkhanate = {
+				set_de_jure_liege_title = scope:transtanaesia_province
+				set_capital_county = title:c_makeb
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = transtanaesia WRONG_KINGDOM = title:k_urkhanate }
+			# Move all duchies in " wb_cata_trans_1" to k_urkhanate
+			every_county_in_region = {
+				region =  wb_cata_trans_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region =  wb_cata_trans_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_urkhanate
+				}
+			}
+
+			title:k_mazug_1 = {
+				set_de_jure_liege_title = scope:transtanaesia_province
+				set_capital_county = title:c_chaikand
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = transtanaesia WRONG_KINGDOM = title:k_mazug_1 }
+			# Move all duchies in " wb_cata_trans_2" to k_mazug_1
+			every_county_in_region = {
+				region =  wb_cata_trans_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region =  wb_cata_trans_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_mazug_1
+				}
+			}
+
+			scope:transtanaesia_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_transtanaesia
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_west_nahasa
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = west_nahasa }
+			# Create the Province
+			title:e_west_nahasa = {
+				save_scope_as = west_nahasa_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_west_nahasa = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_west_nahasa
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_akalnun = {
+				set_de_jure_liege_title = scope:west_nahasa_province
+				set_capital_county = title:c_ghilizi
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = west_nahasa WRONG_KINGDOM = title:k_akalnun }
+			# Move all duchies in " wb_cata_trans_1" to k_akalnun
+			every_county_in_region = {
+				region =  wb_cata_west_nahasa_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region =  wb_cata_west_nahasa_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_akalnun
+				}
+			}
+
+			title:k_amanzur = {
+				set_de_jure_liege_title = scope:west_nahasa_province
+				set_capital_county = title:c_zawiten
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = west_nahasa WRONG_KINGDOM = title:k_amanzur }
+			# Move all duchies in " wb_cata_west_nahasa_2" to k_amanzur
+			every_county_in_region = {
+				region =  wb_cata_west_nahasa_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region =  wb_cata_west_nahasa_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_amanzur
+				}
+			}
+
+			title:k_ifjramalk = {
+				set_de_jure_liege_title = scope:west_nahasa_province
+				set_capital_county = title:c_akalngh
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = west_nahasa WRONG_KINGDOM = title:k_ifjramalk }
+			# Move all duchies in " wb_cata_west_nahasa_2" to k_ifjramalk
+			every_county_in_region = {
+				region =  wb_cata_west_nahasa_3
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region =  wb_cata_west_nahasa_3
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_ifjramalk
+				}
+			}
+
+			scope:west_nahasa_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_west_nahasa
+		}
+		if = { 
+			limit = {
+				has_variable = forming_wb_sw_nahasa
+			}
+			# Destroy old de jure empires
+			ck_wb_destroy_old_empires_effect = { PROVINCE_NAME = sw_nahasa }
+			# Create the Province
+			title:e_southwest_nahasa = {
+				save_scope_as = sw_nahasa_province
+			}
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			title:e_southwest_nahasa = {
+				set_variable = { # Set variable specific for this
+					name = imperial_province
+					value = flag:province_sw_nahasa
+				}
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+
+			title:k_ndakaaru = {
+				set_de_jure_liege_title = scope:sw_nahasa_province
+				set_capital_county = title:c_lambaye
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = sw_nahasa WRONG_KINGDOM = title:k_ndakaaru }
+			# Move all duchies in " wb_cata_trans_1" to k_ndakaaru
+			every_county_in_region = {
+				region =  wb_cata_sw_nahasa_1
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region =  wb_cata_sw_nahasa_1
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_ndakaaru
+				}
+			}
+
+			title:k_mponua = {
+				set_de_jure_liege_title = scope:sw_nahasa_province
+				set_capital_county = title:c_zamboro
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = sw_nahasa WRONG_KINGDOM = title:k_mponua }
+			# Move all duchies in " wb_cata_sw_nahasa_2" to k_mponua
+			every_county_in_region = {
+				region =  wb_cata_sw_nahasa_2
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region =  wb_cata_sw_nahasa_2
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_mponua
+				}
+			}
+
+			title:k_miqoul = {
+				set_de_jure_liege_title = scope:sw_nahasa_province
+				set_capital_county = title:c_djarah
+				reset_title_name = yes
+			}
+			# Move Duchies - if any have capitals outside the region
+			ck_wb_move_duchies_effect = { GEO_REGION = sw_nahasa WRONG_KINGDOM = title:k_miqoul }
+			# Move all duchies in " wb_cata_sw_nahasa_3" to k_miqoul
+			every_county_in_region = {
+				region =  wb_cata_sw_nahasa_3
+				limit = {
+					duchy = {
+						title_capital_county.title_province = {
+							geographical_region =  wb_cata_sw_nahasa_3
+						}
+					}
+				}
+				duchy = {
+					set_de_jure_liege_title = title:k_miqoul
+				}
+			}
+
+			scope:sw_nahasa_province = {
+				set_de_jure_liege_title = root.primary_title
+			}
+			# Remove the variable
+			remove_variable = forming_wb_sw_nahasa
+		}
+	# }
+}
+## CK End Struggle (Supremacy) - Forming Provinces
+# For every Imperial Province [ce_province|E] the Emperor fully controls upon the end of the struggle, that province is formed as an empire title
+ck_end_struggle_form_provinces = {
+	# It fires the same effect as the normal province decision. It's much more efficient this way
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_paravenos
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_paravenos
+		hidden_effect = {
+			set_variable = forming_wb_paravenos
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_pamphia
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_pamphia
+		hidden_effect = {
+			set_variable = forming_wb_pamphia
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_ortysia
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_ortysia
+		hidden_effect = {
+			set_variable = forming_wb_ortysia
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_vostrum
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_vostrum
+		hidden_effect = {
+			set_variable = forming_wb_vostrum
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_battania
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_battania
+		hidden_effect = {
+			set_variable = forming_wb_battania
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_aris
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_aris
+		hidden_effect = {
+			set_variable = forming_wb_aris
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_lycarea
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_lycarea
+		hidden_effect = {
+			set_variable = forming_wb_lycarea
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_antipari
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_antipari
+		hidden_effect = {
+			set_variable = forming_wb_antipari
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_phycaon
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_phycaon
+		hidden_effect = {
+			set_variable = forming_wb_phycaon
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_zeonica
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_zeonica
+		hidden_effect = {
+			set_variable = forming_wb_zeonica
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_caraeda
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_caraeda
+		hidden_effect = {
+			set_variable = forming_wb_caraeda
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_gold_coast
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_gold_coast
+		hidden_effect = {
+			set_variable = forming_wb_gold_coast
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_sanala
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_sanala
+		hidden_effect = {
+			set_variable = forming_wb_sanala
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_askar
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_askar
+		hidden_effect = {
+			set_variable = forming_wb_askar
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_yachios
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_yachios
+		hidden_effect = {
+			set_variable = forming_wb_yachios
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_kannicos
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_kannicos
+		hidden_effect = {
+			set_variable = forming_wb_kannicos
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_phalcos
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_phalcos
+		hidden_effect = {
+			set_variable = forming_wb_phalcos
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_agikoros
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_agikoros
+		hidden_effect = {
+			set_variable = forming_wb_agikoros
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_tyal
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_tyal
+		hidden_effect = {
+			set_variable = forming_wb_tyal
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_minadoria
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_minadoria
+		hidden_effect = {
+			set_variable = forming_wb_minadoria
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_ircara
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_ircara
+		hidden_effect = {
+			set_variable = forming_wb_ircara
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_laconis
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_laconis
+		hidden_effect = {
+			set_variable = forming_wb_laconis
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_myzea
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_myzea
+		hidden_effect = {
+			set_variable = forming_wb_myzea
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_sw_nahasa
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_sw_nahasa
+		hidden_effect = {
+			set_variable = forming_wb_sw_nahasa
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_west_nahasa
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_west_nahasa
+		hidden_effect = {
+			set_variable = forming_wb_west_nahasa
+			ck_wb_form_province_effect = yes
+		}
+	}
+	if = {
+		limit = {
+			any_county_in_region = {
+				region = wb_province_kachyar
+				percent = 1
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = ck_end_struggle_form_provinces_kachyar
+		hidden_effect = {
+			set_variable = forming_wb_kachyar
+			ck_wb_form_province_effect = yes
+		}
+	}
+	# No else_if, it fires regardless of the provinces you hold
+}

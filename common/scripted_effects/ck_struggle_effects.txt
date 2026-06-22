@@ -95,32 +95,32 @@ create_calradian_empire_wb_scripted_effect = {
 				set_variable = default_coa_var
 			}
 		}
-		every_held_title = { #Should shift all dejure of all Empires owned at the time.
-			title_tier = empire
+		# every_held_title = { # You'll hold the empire and must form at least one province in order to end the struggle
+		# 	title_tier = empire
 
-			set_de_jure_liege_title = title:h_calradian_empire
-		}
-		every_empire = {
-			limit = {
-				NOT = { exists = hegemony }
-				OR = {
-					any_de_jure_county = {
-						percent >= 0.6
-						holder = {
-							OR = {
-								this = root
-								any_liege_or_above = { this = root }
-							}
-						}
-					}
-					this = title:e_west_calradia
-					this = title:e_khergits
-					this = title:e_antipari
-					this = title:e_myzea
-				}
-			}
-			set_de_jure_liege_title = title:h_calradian_empire
-		}
+		# 	set_de_jure_liege_title = title:h_calradian_empire
+		# }
+		# every_empire = {
+		# 	limit = {
+		# 		NOT = { exists = hegemony }
+		# 		OR = {
+		# 			any_de_jure_county = {
+		# 				percent >= 0.6
+		# 				holder = {
+		# 					OR = {
+		# 						this = root
+		# 						any_liege_or_above = { this = root }
+		# 					}
+		# 				}
+		# 			}
+		# 			this = title:e_west_calradia
+		# 			this = title:e_khergits
+		# 			this = title:e_antipari
+		# 			this = title:e_myzea
+		# 		}
+		# 	}
+		# 	set_de_jure_liege_title = title:h_calradian_empire
+		# }
 	}
 	create_title_and_vassal_change = {
 		type = created
@@ -312,6 +312,30 @@ ck_struggle_supremacy_cultural_acceptance_large_effect = {
 		every_in_global_list = {
 			variable = ck_hm_struggle_ending_culture_list
 			remove_variable = ck_struggle_supremacy_flag
+		}
+	}
+}
+## Add total provinces held
+# Calradian Empire - Track Provinces
+# Set a variable for the Calradian Emperor to track how many full provinces they have control of
+# Only used prior to the End the Struggle - Supremacy decision
+ce_total_provinces_held = {
+	if = {
+		limit = {
+			root = {
+				primary_title ?= title:h_calradian_empire
+				any_character_struggle = {
+					involvement = involved
+					is_struggle_type = heaven_mandate_struggle
+				}
+			}
+		}
+		root = {
+			# Set Variables for every province then remove them at the end
+			set_variable = {
+				name = ce_provinces_counter
+				value = wb_calculate_provinces_held
+			}
 		}
 	}
 }

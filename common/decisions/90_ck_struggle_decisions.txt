@@ -10,10 +10,12 @@
 			is_struggle_type = heaven_mandate_struggle
 		}
 		NOT = {
-			is_target_in_global_variable_list = {
-				name = unavailable_unique_decisions
-				target = flag:flag_restored_calradian_empire_wb
-			}
+			exists = title:h_calradian_empire.holder
+		}
+		NOR = {
+			# This one gets set after this decision. If struggle phase changes to chaos before the perm below is set, the empire collapses and can be reformed after a cooldown
+			exists = global_var:calradian_empire_restored_temp
+			exists = global_var:calradian_empire_restored_perm
 		}
 	}
 	is_valid = {
@@ -40,6 +42,13 @@
 			legitimacy_level >= 1
 			prestige_level >= 1
 		}
+		trigger_if = {
+			limit = { exists = global_var:calradian_empire_collapse_cooldown }
+			custom_tooltip = {
+				text = ce_recently_collapsed
+				NOT = { exists = global_var:calradian_empire_collapse_cooldown }
+			}
+		}
 		custom_tooltip = {
 			text = ck_heaven_struggle_is_involved
 			any_character_struggle = {
@@ -55,7 +64,14 @@
 					# }
 				}
 			}
-			custom_tooltip = wb_restore_calradian_empire_decision_valid_tt_3
+			custom_tooltip = {
+				text = wb_restore_calradian_empire_decision_valid_tt_3
+				AND = {
+					exists = faith.religious_head
+					faith.religious_head != root
+				}
+			}
+
 		}
 		OR = {
 			custom_tooltip = {
@@ -172,15 +188,15 @@ restore_the_patriarchate_hm = {
 	}
 	is_valid_showing_failures_only = {
 		is_available_adult = yes
-		# is_at_war = no
+		is_at_war = no
 	}
 	cost = {
 		piety = {
 			switch = {
 				trigger = yes
-				scope:restore_lycaron_patriarchate = { value = ck_hm_piety_cost_lycaron }
-				scope:restore_diathma_patriarchate = { value = ck_hm_piety_cost_diathma }
-				scope:restore_charas_patriarchate = { value = ck_hm_piety_cost_charas }
+				scope:restore_lycaron_patriarchate = { value = 300 }
+				scope:restore_diathma_patriarchate = { value = 200 }
+				scope:restore_charas_patriarchate = { value = 100 }
 				scope:restore_my_patriarchate = { value = 0 } # No cost until you choose
 			}
 		}
@@ -266,11 +282,11 @@ restore_the_patriarchate_hm = {
 								NOT = { exists = holder } # Either doesn't exist
 								title_capital_county = { # Or does but isn't the capital of the player
 									root.capital_county != this
-									holder = root # and the player holds it
+									holder.top_liege = root # and the player holds it
 								}
 							}
 						}
-						holder = root
+						holder.top_liege = root
 						count >= 3
 						this != root.capital_county
 					}
@@ -369,7 +385,7 @@ restore_the_patriarchate_hm = {
 	}
 }
 end_the_struggle_supremacy = {
-	decision_group_type = major_calradian
+	decision_group_type = struggle_endings
 	title = end_the_struggle_supremacy
 	picture = {
 		reference = "gfx/interface/illustrations/decisions/fp3/fp3_decision_supremacy.dds"
@@ -378,7 +394,7 @@ end_the_struggle_supremacy = {
 	desc = end_the_struggle_supremacy_desc
 	selection_tooltip = end_the_struggle_supremacy_tooltip
 	confirm_click_sound = "event:/DLC/FP2/SFX/UI/fp2_struggle_ending_decision_confirm"
-	is_invisible = yes
+	# is_invisible = yes
 	sort_order = 80
 	
 	is_shown = {
@@ -389,17 +405,24 @@ end_the_struggle_supremacy = {
 		}
 	}
 
-	# is_shown = {
-	# 	is_roman_emperor_trigger = yes
-	# 	NOT = {
-	# 		exists = global_var:ended_the_hm_struggle
-	# 	}
-	# }
+	is_shown = {
+		is_roman_emperor_trigger = yes
+		NOT = {
+			exists = global_var:ended_the_hm_struggle
+		}
+	}
 	is_valid = {
 		top_liege = this
-		is_at_war = no
 		exists = struggle:heaven_mandate_struggle
-
+		trigger_if = {
+			limit = {
+				has_ach_dlc_trigger = yes
+			}
+			OR = {
+				has_realm_law = crowned_emperor
+				has_realm_law = crowned_king
+			}
+		}
 		custom_tooltip = {
 			text = ck_heaven_struggle_ending_supremacy
 			struggle:heaven_mandate_struggle = {
@@ -418,55 +441,19 @@ end_the_struggle_supremacy = {
 			is_roman_emperor_trigger = yes
 		}
 		# Hold and completely control two de jure empires of the Calradian Empire
-		custom_tooltip = { #
-			text = struggle_hm_ending_supremacy_decision_empire_tt
-			OR = {
-				any_held_title = { # 1st kingdom
-					title_tier = empire
-					de_jure_liege = title:h_calradian_empire
-					root = { completely_controls = prev }
-					save_temporary_scope_as = calk_empire
-				}
-				any_vassal_or_below = {
-					save_temporary_scope_as = ck_vassal_decision
-					any_held_title = { # 1st kingdom
-						title_tier = empire
-						de_jure_liege = title:h_calradian_empire
-						trigger_if = {
-							limit = { exists = scope:calk_empire }
-							this != scope:calk_empire
-						}
-						save_temporary_scope_as = calk_empire_2
-					}
-					completely_controls = prev
-				}
+		trigger_if = {
+			limit = {
+				exists = var:ce_provinces_counter
 			}
-			OR = {
-				any_held_title = { # 2nd kingdom
-					title_tier = empire
-					de_jure_liege = title:h_calradian_empire
-					trigger_if = {
-						limit = { exists = scope:calk_empire }
-						this != scope:calk_empire
-					}
-					root = { completely_controls = prev }
-					save_temporary_scope_as = calk_empire_2
-				}
-				any_vassal_or_below = {
-					save_temporary_scope_as = ck_vassal_decision
-					any_held_title = { # 1st kingdom
-						title_tier = empire
-						de_jure_liege = title:h_calradian_empire
-						trigger_if = {
-							limit = { exists = scope:calk_empire }
-							this != scope:calk_empire
-						}
-						save_temporary_scope_as = calk_empire_2
-					}
-					completely_controls = prev
-				}
+			custom_tooltip = { #
+				text = struggle_hm_ending_supremacy_decision_empire_tt
+				var:ce_provinces_counter >= 2
 			}
 		}
+	}
+	is_valid_showing_failures_only = {
+		is_at_war = no
+		is_available = yes
 	}
 	effect = {
 		custom_tooltip = ck_heaven_struggle.1003.a.tt
@@ -503,7 +490,10 @@ end_the_struggle_supremacy = {
 				ambitious = medium_stress_impact_loss
 			}
 		}
-
+		
+		show_as_tooltip = {
+			ck_end_struggle_form_provinces = yes
+		}
 		trigger_event = ck_heaven_struggle.1005
 	}
 	cost = {}
@@ -628,10 +618,10 @@ form_imperial_province_ck = {
 	decision_group_type = major_calradian
 	title = form_imperial_province_ck_title
 	picture = {
-		reference = "gfx/interface/illustrations/decisions/fp3/fp3_decision_supremacy.dds"
+		reference = "gfx/interface/illustrations/event_story/ck_calradian_restoration.dds"
 	}
 	desc = form_imperial_province_ck_desc
-	selection_tooltip = end_the_struggle_supremacy_tooltip
+	selection_tooltip = form_imperial_province_ck_tooltip
 	
 	sort_order = 80
 	is_shown = {
@@ -641,6 +631,15 @@ form_imperial_province_ck = {
 		}
 	}
 	is_valid = {
+		trigger_if = {
+			limit = {
+				exists = struggle:heaven_mandate_struggle
+			}
+			custom_tooltip = {
+				text = ck_hm_struggle_ended_tt
+				NOT = { exists = struggle:heaven_mandate_struggle }
+			}
+		}
 		OR = {
 			has_title = title:h_calradian_empire
 			trigger_if = {
@@ -650,10 +649,25 @@ form_imperial_province_ck = {
 				has_title = title:h_eastern_calradian_empire
 			}
 		}
-		custom_tooltip = {
-			text = ck_hm_struggle_ended_tt
-			NOT = {
-				exists = struggle:heaven_mandate_struggle
+		government_allows = administrative
+	}
+	cost = {
+		gold = {
+			value = 0
+			if = {
+				limit = {
+					has_treasury = no
+				}
+				add = 300
+			}
+		}
+		treasury = {
+			value = 0
+			if = {
+				limit = {
+					has_treasury = yes
+				}
+				add = 300
 			}
 		}
 	}
@@ -669,15 +683,29 @@ form_imperial_province_ck = {
 				custom_tooltip = {
 					text = ck_province_paravenos_tt
 					any_county_in_region = {
-						region = ck_wb_paravenos
-						percent >= 0.8
+						region = wb_province_paravenos
+						percent = 1
 						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = { # The only two hegemonies that can have these titles in their de jure
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_paravenos
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_paravenos
+						}
 					}
 				}
 			}
 			current_description = ck_province_paravenos_tt
 			localization = ck_province_paravenos
-			icon = "gfx/interface/icons/ck_paravenos.dds"
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_paravenos.dds"
 			ai_chance = {
 				value = 0
 			}
@@ -688,17 +716,1137 @@ form_imperial_province_ck = {
 				custom_tooltip = {
 					text = ck_province_pamphia_tt
 					any_county_in_region = {
-						region = ck_wb_charasea
-						percent >= 0.8
+						region = wb_province_pamphia
+						percent = 1
 						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = { # The only two hegemonies that can have these titles in their de jure
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_pamphia
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_pamphia
+						}
 					}
 				}
 			}
 			current_description = ck_province_pamphia_tt
 			localization = ck_province_pamphia
-			icon = "gfx/interface/icons/ck_pamphia.dds"
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_pamphia.dds"
 			ai_chance = {
 				value = 0
+			}
+		}
+		item = {
+			value = ck_province_ortysia
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_ortysia_tt
+					any_county_in_region = {
+						region = wb_province_ortysia
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = { # The only two hegemonies that can have these titles in their de jure
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_ortysia
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_ortysia
+						}
+					}
+				}
+			}
+			current_description = ck_province_ortysia_tt
+			localization = ck_province_ortysia
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_ortysia.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_vostrum
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_vostrum_tt
+					any_county_in_region = {
+						region = wb_province_vostrum
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_vostrum
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_vostrum
+						}
+					}
+				}
+			}
+			current_description = ck_province_vostrum_tt
+			localization = ck_province_vostrum
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_vostrum.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_uchalion
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_uchalion_tt
+					any_county_in_region = {
+						region = wb_province_battania
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_uchalion
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_uchalion
+						}
+					}
+				}
+			}
+			current_description = ck_province_uchalion_tt
+			localization = ck_province_uchalion
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_uchalion.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_aris
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_aris_tt
+					any_county_in_region = {
+						region = wb_province_aris
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_aris
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_aris
+						}
+					}
+				}
+			}
+			current_description = ck_province_aris_tt
+			localization = ck_province_aris
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_aris.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_lycarea
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_lycarea_tt
+					any_county_in_region = {
+						region = wb_province_lycarea
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_lycarea
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_lycarea
+						}
+					}
+				}
+			}
+			current_description = ck_province_lycarea_tt
+			localization = ck_province_lycarea
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_lycarea.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_antipari
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_antipari_tt
+					any_county_in_region = {
+						region = wb_province_antipari
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_perassic
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_perassic
+						}
+					}
+				}
+			}
+			current_description = ck_province_antipari_tt
+			localization = ck_province_antipari
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_perassic.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_phycaon
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_phycaon_tt
+					any_county_in_region = {
+						region = wb_province_phycaon
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_phycaon
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_phycaon
+						}
+					}
+				}
+			}
+			current_description = ck_province_phycaon_tt
+			localization = ck_province_phycaon_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_phycaon.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_zeonica
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_zeonica_tt
+					any_county_in_region = {
+						region = wb_province_zeonica
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_zeonica
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_zeonica
+						}
+					}
+				}
+			}
+			current_description = ck_province_zeonica_tt
+			localization = ck_province_zeonica_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_zeonica.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+		item = {
+			value = ck_province_transtanaesia
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_transtanaesia_tt
+					any_county_in_region = {
+						region = wb_province_transtanaesia
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_transtanaesia
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_transtanaesia
+						}
+					}
+				}
+			}
+			current_description = ck_province_transtanaesia_tt
+			localization = ck_province_transtanaesia_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_transtanaesia.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_caraeda
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_caraeda_tt
+					any_county_in_region = {
+						region = wb_province_caraeda
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_caraeda
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_caraeda
+						}
+					}
+				}
+			}
+			current_description = ck_province_caraeda_tt
+			localization = ck_province_caraeda_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_caraeda.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_gold_coast
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_gold_coast_tt
+					any_county_in_region = {
+						region = wb_province_gold_coast
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_gold_coast
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_gold_coast
+						}
+					}
+				}
+			}
+			current_description = ck_province_gold_coast_tt
+			localization = ck_province_gold_coast_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_gold_coast.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_sanala
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_sanala_tt
+					any_county_in_region = {
+						region = wb_province_sanala
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_sanala
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_sanala
+						}
+					}
+				}
+			}
+			current_description = ck_province_sanala_tt
+			localization = ck_province_sanala_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_sanala.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_askar
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_askar_tt
+					any_county_in_region = {
+						region = wb_province_askar
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_askar
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_askar
+						}
+					}
+				}
+			}
+			current_description = ck_province_askar_tt
+			localization = ck_province_askar_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_askar.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_yachios
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_yachios_tt
+					any_county_in_region = {
+						region = wb_province_yachios
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_yachios
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_yachios
+						}
+					}
+				}
+			}
+			current_description = ck_province_yachios_tt
+			localization = ck_province_yachios_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_yachios.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_kannicos
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_kannicos_tt
+					any_county_in_region = {
+						region = wb_province_kannicos
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_kannicos
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_kannicos
+						}
+					}
+				}
+			}
+			current_description = ck_province_kannicos_tt
+			localization = ck_province_kannicos_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_kannicos.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_phalcos
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_phalcos_tt
+					any_county_in_region = {
+						region = wb_province_phalcos
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_phalcos
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_phalcos
+						}
+					}
+				}
+			}
+			current_description = ck_province_phalcos_tt
+			localization = ck_province_phalcos_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_phalcos.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_agikoros
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_agikoros_tt
+					any_county_in_region = {
+						region = wb_province_agikoros
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_agikoros
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_agikoros
+						}
+					}
+				}
+			}
+			current_description = ck_province_agikoros_tt
+			localization = ck_province_agikoros_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_agikoros.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_tyal
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_tyal_tt
+					any_county_in_region = {
+						region = wb_province_tyal
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_tyal
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_tyal
+						}
+					}
+				}
+			}
+			current_description = ck_province_tyal_tt
+			localization = ck_province_tyal_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_tyal.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_minadoria
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_minadoria_tt
+					any_county_in_region = {
+						region = wb_province_minadoria
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_minadoria
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_minadoria
+						}
+					}
+				}
+			}
+			current_description = ck_province_minadoria_tt
+			localization = ck_province_minadoria_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_minadoria.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_ircara
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_ircara_tt
+					any_county_in_region = {
+						region = wb_province_ircara
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_ircara
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_ircara
+						}
+					}
+				}
+			}
+			current_description = ck_province_ircara_tt
+			localization = ck_province_ircara_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_ircara.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_kachyar
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_kachyar_tt
+					any_county_in_region = {
+						region = wb_province_kachyar
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_kachyar
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_kachyar
+						}
+					}
+				}
+			}
+			current_description = ck_province_kachyar_tt
+			localization = ck_province_kachyar_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_kachyar.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_laconis
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_laconis_tt
+					any_county_in_region = {
+						region = wb_province_laconis
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_laconis
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_laconis
+						}
+					}
+				}
+			}
+			current_description = ck_province_laconis_tt
+			localization = ck_province_laconis_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_laconis.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_myzea
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_myzea_tt
+					any_county_in_region = {
+						region = wb_province_myzea
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_myzea
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_myzea
+						}
+					}
+				}
+			}
+			current_description = ck_province_myzea_tt
+			localization = ck_province_myzea_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_myzead.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_sw_nahasa
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_sw_nahasa_tt
+					any_county_in_region = {
+						region = wb_province_sw_nahasa
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_sw_nahasa
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_sw_nahasa
+						}
+					}
+				}
+			}
+			current_description = ck_province_sw_nahasa_tt
+			localization = ck_province_sw_nahasa_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_sw_nahasa.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+
+		item = {
+			value = ck_province_west_nahasa
+			is_valid = {
+				custom_tooltip = {
+					text = ck_province_west_nahasa_tt
+					any_county_in_region = {
+						region = wb_province_west_nahasa
+						percent = 1
+						holder.top_liege = root
+					}
+				}
+			}
+			is_shown = {
+				NOR = {
+					title:h_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_west_nahasa
+						}
+					}
+					title:h_eastern_calradian_empire = {
+						any_in_de_jure_hierarchy = {
+							var:imperial_province ?= flag:province_west_nahasa
+						}
+					}
+				}
+			}
+			current_description = ck_province_west_nahasa_tt
+			localization = ck_province_west_nahasa_name
+			icon = "gfx/interface/icons/ck_province_icons/warband/ck_west_nahasa.dds"
+			ai_chance = {
+				value = 0
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = {
+				scope:ck_province_paravenos = yes
+				# NOT = {
+				# 	has_variable = forming_wb_paravenos
+				# }
+			}
+			hidden_effect = {
+				set_variable = forming_wb_paravenos
+				ck_wb_form_province_effect = yes
+			}
+		}
+		if = {
+			limit = {
+				scope:ck_province_vostrum = yes
+				# NOT = {
+				# 	has_variable = forming_wb_paravenos
+				# }
+			}
+			hidden_effect = {
+				set_variable = forming_wb_vostrum
+				ck_wb_form_province_effect = yes
+			}
+		}
+		if = {
+			limit = {
+				scope:ck_province_lycarea = yes
+				# NOT = {
+				# 	has_variable = forming_wb_paravenos
+				# }
+			}
+			hidden_effect = {
+				set_variable = forming_wb_lycarea
+				ck_wb_form_province_effect = yes
+			}
+		}
+		if = {
+			limit = {
+				scope:ck_province_pamphia = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_pamphia
+				ck_wb_form_province_effect = yes
+			}
+		}
+		if = {
+			limit = {
+				scope:ck_province_zeonica = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_zeonica
+				ck_wb_form_province_effect = yes
+			}
+		}
+		if = {
+			limit = {
+				scope:ck_province_ortysia = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_ortysia
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_uchalion = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_uchalion
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_aris = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_aris
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_antipari = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_antipari
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_phycaon = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_phycaon
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_caraeda = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_caraeda
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_gold_coast = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_gold_coast
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_sanala = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_sanala
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_askar = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_askar
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_yachios = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_yachios
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_kannicos = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_kannicos
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_phalcos = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_phalcos
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_agikoros = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_agikoros
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_tyal = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_tyal
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_minadoria = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_minadoria
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_ircara = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_ircara
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_kachyar = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_kachyar
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_laconis = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_laconis
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_myzea = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_myzea
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_sw_nahasa = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_sw_nahasa
+				ck_wb_form_province_effect = yes
+			}
+		}
+
+		if = {
+			limit = {
+				scope:ck_province_west_nahasa = yes
+			}
+			hidden_effect = {
+				set_variable = forming_wb_west_nahasa
+				ck_wb_form_province_effect = yes
 			}
 		}
 	}

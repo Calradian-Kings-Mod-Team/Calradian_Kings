@@ -390,11 +390,11 @@ on_title_destroyed = {
 				}
 			}
 		}
-		# If the Calradian Empire collapses, go straight into chaos
+		# If the Calradian Empire collapses, go straight into chaos (Struggle Only / Future Senate situation will resolve this another way)
 		if = {
 			limit = {
 				scope:landed_title = {
-					tier = tier_hegemony
+					this = title:h_calradian_empire
 					root = {
 						any_character_struggle = {
 							involvement = involved
@@ -403,11 +403,51 @@ on_title_destroyed = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					exists = global_var:calradian_empire_restored_temp
+				}
+				remove_global_variable = calradian_empire_restored_temp
+			}
+			
 			struggle:heaven_mandate_struggle = {
 				activate_struggle_catalyst = {
 					catalyst = catalyst_calradian_empire_destroyed
 					character = root
 				}
+			}
+			root = {
+				save_scope_as = ce_old_holder
+				every_held_title = {
+					title_tier = empire
+					limit = {
+						title_capital_county != scope:ce_old_holder.capital_county
+					}
+					scope:ce_old_holder = { destroy_title = prev }
+				}
+				# Destroy every kingdom that isn't in your capital county
+				every_held_title = {
+					title_tier = kingdom
+					limit = {
+						title_capital_county != scope:ce_old_holder.capital_county
+					}
+					scope:ce_old_holder = { destroy_title = prev }
+				}
+				create_title_and_vassal_change = {
+					type = independency
+					save_scope_as = chaos_change
+					add_claim_on_loss = yes
+				}
+				every_vassal = {
+					limit = {
+						#breakaway all non-dejure vassals
+						primary_title = {
+							NOT = { target_is_de_jure_liege_or_above = scope:ce_old_holder.primary_title }
+						}
+					}
+					becomes_independent = { change = scope:chaos_change }
+				}
+				resolve_title_and_vassal_change = scope:chaos_change
 			}
 		}
 	}
@@ -419,6 +459,7 @@ on_title_destroyed = {
 # scope:previous_holder = previous holder. Might be dead
 on_title_gain = {
 	effect = {
+		ce_total_provinces_held = yes
 		# Promised to grant titles after expedition 
 		if = {
 			limit = {
@@ -4790,7 +4831,7 @@ on_title_gain = {
 		}
 	}
 	events = {
-		# roman_restoration.0005		#New Roman Emperor gets Augustus trait. (old holder, if still alive, loses it)
+		roman_restoration.0005		#New Roman Emperor gets Augustus trait. (old holder, if still alive, loses it)
 		# roman_restoration.0199		#Restoring the Pentarchy.
 		delay = { days = 1 }
 		realm_maintenance.2001		#Big notification about inheriting emperor tier title
@@ -5028,6 +5069,7 @@ on_title_lost = {
 	}
 
 	effect = {
+		ce_total_provinces_held = yes
 		# Disabled Kingdom of Fashion and Norse Adventurers for now
 		# if = {
 		# 	limit = {
