@@ -464,7 +464,7 @@ culture_ai_weight_skirmishers = {
 		}
 		add = -60
 	}
-	if = { # High Calardics less likely to recruit light infantry
+	if = { # High Calradics less likely to recruit light infantry
 		limit = {
 			culture = {
 				has_cultural_tradition = tradition_high_calradic
@@ -489,6 +489,15 @@ culture_ai_weight_skirmishers = {
 			ck_unique_troops_trigger = no # Ensure the culture is not in the unique troops list of heritages
 		}
 		add = -500
+	}
+	if = {
+		limit = {
+			is_independent_ruler = no
+		}
+		add = {
+			value = tier_ai_weight_county
+			multiply = 2
+		}
 	}
 }
 culture_ai_weight_toptier_archers = {
@@ -524,8 +533,10 @@ culture_ai_weight_toptier_archers = {
 	
 	if = { # Vulgar Calradics less likely to recruit top tier archers
 		limit = {
-			culture = {
-				has_cultural_tradition = tradition_vulgar_calradic
+			OR = {
+				has_trait = ck_oligarch
+				has_trait = ck_populist
+				culture = { has_cultural_tradition = tradition_vulgar_calradic }
 			}
 		}
 		add = -30
@@ -562,19 +573,22 @@ culture_ai_weight_archers = {
 	}
 	if = { # Cultures that dislike archers
 		limit = {
-			OR = {
-				culture = { has_cultural_pillar = heritage_byalic }
-				culture = { has_cultural_pillar = heritage_palaic }
-				culture = { has_cultural_pillar = heritage_balian }
-				culture = { has_cultural_pillar = heritage_esbalian }
+			culture = { 
+				OR = {
+					has_cultural_pillar = heritage_byalic
+					has_cultural_pillar = heritage_palaic
+					has_cultural_pillar = heritage_balian
+					has_cultural_pillar = heritage_esvulgeste # wimps get crossbows
+				}
 			}
 		}
 		add = -60
 	}
 	if = { # Vulgar Calradics more likely to recruit low tier archers
 		limit = {
-			culture = {
-				has_cultural_tradition = tradition_vulgar_calradic
+			OR = {
+				has_trait = ck_populist
+				culture = { has_cultural_tradition = tradition_vulgar_calradic }
 			}
 		}
 		add = 30
@@ -595,7 +609,13 @@ culture_ai_weight_archers = {
 culture_ai_weight_heavy_infantry = {
 	value = 0
 	
-	if = { # Cultures that favours heavy infantry
+	if = {
+		limit = {
+			culture = { has_cultural_pillar = heritage_esbalian }
+		}
+		add = 80  # try to have some vs sharpshooter/men-at-arms
+	}
+	else_if = { # Cultures that favours heavy infantry
 		limit = {
 			culture = {
 				OR = {
@@ -605,6 +625,8 @@ culture_ai_weight_heavy_infantry = {
 					has_cultural_pillar = heritage_balian
 					has_cultural_pillar = heritage_esbalian
 					has_cultural_pillar = heritage_sturgic
+					has_cultural_pillar = heritage_valanscau
+					has_cultural_pillar = heritage_esvulgeste
 					has_cultural_pillar = heritage_akoko # Plenty of mountains to extract ore and iron from for heavy infantry, unique Nigerian-aesthetic heavy inf
 				}
 			}
@@ -614,21 +636,30 @@ culture_ai_weight_heavy_infantry = {
 
 	if = { # Cultures that slightly dislike heavy infantry
 		limit = {
-			OR = {
-				culture = { has_cultural_pillar = heritage_nahasi }
-				culture = { has_cultural_pillar = heritage_darshi }
-				culture = { has_cultural_pillar = heritage_east_nahasan }
-				culture = { has_cultural_pillar = heritage_west_nahasan }
-				culture = { has_cultural_pillar = heritage_southwest_nahasan }
+			culture = {
+				OR = {
+					has_cultural_pillar = heritage_nahasi
+					has_cultural_pillar = heritage_darshi
+					has_cultural_pillar = heritage_east_nahasan
+					has_cultural_pillar = heritage_west_nahasan
+					has_cultural_pillar = heritage_southwest_nahasan
+				}
 			}
 		}
 		add = -50
 	}
+	else_if = {
+		limit = {
+			government_has_flag = government_is_feudal
+		}
+		add = { value = highest_held_title_tier add = legitimacy_level multiply = 2 }
+	}
 	
 	if = { # High Calradics more likely to recruit HI
 		limit = {
-			culture = {
-				has_cultural_tradition = tradition_high_calradic
+			OR = {
+				has_trait = ck_militarist
+				culture = { has_cultural_tradition = tradition_high_calradic }
 			}
 		}
 		add = 65
@@ -636,8 +667,9 @@ culture_ai_weight_heavy_infantry = {
 	
 	if = { # Vulgar Calradics less likely to recruit HI
 		limit = {
-			culture = {
-				has_cultural_tradition = tradition_vulgar_calradic
+			OR = {
+				has_trait = ck_populist
+				culture = { has_cultural_tradition = tradition_vulgar_calradic }
 			}
 		}
 		add = -25
@@ -668,21 +700,42 @@ culture_ai_weight_pikemen = {
 				culture = { has_cultural_pillar = heritage_balian }
 				culture = { has_cultural_pillar = heritage_esbalian }
 			#	culture = { has_cultural_pillar = heritage_battanian }
+				culture = { has_cultural_pillar = heritage_geroian }
+				culture = { has_cultural_parameter = more_parochial_vassals } # rhodoks/other parochialism cultures
 				culture = { has_cultural_pillar = heritage_east_nahasan }
 				culture = { has_cultural_pillar = heritage_kohinik } # Used to fend of 
+				# nimp
+				culture = { has_cultural_pillar = heritage_valanscau }
+				has_trait = ck_oligarch
+				has_trait = ck_populist
 			}
 		}
 		add = 40
 	}
-	
-	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+	if = {
+		limit = {
+			capital_county ?= {
+				any_county_province = {
+					has_holding = yes
+					OR = {
+						terrain = hills
+						terrain = terraced_hills
+						terrain = mountains
+						terrain = desert_mountains
+					}
+				}
+			}
+		}
+		add = 20
+	}
+	if = {
 		limit = {
 			culture = {
 				culture_has_pikemen_maa = yes
 			}
-			ck_unique_troops_trigger = no # Ensure the culture is not in the unique troops list of heritages
+			government_disallows = inherit_from_dynastic_government
 		}
-		add = -500
+		add = 30
 	}
 }
 
@@ -697,7 +750,7 @@ culture_ai_weight_shock = {
 				culture = { has_cultural_pillar = heritage_sturgic }
 			}
 		}
-		add = 40
+		add = 25
 	}
 	
 	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
@@ -709,6 +762,18 @@ culture_ai_weight_shock = {
 		}
 		add = -500
 	}
+	if = {
+		limit = {
+			can_raid_trigger = yes
+		}
+		add = prowess_no_portrait
+	}
+	else_if = {
+		limit = {
+			highest_held_title_tier <= tier_county
+		}
+		add = -15
+	}
 }
 
 culture_ai_weight_light_cavalry = {
@@ -718,7 +783,7 @@ culture_ai_weight_light_cavalry = {
 		limit = {
 			mpo_can_recruit_nomad_maa_trigger = no
 			OR = {
-				culture = { has_cultural_pillar = heritage_nahasi }
+				# culture = { has_cultural_pillar = heritage_nahasi }
 				culture = { has_cultural_pillar = heritage_darshi }
 				culture = { has_cultural_pillar = heritage_west_nahasan }
 				# Steppe cultures
@@ -733,12 +798,19 @@ culture_ai_weight_light_cavalry = {
 			mpo_can_recruit_nomad_maa_trigger = no
 			culture = {
 				OR = {
+					has_cultural_pillar = heritage_valanscau #nimps
 					has_cultural_pillar = heritage_calradian
-					has_cultural_pillar = heritage_balian
-					has_cultural_pillar = heritage_esbalian
+					trigger_if = {
+						limit = {
+							NOT = {
+								has_innovation = innovation_arched_saddle
+							}
+						}
+						has_cultural_pillar = heritage_balian # the heavier the better
+					}
 					has_cultural_pillar = heritage_palaic
 					has_cultural_pillar = heritage_sturgic
-					has_cultural_pillar = heritage_kohinik
+					has_cultural_pillar = heritage_nahasi # moved down due to stat rebalance
 				}
 			}
 		}
@@ -761,6 +833,7 @@ culture_ai_weight_light_cavalry = {
 	if = { # Cultures that dislike light cavalry
 		limit = {
 			OR = {
+				has_trait = ck_royalist
 				culture = { has_cultural_pillar = heritage_chertygic }
 				culture = { has_cultural_pillar = heritage_battanian }
 			}
@@ -780,9 +853,11 @@ culture_ai_weight_light_cavalry = {
 	
 	if = { # Cultures with a preference for Camel Riders should buy those over normal light cavalry
 		limit = {
-			culture = {
-				has_innovation = innovation_war_camels
-			}
+			ck_tradition_troops_enabled = yes
+			has_access_to_maa = camel_rider
+			# culture = {
+			# 	has_innovation = innovation_war_camels
+			# }
 			OR = {
 				culture = { has_cultural_pillar = heritage_nahasi }
 				culture = { has_cultural_pillar = heritage_darshi }
@@ -794,7 +869,7 @@ culture_ai_weight_light_cavalry = {
 
 culture_ai_weight_heavy_cavalry = {
 	value = 0
-	
+
 	if = { # Cultures that REALLY like heavy cavalry
 		limit = {
 			mpo_can_recruit_nomad_maa_trigger = no
@@ -803,7 +878,7 @@ culture_ai_weight_heavy_cavalry = {
 				culture = { has_cultural_pillar = heritage_calradian }
 				# Vlandia of course
 				culture = { has_cultural_pillar = heritage_balian }
-				culture = { has_cultural_pillar = heritage_esbalian }
+				has_access_to_maa = swadian_heavy_cavalry
 				# Steppe cultures
 				culture = { has_cultural_pillar = heritage_khuzic }
 				culture = { has_cultural_pillar = heritage_khiindai }
@@ -818,7 +893,10 @@ culture_ai_weight_heavy_cavalry = {
 				culture = { has_cultural_pillar = heritage_nahasi }
 				culture = { has_cultural_pillar = heritage_palaic }
 				culture = { has_cultural_pillar = heritage_sturgic }
-				culture = { has_cultural_pillar = heritage_kohinik }
+				# wimps
+				culture = { has_cultural_pillar = heritage_esvulgeste }
+				has_trait = ck_militarist
+				has_trait = ck_royalist
 			}
 		}
 		add = 40
@@ -838,6 +916,9 @@ culture_ai_weight_heavy_cavalry = {
 					has_cultural_pillar = heritage_east_nahasan
 					has_cultural_pillar = heritage_gottic
 					has_cultural_pillar = heritage_byalic
+					# nimp
+					has_cultural_pillar = heritage_valanscau
+					prev = { has_trait = ck_populist }
 				}
 			}
 		}
@@ -859,15 +940,24 @@ culture_ai_weight_heavy_cavalry = {
 		}
 		add = 120
 	}
-	if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+	if = {
 		limit = {
-			culture = {
-				culture_has_heavy_cavalry_maa = yes
-			}
-			ck_unique_troops_trigger = no # Ensure the culture is not in the unique troops list of heritages
+			ai_has_warlike_personality = yes
 		}
-		add = -500
+		add = age
 	}
+	# if = { # Cultures with a special MaA of that type should avoid the base version of the unit
+	# 	limit = {
+	# 		is_independent_ruler = yes
+	# 		culture = {
+	# 			NOT = {
+	# 				has_cultural_parameter = strength_in_numbers_heavy_maa_ban
+	# 			}
+	# 			culture_has_heavy_cavalry_maa = yes
+	# 		}
+	# 	}
+	# 	add = 50
+	# }
 }
 
 culture_ai_weight_camels = {
@@ -927,6 +1017,108 @@ counter_synergy_ai_weight_archers = {
 		add = 60
 	}
 }
+archer_doomstack_size = {
+	value = legitimacy_title_era_value
+	multiply = 200
+	add = current_year
+	subtract = 1100
+}
+penalty_ai_weight_toptier_archers = {
+	value = 0
+	if = {
+		limit = {
+			number_maa_regiments_of_base_type = {
+				type = archers
+				value >= highest_held_title_tier_minus_one
+			}
+		}
+		subtract = 300
+	}
+	else_if = {
+		limit = {
+			max_number_maa_soldiers_of_base_type = {
+				type = archers
+				value >= archer_doomstack_size
+			}
+		}
+		subtract = 200
+	}
+	# else_if = {
+	# 	limit = {
+	# 		number_maa_regiments_of_base_type = {
+	# 			type = light_cavalry
+	# 			value >= highest_held_title_tier_minus_one
+	# 		}
+	# 		NOT = { #no need to add more if i.e. regional or inherited maa of that type already exists
+	# 			number_maa_regiments_of_base_type = {
+	# 				type = archers
+	# 				value >= 1
+	# 			}
+	# 		}
+	# 	}
+	# 	add = 60
+	# }
+	# cancel out minor preference
+	subtract = {
+		value = tier_ai_weight_county
+		multiply = 2
+	}
+}
+government_ai_weight_tribal = {
+	value = -10
+	if = {
+		limit = {
+			government_has_flag = government_is_tribal
+		}
+		add = 120
+		divide = legend_cost_scale_by_era
+	}
+	else_if = {
+		limit = { # nomadic/steppe admin
+			government_allows = subject_men_at_arms
+		}
+		value = 20
+		add = dread
+		divide = legend_cost_scale_by_era
+	}
+}
+# this can be added or subtracted
+tier_ai_weight_county = {
+	value = 0
+	if = {
+		limit = {
+			highest_held_title_tier <= tier_county
+		}
+		value = 15
+	}
+}
+penalty_ai_weight_veterans = {
+	value = -50
+	if = {
+		limit = {
+			any_top_realm_border_county = { }
+		}
+		if = {
+			limit = {
+				is_independent_ruler = no
+			}
+			divide = 2
+		}
+		add = age # the older the wiser I guess
+	}
+}
+penalty_ai_weight_horse_archers = {
+	value = 0
+	if = {
+		limit = {
+			max_number_maa_soldiers_of_base_type = {
+				type = archer_cavalry
+				value >= archer_doomstack_size
+			}
+		}
+		subtract = 200
+	}
+}
 
 counter_synergy_ai_weight_pikemen = {
 	value = 0
@@ -944,15 +1136,16 @@ counter_synergy_ai_weight_pikemen = {
 			}
 		}
 		add = 60
+		multiply = legend_cost_scale_by_era # more pike & shot
 	}
 }
 
 counter_synergy_ai_weight_shock = {
-	value = 60
+	value = 0
 	if = {
 		limit = {
 			number_maa_regiments_of_base_type = {
-				type = archers
+				type = pikemen
 				value >= 3
 			}
 			NOT = { #no need to add more if i.e. regional or inherited maa of that type already exists
@@ -962,6 +1155,7 @@ counter_synergy_ai_weight_shock = {
 				}
 			}
 		}
+		add = 60
 	}
 }
 
@@ -1033,6 +1227,21 @@ counter_synergy_ai_weight_light_cavalry = {
 		}
 		add = 60
 	}
+	if = {
+		limit = {
+			number_maa_regiments_of_base_type = {
+				type = shock_troops
+				value >= 2
+			}
+			NOT = {
+				number_maa_regiments_of_base_type = {
+					type = light_cavalry
+					value >= 1
+				}
+			}
+		}
+		add = 40
+	}
 }
 
 culture_ai_weight_crossbowmen = {
@@ -1045,17 +1254,39 @@ culture_ai_weight_crossbowmen = {
 			}
 			ck_unique_troops_trigger = no # Ensure the culture is not in the unique troops list of heritages
 		}
-		add = -500
+		if = {
+			limit = {
+				ck_unique_troops_trigger = no # Ensure the culture is not in the unique troops list of heritages
+			}
+			add = -456
+		}
+		else = { # balians
+			add = 15
+		}
 	}
 	if = { # Cultures that favours crossbowmen
 		limit = {
-			culture = {
-				has_cultural_pillar = heritage_balian
-				has_cultural_pillar = heritage_esbalian
-				has_cultural_pillar = heritage_calradian # They also use xbows
+			OR = {
+				# wimp
+				culture = { has_cultural_pillar = heritage_esvulgeste }
+				has_trait = ck_militarist
 			}
 		}
-		add = 30
+		add = 20
+	}
+	if = {
+		limit = {
+			capital_county ?= {
+				any_county_province = {
+					has_holding = yes
+					OR = {
+						terrain = hills
+						terrain = forest
+					}
+				}
+			}
+		}
+		add = 10
 	}
 }
 
@@ -1066,10 +1297,35 @@ counter_synergy_ai_weight_crossbowmen = {
 		limit = {
 			current_date < 1150.1.1
 		}
-		add = -100
+		add = -99
 	}
 }
-
+# a pseudo-value adding up any nonzero to hide/show tooltip
+culture_ai_weight_bowmen = {
+	value = 0
+	if = { # this probably won't cancel itself out to 0
+		limit = {  culture_ai_weight_crossbowmen != 0 }
+		add = 1
+	}
+	if = {
+		limit = { penalty_ai_weight_toptier_archers != 0 }
+		add = 1
+	}
+	# if = {
+	# 	limit = {
+	# 		counter_synergy_ai_weight_archers != 0
+	# 	}
+	# 	add = 1
+	# }
+	if = {
+		limit = { culture_ai_weight_archers != 0 }
+		add = 1
+	}
+	if = {
+		limit = { culture_ai_weight_toptier_archers != 0 }
+		add = 1
+	}
+}
 ###################
 # Provisions Costs #
 ###################

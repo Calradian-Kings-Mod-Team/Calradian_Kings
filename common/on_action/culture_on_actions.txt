@@ -114,6 +114,16 @@ on_character_culture_change = {
 		#	}
 		#	trigger_event = ck_debug_events.0005
 		#}
+		if = {
+			limit = {
+				has_variable = recruits_local_troops
+				culture = {
+					var:troops_culture ?= root.var:recruits_local_troops
+				}
+			}
+			remove_decision_cooldown = recruit_cultural_troops_decision # this doesn't remove the 2nd cooldown
+			# remove_decision_cooldown = recruit_local_troops_landed_decision
+		}
 	}
 }
 
@@ -390,203 +400,53 @@ on_culture_created = {
 		# 	}
 		# }
 		
-		### MAA recruitment variables
-		# Balian (Vlandian) MAAs
-		if = { # Swadian MAAs
+		if = {
 			limit = {
-				OR = {
-					has_cultural_pillar = heritage_balian
-					has_cultural_pillar = heritage_esbalian
-				}
-				OR = {
-					any_parent_culture = { this = culture:swadian }
-					any_parent_culture = { has_variable = swadian_troops_var }
+				is_divergent_culture = yes
+				scope:parent_culture_1 ?= {
+					has_variable = troops_culture
 				}
 			}
-			set_variable = swadian_troops_var
+			set_variable = {
+				name = troops_culture
+				value = scope:parent_culture_1.var:troops_culture
+			}
 		}
-		if = { # Rhodok MAAs
+		### MAA recruitment variables (event instead of gui for now)
+		else_if = {
 			limit = {
-				OR = {
-					has_cultural_pillar = heritage_balian
-					has_cultural_pillar = heritage_esbalian
-				}
-				OR = {
-					any_parent_culture = { this = culture:rhodok }
-					any_parent_culture = { has_variable = rhodok_troops_var }
-				}
-				any_parent_culture = {
-					NOT = {
-						has_variable = swadian_troops_var
-					}
+				NOT = {
+					has_variable = troops_culture
 				}
 			}
-			set_variable = rhodok_troops_var
-		}
-		if = { # Vlandian MAAs
-			limit = {
-				has_cultural_pillar = heritage_balian
-				OR = {
-					any_parent_culture = { this = culture:vlandian }
-					any_parent_culture = { has_variable = vlandian_troops_var }
-				}
-				any_parent_culture = {
-					NOR = {
-						has_variable = swadian_troops_var
-						has_variable = rhodok_troops_var
-						#Lower priority
-						#has_variable = togerd_troops_var
-						#has_variable = sudican_troops_var
-						#has_variable = kassen_troops_var
-						#has_variable = rhoyd_troops_var
-						#has_variable = heimarkel_troops_var
-						#has_variable = eilander_troops_var
-					}
+			scope:founder = {
+				trigger_event = {
+					id = culture_emergence_events.1084
+					delayed = yes
 				}
 			}
-			set_variable = vlandian_troops_var
-		}
-		if = { # Togerdi MAAs
-			limit = {
-				has_cultural_pillar = heritage_balian
-				OR = {
-					any_parent_culture = { this = culture:togerd }
-					any_parent_culture = { has_variable = togerd_troops_var }
-				}
-				any_parent_culture = {
-					NOR = {
-						has_variable = swadian_troops_var
-						has_variable = rhodok_troops_var
-						has_variable = vlandian_troops_var
-						#Lower priority
-						#has_variable = togerd_troops_var
-						#has_variable = sudican_troops_var
-						#has_variable = kassen_troops_var
-						#has_variable = rhoyd_troops_var
-						#has_variable = heimarkel_troops_var
-						#has_variable = eilander_troops_var
-					}
-				}
-			}
-			set_variable = togerd_troops_var
-		}
-		if = { # Sudican MAAs
-			limit = {
-				has_cultural_pillar = heritage_balian
-				OR = {
-					any_parent_culture = { this = culture:sudican }
-					any_parent_culture = { has_variable = sudican_troops_var }
-				}
-				any_parent_culture = {
-					NOR = {
-						has_variable = swadian_troops_var
-						has_variable = rhodok_troops_var
-						has_variable = vlandian_troops_var
-						has_variable = togerd_troops_var
-						#Lower priority
-						#has_variable = sudican_troops_var
-						#has_variable = kassen_troops_var
-						#has_variable = rhoyd_troops_var
-						#has_variable = heimarkel_troops_var
-						#has_variable = eilander_troops_var
-					}
-				}
-			}
-			set_variable = sudican_troops_var
-		}
-		if = { # Kassen MAAs
-			limit = {
-				has_cultural_pillar = heritage_balian
-				OR = {
-					any_parent_culture = { this = culture:kassen }
-					any_parent_culture = { has_variable = kassen_troops_var }
-				}
-				any_parent_culture = {
-					NOR = {
-						has_variable = swadian_troops_var
-						has_variable = rhodok_troops_var
-						has_variable = vlandian_troops_var
-						has_variable = togerd_troops_var
-						has_variable = sudican_troops_var
-						#Lower priority
-						#has_variable = kassen_troops_var
-						#has_variable = rhoyd_troops_var
-						#has_variable = heimarkel_troops_var
-						#has_variable = eilander_troops_var
-					}
-				}
-			}
-			set_variable = kassen_troops_var
-		}
-		if = { # Rhoyd MAAs
-			limit = {
-				has_cultural_pillar = heritage_balian
-				OR = {
-					any_parent_culture = { this = culture:rhoyd }
-					any_parent_culture = { has_variable = rhoyd_troops_var }
-				}
-				any_parent_culture = {
-					NOR = {
-						has_variable = swadian_troops_var
-						has_variable = rhodok_troops_var
-						has_variable = vlandian_troops_var
-						has_variable = togerd_troops_var
-						has_variable = sudican_troops_var
-						has_variable = kassen_troops_var
-						#Lower priority
-						#has_variable = rhoyd_troops_var
-						#has_variable = heimarkel_troops_var
-						#has_variable = eilander_troops_var
-					}
-				}
-			}
-			set_variable = rhoyd_troops_var
-		}
-		if = { # Heimarkel MAAs
-			limit = {
-				has_cultural_pillar = heritage_balian
-				OR = {
-					any_parent_culture = { this = culture:heimarkel }
-					any_parent_culture = { has_variable = heimarkel_troops_var }
-				}
-				any_parent_culture = {
-					NOR = {
-						has_variable = swadian_troops_var
-						has_variable = rhodok_troops_var
-						has_variable = vlandian_troops_var
-						has_variable = togerd_troops_var
-						has_variable = sudican_troops_var
-						has_variable = kassen_troops_var
-						has_variable = rhoyd_troops_var
-						#Lower priority
-						#has_variable = heimarkel_troops_var
-						#has_variable = eilander_troops_var
-					}
-				}
-			}
-			set_variable = heimarkel_troops_var
-		}
-		if = { # Eilander MAAs
-			limit = {
-				has_cultural_pillar = heritage_balian
-				OR = {
-					any_parent_culture = { this = culture:eilander }
-					any_parent_culture = { has_variable = eilander_troops_var }
-				}
-				any_parent_culture = {
-					NOR = {
-						has_variable = swadian_troops_var
-						has_variable = rhodok_troops_var
-						has_variable = vlandian_troops_var
-						has_variable = togerd_troops_var
-						has_variable = sudican_troops_var
-						has_variable = kassen_troops_var
-						has_variable = rhoyd_troops_var
-						has_variable = heimarkel_troops_var
-					}
-				}
-			}
-			set_variable = eilander_troops_var
+			# if = {
+			# 	limit = {
+			# 		scope:founder = {
+			# 			has_variable = recruits_local_troops
+			# 		}
+			# 	}
+			# 	set_variable = {
+			# 		name = troops_culture
+			# 		value = scope:founder.var:recruits_local_troops
+			# 	}
+			# }
+			# else = {
+			# 	random_parent_culture = {
+			# 		weight = culture_number_of_counties
+			# 		prev = {
+			# 			set_variable = {
+			# 				name = troops_culture
+			# 				value = prev
+			# 			}
+			# 		}
+			# 	}
+			# }
 		}
 		if = { # Kartinakh MAAs
 			limit = {

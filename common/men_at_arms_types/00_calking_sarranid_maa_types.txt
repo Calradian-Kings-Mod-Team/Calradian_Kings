@@ -1,0 +1,494 @@
+﻿# standard costs
+@maa_buy_cost = 150
+@maa_low_maintenance_cost = 1.0
+@maa_high_maintenance_cost = 5.0
+@cultural_maa_extra_ai_score = 80
+
+# Must be synced between files with the values located at "# Provisions Costs #".
+@provisions_cost_infantry_cheap = 3
+@provisions_cost_infantry_moderate = 7
+@provisions_cost_infantry_expensive = 12
+@provisions_cost_infantry_bankrupting = 15
+
+@provisions_cost_cavalry_cheap = 7
+@provisions_cost_cavalry_moderate = 15
+@provisions_cost_cavalry_expensive = 21
+@provisions_cost_cavalry_bankrupting = 30
+
+@provisions_cost_special_cheap = 6
+@provisions_cost_special_moderate = 12
+@provisions_cost_special_expensive = 18
+@provisions_cost_special_bankrupting = 24
+
+sarranid_peasant_militia = { #sarranid footmen
+	type = peasant_militia # this does sort them to be above siege units
+	
+	damage = 12
+	toughness = 12
+	pursuit = 4
+	screen = 6
+	
+	counters = {
+		skirmishers = 0.25
+		siege_weapon = 0.5
+	}
+	holding_bonus = {
+		castle_holding = {
+			toughness = 3
+		}
+		church_holding = {
+			pursuit = 2
+		}
+		city_holding = {
+			screen = 2
+		}
+		tribal_holding = {
+			damage = 3
+		}
+	}
+	terrain_bonus = {
+		farmlands = { toughness = 2 }
+		desert_mountains = { toughness = 4 }
+		taiga = { screen = -4 }
+		steppe = { pursuit = -4 }
+		jungle = { toughness = -4 }
+		wetlands = { damage = -4 }
+	}
+	can_recruit = {
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+	}
+
+	buy_cost = { gold = 16 prestige = 16 }
+	low_maintenance_cost = { gold = 0.11 }
+	high_maintenance_cost = { gold = 0.33 }
+	provision_cost = @provisions_cost_infantry_cheap
+
+	stack = 100
+	ai_quality = {
+		value = highest_held_title_tier
+		multiply = -60
+		subtract = martial
+	}
+	icon = light_infantry
+}
+sarranid_light_infantry = { #sarranid (desert) skirmishers
+	type = skirmishers
+	
+	damage = 14
+	toughness = 8
+	pursuit = 10
+	screen = 18
+	
+	counters = {
+		shock_troops = 0.25
+		heavy_infantry = 1
+		pikemen = 1
+	}
+
+	can_recruit = {
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+	}
+
+	buy_cost = { gold = 21 piety = 21 }
+	low_maintenance_cost = { gold = 0.13 }
+	high_maintenance_cost = { gold = 0.42 }
+	provision_cost = @provisions_cost_infantry_cheap
+	terrain_bonus = {
+		desert = { damage = 4 pursuit = 4 }
+		desert_mountains = { damage = 4 toughness = 6 }
+		drylands = { screen = 4 pursuit = 4 }
+	}
+	winter_bonus = {
+		normal_winter = { pursuit = -4 damage = -4 }
+		harsh_winter = { pursuit = -8 screen = -8 damage = -4 }
+	}
+	stack = 100
+	ai_quality = { value = culture_ai_weight_skirmishers }
+	icon = skirmishers
+}
+sarranid_heavy_infantry = { #sarranid (clan) guards
+	type = heavy_infantry
+	
+	damage = 30
+	toughness = 30
+	pursuit = 0
+	screen = 6
+	
+	counters = {
+		peasant_militia = 1
+		pikemen = 1
+		archers = 1
+	}
+	
+	can_recruit = {
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+		NOT = {
+			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
+		}
+	}
+	terrain_bonus = {
+		oasis = { damage = 5 toughness = 5 }
+		drylands = { pursuit = 6 toughness = 5 screen = 4 }
+	}
+	
+	buy_cost = { gold = 105 }
+	low_maintenance_cost = { gold = 0.47 }
+	high_maintenance_cost = { gold = 1.4 }
+	provision_cost = @provisions_cost_infantry_expensive
+
+	stack = 100
+	ai_quality = {
+		value = culture_ai_weight_heavy_infantry
+		add = counter_synergy_ai_weight_heavy_infantry
+		if = {
+			limit = {
+				government_has_flag = government_is_clan
+				exists = house
+			}
+			add = house.house_unity_value
+		}
+	}
+	icon = mubarizun
+}
+sarranid_pikemen = { #sarranid (bamboo) Spearmen
+	type = pikemen
+	
+	damage = 17
+	toughness = 19
+	pursuit = 10
+	screen = 10
+	
+	terrain_bonus = {
+		oasis = { damage = 10 toughness = 5 }
+		jungle = { damage = 5 screen = 10 pursuit = 10 }
+		wetlands = { screen = 4 toughness = 5 }
+		# forest = { pursuit = 5 screen = 5 }
+		hills = { toughness = 6 }
+		terraced_hills = { toughness = 7 }
+		mountains = { toughness = 8 }
+		desert_mountains = { toughness = 9 }
+	}
+
+	counters = {
+		light_cavalry = 1
+		heavy_cavalry = 1
+		shock_troops = 1.25
+		camel_cavalry = 1.25
+		elephant_cavalry = 2
+	}
+	winter_bonus = {
+		normal_winter = { pursuit = -10 damage = -5 }
+		harsh_winter = { pursuit = -10 screen = -10 damage = -5 toughness = -5 }
+	}
+	can_recruit = {
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+	}
+
+	buy_cost = { gold = 75 }
+	low_maintenance_cost = { gold = 0.3 }
+	high_maintenance_cost = { gold = 0.9 }
+	provision_cost = @provisions_cost_infantry_moderate
+
+	stack = 100
+	ai_quality = {
+		value = culture_ai_weight_pikemen
+		add = counter_synergy_ai_weight_pikemen
+	}
+	icon = pikemen
+}
+sarranid_bowmen_1 = { #sarranid (average) Archers
+	type = archers
+	
+	damage = 26
+	toughness = 11
+	pursuit = 0
+	screen = 4
+	
+	terrain_bonus = {
+		forest = { toughness = 3 screen = 3 }
+		jungle = { toughness = 3 screen = 3 }
+		hills = { toughness = 2 screen = 2 }
+		desert_mountains = { toughness = 2 screen = 2 }
+	}
+
+	counters = {
+		pikemen = 0.25
+		peasant_militia = 0.5
+		skirmishers = 1
+		archer_cavalry = 1
+		skirmish_cavalry = 1
+	}
+
+	can_recruit = {
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+	}
+	buy_cost = { gold = 55 }
+	low_maintenance_cost = { gold = 0.2 }
+	high_maintenance_cost = { gold = 0.6 }
+	provision_cost = @provisions_cost_infantry_moderate
+
+	stack = 100
+	ai_quality = { 
+		value = culture_ai_weight_archers
+		add = counter_synergy_ai_weight_archers
+		subtract = 25
+		# add = penalty_ai_weight_toptier_archers
+	}
+	icon = bowmen
+}
+sarranid_bowmen_2 = { # sarranid master archers
+	type = archers
+	
+	damage = 43
+	toughness = 23
+	pursuit = 0
+	screen = 6
+	
+	terrain_bonus = {
+		oasis = { damage = 7 pursuit = 10 }
+		forest = { toughness = 4 screen = 4 }
+		jungle = { toughness = 4 screen = 4 }
+		desert_mountains = { toughness = 4 screen = 4 }
+	}
+
+	counters = {
+		pikemen = 0.5
+		peasant_militia = 1
+		skirmishers = 1
+		archer_cavalry = 1
+		skirmish_cavalry = 1
+	}
+
+	can_recruit = {
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+	}
+	buy_cost = { gold = 108 }
+	low_maintenance_cost = { gold = 0.39 }
+	high_maintenance_cost = { gold = 1.18 }
+	provision_cost = @provisions_cost_special_expensive
+
+	stack = 100
+	ai_quality = { 
+		value = culture_ai_weight_toptier_archers
+		add = 30 # compensating for nerf to aserai veterans
+		add = penalty_ai_weight_toptier_archers
+	}
+	illustration = {
+		reference = bowmen_asia
+	}
+	icon = bowmen
+}
+
+sarranid_light_cavalry = { #sarranid (faris) horsemen
+	type = light_cavalry
+	
+	damage = 25
+	toughness = 16
+	pursuit = 38
+	screen = 28
+	
+	terrain_bonus = {
+		plains = { damage = 15 }
+		drylands = { damage = 15 }
+		desert = { damage = 15 }
+		oasis = { damage = 10 toughness = 10 }
+		hills = { damage = -5 }
+		jungle = { pursuit = -15 screen = -15}
+		mountains = { damage = -10 pursuit = -20 }
+		desert_mountains = { damage = -15 pursuit = -20 }
+		wetlands = { damage = -15 toughness = -10 pursuit = -30 screen = -30 }
+	}
+	
+	counters = {
+		archers = 1
+		archer_cavalry = 1
+		skirmish_cavalry = 1.25
+	}
+
+	winter_bonus = {
+		harsh_winter = { damage = -5 toughness = -2 }
+	}
+
+	can_recruit = {
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+	}
+
+
+	buy_cost = { gold = 85 }
+	low_maintenance_cost = { gold = 0.37 }
+	high_maintenance_cost = { gold = 1.1 }
+	provision_cost = @provisions_cost_cavalry_moderate
+
+	stack = 100
+	ai_quality = { 
+		value = culture_ai_weight_light_cavalry
+		add = counter_synergy_ai_weight_light_cavalry
+	}
+	icon = sarranid_light_cavalry
+}
+sarranid_heavy_cavalry = { #sarranid mamlukes (real ones not horse archers)
+	type = heavy_cavalry
+	
+	damage = 115
+	toughness = 35
+	pursuit = 25
+	screen = 15
+	
+	terrain_bonus = {
+		plains = { damage = 30 pursuit = 5 }
+		drylands = { damage = 30 pursuit = 5 screen = 5 }
+		desert = { damage = 30 screen = 10 } 
+		hills = { damage = -20 }
+		jungle = { damage = -50  toughness = -10 }
+		mountains = { damage = -75 }
+		desert_mountains = { damage = -75 }
+		wetlands = { damage = -75 toughness = -10 pursuit = -10 }
+	}
+
+	counters = {
+		archers = 1.25
+		archer_cavalry = 1
+		skirmish_cavalry = 1
+		peasant_militia = 0.5
+	}
+
+	can_recruit = {
+		culture = {
+			has_innovation = innovation_arched_saddle
+			has_innovation = innovation_ghilman
+			NOT = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
+		}
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+	}
+
+	winter_bonus = {
+		normal_winter = { damage = -10 toughness = -5 }
+		harsh_winter = { damage = -20 toughness = -10 }
+	}
+
+	buy_cost = { gold = 234 }
+	low_maintenance_cost = { gold = 0.82 }
+	high_maintenance_cost = { gold = 2.46 }
+	provision_cost = @provisions_cost_cavalry_expensive
+	
+	stack = 50
+	ai_quality = {
+		value = culture_ai_weight_heavy_cavalry
+		if = {
+			limit = {
+				is_independent_ruler = yes
+			}
+			add = @cultural_maa_extra_ai_score
+		}
+	}
+	illustration = {
+		reference = asawira
+	}
+	icon = warhorse_sarranid
+}
+sarranid_shock_infantry = { # sarranid Axemen
+	type = shock_troops
+
+	damage = 36
+	toughness = 16
+	pursuit = 0
+	screen = 0
+	
+	counters = {
+		heavy_infantry = 1
+		light_cavalry = 1
+		camel_cavalry = 1.25
+	}
+	
+	terrain_bonus = {
+		forest = { toughness = 6 }
+		jungle = { damage = 6 }
+		oasis = { damage = 4 toughness = 4 }
+	}
+	can_recruit = {
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sarranid
+		}
+	}
+	holding_bonus = {
+		castle_holding = {
+			toughness = 4
+			siege_value = 0.1
+		}
+		tribal_holding = {
+			damage = 4
+			siege_value = 0.1
+		}
+	}
+	winter_bonus = {
+		harsh_winter = { damage = -5 toughness = -5 }
+	}
+	buy_cost = { gold = 74 }
+	low_maintenance_cost = { gold = 0.33 }
+	high_maintenance_cost = { gold = 0.98 }
+	provision_cost = @provisions_cost_infantry_expensive
+
+	stack = 100
+	ai_quality = {
+		value = culture_ai_weight_shock
+		add = counter_synergy_ai_weight_shock
+		subtract = 50
+		add = martial
+	}
+	icon = ayyar
+}
+# sarranid_horse_archers = { # sarranid Mameluke Cavalry
+# 	type = archer_cavalry
+	
+# 	damage = 30
+# 	toughness = 25
+# 	pursuit = 35
+# 	screen = 25
+	
+# 	terrain_bonus = {
+# 		desert = { damage = 30 }
+# 		plains = { damage = 30 }
+# 		drylands = { damage = 30 }
+# 		hills = { damage = -20 }
+# 		wetlands = { damage = -30 pursuit = -30 }
+# 		mountains = { damage = -30 pursuit = -30 }
+# 		desert_mountains = { damage = -30 pursuit = -30 }
+# 	}
+
+# 	counters = {
+# 		skirmishers = 1
+# 		heavy_infantry = 1
+# 	}
+
+# 	can_recruit = {
+# 		ck_can_recruit_culture_heritage_troops = {
+# 
+# 			CULTURE = sarranid
+# 		}
+# 	}
+
+# 	buy_cost = { gold = 120 }
+# 	low_maintenance_cost = { gold = 0.4 }
+# 	high_maintenance_cost = { gold = 1.2 }
+# 	provision_cost = @provisions_cost_special_bankrupting
+	
+# 	stack = 100
+# 	ai_quality = { value = culture_ai_weight_light_cavalry }
+# 	icon = horse_archers
+# }

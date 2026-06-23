@@ -63,6 +63,33 @@ window = {
 				onclick = "[DefaultOnCharacterClick(GetPlayer.GetID)]"
 			}
 
+			blockoverride "extra_buttons" {
+				button_ruler_objective = {
+					shortcut = "mapmode_faith_secondary"
+					datacontext = "[GetScriptedGui( 'culture_dominant_faith' )]"
+					icon = {
+						size = { 30 30 }
+						alpha = 0.75
+						visible = "[Culture.HasCultureHead]"
+						texture = "[Culture.GetCultureHead.GetPietyLevelTexture]"
+					}
+					visible = "[Culture.HasSpread]" # no counties = no spread; IsShown tooltips the trigger failure instead of hiding?
+					tooltip = "[ScriptedGui.BuildTooltip( GuiScope.SetRoot( Culture.MakeScope ).AddScope( 'character', GetPlayer.MakeScope ).End )]"
+					onclick = "[ScriptedGui.Execute(GuiScope.SetRoot( Culture.MakeScope ).AddScope( 'character', GetPlayer.MakeScope ).End )]"
+					# onclick = "[OpenGameViewData( 'faith', Faith.GetID )]"
+					# tooltipwidget = { faith_tooltip_click = {} }
+				}
+				button_pin = {
+				# datacontext = "[LedgerWindow]"
+					shortcut = "pin"
+					tooltip = "OPEN_LEDGER"
+					onclick = "[OpenGameViewData('ledger', Culture.GetID)]"
+					onclick = "[GetVariableSystem.Set( 'ledger_tab', 'cultures' )]"
+					# onclick = "[LedgerWindow.ToggleCulturePin(Culture.Self)]"
+					# onclick = "[Title.ToggleTitlePinned]"
+					# visible = "[Not(LedgerWindow.IsCulturePinned(Culture.Self))]"
+				}
+			}
 			watch_window_button = {
 				size = { 60 40 }
 				onclick = "[AddWatchWindow( Culture.MakeScope )]"
@@ -112,9 +139,10 @@ window = {
 						text = "[Culture.GetPlayerRelationString]"
 						default_format = "#low"
 					}
-
 					text_single = {
 						text = "[Culture.GetCreationString]"
+						visible = "[GreaterThanOrEqualTo_int32(GetCurrentDate.GetYear, Culture.GetCreationDate.GetYear)]"
+						default_format = "#high"
 						max_width = 490
 					}
 				}
@@ -310,7 +338,7 @@ window = {
 									}
 
 									text_multi = {
-										text = "CULTURE_VIEW_MARTIAL_CUSTOM_TEXT"
+										text = "CULTURE_VIEW_MARTIAL_CUSTOM_TEXT_CK"
 										autoresize = yes
 										max_width = 220
 									}
@@ -652,6 +680,17 @@ window = {
 							}
 						}
 					}
+				}
+
+				background = {
+					visible = "[And(Culture.HasCultureHead,Culture.GetCultureHead.IsRuler)]"
+					datacontext = "[Culture.GetCultureHead.GetPrimaryTitle]"
+					# datacontext = "[GetIllustration('title_holding')]"
+					texture = "[GetIllustration('title_holding').GetTexture(Culture.GetCultureHead.GetPrimaryTitle.MakeScope)]"
+					fittype = centercrop
+					alpha = 0.2
+					mirror = horizontal
+					# using = Toast_Header
 				}
 			}
 
@@ -1727,6 +1766,11 @@ window = {
 																	modify_texture = {
 																		visible = "[EqualTo_int32( '(int32)5', GuiCultureInnovation.GetSkill.GetFrame )]"
 																		color = { 0.16 0.16 0.16 1 }
+																		blend_mode = normal
+																	}
+																	modify_texture = {
+																		visible = "[EqualTo_int32( '(int32)6', GuiCultureInnovation.GetSkill.GetFrame )]"
+																		color = { 0.5 0 0 0.6 }
 																		blend_mode = normal
 																	}
 

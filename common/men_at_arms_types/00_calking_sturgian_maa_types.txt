@@ -38,13 +38,8 @@ sturgian_light_infantry_1 = { #Sturgian Woodsmen
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_sturgic_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sturgic
 		}
 	}
 
@@ -57,7 +52,7 @@ sturgian_light_infantry_1 = { #Sturgian Woodsmen
 
 	stack = 100
 	ai_quality = { value = culture_ai_weight_skirmishers }
-	icon = skirmishers
+	icon = bondi
 }
 sturgian_light_infantry_2 = { #Sturgian Warriors Sons
 	type = skirmishers
@@ -78,13 +73,8 @@ sturgian_light_infantry_2 = { #Sturgian Warriors Sons
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_sturgic_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sturgic
 		}
 	}
 
@@ -113,13 +103,11 @@ sturgian_heavy_infantry = { #Sturgian Veteran Warriors
 	}
 	
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_sturgic_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sturgic
 		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_local_troops
+		NOT = {
+			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
 		}
 	}
 	
@@ -133,9 +121,10 @@ sturgian_heavy_infantry = { #Sturgian Veteran Warriors
 	stack = 100
 	ai_quality = {
 		value = culture_ai_weight_heavy_infantry
-		value = counter_synergy_ai_weight_heavy_infantry
+		add = counter_synergy_ai_weight_heavy_infantry
 	}
-	icon = heavy_infantry
+	illustration = vigmen
+	icon = nord_heavy_infantry_1
 }
 sturgian_pikemen = { #Sturgian Spearmen
 	type = pikemen
@@ -160,13 +149,8 @@ sturgian_pikemen = { #Sturgian Spearmen
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_sturgic_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sturgic
 		}
 	}
 
@@ -181,7 +165,7 @@ sturgian_pikemen = { #Sturgian Spearmen
 	stack = 100
 	ai_quality = {
 		value = culture_ai_weight_pikemen
-		value = counter_synergy_ai_weight_pikemen
+		add = counter_synergy_ai_weight_pikemen
 	}
 	icon = pikemen
 }
@@ -205,13 +189,8 @@ sturgian_bowmen = { #Sturgian Archers
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_sturgic_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sturgic
 		}
 	}
 	buy_cost = { gold = 55 }
@@ -224,7 +203,7 @@ sturgian_bowmen = { #Sturgian Archers
 	stack = 100
 	ai_quality = { 
 		value = culture_ai_weight_archers
-		value = counter_synergy_ai_weight_archers
+		add = counter_synergy_ai_weight_archers
 	}
 	icon = bowmen
 }
@@ -252,13 +231,8 @@ sturgian_light_cavalry = { #Sturgian Horse Raiders
 
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_sturgic_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sturgic
 		}
 	}
 
@@ -273,7 +247,7 @@ sturgian_light_cavalry = { #Sturgian Horse Raiders
 	stack = 100
 	ai_quality = { 
 		value = culture_ai_weight_light_cavalry
-		value = counter_synergy_ai_weight_light_cavalry
+		add = counter_synergy_ai_weight_light_cavalry
 	}
 	icon = light_cavalry
 }
@@ -300,16 +274,24 @@ sturgian_heavy_cavalry = { #Sturgian Druzhinnik
 	}
 
 	can_recruit = {
-		OR = {
-			AND = {
-				culture = { has_cultural_pillar = heritage_sturgic }
-				culture = { has_innovation = innovation_arched_saddle }
-			}
-			has_character_flag = recruits_sturgic_troops
+		culture = {
+			has_innovation = innovation_arched_saddle
+			NOT = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
 		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_local_troops
+		OR = {
+			trigger_if = {
+				limit = {
+					OR = {  # lansits
+						culture = { NOT = { var:troops_culture ?= culture:sturgic } }
+						ck_tradition_troops_enabled = yes
+					}
+				}
+				# regular only, no adventurer pickups
+				culture = { has_cultural_parameter =  unlock_maa_druzhinnik }
+			}
+			ck_can_recruit_culture_heritage_troops = {
+				CULTURE = sturgic
+			}
 		}
 	}
 
@@ -323,6 +305,9 @@ sturgian_heavy_cavalry = { #Sturgian Druzhinnik
 	
 	stack = 50
 	ai_quality = { value = culture_ai_weight_heavy_cavalry }
+	illustration = {
+		reference = konni
+	}
 	icon = heavy_cavalry
 }
 sturgian_shock_infantry = { # Sturgian Ulfehdnar
@@ -340,13 +325,8 @@ sturgian_shock_infantry = { # Sturgian Ulfehdnar
 	}
 	
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_sturgic_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_sturgic }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = sturgic
 		}
 	}
 	
@@ -365,7 +345,9 @@ sturgian_shock_infantry = { # Sturgian Ulfehdnar
 	stack = 100
 	ai_quality = {
 		value = culture_ai_weight_shock
-		value = counter_synergy_ai_weight_shock
+		add = counter_synergy_ai_weight_shock
+		subtract = 50
+		add = ai_energy
 	}
-	icon = heavy_infantry
+	icon = danish_huskarls
 }

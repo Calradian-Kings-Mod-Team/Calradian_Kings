@@ -66,7 +66,29 @@ window = {
 					using = Animation_Refresh_FadeIn
 				}
 			}
+			blockoverride "header_background_visibility"
+			{
+				icon = {
+					visible = "[Faith.IsUnreformed]"
+					size = { 100% 100% }
+					texture = "gfx/interface/skinned/component_decoration/decoration_migration_header.dds"
 
+					modify_texture = {
+						texture = "gfx/interface/component_masks/mask_fade_vertical.dds"
+						blend_mode = alphaMultiply
+						alpha = 0.5
+					}
+					modify_texture = {
+						texture = "gfx/interface/component_masks/mask_fade_textured_vertical_up.dds"
+						blend_mode = alphaMultiply
+					}
+				}
+			}
+
+			blockoverride "header_pattern_visibility"
+			{
+				visible = "[Not( Faith.GetReligion.HasPaganRoots )]"
+			}
 			blockoverride "button_close"
 			{
 				onclick = "[FaithWindow.Close]"
@@ -83,13 +105,25 @@ window = {
 			{
 				onclick = "[DefaultOnCharacterClick(GetPlayer.GetID)]"
 			}
+			blockoverride "extra_buttons" {
+				# datamodel = "[LedgerWindow]"
+				button_pin = {
+					shortcut = "pin"
+					tooltip = "OPEN_LEDGER"
+					onclick = "[OpenGameViewData('ledger', FaithWindow.GetFaith)]"
+					onclick = "[GetVariableSystem.Set( 'ledger_tab', 'faiths' )]"
+					onclick = "[GetVariableSystem.Set( 'ledger_faith_tab', 'faiths' )]"
+					# onclick = "[LedgerWindow.ToggleCulturePin(Culture.Self)]"
+				}
+			}
 
 			blockoverride "illustration_texture"
 			{
 				texture = "[Illustration.GetTexture( FaithWindow.GetFaith.MakeScope )]"
 				spriteType = stretched
 				fittype = centercrop
-				alpha = 0.35
+				mirror = horizontal
+				alpha = "[Divide_CFixedPoint(Faith.GetFervor,'(CFixedPoint)150')]" # 0 to 66% visible
 			}
 
 			hbox = {
@@ -140,8 +174,9 @@ window = {
 							margin_bottom = 4
 							margin_left = 25
 							spacing = 1
+							visible = "[GetPlayer.IsValid]"
 
-							text_single = {
+							text_label_center = {
 								name = "your_faith"
 								visible = "[ObjectsEqual( GetPlayer.GetFaith, Faith.Self )]"
 								text = "FAITH_VIEW_YOUR_FAITH"
@@ -156,6 +191,22 @@ window = {
 								layoutpolicy_horizontal = expanding
 								text = "FAITH_VIEW_OUR_VIEW"
 								align = nobaseline|center
+								background = {
+									visible = "[LessThan_int32( GetPlayer.GetFaith.GetHostilityLevelTowards( Faith.Self ), '(int32)1')]"
+									using = Status_Good
+								}
+								background = {
+									visible = "[EqualTo_int32( GetPlayer.GetFaith.GetHostilityLevelTowards( Faith.Self ), '(int32)1')]"
+									using = Status_Highlight
+								}
+								background = {
+									visible = "[EqualTo_int32(GetPlayer.GetFaith.GetHostilityLevelTowards( Faith.Self ), '(int32)2')]"
+									using = Status_Suggestion_Bad
+								}
+								background = {
+									visible = "[GreaterThan_int32(GetPlayer.GetFaith.GetHostilityLevelTowards( Faith.Self ), '(int32)2')]"
+									using = Status_Bad
+								}
 							}
 
 							text_single = {
@@ -164,6 +215,22 @@ window = {
 								layoutpolicy_horizontal = expanding
 								text = "FAITH_VIEW_THEIR_VIEW"
 								align = nobaseline|center
+								background = {
+									visible = "[LessThan_int32(Faith.GetHostilityLevelTowards( GetPlayer.GetFaith ), '(int32)1')]"
+									using = Status_Good
+								}
+								background = {
+									visible = "[EqualTo_int32(Faith.GetHostilityLevelTowards( GetPlayer.GetFaith ), '(int32)1')]"
+									using = Status_Highlight
+								}
+								background = {
+									visible = "[EqualTo_int32(Faith.GetHostilityLevelTowards( GetPlayer.GetFaith ), '(int32)2')]"
+									using = Status_Suggestion_Bad
+								}
+								background = {
+									visible = "[GreaterThan_int32(Faith.GetHostilityLevelTowards( GetPlayer.GetFaith ), '(int32)2')]"
+									using = Status_Bad
+								}
 							}
 						}
 

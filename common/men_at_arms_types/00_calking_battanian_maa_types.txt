@@ -40,13 +40,8 @@ battanian_light_infantry_1 = { # Battanian Wood Runners
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_battanian_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
 	}
 
@@ -80,13 +75,8 @@ battanian_light_infantry_2 = { # Battanian Wildlings
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_battanian_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
 	}
 
@@ -98,8 +88,13 @@ battanian_light_infantry_2 = { # Battanian Wildlings
 	holy_order_fallback = yes
 
 	stack = 100
-	ai_quality = { value = culture_ai_weight_skirmishers }
-	icon = skirmishers
+	ai_quality = {
+		value = culture_ai_weight_skirmishers
+		add = government_ai_weight_tribal
+		subtract = 40
+		add = ai_greed
+	}
+	icon = ck_mountain_bandits
 }
 battanian_heavy_infantry = { # Battanian Oathsworns
 	type = heavy_infantry
@@ -120,13 +115,11 @@ battanian_heavy_infantry = { # Battanian Oathsworns
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_battanian_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_local_troops
+		NOT = {
+			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
 		}
 	}
 
@@ -141,9 +134,20 @@ battanian_heavy_infantry = { # Battanian Oathsworns
 	stack = 100
 	ai_quality = {
 		value = culture_ai_weight_heavy_infantry
-		value = counter_synergy_ai_weight_heavy_infantry
+		add = counter_synergy_ai_weight_heavy_infantry
+		if = {
+			limit = {
+				ai_honor > 0
+			}
+			add = { # make about half your vassals use these instead of fiann spam
+				value = ai_honor
+				add = 25
+				multiply = 4
+			}
+		}
 	}
-	icon = heavy_infantry
+	illustration = heavy_infantry
+	icon = battanian_heavy_infantry
 }
 battanian_pikemen = { # Battanian Spearmen
 	type = pikemen
@@ -167,13 +171,8 @@ battanian_pikemen = { # Battanian Spearmen
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_battanian_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
 	}
 
@@ -188,11 +187,11 @@ battanian_pikemen = { # Battanian Spearmen
 	stack = 100
 	ai_quality = {
 		value = culture_ai_weight_pikemen
-		value = counter_synergy_ai_weight_pikemen
+		add = counter_synergy_ai_weight_pikemen
 	}
 	icon = pikemen
 }
-battanian_bowmen_01 = { # Battanian Heroes
+battanian_bowmen_1 = { # Battanian Heroes
 	type = archers
 	
 	damage = 30
@@ -212,13 +211,8 @@ battanian_bowmen_01 = { # Battanian Heroes
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_battanian_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
 	}
 	buy_cost = { gold = 55 }
@@ -231,11 +225,12 @@ battanian_bowmen_01 = { # Battanian Heroes
 	stack = 100
 	ai_quality = { 
 		value = culture_ai_weight_archers
-		value = counter_synergy_ai_weight_archers
+		add = counter_synergy_ai_weight_archers
+		add = ai_boldness
 	}
 	icon = bowmen
 }
-battanian_bowmen_02 = { # Battanian Fiann Champions
+battanian_bowmen_2 = { # Battanian Fiann Champions
 	type = archers
 	
 	damage = 48
@@ -255,13 +250,8 @@ battanian_bowmen_02 = { # Battanian Fiann Champions
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_battanian_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
 	}
 	buy_cost = { gold = 68 }
@@ -273,8 +263,10 @@ battanian_bowmen_02 = { # Battanian Fiann Champions
 
 	stack = 100
 	ai_quality = { 
-		value = culture_ai_weight_archers
-		value = counter_synergy_ai_weight_archers
+		value = culture_ai_weight_toptier_archers
+		add = counter_synergy_ai_weight_archers
+		add = penalty_ai_weight_toptier_archers
+		add = penalty_ai_weight_veterans
 	}
 	icon = bowmen
 }
@@ -306,13 +298,8 @@ battanian_light_cavalry = { #Battanian Scouts
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_battanian_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
 	}
 
@@ -327,7 +314,7 @@ battanian_light_cavalry = { #Battanian Scouts
 	stack = 100
 	ai_quality = { 
 		value = culture_ai_weight_light_cavalry
-		value = counter_synergy_ai_weight_light_cavalry
+		add = counter_synergy_ai_weight_light_cavalry
 	}
 	icon = light_cavalry
 }
@@ -351,13 +338,8 @@ battanian_shock_infantry = { # Battanian Falxmen
 	}
 	
 	can_recruit = {
-		OR = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_battanian_troops
-		}
-		NAND = {
-			culture = { has_cultural_pillar = heritage_battanian }
-			has_character_flag = recruits_local_troops
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
 	}
 	
@@ -371,14 +353,15 @@ battanian_shock_infantry = { # Battanian Falxmen
 	stack = 100
 	ai_quality = {
 		value = culture_ai_weight_shock
-		value = counter_synergy_ai_weight_shock
+		add = counter_synergy_ai_weight_shock
+		# add = government_ai_weight_tribal # after nerf to archer soft they don't need another buff
 	}
-	icon = heavy_infantry
+	icon = pikemen_militia
 }
 
 ## Innovation-related ##
 hobelar_ck = {
-	type = light_cavalry
+	type = skirmish_cavalry
 	
 	damage = 25
 	toughness = 18
@@ -395,6 +378,8 @@ hobelar_ck = {
 
 	counters = {
 		archers = 1
+		shock_troops = 1
+		gunpowder = 1
 	}
 
 	winter_bonus = {
@@ -402,23 +387,9 @@ hobelar_ck = {
 	}
 
 	can_recruit = {
-		OR = {
-			culture = { 
-				AND = {
-					has_cultural_pillar = heritage_battanian 
-					has_innovation  = innovation_hobbies_ck
-				}
-			}
-			has_character_flag = recruits_battanian_troops
-		}
-		NAND = {
-			culture = { 
-				AND = {
-					has_cultural_pillar = heritage_battanian 
-					has_innovation  = innovation_hobbies_ck
-				}
-			}
-			has_character_flag = recruits_local_troops
+		culture ?= { has_innovation = innovation_hobbies_ck }
+		ck_can_recruit_culture_heritage_troops = {
+			CULTURE = battanian
 		}
 	}
 
@@ -429,5 +400,5 @@ hobelar_ck = {
 	
 	stack = 100
 	ai_quality = { value = @cultural_maa_extra_ai_score }
-	icon = light_cavalry
+	icon = ck_taiga_bandits
 }

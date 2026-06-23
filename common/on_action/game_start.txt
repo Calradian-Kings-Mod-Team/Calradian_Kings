@@ -249,18 +249,6 @@ on_game_start = {
 				}
 			}
 		}
-		# To prevent the Season Changes event from triggering on game start
-		situation:the_great_steppe ?= {
-			every_participant_group = {
-				every_situation_group_participant = {
-					set_variable = {
-						name = steppe_game_start_var
-						years = 1
-					}
-				}
-			}
-		}
-		
 
 		if = {
 			limit = {
@@ -276,6 +264,17 @@ on_game_start = {
 			shatter_khanate_duchies_effect = yes
 			shatter_khanate_effect = yes
 			make_khuzait_khanate_nomadic_effect = yes
+		}
+		# To prevent the Season Changes event from triggering on game start
+		situation:the_great_steppe ?= {
+			every_participant_group = {
+				every_situation_group_participant = {
+					set_variable = {
+						name = steppe_game_start_var
+						years = 1
+					}
+				}
+			}
 		}
 		# Makes sure Battania & Sturgia are NOT feudal #
 		if = {
@@ -519,11 +518,11 @@ on_game_start = {
 			}
 		}
 		
-		### 1257 CRUSADE SETUP ###
-		if = {
+		else_if = {
 			limit = {
 				game_start_date >= 1257.3.23
 			}
+			### 1257 CRUSADE SETUP ###
 			religion:aserai_religion = {
 				set_variable = {
 					name = variable_ghw_unlocked
@@ -541,7 +540,7 @@ on_game_start = {
 			# 	value = yes
 			# }
 		}
-
+		
 		### CALRADIC KINGS - UNIVERSITIES ###
 		title:b_charas.title_province = { 
 			if = {
@@ -1962,7 +1961,7 @@ on_game_start_after_lobby = {
 		if = {
 		    limit = {
 				has_mpo_dlc_trigger = yes
-				has_game_rule = nahasa_nomad_region_on_on
+				has_game_rule = nahasa_nomad_region_on
 			}
 			start_situation = {
 				type = game_rule_extra_nomads_arabs
@@ -2072,9 +2071,9 @@ on_game_start_after_lobby = {
 		# 	}
 		# }
 		every_ruler = {
-		### Every nomad in the Steppe Region gets their yurt domicile goodies ###
-		if = {
-			limit = {
+			### Every nomad in the Steppe Region gets their yurt domicile goodies ###
+			if = {
+				limit = {
 					government_has_flag = government_is_nomadic
 					is_landed = yes
 				}
@@ -2746,8 +2745,6 @@ on_game_start_after_lobby = {
 				}
 			}
 		}
-		
-		
 
 		if = {
 			limit = { has_game_rule = sexuality_distribution_default }
@@ -3104,8 +3101,15 @@ on_game_start_after_lobby = {
 		## This is for a bookmark cultural tolerance/acceptance, for Warband era 
 		if = {
 			limit = { game_start_date >= 1257.3.23 }
+			culture:sudican = { # not in history because culture_head doesn't exist
+				add_innovation = innovation_arbalests
+			}
+			culture:tojjeredi = { # can't forget how crossbows work
+				add_innovation = innovation_advanced_bowmaking
+			}
 			# Rhodok
 			culture:rhodok = {
+				add_innovation = innovation_arbalests
 				change_cultural_acceptance = {
 					target = culture:jendea
 					value = 25
@@ -3160,6 +3164,7 @@ on_game_start_after_lobby = {
 			}
 			# Vaegir
 			culture:vaegir = {
+				add_innovation = innovation_knighthood # unlock knights
 				change_cultural_acceptance = {
 					target = culture:vysoicau
 					value = 25
@@ -3168,6 +3173,7 @@ on_game_start_after_lobby = {
 			}
 			# Sarranid
 			culture:sarranid = {
+				add_innovation = innovation_ghilman # unlock mameluke, from karnyid ancestor
 				change_cultural_acceptance = {
 					target = culture:tojjeredi
 					value = 25
@@ -3206,14 +3212,16 @@ on_game_start_after_lobby = {
 			limit = {
 				game_start_date >= 976.8.10
 			}
-			every_culture_global = {
-				limit = {
-					OR = {
-						has_cultural_pillar = heritage_darshi
-						this = culture:aserai
-					}
-				}
-				add_innovation = innovation_ghilman
+			# darshi handled in history
+			culture:aserai = {
+				add_innovation = innovation_ghilman	
+			}
+			culture:karnyid = {
+				add_innovation = innovation_ghilman	
+			}
+			# hybrid across 2 heritages
+			culture:yenkanji = {
+				get_all_innovations_from = culture:dambaya
 			}
 		}
 		### CE1 LEGITIMACY SETUP ###
@@ -4698,14 +4706,14 @@ on_game_start_after_lobby = {
 
 		# TGP China education track switch
 
-		if = {
-			limit = {
-				exists = title:h_china.holder
-			}
-			title:h_china.holder = {
-				add_to_list = realm_potential_education_flip_list
-			}
-		}
+		# if = {
+		# 	limit = {
+		# 		exists = title:h_china.holder
+		# 	}
+		# 	title:h_china.holder = {
+		# 		add_to_list = realm_potential_education_flip_list
+		# 	}
+		# }
 		# House COAs titles exemptions
 		ck_game_start_heraldry_default_effect = yes
 		# House COAs for titles
@@ -4727,287 +4735,6 @@ on_game_start_after_lobby = {
 					}
 					set_coa = prev.house
 				}
-			}
-		}
-		### Setting up appropriate dynasty splendor levels
-		## Specific dynasties
-		# Vlandian dynasties
-		if = {
-			limit = {
-				game_start_date = 1084.5.1
-			}
-			dynasty:dynn_dey_meroc = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_rothad = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_folcun = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_jelind = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_molarn = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_valant = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_cortain = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_gunric = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_fortes = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_dey_arromanc = {
-				add_dynasty_prestige_level = 2
-			}
-		}
-		# Battanian Dynasties
-		if = {
-			limit = {
-				game_start_date = 1084.5.1
-			}
-			dynasty:dynn_gruffendoc = {
-				add_dynasty_prestige_level = 2
-			}
-			dynasty:dynn_derngil = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_uvain = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_morcar = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_giall = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_eingal = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_caernacht = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_penraic = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_uthelhain = { 
-				add_dynasty_prestige_level = 1
-			}
-			dynasty:dynn_aedeg = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_dairl = { 
-				add_dynasty_prestige_level = 2 
-			}
-		}
-		# Sturgian dynasties 
-		if = {
-			limit = {
-				game_start_date = 1084.5.1
-			}
-			dynasty:dynn_ubroving = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_vezhoving = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_kuloving = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_kostaroving = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_togaroving = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_isyaroving = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_vagiroving = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_ormidoving = { 
-				add_dynasty_prestige_level = 2 
-			}
-		}
-		# Perassic dynasties 
-		if = {
-			limit = {
-				game_start_date = 1084.5.1
-			}
-			dynasty:dynn_kefalli = { 
-				add_dynasty_prestige_level = 1 
-			}
-			dynasty:dynn_bytessi = { 
-				add_dynasty_prestige_level = 2 
-			}
-		}
-		# Khuzait dynasties 
-		if = {
-			limit = {
-				game_start_date = 1084.5.1
-			}
-			dynasty:dynn_khergit = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_arkit = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_tigrit = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_harfit = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_baltait = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_koltit = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_yanserit = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_oburit = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_dusit = { 
-				add_dynasty_prestige_level = 2 
-			}
-		}
-		# Darshi Dynasties 
-		if = {
-			limit = {
-				game_start_date = 1084.5.1 
-			}
-			dynasty:dynn_darshid = { 
-				add_dynasty_prestige_level = 6 
-			}
-		}
-		# Aserai Dynasties
-		if = {
-			limit = {
-				game_start_date = 1084.5.1 
-			}
-			dynasty:dynn_banu_hulyan = { 
-				add_dynasty_prestige_level = 1 
-			}
-			dynasty:dynn_banu_sarran = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_banu_qild = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_carasios = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_banu_arbas = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_banu_atij = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_banu_sarmal = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_banu_habbab = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_banu_ruwaid = { 
-				add_dynasty_prestige_level = 2 
-			}
-		}
-		# Imperial Dynasties
-		if = {
-			limit = {
-				game_start_date = 1084.5.1 
-			}
-			dynasty:dynn_avlonos = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_hongeros = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_julios = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_leonipardes = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_mestricaros = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_prienicos = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_vetranis = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_vizartos = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_osticos = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_argoros = { 
-				add_dynasty_prestige_level = 1 
-			}
-			dynasty:dynn_chonis = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_dolentos = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_impestores = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_neretzes = { 
-				add_dynasty_prestige_level = 1 
-			}
-			dynasty:dynn_mytophion = { 
-				add_dynasty_prestige_level = 1 
-			}
-			dynasty:dynn_phalentes = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_serapides = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_vatatzes = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_comnos = { 
-				add_dynasty_prestige_level = 1 
-			}
-			dynasty:dynn_corenios = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_dionicos = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_elaches = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_lonalion = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_maneolis = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_palladios = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_sorados = { 
-				add_dynasty_prestige_level = 2 
-			}
-			dynasty:dynn_varros = { 
-				add_dynasty_prestige_level = 2 
 			}
 		}
 		# if = {
@@ -5051,44 +4778,44 @@ on_game_start_after_lobby = {
 		# 	}
 		# }
 
-		every_in_list = {
-			list = realm_potential_education_flip_list
-			every_vassal_or_below = {
-				limit = {
-					is_ai = yes
-					OR = {
-						is_governor = yes
-						tgp_is_any_minister = yes
-					}
-					trigger_if = {
-						limit = { has_trait_with_flag = civilian_province }
-						OR = {
-							vassal_contract_has_flag = celestial_military_appointment
-							vassal_contract_has_flag = meritocratic_military_appointment
-						}
-					}
-					trigger_else = {
-						OR = {
-							vassal_contract_has_flag = celestial_civil_appointment
-							vassal_contract_has_flag = meritocratic_civil_appointment
-						}
-					}
-				}
-				if = {
-					limit = { has_trait_with_flag = civilian_province }
-					set_variable = {
-						name = appointment_trait_override
-						value = trait:education_martial_1
-					}
-				}
-				else = {
-					set_variable = {
-						name = appointment_trait_override
-						value = trait:education_stewardship_1
-					}
-				}
-			}
-		}
+		# every_in_list = {
+		# 	list = realm_potential_education_flip_list
+		# 	every_vassal_or_below = {
+		# 		limit = {
+		# 			is_ai = yes
+		# 			OR = {
+		# 				is_governor = yes
+		# 				tgp_is_any_minister = yes
+		# 			}
+		# 			trigger_if = {
+		# 				limit = { has_trait_with_flag = civilian_province }
+		# 				OR = {
+		# 					vassal_contract_has_flag = celestial_military_appointment
+		# 					vassal_contract_has_flag = meritocratic_military_appointment
+		# 				}
+		# 			}
+		# 			trigger_else = {
+		# 				OR = {
+		# 					vassal_contract_has_flag = celestial_civil_appointment
+		# 					vassal_contract_has_flag = meritocratic_civil_appointment
+		# 				}
+		# 			}
+		# 		}
+		# 		if = {
+		# 			limit = { has_trait_with_flag = civilian_province }
+		# 			set_variable = {
+		# 				name = appointment_trait_override
+		# 				value = trait:education_martial_1
+		# 			}
+		# 		}
+		# 		else = {
+		# 			set_variable = {
+		# 				name = appointment_trait_override
+		# 				value = trait:education_stewardship_1
+		# 			}
+		# 		}
+		# 	}
+		# }
 	}
 
 	events = {

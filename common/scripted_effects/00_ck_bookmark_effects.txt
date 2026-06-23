@@ -1631,6 +1631,9 @@ warband_king_armor = {
 				equip_artifact_to_owner = yes
 				scope:owner.dynasty = {
 					every_dynasty_house = {
+						limit = { # idk why there's 3 of them
+							exists = house_head
+						}
 						add_house_artifact_claim = scope:newly_created_artifact
 					}
 				}
@@ -1642,31 +1645,49 @@ warband_king_armor = {
 				name = quality
 				value = { value = sub_realm_size add = prowess }
 			}
-			# give him a bow instead?
 			get_artifact_wealth_effect = yes
 			random_vassal = {
 				limit = { artifact_use_mongol_unit_visuals_trigger = yes }
 				save_scope_as = smith
 			}
-			create_artifact_weapon_effect = {
-				OWNER = scope:owner
-				CREATOR = scope:smith
-				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
+			create_artifact = {
+				name = artifact_sanjar_sword
+				description = placeholder
+				visuals = sword
+				type = sword
+				rarity = illustrious # extra heavy
+				modifier = artifact_prowess_1_modifier
+				creator = scope:smith
+				wealth = scope:wealth
+				quality = scope:quality
+				save_scope_as = newly_created_artifact
+				history = {
+					date = 1234.5.6
+					actor = scope:owner.father
+					recipient = scope:owner
+					type = won_in_duel
+				}
 			}
 			scope:newly_created_artifact = {
-				set_artifact_name = artifact_sanjar_sword
+				set_variable = {
+					name = quality
+					value = scope:quality
+				}
+				set_variable = {
+					name = wealth
+					value = scope:wealth
+				}
+				get_sword_decoration_effect = yes
+				get_artifact_feature_references_effect = yes
+				set_artifact_description = artifact_sword_description
+				add_scaled_artifact_modifier_prowess_effect = yes
+				add_scaled_artifact_modifier_combat_effect = yes
 				add_artifact_modifier = artifact_raid_speed_4_modifier
 				switch = { # this tanks quality due to realm size downscaling from all the razing
 					trigger = has_game_rule
 					ck_khergit_nomad = { add_artifact_modifier = artifact_martial_mult_10_modifier }
 					ck_khergit_tribe = { add_artifact_modifier = artifact_prowess_mult_10_modifier }
 					# ck_khergit_clan = { add_artifact_modifier = artifact_martial_mult_10_modifier  }
-				}
-				add_artifact_history = {
-					date = 1234.5.6
-					actor = scope:smith
-					recipient = scope:owner
-					type = won_in_duel
 				}
 				equip_artifact_to_owner = yes
 			}
@@ -1768,7 +1789,7 @@ warband_king_armor = {
 				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
 			}
 			scope:newly_created_artifact = {
-				reforge_artifact = { type = sword visuals = longsword }
+				reforge_artifact = { type = sword visuals = longsword rarity = masterwork }
 				set_artifact_name = artifact_graveth_sword
 				character:kastor_wb ?= {
 					add_personal_artifact_claim = prev
@@ -1824,25 +1845,43 @@ warband_king_armor = {
 				limit = { artifact_use_iberian_muslim_unit_visuals_trigger = yes }
 				save_scope_as = smith
 			}
-			create_artifact_weapon_effect = {
-				OWNER = scope:owner
-				CREATOR = scope:smith
-				SET_WEAPON_TYPE = flag:artifact_weapon_type_sword
+			create_artifact = {
+				name = artifact_hakim_sword
+				description = easteregg_artifact_chad_dagger_description
+				visuals = sword
+				type = dagger
+				rarity = famed # 3rd tier
+				modifier = artifact_prowess_1_modifier
+				creator = scope:smith
+				wealth = scope:wealth
+				quality = scope:quality
+				save_scope_as = newly_created_artifact
+				history = {
+					date = 1234.5.6
+					location = scope:smith.capital_province
+					actor = scope:smith
+					recipient = scope:owner
+					type = given
+				}
 			}
 			scope:newly_created_artifact = {
+				set_variable = {
+					name = quality
+					value = scope:quality
+				}
+				set_variable = {
+					name = wealth
+					value = scope:wealth
+				}
 				set_artifact_name = artifact_hakim_sword
 				set_artifact_description = easteregg_artifact_chad_dagger_description
 				set_artifact_feature = blade_metal_damascus_steel
+				add_scaled_artifact_modifier_intrigue_effect = yes
+				add_scaled_artifact_modifier_combat_effect = yes
+				add_scaled_artifact_modifier_prowess_effect = yes
 				random_list = {
 					1 = { add_artifact_modifier = artifact_owned_personal_scheme_success_chance_add_12_modifier }
 					1 = { add_artifact_modifier = artifact_personal_scheme_phase_duration_add_12_modifier }
-				}
-				add_artifact_history = {
-					date = 1234.5.6
-					location = scope:owner.capital_province
-					# actor = scope:smith
-					recipient = scope:smith
-					type = reforged
 				}
 				equip_artifact_to_owner = yes
 			}
@@ -1875,6 +1914,253 @@ warband_king_armor = {
 				}
 				equip_artifact_to_owner = yes
 			}
+		}
+	}
+}
+dynasty_prestige_setup = {
+	### Setting up appropriate dynasty splendor levels
+	# Vlandian dynasties
+	if = {
+		limit = {
+			game_start_date >= 1084.5.1
+		}
+		dynasty:dynn_dey_meroc = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_rothad = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_folcun = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_jelind = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_molarn = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_valant = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_cortain = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_gunric = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_fortes = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_dey_arromanc = {
+			add_dynasty_prestige_level = 2
+		}
+	# Battanian Dynasties
+		dynasty:dynn_gruffendoc = {
+			add_dynasty_prestige_level = 2
+		}
+		dynasty:dynn_derngil = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_uvain = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_morcar = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_giall = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_eingal = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_caernacht = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_penraic = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_uthelhain = { 
+			add_dynasty_prestige_level = 1
+		}
+		dynasty:dynn_aedeg = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_dairl = { 
+			add_dynasty_prestige_level = 2 
+		}
+	# Sturgian dynasties 
+		dynasty:dynn_ubroving = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_vezhoving = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_kuloving = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_kostaroving = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_togaroving = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_isyaroving = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_vagiroving = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_ormidoving = { 
+			add_dynasty_prestige_level = 2 
+		}
+	# Perassic dynasties 
+		dynasty:dynn_kefalli = { 
+			add_dynasty_prestige_level = 1 
+		}
+		dynasty:dynn_bytessi = { 
+			add_dynasty_prestige_level = 2 
+		}
+	# Khuzait dynasties 
+		dynasty:dynn_khergit = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_arkit = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_tigrit = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_harfit = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_baltait = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_koltit = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_yanserit = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_oburit = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_dusit = { 
+			add_dynasty_prestige_level = 2 
+		}
+	# Darshi Dynasties 
+		dynasty:dynn_darshid = { 
+			add_dynasty_prestige_level = 6 
+		}
+	# Aserai Dynasties
+		dynasty:dynn_banu_hulyan = { 
+			add_dynasty_prestige_level = 1 
+		}
+		dynasty:dynn_banu_sarran = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_banu_qild = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_carasios = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_banu_arbas = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_banu_atij = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_banu_sarmal = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_banu_habbab = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_banu_ruwaid = { 
+			add_dynasty_prestige_level = 2 
+		}
+	# Imperial Dynasties
+		dynasty:dynn_avlonos = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_hongeros = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_julios = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_leonipardes = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_mestricaros = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_prienicos = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_vetranis = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_vizartos = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_osticos = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_argoros = { 
+			add_dynasty_prestige_level = 1 
+		}
+		dynasty:dynn_chonis = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_dolentos = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_impestores = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_neretzes = { 
+			add_dynasty_prestige_level = 1 
+		}
+		dynasty:dynn_mytophion = { 
+			add_dynasty_prestige_level = 1 
+		}
+		dynasty:dynn_phalentes = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_serapides = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_vatatzes = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_comnos = { 
+			add_dynasty_prestige_level = 1 
+		}
+		dynasty:dynn_corenios = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_dionicos = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_elaches = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_lonalion = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_maneolis = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_palladios = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_sorados = { 
+			add_dynasty_prestige_level = 2 
+		}
+		dynasty:dynn_varros = { 
+			add_dynasty_prestige_level = 2 
 		}
 	}
 }

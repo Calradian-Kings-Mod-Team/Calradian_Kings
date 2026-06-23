@@ -1057,3 +1057,77 @@ wb_calculate_provinces_held = {
 		add = 1
 	}
 }
+
+sub_realm_holdings_three_fiddy = {
+	round = no
+	value = sub_realm_holdings_count
+	multiply = 30
+	divide = 100
+}
+sub_realm_holdings_supermajority = {
+	# round = no
+	value = sub_realm_holdings_count
+	divide = 2
+	floor = yes
+}
+sub_realm_holdings_count = {
+	value = 0
+	every_sub_realm_barony = {
+		add = 1
+	}
+}
+culture_player_holdings = {
+	value = 0
+	save_temporary_scope_as = troops_culture
+	scope:liege = {
+		ordered_sub_realm_county = {
+			limit = {
+				culture = {
+					has_variable = troops_culture
+					var:troops_culture ?= scope:troops_culture
+				}
+			}
+			add = num_county_holdings
+			# save_temporary_scope_as = culture
+			desc = sub_realm_culture_counter
+		}
+	}
+}
+
+sub_realm_culture_holdings = {
+	value = 0
+	if = {
+		limit = {
+			NOT = {
+				exists = scope:troops_culture
+			}
+			root.culture ?= {
+				save_temporary_scope_as = troops_culture
+			}
+		}
+	}
+	ordered_sub_realm_county = {
+		order_by = culture
+		limit = {
+			culture = {
+				has_variable = troops_culture
+				var:troops_culture ?= scope:troops_culture
+			}
+		}
+		add = num_county_holdings
+		# save_temporary_scope_as = culture
+		desc = sub_realm_culture_counter
+	}
+}
+sub_realm_holdings_plurality = {
+	value = 0
+	save_temporary_scope_as = liege
+	every_culture_global = {
+		limit = {
+			has_variable = troops_culture
+			culture_number_of_counties > 0
+		}
+		min = var:troops_culture.culture_player_holdings
+	}
+	# divide = sub_realm_holdings_count
+}

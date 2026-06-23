@@ -30,9 +30,7 @@ vigmen = {
 	
 	can_recruit = {
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_vigmen }
-		NOT = {
-			ck_unique_troops_trigger = yes
-		}
+		ck_tradition_troops_enabled = yes
 	}
 	
 	terrain_bonus = {
@@ -70,9 +68,7 @@ bondi = {
 	
 	can_recruit = {
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_bondi }
-		NOT = {
-			ck_unique_troops_trigger = yes
-		}
+		ck_tradition_troops_enabled = yes
 	}
 	
 	terrain_bonus = {
@@ -104,7 +100,7 @@ bondi = {
 }
 
 varangian_veterans = {
-	type = heavy_infantry
+	type = shock_troops # moved so actual varangian_guards stay as heavy infantry
 	
 	damage = 45
 	toughness = 30
@@ -114,10 +110,26 @@ varangian_veterans = {
 	can_recruit = {
 		OR = {
 			vaegir_laamp_vaegir_guards_trigger = yes
-			valid_for_maa_trigger = { PARAMETER = unlock_maa_varangian_veterans }
-		}
-		NOT = {
-			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
+			AND = {
+				OR = {
+					AND = {
+						culture ?= { 
+							any_known_innovation = {
+								has_innovation_parameter = unlock_maa_vaegir_veterans
+							}
+						}
+						is_independent_ruler = yes
+						ck_tradition_troops_enabled = yes
+					}
+					valid_for_maa_trigger = { PARAMETER = unlock_maa_varangian_veterans }
+				}
+				# ck_tradition_troops_enabled = yes
+				NOR = {
+					# has_variable = recruits_local_troops
+					has_access_to_maa = vaegir_shock_infantry
+					culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
+				}
+			}
 		}
 	}
 	
@@ -126,11 +138,23 @@ varangian_veterans = {
 		plains = { damage = 6 toughness = 4 }
 		hills = { damage = 6 toughness = 4 }
 	}
-	
-	counters = {
-		pikemen = 1
-		peasant_militia = 2
-		heavy_cavalry = 1
+	holding_bonus = {
+		church_holding = {
+			pursuit = 2
+			siege_value = 0.1
+		}
+		tribal_holding = {
+			toughness = 2
+			siege_value = 0.1
+		}
+	}
+	counters = { # halved original bonus
+		pikemen = 0.5
+		peasant_militia = 1
+		heavy_cavalry = 0.5
+
+		heavy_infantry = 1
+		light_cavalry = 1
 	}
 
 	winter_bonus = {
@@ -143,8 +167,20 @@ varangian_veterans = {
 	high_maintenance_cost = { gold = varangian_veterans_high_maint_cost }
 	provision_cost = @provisions_cost_infantry_cheap
 	
+	max_regiments = 1
 	stack = 100
-	ai_quality = { value = @cultural_maa_extra_ai_score }
+	# hired_stack_size = 50
+	ai_quality = {
+		value = @cultural_maa_extra_ai_score
+		if = { # different warband faction
+			limit = {
+				exists = title:e_nords
+				exists = title:e_sturgia
+				has_access_to_maa = nordic_shock_infantry
+			}
+			add = -80
+		}
+	}
 	icon = varangian_veterans
 }
 

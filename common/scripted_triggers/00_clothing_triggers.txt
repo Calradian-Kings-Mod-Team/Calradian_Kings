@@ -538,6 +538,18 @@ portrait_shared_clothing_contents_trigger = {
 		has_variable = years_as_varangian
 		is_landed = no
 	}
+	trigger_else_if = {
+		limit = {
+			has_game_rule = local_troops_armor_on
+			exists = this.var:recruits_local_troops
+			# make sure they're a knight not just wearing it for fun
+			portrait_wear_armor_currently_in_army_trigger = yes
+		}
+		OR = {
+			$CULTURE_SCOPE$ ?= { has_clothing_gfx = $CULTURE_FLAG$_clothing_gfx }
+			this.var:recruits_local_troops ?= { has_clothing_gfx = $CULTURE_FLAG$_clothing_gfx }
+		}
+	}
 	trigger_else = {
 		$CULTURE_SCOPE$ ?= { has_clothing_gfx = $CULTURE_FLAG$_clothing_gfx }
 	}
@@ -730,6 +742,16 @@ portrait_fp2_iberian_christian_clothing_trigger = {
 			limit = { exists = this }
 			AND = {
 				religion = religion:calradian_religion
+				trigger_if = {
+					limit = {
+						character_is_calradian = yes
+					}
+					liege.capital_province ?= {
+						NOT = {
+							geographical_region = region_imperial_calradia
+						}
+					}
+				}
 				capital_province ?= {
 					# OR = {
 						# geographical_region = region_warband_sarranid
@@ -750,9 +772,21 @@ portrait_fp2_iberian_christian_clothing_spouse_trigger = {
 		}
 		AND = {
 			religion = religion:calradian_religion
-			capital_province ?= {
-				OR = {
+			trigger_if = {
+				limit = {
+					character_is_calradian = yes
+				}
+				liege.capital_province ?= {
+					NOT = {
+						geographical_region = region_imperial_calradia
+					}
+				}
+			}
+			trigger_else = {
+				capital_province ?= {
+					# OR = {
 					geographical_region = world_europe_west_iberia
+					# }
 				}
 			}
 		}
