@@ -6,6 +6,13 @@
 	selection_tooltip = wb_restore_calradian_empire_decision_tooltip
 	decision_group_type = major_calradian
 	is_shown = {
+		# k_calradic cannot already exist
+		any_faith = {
+			has_doctrine = special_doctrine_ecumenical_christian
+			NOT = {
+				exists = religious_head
+			}
+		}
 		any_character_struggle = {
 			is_struggle_type = heaven_mandate_struggle
 		}
@@ -77,7 +84,7 @@
 			custom_tooltip = {
 				text = wb_restore_calradian_empire_decision_valid_tt
 				any_county_in_region = {
-					region = region_imperial_calradia
+					region = ck_wb_imperial_boundaries
 					percent >= 0.5
 					holder.top_liege = root
 				}
@@ -90,7 +97,7 @@
 					any_in_de_jure_hierarchy = {
 						tier = tier_county
 						any_county_province = {
-							geographical_region = region_imperial_calradia
+							geographical_region = ck_wb_imperial_boundaries
 						}
 					}
 				}
@@ -122,6 +129,11 @@
 			set_global_variable = {
 				name = flag_restored_calradian_empire_wb
 				value = root
+			}
+			# Set a temporary variable that'll get removed on the end of the struggle or if the empire collapses
+			set_global_variable = {
+				name = calradian_empire_restored_yemp
+				value = yes
 			}
 		}
 	}
@@ -490,7 +502,19 @@ end_the_struggle_supremacy = {
 				ambitious = medium_stress_impact_loss
 			}
 		}
-		
+		hidden_effect = {
+			if = {
+				limit = {
+					exists = global_var:calradian_empire_restored_temp
+				}
+				remove_global_variable = calradian_empire_restored_temp
+			}
+			# Avoid the full collapse you would otherwise get if going from Supremacy to Chaos
+			set_global_variable = {
+				name = calradian_empire_restored_perm
+				value = yes
+			}
+		}
 		show_as_tooltip = {
 			ck_end_struggle_form_provinces = yes
 		}
