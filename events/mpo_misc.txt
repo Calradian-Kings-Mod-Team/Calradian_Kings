@@ -152,6 +152,34 @@ mpo_misc.0001 = {
 		# 	leave_behind_heritage_culture_effect = { CULTURE = culture:jurchen }
 		# }
 		else_if = {
+			limit = { # put this before the broader west nahasa region
+				scope:old_capital_county.empire ?= title:e_west_nahasa
+			}
+			leave_behind_heritage_culture_effect = { CULTURE = culture:mgarren }
+		}
+		else_if = {
+			limit = {
+				scope:old_capital_county.title_province = {
+					OR = {
+						geographical_region = world_nahasa_east
+						geographical_region = nahasan_desert_nomad_east
+					}
+				}
+			}
+			leave_behind_heritage_culture_effect = { CULTURE = culture:nahrawi }
+		}
+		else_if = {
+			limit = {
+				scope:old_capital_county.title_province = {
+					OR = {
+						geographical_region = world_nahasa_west
+						geographical_region = nahasan_desert_nomad
+					}
+				}
+			}
+			leave_behind_heritage_culture_effect = { CULTURE = culture:tamari }
+		}
+		else_if = {
 			limit = {
 				scope:old_capital_county.title_province = {
 					geographical_region = region_warband
@@ -172,11 +200,13 @@ mpo_misc.0001 = {
 				OR = {
 					exists = scope:small_divergence_chance
 					exists = scope:large_divergence_chance
-					has_game_rule = relaxed_divergent_culture_ai_frequency
 				}
-				any_in_list = {
-					list = old_held_titles
-					count >= 3
+				OR = {
+					has_game_rule = relaxed_divergent_culture_ai_frequency
+					list_size = {
+						name = old_held_titles
+						value >= 3
+					}
 				}
 				scope:old_capital_county.holder ?= {
 					trigger_if = {
@@ -224,118 +254,25 @@ mpo_misc.0001 = {
 					culture ?= {
 						save_temporary_scope_as = original_character_culture
 					}
-					create_divergent_culture = yes # this one doesn't randomize but at least it doesn't fail silently
-					save_temporary_scope_as = ruler
-					# create_divergent_culture_with_side_effects_excluding_cost = yes
-					if = {
-						limit = {
-							scope:new_culture.free_tradition_slot < 3
-						}
-						scope:new_culture ?= {
-							remove_random_culture_tradition = yes  # whoops dropped this on the way out
-						}
+					create_divergent_culture_with_side_effects_excluding_cost = yes # this one can fail silently
+					culture ?= {
+						save_temporary_scope_as = new_culture
 					}
 					if = {
 						limit = {
-							num_of_known_languages > 1
+							scope:new_culture != scope:original_character_culture
 						}
-						random_culture_global = {
+						save_temporary_scope_as = ruler
+						if = {
 							limit = {
-								NOT = { has_same_culture_language = scope:new_culture }
-								scope:ruler = { knows_language_of_culture = prev }
+								scope:new_culture.free_tradition_slot >= 0
 							}
-							 
-							scope:new_culture = {
-								set_language_from = prev
+							scope:new_culture ?= {
+								remove_random_culture_tradition = yes  # whoops dropped this on the way out
 							}
 						}
+						remove_character_flag = suppress_culture_notifications_and_achievements
 					}
-					else = {
-						scope:original_character_culture = { 
-							random_parent_culture_or_above = {
-								limit = {
-									NOT = {
-										has_same_culture_language = prev
-									}
-								}
-								scope:new_culture = { set_language_from = prev }
-							}
-						}
-					}
-					clear_saved_scope = tradition
-					clear_saved_scope = advanced_culture
-					scope:confederation_left ?= {
-						random_confederation_member = {
-							limit = {
-								culture ?= {
-									this != scope:original_character_culture
-									has_same_culture_head_determination = scope:original_character_culture
-								}
-								any_tradition = {
-									scope:ruler = { can_embrace_tradition = { tradition = prev } }
-								}
-							}
-							# do not use the verbose bp2_save_traditions_to_consider_effect
-							random_culture_tradition = {
-								limit = {
-									scope:ruler = {
-										can_embrace_tradition = {
-											tradition = prev
-										}
-									}
-								}
-								save_scope_as = tradition
-							}
-							save_scope_as = advanced_culture
-						}
-					}
-					if = {
-						limit = {
-							NOT = { exists = scope:tradition }
-						}
-						scope:old_holder = { 
-							random_in_list = {
-								list = obedient_vassals
-								limit = {
-									culture ?= {
-										this != scope:original_character_culture
-										any_tradition = {
-											scope:ruler = { can_embrace_tradition = { tradition = prev } }
-										}
-									}
-								}
-								culture = {
-									random_culture_tradition = {
-										limit = {
-											scope:ruler = {
-												can_embrace_tradition = {
-													tradition = prev
-												}
-											}
-										}
-										save_scope_as = tradition
-									}
-									save_scope_as = advanced_culture
-								}
-							}
-						}
-					}
-					# also check scope:old_holder.top_overlord?
-					if = {
-						limit = {
-							exists = scope:advanced_culture
-							exists = scope:tradition
-						}
-						scope:new_culture = { add_culture_tradition = scope:tradition }
-						scope:advanced_culture = {
-							change_cultural_acceptance = {
-								target = scope:new_culture
-								value = miniscule_positive_culture_acceptance
-								desc = cultural_acceptance_gain_adapted_tradition
-							}
-						}
-					}
-					remove_character_flag = suppress_culture_notifications_and_achievements
 				}
 			}
 		}
@@ -353,7 +290,6 @@ mpo_misc.0001 = {
 				}
 				holder = {
 					set_culture = scope:old_capital_county.holder.culture
-					# set_character_faith = scope:old_capital_county.faith
 				}
 			}
 		}
