@@ -35,7 +35,7 @@
 			modifier = {
 				factor = 0	   # Should NOT show up if EP2 is active and we're not in the right era
 				has_ep2_dlc_trigger = yes
-				NOT = { portrait_era3_trigger = yes }
+				NOT = { portrait_era3_armor_trigger = yes }
 			}
 		}
 	}
@@ -64,7 +64,7 @@
 			modifier = {
 				factor = 0	   # Should NOT show up if EP2 is active and we're not in the right era
 				has_ep2_dlc_trigger = yes
-				NOT = { portrait_era3_trigger = yes }
+				NOT = { portrait_era3_armor_trigger = yes }
 			}
 		}
 	}
@@ -93,7 +93,7 @@
 			modifier = {
 				factor = 0	   # Should NOT show up if EP2 is active and we're not in the right era
 				has_ep2_dlc_trigger = yes
-				NOT = { portrait_era3_trigger = yes }
+				NOT = { portrait_era3_armor_trigger = yes }
 			}
 			portrait_ck_ruler_armor_modifier = { CULTURE_INPUT = rhodok } # graveth_wb spiked_helmet (very short helmet, with crown instead of mail)
 		}
@@ -303,18 +303,34 @@
 				portrait_war_nobles_helmet_trigger = {
 					CULTURE_INPUT = western
 				}
-				has_ep2_dlc_trigger = yes
 				portrait_era4_armor_trigger = yes
 			}
 			modifier = { # rhodok bonus, bascinets
 				add = 123
-				has_ep2_dlc_trigger = yes
 				# portrait_late_era3_trigger = yes
 				portrait_ccp5_french_culture_group_low_nobles_trigger = yes
 				scope:culture ?= {
 					has_cultural_pillar = ethos_egalitarian
 					has_unit_gfx = western_unit_gfx
 				}
+			}
+			# modifier = {
+			# 	add = 1
+			# 	scope:culture ?= {
+			# 		var:troops_culture ?= culture:vaegir
+			# 	}
+			# 	portrait_war_nobles_helmet_trigger = {
+			# 		CULTURE_INPUT = rus
+			# 	}
+			# }
+			modifier = {
+				factor = 0.5
+				is_lowborn = yes # kettle hats pls
+			}
+			portrait_esbalian_modifier = { INPUT_PARAMETER = swabian }
+			modifier = {
+				factor = 0
+				has_ep2_dlc_trigger = no
 			}
 		}
 	}
@@ -340,6 +356,15 @@
 				add = 110
 				portrait_wear_helmet_trigger = yes
 				portrait_ep2_disguised_woman_trigger = yes
+			}
+			modifier = { # vlandian knight helmets
+				add = 100
+				AND = {
+					culture ?= {
+						var:troops_culture ?= culture:vlandian
+					}
+					portrait_wear_armor_currently_in_army_trigger = yes
+				}
 			}
 		}
 	}
@@ -579,6 +604,31 @@
 				}
 				portrait_royalty_armor_trigger = {
 					CULTURE_INPUT = indian
+				}
+			}
+		}
+	}
+
+	khuzait_war_royalty = {
+		dna_modifiers = {
+			accessory = {
+				mode = add
+				gene = headgear
+				template = indian_war
+				range = { 0 1 }
+			}
+		}
+		outfit_tags = { military_outfit }
+		weight = {
+			base = 0
+			modifier = {
+				add = 51
+				portrait_war_nobles_fancy_helmet_trigger = yes
+				portrait_war_nobles_helmet_trigger = {
+					CULTURE_INPUT = steppe
+				}
+				scope:culture ?= {
+					var:troops_culture ?= culture:khuzait
 				}
 			}
 		}
@@ -1254,19 +1304,38 @@
 				}
 			}
             modifier = {
-                add = -101
-                exists = this
-                exists = character:sediorika_15
-                this = character:sediorika_15
-                character:sediorika_15 = {
-                    is_commanding_army = yes
-                }
+                factor = 0
+                this ?= character:sediorika_15
             }
 		}
 	}
 
 	## POL ##
-
+	vaegir_high_nobles = {
+		dna_modifiers = {
+			accessory = {
+				mode = add
+				gene = headgear
+				template = ep2_mena_war_nobility # eastern segmented helmet
+				value = 1
+			}
+		}
+		outfit_tags = { military_outfit }
+		weight = {
+			base = 0
+			modifier = {
+				add = 101
+				# portrait_era3_armor_trigger = yes
+				has_ep2_dlc_trigger = yes
+				scope:culture ?= {
+					var:troops_culture ?= culture:vaegir
+				}
+				portrait_war_nobles_helmet_trigger = {
+					CULTURE_INPUT = rus
+				}
+			}
+		}
+	}
 	pol_west_slavic_era1_war = {
 		dna_modifiers = {
 			accessory = {
@@ -1280,10 +1349,13 @@
 		weight = {
 			base = 0
 			modifier = {
-				add = 101
+				add = 102
 				OR = {
 					portrait_era1_armor_trigger = yes
 					portrait_era2_armor_trigger = yes
+					scope:culture ?= {
+						var:troops_culture ?= culture:vaegir
+					}
 				}
 				portrait_war_nobles_helmet_trigger = {
 					CULTURE_INPUT = west_slavic
@@ -1309,6 +1381,9 @@
 			base = 0
 			modifier = {
 				add = 100
+				scope:culture ?= {
+					var:troops_culture ?= { this != culture:vaegir }
+				}
 				portrait_era3_armor_trigger = yes
 				portrait_war_nobles_helmet_trigger = {
 					CULTURE_INPUT = west_slavic
@@ -1338,6 +1413,9 @@
 			modifier = {
 				add = 101
 				portrait_era3_armor_trigger = yes
+				scope:culture ?= {
+					var:troops_culture ?= { this != culture:vaegir }
+				}
 				portrait_war_nobles_helmet_trigger = {
 					CULTURE_INPUT = west_slavic
 				}
@@ -1921,7 +1999,7 @@
 		weight = {
 			base = 0
 			modifier = {
-				add = 550
+				add = 250
 				OR = {
 					portrait_commoner_armor_trigger = {
 						CULTURE_INPUT = french
@@ -1953,6 +2031,12 @@
 				scope:culture ?= {
 					has_cultural_pillar = ethos_egalitarian
 					has_unit_gfx = western_unit_gfx
+				}
+			}
+			modifier = {
+				factor = 0.2
+				scope:culture ?= {
+					var:troops_culture ?= culture:swadian
 				}
 			}
 		}
@@ -2061,6 +2145,7 @@
 				has_cp5_dlc_trigger = yes
 				portrait_era4_armor_trigger = yes
 			}
+			portrait_esbalian_modifier = { INPUT_PARAMETER = western }
 		}
 	}
 
@@ -2082,6 +2167,7 @@
 				has_cp5_dlc_trigger = yes
 				portrait_era4_armor_trigger = yes
 			}
+			portrait_esbalian_modifier = { INPUT_PARAMETER = western }
 		}
 	}
 
@@ -2103,6 +2189,7 @@
 				has_cp5_dlc_trigger = yes
 				portrait_era4_armor_trigger = yes
 			}
+			# portrait_esbalian_modifier = { INPUT_PARAMETER = swabian }
 		}
 	}
 
@@ -2124,6 +2211,7 @@
 				has_cp5_dlc_trigger = yes
 				portrait_era4_armor_trigger = yes
 			}
+			portrait_esbalian_modifier = { INPUT_PARAMETER = swabian }
 		}
 	}
 
@@ -2146,18 +2234,19 @@
 				portrait_low_nobles_armor_trigger = {
 					CULTURE_INPUT = dde_hre
 				}
-				NOT = {
-					portrait_war_nobles_helmet_ccp5_trigger = {
-						CULTURE_INPUT = swabian
-					}
-					portrait_low_nobles_armor_trigger = {
-						CULTURE_INPUT = swabian
-					}
-				}
+				# NOT = {
+				# 	portrait_war_nobles_helmet_ccp5_trigger = {
+				# 		CULTURE_INPUT = swabian
+				# 	}
+				# 	portrait_low_nobles_armor_trigger = {
+				# 		CULTURE_INPUT = swabian
+				# 	}
+				# }
 				portrait_wear_armor_trigger = yes
 				has_cp5_dlc_trigger = yes
 				portrait_era4_armor_trigger = yes
 			}
+			portrait_esbalian_modifier = { INPUT_PARAMETER = rhodok }
 		}
 	}
 
@@ -2180,18 +2269,19 @@
 				portrait_high_nobles_armor_trigger = {
 					CULTURE_INPUT = dde_hre
 				}
-				NOT = {
-					portrait_war_nobles_helmet_ccp5_trigger = {
-						CULTURE_INPUT = swabian
-					}
-					portrait_high_nobles_armor_trigger = {
-						CULTURE_INPUT = swabian
-					}
-				}
+				# NOT = {
+				# 	portrait_war_nobles_helmet_ccp5_trigger = {
+				# 		CULTURE_INPUT = swabian
+				# 	}
+				# 	portrait_high_nobles_armor_trigger = {
+				# 		CULTURE_INPUT = swabian
+				# 	}
+				# }
 				portrait_wear_armor_trigger = yes
 				has_cp5_dlc_trigger = yes
 				portrait_era4_armor_trigger = yes
 			}
+			portrait_esbalian_modifier = { INPUT_PARAMETER = rhodok }
 		}
 	}
 
