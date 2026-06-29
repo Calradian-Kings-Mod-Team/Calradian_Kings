@@ -7,7 +7,7 @@
 	decision_group_type = major_calradian
 	is_shown = {
 		# k_calradic cannot already exist
-		any_faith = {
+		faith = {
 			has_doctrine = special_doctrine_ecumenical_christian
 			NOT = {
 				exists = religious_head
@@ -122,14 +122,6 @@
 		}
 		trigger_event = ck_heaven_struggle.1003
 		hidden_effect = {
-			add_to_global_variable_list = {
-				name = unavailable_unique_decisions
-				target = flag:flag_restored_calradian_empire_wb
-			}
-			set_global_variable = {
-				name = flag_restored_calradian_empire_wb
-				value = root
-			}
 			# Set a temporary variable that'll get removed on the end of the struggle or if the empire collapses
 			set_global_variable = {
 				name = calradian_empire_restored_yemp
@@ -407,7 +399,7 @@ end_the_struggle_supremacy = {
 	selection_tooltip = end_the_struggle_supremacy_tooltip
 	confirm_click_sound = "event:/DLC/FP2/SFX/UI/fp2_struggle_ending_decision_confirm"
 	# is_invisible = yes
-	sort_order = 80
+	sort_order = 85
 	
 	is_shown = {
 		is_landless_adventurer = no
@@ -514,12 +506,237 @@ end_the_struggle_supremacy = {
 				name = calradian_empire_restored_perm
 				value = yes
 			}
+			if = {
+				limit = {
+					has_variable = ce_provinces_counter
+				}
+				remove_variable = ce_provinces_counter
+			}
+			# Calradian Empire is now absolutely formed
+			add_to_global_variable_list = {
+				name = unavailable_unique_decisions
+				target = flag:flag_restored_calradian_empire_wb
+			}
+			set_global_variable = {
+				name = flag_restored_calradian_empire_wb
+				value = root
+			}
+			# No more claimant Emperors
+			every_player = {
+				limit = {
+					has_trait = claimant_emperor
+				}
+				remove_trait = claimant_emperor
+			}
 		}
 		show_as_tooltip = {
 			ck_end_struggle_form_provinces = yes
 		}
 		trigger_event = ck_heaven_struggle.1005
 	}
+	cost = {}
+
+	ai_check_interval_by_tier = {
+		barony = 0
+		county = 0
+		duchy = 0
+		kingdom = 120
+		empire = 120
+		hegemony = 60
+	}
+
+	ai_potential = { always = yes }
+
+	ai_will_do = { base = 100 }
+}
+end_the_struggle_compromise = { ## End all aspiration to a reformation of the Calradian Empire but gain great diplomatic buffs
+	decision_group_type = struggle_endings
+	title = end_the_struggle_compromise
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/fp2_decision_struggle_compromise.dds"
+	}
+	extra_picture = "gfx/interface/illustrations/struggle_decision_buttons/fp2_decision_compromise.dds"
+	desc = end_the_struggle_compromise_desc
+	selection_tooltip = end_the_struggle_compromise_tooltip
+	confirm_click_sound = "event:/DLC/FP2/SFX/UI/fp2_struggle_ending_decision_confirm"
+	# is_invisible = yes
+	cooldown = { days = 1 }
+	
+	sort_order = 83
+	
+	is_shown = {
+		is_landless_adventurer = no
+		any_character_struggle = {
+			involvement = involved
+			is_struggle_type = heaven_mandate_struggle
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		is_available_adult = yes
+		# Independent
+		top_liege = this
+	}
+
+	is_valid = {
+		top_liege = this
+		
+		highest_held_title_tier >= 4
+		custom_tooltip = {
+			text = ck_heaven_struggle_ending_compromise
+			struggle:heaven_mandate_struggle = {
+				is_struggle_phase = struggle_heaven_phase_compromise
+			}
+		}
+
+		# Exalted among Men or higher
+		prestige_level >= very_high_prestige_level
+
+		# Every other independent involved ruler in the Struggle is allied to you
+		custom_tooltip = {
+			text = struggle_hm_ending_compromise_decision_alliance_tt
+			struggle:heaven_mandate_struggle = {
+				NOT = {
+					any_involved_ruler = {
+						top_liege = this
+						is_landless_adventurer = no
+						primary_title = { is_mercenary_company = no }
+						primary_title = { is_holy_order = no }
+						NOR = {
+							this = root
+							is_allied_to = root
+						}
+					}
+				}
+			}
+		}
+
+		# Control less than 50% of the struggle region
+		custom_tooltip = {
+			text = struggle_hm_ending_compromise_decision_region_tt
+			wb_total_land_ending_compromise_hm_trigger = yes
+		}
+
+		# No Independent Involved rulers are at war with each other
+		custom_tooltip = {
+			text = struggle_hm_ending_compromise_truce_tt
+			NOT = {
+				struggle:heaven_mandate_struggle = {
+					any_involved_ruler = {
+						top_liege = this
+						is_landless_adventurer = no
+						primary_title = { is_mercenary_company = no }
+						any_primary_war_enemy = {
+							top_liege = this
+							is_landless_adventurer = no
+							any_character_struggle = {
+								involvement = involved
+								is_struggle_type = heaven_mandate_struggle
+							}
+							primary_title = { is_mercenary_company = no }
+						}
+					}
+				}
+			}
+		}
+
+		# Completely control any of the important Imperial duchies
+		calc_true_if = {
+			amount >= 1
+			completely_controls = title:d_vostrum
+			completely_controls = title:d_saneopa
+			completely_controls = title:d_lycaria
+			completely_controls = title:d_syronea
+			completely_controls = title:d_myzead
+			completely_controls = title:d_sethys_valley
+			completely_controls = title:d_poros
+			completely_controls = title:d_argoron
+		}
+
+	}
+	effect = {
+		custom_tooltip = end_the_struggle_chaos_ce_effect_tt
+		if = {
+			limit = { has_dlc_feature = legends }
+			legend_seed_struggle_ending_effect = {
+				ENDER = root
+				STRUGGLE = heaven_mandate_struggle
+			}
+		}
+		if = {
+			limit = { has_ach_dlc_trigger = yes }
+			add_character_flag = ach_ended_struggle
+		}
+		##### Major Effects #####
+		## Personal effects for ruler
+		show_as_tooltip = {
+			hm_struggle_compromise_ender_effect = yes
+		}
+		
+		## Other Tooltips
+		show_as_tooltip = {
+			ck_hm_struggle_compromise_tooltip_effect = yes
+		}
+		# RIP Calradia
+		custom_tooltip = hm_struggle_compromise_destroy_calradia_tt
+		if = {
+			limit = {
+				struggle:heaven_mandate_struggle = {
+					any_involved_ruler = {
+						count > 1
+						top_liege = this
+						primary_title = { is_mercenary_company = no }
+					}
+				}
+			}
+			# Every Involved ruler gets a 10 year truce with every other
+			custom_tooltip = hm_struggle_compromise_truce_tt
+		}
+		custom_tooltip = hm_struggle_compromise_war_cost_tt
+
+		##### Minor Effects #####
+		# Self-sufficiency modifiers for each independent realm
+		show_as_tooltip = {
+			# House Reward
+			hm_struggle_conciliation_modifier_rewards_effect = yes
+		}
+		custom_tooltip = etsc_all_involved
+		
+		show_as_tooltip = {
+			stress_impact = {
+				arrogant = medium_stress_impact_gain
+				zealous = medium_stress_impact_gain
+			}
+		}
+
+		
+
+		trigger_event = ck_heaven_struggle.1007
+		hidden_effect = {
+			struggle:heaven_mandate_struggle = {
+				every_involved_ruler = {
+					limit = {
+						culture = {
+							NOT = {
+								has_innovation = innovation_hm_detente_reward
+							}
+						}
+					}
+					culture = {
+						add_innovation = innovation_hm_detente_reward
+					}
+				}
+			}
+			# No more claimant Emperors
+			every_player = {
+				limit = {
+					has_trait = claimant_emperor
+				}
+				remove_trait = claimant_emperor
+			}
+		}
+	}
+
 	cost = {}
 
 	ai_check_interval_by_tier = {
@@ -535,109 +752,166 @@ end_the_struggle_supremacy = {
 
 	ai_will_do = { base = 100 }
 }
-testing_end_two = { ## WIP
-	decision_group_type = major_calradian
-	title = end_the_struggle_supremacy
+
+end_the_struggle_chaos = { ## Forcibly end all aspirations to the Calradian Empire & ensure the region remains divided / Unique nickname / intrigue and martial buffs
+	decision_group_type = struggle_endings
+	title = end_the_struggle_chaos
 	picture = {
-		reference = "gfx/interface/illustrations/decisions/fp3/fp3_decision_supremacy.dds"
+		reference = "gfx/interface/illustrations/decisions/ck_struggle_mandate_chaos_ending.dds"
 	}
-	extra_picture = "gfx/interface/illustrations/struggle_decision_buttons/fp2_decision_conciliation.dds"
-	desc = end_the_struggle_supremacy_desc
-	selection_tooltip = end_the_struggle_supremacy_tooltip
+	extra_picture = "gfx/interface/illustrations/struggle_decision_buttons/ck_decision_chaos.dds"
+	desc = end_the_struggle_chaos_desc
+	selection_tooltip = end_the_struggle_chaos_tooltip
 	confirm_click_sound = "event:/DLC/FP2/SFX/UI/fp2_struggle_ending_decision_confirm"
-	is_invisible = yes
+	# is_invisible = yes
+	cooldown = { days = 1 }
+	
 	sort_order = 80
 	
 	is_shown = {
 		is_landless_adventurer = no
-		# has_fp2_dlc_trigger = yes
+		any_character_struggle = {
+			involvement = involved
+			is_struggle_type = heaven_mandate_struggle
+		}
 	}
 
-	# is_shown = {
-	# 	is_roman_emperor_trigger = yes
-	# 	NOT = {
-	# 		exists = global_var:ended_the_hm_struggle
-	# 	}
-	# }
-	# is_valid = {
-	# 	top_liege = this
-	# 	exists = struggle:heaven_mandate_struggle
+	is_valid_showing_failures_only = {
+		is_available_adult = yes
+		# Independent
+		top_liege = this
+	}
 
-	# 	custom_tooltip = {
-	# 		text = ck_heaven_struggle_ending_supremacy
-	# 		struggle:heaven_mandate_struggle = {
-	# 			is_struggle_phase = struggle_heaven_phase_supremacy
-	# 		}
-	# 	}
-	# 	custom_tooltip = {
-	# 		text = struggle_hm_ending_holding_calradia_years
-	# 		# Control the new empire for three years
-	# 		title:h_calradian_empire =  {
-	# 			title_held_years >= 3
-	# 		}
-	# 	}
-	# 	custom_tooltip = {
-	# 		text = ck_calradian_emperor_trigger
-	# 		is_roman_emperor_trigger = yes
-	# 	}
-	# 	# Hold and completely control two de jure empires of the Calradian Empire
-	# 	custom_tooltip = { #
-	# 		text = struggle_hm_ending_supremacy_decision_empire_tt
-	# 		OR = {
-	# 			any_held_title = { # 1st kingdom
-	# 				title_tier = empire
-	# 				de_jure_liege = title:h_calradian_empire
-	# 				root = { completely_controls = prev }
-	# 				save_temporary_scope_as = calk_empire
-	# 			}
-	# 			any_vassal_or_below = {
-	# 				save_temporary_scope_as = ck_vassal_decision
-	# 				any_held_title = { # 1st kingdom
-	# 					title_tier = empire
-	# 					de_jure_liege = title:h_calradian_empire
-	# 					trigger_if = {
-	# 						limit = { exists = scope:calk_empire }
-	# 						this != scope:calk_empire
-	# 					}
-	# 					save_temporary_scope_as = calk_empire_2
-	# 				}
-	# 				completely_controls = prev
-	# 			}
-	# 		}
-	# 		OR = {
-	# 			any_held_title = { # 2nd kingdom
-	# 				title_tier = empire
-	# 				de_jure_liege = title:h_calradian_empire
-	# 				trigger_if = {
-	# 					limit = { exists = scope:calk_empire }
-	# 					this != scope:calk_empire
-	# 				}
-	# 				root = { completely_controls = prev }
-	# 				save_temporary_scope_as = calk_empire_2
-	# 			}
-	# 			any_vassal_or_below = {
-	# 				save_temporary_scope_as = ck_vassal_decision
-	# 				any_held_title = { # 1st kingdom
-	# 					title_tier = empire
-	# 					de_jure_liege = title:h_calradian_empire
-	# 					trigger_if = {
-	# 						limit = { exists = scope:calk_empire }
-	# 						this != scope:calk_empire
-	# 					}
-	# 					save_temporary_scope_as = calk_empire_2
-	# 				}
-	# 				completely_controls = prev
-	# 			}
-	# 		}
-	# 	}
-	# }
 	is_valid = {
-		always = no
+		highest_held_title_tier >= 3
+
+		custom_tooltip = {
+			text = ck_heaven_struggle_ending_chaos
+			struggle:heaven_mandate_struggle = {
+				is_struggle_phase = struggle_heaven_phase_chaos
+			}
+		}
+
+		# Exalted among Men or higher
+		prestige_level >= very_high_prestige_level
+
+		custom_tooltip = {
+			text = end_the_struggle_chaos_percentage
+			any_county_in_region = {
+				region = ck_wb_imperial_boundaries
+				percent > 0.5
+				holder.top_liege = root
+			}
+		}
+		# No other independent ruler in Iberia is a king or above
+		custom_tooltip = {
+			text = end_the_struggle_chaos_no_empires
+			struggle:heaven_mandate_struggle = {
+				NOT = {
+					any_involved_ruler = {
+						this != root
+						top_liege = this
+						primary_title = { is_mercenary_company = no }
+						is_landless_adventurer = no
+						primary_title.tier = tier_empire
+					}
+				}
+			}
+		}
+		## The core empires:
+		custom_tooltip = {
+			text = etsc_no_cals_holder
+			NOT = { exists = title:e_calsean_empire.holder }
+		}
+		custom_tooltip = {
+			text = etsc_no_sempire_holder
+			NOT = { exists = title:e_southern_empire.holder }
+		}
+		custom_tooltip = {
+			text = etsc_no_arkits_holder
+			NOT = { exists = title:e_arkits.holder }
+		}
 	}
 	effect = {
-		custom_tooltip = ck_heaven_struggle.1003.a.tt
+		if = {
+			limit = { has_dlc_feature = legends }
+			legend_seed_struggle_ending_effect = {
+				ENDER = root
+				STRUGGLE = heaven_mandate_struggle
+			}
+		}
+		if = {
+			limit = { has_ach_dlc_trigger = yes }
+			add_character_flag = ach_ended_struggle
+		}
+		##### Major Effects #####
+		# Personal
+		show_as_tooltip = {
+			hm_struggle_chaos_ender_effect = yes
+		}
+		# Independent/Split De Jure Duchies will become De Jure Kingdoms
+		if = {
+			limit = {
+				any_county_in_region = {
+					region = ck_wb_imperial_boundaries
+					duchy = {
+						ck_chaos_independent_duchy_trigger = yes
+					}
+				}
+			}
+			custom_tooltip = ck_hm_struggle_chaos_create_new_kingdoms_tt
+		}
+		# RIP Calradia
+		custom_tooltip = hm_struggle_compromise_destroy_calradia_tt
+		show_as_tooltip = {
+			ck_hm_struggle_chaos_tooltip_effect = yes
+		}
+		##### Minor Effects #####
+		show_as_tooltip = {
+			hm_struggle_chaos_modifier_rewards_effect = yes
+		}
+
+		show_as_tooltip = {
+			stress_impact = {
+				ambitious = major_stress_impact_gain
+				arbitrary = medium_stress_impact_loss
+				lunatic_1 = medium_stress_impact_loss
+				lunatic_genetic = medium_stress_impact_loss
+				just = medium_stress_impact_gain
+			}
+		}
+
+		custom_tooltip = end_the_struggle_chaos_ce_effect_tt
+
+		# Trigger a player facing event as a coda
+		trigger_event = ck_heaven_struggle.1009
+		hidden_effect = {
+			# No more claimant Emperors
+			every_player = {
+				limit = {
+					has_trait = claimant_emperor
+				}
+				remove_trait = claimant_emperor
+			}
+		}
 	}
+
+	cost = {}
+
+	ai_check_interval_by_tier = {
+		barony = 0
+		county = 0
+		duchy = 120
+		kingdom = 120
+		empire = 120
+		hegemony = 120
+	}
+
+	ai_potential = { always = yes }
+
+	ai_will_do = { base = 100 }
 }
+
 form_imperial_province_ck = {
 	decision_group_type = major_calradian
 	title = form_imperial_province_ck_title

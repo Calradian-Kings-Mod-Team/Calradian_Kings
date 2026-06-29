@@ -64,3 +64,89 @@ ck_administrative_ce_create_empire_trigger = {
 		}
 	}
 }
+ck_chaos_independent_duchy_trigger = {
+	# Is created
+	exists = holder
+	OR = {
+		# Is not the heartland of an existing kingdom
+		title_capital_county != de_jure_liege.title_capital_county
+		# Capital duke doesn't control kingdom, edge case
+		AND = {
+			exists = de_jure_liege.holder
+			holder != de_jure_liege.holder
+		}
+	}
+	# Is ruled by an independent duke
+	holder = {
+		top_liege = this
+		save_temporary_scope_as = duchy_holder
+		primary_title = {
+			is_mercenary_company = no
+			OR = {
+				tier = tier_duchy
+				tier = tier_kingdom
+			}
+		}
+	}
+	OR = {
+		this = holder.primary_title
+		holder.primary_title.tier = tier_kingdom
+	} 
+	# Duke rules at least half the de jure duchy
+	any_direct_de_jure_vassal_title = {
+		percent >= 0.5
+		holder.top_liege = scope:duchy_holder
+	}
+}
+# Checks duchy should be split from de jure kingdom
+ck_hm_struggle_ending_chaos_split_duchy_trigger = { 
+	tier = tier_duchy
+	# Has not been tampered with already
+	NOT = { is_in_list = duchy_kingdom } 
+	# Is not created
+	NOT = { exists = holder } 
+	# Is not heartland of an existing kingdom
+	title_capital_county != de_jure_liege.title_capital_county 
+	save_temporary_scope_as = duchy
+	# Less than half is owned by de jure kingdom, if created
+	trigger_if = { 
+		limit = { exists = scope:duchy.de_jure_liege.holder }
+		any_direct_de_jure_vassal_title = {
+			percent < 0.5
+			holder.top_liege = scope:duchy.de_jure_liege.holder.top_liege
+		}
+	}
+	trigger_else = { always = no }
+}
+ck_hm_struggle_chaos_transfer_duchy_trigger = {
+	save_temporary_scope_as = transfer_duchy 
+	# Duchy is completely controlled by its capital's holder's top_liege
+	exists = title_capital_county.holder.top_liege
+	title_capital_county.holder.top_liege = { completely_controls = scope:transfer_duchy }
+	# De jure liege does not control duchy
+	trigger_if = {
+		limit = { exists = kingdom.holder }
+		kingdom != scope:transfer_duchy.title_capital_county.holder.top_liege.capital_county.kingdom
+	}
+	# Is controlled by a kingdom tier
+	trigger_else = { title_capital_county.holder.top_liege.primary_title.tier >= tier_kingdom }
+	# Duchy is connected de_jure to holders kingdom
+	any_de_jure_county = {
+		any_title_to_title_neighboring_and_across_water_county = {
+			exists = kingdom.holder
+			kingdom.holder = scope:transfer_duchy.title_capital_county.holder.top_liege
+		}
+	}
+}
+ck_hm_struggle_ending_chaos_create_title_trigger = {
+	NOR = {
+		this = title:e_eastern_calradia
+		exists = holder
+		is_in_list = assigned_title
+		# Only if no other same rank rulers in title (e.g. multiple kings under empire)
+		any_direct_de_jure_vassal_title = {
+			exists = holder
+			holder != scope:new_owner_temp
+		}
+	}
+}

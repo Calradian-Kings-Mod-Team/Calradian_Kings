@@ -141,32 +141,6 @@ estate_building_ai_drunk_value = {
 }
 ##### Struggles
 #### Heaven's Mandate
-ck_hm_total_counties_in_imperium_decimal = {
-	value = ck_hm_total_held_counties_in_imperium_percentage
-	divide = 100
-	max = 1
-}
-ck_hm_total_held_counties_in_imperium_percentage = {
-	value = ck_hm_total_held_counties_in_imperium
-	divide = ck_hm_total_counties_in_imperium
-	multiply = 100
-
-}
-ck_hm_total_counties_in_imperium = {
-	value = 0
-	every_county_in_region = {
-		region = region_imperial_calradia
-		add = 1
-	}
-}
-ck_hm_total_held_counties_in_imperium = {
-	value = 0
-	every_county_in_region = {
-		region = region_imperial_calradia
-		limit = { holder.top_liege = root }
-		add = 1
-	}
-}
 ck_hm_total_held_counties_in_imperium_target = 50
 ck_hm_piety_cost_lycaron = { value = 1000 }
 ck_hm_piety_cost_diathma = { value = 750 }
@@ -203,10 +177,130 @@ struggle_hm_supremacy_empire_total_value = 2
 ck_hm_supremacy_opinion_value = 15
 ck_hm_supremacy_opinion_negative_value = -20
 
+# Counter for independent Emperor Involved rulers
+struggle_hm_ending_compromise_decision_independent_emperor_counter_value = {
+	value = 0
+	struggle:heaven_mandate_struggle = {
+		every_involved_ruler = {
+			limit = {
+				this != root
+				top_liege = this
+				primary_title = {
+					is_mercenary_company = no
+					is_holy_order = no
+					tier = tier_empire
+				}
+			}
+			add = 1
+		}
+	}
+}
+# Counter for HM counties owned by non-Involved
+struggle_hm_ending_compromise_decision_region_interloper_value = {
+	value = 0
+	every_county_in_region = {
+		region = ck_wb_imperial_boundaries
+		limit = {
+			holder.top_liege = { ck_hm_character_involved_in_struggle_trigger = no }
+		}
+		add = 1
+	}
+}
+# Percentage of HM counties owned by non-Involved
+struggle_hm_ending_compromise_decision_region_interloper_percent_value = {
+	value = struggle_hm_ending_compromise_decision_region_interloper_value
+	divide = wb_total_counties_in_struggle_hm
+	multiply = 100
+}
+# Counter for allied Involved rulers
+struggle_hm_ending_conciliation_decision_alliance_counter_value = {
+	value = 0
+	struggle:heaven_mandate_struggle = {
+		every_involved_ruler = {
+			limit = {
+				this != root
+				top_liege = this
+				is_landless_adventurer = no
+				primary_title = { is_holy_order = no }
+				primary_title = { is_mercenary_company = no }
+				is_allied_to = root
+			}
+			add = 1
+		}
+	}
+}
+# Counts independent involved realms in Iberia, to compare
+struggle_hm_ending_ending_decision_foreign_realm_total_value = {
+	value = 0
+	struggle:heaven_mandate_struggle = {
+		every_involved_ruler = {
+			limit = {
+				this != root
+				top_liege = this
+				is_landless_adventurer = no
+				primary_title = { is_holy_order = no }
+				primary_title = { is_mercenary_company = no }
+			}
+			add = 1
+		}
+	}
+}
+# Counter for hooked and friendly rulers
+struggle_hm_ending_compromise_decision_opinion_counter_value = {
+	value = 0
+	struggle:heaven_mandate_struggle = {
+		every_involved_ruler = {
+			limit = {
+				this != root
+				top_liege = this
+				primary_title = { is_holy_order = no }
+				primary_title = { is_mercenary_company = no }
+				is_landless_adventurer = no
+				save_temporary_scope_as = this_character
+				OR = {
+					root = { has_strong_hook = scope:this_character }
+					opinion = {
+						target = root
+						value >= struggle_iberia_ending_compromise_decision_opinion_value
+					}
+				}
+			}
+			add = 1
+		}
+	}
+}
+
 #### Imperial Provinces ####
 ### 976
 ### BL
 ### WB
+## Held Titles in the Struggle Region
+wb_held_counties_in_struggle_hm = {
+	value = 0
+	every_sub_realm_county = {
+		if = {
+			limit = {
+				title_province = {
+					geographical_region = ck_wb_imperial_boundaries
+				}
+			}
+			add = 1
+		}
+	}
+}
+wb_total_counties_in_struggle_hm = {
+	value = 0
+	every_county_in_region = {
+		region = ck_wb_imperial_boundaries
+		add = 1
+	}
+}
+wb_total_counties_in_struggle_hm_percentage = {
+	value = wb_held_counties_in_struggle_hm
+	divide = wb_total_counties_in_struggle_hm
+	multiply = 100
+}
+hm_struggle_compromise_owned_percent_value = 50
 ## Held Titles in a Province / Total Area of Provinces = Percentage controlled
 wb_held_provinces_vostrum = {
 	value = 0
@@ -1131,3 +1225,80 @@ sub_realm_holdings_plurality = {
 	}
 	# divide = sub_realm_holdings_count
 }
+struggle_hm_ending_compromise_decision_war_counter_value = {
+	struggle:heaven_mandate_struggle = {
+		every_involved_ruler = {
+			limit = {
+				top_liege = this
+				primary_title = { is_mercenary_company = no }
+				primary_title = { is_holy_order = no }
+				any_primary_war_enemy = {
+					top_liege = this
+					any_character_struggle = {
+						involvement = involved
+						is_struggle_type = heaven_mandate_struggle
+					}
+					primary_title = { is_holy_order = no }
+					primary_title = { is_mercenary_company = no }
+				}
+			}
+			add =  {
+				value = 0
+				if = {
+					limit = {
+					 	any_character_war = {
+							OR = {
+								AND = {
+									primary_attacker = prev
+									primary_defender = {
+										any_character_struggle = {
+											involvement = involved
+											is_struggle_type = heaven_mandate_struggle
+										}
+										top_liege = this
+										primary_title = { is_mercenary_company = no }
+									}
+								}
+								AND = {
+									primary_defender = prev
+									primary_attacker = {
+										any_character_struggle = {
+											involvement = involved
+											is_struggle_type = heaven_mandate_struggle
+										}
+										top_liege = this
+										primary_title = { is_mercenary_company = no }
+									}
+								}
+							}
+						}
+					 }
+					add = 0.5 # they are both primary participant so they will add 0.5 each
+				}
+				else = {
+					add = 1 # only one of them is primary participant, so we need to add 1
+				}
+			}
+		}
+	}
+}
+# Counter for independent king or higher Involved rulers
+struggle_hm_ending_compromise_decision_independent_counter_value = {
+	value = 0
+	struggle:heaven_mandate_struggle = {
+		every_involved_ruler = {
+			limit = {
+				this != root
+				top_liege = this
+				primary_title = {
+					is_mercenary_company = no
+					is_holy_order = no
+					tier >= tier_kingdom
+				}
+			}
+			add = 1
+		}
+	}
+}
+# Chaos Ending values
+ck_hm_struggle_chaos_conversion_value = 2

@@ -321,13 +321,87 @@ fp2_struggle_enforce_truce_war_leader_trigger = {
 	}
 }
 
-### NO IBERIA OR IBERIAN STRUGGLE ###
+# Checks two cultures were Involved in the struggle that ended in Conciliation
+fp2_struggle_conciliation_special_cultural_rules_trigger = {
+	has_global_variable = hm_struggle_compromise_ending
+	any_in_global_list = {
+		variable = ck_hm_struggle_ending_culture_list
+		this = $C1$.culture
+	}
+	any_in_global_list = {
+		variable = ck_hm_struggle_ending_culture_list
+		this = $C2$.culture
+	}
+}
 
+# Checks two faiths were Involved in the struggle that ended in Conciliation
+are_holy_wars_disabled_by_struggle_conciliation_trigger = {
+	has_global_variable = hm_struggle_compromise_ending
+	any_in_global_list = {
+		variable = ck_hm_struggle_ending_faith_list
+		this = scope:attacker.faith
+	}
+	any_in_global_list = {
+		variable = ck_hm_struggle_ending_faith_list
+		this = scope:defender.faith
+	}
+}
+
+# Checks if characters were both involved in struggle
+fp2_struggle_conciliation_recipient_actor_involved_trigger = {
+	has_global_variable = hm_struggle_compromise_ending
+	AND = {
+		scope:actor.capital_province = { geographical_region = region_imperial_calradia }
+		scope:recipient.capital_province = { geographical_region = region_imperial_calradia }
+		# Offer comes from an Involved culture/faith character
+		OR = {
+			any_in_global_list = {
+				variable = ck_hm_struggle_ending_faith_list
+				this = scope:actor.faith
+			}
+			any_in_global_list = {
+				variable = ck_hm_struggle_ending_culture_list
+				this = scope:actor.culture
+			}
+		}
+		# Recipient is from an Involved culture/faith
+		OR = {
+			any_in_global_list = {
+				variable = ck_hm_struggle_ending_faith_list
+				this = scope:recipient.faith
+			}
+			any_in_global_list = {
+				variable = ck_hm_struggle_ending_culture_list
+				this = scope:recipient.culture
+			}
+		}
+	}
+}
+
+# Checks if character was involved in struggle
+fp2_struggle_conciliation_scope_uninvolved_trigger = {
+	has_global_variable = hm_struggle_compromise_ending
+	OR = {
+		NOR = {
+			any_in_global_list = {
+				variable = ck_hm_struggle_ending_faith_list
+				this = $SCOPE$.faith
+			}
+			any_in_global_list = {
+				variable = ck_hm_struggle_ending_culture_list
+				this = $SCOPE$.culture
+			}
+		}
+		NOT = {
+			$SCOPE$.capital_province = { geographical_region = region_imperial_calradia }
+		}
+	}
+}
 
 
 ### Lyonese/Perassic Monk ###
 fp2_does_this_player_care_about_the_fate_of_iberia = {
-	NOT = { this = root }
+	this != root
 	OR = {
 		location = {
 			OR = { # Is in region

@@ -23,25 +23,49 @@
 	cooldown_against_recipient = { years = 3 }
 
 	is_shown = {
-		scope:actor = {
-			OR = {
-				government_has_flag = government_is_tribal
-				government_has_flag = government_is_nomadic
+		OR = {
+			AND = {
+				scope:actor = {
+					OR = {
+						government_has_flag = government_is_tribal
+						government_has_flag = government_is_nomadic
+					}
+					is_playable_character = yes
+					OR = {
+						is_independent_ruler = yes
+						confederation ?= { is_house_based = no }
+					}
+				}
+				scope:recipient = {
+					is_playable_character = yes
+					is_independent_ruler = yes
+					OR = {
+						government_has_flag = government_is_tribal
+						government_has_flag = government_is_nomadic
+					}
+					NOT = { this = scope:actor }
+				}
 			}
-			is_playable_character = yes
-			OR = {
-				is_independent_ruler = yes
-				confederation ?= { is_house_based = no }
+			AND = {
+				scope:actor = {
+					is_playable_character = yes
+					house = {
+						has_house_modifier = hm_struggle_conciliation_house_reward_modifier
+					}
+					OR = {
+						is_independent_ruler = yes
+						confederation ?= { is_house_based = no }
+					}
+				}
+				scope:recipient = {
+					is_playable_character = yes
+					is_independent_ruler = yes
+					house = {
+						has_house_modifier = hm_struggle_conciliation_house_reward_modifier
+					}
+					NOT = { this = scope:actor }
+				}
 			}
-		}
-		scope:recipient = {
-			is_playable_character = yes
-			is_independent_ruler = yes
-			OR = {
-				government_has_flag = government_is_tribal
-				government_has_flag = government_is_nomadic
-			}
-			NOT = { this = scope:actor }
 		}
 	}
 
@@ -65,6 +89,16 @@
 			is_imprisoned = no
 			is_at_war = no
 		}
+		# trigger_if = {
+		# 	limit = {
+		# 		scope:actor = {
+		# 			house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+		# 		}
+		# 	}
+		# 	scope:recipient = {
+		# 		house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier}
+		# 	}
+		# }
 	}
 
 	cost = {
@@ -181,6 +215,18 @@
 					}
 					add = -30
 				}
+				# Decrease it a little if both have the conciliation house modifier
+				if = {
+					limit = {
+						scope:actor = {
+							house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+						}
+						scope:recipient = {
+							house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+						}
+					}
+					add = 30
+				}
 			}
 		}
 
@@ -221,6 +267,18 @@
 					}
 					add = -15
 				}
+				# Decrease it a little if both have the conciliation house modifier
+				if = {
+					limit = {
+						scope:actor = {
+							house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+						}
+						scope:recipient = {
+							house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+						}
+					}
+					add = 15
+				}
 			}
 		}
 
@@ -260,6 +318,18 @@
 						}
 					}
 					add = -10
+				}
+				# Decrease it a little if both have the conciliation house modifier
+				if = {
+					limit = {
+						scope:actor = {
+							house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+						}
+						scope:recipient = {
+							house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+						}
+					}
+					add = 15
 				}
 			}
 		}
@@ -383,6 +453,18 @@
 				scope:recipient.capital_province = { squared_distance = { target = scope:actor.capital_province value < 100000 } }
 			}
 			add = -25
+			# Decrease it a little if both have the conciliation house modifier
+			if = {
+				limit = {
+					scope:actor = {
+						house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+					}
+					scope:recipient = {
+						house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+					}
+				}
+				add = 15
+			}
 		}
 		modifier = { #Distant Realm
 			desc = offer_vassalization_interaction_aibehavior_distantrealm_tt
@@ -412,6 +494,18 @@
 				scope:recipient.capital_province = { squared_distance = { target = scope:actor.capital_province value >= 100000 } }
 			}
 			add = -100
+			# Decrease it a little if both have the conciliation house modifier
+			if = {
+				limit = {
+					scope:actor = {
+						house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+					}
+					scope:recipient = {
+						house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+					}
+				}
+				add = 20
+			}
 		}
 		modifier = { #Remote Realm.
 			desc = offer_vassalization_interaction_aibehavior_remoterealm_tt
@@ -455,6 +549,18 @@
 				ceiling = yes
 				min = -100
 	  		}
+			# Decrease it a little if both have the conciliation house modifier
+			if = {
+				limit = {
+					scope:actor = {
+						house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+					}
+					scope:recipient = {
+						house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+					}
+				}
+				add = 10
+			}
 		}
 		#Powerful vassal opinion of you
 		modifier = {
@@ -1211,6 +1317,17 @@
 				var:left_confederation ?= {
 					this = scope:actor.confederation
 				}
+			}
+		}
+		### CalKing reasons
+		modifier = {
+			add = 50
+			desc = BOTH_HAVE_CONCILIATION_HOUSE_MODIFIER
+			scope:actor = {
+				house ?= { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+			}
+			scope:recipient = {
+				house ?= { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
 			}
 		}
 	}
@@ -10897,6 +11014,14 @@ join_confederation_interaction = {
 		}
 		modifier = {
 			add = -20
+			NOT = { # This house modifier negates that
+				scope:actor = {
+					house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+				}
+				scope:recipient = {
+					house = { has_house_modifier = hm_struggle_conciliation_house_reward_modifier }
+				}
+			}
 			NOT = {
 				scope:actor = {
 					culture = scope:recipient.culture

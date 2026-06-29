@@ -185,7 +185,7 @@ ck_heaven_struggle.0001 = {
 					# Current Phase: Compromise
 					#############################
 					if = {
-						limit = { root = { is_struggle_phase = struggle_iberia_phase_compromise } }
+						limit = { root = { is_struggle_phase = struggle_heaven_phase_compromise } }
 						random_list = {
 
 							# Working towards Tension
@@ -691,7 +691,7 @@ ck_heaven_struggle.1000 = { # Give Lands to the Patriarchate
 	desc = ck_heaven_struggle.1000.desc
 	theme = ck_imperial
 	override_background = {
-		event_background = courtyard
+		reference = courtyard
 	}
 	left_portrait = {
 		character = root
@@ -1294,7 +1294,7 @@ ck_heaven_struggle.1002 = { # Restoration of Patriarchate general notification /
 			triggered_desc = {
 				trigger = {
 					faith = {
-						has_religion_tag = calradian_religion
+						religion_tag = calradian_religion
 						NOR = {
 							this = faith:kholradya
 							has_doctrine = special_doctrine_ecumenical_christian
@@ -1307,7 +1307,7 @@ ck_heaven_struggle.1002 = { # Restoration of Patriarchate general notification /
 				trigger = {
 					faith = {
 						NOT = {
-							has_religion_tag = calradian_religion
+							religion_tag = calradian_religion
 						}
 					}
 				}
@@ -1317,7 +1317,7 @@ ck_heaven_struggle.1002 = { # Restoration of Patriarchate general notification /
 	}
 	theme = ck_imperial
 	override_background = {
-		event_background = courtyard
+		reference = courtyard
 	}
 	left_portrait = {
 		character = scope:ck_patriarch_ruler
@@ -1515,10 +1515,13 @@ ck_heaven_struggle.1005 = {
 
 	immediate = {
 		# Add all involved rulers to a list, for ping event
-		play_music_cue = "mx_Struggle_ending_hostility"
+		play_music_cue = "mx_Struggle_ending_compromise"
 		ck_hm_struggle_ending_involved_list_effect = yes
 		hidden_effect = {
-			set_global_variable = ck_hm_struggle_ended_supremacy
+			set_global_variable = {
+				name = hm_struggle_supremacy_ending
+				value = yes
+			}
 		}
 		dynasty = { add_dynasty_prestige = 5000 }
 		ck_end_struggle_form_provinces = yes
@@ -1617,7 +1620,7 @@ ck_heaven_struggle.1005 = {
 
 	after = {
 		# Notify & End Struggle
-		save_scope_as = fp2_loc_struggle_ender # Loc used to use root, this fixes it
+		save_scope_as = hm_loc_struggle_ender # Loc used to use root, this fixes it
 		every_player = {
 			limit = { fp2_does_this_player_care_about_the_fate_of_iberia = yes } # Needs to be checked before the struggle ends due to race condition issues
 			add_to_list = player_to_notify # Making a list so stuff is triggered after the struggle ends, to make extra sure I don't break anything.
@@ -1636,13 +1639,7 @@ ck_heaven_struggle.1006 = {
 	window = fullscreen_event
 	title = ck_heaven_struggle.1006.t
 	desc = {
-		first_valid = {
-		    triggered_desc = {
-		        trigger = { is_in_list = struggle_involvees }
-		        desc = ck_heaven_struggle.1006.opening.involved
-		    }
-		    desc = ck_heaven_struggle.1006.opening
-		}
+		desc = ck_heaven_struggle.1006.opening
 		desc = ck_heaven_struggle.1006.desc
 		first_valid = {
 		    triggered_desc = {
@@ -1665,7 +1662,7 @@ ck_heaven_struggle.1006 = {
 	override_sound = { reference = "event:/DLC/FP2/SFX/UI/fp2_struggle_ui_intro_end_animate" }
 
 	immediate = {
-		play_music_cue = "mx_Struggle_ending_hostility"
+		play_music_cue = "mx_Struggle_ending_compromise"
 		##### Major Effects #####
 		show_as_tooltip = {
 			scope:struggle_ender = {
@@ -1709,6 +1706,337 @@ ck_heaven_struggle.1006 = {
 		}
 		name = {
 			text = ck_heaven_struggle.1006.b
+			trigger = {
+				NOT = { is_in_list = struggle_involvees }
+			}
+		}
+	}
+}
+
+## Compromise (Reflavored Conciliation)
+ck_heaven_struggle.1007 = {
+	type = character_event
+	window = fullscreen_event
+	title = ck_heaven_struggle.1007.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					# Calradian Heritage (Perasoi)
+					culture = {
+						has_cultural_pillar = heritage_calradian
+					}
+				}
+				desc = ck_heaven_struggle.1007.opening.calradian
+			}
+			triggered_desc = {
+				trigger = {
+					# Esvulgeste/Valanscau Heritage
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_esvulgeste
+							has_cultural_pillar = heritage_valanscau
+						}
+					}
+				}
+				desc = ck_heaven_struggle.1007.opening.esvulgeste
+			}
+			triggered_desc = {
+				trigger = {
+					# Borteq Heritage (Kholradyan/Ochikhagyan)
+					culture = {
+						has_cultural_pillar = heritage_khuzic
+					}
+				}
+				desc = ck_heaven_struggle.1007.opening.borteq
+			}
+		}
+		desc = ck_heaven_struggle.1007.opening
+	}
+	theme = court
+	override_background = { reference = fp2_fullscreen_conciliation }
+	override_sound = { reference = "event:/DLC/FP2/SFX/UI/fp2_struggle_ui_intro_end_animate" }
+
+	immediate = {
+		play_music_cue = "mx_Struggle_ending_conciliation"
+		set_global_variable = {
+			name = hm_struggle_compromise_ending
+			value = yes
+		}
+		# Add all involved rulers to a list, for ping event
+		ck_hm_struggle_ending_involved_list_effect = yes
+
+		# Add all involved cultures with counties to a list, for marriage and holy war checks
+		ck_hm_struggle_ending_culture_list_effect = yes
+
+		# Change cultural acceptance
+		ck_hm_struggle_conciliation_cultural_acceptance_effect = yes
+
+		##### Major Effects #####
+		hm_struggle_compromise_ender_effect = yes
+		ck_hm_struggle_compromise_tooltip_effect = yes
+		hm_struggle_conciliation_modifier_rewards_effect = yes
+	}
+
+	option = {
+		name = fp2_struggle.0902.a
+	}
+
+	after = {
+		stress_impact = {
+			arrogant = medium_stress_impact_gain
+			zealous = medium_stress_impact_gain
+		}
+
+		# Notify & End Struggle
+		save_scope_as = hm_loc_struggle_ender # Loc used to use root, this fixes it
+		every_player = {
+			limit = { fp2_does_this_player_care_about_the_fate_of_iberia = yes } # Needs to be checked before the struggle ends due to race condition issues
+			add_to_list = player_to_notify # Making a list so stuff is tiggered after the struggle ends, to make extra sure I don't break anything.
+		}
+
+		struggle:heaven_mandate_struggle = { end_struggle = end_the_struggle_compromise }
+		every_in_list = { # Then we *actually* notify palyers, making sure the struggle has already ended
+			list = player_to_notify
+			trigger_event = ck_heaven_struggle.1008
+		}
+	}
+}
+ck_heaven_struggle.1008 = {
+	type = character_event
+	window = fullscreen_event
+	title = ck_heaven_struggle.1007.t
+	desc = {
+		first_valid = {
+		    triggered_desc = {
+		        trigger = { is_in_list = struggle_involvees }
+		        desc = fp2_struggle.0910.opening.involved
+		    }
+		    desc = ck_heaven_struggle.1008.opening
+		}
+		desc = ck_heaven_struggle.1008.desc
+	}
+	theme = court
+	override_background = { reference = fp2_fullscreen_conciliation }
+	override_sound = { reference = "event:/DLC/FP2/SFX/UI/fp2_struggle_ui_intro_end_animate" }
+
+	immediate = {
+		play_music_cue = "mx_Struggle_ending_conciliation"
+		##### Major Effects #####
+		show_as_tooltip = {
+			scope:struggle_ender = { hm_struggle_compromise_ender_effect = yes }
+		}
+		ck_hm_struggle_compromise_tooltip_effect = yes
+
+		##### Minor Effects #####
+		# All involved rulers gain diff culture opinion and learn language scheme power
+		if = {
+			limit = { is_in_list = struggle_involvees }
+			show_as_tooltip = { hm_struggle_conciliation_modifier_rewards_effect = yes }
+		}
+	}
+
+	# Ok
+	option = {
+		name = {
+			text = fp2_struggle.0912.a
+			trigger = { is_in_list = struggle_involvees }
+		}
+		name = {
+			text = fp2_struggle.0910.b
+			trigger = {
+				NOT = { is_in_list = struggle_involvees }
+			}
+		}
+	}
+}
+ck_heaven_struggle.1009 = { # Chaos Ending
+	type = character_event
+	window = fullscreen_event
+	title = ck_heaven_struggle.1009.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					# Calradian Heritage (Perasoi)
+					culture = {
+						has_cultural_pillar = heritage_calradian
+					}
+				}
+				desc = ck_heaven_struggle.1009.opening.calradian
+			}
+			triggered_desc = {
+				trigger = {
+					# Esvulgeste/Valanscau Heritage
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_esvulgeste
+							has_cultural_pillar = heritage_valanscau
+						}
+					}
+				}
+				desc = ck_heaven_struggle.1009.opening.esvulgeste
+			}
+			triggered_desc = {
+				trigger = {
+					# Borteq Heritage (Kholradyan/Ochikhagyan)
+					culture = {
+						has_cultural_pillar = heritage_khuzic
+					}
+				}
+				desc = ck_heaven_struggle.1009.opening.borteq
+			}
+		}
+		desc = ck_heaven_struggle.1009.opening
+	}
+	theme = court
+	override_background = { reference = ck_fullscreen_chaos_hm }
+	override_sound = { reference = "event:/DLC/FP2/SFX/UI/fp2_struggle_ui_intro_end_animate" }
+
+	immediate = {
+		play_music_cue = "mx_Struggle_ending_hostility"
+		# Independent/Split De Jure Duchies will become De Jure Kingdoms
+		if = {
+			limit = {
+				any_county_in_region = {
+					region = ck_wb_imperial_boundaries
+					duchy = { ck_chaos_independent_duchy_trigger = yes }
+				}
+			}
+			custom_tooltip = {
+				text = ck_hm_struggle_chaos_create_new_kingdoms_tt
+				ck_hm_chaos_duchies_to_kingdoms_effect = yes
+			}
+		}
+		# Move duchies to right kingdoms
+		ck_hm_chaos_transfer_duchies_effect = yes
+		# Turn kingdoms to empires
+		ck_hm_struggle_chaos_kingdoms_to_empires_effect = yes
+		# distribute small kingdoms
+		ck_hm_struggle_chaos_distribute_kingdoms_to_neighbouring_empires_effect = yes
+		# assign the new title to existing characters
+		ck_hm_struggle_chaos_distribute_the_actual_titles = yes
+
+		##### Major Effects #####
+		hm_struggle_chaos_ender_effect = yes
+
+		# All Involved cultures lose acceptance of each other
+		custom_tooltip = {
+			text = fp2_struggle_hostility_culture_large_tt 
+			ck_struggle_chaos_cultural_acceptance_large_effect = yes
+		}
+
+		# Tooltips!
+		ck_hm_struggle_chaos_tooltip_effect = yes
+		# Minor Effects
+		hm_struggle_chaos_modifier_rewards_effect = yes
+		set_global_variable = {
+			name = ck_hm_struggle_chaos_ending
+			value = yes
+		}
+		
+		# Add all involved rulers to a list, for ping event
+		ck_hm_struggle_ending_involved_list_effect = yes
+	}
+
+	# Ok
+	option = {
+		name = fp2_struggle.0901.a
+		if = {
+			limit = {
+				any_in_list = {
+					list = kingdom_empire
+					this = root.primary_title
+				}
+			}
+			custom_tooltip = fp2_struggle.0901.tt
+		}
+	}
+
+	after = {
+		stress_impact = {
+			ambitious = major_stress_impact_gain
+			arbitrary = medium_stress_impact_loss
+			lunatic_1 = medium_stress_impact_loss
+			lunatic_genetic = medium_stress_impact_loss
+			just = medium_stress_impact_gain
+		}
+
+		# Notify & End Struggle
+		save_scope_as = hm_loc_struggle_ender # Loc used to use root, this fixes it
+		every_player = {
+			limit = { fp2_does_this_player_care_about_the_fate_of_iberia = yes } # Needs to be checked before the struggle ends due to race condition issues
+			add_to_list = player_to_notify # Making a list so stuff is tiggered after the struggle ends, to make extra sure I don't break anything.
+		}
+
+		struggle:heaven_mandate_struggle = { end_struggle = end_the_struggle_chaos }
+		every_in_list = { # Then we *actually* notify palyers, making sure the struggle has already ended
+			list = player_to_notify
+			trigger_event = ck_heaven_struggle.1010
+		}
+	}
+}
+ck_heaven_struggle.1010 = {
+	type = character_event
+	window = fullscreen_event
+	title = ck_heaven_struggle.1009.t
+	desc = {
+		first_valid = {
+		    triggered_desc = {
+		        trigger = { is_in_list = struggle_involvees }
+		        desc = fp2_struggle.0910.opening.involved
+		    }
+		    desc = fp2_struggle.0910.opening.involved
+		}
+		desc = ck_heaven_struggle.1010.desc
+	}
+	theme = court
+	override_background = { reference = ck_fullscreen_chaos_hm }
+	override_sound = { reference = "event:/DLC/FP2/SFX/UI/fp2_struggle_ui_intro_end_animate" }
+
+	immediate = {
+		play_music_cue = "mx_Struggle_ending_hostility"
+		##### Major Effects #####
+		show_as_tooltip = {
+			scope:struggle_ender = { hm_struggle_chaos_ender_effect = yes }
+		}
+		# Independent/Split De Jure Duchies will become De Jure Kingdoms
+		custom_tooltip = ck_hm_struggle_chaos_create_new_kingdoms_tt
+		# RIP Calradia
+		ck_hm_struggle_chaos_tooltip_effect = yes
+
+		##### Minor Effects #####
+		if = {
+			limit = {
+				any_in_list = {
+					list = kingdom_empire
+					OR = {
+						this = root.primary_title
+						this = root.primary_title.de_jure_liege
+						this = root.primary_title.de_jure_liege.de_jure_liege
+					}
+				}
+			}
+			custom_tooltip = fp2_struggle.0901.tt
+		}
+		if = {
+			limit = { is_in_list = struggle_involvees }
+			show_as_tooltip = {
+				ck_hm_struggle_chaos_modifier_rewards_involved_house_effect = yes
+				ck_hm_struggle_chaos_county_modifier_reward_effect = yes
+			}
+		}
+		custom_tooltip = fp2_struggle_hostility_culture_large_tt
+	}
+
+	# Ok
+	option = {
+		name = {
+			text = ck_heaven_struggle.1010.a
+			trigger = { is_in_list = struggle_involvees }
+		}
+		name = {
+			text = fp2_struggle.0910.b
 			trigger = {
 				NOT = { is_in_list = struggle_involvees }
 			}

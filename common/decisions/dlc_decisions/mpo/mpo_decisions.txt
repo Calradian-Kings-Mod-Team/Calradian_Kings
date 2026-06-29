@@ -18,10 +18,20 @@ call_for_confederation_decision = {
 	selection_tooltip = call_for_confederation_decision_tooltip
 
 	is_shown = {
-		highest_held_title_tier <= tier_duchy
 		OR = {
-			government_has_flag = government_is_tribal
-			government_has_flag = government_is_nomadic
+			AND = {
+				highest_held_title_tier <= tier_duchy
+				OR = {
+					government_has_flag = government_is_tribal
+					government_has_flag = government_is_nomadic
+				}
+			}
+			AND = {
+				highest_held_title_tier <= tier_empire
+				house = {
+					has_house_modifier = hm_struggle_conciliation_house_reward_modifier
+				}
+			}
 		}
 		is_playable_character = yes
 		is_independent_ruler = yes
@@ -33,34 +43,77 @@ call_for_confederation_decision = {
 
 	is_valid = {
 		is_independent_ruler = yes
-		highest_held_title_tier <= tier_duchy
 		is_tributary = no
-		custom_tooltip = {
-			OR = {
-				government_has_flag = government_is_tribal
-				government_has_flag = government_is_nomadic
-			}
-			text = is_nomadic_or_tribal_tt
-		}
 		trigger_if = {
 			limit = {
-				government_has_flag = government_is_nomadic
+				house = {
+					has_house_modifier = hm_struggle_conciliation_house_reward_modifier
+				}
 			}
-			OR = {
-				has_realm_law = nomadic_authority_1
-				has_realm_law = nomadic_authority_2
+			# highest_held_title_tier <= tier_kingdom
+			trigger_if = {
+				limit = {
+					has_government = tribal_government
+				}
+				OR = {
+					has_realm_law = tribal_authority_0
+					has_realm_law = tribal_authority_1
+					has_realm_law = tribal_authority_2
+				}
+			}
+			trigger_else_if = {
+				limit = {
+					OR = {
+						has_government = feudal_government
+						has_government = clan_government
+					}
+				}
+				OR = {
+					has_realm_law = crown_authority_0
+					has_realm_law = crown_authority_1
+					has_realm_law = crown_authority_2
+				}
+			}
+			trigger_else_if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				OR = {
+					has_realm_law = nomadic_authority_1
+					has_realm_law = nomadic_authority_2
+					has_realm_law = nomadic_authority_3
+				}
 			}
 		}
 		trigger_else = {
-			OR = {
-				has_realm_law = tribal_authority_0
-				has_realm_law = tribal_authority_1
-				has_realm_law = tribal_authority_2
+			highest_held_title_tier <= tier_duchy
+			custom_tooltip = {
+				OR = {
+					government_has_flag = government_is_tribal
+					government_has_flag = government_is_nomadic
+				}
+				text = is_nomadic_or_tribal_tt
 			}
-		}
-		NOR = {
-			has_trait = conqueror
-			has_trait = greatest_of_khans
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				OR = {
+					has_realm_law = nomadic_authority_1
+					has_realm_law = nomadic_authority_2
+				}
+			}
+			trigger_else = {
+				OR = {
+					has_realm_law = tribal_authority_0
+					has_realm_law = tribal_authority_1
+					has_realm_law = tribal_authority_2
+				}
+			}
+			NOR = {
+				has_trait = conqueror
+				has_trait = greatest_of_khans
+			}
 		}
 		trigger_if = {
 			limit = {

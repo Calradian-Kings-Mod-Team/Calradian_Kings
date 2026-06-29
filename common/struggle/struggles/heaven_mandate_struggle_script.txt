@@ -18,6 +18,8 @@
 		# Outsider Cultures
 		nachagan
 		arkits
+		# Palaic Culture
+		palaic_myzead
 		# Perassic Cultures - Lotkians, Thonians, and Geroians can get involved via decision (Decision taken by cultural head)
 	}
 	faiths = {
@@ -40,11 +42,15 @@
 		agreki
 		miraclist
 		aekekartel
+
+		## Outsider Faiths
+		arkits_faith
+		khuzait_faith
 	}
-	regions = { region_imperial_calradia }
+	regions = { ck_wb_imperial_boundaries }
 
 	# A culture or faith becomes involved if 80% of the total number of counties belonging to it are inside the struggle region.
-	involvement_prerequisite_percentage = 0.8
+	involvement_prerequisite_percentage = 0.6
 
 	transition_state_duration = { months = 1 }
 
@@ -105,6 +111,7 @@
 						catalyst_independence_from_non_dejure_vassal = medium_struggle_catalyst_gain
 						catalyst_gave_independence_to_powerful_diff_faith_culture_vassal = major_struggle_catalyst_gain
 						catalyst_gain_struggle_titles_from_interlopers_uninvolved = medium_struggle_catalyst_gain
+						catalyst_convert_local_culture_faith = major_struggle_catalyst_gain
 					}
 				}
 				struggle_heaven_phase_supremacy = {
@@ -172,6 +179,19 @@
 					interfaith_marriages_between_involved_characters_costs_piety = yes
 					holy_order_can_be_created_by_dukes = yes
 				}
+
+				involved_character_modifier = {
+					levy_reinforcement_rate_same_faith = 0.5
+					domain_tax_different_faith_mult = 0.25
+					holy_order_hire_cost_mult = -0.25
+
+					opinion_of_different_faith = -10
+				}
+
+				###### Interlopers
+				interloper_character_modifier = {
+					holy_order_hire_cost_mult = -0.25
+				}
 			}
 			culture_effects = {
 				name = CULTURE_EFFECTS_NAME
@@ -220,12 +240,26 @@
 				involved_county_modifier = {
 					development_growth_factor = -0.3
 				}
+
+				interloper_county_modifier = {
+					county_opinion_add = -15
+					tax_mult = -0.30
+					development_growth_factor = -0.4
+				}
+
+				uninvolved_county_modifier = {
+					county_opinion_add = -50
+					tax_mult = -0.75
+
+					development_growth_factor = -0.5
+				}
 			}
 
 			#We are listing all available decision to give players insights on how they can end the Struggle
 			ending_decisions = {
 				end_the_struggle_supremacy
-				testing_end_two
+				end_the_struggle_compromise
+				end_the_struggle_chaos
 			}
 		}
 		# Tension represents a growing hostility between involved realms.
@@ -254,6 +288,7 @@
 						catalyst_interloper_conquers_title = major_struggle_catalyst_gain
 						catalyst_de_jure_vassal_independence = minimal_struggle_catalyst_gain
 						catalyst_execute_important = major_struggle_catalyst_gain
+						catalyst_forced_conversion = medium_struggle_catalyst_gain
 					}
 				}
 				struggle_heaven_phase_compromise = {
@@ -273,6 +308,7 @@
 						catalyst_gave_independence_to_powerful_diff_faith_culture_vassal = major_struggle_catalyst_gain
 
 						catalyst_grant_land_local_noble = major_struggle_catalyst_gain
+						catalyst_convert_local_culture_faith = major_struggle_catalyst_gain
 					}
 				}
 				struggle_heaven_phase_supremacy = {
@@ -383,7 +419,8 @@
 			#We are listing all available decision to give players insights on how they can end the Struggle
 			ending_decisions = {
 				end_the_struggle_supremacy
-				testing_end_two
+				end_the_struggle_compromise
+				end_the_struggle_chaos
 				
 			}
 		}
@@ -424,6 +461,7 @@
 						catalyst_cadet_branch_created = major_struggle_catalyst_gain
 						catalyst_usurp_empire_hm = major_struggle_catalyst_gain
 						catalyst_usurp_kingdom_hm = medium_struggle_catalyst_gain
+						catalyst_forced_conversion = medium_struggle_catalyst_gain
 					}
 				}
 				struggle_heaven_phase_compromise = {
@@ -441,6 +479,7 @@
 						catalyst_independence_from_non_dejure_vassal = medium_struggle_catalyst_gain
 						catalyst_gave_independence_to_powerful_diff_faith_culture_vassal = major_struggle_catalyst_gain
 						catalyst_gain_struggle_titles_from_interlopers_uninvolved = medium_struggle_catalyst_gain
+						catalyst_convert_local_culture_faith = major_struggle_catalyst_gain
 					}
 				}
 				struggle_heaven_phase_supremacy = {
@@ -529,7 +568,8 @@
 			#We are listing all available decision to give players insights on how they can end the Struggle
 			ending_decisions = {
 				end_the_struggle_supremacy
-				testing_end_two
+				end_the_struggle_compromise
+				end_the_struggle_chaos
 			}
 		}
 		# Compromise represents a moment in this struggle when the biggest powers in this struggle put aside differences and work together in commonality.
@@ -563,6 +603,7 @@
 
 						catalyst_usurp_empire_hm = major_struggle_catalyst_gain
 						catalyst_usurp_kingdom_hm = medium_struggle_catalyst_gain
+						catalyst_forced_conversion = medium_struggle_catalyst_gain
 					}
 				}
 				struggle_heaven_phase_supremacy = {
@@ -579,6 +620,17 @@
 					white_peace_acceptance_between_involved_or_interloper_with_region_easier = yes
 					unlocks_calradian_reclamation_casus_belli = yes
 					apply_truce_when_sending_ward = yes
+					invasion_conquest_war_cannot_be_declared = yes
+				}
+
+				involved_character_modifier = {
+					ai_war_chance = -0.25
+					ai_war_cooldown = 0.25
+
+					levy_reinforcement_rate_friendly_territory = 0.5
+					levy_reinforcement_rate_same_faith = 0.5
+					garrison_size = 0.25
+					defender_advantage = 5
 				}
 			}
 			faith_effects = {
@@ -694,7 +746,8 @@
 			#We are listing all available decision to give players insights on how they can end the Struggle
 			ending_decisions = {
 				end_the_struggle_supremacy
-				testing_end_two
+				end_the_struggle_compromise
+				end_the_struggle_chaos
 			}
 		}
 		# Supremacy occurs when one power becomes the only major power in this struggle. As their power grows, so do the chances of them reclaiming Heaven's Mandate and restoring the Calradian Empire
@@ -738,12 +791,48 @@
 				involved_parameters = {
 					unlocks_enforce_truces_interaction = yes
 				}
+
+				involved_character_modifier = {
+					same_culture_mercenary_hire_cost_mult = -0.3
+					ai_war_chance = 5
+					ai_war_cooldown = -0.25
+					army_pursuit_mult = 0.1
+					army_siege_value_mult = 0.25
+					enemy_hard_casualty_modifier = 0.25
+					advantage = 3 # gives the upper hand against outsiders
+				}
+
+				###### Interlopers
+				interloper_parameters = {
+					truces_by_involved_or_interlopers_within_region_shorter = yes
+					involved_or_interloper_wars_in_struggle_region_cheaper_piety_costs = yes
+					involved_or_interloper_wars_in_struggle_region_cheaper_costs = yes
+				}
 			}
 			faith_effects = {
 				name = FAITH_EFFECTS_NAME
+				
 				###### Common
+				common_parameters = {
+					county_faith_conversion_in_region_proceeds_slower = yes
+					holy_wars_in_region_cannot_be_declared = yes # not sure if relevant?
+				}
+
 				involved_parameters = {
+					holy_order_can_be_created_by_dukes = yes
 					interfaith_marriages_available_between_involved_characters = yes
+				}
+
+				involved_character_modifier = {
+					holy_order_hire_cost_mult = -0.25
+				}
+
+				interloper_character_modifier = {
+					levy_reinforcement_rate_same_faith = 0.25
+					domain_tax_different_faith_mult = 0.1
+					holy_order_hire_cost_mult = -0.2
+
+					opinion_of_different_faith = -15
 				}
 			}
 			culture_effects = {
@@ -761,7 +850,8 @@
 			#We are listing all available decision to give players insights on how they can end the Struggle
 			ending_decisions = {
 				end_the_struggle_supremacy
-				testing_end_two
+				end_the_struggle_compromise
+				end_the_struggle_chaos
 			}
 		}
 	}

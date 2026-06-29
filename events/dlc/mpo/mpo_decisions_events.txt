@@ -37,10 +37,54 @@ scripted_trigger mpo_decisions_events_0001_threat_trigger = {
 #Confederation planning event
 mpo_decisions_events.0001 = {
 	type = character_event
-	title = mpo_decisions_events.0001.t
-	desc = mpo_decisions_events.0001.desc
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					OR = {
+						government_has_flag = government_is_tribal
+						government_has_flag = government_is_nomadic
+					}
+				}
+				desc = mpo_decisions_events.0001.t
+			}
+			desc = mpo_decisions_events.0001.t.feudal
+		}
+	}
+	
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					OR = {
+						government_has_flag = government_is_tribal
+						government_has_flag = government_is_nomadic
+					}
+				}
+				desc = mpo_decisions_events.0001.desc
+			}
+			desc = mpo_decisions_events.0001.desc.feudal
+		}
+	}
 	theme = vassal
-	override_background = { reference = wilderness }
+	override_background = {
+		trigger = {
+			OR = {
+				government_has_flag = government_is_tribal
+				government_has_flag = government_is_nomadic
+			}
+		}
+		reference = wilderness
+	}
+	override_background = {
+		trigger = {
+			NOR = {
+				government_has_flag = government_is_tribal
+				government_has_flag = government_is_nomadic
+			}
+		}
+		reference = throne_room
+	}
 	left_portrait = {
 		character = root
 		animation = inspect_weapon
@@ -195,7 +239,18 @@ mpo_decisions_events.0001 = {
 	option = {
 		name = mpo_decisions_events.0001.a
 		custom_tooltip = enables_offer_confederation_tt
-		custom_tooltip = offer_confederation_members_tt
+		if = {
+			limit = {
+				NOR = {
+					government_has_flag = government_is_tribal
+					government_has_flag = government_is_nomadic
+				}
+			}
+			custom_tooltip = offer_confederation_members_ck_tt
+		}
+		else = {
+			custom_tooltip = offer_confederation_members_tt
+		}
 		custom_tooltip = offer_confederation_5_year_warning_tt
 		
 		add_character_flag = {
