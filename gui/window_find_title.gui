@@ -1,0 +1,148 @@
+window = {
+	name = "find_title_view"
+	size = { 450 700 }
+	parentanchor = top|right
+	position = { -80 130 }
+	resizable = yes
+	min_height = 300
+	layer = middle
+
+	using = Window_Background
+	using = Window_Decoration_Spike
+	using = Animation_ShowHide_Standard
+
+	vbox = {
+		using = Window_Margins
+
+		header_pattern = {
+			layoutpolicy_horizontal = expanding
+
+			blockoverride "header_text"
+			{
+				text = "FIND_TITLE"
+			}
+
+			blockoverride "button_close"
+			{
+				onclick = "[FindTitleView.Close]"
+			}
+		}
+
+		editbox_search_field = {
+			layoutpolicy_horizontal = expanding
+			margin_left = 15
+			margin_right = 20
+			margin_bottom = 6
+
+			
+			tooltip = "debug_find_regions"
+			using = tooltip_above
+			tooltip_visible = "[And(InDebugMode,Not(IsMapMode('debug_ai_war_coordinator_targets')))]"
+			blockoverride "editbox_properties" 
+			{
+			    name = "input"
+			    onreturnpressed = "[FindTitleView.OnDone]"
+				ontextedited = "[FindTitleView.OnEdit]"
+			    oneditingfinished = "[SetMapMode('debug_ai_war_coordinator_targets')]" # this the "dark" map mode for outline
+				oneditingfinished = "[GetVariableSystem.Clear('found_title')]"
+			}
+		}
+
+		scrollbox = {
+			name = "title_grid"
+			layoutpolicy_horizontal = expanding
+			layoutpolicy_vertical = expanding
+
+			blockoverride "scrollbox_content"
+			{
+				vbox = {
+					datamodel = "[FindTitleView.GetTitles]"
+					layoutpolicy_horizontal = expanding
+					spacing = 3
+
+					item = {
+						button_standard_list = {
+							name = "title_button"
+							layoutpolicy_horizontal = expanding
+							size = { 0 50 }
+							
+							# onclick = "[ToggleOnCoatOfArmsClick(Title.GetID)]"
+							onrightclick = "[DefaultOnCoatOfArmsRightClick(Title.GetID)]"
+							button_ignore = none
+							down = "[Title.IsShownInTitleView]"
+							
+							text_label_left = {
+								visible = "[Title.GetHolder.IsValid]"
+								text = "[Title.GetNameNoTooltip|U]"
+								parentanchor = vcenter|left
+								position = {50 0 }
+								default_format = "#high"
+								max_width = 270
+							}
+
+							text_label_left = {
+								visible = "[Not(Title.GetHolder.IsValid)]"
+								text = "[Title.GetBaseNameNoTierNoTooltip]"
+								parentanchor = vcenter|left
+								position = {50 0 }
+								default_format = "#low"
+								max_width = 270
+							}
+
+							coa_title_tiny = {
+								parentanchor = vcenter
+								position = {5 -1 }
+								blockoverride "crown" {
+									visible = "[Title.IsLanded]"
+								}
+							}
+
+							text_label_right = {
+								visible = "[And(Title.GetHolder.IsValid, Title.IsShownInTitleView)]"
+								text = "[Title.GetHolder.GetGovernment.GetNameWithIcon]"
+								# tooltip = "[Title.GetSpecialDescription]"
+								parentanchor = vcenter|right
+								position = { 0 0 }
+								max_width = 110
+								autoresize = yes
+								fontsize_min = 8
+							}
+							text_label_right = {
+								visible = "[And(Title.GetHolder.IsValid, Title.GetHolder.IsShownInCharacterWindow)]"
+								text = "[Title.GetHolder.GetUIFirstNameOnlyPossessiveNoTooltip]"
+								parentanchor = vcenter|right
+								position = { -10 0 }
+								default_format = "#ck_maa"
+								max_width = 100
+								autoresize = yes
+								fontsize_min = 9
+							}
+
+							onclick = "[GetScriptedGui('find_title_holding').Execute(GuiScope.SetRoot(Title.MakeScope).End)]"
+
+							# block "background_color" {
+							# 	background = {
+							# 		visible = "[And(Title.IsLanded, Or(Title.IsBarony,Title.IsCounty))]"
+							# 		texture = "[Title.GetProvince.GetHolding.GetIllustration]"
+							# 		alpha = 0.2
+							# 		using = Toast_Header
+							# 		fittype = centercrop
+							# 	}
+							# }
+							using = tooltip_below # left or right will go into other tooltip
+							tooltip = "[GetScriptedGui('debug_show_region').BuildTooltip(GuiScope.SetRoot(Title.MakeScope).End)]"
+							tooltip_visible = "[And(InDebugMode, Or(Title.IsBarony,Title.IsCounty))]"
+
+							onclick="[GetVariableSystem.Set( 'found_title', Title.GetKey )]"
+							blockoverride "button_standard_current" {
+								visible = "[And(Or(Title.IsCounty, Title.IsBarony),GetVariableSystem.HasValue('found_title', Title.GetKey))]"
+							}
+							# onclick="[Title.ToggleTitlePinned]"
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
