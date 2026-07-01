@@ -1528,25 +1528,72 @@ has_good_season_in_county_trigger = {
 
 # CK_STEPPE to be used in decision widgets
 expand_the_steppe_is_shown = {
+	save_temporary_scope_as = ruler
 	situation:the_great_steppe ?= {
 		any_situation_sub_region = {
-			region_is_adjacent = geographical_region:$REGION$
+			# show the other side anyway?
+			any_situation_sub_region_participant = {
+				this = scope:ruler
+			}
+			trigger_if = {
+				limit = {
+					this = situation:the_great_steppe.situation_sub_region:steppe_warband
+				}
+				NOR = { # do not re-add starting & overlapping imperial regions
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_empire_battania_frontier
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_southwest_central_empire
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_northwest_empire
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_central_empire
+					geographical_region:$REGION$ = geographical_region:region_warband_khergits
+				}
+				region_is_adjacent = geographical_region:$REGION$
+			}
+			trigger_else = {
+				region_is_adjacent = geographical_region:$REGION$
+			}
 		}
 	}
 }
 expand_the_steppe_is_valid = {
 	custom_tooltip = {
-		text = ck_steppe_expansion_tt
-		subject = geographical_region:$REGION$
-		situation:the_great_steppe ?= {
-			NOT = {
+		text = ck_steppe_expanded_already
+	# 	text = situation_sub_region_has_geographical_region
+	# 	subject = geographical_region:$REGION$
+	# 	object = 
+		NOT = {
+			situation:the_great_steppe ?= {
 				any_situation_sub_region = {
 					situation_sub_region_has_geographical_region = $REGION$
 				}
 			}
 		}
-		any_realm_province = {
-			geographical_region = $REGION$
+	}
+	custom_description = {
+		text = ck_steppe_expansion
+		subject = geographical_region:$REGION$
+		prev = {
+			any_realm_province = {
+				geographical_region = $REGION$
+			}
+		}
+	}
+}
+expand_the_steppe_eliminated = {
+	title:$FACTION$ = {
+		exists = previous_holder
+		trigger_if = {
+			limit = {
+				exists = holder
+			}
+			holder.top_overlord ?= prev
+		}
+		trigger_else = {
+			custom_description = {
+				text = DESTROY_TITLE
+				object = this
+				NOT = { any_claimant = {} }
+			}
+			custom_tooltip = NOT_ANY_CLAIMANT
 		}
 	}
 }

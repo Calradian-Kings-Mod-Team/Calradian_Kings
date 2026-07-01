@@ -6124,6 +6124,24 @@ expanding_steppe_effect = {
 			# tgp_silk_road_expand_steppe_effect = { SUB_REGION = transcaspia }
 			# tgp_silk_road_expand_steppe_effect = { SUB_REGION = occident }
 		}
+		scope:ck_steppe_expansion_southwest_central_empire = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = west
+				REGION = ck_steppe_expansion_southwest_central_empire
+			}
+		}
+		scope:ck_steppe_expansion_south_empire = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = west
+				REGION = ck_steppe_expansion_south_empire
+			}
+		}
+		scope:ck_steppe_expansion_southeast_empire = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = west
+				REGION = ck_steppe_expansion_southeast_empire
+			}
+		}
 
 		# Sturgia
 		scope:ck_steppe_expansion_tyal = {
@@ -6159,6 +6177,57 @@ expanding_steppe_effect = {
 			# tgp_silk_road_expand_steppe_effect = { SUB_REGION = transcaspia }
 			# tgp_silk_road_expand_steppe_effect = { SUB_REGION = occident }
 		}
+		scope:region_warband_tyvallia = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_tyvallia
+			}
+		}
+		scope:region_warband_swadia = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_swadia
+			}
+		}
+		scope:region_warband_vaegir = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_vaegir
+			}
+		}
+		scope:region_warband_nord_1 = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_nord_1
+			}
+		}
+		scope:region_warband_nord_2 = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_nord_2
+			}
+		}
+		scope:region_warband_khergits = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_khergits
+			}
+		}
+		scope:region_warband_rhodok = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_rhodok
+			}
+		}
+		scope:region_warband_sarranid = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_sarranid
+			}
+		}
+		fallback = {
+			debug_log_scopes = yes
+		}
 	}
 }
 
@@ -6167,6 +6236,66 @@ expanding_steppe_add_region_effect = {
         situation_sub_region:steppe_$SUB_REGION$ = {
         	add_geographical_region = $REGION$
         }
+
+		if = {
+			limit = {
+				years_from_game_start > 1
+			}
+			if = {
+				limit = { # root is unset when fired from history/game start
+					exists = root
+				}
+				root = {
+					add_prestige_experience = geographical_region:$REGION$.geographical_region_province_size 
+				}
+			}
+			hidden_effect = {
+				# add fertility to new region so they're not all wastelands
+				every_county_in_region = {
+					region = $REGION$
+					limit = {
+						use_county_fertility = yes
+						county_fertility <= 1
+					}
+					change_county_fertility = { 
+						value = { 2 8 }
+						every_county_province = {
+							add = 1
+							if = {
+								limit = {
+									OR = {
+										terrain = oasis
+										is_riverside_province = yes
+										is_lakeside_province = yes
+									}
+								}
+								add = 2
+							}
+							if = {
+								limit = {
+									OR = {
+										terrain = farmlands
+										terrain = floodplains
+										terrain = terraced_hills
+									}
+								}
+								add = 1
+							}
+							else_if = {
+								limit = {
+									OR = {
+										terrain = desert
+										terrain = mountains
+										terrain = desert_mountains
+									}
+								}
+								add = -1
+							}
+						}
+					}
+				}
+			}
+		}
     }
 }
 
