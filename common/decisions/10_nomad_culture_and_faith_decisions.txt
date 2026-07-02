@@ -3,8 +3,44 @@
 		reference = "gfx/interface/illustrations/event_scenes/mpo_temple_steppe.dds"
 	}
 	decision_group_type = nomad_minor
-	desc = embrace_tengriism_decision_desc
-	selection_tooltip = embrace_tengriism_decision_tooltip
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					OR = {
+						culture = { has_cultural_pillar = heritage_khiindai }
+						domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
+					}
+				}
+				desc = embrace_tenger_decision_guzzic
+			}
+			desc = embrace_tenger_decision
+		}
+	}
+	desc = {
+		desc = embrace_tenger_decision_desc
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					OR = {
+						culture = { has_cultural_pillar = heritage_khuzic }
+						domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+					}
+				}
+				desc = ck_steppe_events.0001.desc
+			}
+			triggered_desc = {
+				trigger = {
+					OR = {
+						culture = { has_cultural_pillar = heritage_khiindai }
+						domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
+					}
+				}
+				desc = ck_steppe_events.0002.desc
+			}
+		}
+	}
+	selection_tooltip = embrace_tenger_decision_tooltip
 
 	is_shown = {
 		is_playable_character = yes
@@ -15,32 +51,29 @@
 			domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
 			domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
 		}
-		NOR = {
-			faith = faith:khuzait_faith
-			faith = faith:arkits_faith
-		}
 		#Cheaper to just switch to domicile's tengriism
 		trigger_if = {
 			limit = {
-				exists = domicile.domicile_faith
+				domicile ?= { domicile_uses_culture_and_faith = yes }
 			}
-			NOT = { 
-				OR = {
-					domicile.domicile_faith = faith:khuzait_faith 
-					domicile.domicile_faith = faith:arkits_faith  ## CK_GREAT_HORDE CK_EAST - let's add like 1-2 more faiths but of the Great Horde variety
+			domicile.domicile_faith = {
+				NOT = {
+					has_doctrine = tenger_unreformed_faith_doctrine
 				}
 			}
 		}
 	}
 
 	is_valid_showing_failures_only = {
-		is_physically_able_adult = yes
-		is_at_war = no
-		custom_tooltip = {
-			text = not_of_a_steppe_faith_tt_ck
-			NOT = {
-				religion = religion:khuzait_religion
-			}
+		is_available_quick = {
+			adult = yes
+			alive = yes
+			imprisoned = no
+			incapable = no
+			at_war = no
+		}
+		faith ?= {
+			NOT = { has_doctrine = tenger_unreformed_faith_doctrine }
 		}
 	}
 
@@ -61,9 +94,206 @@
 			}
 		}
 	}
+	widget = {
+		gui = "decision_view_widget_option_list_generic"
+		controller = decision_option_list_controller
+		decision_to_second_step_button = "embrace_tenger_decision_button"
+		show_from_start = yes
 
+		item = {
+			value = embrace_khuzic
+			localization = embrace_khuzic
+			icon = "gfx/interface/icons/faith/tengri_reformed.dds"
+			is_shown = {
+				faith:khuzait_faith.num_county_followers > 0
+				OR = {
+					culture = { has_cultural_pillar = heritage_khuzic }
+					domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+				}
+			}
+			is_valid = {
+				ck_can_embrace_steppe_faith = { FAITH = faith:khuzait_faith }
+			}
+			ai_chance = {
+				value = faith:khuzait_faith.fervor
+			}
+		}
+		item = {
+			value = embrace_arkits
+			localization = embrace_arkits
+			icon = "gfx/interface/icons/faith/faith_arkits_reformed.dds"
+			is_shown = {
+				faith:arkits_faith.num_county_followers > 0
+				OR = {
+					culture = { has_cultural_pillar = heritage_khuzic }
+					domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+				}
+			}
+			is_valid = {
+				ck_can_embrace_steppe_faith = { FAITH = faith:arkits_faith }
+			}
+			ai_chance = {
+				value = faith:arkits_faith.fervor
+			}
+		}
+		item = {
+			value = embrace_iltan
+			localization = embrace_iltan
+			icon = "gfx/interface/icons/faith/faith_iltan_reformed.dds"
+			is_shown = {
+				OR = {
+					has_trait = giant # how virtuous of you
+					culture = { has_cultural_pillar = heritage_khuzic }
+					domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+				}
+			}
+			is_valid = {
+				ck_can_embrace_steppe_faith = { FAITH = faith:iltan }
+			}
+			ai_chance = {
+				value = faith:iltan.fervor
+			}
+		}
+		item = {
+			value = embrace_mandate
+			localization = embrace_mandate
+			icon = "gfx/interface/icons/faith/faith_kholradyan_reformed.dds"
+			is_shown = {
+				OR = {
+					religion = religion:calradian_religion
+					culture = { has_cultural_pillar = heritage_calradian }
+					domicile.domicile_culture = { has_cultural_pillar = heritage_calradian }
+				}
+			}
+			is_valid = {
+				ck_can_embrace_steppe_faith = { FAITH = faith:kholradya }
+			}
+			ai_chance = {
+				value = faith:kholradya.fervor
+			}
+		}
+		item = {
+			value = embrace_xor
+			localization = embrace_xor
+			icon = "gfx/interface/icons/faith/faith_xorheguzz_1.dds"
+			is_shown = {
+				OR = {
+					culture = { has_cultural_pillar = heritage_khiindai }
+					domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
+				}
+			}
+			is_valid = {
+				ck_can_embrace_steppe_faith = { FAITH = faith:xorheguzz }
+			}
+			ai_chance = {
+				value = faith:xorheguzz.fervor
+			}
+		}
+		item = {
+			value = embrace_yol
+			localization = embrace_yol
+			icon = "gfx/interface/icons/faith/faith_guzzic_1.dds"
+			is_shown = {
+				OR = {
+					culture = { has_cultural_pillar = heritage_khiindai }
+					domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
+				}
+			}
+			is_valid = {
+				ck_can_embrace_steppe_faith = { FAITH = faith:yolguzz_faith }
+			}
+			ai_chance = {
+				value = faith:yolguzz_faith.fervor
+			}
+		}
+	}
 	effect = {
-		trigger_event = ck_steppe_events.0001
+		play_sound_effect = "event:/DLC/CE2/Events/Event_Images/mpo_temple_steppe"
+		switch = {
+			trigger = yes
+			scope:embrace_khuzic = {
+				faith:khuzait_faith = { save_scope_as = conversion_faith }
+			}
+			scope:embrace_arkits = {
+				faith:arkits_faith = { save_scope_as = conversion_faith }
+			}
+			scope:embrace_iltan = {
+				faith:iltan = { save_scope_as = conversion_faith }
+			}
+			scope:embrace_mandate = {
+				faith:kholradya = { save_scope_as = conversion_faith }
+			}
+			scope:embrace_yol = {
+				add_trait = loyal
+				faith:yolguzz_faith = { save_scope_as = conversion_faith }
+			}
+			scope:embrace_xor = {
+				add_trait = disloyal
+				faith:xorheguzz = { save_scope_as = conversion_faith }
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:conversion_faith
+			}
+			set_character_faith = scope:conversion_faith
+			domicile ?= {
+				domicile_culture = { save_scope_as = domicile_culture }
+				set_domicile_faith = scope:conversion_faith
+			}
+			every_held_title = {
+				limit = {
+					tier = tier_county
+					is_landless_type_title = no
+					culture = scope:domicile_culture
+				}
+				set_county_faith = scope:conversion_faith
+			}
+			# Spouses/concubines convert
+			every_consort = {
+				limit = {
+					is_courtier_of = root
+					NOT = { faith = root.faith }
+				}
+				if = {
+					limit = {
+						faith = scope:conversion_faith
+					}
+					add_opinion = {
+						target = liege
+						modifier = pious_opinion
+						opinion = 10
+					}
+				}
+				else = {
+					add_to_list = spouses_and_family_to_convert
+				}
+			}
+			# Family at court also convert
+			every_close_or_extended_family_member = {
+				limit = {
+					is_courtier_of = root
+					NOT = { faith = root.faith }
+				}
+				if = {
+					limit = {
+						faith = scope:conversion_faith
+					}
+					add_opinion = {
+						target = liege
+						modifier = pious_opinion
+						opinion = piety_level
+					}
+				}
+				else = {
+					add_to_list = spouses_and_family_to_convert
+				}
+			}
+			every_in_list = {
+				list = spouses_and_family_to_convert
+				set_character_faith = scope:conversion_faith
+			}
+		}
 	}
 	
 	ai_check_interval = 0
@@ -480,7 +710,7 @@ enforce_traditions_decision = {
 		is_physically_able_adult = yes
 		is_at_war = no
 		custom_tooltip = {
-			text = same_heritage_or_steppe_heritage_tt
+			text = same_heritage_or_steppe_heritage_ck_tt
 			culture = {
 				OR = {
 					has_cultural_pillar = heritage_khiindai
