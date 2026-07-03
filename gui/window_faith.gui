@@ -49,7 +49,10 @@ window = {
 			layoutpolicy_vertical = fixed
 
 			blockoverride "size" {
-				size = { 100% 143 }
+				size = "[Select_CVector2f(GetVariableSystem.HasValue( 'faith_view_tabs', 'holy_sites' ), '(CVector2f)610,143', '(CVector2f)610,426' ) ]"
+				# size = { 100% 500 }
+				# min_height = "[Select_int32(GetVariableSystem.HasValue( 'faith_view_tabs', 'holy_sites' ), '(int32)143', '(int32)426')]"
+				# max_height = "[Select_int32(GetVariableSystem.HasValue( 'faith_view_tabs', 'holy_sites' ), '(int32)143', '(int32)426')]"
 			}
 
 			blockoverride "header_text"
@@ -69,6 +72,7 @@ window = {
 			blockoverride "header_label_visibility"
 			{
 				icon = {
+					position = { 0 -20 }
 					visible = "[Faith.IsUnreformed]"
 					size = { 100% 100% }
 					texture = "gfx/interface/skinned/component_decoration/decoration_migration_header.dds"
@@ -124,6 +128,7 @@ window = {
 				fittype = centercrop
 				mirror = horizontal
 				alpha = "[Divide_CFixedPoint(Faith.GetFervor,'(CFixedPoint)150')]" # 0 to 66% visible
+				using = Background_Title
 			}
 
 			hbox = {
@@ -262,13 +267,13 @@ window = {
 				}
 			}
 
-			text_single = {
+			text_label_center = {
 				visible = "[And( Not( Faith.GetReligion.HasPaganRoots ), Not( Faith.IsUnreformed ) )]"
 				text = "FAITH_VIEW_SUBHEADING"
 				align = center
 				parentanchor = top|hcenter
 				position = {0 40}
-				alpha = 0.9
+				# alpha = 0.9
 			}
 
 			text_label_center = {
@@ -294,7 +299,6 @@ window = {
 		hbox = {
 			layoutpolicy_horizontal = expanding
 			name = "tabs"
-
 			button_tab = {
 				shortcut = "tab_1"
 				onclick = "[GetVariableSystem.Set( 'faith_view_tabs', 'beliefs' )]"
@@ -308,6 +312,9 @@ window = {
 					max_width = 220
 				}
 
+				background = {
+					texture = "gfx/interface/window_scheme/scheme_panel_header_banner.dds"
+				}
 				blockoverride "icon_visible" {}
 
 				blockoverride "tab_icon"
@@ -329,7 +336,10 @@ window = {
 					text = "FAITH_HOLY_SITES"
 					max_width = 220
 				}
-
+				background = {
+					texture = "gfx/interface/window_scheme/scheme_panel_header_banner_red.dds"
+					mirror = horizontal
+				}
 				blockoverride "icon_visible" {}
 
 				blockoverride "tab_icon"
@@ -369,8 +379,7 @@ window = {
 
 				hbox = {
 					name = "doctrines_grid_core_tenets"
-					spacing = 20
-
+					spacing = 16
 					state = {
 						name = "faith_view_refresh"
 						using = Animation_Refresh_FadeOut
@@ -1027,6 +1036,7 @@ window = {
 				vbox = {
 					name = "holy_sites"
 					layoutpolicy_horizontal = expanding
+					layoutpolicy_vertical = growing
 
 					text_multi = {
 						datacontext = "[FaithWindow.GetFaith]"
@@ -1045,10 +1055,13 @@ window = {
 						}
 
 						text = FAITH_HOLY_SITE_EXPLANATION
-						default_format = "#weak"
+						default_format = "#ENC"
 						align = center
 						max_width = 560
 						autoresize = yes
+						background = {
+							using = Background_Area_With_Header_Dark
+						}
 					}
 
 					datamodel = "[FaithWindow.GetHolySites]"
@@ -1065,13 +1078,19 @@ window = {
 								name = "faith_list_item"
 								datacontext = "[HolySiteItem.GetHolySite]"
 								datacontext = "[HolySite.GetBarony]"
+								datacontext = "[Title.GetHolderOrCountyHolder]"
+								tooltip = "FAITH_HOLY_SITE_HOLDER_TOOLTIP"
 								margin_right = 15
 								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 
 								background = {
-									using = Background_Area
-									alpha = 0.2
+									using = Background_Area_Holding
+									alpha = 1
+									fittype = start
+									margin_left = 15
+									margin_top = -20
+									# framesize = { 100% 100% }
 								}
 
 								vbox = {
@@ -1124,9 +1143,8 @@ window = {
 									}
 
 									hbox = {
-										datacontext = "[Title.GetHolder]"
-										tooltip = "FAITH_HOLY_SITE_HOLDER_TOOLTIP"
-
+										datacontext = "[Title.GetHolderOrCountyHolder]"
+										# tooltip_visible = "[Title.HasHolder]" # avoid None of tooltipping
 										background = {
 											visible = "[Not( HolySiteItem.IsHeldByFaith )]"
 											margin_top = 3
@@ -1145,11 +1163,11 @@ window = {
 											alpha = 0.8
 										}
 
-										highlight_icon = {
+										button_religion_icon = {
 											name = "faith_button"
 											datacontext = "[Title.GetDeJureLiege.GetHolder.GetFaith]"
-											size = { 45 45 }
-
+											size = { 50 50 }
+											tooltipwidget = { faith_tooltip_ruler_designer = {} }
 											texture = "[Faith.GetIcon]"
 										}
 
@@ -1159,7 +1177,7 @@ window = {
 										}
 									}
 
-									expand = {}
+									# expand = {}
 								}
 
 								vbox = {
@@ -1220,6 +1238,7 @@ window = {
 
 								button_go_to_my_location = {
 									onclick = "[DefaultOnCoatOfArmsRightClick(Title.GetID)]"
+									onclick = "[GetScriptedGui('find_title_holding').Execute(GuiScope.SetRoot(Title.MakeScope).End)]"
 									tooltip = "GOTO_PROVINCE"
 								}
 							}
