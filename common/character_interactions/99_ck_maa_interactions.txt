@@ -3,12 +3,17 @@
 	interface_priority = 40
 	common_interaction = yes
 	category = interaction_category_laamp
+	# cooldown = { years = 1 }
 	cooldown_against_recipient = { years = 5 }
 
 	greeting = positive
-
+	popup_on_receive = yes
+	notification_text = request_laamp_sent
+	answer_accept_key = bp2_yearly.2020.a
+	answer_reject_key = bp2_yearly.2020.b
+	
 	desc = request_laamp_use_troops_desc
-
+	options_heading = request_laamp_use_troops_heading
 	is_shown = {
 		scope:actor = {
 			is_landed = yes
@@ -16,11 +21,13 @@
 				has_variable = recruits_local_troops
 				ck_unique_troops_trigger = yes
 			}
+			maa_regiments_count > 0
 		}
 		scope:recipient = {
 			is_landless_ruler = yes
 			government_has_flag = cannot_be_vassal_or_liege
-			NOR = {
+			NOR = { # holy order has fixed list of maa types + fallbacks, not cultural ones?
+				government_has_flag = government_is_holy_order
 				has_variable = recruits_local_troops
 				ck_shares_unique_troops = { CHARACTER = scope:actor }
 			}
@@ -34,6 +41,47 @@
 				imprisoned = no
 				at_war = no
 			}
+			trigger_if = {
+				limit = {
+					is_landless_adventurer = yes
+				}
+				# has_contact = scope:actor
+				# ep3_laamp_diplo_range_trigger = {
+				# 	TARGET = scope:actor
+				# 	LAAMP = scope:recipient
+				# }
+				custom_tooltip = {
+					text = the_wake_1
+					NOT = {
+						is_laamp_exiled_from_province_trigger = {
+							PROVINCE = scope:actor.capital_province
+							LAAMP = scope:recipient
+						}
+					}
+				}
+			}
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_mercenary
+				}
+				custom_tooltip = {
+					text = MERCENARY_COMPANY_NOT_HIRED_BY_ME
+					scope:actor = { 
+						any_hired_mercenary = {
+							mercenary_company_leader = scope:recipient
+						}
+					}
+				}
+			}
+			# trigger_if = {
+				# limit = {
+				# 	scope:recipient = { government_has_flag = government_is_holy_order }
+				# }
+				# scope:recipient.faith = scope:actor.faith
+				# any_patroned_holy_order = {
+				# 	leader = scope:recipient
+				# }
+			# }
 		}
 		scope:actor = { 
 			has_raised_armies = no
@@ -42,47 +90,7 @@
 				imprisoned = no
 				at_war = no
 			}
-			trigger_if = {
-				limit = {
-					scope:recipient = { is_landless_adventurer = yes }
-				}
-				is_contact_of = scope:recipient
-				ep3_laamp_diplo_range_trigger = {
-					TARGET = scope:actor
-					LAAMP = scope:recipient
-				}
-			}
-			trigger_if = {
-				limit = {
-					scope:recipient = { government_has_flag = government_is_mercenary }
-				}
-				custom_tooltip = {
-					text = MERCENARY_COMPANY_NOT_HIRED_BY_ME
-					any_hired_mercenary = {
-						mercenary_company_leader = scope:recipient
-					}
-				}
-			}
-			trigger_if = {
-				limit = {
-					scope:recipient = { government_has_flag = government_is_holy_order }
-				}
-				scope:recipient.faith = scope:actor.faith
-				# any_patroned_holy_order = {
-				# 	leader = scope:recipient
-				# }
-			}
 		}
-		# # Adventurers can't join wars in places they're exiled from.
-		# custom_tooltip = {
-		# 	text = the_wake_1
-		# 	NOT = {
-		# 		is_laamp_exiled_from_province_trigger = {
-		# 			PROVINCE = scope:actor.capital_province
-		# 			LAAMP = scope:recipient
-		# 		}
-		# 	}
-		# }
 	}
 
 	target_type = men_at_arms
@@ -90,18 +98,20 @@
 	can_be_picked_regiment = {
 		scope:target ?= {
 			maa_size > 1
-			NOT = {
-				is_unit_type = siege_weapon
-			}
+
 		}
 	}
 	has_valid_target_showing_failures_only = {
 		scope:target ?= {
+			maa_size > 1
+			NOT = {
+				is_unit_type = siege_weapon
+			}
 			# scope:actor ?= { has_access_to_maa = prev }
 			is_raised = no
-			custom_tooltip = {
-				text = request_laamp_troop_mismatch
-				# object = regiment_owner
+			# custom_tooltip = { # vbox_list_interaction_maa_selection doesn't show tooltip/have enabled state
+			# 	text = request_laamp_troop_mismatch
+			# 	object = regiment_owner
 				trigger_if = {
 					limit = {
 						regiment_owner = { has_variable = recruits_local_troops }
@@ -111,7 +121,7 @@
 				trigger_else = {
 					ck_regiment_match_culture = { CULTURE = regiment_owner.culture.var:troops_culture}
 				}
-			}
+			# }
 		}
 	}
 
@@ -161,13 +171,6 @@
 
 	on_accept = {
 		scope:recipient = {
-			culture ?= {
-				change_cultural_acceptance = {
-					target = scope:actor.culture
-					desc = recruits_local_troops
-					value = 1
-				}
-			}
 			if = {
 				limit = {
 					is_landless_adventurer = yes
@@ -176,6 +179,14 @@
 					check_can_recruit = no
 					type_of = scope:target
 					size = 1
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_contact = scope:actor
+						}
+					}
+					add_contact = scope:actor
 				}
 				domicile ?= {
 					if = {
@@ -213,16 +224,18 @@
 				limit = {
 					scope:actor = { has_variable = recruits_local_troops }
 				}
-				set_variable = {
-					name = recruits_local_troops
-					value = scope:actor.var:recruits_local_troops
+				scope:actor.var:recruits_local_troops = {
+					save_scope_as = liege_troops
 				}
 			}
 			else = {
-				set_variable = {
-					name = recruits_local_troops
-					value = scope:actor.culture.var:troops_culture
+				scope:actor.culture.var:troops_culture = {
+					save_scope_as = liege_troops
 				}
+			}
+			set_variable = {
+				name = recruits_local_troops
+				value = scope:liege_troops
 			}
 			every_knight = {
 				# custom = every_knight_troops_approval
@@ -244,6 +257,14 @@
 				}
 			}
 		}
+		# worded the other way around because it doesn't show x-y acceptance
+		scope:actor.culture = {
+			change_cultural_acceptance = {
+				target = scope:recipient.culture
+				desc = request_laamp_troops_used
+				value = 1
+			}
+		}
 	}
 
 	on_decline = {
@@ -261,53 +282,169 @@
 			desc = AI_OPINION_REASON
 		}
 		modifier = {
-			add = 40
-			scope:actor = {
-				any_claim = {
-					tier >= tier_kingdom
-					holder = {
-						save_temporary_scope_as = claim_holder
-					}
-				}
-				prestige_level > scope:claim_holder.prestige_level
+			add = {
+				value = "culture.cultural_acceptance(scope:actor.culture)"
+				subtract = 50
+				divide = 4
+				round = yes
 			}
-			desc = AI_REASON_LEGITIMIST_HIGHER_PRESTIGE
+			scope:actor = {
+				NOT = { has_variable = recruits_local_troops }
+			# 	culture.culture_head ?= this
+			}
+			desc = CULTURAL_ACCEPTANCE
 		}
 		modifier = {
-			add = 60
-			scope:actor = {
-				has_hook = scope:recipient
+			faith = {
+				faith_hostility_level = {
+					target = scope:actor.faith
+					value >= faith_astray_level
+				}
 			}
-			desc = YOU_HAVE_HOOK_REASON
+			add = {
+				value = "faith.faith_hostility_level(scope:actor.faith)"
+				multiply = -10
+			}
+			desc = FAITH_HOSTILITY_LEVEL
 		}
 		modifier = {
 			add = 10
-			scope:actor.dynasty = scope:recipient.dynasty
+			dynasty ?= scope:actor.dynasty
 			desc = BF_AI_SAME_DYNASTY_REASON
 		}
 		modifier = {
 			add = 20
-			scope:actor.house = scope:recipient.house
+			house ?= scope:actor.house
 			desc = IS_SAME_HOUSE_REASON
 		}
 		modifier = {
+			add = 15
+			scope:actor = {
+				is_contact_of = scope:recipient
+			}
+			desc = has_contact_reason
+		}
+		modifier = {
 			add = 20
-			scope:recipient = { has_trait = ambitious }
+			has_trait = ambitious
 			desc = RECIPIENT_IS_AMBITIOUS
 		}
 		modifier = {
-			add = 10
-			scope:recipient = { has_trait = just }
-			desc = RECIPIENT_IS_JUST
+			desc = DEMAND_SUBMISSION_RECIPIENT_IS_PARANOID
+			add = -10
+			has_trait = paranoid
+		}
+		modifier = {
+			desc = DEMAND_SUBMISSION_RECIPIENT_IS_ARROGANT
+			add = -20
+			has_trait = arrogant
+			ai_boldness > 0
+		}
+		modifier = {
+			desc = DEMAND_SUBMISSION_RECIPIENT_IS_TRUSTING
+			add = 15
+			has_trait = trusting
 		}
 		modifier = {
 			add = 10
-			scope:recipient = { has_trait = greedy }
+			has_trait = greedy
 			desc = RECIPIENT_IS_GREEDY
 		}
+		## education
 		modifier = {
-			add = 40 #so legitimist AI can get lucky
-			scope:actor = { is_ai = yes }
+			desc = recipient_is_martial
+			add = martial
+			has_trait = education_martial
+		}
+		modifier = {
+			desc = recipient_is_learning
+			add = { value = 0 subtract = learning }
+			has_trait = education_learning
+		}
+		## Dread
+		modifier = {
+			add = intimidated_halved_reason_value
+			has_dread_level_towards = {
+				target = scope:actor
+				level = 1
+			}
+			desc = INTIMIDATED_REASON
+		}
+		modifier = {
+			add = cowed_halved_reason_value
+			has_dread_level_towards = {
+				target = scope:actor
+				level = 2
+			}
+			desc = COWED_REASON
+		}
+		# Prestige (level)
+		modifier = {
+			add = 20
+			prestige_level < scope:actor.prestige_level
+			desc = AI_RELATIVE_PRESTIGE_LEVEL_REASON
+		}
+		modifier = {
+			add = 50
+			desc = camp_purpose_mercenaries_reason
+			has_realm_law = camp_purpose_mercenaries
+		}
+		# #You are criminal scum
+		# modifier = {
+		# 	add = -50
+		# 	desc = PROCURE_ESTATE_BRIGANDS_REASON
+		# 	scope:recipient = {
+		# 		has_realm_law = camp_purpose_brigands
+		# 	}
+		# }
+		modifier = {
+			add = 25
+			desc = PROCURE_ESTATE_LEGITIMISTS_REASON
+			has_realm_law = camp_purpose_legitimists
+		}
+		modifier = {
+			add = {
+				value = -100
+				add = age
+			}
+			desc = recipient_is_claimant
+			character_is_wb_claimant = yes
+		}
+		# scope:target weights
+		modifier = {
+			add = culture_ai_weight_skirmishers
+			desc = ai_li_accept
+			scope:target = { is_unit_type = skirmishers }
+		}
+		modifier = {
+			add = culture_ai_weight_pikemen
+			desc = ai_pm_accept
+			scope:target = { is_unit_type = pikemen }
+		}
+		modifier = {
+			add = culture_ai_weight_heavy_infantry
+			desc = ai_hi_accept
+			scope:target = { is_unit_type = heavy_infantry }
+		}
+		modifier = {
+			add = culture_ai_weight_shock
+			desc = ai_si_accept
+			scope:target = { is_unit_type = shock_troops }
+		}
+		modifier = {
+			add = culture_ai_weight_archers
+			desc = ai_bm_accept
+			scope:target = { is_unit_type = archers }
+		}
+		modifier = {
+			add = culture_ai_weight_light_cavalry
+			desc = ai_lc_accept
+			scope:target = { is_unit_type = light_cavalry }
+		}
+		modifier = {
+			add = culture_ai_weight_heavy_cavalry
+			desc = ai_hc_accept
+			scope:target = { is_unit_type = heavy_cavalry }
 		}
 	}
 
@@ -491,7 +628,7 @@ debug_yoink_troops = {
 		scope:actor = {
 			open_view = {
 				view = military
-				data = scope:recipient
+				data = scope:actor
 				player = scope:actor
 			}
 			open_view_data = {

@@ -707,8 +707,7 @@ mpo_valid_dead_husband_trigger = {
 			has_contagious_deadly_disease_trigger = yes
 			has_trait = incapable
 			is_ruler = yes
-			has_trait = celibate
-			has_trait = devoted
+			has_trait_with_flag = can_not_marry
 		}
 		save_temporary_scope_as = widow
 	}
@@ -772,13 +771,7 @@ mpo_valid_widow_marrier_trigger = {
 	
 	OR = {
 		has_trait = nomadic_philosophy
-		culture = {
-			has_cultural_pillar = heritage_khiindai
-		}
-		culture = {
-			has_cultural_pillar = heritage_khuzic
-		}
-		faith.religion = faith:khuzait_faith.religion
+		ck_original_nomad_philosophy = yes
 	}
 	#Can have multiple wives or concubines
 	faith = {
@@ -789,11 +782,7 @@ mpo_valid_widow_marrier_trigger = {
 	}
 	is_male = yes
 	is_adult = yes
-	NOR = {
-		has_trait = celibate
-		has_trait = eunuch
-		has_trait = devoted
-	}
+	NOT = { has_trait_with_flag = can_not_marry }
 	#Has a free slot for a wife or concubine
 	OR = {
 		allowed_more_spouses = yes
@@ -804,7 +793,22 @@ mpo_valid_widow_marrier_trigger = {
 		relation_with_character_is_incestuous_in_my_faith_trigger = { CHARACTER = scope:widow }
 	}
 }
-
+# CK_STEPPE
+ck_original_nomad_philosophy = {
+	OR = {
+		culture ?= {
+			OR = {
+				has_cultural_pillar = heritage_khuzic
+				has_cultural_pillar = heritage_khiindai
+				has_cultural_pillar = heritage_lir_ovus
+			}
+		}
+		# and faith is still east-steppe unreformed?
+		religion ?= religion:khuzait_religion
+		religion ?= religion:guzzic_religion
+		# has_trait = nomadic_philosophy
+	}
+}
 mpo_nomads_camel_culture_trigger = {
 	culture = {
 		OR = {
@@ -932,7 +936,7 @@ mpo_can_recruit_nomad_maa_trigger = {
 		has_trait = nomadic_philosophy
 	}
 }
-
+# CK_NAHASA
 mpo_can_recruit_desert_nomad_maa_trigger = {
 	# do not check for innovation/has_access_to_maa
 	culture = { has_cultural_pillar = heritage_nahasi }
@@ -1588,6 +1592,31 @@ has_good_season_in_county_trigger = {
 				sub_region_current_phase = situation_steppe_warm_nights_season
 				sub_region_current_phase = situation_steppe_sky_blessing_season
 			}
+		}
+	}
+}
+
+# CK_STEPPE to be used in decision widgets
+expand_the_steppe_is_shown = {
+	situation:the_great_steppe ?= {
+		any_situation_sub_region = {
+			region_is_adjacent = geographical_region:$REGION$
+		}
+	}
+}
+expand_the_steppe_is_valid = {
+	custom_tooltip = {
+		text = ck_steppe_expansion_tt
+		subject = geographical_region:$REGION$
+		situation:the_great_steppe ?= {
+			NOT = {
+				any_situation_sub_region = {
+					situation_sub_region_has_geographical_region = $REGION$
+				}
+			}
+		}
+		any_realm_province = {
+			geographical_region = $REGION$
 		}
 	}
 }

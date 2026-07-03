@@ -231,39 +231,157 @@ mpo_misc.0001 = {
 		# 	leave_behind_heritage_culture_effect = { CULTURE = culture:musarti }
 		# }
 		### CK_EASTWOOD CK_STEPPE CK_WEST_NAHASA- IMPORTANT!!!! NEED TO FIX THIS TO BE OF THE PROPER CULTURES
-		# Divergences are interesting, and the steppe is the perfect place for them.
-		# But avoid tiny, tiny divergences of less than 3 Counties.
-		if = {
-			limit = {
-				exists = scope:large_divergence_chance
-				any_in_list = {
-					list = old_held_titles
-					count >= 3
-				}
+		# else_if = {
+		# 	limit = {
+		# 		scope:old_capital_county.title_province = {
+		# 			geographical_region = world_asia_shiwei_steppe
+		# 		}
+		# 	}
+		# 	leave_behind_heritage_culture_effect = { CULTURE = culture:shiwei }
+		# }
+		# else_if = {
+		# 	limit = {
+		# 		scope:old_capital_county.title_province = {
+		# 			geographical_region = world_asia_khitan_steppe
+		# 		}
+		# 	}
+		# 	leave_behind_heritage_culture_effect = { CULTURE = culture:khitan }
+		# }
+		# else_if = {
+		# 	limit = {
+		# 		scope:old_capital_county.title_province = {
+		# 			geographical_region = dlc_mpo_steppe_east_buryatia_addon
+		# 		}
+		# 	}
+		# 	leave_behind_heritage_culture_effect = { CULTURE = culture:buryat }
+		# }
+		# else_if = {
+		# 	limit = {
+		# 		scope:old_capital_county.title_province = {
+		# 			geographical_region = dlc_mpo_steppe_east_andong_addon
+		# 		}
+		# 	}
+		# 	leave_behind_heritage_culture_effect = { CULTURE = culture:jurchen }
+		# }
+		else_if = {
+			limit = { # put this before the broader west nahasa region
+				scope:old_capital_county.empire ?= title:e_west_nahasa
 			}
-			random = {
-				chance = 0 #50 - disabled for now until we know if it feels good
-				scope:old_capital_county.holder = {
-					add_character_flag = suppress_culture_notifications_and_achievements
-					create_divergent_culture = yes
-					remove_character_flag = suppress_culture_notifications_and_achievements
-				}
-			}
+			leave_behind_heritage_culture_effect = { CULTURE = culture:mgarren }
 		}
 		else_if = {
 			limit = {
-				exists = scope:small_divergence_chance
-				any_in_list = {
-					list = old_held_titles
-					count >= 3
+				scope:old_capital_county.title_province = {
+					OR = {
+						geographical_region = world_nahasa_east
+						geographical_region = nahasan_desert_nomad_east
+					}
+				}
+			}
+			leave_behind_heritage_culture_effect = { CULTURE = culture:nahrawi }
+		}
+		else_if = {
+			limit = {
+				scope:old_capital_county.title_province = {
+					geographical_region = nahasan_desert_nomad
+				}
+			}
+			leave_behind_heritage_culture_effect = { CULTURE = culture:tamari }
+		}
+		else_if = {
+			limit = {
+				scope:old_capital_county.title_province = {
+					geographical_region = region_warband
+				}
+			}
+			leave_behind_heritage_culture_effect = { CULTURE = culture:khergit }
+		}
+		# Everything Else: Turkic Heritage (Oghuz)
+		else = {
+			leave_behind_heritage_culture_effect = { CULTURE = culture:khuzait }
+		}
+		# Divergences are interesting, and the steppe is the perfect place for them.
+		# But avoid tiny, tiny divergences of less than 3 Counties.
+
+		if = {
+			limit = {
+				has_game_rule = ck_nomad_divergence_on
+				OR = {
+					exists = scope:small_divergence_chance
+					exists = scope:large_divergence_chance
+				}
+				OR = {
+					has_game_rule = relaxed_divergent_culture_ai_frequency
+					list_size = {
+						name = old_held_titles
+						value >= 3
+					}
+				}
+				scope:old_capital_county.holder ?= {
+					trigger_if = {
+						limit = {
+							is_ai = yes
+						}
+						can_diverge_excluding_cost = yes
+					}
 				}
 			}
 			random = {
-				chance = 0 #10 - disabled for now until we know if it feels good
+				chance = {
+					value = 0
+					if = {
+						limit = {
+							exists = scope:large_divergence_chance
+						}
+						add = 50
+					}
+					else_if = {
+						limit = {
+							exists = scope:small_divergence_chance
+						}
+						add = 10
+					}
+					scope:old_capital_county.holder = {
+						switch = {
+							trigger = has_realm_law
+							nomadic_authority_5 = { add = -5 }
+							nomadic_authority_4 = { add = -3 }
+							nomadic_authority_3 = { add = -1 }
+							nomadic_authority_2 = { add = 1 }
+							nomadic_authority_1 = { add = 3 }
+						}
+						if = {
+							limit = {
+								is_ai = yes
+							}
+							multiply = divergence_yearly_chance
+						}
+					}
+				}
 				scope:old_capital_county.holder = {
 					add_character_flag = suppress_culture_notifications_and_achievements
-					create_divergent_culture = yes
-					remove_character_flag = suppress_culture_notifications_and_achievements
+					culture ?= {
+						save_temporary_scope_as = original_character_culture
+					}
+					create_divergent_culture_with_side_effects_excluding_cost = yes # this one can fail silently
+					culture ?= {
+						save_temporary_scope_as = new_culture
+					}
+					if = {
+						limit = {
+							scope:new_culture != scope:original_character_culture
+						}
+						save_temporary_scope_as = ruler
+						if = {
+							limit = {
+								scope:new_culture.free_tradition_slot >= 0
+							}
+							scope:new_culture ?= {
+								remove_random_culture_tradition = yes  # whoops dropped this on the way out
+							}
+						}
+						remove_character_flag = suppress_culture_notifications_and_achievements
+					}
 				}
 			}
 		}

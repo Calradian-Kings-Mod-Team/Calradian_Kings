@@ -248,3 +248,73 @@
 		NOT = { exists = global_var:custom_map_mode_changing }
 	}
 }
+
+find_title_holding = {
+	scope = landed_title
+	is_valid = {
+		# is_landless_type_title = no
+		# exists = title_province
+	}
+	effect = {
+		if = {
+			limit = {
+				tier <= tier_county
+			}
+			title_province ?= {
+				open_view_data = {
+					view = holding_view
+				}
+			}
+		}
+		else = {
+			open_view_data = {
+				view = title_view_window
+			}
+		}
+	}
+}
+debug_show_region = {
+	scope = landed_title
+	effect = {
+		custom_tooltip = debug_region_title
+		save_temporary_scope_as = target
+		every_geographical_region = {
+			save_temporary_scope_as = region
+			# limit = { # it's possible for there to be single-barony regions
+			# 	any_county_in_region = {
+			# 		region = scope:region
+			# 		count > 0
+			# 	}
+			# }
+			if = {
+				limit = {
+					trigger_if = {
+						limit = {
+							scope:target = {
+								exists = title_province
+							}
+						}
+						scope:target.title_province ?= {
+							geographical_region = scope:region
+						}
+					} # this is applicable for recipient_domain_titles
+					trigger_else = { # check the title_capital_county.title_province?
+						any_county_in_region = {
+							region = scope:region
+							scope:target = {
+								is_de_jure_liege_or_above_target = prev
+							}
+						}
+					}
+				}
+				custom_description_no_bullet = {
+					text = debug_show_regions
+					subject = scope:region
+					value = geographical_region_county_size
+					# object = scope:target
+				}
+			}
+		}
+	}
+
+}

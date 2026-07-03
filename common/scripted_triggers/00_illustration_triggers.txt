@@ -121,7 +121,8 @@ graphical_wilderness_steppe_trigger = {
 			OR = {
 				geographical_region = world_steppe
 				geographical_region = region_darshi_west
-				geographical_region = world_steppe_khergits
+				geographical_region = region_warband_khergits
+				geographical_region = world_steppe_khergits # this is just the (un-expanded) borders
 			}
 		}
 	}
@@ -831,7 +832,36 @@ steppe_building_gfx_use_khiindai_camp_character_trigger = {
 		}
 	}
 }
-
+adventurer_mercenary_background_trigger = {
+	OR = {
+		AND = {
+			government_has_flag = government_is_landless_adventurer
+			OR = {
+				has_realm_law = camp_purpose_mercenaries
+				liege ?= { has_realm_law = camp_purpose_mercenaries }
+			}
+		}
+		government_has_flag = government_is_mercenary
+		# primary_title ?= { is_mercenary_company = yes }
+		# employer.primary_title ?= { is_mercenary_company = yes }
+	}
+	is_available_quick = {
+		travel = no
+		activity = no
+	}
+}
+# if you are imprisoned, host != employer/liege
+adventurer_steppe_background_trigger = {
+	host ?= {
+		government_has_flag = government_is_landless_adventurer
+		culture = { has_graphical_steppe_culture_group_trigger = yes }
+	}
+	is_available_quick = {
+		imprisoned = no
+		activity = no
+		travel = no
+	}
+}
 # catchall to shorten the code inside ingame.txt
 secondary_background_trigger = {
 	OR = {
@@ -858,8 +888,52 @@ secondary_background_trigger = {
 			$TRIGGER$ = yes
 		}
 		liege ?= {
-			diarch ?= this
+			# has_active_diarchy = yes
+			diarch ?= prev
 			$TRIGGER$ = yes
+		}
+	}
+}
+# doesn't check for culture/building_gfx etc
+throne_county_trigger = {
+	trigger_if = {
+		limit = {
+			is_landed = yes
+		}
+		highest_held_title_tier >= tier_kingdom
+		location ?= default_location
+		primary_title.title_capital_county ?= capital_county
+		capital_county ?= $CAPITAL$
+	}
+	trigger_else_if = {
+		limit = {
+			exists = host
+			is_primary_heir_of = host
+		}
+		host ?= {
+			highest_held_title_tier >= tier_kingdom
+			capital_county ?= $CAPITAL$
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			primary_spouse ?= {
+				highest_held_title_tier >= tier_kingdom
+				capital_county ?= $CAPITAL$
+			}
+		}
+		# check gender equality etc to see if they should be sidelined
+		opinion = {
+			target = primary_spouse
+			value >= 0
+		}
+	}
+	trigger_else = {
+		liege ?= {
+			has_active_diarchy = yes
+			highest_held_title_tier >= tier_kingdom
+			capital_county ?= $CAPITAL$
+			diarch ?= prev
 		}
 	}
 }
@@ -1208,9 +1282,13 @@ title_empire_stale_trigger = {
 				has_active_diarchy = yes
 				has_legitimacy = no
 				primary_title != prev
-				is_adult = no
-				is_incapable = yes
-				is_imprisoned = yes
+				NOT = {
+					is_available_quick = {
+						adult = yes
+						incapable = no
+						imprisoned = no
+					}
+				}
 			}
 		}
 	}
