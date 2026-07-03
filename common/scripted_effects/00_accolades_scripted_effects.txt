@@ -10280,29 +10280,15 @@ accolade_create_squire_effect = {
 		#Create character if we failed to find one
 		if = {
 			limit = {
+				is_ruler = yes # on title loss scope:owner can't have knight/courtiers
 				NOT = { exists = scope:chosen_knight }
 			}
 			accolade_character_creation_effect = yes
 		}
 	}
-	#Boost stats of picked or created char based on squire quality
-	scope:chosen_knight = {
-		accolade_squires_boost_martial_tourney_effect = yes
-
-		accolade_squires_boost_prowess_effect = yes
-		#Make them nobles if they're not... they are knights now, after all
-		if = {
-			limit = {
-				is_lowborn = yes
-			}
-			create_dynasty = {
-				spread_to_descendants = yes
-			}
-		}
-	}
-
 	if = {
 		limit = {
+			# scope:accolade_in_need.accolade_owner ?= scope:owner
 			exists = scope:chosen_knight
 		}
 		if = {
@@ -10320,6 +10306,21 @@ accolade_create_squire_effect = {
 				}
 			}
 			add_courtier = scope:chosen_knight
+			#Boost stats of picked or created char based on squire quality
+			scope:chosen_knight = {
+				accolade_squires_boost_martial_tourney_effect = yes
+
+				accolade_squires_boost_prowess_effect = yes
+				#Make them nobles if they're not... they are knights now, after all
+				if = {
+					limit = {
+						is_lowborn = yes
+					}
+					create_dynasty = {
+						spread_to_descendants = yes
+					}
+				}
+			}
 		}
 		
 		scope:chosen_knight = {
