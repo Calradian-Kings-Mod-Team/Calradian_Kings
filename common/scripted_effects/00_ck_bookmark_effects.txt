@@ -2160,3 +2160,142 @@ dynasty_prestige_setup = {
 		}
 	}
 }
+
+# CK_GREAT_HORDE buffs/nerfs
+steppe_great_horde_effects = {
+	switch = {
+		trigger = has_game_rule
+		# great_horde_normal = { }
+		great_horde_buffed = {
+			if = { # blood brother
+				limit = {
+					title:e_great_horde.holder ?= { # Yolguzz_K_1
+						is_available_quick = {
+							alive = yes
+							advanced_ruler = yes
+						}
+						save_temporary_scope_as = emperor
+					}
+					title:k_yellow_hordeck.holder ?= { # Yatan_K_1
+						is_available_quick = {
+							alive = yes
+							advanced_ruler = yes
+						}
+						save_temporary_scope_as = king
+					}
+					# either of these could be a player
+				}
+				scope:emperor = {
+					clear_saved_scope = shared_foe # we could make them target the player for fun
+					reverse_add_opinion = {
+						target = scope:king
+						modifier = respected_status_quo
+						opinion = 200
+						days = 10 # interaction takes 4-9 days
+					}
+					run_interaction = {
+						interaction = mpo_make_blood_brother
+						actor = scope:emperor
+						recipient = scope:king
+						execute_threshold = accept
+					}
+					add_dread = age
+					domicile ?= { # nice 10k number
+						change_herd = 6000
+					}
+					if = {
+						limit = {
+							religion ?= religion:guzzic_religion
+						}
+						faith ?= {
+							change_fervor = {
+								value = 25
+								desc = game_concept_great_horde_desc
+							}
+						}
+					}
+				}
+				scope:king ?= {
+					add_dread = age
+					domicile ?= { # roughly equalized
+						change_herd = 7000
+					}
+					if = {
+						limit = {
+							religion ?= religion:guzzic_religion
+						}
+						faith ?= {
+							change_fervor = {
+								value = 25
+								desc = gok_sacking_cultural_acceptance
+							}
+						}
+					}
+				}
+			}			
+		}
+		great_horde_disabled = {
+			if = { # split up dynn_yatan
+				limit = {
+					character:Yatan_K_1 ?= {
+						is_available_quick = {
+							alive = yes
+							advanced_ruler = yes
+						}
+						is_house_head = no # Yolguzz_K_1
+					}
+				}
+				character:Yatan_K_1 = {
+					found_cadet_house_decision_effect = {
+						CHARACTER = character:Yatan_K_1
+						PRESTIGE = 0
+					}
+				}
+			}
+			every_county = {
+				limit = {
+					trigger_if = { # do not nerf the buffer state (though the holding type usually blocks it)
+						limit = { exists = title:k_ilkhalsea.holder }
+						NOT = { target_is_de_facto_liege_or_above = title:k_ilkhalsea }
+					}
+					OR = {
+						holder.culture ?= { has_cultural_pillar = heritage_khiindai }
+						culture = { has_cultural_pillar = heritage_khiindai }
+					}
+					title_province ?= {
+						OR = {
+							has_holding_type = nomad_holding
+							has_holding_type = herder_holding
+							has_holding_type = tribal_holding # generate some buildings for them anyway
+						}
+					}
+				}
+				holder ?= {
+					if = {
+						limit = {
+							NOT = { government_has_flag = government_is_settled }
+						}
+						every_held_title = {
+							limit = { is_nomad_title = yes }
+							holder = { destroy_title = prev }
+						}
+						change_government = tribal_government
+
+					}
+				}
+				raze_county = {
+					holding_type = tribal_holding
+					# purge_secondary_holdings = yes
+					excluded_holding_type = church_holding
+				}
+				title_province ?= {
+					while = {
+						count = province_owner.highest_held_title_tier
+						generate_building = yes
+					}
+				}
+				generate_coa = yes
+			}
+		}
+	}
+}
