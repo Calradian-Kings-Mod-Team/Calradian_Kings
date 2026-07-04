@@ -809,6 +809,18 @@ ck_original_nomad_philosophy = {
 		# has_trait = nomadic_philosophy
 	}
 }
+ck_can_embrace_steppe_faith = {
+	# still kicking around
+	$FAITH$ ?= {
+		num_county_followers > 0
+		has_doctrine_parameter = unreformed
+	}
+	# not a total mismatch
+	num_sinful_traits = {
+		value < 3
+		target = $FAITH$
+	}
+}
 mpo_nomads_camel_culture_trigger = {
 	culture = {
 		OR = {
@@ -1595,28 +1607,92 @@ has_good_season_in_county_trigger = {
 		}
 	}
 }
+# CK_GREAT_HORDE blocker for decisions
+ck_should_ai_stay_nomad = {
+	OR = {
+		any_relation = {
+			type = blood_brother
+			is_ruler = yes
+			government_has_flag = government_is_nomadic
+		}
+		has_variable = steppe_game_start_var
+		# any_owned_story = {
+		# 	OR = {
+		# 		story_type = story_mongol_invasion
+		# 		story_type = story_greatest_of_khans
+		# 	}
+		# }
+	}
+}
 
 # CK_STEPPE to be used in decision widgets
 expand_the_steppe_is_shown = {
+	save_temporary_scope_as = ruler
 	situation:the_great_steppe ?= {
 		any_situation_sub_region = {
-			region_is_adjacent = geographical_region:$REGION$
+			# show the other side anyway?
+			any_situation_sub_region_participant = {
+				this = scope:ruler
+			}
+			trigger_if = {
+				limit = {
+					this = situation:the_great_steppe.situation_sub_region:steppe_warband
+				}
+				NOR = { # do not re-add starting & overlapping imperial regions
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_empire_battania_frontier
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_southwest_central_empire
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_northwest_empire
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_central_empire
+					geographical_region:$REGION$ = geographical_region:region_warband_khergits
+				}
+				region_is_adjacent = geographical_region:$REGION$
+			}
+			trigger_else = {
+				region_is_adjacent = geographical_region:$REGION$
+			}
 		}
 	}
 }
 expand_the_steppe_is_valid = {
 	custom_tooltip = {
-		text = ck_steppe_expansion_tt
-		subject = geographical_region:$REGION$
-		situation:the_great_steppe ?= {
-			NOT = {
+		text = ck_steppe_expanded_already
+	# 	text = situation_sub_region_has_geographical_region
+	# 	subject = geographical_region:$REGION$
+	# 	object = 
+		NOT = {
+			situation:the_great_steppe ?= {
 				any_situation_sub_region = {
 					situation_sub_region_has_geographical_region = $REGION$
 				}
 			}
 		}
-		any_realm_province = {
-			geographical_region = $REGION$
+	}
+	custom_description = {
+		text = ck_steppe_expansion
+		subject = geographical_region:$REGION$
+		prev = {
+			any_realm_province = {
+				geographical_region = $REGION$
+			}
+		}
+	}
+}
+expand_the_steppe_eliminated = {
+	title:$FACTION$ = {
+		exists = previous_holder
+		trigger_if = {
+			limit = {
+				exists = holder
+			}
+			holder.top_overlord ?= prev
+		}
+		trigger_else = {
+			custom_description = {
+				text = DESTROY_TITLE
+				object = this
+				NOT = { any_claimant = {} }
+			}
+			custom_tooltip = NOT_ANY_CLAIMANT
 		}
 	}
 }

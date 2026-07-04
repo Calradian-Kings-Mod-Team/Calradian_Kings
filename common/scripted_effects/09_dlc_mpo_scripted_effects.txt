@@ -826,7 +826,7 @@ migration_title_and_vassal_change_effect = {
 				set_capital_county = scope:actor.capital_province.county
 			}
 		}
-		scope:recipient = {
+		scope:recipient ?= { #Unop Avoid errors for empty recipient
 			every_courtier_or_guest = {
 				limit = { unop_can_location_be_reset = { LIEGE = root } }
 				set_location_to_default = yes 
@@ -4947,6 +4947,7 @@ summon_three_fair_courtiers_effect = {
 		every_in_list = {
 			list = three_fair_courtiers_list
 			assign_random_nickname_effect = yes
+			save_scope_as = new_commander # for the localization #Unop Moved here so scope:new_commander is defined 
 			if = {
 				limit = {
 					NOT = {
@@ -4961,7 +4962,6 @@ summon_three_fair_courtiers_effect = {
 				flag = blocked_from_leaving
 				years = 25
 			}
-			save_scope_as = new_commander # for the localization
 			scope:root_scope = {
 				send_interface_message = {
 					title = nomad_character_recruited.t
@@ -5800,18 +5800,18 @@ better_children_yurt_effect = {
 				limit = {
 					exists = scope:yurt_heir
 				}
-			}
-			send_interface_message = {
-				title = better_children_yurt_effect_tt
-				desc = better_children_yurt_effect_desc
-				left_icon = scope:yurt_heir
-				scope:yurt_heir = {
-					random_list = {
-						1 = { add_diplomacy_skill = 1 }
-						1 = { add_stewardship_skill = 1 }
-						1 = { add_intrigue_skill = 1 }
-						1 = { add_learning_skill = 1 }
-						1 = { add_martial_skill = 1 }
+				send_interface_message = { #Unop: Put this in the limit to ensure not sending an empty notification
+					title = better_children_yurt_effect_tt
+					desc = better_children_yurt_effect_desc
+					left_icon = scope:yurt_heir
+					scope:yurt_heir = {
+						random_list = {
+							1 = { add_diplomacy_skill = 1 }
+							1 = { add_stewardship_skill = 1 }
+							1 = { add_intrigue_skill = 1 }
+							1 = { add_learning_skill = 1 }
+							1 = { add_martial_skill = 1 }
+						}
 					}
 				}
 			}
@@ -6124,6 +6124,24 @@ expanding_steppe_effect = {
 			# tgp_silk_road_expand_steppe_effect = { SUB_REGION = transcaspia }
 			# tgp_silk_road_expand_steppe_effect = { SUB_REGION = occident }
 		}
+		scope:ck_steppe_expansion_southwest_central_empire = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = west
+				REGION = ck_steppe_expansion_southwest_central_empire
+			}
+		}
+		scope:ck_steppe_expansion_south_empire = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = west
+				REGION = ck_steppe_expansion_south_empire
+			}
+		}
+		scope:ck_steppe_expansion_southeast_empire = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = west
+				REGION = ck_steppe_expansion_southeast_empire
+			}
+		}
 
 		# Sturgia
 		scope:ck_steppe_expansion_tyal = {
@@ -6159,6 +6177,57 @@ expanding_steppe_effect = {
 			# tgp_silk_road_expand_steppe_effect = { SUB_REGION = transcaspia }
 			# tgp_silk_road_expand_steppe_effect = { SUB_REGION = occident }
 		}
+		scope:region_warband_tyvallia = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_tyvallia
+			}
+		}
+		scope:region_warband_swadia = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_swadia
+			}
+		}
+		scope:region_warband_vaegir = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_vaegir
+			}
+		}
+		scope:region_warband_nord_1 = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_nord_1
+			}
+		}
+		scope:region_warband_nord_2 = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_nord_2
+			}
+		}
+		scope:region_warband_khergits = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_khergits
+			}
+		}
+		scope:region_warband_rhodok = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_rhodok
+			}
+		}
+		scope:region_warband_sarranid = {
+			expanding_steppe_add_region_effect = {
+				SUB_REGION = warband
+				REGION = region_warband_sarranid
+			}
+		}
+		fallback = {
+			debug_log_scopes = yes
+		}
 	}
 }
 
@@ -6167,6 +6236,66 @@ expanding_steppe_add_region_effect = {
         situation_sub_region:steppe_$SUB_REGION$ = {
         	add_geographical_region = $REGION$
         }
+
+		if = {
+			limit = {
+				years_from_game_start > 1
+			}
+			if = {
+				limit = { # root is unset when fired from history/game start
+					exists = root
+				}
+				root = {
+					add_prestige_experience = geographical_region:$REGION$.geographical_region_province_size 
+				}
+			}
+			hidden_effect = {
+				# add fertility to new region so they're not all wastelands
+				every_county_in_region = {
+					region = $REGION$
+					limit = {
+						# holder ?= { government_allows = use_county_fertility }
+						county_fertility <= 1
+					}
+					change_county_fertility = { 
+						value = { 2 8 }
+						every_county_province = {
+							add = 1
+							if = {
+								limit = {
+									OR = {
+										terrain = oasis
+										is_riverside_province = yes
+										is_lakeside_province = yes
+									}
+								}
+								add = 2
+							}
+							if = {
+								limit = {
+									OR = {
+										terrain = farmlands
+										terrain = floodplains
+										terrain = terraced_hills
+									}
+								}
+								add = 1
+							}
+							else_if = {
+								limit = {
+									OR = {
+										terrain = desert
+										terrain = mountains
+										terrain = desert_mountains
+									}
+								}
+								add = -1
+							}
+						}
+					}
+				}
+			}
+		}
     }
 }
 
