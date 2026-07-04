@@ -9,7 +9,7 @@
 				trigger = {
 					OR = {
 						culture = { has_cultural_pillar = heritage_khiindai }
-						domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
+						domicile.domicile_culture ?= { has_cultural_pillar = heritage_khiindai }
 					}
 				}
 				desc = embrace_tenger_decision_guzzic
@@ -24,7 +24,7 @@
 				trigger = {
 					OR = {
 						culture = { has_cultural_pillar = heritage_khuzic }
-						domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+						domicile.domicile_culture ?= { has_cultural_pillar = heritage_khuzic }
 					}
 				}
 				desc = ck_steppe_events.0001.desc
@@ -33,7 +33,7 @@
 				trigger = {
 					OR = {
 						culture = { has_cultural_pillar = heritage_khiindai }
-						domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
+						domicile.domicile_culture ?= { has_cultural_pillar = heritage_khiindai }
 					}
 				}
 				desc = ck_steppe_events.0002.desc
@@ -44,12 +44,24 @@
 
 	is_shown = {
 		is_playable_character = yes
-		government_has_flag = government_is_nomadic
+		# allow no dlc/game rule nerfed tribals to embrace
+		government_disallows = affected_by_development
+		# make sure there's at least one unreformed faith kicking around, all-invalid decisions look bad
 		OR = {
 			culture = { has_cultural_pillar = heritage_khiindai }
 			culture = { has_cultural_pillar = heritage_khuzic }
-			domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
-			domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+			trigger_if = {
+				limit = {
+					domicile ?= { domicile_uses_culture_and_faith = yes }
+				}
+				domicile.domicile_culture = {
+					OR = {
+						has_cultural_pillar = heritage_khuzic
+						has_cultural_pillar = heritage_khiindai
+						# has_cultural_pillar = heritage_lir_ovus
+					}
+				}
+			}
 		}
 		#Cheaper to just switch to domicile's tengriism
 		trigger_if = {
@@ -62,6 +74,8 @@
 				}
 			}
 		}
+		# can't be on the other side
+		any_character_situation = { situation_type = the_great_steppe }
 	}
 
 	is_valid_showing_failures_only = {
@@ -74,6 +88,10 @@
 		}
 		faith ?= {
 			NOT = { has_doctrine = tenger_unreformed_faith_doctrine }
+		}
+		NOR = {
+			exists = secret_faith
+			government_allows = state_faith
 		}
 	}
 
@@ -105,10 +123,9 @@
 			localization = embrace_khuzic
 			icon = "gfx/interface/icons/faith/tengri_reformed.dds"
 			is_shown = {
-				faith:khuzait_faith.num_county_followers > 0
 				OR = {
 					culture = { has_cultural_pillar = heritage_khuzic }
-					domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+					domicile.domicile_culture ?= { has_cultural_pillar = heritage_khuzic }
 				}
 			}
 			is_valid = {
@@ -123,10 +140,9 @@
 			localization = embrace_arkits
 			icon = "gfx/interface/icons/faith/faith_arkits_reformed.dds"
 			is_shown = {
-				faith:arkits_faith.num_county_followers > 0
 				OR = {
 					culture = { has_cultural_pillar = heritage_khuzic }
-					domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+					domicile.domicile_culture ?= { has_cultural_pillar = heritage_khuzic }
 				}
 			}
 			is_valid = {
@@ -144,7 +160,7 @@
 				OR = {
 					has_trait = giant # how virtuous of you
 					culture = { has_cultural_pillar = heritage_khuzic }
-					domicile.domicile_culture = { has_cultural_pillar = heritage_khuzic }
+					domicile.domicile_culture ?= { has_cultural_pillar = heritage_khuzic }
 				}
 			}
 			is_valid = {
@@ -162,7 +178,7 @@
 				OR = {
 					religion = religion:calradian_religion
 					culture = { has_cultural_pillar = heritage_calradian }
-					domicile.domicile_culture = { has_cultural_pillar = heritage_calradian }
+					domicile.domicile_culture ?= { has_cultural_pillar = heritage_calradian }
 				}
 			}
 			is_valid = {
@@ -179,7 +195,7 @@
 			is_shown = {
 				OR = {
 					culture = { has_cultural_pillar = heritage_khiindai }
-					domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
+					domicile.domicile_culture ?= { has_cultural_pillar = heritage_khiindai }
 				}
 			}
 			is_valid = {
@@ -196,7 +212,7 @@
 			is_shown = {
 				OR = {
 					culture = { has_cultural_pillar = heritage_khiindai }
-					domicile.domicile_culture = { has_cultural_pillar = heritage_khiindai }
+					domicile.domicile_culture ?= { has_cultural_pillar = heritage_khiindai }
 				}
 			}
 			is_valid = {
@@ -237,18 +253,24 @@
 				exists = scope:conversion_faith
 			}
 			set_character_faith = scope:conversion_faith
-			domicile ?= {
-				domicile_culture = { save_scope_as = domicile_culture }
-				set_domicile_faith = scope:conversion_faith
-			}
-			every_held_title = {
+			if = {
 				limit = {
-					tier = tier_county
-					is_landless_type_title = no
-					culture = scope:domicile_culture
+					domicile ?= { domicile_uses_culture_and_faith = yes }
 				}
-				set_county_faith = scope:conversion_faith
+				domicile ?= {
+					domicile_culture = { save_scope_as = domicile_culture }
+					set_domicile_faith = scope:conversion_faith
+				}
+				every_held_title = {
+					limit = {
+						tier = tier_county
+						is_landless_type_title = no
+						culture = scope:domicile_culture
+					}
+					set_county_faith = scope:conversion_faith
+				}
 			}
+
 			# Spouses/concubines convert
 			every_consort = {
 				limit = {
@@ -291,6 +313,7 @@
 			}
 			every_in_list = {
 				list = spouses_and_family_to_convert
+				# is_obedient_to probably makes the list a lot emptier
 				set_character_faith = scope:conversion_faith
 			}
 		}
@@ -318,8 +341,13 @@ proselytize_to_your_people_decision = {
 	}
 
 	is_valid_showing_failures_only = {
-		is_physically_able_adult = yes
-		is_at_war = no
+		is_available_quick = {
+			adult = yes
+			alive = yes
+			imprisoned = no
+			incapable = no
+			at_war = no
+		}
 	}
 
 	cost = {
@@ -417,8 +445,13 @@ adopt_domicile_faith_decision = {
 	}
 
 	is_valid_showing_failures_only = {
-		is_physically_able_adult = yes
-		is_at_war = no
+		is_available_quick = {
+			adult = yes
+			alive = yes
+			imprisoned = no
+			incapable = no
+			at_war = no
+		}
 	}
 
 	effect = {
@@ -495,15 +528,26 @@ adopt_domicile_culture_decision = {
 	}
 
 	is_valid_showing_failures_only = {
+		is_available_quick = {
+			adult = yes
+			alive = yes
+			imprisoned = no
+			incapable = no
+			at_war = no
+		}
 		is_physically_able_adult = yes
 		is_at_war = no
 	}
 
 	cost = {
-		prestige = 150
+		prestige = {
+			value = 150
+			add = dread
+		}
 	}
 
 	effect = {
+		culture = { save_temporary_scope_as = old_culture } #Unop Save old culture to be used later
 		set_culture = root.domicile.domicile_culture
 		stress_impact = {
 			arrogant = medium_stress_impact_gain
@@ -512,7 +556,7 @@ adopt_domicile_culture_decision = {
 		every_close_or_extended_family_member = {
 			limit = {
 				is_courtier_of = root
-				culture = root.culture
+				culture = scope:old_culture #Unop Check for the old culture instead of the new one 
 			}
 			add_to_list = spouses_and_family_to_convert
 		}
@@ -558,8 +602,13 @@ blend_traditions_decision = {
 	}
 
 	is_valid_showing_failures_only = {
-		is_physically_able_adult = yes
-		is_at_war = no
+		is_available_quick = {
+			adult = yes
+			alive = yes
+			imprisoned = no
+			incapable = no
+			at_war = no
+		}
 		NOT = {
 			culture = {
 				has_same_culture_heritage = root.domicile.domicile_culture
@@ -707,8 +756,13 @@ enforce_traditions_decision = {
 	}
 
 	is_valid_showing_failures_only = {
-		is_physically_able_adult = yes
-		is_at_war = no
+		is_available_quick = {
+			adult = yes
+			alive = yes
+			imprisoned = no
+			incapable = no
+			at_war = no
+		}
 		custom_tooltip = {
 			text = same_heritage_or_steppe_heritage_ck_tt
 			culture = {
