@@ -18,9 +18,26 @@ eligible_for_mpo_nomad_legacy_trigger = {
 }
 
 valid_confederation_member_trigger = {
+	is_playable_character = yes
+	is_tributary = no
+	is_landed = yes
+	is_independent_ruler = yes
+	is_alive = yes
+	NOR = {
+		has_trait = conqueror
+		has_trait = greatest_of_khans
+		is_at_war_with = $CHARACTER$
+		is_at_war_with = $CHARACTER$.top_liege
+		custom_tooltip = {
+			text = no_raiding_hostility_tt
+			$CHARACTER$ = {
+				is_causing_raid_hostility_towards = prev
+			}
+		}
+	}
 	trigger_if = {
 		limit = {
-			house = {
+			house ?= {
 				has_house_modifier = hm_struggle_conciliation_house_reward_modifier
 			}
 		}
@@ -66,44 +83,15 @@ valid_confederation_member_trigger = {
 				}
 			}
 		}
-		is_playable_character = yes
-		is_tributary = no
-		is_landed = yes
-		is_independent_ruler = yes
-		is_alive = yes
-		NOR = {
-			has_trait = conqueror
-			has_trait = greatest_of_khans
-			is_at_war_with = $CHARACTER$
-			is_at_war_with = $CHARACTER$.top_liege
+		trigger_else = {
 			custom_tooltip = {
-				text = no_raiding_hostility_tt
-				$CHARACTER$ = {
-					is_causing_raid_hostility_towards = prev
-				}
+				text = INVALID_CHARACTER
+				always = no
 			}
 		}
 		highest_held_title_tier <= tier_kingdom
-		is_confederation_member = no
 	}
 	trigger_else = {
-		is_playable_character = yes
-		is_tributary = no
-		is_landed = yes
-		is_independent_ruler = yes
-		is_alive = yes
-		NOR = {
-			has_trait = conqueror
-			has_trait = greatest_of_khans
-			is_at_war_with = $CHARACTER$
-			is_at_war_with = $CHARACTER$.top_liege
-			custom_tooltip = {
-				text = no_raiding_hostility_tt
-				$CHARACTER$ = {
-					is_causing_raid_hostility_towards = prev
-				}
-			}
-		}
 		highest_held_title_tier <= tier_duchy
 		trigger_if = {
 			limit = {
@@ -124,8 +112,8 @@ valid_confederation_member_trigger = {
 			}
 			text = is_nomadic_or_tribal_tt
 		}
-		is_confederation_member = no
 	}
+	is_confederation_member = no
 }
 
 confederation_foe_sub_trigger = {
@@ -809,6 +797,18 @@ ck_original_nomad_philosophy = {
 		# has_trait = nomadic_philosophy
 	}
 }
+ck_can_embrace_steppe_faith = {
+	# still kicking around
+	$FAITH$ ?= {
+		num_county_followers > 0
+		has_doctrine_parameter = unreformed
+	}
+	# not a total mismatch
+	num_sinful_traits = {
+		value < 3
+		target = $FAITH$
+	}
+}
 mpo_nomads_camel_culture_trigger = {
 	culture = {
 		OR = {
@@ -934,6 +934,7 @@ mpo_can_recruit_nomad_maa_trigger = {
 	OR = {
 		government_has_flag = government_is_nomadic
 		has_trait = nomadic_philosophy
+		has_character_modifier = ck_settled_nomads_character
 	}
 }
 # CK_NAHASA
@@ -1595,28 +1596,92 @@ has_good_season_in_county_trigger = {
 		}
 	}
 }
+# CK_GREAT_HORDE blocker for decisions
+ck_should_ai_stay_nomad = {
+	OR = {
+		any_relation = {
+			type = blood_brother
+			is_ruler = yes
+			government_has_flag = government_is_nomadic
+		}
+		has_variable = steppe_game_start_var
+		# any_owned_story = {
+		# 	OR = {
+		# 		story_type = story_mongol_invasion
+		# 		story_type = story_greatest_of_khans
+		# 	}
+		# }
+	}
+}
 
 # CK_STEPPE to be used in decision widgets
 expand_the_steppe_is_shown = {
+	save_temporary_scope_as = ruler
 	situation:the_great_steppe ?= {
 		any_situation_sub_region = {
-			region_is_adjacent = geographical_region:$REGION$
+			# show the other side anyway?
+			any_situation_sub_region_participant = {
+				this = scope:ruler
+			}
+			trigger_if = {
+				limit = {
+					this = situation:the_great_steppe.situation_sub_region:steppe_warband
+				}
+				NOR = { # do not re-add starting & overlapping imperial regions
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_empire_battania_frontier
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_southwest_central_empire
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_northwest_empire
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_central_empire
+					geographical_region:$REGION$ = geographical_region:region_warband_khergits
+				}
+				region_is_adjacent = geographical_region:$REGION$
+			}
+			trigger_else = {
+				region_is_adjacent = geographical_region:$REGION$
+			}
 		}
 	}
 }
 expand_the_steppe_is_valid = {
 	custom_tooltip = {
-		text = ck_steppe_expansion_tt
-		subject = geographical_region:$REGION$
-		situation:the_great_steppe ?= {
-			NOT = {
+		text = ck_steppe_expanded_already
+	# 	text = situation_sub_region_has_geographical_region
+	# 	subject = geographical_region:$REGION$
+	# 	object = 
+		NOT = {
+			situation:the_great_steppe ?= {
 				any_situation_sub_region = {
 					situation_sub_region_has_geographical_region = $REGION$
 				}
 			}
 		}
-		any_realm_province = {
-			geographical_region = $REGION$
+	}
+	custom_description = {
+		text = ck_steppe_expansion
+		subject = geographical_region:$REGION$
+		prev = {
+			any_realm_province = {
+				geographical_region = $REGION$
+			}
+		}
+	}
+}
+expand_the_steppe_eliminated = {
+	title:$FACTION$ = {
+		exists = previous_holder
+		trigger_if = {
+			limit = {
+				exists = holder
+			}
+			holder.top_overlord ?= prev
+		}
+		trigger_else = {
+			custom_description = {
+				text = DESTROY_TITLE
+				object = this
+				NOT = { any_claimant = {} }
+			}
+			custom_tooltip = NOT_ANY_CLAIMANT
 		}
 	}
 }
