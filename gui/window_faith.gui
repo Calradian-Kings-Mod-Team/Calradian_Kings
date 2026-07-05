@@ -426,7 +426,7 @@ window = {
 
 						hbox = {
 							name = "sins_and_virtues"
-							layoutpolicy_vertical = expanding
+							layoutpolicy_vertical = preferred
 							spacing = 15
 
 							expand = {}
@@ -700,8 +700,8 @@ window = {
 										}
 
 										text = "[FaithDoctrine.GetNameNoTooltip( DoctrineItem.GetFaith )]"
-										align = nobaseline
-										tooltip = "FAITH_WINDOW_DOCTRINE_TOOLTIP_WITH_FAITH"
+										align = nobaseline|hcenter
+										tooltip = "CK_FAITH_WINDOW_DOCTRINE_TOOLTIP_WITH_FAITH"
 										using = tooltip_es
 									}
 								}
@@ -732,6 +732,7 @@ window = {
 				hbox = {
 					name = "current_hof"
 					layoutpolicy_horizontal = expanding
+					visible = "[Not(Faith.HasDoctrineByKey( 'doctrine_no_head' ))]"
 					spacing = 5
 
 					background = {
@@ -789,8 +790,8 @@ window = {
 									visible = "[Not( Faith.GetReligiousHead.IsValid)]"
 									layoutpolicy_horizontal = expanding
 
-									text = "RELIGIOUS_HEAD_EMPTY_DESC"
-									default_format = "#weak"
+									text = "CK_RELIGIOUS_HEAD_EMPTY_DESC"
+									# default_format = "#weak"
 									align = left
 									fontsize_min = 10
 								}
@@ -1084,20 +1085,14 @@ window = {
 								layoutpolicy_horizontal = expanding
 								layoutpolicy_vertical = expanding
 
-								background = {
-									using = Background_Area_Holding
-									alpha = 1
-									fittype = start
-									margin_left = 15
-									margin_top = -20
-									# framesize = { 100% 100% }
-								}
-
 								vbox = {
-									layoutpolicy_vertical = expanding
+									layoutpolicy_vertical = growing
 									min_width = 175
 									spacing = 3
-
+									background = {
+										using = Background_Area_Holding
+										alpha = 1
+									}
 									state = {
 										name = "faith_view_refresh"
 										using = Animation_Refresh_FadeOut
@@ -1124,6 +1119,8 @@ window = {
 											autoresize = no
 											default_format = "#low"
 											using = Font_Size_Big
+											fontsize_min = 10
+											elide = middle
 										}
 
 										text_single = {
@@ -1137,6 +1134,8 @@ window = {
 											autoresize = no
 											default_format = "#high"
 											using = Font_Size_Big
+											fontsize_min = 10
+											elide = middle
 										}
 
 										expand = {}
@@ -1162,11 +1161,13 @@ window = {
 											using = Background_Area
 											alpha = 0.8
 										}
+										# TODO use hostility level for this background color
 
 										button_religion_icon = {
 											name = "faith_button"
 											datacontext = "[Title.GetDeJureLiege.GetHolder.GetFaith]"
 											size = { 50 50 }
+											visible = "[Not(HolySiteItem.IsHeldByFaith)]"
 											tooltipwidget = { faith_tooltip_ruler_designer = {} }
 											texture = "[Faith.GetIcon]"
 										}
@@ -1184,11 +1185,13 @@ window = {
 									margin_top = 10
 									layoutpolicy_horizontal = expanding
 									layoutpolicy_vertical = expanding
+									background = {
+										using = Background_Title
+									}
 
 									hbox = {
 										margin_left = 20
 										layoutpolicy_horizontal = expanding
-
 										vbox = {
 											layoutpolicy_vertical = expanding
 
@@ -1284,10 +1287,9 @@ types FaithWindow
 			widgetanchor = center
 			position = { 0 -24 }
 			maximumsize = { 130 26 }
-			fontsize_min = 12
+			fontsize_min = 11
 			multiline = yes
 			align = center
-			elide = right
 			text = "[FaithDoctrine.GetNameNoTooltip( Faith.Self )]"
 			default_format = "#high"
 
@@ -1351,7 +1353,7 @@ types FaithWindow
 			parentanchor = center
 			name = "faith_list_item"
 			block "tooltip" { #### current solution as to not display 2 different tooltips for special doctrines
-				tooltip = "FAITH_WINDOW_DOCTRINE_TOOLTIP_WITH_FAITH"
+				tooltip = "CK_FAITH_WINDOW_DOCTRINE_TOOLTIP_WITH_FAITH"
 			}
 			spacing = 8
 
