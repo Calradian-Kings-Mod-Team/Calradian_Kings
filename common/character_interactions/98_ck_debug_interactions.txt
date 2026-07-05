@@ -9,10 +9,15 @@
 	is_shown = {
 		debug_only = yes
 		scope:recipient ?= {
-			is_ruler = no
 			OR = {
-				character_is_wb_claimant = yes
-				has_variable = companion_recruitable_var
+				this = scope:actor
+				AND = {
+					is_ruler = no
+					OR = {
+						character_is_wb_claimant = yes
+						has_variable = companion_recruitable_var
+					}
+				}
 			}
 		}
 	}
@@ -55,17 +60,37 @@
 				}
 			}
 		}
-		scope:recipient = {
-			set_location_to_default = yes
-			remove_character_flag = ck_companion_recruited
-			if = {
-				limit = {
-					has_variable = companion_recruitable_var
-				}
-				set_random_location_companion_effect = yes
+		if = {
+			limit = {
+				scope:recipient = scope:actor
 			}
-			else = {
-				set_random_location_claimant_effect = yes
+			every_living_character = {
+				limit = {
+					is_ruler = no
+					OR = {
+						has_variable = companion_recruitable_var
+						has_variable = wb_claimant
+					}
+				}
+				visit_court_of = scope:actor
+			}
+			scope:actor = {
+				open_view_data = { view = court_window }
+			}
+		}
+		else = {
+			scope:recipient = {
+				set_location_to_default = yes
+				remove_character_flag = ck_companion_recruited
+				if = {
+					limit = {
+						has_variable = companion_recruitable_var
+					}
+					set_random_location_companion_effect = yes
+				}
+				else = {
+					set_random_location_claimant_effect = yes
+				}
 			}
 		}
 	}
