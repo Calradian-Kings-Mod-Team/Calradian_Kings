@@ -32,7 +32,6 @@ on_game_start = {
 			value = yes
 			years = 10
 		}
-
 		### CORONATION LOCATION SETUP ###
 		if = {
 			limit = {
@@ -307,7 +306,70 @@ on_game_start = {
 				}
 			}
 		}
-
+		
+		# West Nahasa (west_nahasan_nomads)
+		if = {
+			limit = {
+				has_mpo_dlc_trigger = yes
+			}
+			start_situation = {
+				type = west_nahasan_nomads
+				start_phase = situation_steppe_severe_drought_season
+				save_scope_as = my_situation
+				sub_region = {
+					key = northwest_nahasa
+					start_phase = situation_steppe_abundant_grazing_season
+					map_color = { 25 100 50 }
+					geographical_regions = { northwest_nahasa_nomad }
+				}
+				sub_region = {
+					key = west_nahasa
+					start_phase = situation_steppe_severe_drought_season
+					map_color = { 100 80 100 }
+					geographical_regions = { west_nahasa_nomad }
+				}
+				sub_region = {
+					key = southwest_nahasa
+					start_phase = situation_steppe_abundant_grazing_season
+					map_color = { 200 170 0}
+					geographical_regions = { southwest_nahasa_nomad }
+				}
+			}
+			scope:my_situation = {
+				every_situation_county = {
+					limit = {
+						holder = {
+							government_has_flag = government_is_tribal
+							OR = {
+								culture = { has_cultural_pillar = heritage_west_nahasan }
+								culture = culture:dambaya
+								is_ai = no
+							}
+						}
+					}
+					holder = {
+						set_variable = {
+							name = steppe_game_start_var
+							years = 1
+						}
+						every_held_title = {
+							if = {
+								limit = {
+									title_province = {
+										has_holding_type = tribal_holding
+									}
+								}
+								title_province = {
+									set_holding_type = nomad_holding
+								}
+							}
+						}
+						change_government = nomad_government
+					}
+				}
+			}
+		}
+		
 		### RELIGIOUS THINGS ###
 		# Set up Holy Site Buildings to be buildable in Holy Sites
 		religion:aserai_religion = {
@@ -1833,68 +1895,6 @@ on_game_start_after_lobby = {
 		# 		}
 		# 	}
 		# }
-		# West Nahasa (west_nahasan_nomads)
-		if = {
-			limit = {
-				has_mpo_dlc_trigger = yes
-			}
-			start_situation = {
-				type = west_nahasan_nomads
-				start_phase = situation_steppe_severe_drought_season
-				save_scope_as = my_situation
-				sub_region = {
-					key = northwest_nahasa
-					start_phase = situation_steppe_abundant_grazing_season
-					map_color = { 25 100 50 }
-					geographical_regions = { northwest_nahasa_nomad }
-				}
-				sub_region = {
-					key = west_nahasa
-					start_phase = situation_steppe_severe_drought_season
-					map_color = { 100 80 100 }
-					geographical_regions = { west_nahasa_nomad }
-				}
-				sub_region = {
-					key = southwest_nahasa
-					start_phase = situation_steppe_abundant_grazing_season
-					map_color = { 200 170 0}
-					geographical_regions = { southwest_nahasa_nomad }
-				}
-			}
-			scope:my_situation = {
-				every_situation_county = {
-					limit = {
-						holder = {
-							government_has_flag = government_is_tribal
-							OR = {
-								culture = { has_cultural_pillar = heritage_west_nahasan }
-								culture = culture:dambaya
-								is_ai = no
-							}
-						}
-					}
-					holder = {
-						set_variable = {
-							name = steppe_game_start_var
-							years = 1
-						}
-						every_held_title = {
-							if = {
-								limit = {
-									title_province = {
-										has_holding_type = tribal_holding
-									}
-								}
-								title_province = {
-									set_holding_type = nomad_holding
-								}
-							}
-						}
-						change_government = nomad_government
-					}
-				}
-			}
-		}
 		# 
 		# if = {
 		# 	limit = {
