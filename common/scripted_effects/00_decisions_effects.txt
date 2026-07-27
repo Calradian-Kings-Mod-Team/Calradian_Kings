@@ -1529,6 +1529,41 @@ found_cadet_house_decision_effect = {
 			create_noble_family_effect = { GOVERNMENT_GIVER = this }
 			change_influence = major_influence_gain
 		}
+
+		## Avoiding duplicate cadet coa
+		if = {
+			limit = {
+				has_game_rule = ck_titles_coa_house_coa
+			}
+			scope:new_head.capital_county = {
+				generate_coa = yes
+			}
+			scope:new_house = {
+				set_coa = scope:new_head.capital_county
+			}
+		}
+		## Change new house members title coas
+		if = {
+			limit = {
+				has_game_rule = ck_titles_coa_house_coa
+			}
+			scope:new_house = { 
+				every_house_member = {
+					limit = {
+						is_landed = yes
+					}
+					every_held_title = {
+						limit = {
+							NOR = {
+								tier = tier_empire
+								has_variable = default_coa_var
+							}
+						}
+						set_coa = scope:new_house
+					}
+				}
+			}
+		}
 	}
 }
 
