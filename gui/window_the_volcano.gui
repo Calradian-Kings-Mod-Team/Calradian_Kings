@@ -1,0 +1,800 @@
+﻿window = {
+	name = "window_the_volcano"
+	widgetid = "window_the_volcano"
+	datacontext = "[SituationWindow.GetSituation]"
+	datacontext = "[GetVariableSystem]"
+	datacontext = "[GetPlayer]"
+	parentanchor = top|right
+	layer = windows_layer
+	allow_outside = yes
+	movable = no
+
+	using = Window_Size_MainTab
+	using = sound_situation_panel
+
+	state = {
+		name = _show
+		using = Animation_FadeIn_Quick
+		using = Sound_WindowShow_Standard
+		using = Window_Position_MainTab
+	}
+
+	state = {
+		name = _hide
+		using = Animation_FadeOut_Quick
+		using = Sound_WindowHide_Standard
+		using = Window_Position_MainTab_Hide
+	}
+
+	margin_widget = {
+		size = { 100% 100% }
+		margin = { 0 30 }
+		margin_right = 10
+
+		widget = {
+			size = { 100% 100% }
+
+			vbox = {
+				layoutpolicy_horizontal = expanding
+				layoutpolicy_vertical = expanding
+
+				using = Window_Margins
+
+				using = Animation_Tab_Switch
+
+				header_pattern = {
+					layoutpolicy_horizontal = expanding
+
+					blockoverride "header_text"
+					{
+						text = "[Situation.GetNameNoTooltip]"
+						datacontext = "[SituationWindow.GetSituation]"
+						fontsize = 32
+					}
+
+					blockoverride "button_back"
+					{
+						onclick = "[OpenGameView( 'situations' )]"
+					}
+
+					blockoverride "button_close"
+					{
+						onclick = "[SituationWindow.Close]"
+					}
+				}
+
+				hbox = {
+					layoutpolicy_horizontal = expanding
+
+					margin = { 5 5 }
+
+					background = {
+						using = Background_Area_ExtraDark
+					}
+
+					### SUB_REGION CARDS ###
+					datamodel = [Situation.GetSubRegions]
+
+					item = {
+						vbox_season_tab_volcano = {}
+					}
+				}
+
+				vbox_season_contents_volcano = {
+					datacontext = "[SituationWindow.AccessParticipantCharacterList]"
+					datacontext = "[SituationParticipantCharacterList.AccessCharacterList]"
+
+					datacontext = "[SituationWindow.GetSelectedSubRegion]"
+				}
+				hbox_current_volcano_phase = {}
+				vbox_player_ruler_volcano = {}
+
+				expand = {}
+			}
+		}
+	}
+
+	# situation_mini_map_mode = {}
+
+}
+
+types SituationTypes
+{
+	type vbox_season_tab_volcano = vbox {
+		layoutpolicy_horizontal = expanding
+
+		spacer = {
+			visible = "[SituationWindow.IsSubRegionSelected( SituationSubRegion.Self )]"
+			size = { 90 0 }
+
+			state = {
+				name = _show
+				size = { 90 0 }
+				duration = 0.3
+			}
+
+			state = {
+				name = _hide
+				size = { 0 0 }
+				duration = 0.3
+			}
+		}
+
+		### Note: To change height just replace all 228 below
+		button = {
+			layoutpolicy_horizontal = expanding
+			size = { 0 300 }
+			onclick = "[PdxGuiTriggerAllAnimations( 'subregion_refresh' )]"
+			scissor = yes
+			visible = "[SituationWindow.GetPlayerSubRegion]"
+			datacontext = "[SituationSubRegion.GetCurrentPhase]"
+
+			state = {
+				name = _mouse_click
+				on_finish = "[SituationWindow.SelectSubRegion( SituationSubRegion.Self )]"
+			}
+
+			highlight_icon = {
+				parentanchor = center
+				size = { 711 399 }
+				texture = "[SituationSubRegion.GetCurrentPhase.GetType.GetIllustration]"
+				using = Mask_Rough_Edges
+
+				modify_texture = {
+					texture = "gfx/interface/component_masks/mask_culture_era_tab.dds"
+					blend_mode = alphamultiply
+					alpha = 0.9
+				}
+			}
+
+			# highlight_icon = {
+			# 	visible = "[Not( SituationWindow.IsSubRegionSelected( SituationSubRegion.Self ) )]"
+			# 	parentanchor = center
+			# 	size = { 448 428 }
+			# 	texture = "[SituationSubRegion.GetCurrentPhase.GetType.GetIllustration]"
+			# 	tintcolor = { 0 0 0 0.5 }
+			# }
+
+			### FRAYED EDGES ###
+			widget = {
+				parentanchor = left
+				size = { 6 300 }
+
+				background = {
+					using = Background_Area_Solid
+					spriteType = Corneredtiled
+					spriteborder = { 20 20 }
+					spriteborder_right = 11
+					margin = { 0 20 }
+					margin_left = 10
+				}
+			}
+
+			widget = {
+				parentanchor = right
+				size = { 6 300 }
+
+				background = {
+					using = Background_Area_Solid
+					mirror = horizontal
+					spriteType = Corneredtiled
+					spriteborder = { 20 20 }
+					spriteborder_right = 11
+					margin = { 0 20 }
+					margin_right = 10
+				}
+			}
+
+			widget = {
+				parentanchor = bottom|hcenter
+				size = { 520 6 }
+				position = { 0 5 }
+
+				background = {
+					using = Background_Area_Solid
+					mirror = horizontal
+					spriteType = Corneredtiled
+					spriteborder = { 20 20 }
+					spriteborder_right = 11
+					margin = { 22 0 }
+					margin_top = 5
+				}
+			}
+
+			widget = {
+				parentanchor = top|hcenter
+				size = { 520 6 }
+				position = { 0 0 }
+
+				background = {
+					using = Background_Area_Solid
+					mirror = horizontal
+					spriteType = Corneredtiled
+					spriteborder = { 20 20 }
+					spriteborder_right = 11
+					margin = { 22 0 }
+					margin_top = 5
+				}
+			}
+
+			### Name of SubRegion ###
+			text_single = {
+				parentanchor = bottom|hcenter
+				position = { 0 -10 }
+				margin_bottom = 10
+				margin_left = 10
+				margin_right = 10
+				visible = "[SituationWindow.IsSubRegionSelected( SituationSubRegion.Self )]"
+				using = Font_Size_Big
+						using = Background_Area_Dark
+
+				state = {
+					name = _show
+					using = Animation_FadeIn_Standard
+				}
+
+				state = {
+					name = _hide
+					using = Animation_FadeOut_Standard
+				}
+
+				text = "SITUATION_CURRENT_PHASE_NAME"
+			}
+		}
+	}
+
+	type vbox_season_contents_volcano = vbox {
+		layoutpolicy_horizontal = expanding
+
+		state = {
+			name = "subregion_refresh"
+			using = Animation_Refresh_FadeOut
+		}
+		state = {
+			using = Animation_Refresh_FadeIn
+		}
+
+		### LOCATION INFO ###
+		hbox = {
+			margin = { 15 10 }
+			layoutpolicy_horizontal = expanding
+			layoutpolicy_vertical = expanding
+			datacontext = "[EventWindowCustomWidgetSituationInfo.GetSituation]"
+			datacontext = "[GetPlayer]"
+
+				background =  {
+					texture = "gfx/interface/ck_volcano_gui_background.dds"
+					fittype = centercrop
+					using = Mask_Rough_Edges
+					alpha = 0.30
+					margin_bottom = 150
+				}
+			
+			hbox = {
+				name = "participant_groups_overview_volcano"
+				layoutpolicy_horizontal = expanding
+				flowcontainer = {
+					layoutstretchfactor_horizontal = 50
+					ignoreinvisible = yes
+
+					datamodel = "[SituationSubRegion.GetParticipantGroups]"
+					spacing = 5
+					margin = { 20 10 }
+
+					item = {
+						button = {
+							size = { 46 46 }
+							visible = "[ObjectsEqual( SituationParticipantGroup.Self, SituationSubRegion.GetCharacterParticipantGroup( GetPlayer ).Self )]"
+							onclick = "[SituationParticipantCharacterList.SetSelectedParticipantGroup( SituationParticipantGroup.Self )]"
+							tooltipwidget = {
+								container = {
+									alwaystransparent = no
+									name = "CalkingVolcanoPartTT"
+									using = ck_volcano_participant_group_tooltip
+								}
+							}
+
+							icon = {
+								visible = "[SituationParticipantCharacterList.IsParticipantGroupSelected( SituationParticipantGroup.Self )]"
+								parentanchor = center
+
+								texture = "gfx/interface/buttons/button_round_frame.dds"
+								size = { 58 58 }
+								color = { 0.75 0.75 0.65 1 }
+
+								modify_texture = {
+									texture = "gfx/interface/colors/gold.dds"
+								}
+							}
+
+							icon_round_button_base = {
+								parentanchor = center
+								size = { 100% 100% }
+								enabled = "[Not( SituationParticipantCharacterList.IsParticipantGroupSelected( SituationParticipantGroup.Self ) )]"
+							}
+
+							icon = {
+								parentanchor = center
+								size = { 50 50 }
+
+								visible = "[SituationParticipantCharacterList.IsParticipantGroupSelected( SituationParticipantGroup.Self )]"
+								texture = "[SituationParticipantGroup.GetType.GetIcon]"
+								modify_texture = {
+									texture = "gfx/interface/colors/colors_textured.dds"
+									framesize = { 96 96 }
+									frame = 1
+								}
+
+							}
+						}
+					}
+				}
+
+
+				vbox = { # [SituationParticipantGroup.GetName]
+					margin_left = 10
+					ignoreinvisible = yes
+
+					layoutpolicy_vertical = expanding
+					layoutstretchfactor_horizontal = 50
+					datacontext = "[SituationSubRegion.GetCharacterParticipantGroup( GetPlayer )]"
+					
+
+					text_single = {
+						visible = "[SituationParticipantGroup.IsCharacterParticipant( Character.Self )]"
+						layoutpolicy_horizontal = expanding
+						text = "Your Participant Group: #V [SituationParticipantGroup.GetName]#!"
+						align = nobaseline
+						default_format = "#Weak"
+						margin = { 10 10 }
+						using = Background_Area_Dark
+					}
+				}
+
+				expand = {}
+
+			}
+		}
+		hbox = {
+		}
+
+		### ASTROLOGER CARD ###
+		# vbox_court_astrologer_card = {}
+	}
+	type hbox_current_volcano_phase = hbox = {
+		name = "volcano_current_phase"
+		datacontext = "[SituationWindow.GetSelectedSubRegion]"
+		datacontext = "[SituationSubRegion.GetCurrentPhase]"
+		vbox = {
+			layoutpolicy_vertical = expanding
+			datacontext = "[SituationWindow.GetSelectedSubRegion]"
+			datacontext = "[SituationSubRegion.GetCurrentPhase]"
+			text_label_center = {
+				margin = { 20 5 }
+				# using = Background_Area_Dark
+
+				text = "Current Volcanic Phase:"
+				using = Font_Size_Medium
+				align = center
+			}
+			hbox = {
+				# layoutpolicy_horizontal = expanding
+				margin = { -20 0 }
+				parentanchor = left|hcenter
+				
+				divider = {
+					layoutpolicy_horizontal = expanding
+					color = { 0.25 0.25 0.25 0.8 }
+				}
+			}
+			hbox = {
+				datacontext = "[SituationPhase.GetType]"
+				text_label_center = {
+					# layoutpolicy_horizontal = expanding
+					margin = { 5 10 }
+					# using = Background_Area_Dark
+
+					text = "SITUATION_CURRENT_PHASE_NAME"
+					using = Font_Size_Medium
+					align = center
+				}
+				# widget = {
+				# 	icon = {
+				# 		size = { 36 36 }
+				# 		texture = "[SituationPhaseType.GetIcon]"
+				# 		parentanchor = center
+				# 		position = { 30 0 }
+				# 	}
+				# }
+			}
+		}
+	
+		hbox = {
+			layoutpolicy_vertical = expanding
+			margin = { 20 0 }
+			
+			divider_light = {
+				layoutpolicy_vertical = expanding
+			}
+		}
+		vbox = {
+			# layoutpolicy_vertical = expanding
+
+			datacontext = "[SituationWindow.GetSelectedSubRegion]"
+			datacontext = "[SituationSubRegion.GetCurrentPhase]"
+			text_label_center = {
+				margin = { 40 5 }
+				# using = Background_Area_Dark
+
+				text = "Phase Effects:"
+				using = Font_Size_Medium
+				align = center
+			}
+			hbox = {
+				# layoutpolicy_horizontal = expanding
+				margin = { -20 0 }
+				parentanchor = left|hcenter
+				
+				divider = {
+					layoutpolicy_horizontal = expanding
+					color = { 0.25 0.25 0.25 0.8 }
+				}
+			}
+			hbox = {
+				layoutpolicy_horizontal = expanding
+
+				fixedgridbox = {
+					name = "named_effect_sets_ck"
+					layoutpolicy_horizontal = expanding
+
+					addcolumn = 48
+					addrow = 48
+					setitemsizefromcell = yes
+					datamodel_wrap = 6
+					maxhorizontalslots = 6
+					maxverticalslots = 2
+					flipdirection = yes
+					layoutanchor = topleft
+
+					datamodel = "[SituationSubRegion.GetCurrentPhase.GetType.GetModifierNamedSets]"
+					item = {
+						button_round = {
+							size = { 30 30 }
+							datacontext = "[GetPlayer]"
+							size = { 50 50 }
+							icon = {
+								size = { 100% 100% }
+
+								texture = "gfx/interface/buttons/button_lifestyles_base.dds"
+							}
+
+							icon = {
+								size = { 80% 80% }
+								position = { 0 0 }
+								parentanchor = center
+								alwaystransparent = yes
+								texture = "[SituationModifierNamedSet.GetIcon]"
+								blend_mode = overlay
+							}
+
+							tooltipwidget = {
+								using = situation_modifier_named_set_tooltip
+							}
+						}
+					}
+				}
+
+				# expand = {}
+
+				# fixedgridbox = {
+				# 	name = "leading_named_effect_sets"
+
+				# 	addcolumn = 48
+				# 	addrow = 48
+				# 	setitemsizefromcell = yes
+				# 	datamodel_wrap = 6
+				# 	maxhorizontalslots = 6
+				# 	maxverticalslots = 1
+				# 	flipdirection = yes
+				# 	layoutanchor = topleft
+
+				# 	datamodel = "[SituationWindow.GetSelectedOrLeadingFuturePhaseType.GetModifierNamedSets]"
+				# 	item = {
+				# 		button_round = {
+				# 			enabled = yes
+				# 			datacontext = "[GetPlayer]"
+				# 			size = { 50 50 }
+
+				# 			icon = {
+				# 				size = { 100% 100% }
+
+				# 				texture = "gfx/interface/buttons/button_lifestyles_base.dds"
+				# 			}
+
+				# 			icon = {
+				# 				size = { 80% 80% }
+				# 				position = { 0 0 }
+				# 				parentanchor = center
+				# 				alwaystransparent = yes
+				# 				texture = "[SituationModifierNamedSet.GetIcon]"
+				# 			}
+
+				# 			tooltipwidget = {
+				# 				using = situation_modifier_named_set_tooltip
+				# 			}
+				# 		}
+				# 	}
+				# }
+			}
+		}
+	}
+	type vbox_player_ruler_volcano = vbox {
+		name = "player_ruler_window"
+		datacontext = "[GetPlayer]"
+		visible = "[Character.IsValid]"
+		layoutpolicy_horizontal = expanding
+		allow_outside = yes
+
+		### NOMADS TOP HEADER ###
+		hbox = {
+			layoutpolicy_horizontal = expanding
+			margin = { 15 15 }
+
+			background = {
+				using = Background_Area_Dark
+			}
+
+			background = {
+				spriteType = Corneredtiled
+				alpha = 0.5
+				texture = "gfx/interface/colors/black.dds"
+				using = Mask_Rough_Edges
+
+				# modify_texture = {
+				# 	name = "mask"
+				# 	texture = "gfx/interface/component_masks/mask_fade_horizontal_middle.dds"
+				# 	spriteType = Corneredstretched
+				# 	spriteborder = { 0 0 }
+				# 	blend_mode = alphamultiply
+				# 	mirror = horizontal
+				# }
+
+				modify_texture = {
+					texture = "gfx/interface/skinned/mask_pattern.dds"
+					texture_density = 3
+					spriteType = Corneredtiled
+					blend_mode = alphamultiply
+					alpha = 1
+				}
+			}
+		}
+
+		hbox = {
+			layoutpolicy_horizontal = expanding
+			margin = { 20 60 }
+
+			background =  {
+				texture = "gfx/interface/ck_volcano_gui_background.dds"
+				fittype = centercrop
+				using = Mask_Rough_Edges
+				alpha = 0.30
+				margin_bottom = 100
+				margin_top = 40
+			}
+
+			### YOUR PORTRAIT ###
+			widget = {
+				size = { 220 250 }
+
+				tooltipwidget = {
+					container_character_tooltip = {}
+				}
+
+				blockoverride "portrait_button"
+				{
+					using = tooltip_ne
+				}
+
+				blockoverride "glow_visible"
+				{
+					visible = no
+				}
+
+
+				portrait_button = {
+					parentanchor = hcenter
+					position = { -15 -30 }
+					size = { 220 260 }
+
+					using = portrait_base
+
+					portrait_texture = "[Character.GetAnimatedPortrait( 'environment_hud', 'camera_torso', 'war_over_win', PdxGetWidgetScreenSize( PdxGuiWidget.Self ) )]"
+					background_texture = "gfx/portraits/portrait_transparent.dds"
+					effectname = "NoHighlight"
+					texture = "gfx/portraits/portrait_transparent.dds"
+					mask = "gfx/portraits/portrait_mask_body.dds"
+				}
+
+				portrait_status_icons = {
+					parentanchor = bottom|right
+					position = { -25 -105 }
+				}
+
+				coa_realm_small_crown = {
+					visible = "[Character.HasLandedTitles]"
+					parentanchor = bottom|left
+					position = { -5 -105 }
+				}
+
+				widget = {
+					parentanchor = bottom|hcenter
+					size = { 220 100 }
+
+					vbox = {
+						layoutpolicy_horizontal = expanding
+						parentanchor = center
+						position = { -15 0 }
+
+						background = {
+							using = Background_Area_Solid
+						}
+
+						hbox = {
+							layoutpolicy_horizontal = expanding
+							margin = {  5 }
+
+							background = {
+								using = Background_Area_Solid
+								margin = { 2 5 }
+							}
+
+							background = {
+								using = GenericObjectCardHeaderBackground
+								using = Color_Blue
+								margin = { 2 5 }
+							}
+
+							### GURKHAN TITLE & NAME ###
+							vbox = {
+								layoutpolicy_horizontal = expanding
+								layoutpolicy_vertical = expanding
+
+								margin = { 10 0 }
+
+								expand = {}
+
+								text_single = {
+									layoutpolicy_horizontal = expanding
+
+									text = "[Character.GetShortUINameNotMeNoTooltip|U]"
+									align = nobaseline
+									max_width = 150
+								}
+
+								text_single = {
+									layoutpolicy_horizontal = expanding
+
+									text = "[Character.GetPrimaryTitle.GetNameNoTier]"
+									align = nobaseline
+									max_width = 150
+								}
+
+								expand = {}
+							}
+						}
+
+						vbox = {
+							margin_bottom = 5
+
+							### GURKHAN LOCATION ###
+							text_single = {
+								layoutpolicy_horizontal = expanding
+
+								text = "Location:"
+								text = "[Character.GetLocationDesc]"
+								align = nobaseline
+								default_format = "#Weak"
+								max_width = 210
+							}
+							text_single = {
+								layoutpolicy_horizontal = expanding
+
+								text = "[Character.GetLocationDesc]"
+								align = nobaseline
+								default_format = "#Weak"
+								max_width = 210
+							}
+						}
+					}
+				}
+			}
+
+			expand = {}
+
+			vbox = {
+				spacing = 5
+				layoutpolicy_vertical = expanding
+				layoutpolicy_horizontal = expanding
+				text_single = {
+					layoutpolicy_horizontal = expanding
+
+					text = "Available Decisions:"
+					align = nobaseline
+					max_width = 150
+				}
+				scrollbox = {
+					layoutpolicy_vertical = expanding
+					layoutpolicy_horizontal = expanding
+
+					blockoverride "scrollbox_margins" {}
+					blockoverride "scrollbox_content" {}
+
+					blockoverride "scrollbox_background_fade" {
+
+						icon = {
+							name = "scrollbar_fade"
+							texture = "gfx/interface/scrollbars/scrollbar_fade.dds"
+							size = { 100% 100% }
+							alwaystransparent = yes
+
+							spriteType = Corneredtiled
+							spriteborder = { 6 20 }
+						}
+					}
+
+					vbox = {
+						scrollbox = {
+							layoutpolicy_vertical = expanding
+							layoutpolicy_horizontal = expanding
+							blockoverride "scrollbox_background" {}
+							blockoverride "scrollbox_background_fade" {}
+							blockoverride "scrollbox_margins" {}
+							blockoverride "scrollbox_content" {
+								vbox = {
+									spacing = 5
+									button_ck_volcano_decision = {
+										datacontext = "[GetDecisionWithKey('call_for_confederation_decision')]"
+									}
+									button_ck_volcano_decision = {
+										datacontext = "[GetDecisionWithKey('ck_hike_volcano_decision')]"
+									}
+									button_ck_volcano_decision = {
+										datacontext = "[GetDecisionWithKey('ck_hike_volcano_decision')]"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	type button_ck_volcano_decision = button_decision_entry {
+		visible = "[Decision.IsShownForPlayer]"
+		layoutpolicy_horizontal = expanding
+		onclick = "[OpenGameViewData( 'decision_detail', Decision.Self ) ]"
+		using = tooltip_ws
+	}
+}
+
+template ck_volcano_participant_group_tooltip = {
+	container = {
+		alwaystransparent = no
+
+		object_tooltip_pop_out = {
+			blockoverride "title_text" {
+				margin = { 0 8 }
+				raw_text = "[SituationParticipantGroup.GetName]"
+			}
+
+			blockoverride "description_text" {
+				text = "[SituationParticipantGroup.GetDescription]"
+			}
+
+			blockoverride "concept_link" {
+				text = ""
+			}
+		}
+	}
+}

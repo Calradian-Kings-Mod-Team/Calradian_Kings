@@ -215,3 +215,95 @@ debug_change_the_great_desert = {
 		}
 	}
 }
+debug_change_the_volcano_situation = {
+	category = interaction_debug_mpo
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	common_interaction = yes
+	icon = travel_mixed
+
+	interface_priority = -1
+	auto_accept = yes
+
+	is_shown = {
+		debug_only = yes
+		scope:recipient = {
+			is_ruler = yes
+			any_character_situation = {
+				situation_type = ck_volcano_situation
+			}
+		}
+	}
+	should_use_extra_icon = {
+		scope:actor = {
+			any_character_situation = { 
+				this = situation:ck_volcano_situation
+			}
+		}
+	}
+	extra_icon = "gfx/interface/icons/domicile_building/domicile_camel_yurt.dds"
+	send_option = {
+		flag = grazing
+		localization = debug_change_active_flows
+		starts_enabled = {
+			always = yes
+		}
+	}
+	send_option = {
+		flag = drought
+		localization = debug_change_warning_phase
+		# starts_enabled = {
+		# 	situation:game_rule_extra_nomads_arabs ?= {
+		# 		any_situation_sub_region = {
+		# 			sub_region_current_phase = situation_steppe_severe_drought_season
+		# 		}
+		# 	}
+		# }
+	}
+	send_option = {
+		flag = summer
+		localization = debug_change_inactive_phase
+		# starts_enabled = {
+		# 	situation:game_rule_extra_nomads_arabs ?= {
+		# 		any_situation_sub_region = {
+		# 			sub_region_current_phase = situation_steppe_warm_nights_season
+		# 		}
+		# 	}
+		# }
+	}
+	on_accept = {
+		if = {
+			limit = {
+				NOT = { exists = situation:ck_volcano_situation }
+			}
+			start_situation = {
+				type = ck_volcano_situation
+				start_phase = phase_active_flows
+			}
+		}
+		switch = {
+			trigger = yes
+			scope:grazing = {
+				situation:ck_volcano_situation ?= {
+					every_situation_sub_region = {
+						change_phase = { phase = phase_active_flows }
+					}
+				}
+			}
+			scope:drought = {
+				situation:ck_volcano_situation ?= {
+					every_situation_sub_region = {
+						change_phase = { phase = phase_volcano_warning }
+					}
+				}
+			}
+			scope:summer = {
+				situation:ck_volcano_situation = {
+					every_situation_sub_region = {
+						change_phase = { phase = phase_inactive }
+					}
+				}
+			}
+		}
+	}
+}

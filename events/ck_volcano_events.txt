@@ -1,0 +1,248 @@
+﻿namespace = ck_volcano_event
+
+ck_volcano_event.0001 = { # Introduction for islanders
+	type = character_event
+	title = ck_volcano_event.0001.t
+	desc = ck_volcano_event.0001.desc
+	theme = travel_danger
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0001.a
+	}
+}
+### Phase Transitions
+# Transition to Warning (WARNING! YOU HAVE 60 DAYS TO EVACUATE. MOVE IT, ASSHOLE!)
+ck_volcano_event.0002 = {
+	type = character_event
+	title = ck_volcano_event.0002.t
+	desc = ck_volcano_event.0002.desc
+
+	override_background = {
+		reference = wilderness_mountains
+	}
+	option = {
+		name = ck_volcano_event.0002.a
+		flavor = ck_volcano_event.0002.a.flavor
+		hidden_effect = {
+			trigger_event = {
+				id = ck_volcano_event.0003
+				days = 10
+			}
+		}
+	}
+}
+# Second Warning - You need to leave now.
+ck_volcano_event.0003 = {
+	type = character_event
+	title = ck_volcano_event.0003.t
+	desc = ck_volcano_event.0003.desc
+
+	override_background = {
+		reference = wilderness_mountains
+	}
+	immediate = {
+		show_as_tooltip = {
+			custom_tooltip = ck_unlock_evacuate_island_decision_tt
+			custom_tooltip = ck_become_adventurer_volcano_tt
+		}
+	}
+	option = {
+		name = ck_volcano_event.0003.a
+		flavor = ck_volcano_event.0003.a.flavor
+	}
+	option = {
+		name = ck_volcano_event.0003.b
+		flavor = ck_volcano_event.0003.b.flavor
+	}
+	option = {
+		name = ck_volcano_event.0003.c
+		flavor = ck_volcano_event.0003.c.flavor
+	}
+	option = {
+		name = ck_volcano_event.0003.d
+		flavor = ck_volcano_event.0003.d.flavor
+		trigger = {
+			faith.religion = religion:west_nahasan_religion
+			NOT = {
+				has_trait = zealous
+			}
+			OR = {
+				has_trait = lunatic_1
+				has_trait = lunatic_genetic
+			}
+		}
+		trait = lunatic_1
+	}
+}
+# Minor Eruption / Major Eruption
+ck_volcano_event.0004 = { # Minor - Notify islanders and nearby rulers
+	type = character_event
+	title = ck_volcano_event.0004.t
+	desc = ck_volcano_event.0004.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0004.a
+	}
+}
+ck_volcano_event.0005 = { # Major - Notify islanders and nearby rulers along the entire seaside
+	type = character_event
+	title = ck_volcano_event.0005.t
+	desc = ck_volcano_event.0005.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0005.a
+	}
+}
+# Inactive / Active Flows
+ck_volcano_event.0006 = {
+	type = character_event
+	title = ck_volcano_event.0006.t
+	desc = ck_volcano_event.0006.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0006.a
+	}
+}
+# Extinct
+ck_volcano_event.0007 = {
+	type = character_event
+	title = ck_volcano_event.0007.t
+	desc = ck_volcano_event.0007.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0007.a
+	}
+}
+### Ash Spread
+# Heavy/Light ash passes over your realm (Heavy takes priority)
+ck_volcano_event.0008 = {
+	type = character_event
+	title = ck_volcano_event.0002.t
+	desc = ck_volcano_event.0002.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0002.a
+	}
+}
+### Volcanic Eruption - Player location
+# You leave the island before an eruption - Fires from decision
+ck_volcano_event.0009 = {
+	type = character_event
+	title = ck_volcano_event.0008.t
+	desc = ck_volcano_event.0008.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0009.a
+	}
+}
+# You are still on the island as it erupts. Attempt an escape to a neighboring island. Chance of failure increases if major eruption
+ck_volcano_event.0010 = {
+	type = character_event
+	title = ck_volcano_event.0010.t
+	desc = ck_volcano_event.0010.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0010.a
+	}
+}
+# On a neighboring island, witnessing the eruption from a distance
+ck_volcano_event.0011 = {
+	type = character_event
+	title = ck_volcano_event.0011.t
+	desc = ck_volcano_event.0011.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0011.a
+	}
+}
+# Within reach of the volcano, but not in visual sight, feel the ground quake
+ck_volcano_event.0012 = {
+	type = character_event
+	title = ck_volcano_event.0012.t
+	desc = ck_volcano_event.0012.desc
+
+	override_background = {
+		event_background = wilderness_mountains
+	}
+
+	option = {
+		name = ck_volcano_event.0012.a
+	}
+}
+## Volcano Effect Events
+ck_volcano_events.1000 = {
+	hidden = yes
+	scope = none
+
+	immediate = {
+		situation:ck_volcano_situation ?= {
+			random_list = {
+				10 = { # Major
+					trigger = {
+						NOT = { exists = global_var:ck_recent_major_eruption }
+					}
+					modifier = {
+						add = 90
+						has_game_rule = volcano_situation_enabled
+						AND = {
+							current_year > 1150.1.1
+							current_year < 1210.1.1
+						}
+					}
+					situation_top_sub_region = {
+						change_phase = { phase = phase_major_eruption }
+					}
+				}
+				90 = { # Minor
+					modifier = {
+						add = -85
+						has_game_rule = volcano_situation_enabled
+						AND = {
+							current_year > 1150.1.1
+							current_year < 1210.1.1
+						}
+					}
+					situation_top_sub_region = {
+						change_phase = { phase = phase_minor_eruption }
+					}
+				}
+			}
+		}
+	}
+}
