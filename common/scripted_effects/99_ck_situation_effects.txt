@@ -1,0 +1,43 @@
+﻿ck_volcano_start_ash_spread = {
+	# Islands get immediately hit
+	# Nahasa coastline starts in the west and spreads east
+	# Calradia coastlines starts in Charas and spreads east
+	trigger_event = {
+		id = ck_volcano_events.1001
+		days = 60 # Volcano will erupt for a bit before the whole thing transitions to an ash cloud phase
+	}
+}
+ck_volcano_reverse_ash_spread = {
+	# Depending on if it was a major or minor eruption depends on what county to start the reverting at
+	set_global_variable = {
+		name = ck_ash_cleanup
+		value = yes
+		years = 50
+	}
+	## MAJOR:
+	if = {
+		limit = {
+			exists = global_var:ck_check_major_eruption
+		}
+		title:c_ortongard = {
+			duchy = {
+				situation:ck_volcano_situation.situation_sub_region:al_ifrit = {
+					remove_dejure_title_from_sub_region = prev
+				}
+			}
+		}
+	}
+	## MINOR:
+	else_if = {
+		limit = {
+			exists = global_var:ck_check_minor_eruption
+		}
+		title:c_myndioch = {
+			duchy = {
+				situation:ck_volcano_situation.situation_sub_region:al_ifrit = {
+					remove_dejure_title_from_sub_region = prev
+				}
+			}
+		}
+	}
+}

@@ -14,7 +14,7 @@ ck_volcano_situation = {
 	##################################################
 	sub_regions = {
 		al_ifrit = {
-			map_color = { 25 100 50 }
+			map_color = { 120 40 25 }
 			geographical_regions = { region_volcano }
 		}
 	}
@@ -23,6 +23,9 @@ ck_volcano_situation = {
 	# On Actions
 	##################################################
 	on_monthly = {
+		trigger_event = {
+			on_action = calking_volcano_monthly_pulse
+		}
 	}
 	
 	on_yearly = {
@@ -41,36 +44,15 @@ ck_volcano_situation = {
 		# 	}
 		# 	map_color = { 19 111 0 }
 		# }
-		light_ash_clouds = {
-			icon = "gfx/interface/icons/volcano_phases/light_ash_clouds.dds"
-			require_capital_in_sub_region = no
-			require_realm_in_sub_region = no
-			is_character_valid = {
-				highest_held_title_tier >= tier_county
-				any_realm_province = {
-					NOT = {
-						geographical_region = region_volcano_iderfani
-					}
-					county = {
-						has_county_modifer = hunt_sighting_falconry_modifier
-					}
-				}
-			}
-
-			map_color = { 255 127 80 }
-		}
-		heavy_ash_clouds = {
+		affected_rulers = {
 			icon = "gfx/interface/icons/volcano_phases/heavy_ash_clouds.dds"
 			require_capital_in_sub_region = no
-			require_realm_in_sub_region = no
+			require_realm_in_sub_region = yes
 			is_character_valid = {
 				highest_held_title_tier >= tier_county
 				any_realm_province = {
 					NOT = {
 						geographical_region = region_volcano_iderfani
-					}
-					county = {
-						has_county_modifer = hunt_sighting_legendary_modifier
 					}
 				}
 			}
@@ -95,9 +77,10 @@ ck_volcano_situation = {
 			require_capital_in_sub_region = yes
 			is_character_valid = {
 				government_has_flag = government_is_landless_adventurer
-				location = {
-					exists = county
-					county = title:c_ghilizi
+				location.county ?= {
+					any_county_situation = {
+						this = situation:ck_volcano_situation
+					}
 				}
 			}
 		}
@@ -113,7 +96,7 @@ ck_volcano_situation = {
 
 			icon = "gfx/interface/icons/volcano_phases/everlasting_summer.dds"		
 			illustration = "gfx/interface/icons/volcano_phases/lava_flows.dds"
-			max_duration = { years = 10 }
+			max_duration = { years = 30 }
 
 			# map_province_effect = summer
 			# map_province_effect_intensity = 0.6
@@ -157,7 +140,6 @@ ck_volcano_situation = {
 							ck_hike_volcano_decision = yes
 						}
 					}
-					
 				}
 				situation_volcano_religious_effects = {
 					icon = "gfx/interface/icons/volcano_phases/volcano_religious_effects.dds"
@@ -204,8 +186,8 @@ ck_volcano_situation = {
 				# 	}
 				# }
 				trigger_event = {
-					id = ck_volcano_events.1000
-					days = 5 
+					id = ck_volcano_event.1000
+					days = 20
 				}
 			}
 
@@ -224,7 +206,7 @@ ck_volcano_situation = {
 				situation_volcano_county_effects = {
 					icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-					# heavy_ash_clouds = {
+					# affected_rulers = {
 					# 	county_modifier = {
 					# 		county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 					# 	}
@@ -246,7 +228,7 @@ ck_volcano_situation = {
 		phase_minor_eruption = {
 			icon = "gfx/interface/icons/seasons/everlasting_summer.dds"			
 			illustration = "gfx/interface/icons/volcano_phases/minor_eruption.dds"
-			max_duration = { years = 20 }
+			max_duration = { years = 8 }
 			
 			on_start = {
 				scope:situation_sub_region = {
@@ -263,22 +245,21 @@ ck_volcano_situation = {
 						}
 					}
 				}
+				# Start ash spread
+				ck_volcano_start_ash_spread = yes
 			}
 
 			max_duration_next_phase = random_non_takeover
 
 			future_phases = {
-				phase_active_flows = {
-				}
-				phase_inactive = {
-				}
+				phase_minor_ash_clouds = {}
 			}
 
 			modifier_sets = {
 				# situation_volcano_county_effects = {
 				# 	icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-				# 	heavy_ash_clouds = {
+				# 	affected_rulers = {
 				# 		county_modifier = {
 				# 			county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 				# 		}
@@ -300,7 +281,7 @@ ck_volcano_situation = {
 		phase_major_eruption = {
 			icon = "gfx/interface/icons/seasons/everlasting_summer.dds"			
 			illustration = "gfx/interface/icons/volcano_phases/major_eruption.dds"
-			max_duration = { years = 50 }
+			max_duration = { years = 10 }
 			
 			on_start = {
 				# Only one major eruption at least every 500 years
@@ -309,7 +290,8 @@ ck_volcano_situation = {
 					value = yes
 					years = 500
 				}
-
+				# Start ash spread
+				ck_volcano_start_ash_spread = yes
 				# Notify everyone in the wider region
 				every_ruler = {
 					if = {
@@ -326,17 +308,14 @@ ck_volcano_situation = {
 			max_duration_next_phase = random_non_takeover
 
 			future_phases = {
-				phase_inactive = {
-				}
-				phase_extinct = {
-				}
+				phase_major_ash_clouds = {}
 			}
 
 			modifier_sets = {
 				# situation_volcano_county_effects = {
 				# 	icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-				# 	heavy_ash_clouds = {
+				# 	affected_rulers = {
 				# 		county_modifier = {
 				# 			county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 				# 		}
@@ -354,7 +333,141 @@ ck_volcano_situation = {
 				# }
 			}
 		}
+		phase_major_ash_clouds = {
+			icon = "gfx/interface/icons/seasons/everlasting_summer.dds"			
+			illustration = "gfx/interface/icons/volcano_phases/inactive.dds"
+			max_duration = { years = 10 } # Overkill but once the volcano goes extinct, the situation will eventually end
 
+			on_start = {
+
+			}
+			on_end = {
+				ck_volcano_reverse_ash_spread = yes
+			}
+			max_duration_next_phase = random_non_takeover
+
+			future_phases = {
+				phase_active_flows = {}
+				phase_inactive = {}
+				phase_extinct = {}
+			}
+
+			modifier_sets = {
+				situation_volcano_personal_effects = {
+					icon = "gfx/interface/icons/situations/situation_modifier_character.dds"
+					affected_rulers = {
+						character_modifier = {
+							character_travel_speed = -15
+						}
+					}
+					iderfani_islanders = {
+						character_modifier = {
+							character_travel_speed = -15
+						}
+					}
+					traveller = {
+						character_modifier = {
+							character_travel_speed = -15
+						}
+					}
+				}
+				situation_volcano_county_effects = {
+					icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
+
+					affected_rulers = {
+						county_modifier = {
+							county_fertility_decline_add = cf_havsarsan_decline_add_value
+							county_fertility_decline_mult = cf_havsarsan_decline_mult_value
+							county_fertility_growth_mult = cf_havsarsan_growth_mult_value
+						}
+					}
+					iderfani_islanders = {
+						county_modifier = {
+							county_fertility_decline_add = cf_havsarsan_decline_add_value
+							county_fertility_decline_mult = cf_havsarsan_decline_mult_value
+							county_fertility_growth_mult = cf_havsarsan_growth_mult_value
+						}
+					}
+				}
+				
+				situation_volcano_military_effects = {
+					icon = "gfx/interface/icons/situations/situation_modifier_military.dds"
+					
+					affected_rulers = {
+						character_modifier = {
+							siege_phase_time = -0.15
+						}
+					}
+				}
+			}
+		}
+		phase_minor_ash_clouds = {
+			icon = "gfx/interface/icons/seasons/everlasting_summer.dds"			
+			illustration = "gfx/interface/icons/volcano_phases/inactive.dds"
+			max_duration = { years = 8 } # Overkill but once the volcano goes extinct, the situation will eventually end
+
+			on_start = {
+
+			}
+			on_end = {
+				ck_volcano_reverse_ash_spread = yes
+			}
+			max_duration_next_phase = random_non_takeover
+
+			future_phases = {
+				phase_active_flows = {}
+				phase_inactive = {}
+			}
+
+			modifier_sets = {
+				situation_volcano_personal_effects = {
+					icon = "gfx/interface/icons/situations/situation_modifier_character.dds"
+					affected_rulers = {
+						character_modifier = {
+							character_travel_speed = -5
+						}
+					}
+					iderfani_islanders = {
+						character_modifier = {
+							character_travel_speed = -5
+						}
+					}
+					traveller = {
+						character_modifier = {
+							character_travel_speed = -5
+						}
+					}
+				}
+				situation_volcano_county_effects = {
+					icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
+
+					affected_rulers = {
+						county_modifier = {
+							county_fertility_decline_add = 0.6
+							county_fertility_decline_mult = 0.6
+							county_fertility_growth_mult = -2
+						}
+					}
+					iderfani_islanders = {
+						county_modifier = {
+							county_fertility_decline_add = 0.6
+							county_fertility_decline_mult = 0.6
+							county_fertility_growth_mult = -2
+						}
+					}
+				}
+				
+				situation_volcano_military_effects = {
+					icon = "gfx/interface/icons/situations/situation_modifier_military.dds"
+					
+					affected_rulers = {
+						character_modifier = {
+							siege_phase_time = -0.15
+						}
+					}
+				}
+			}
+		}
 		phase_extinct = {
 			icon = "gfx/interface/icons/seasons/everlasting_summer.dds"			
 			illustration = "gfx/interface/icons/volcano_phases/inactive.dds"
@@ -380,7 +493,7 @@ ck_volcano_situation = {
 				# situation_volcano_county_effects = {
 				# 	icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-				# 	heavy_ash_clouds = {
+				# 	affected_rulers = {
 				# 		county_modifier = {
 				# 			county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 				# 		}
@@ -396,13 +509,22 @@ ck_volcano_situation = {
 				# 		}
 				# 	}
 				# }
+				
+				situation_volcano_religious_effects = {
+					icon = "gfx/interface/icons/volcano_phases/volcano_religious_effects.dds"
+					
+					iderfani_islanders = {
+						character_modifier = {
+							faith_conversion_piety_cost_mult = -0.2
+						}
+					}
+				}
 			}
 		}
-
 		phase_inactive = {
 			icon = "gfx/interface/icons/seasons/everlasting_summer.dds"			
 			illustration = "gfx/interface/icons/volcano_phases/inactive.dds"
-			max_duration = { years = 10 }
+			max_duration = { years = 40 }
 			
 			on_start = {
 				# scope:situation_sub_region = {
@@ -433,7 +555,7 @@ ck_volcano_situation = {
 				# situation_volcano_county_effects = {
 				# 	icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-				# 	heavy_ash_clouds = {
+				# 	affected_rulers = {
 				# 		county_modifier = {
 				# 			county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 				# 		}

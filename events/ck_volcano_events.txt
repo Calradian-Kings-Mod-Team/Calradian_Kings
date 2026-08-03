@@ -21,6 +21,12 @@ ck_volcano_event.0002 = {
 	title = ck_volcano_event.0002.t
 	desc = ck_volcano_event.0002.desc
 
+	trigger = {
+		NOR = {
+			situation_current_phase = phase_minor_eruption
+			situation_current_phase = phase_major_eruption
+		}
+	}
 	override_background = {
 		reference = wilderness_mountains
 	}
@@ -206,41 +212,93 @@ ck_volcano_event.0012 = {
 	}
 }
 ## Volcano Effect Events
-ck_volcano_events.1000 = {
+ck_volcano_event.1000 = { # Major or Minor
 	hidden = yes
 	scope = none
 
 	immediate = {
-		situation:ck_volcano_situation ?= {
-			random_list = {
-				10 = { # Major
-					trigger = {
-						NOT = { exists = global_var:ck_recent_major_eruption }
-					}
-					modifier = {
-						add = 90
-						has_game_rule = volcano_situation_enabled
-						AND = {
-							current_year > 1150.1.1
-							current_year < 1210.1.1
+		if = {
+			limit = {
+				situation_current_phase = phase_volcano_warning
+			}
+			situation:ck_volcano_situation ?= {
+				random_list = {
+					10 = { # Major
+						trigger = {
+							NOT = { exists = global_var:ck_recent_major_eruption }
+						}
+						modifier = {
+							add = 90
+							has_game_rule = volcano_situation_enabled
+							AND = {
+								current_year > 1150.1.1
+								current_year < 1210.1.1
+							}
+						}
+						situation_top_sub_region = {
+							change_phase = { phase = phase_major_eruption }
 						}
 					}
-					situation_top_sub_region = {
-						change_phase = { phase = phase_major_eruption }
+					90 = { # Minor
+						modifier = {
+							add = -85
+							has_game_rule = volcano_situation_enabled
+							AND = {
+								current_year > 1150.1.1
+								current_year < 1210.1.1
+							}
+						}
+						situation_top_sub_region = {
+							change_phase = { phase = phase_minor_eruption }
+						}
 					}
 				}
-				90 = { # Minor
-					modifier = {
-						add = -85
-						has_game_rule = volcano_situation_enabled
-						AND = {
-							current_year > 1150.1.1
-							current_year < 1210.1.1
-						}
-					}
-					situation_top_sub_region = {
-						change_phase = { phase = phase_minor_eruption }
-					}
+			}
+		}
+	}
+}
+ck_volcano_events.1001 = { # Begin ashfall spread to nearby coastlines for eventual spread, it's an event because I want it delayed
+	hidden = yes
+	scope = none
+
+	immediate = {
+		if = {
+			limit = {
+				situation_current_phase = phase_major_eruption
+			}
+			set_global_variable = {
+				name = ck_check_major_eruption # Using this to ensure the proper monthly pulse effect is utilized
+				value = yes
+				years = 13 # Length of cloud covers + extra for cleanup
+			}
+			situation:ck_volcano_situation ?= {
+				situation_top_sub_region = {
+					change_phase = { phase = phase_major_ash_clouds }
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				situation_current_phase = phase_minor_eruption
+			}
+			set_global_variable = {
+				name = ck_check_minor_eruption # Using this to ensure the proper monthly pulse effect is utilized
+				value = yes
+				years = 11 # Length of cloud covers + extra for cleanup
+			}
+			situation:ck_volcano_situation ?= {
+				situation_top_sub_region = {
+					change_phase = { phase = phase_minor_ash_clouds }
+				}
+			}
+		}
+		# Counties in the direct vicinity of the islands immediately transition
+		every_county_in_region = {
+			region = region_volcano_immediate_ash
+			# Add these counties to the subregion
+			duchy = {
+				situation:ck_volcano_situation.situation_sub_region:al_ifrit = {
+					add_dejure_title_to_sub_region = prev
 				}
 			}
 		}
