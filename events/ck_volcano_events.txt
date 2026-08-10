@@ -14,12 +14,40 @@ ck_volcano_event.0001 = { # Introduction for islanders
 		name = ck_volcano_event.0001.a
 	}
 }
+
 ### Phase Transitions
 # Transition to Warning (WARNING! YOU HAVE 60 DAYS TO EVACUATE. MOVE IT, ASSHOLE!)
 ck_volcano_event.0002 = {
 	type = character_event
 	title = ck_volcano_event.0002.t
-	desc = ck_volcano_event.0002.desc
+	left_portrait = {
+		character = root
+		animation = sick_stomach
+	}
+	widgets = {
+		widget = {
+			gui = "event_window_widget_vfx_earthquake"
+			container = "foreground_shader_vfx_container"
+		}
+	}
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					location = {
+						county ?= {
+							NOT = {
+								this = title:c_ghilizi
+							}
+						}
+					}
+				}
+				desc = ck_volcano_event.0002.desc.not_immediate
+			}
+			desc = ck_volcano_event.0002.desc
+		}
+	}
+	theme = ck_volcano
 
 	trigger = {
 		NOR = {
@@ -45,34 +73,128 @@ ck_volcano_event.0002 = {
 ck_volcano_event.0003 = {
 	type = character_event
 	title = ck_volcano_event.0003.t
-	desc = ck_volcano_event.0003.desc
+	theme = ck_volcano
+	left_portrait = {
+		character = root
+		animation = pondering
+	}
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					location = {
+						county ?= {
+							NOT = {
+								this = title:c_ghilizi
+							}
+						}
+					}
+				}
+				desc = ck_volcano_event.0003.desc.not_immediate
+			}
+			desc = ck_volcano_event.0003.desc
+		}
+	}
 
 	override_background = {
 		reference = wilderness_mountains
 	}
 	immediate = {
-		show_as_tooltip = {
-			custom_tooltip = ck_unlock_evacuate_island_decision_tt
-			custom_tooltip = ck_become_adventurer_volcano_tt
+		# Find a barony capital in the region that isn't hostile to you, prioritize Sokrun
+		random_county_in_region = {
+			region = volcano_minor_eruption_notification
+			limit = {
+				holder ?= {
+					opinion = {
+						target = root
+						value >= 5
+					}
+					NOR = {
+						has_imprisonment_reason = root
+						is_at_war_with = root
+					}
+				}
+				title_province = {
+					is_coastal = yes
+				}
+			}
+			weight = {
+				base = 1
+				modifier = {
+					this = title:c_sokrun
+					add = 5
+				}
+			}
+			title_province = {
+				save_scope_as = ck_volcano_0003_destination
+			}
 		}
 	}
 	option = {
 		name = ck_volcano_event.0003.a
 		flavor = ck_volcano_event.0003.a.flavor
+		trigger = {
+			location = {
+				county ?= {
+					this = title:c_ghilizi
+				}
+			}
+		}
+
+		start_travel_plan = {
+			players_use_planner = no
+			destination = scope:ck_volcano_0003_destination
+			travel_with_domicile = yes
+			on_arrival_event = ck_volcano_event.0100
+			on_arrival_destinations = all_but_last
+			on_travel_planner_cancel_event = ck_volcano_event.0101
+		}
+		custom_tooltip = {
+			text = ck_volcano_0003_a_tt
+			every_courtier_or_guest = {
+				limit = {
+					is_travelling = no
+				}
+				root.current_travel_plan = { add_companion = prev }
+			}
+		}
+		ai_chance = {
+			base = 100
+			ai_value_modifier = {
+				ai_boldness = 1
+				ai_energy = 0.5
+			}
+		}
 	}
 	option = {
 		name = ck_volcano_event.0003.b
+		trigger = {
+			is_landed = yes # It's your capital
+			capital_county = title:c_ghilizi
+			location = {
+				county ?= {
+					this = title:c_ghilizi
+				}
+			}
+		}
 		flavor = ck_volcano_event.0003.b.flavor
 	}
 	option = {
 		name = ck_volcano_event.0003.c
 		flavor = ck_volcano_event.0003.c.flavor
+		trigger = {
+			location = {
+				county ?= {
+					this = title:c_ghilizi
+				}
+			}
+		}
 	}
 	option = {
 		name = ck_volcano_event.0003.d
 		flavor = ck_volcano_event.0003.d.flavor
 		trigger = {
-			faith.religion = religion:west_nahasan_religion
+			root.faith.religion = religion:west_nahasan_religion
 			NOT = {
 				has_trait = zealous
 			}
@@ -80,63 +202,374 @@ ck_volcano_event.0003 = {
 				has_trait = lunatic_1
 				has_trait = lunatic_genetic
 			}
+			location = {
+				county ?= {
+					this = title:c_ghilizi
+				}
+			}
 		}
 		trait = lunatic_1
 	}
-}
-# Minor Eruption / Major Eruption
-ck_volcano_event.0004 = { # Minor - Notify islanders and nearby rulers
-	type = character_event
-	title = ck_volcano_event.0004.t
-	desc = ck_volcano_event.0004.desc
-
-	override_background = {
-		event_background = wilderness_mountains
-	}
-
+	# Available only to those off of the island already
 	option = {
-		name = ck_volcano_event.0004.a
+		name = ck_volcano_event.0002.a
+		trigger = {
+			location = {
+				county ?= {
+					NOT = {
+						this = title:c_ghilizi
+					}
+				}
+			}
+		}
 	}
 }
-ck_volcano_event.0005 = { # Major - Notify islanders and nearby rulers along the entire seaside
+
+############ PHASE CHANGES ############
+# Changes in phases (excluding warning)
+ck_volcano_event.0004 = {
 	type = character_event
-	title = ck_volcano_event.0005.t
-	desc = ck_volcano_event.0005.desc
+	theme = ck_volcano
+	title = {
+		desc = ck_volcano_event.0004.t
+		first_valid = {
+			# Active Flows
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_active_flows
+					}
+				}
+				desc = ck_volcano_events.0004.t.flows
+			}
+			# Minor Eruption
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_events.0004.t.minor_eruption
+			}
+			# Major Eruption
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_events.0004.t.major_eruption
+			}
 
-	override_background = {
-		event_background = wilderness_mountains
+			# Heavy Ash Clouds
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_ash_clouds
+					}
+				}
+				desc = ck_volcano_events.0004.t.heavy_ash
+			}
+			# Light Ash Clouds
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_ash_clouds
+					}
+				}
+				desc = ck_volcano_events.0004.t.light_ash
+			}
+
+			# Inactive - Relevant to only islanders
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_inactive
+					}
+				}
+				desc = ck_volcano_events.0004.t.inactive
+			}
+			# Extinct - Relevant to only islanders and Zamazigh faiths
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_extinct
+					}
+				}
+				desc = ck_volcano_events.0004.t.extinct
+			}
+		}
 	}
+	desc = {# Current Phase
+		first_valid = {
+			# Active Flows - Those on the island and nearby ones
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_active_flows
+					}
+				}
+				desc = ck_volcano_events.0004.desc.flows
+			}
+			# Minor Eruption - Those in immediate range of eruption, i.e. islands
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_events.0004.desc.minor_eruption
+			}
+			# Minor Eruption - Those further out
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_events.0004.desc.minor_eruption
+			}
+			# Major Eruption - Immediate range of the explosion (island)
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_events.0004.desc.major_eruption
+			}
+			# Major Eruption - Immediate range of the explosion (nearby islands)
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_events.0004.desc.major_eruption
+			}
+			# Major Eruption - Blast range of the explosion (sound) (coastlines) (region-locked)
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_events.0004.desc.major_eruption
+			}
 
+			# Heavy Ash Clouds - When it first enters your realm
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_ash_clouds
+					}
+				}
+				desc = ck_volcano_events.0004.desc.heavy_ash
+			}
+			# Heavy Ash Clouds - When it first enters your realm AND over your capital
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_ash_clouds
+					}
+				}
+				desc = ck_volcano_events.0004.desc.heavy_ash
+			}
+			
+			# Light Ash Clouds - When it first enters your realm
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_ash_clouds
+					}
+				}
+				desc = ck_volcano_events.0004.desc.light_ash
+			}
+			# Light Ash Clouds - When it first enters your realm AND over your capital
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_ash_clouds
+					}
+				}
+				desc = ck_volcano_events.0004.desc.light_ash
+			}
+
+			# Inactive - Relevant to only islanders
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_inactive
+					}
+				}
+				desc = ck_volcano_events.0004.desc.inactive
+			}
+			# Extinct - Relevant to only islanders and Zamazigh faiths
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_extinct
+					}
+				}
+				desc = ck_volcano_events.0004.desc.extinct
+			}
+		}
+	}
+	trigger = {
+		NOT = { has_variable = volcano_game_start_var }
+	}
+	override_background = {
+		reference = volcano_mountains
+	}
+	immediate = {
+		###### SFX ######
+		if = {
+			limit = {
+				situation:ck_volcano_situation = {
+					NOR = {
+						situation_current_phase = phase_inactive
+						situation_current_phase = phase_extinct
+					}
+				}
+			}
+			play_music_cue = calking_lava_sound_effect
+		}
+	}
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							situation:ck_volcano_situation = {
+								situation_current_phase = phase_active_flows
+							}
+						}
+						desc = ck_volcano_events.0004.a.flows
+					}
+					triggered_desc = {
+						trigger = {
+							situation:ck_volcano_situation = {
+								OR = {
+									situation_current_phase = phase_major_ash_clouds
+									situation_current_phase = phase_minor_ash_clouds
+								}
+							}
+						}
+						desc = ck_volcano_events.0004.a.ash
+					}
+					triggered_desc = {
+						trigger = {
+							situation:ck_volcano_situation = {
+								situation_current_phase = phase_inactive
+							}
+						}
+						desc = ck_volcano_events.0004.a.inactive
+					}
+					triggered_desc = {
+						trigger = {
+							situation:ck_volcano_situation = {
+								situation_current_phase = phase_extinct
+							}
+						}
+						desc = ck_volcano_events.0004.a.extinct
+					}
+					desc = ck_volcano_events.0004.a
+				}
+			}
+		}
+	}
+}
+### Minor/Major Eruption - Separated from .0004 because it's going to be a fullscreen event
+ck_volcano_event.0005 = {
+	type = character_event
+	theme = ck_volcano
+	window = fullscreen_event
+	title = {
+		desc = ck_volcano_event.0004.t
+		first_valid = {
+			# Minor Eruption
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_events.0005.t.minor_eruption
+			}
+			# Major Eruption
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_events.0005.t.major_eruption
+			}
+		}
+	}
+	desc = {# Current Phase
+		first_valid = {
+			# Minor Eruption - Those in immediate range of eruption, i.e. islands
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_events.0005.desc.minor_eruption
+			}
+			# Minor Eruption - Those further out
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_events.0005.desc.minor_eruption
+			}
+			# Major Eruption - Immediate range of the explosion (island)
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_events.0005.desc.major_eruption
+			}
+			# Major Eruption - Immediate range of the explosion (nearby islands)
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_events.0005.desc.major_eruption
+			}
+			# Major Eruption - Blast range of the explosion (sound) (coastlines) (region-locked)
+			triggered_desc = {
+				trigger = {
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_events.0005.desc.major_eruption
+			}
+		}
+	}
+	override_background = {
+		reference = volcano_mountains_fullscreen
+	}
+	trigger = {
+		NOT = { has_variable = volcano_game_start_var }
+	}
+	immediate = {
+		###### SFX ######
+		play_music_cue = calking_volcano_eruption_effect
+		
+	}
 	option = {
 		name = ck_volcano_event.0005.a
-	}
-}
-# Inactive / Active Flows
-ck_volcano_event.0006 = {
-	type = character_event
-	title = ck_volcano_event.0006.t
-	desc = ck_volcano_event.0006.desc
-
-	override_background = {
-		event_background = wilderness_mountains
-	}
-
-	option = {
-		name = ck_volcano_event.0006.a
-	}
-}
-# Extinct
-ck_volcano_event.0007 = {
-	type = character_event
-	title = ck_volcano_event.0007.t
-	desc = ck_volcano_event.0007.desc
-
-	override_background = {
-		event_background = wilderness_mountains
-	}
-
-	option = {
-		name = ck_volcano_event.0007.a
 	}
 }
 ### Ash Spread
@@ -211,7 +644,49 @@ ck_volcano_event.0012 = {
 		name = ck_volcano_event.0012.a
 	}
 }
-## Volcano Effect Events
+
+
+############## TRAVEL PLANNER EVENTS ##############
+ck_volcano_event.0100 = {
+	type = character_event
+	title = ck_volcano_event.0100.t
+	desc = ck_volcano_event.0100.desc
+	theme = ck_volcano
+	left_portrait = {
+		character = root
+		animation = lantern
+	}
+	override_background = {
+		reference = ep3_camp_night
+	}
+	immediate = {
+
+	}
+	option = {
+		name = ck_volcano_event.0100.a
+
+		### Effects
+		# Delay travel so you don't get caught in the eruption too soon
+		current_travel_plan ?= {
+			delay_travel_plan = { weeks = 4 }
+		}
+	}
+
+}
+ck_volcano_event.0101 = { # invalidated travel, go back to the island
+	type = character_event
+	title = ck_volcano_event.0101.t
+	desc = ck_volcano_event.0101.desc
+	theme = ck_volcano
+	left_portrait = {
+		character = root
+		animation = worry
+	}
+
+}
+
+
+############## VOLCANO EFFECT EVENTS ##############
 ck_volcano_event.1000 = { # Major or Minor
 	hidden = yes
 	scope = none
