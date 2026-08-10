@@ -102,6 +102,23 @@ ck_volcano_situation = {
 			# map_province_effect_intensity = 0.6
 			
 			on_start = {
+				# Phase Change Event
+				scope:situation_sub_region = {
+					save_scope_as = my_subregion
+					every_situation_sub_region_participant_group = {
+						every_situation_group_participant = {
+							trigger_event = ck_volcano_event.0004
+						}
+					}
+				}
+			}
+			on_end = {
+				# Set variable to scope previous phase
+				set_variable = {
+					name = volcano_previous_phase
+					value = flag:active_flows
+					days = 5
+				}
 			}
 
 			max_duration_next_phase = random_non_takeover
@@ -190,6 +207,14 @@ ck_volcano_situation = {
 					days = 20
 				}
 			}
+			on_end = {
+				# Set variable to scope previous phase
+				set_variable = {
+					name = volcano_previous_phase
+					value = flag:warning_phase
+					days = 5
+				}
+			}
 
 			future_phases = {
 				phase_minor_eruption = {
@@ -234,19 +259,49 @@ ck_volcano_situation = {
 				scope:situation_sub_region = {
 					save_scope_as = my_subregion
 					every_situation_sub_region_participant_group = {
-						limit = {
-							OR = {
-								participant_group_type = iderfani_islanders
-								participant_group_type = traveller
-							}
-						}
 						every_situation_group_participant = {
-							trigger_event = ck_volcano_event.0004
+							trigger_event = ck_volcano_event.0005
 						}
 					}
 				}
 				# Start ash spread
 				ck_volcano_start_ash_spread = yes
+				# Fire effects for everyone and everything on and near island
+				ck_volcano_eruption_effects = yes
+
+				# Notify everyone in the wider region
+				every_ruler = {
+					limit = {
+						NOT = {
+							any_character_situation = {
+								situation_type = ck_volcano_situation
+							}
+						}
+						highest_held_title_tier >= tier_county
+						OR = {
+							is_landed = yes
+							is_landless_adventurer = yes
+						}
+						is_mercenary_company = no
+						is_holy_order = no
+						location = {
+							geographical_region = volcano_minor_eruption_notification
+						}
+					}
+					add_character_flag = {
+						flag = ck_uninvolved_volcano_person
+						days = 30
+					}
+					trigger_event = ck_volcano_event.0005
+				}
+			}
+			on_end = {
+				# Set variable to scope previous phase
+				set_variable = {
+					name = volcano_previous_phase
+					value = flag:minor_eruption
+					days = 5
+				}
 			}
 
 			max_duration_next_phase = random_non_takeover
@@ -284,6 +339,14 @@ ck_volcano_situation = {
 			max_duration = { years = 10 }
 			
 			on_start = {
+				scope:situation_sub_region = {
+					save_scope_as = my_subregion
+					every_situation_sub_region_participant_group = {
+						every_situation_group_participant = {
+							trigger_event = ck_volcano_event.0005
+						}
+					}
+				}
 				# Only one major eruption at least every 500 years
 				set_global_variable = {
 					name = ck_recent_major_eruption
@@ -292,16 +355,42 @@ ck_volcano_situation = {
 				}
 				# Start ash spread
 				ck_volcano_start_ash_spread = yes
+				# Fire effects for everyone and everything on and near island
+				ck_volcano_eruption_effects = yes
+
 				# Notify everyone in the wider region
 				every_ruler = {
-					if = {
-						limit = {
-							location = {
-								geographical_region = region_volcano_major_blast_sound
+					limit = {
+						NOT = {
+							any_character_situation = {
+								situation_type = ck_volcano_situation
 							}
 						}
-						trigger_event = ck_volcano_event.0005
+						OR = {
+							is_landed = yes
+							is_landless_adventurer = yes
+						}
+						highest_held_title_tier >= tier_county
+						is_mercenary_company = no
+						is_holy_order = no
+						# is_ai = no # No sense in notifying AI w/
+						location = {
+							geographical_region = region_volcano_major_blast_sound
+						}
 					}
+					add_character_flag = {
+						flag = ck_uninvolved_volcano_person
+						days = 30
+					}
+					trigger_event = ck_volcano_event.0005
+				}
+			}
+			on_end = {
+				# Set variable to scope previous phase
+				set_variable = {
+					name = volcano_previous_phase
+					value = flag:major_eruption
+					days = 5
 				}
 			}
 
@@ -339,10 +428,25 @@ ck_volcano_situation = {
 			max_duration = { years = 10 } # Overkill but once the volcano goes extinct, the situation will eventually end
 
 			on_start = {
+				# Phase Change Event
+				scope:situation_sub_region = {
+					save_scope_as = my_subregion
+					every_situation_sub_region_participant_group = {
+						every_situation_group_participant = {
+							trigger_event = ck_volcano_event.0004
+						}
+					}
+				}
 
 			}
 			on_end = {
 				ck_volcano_reverse_ash_spread = yes
+				# Set variable to scope previous phase
+				set_variable = {
+					name = volcano_previous_phase
+					value = flag:major_ash
+					days = 5
+				}
 			}
 			max_duration_next_phase = random_non_takeover
 
@@ -407,10 +511,25 @@ ck_volcano_situation = {
 			max_duration = { years = 8 } # Overkill but once the volcano goes extinct, the situation will eventually end
 
 			on_start = {
+				# Phase Change Event
+				scope:situation_sub_region = {
+					save_scope_as = my_subregion
+					every_situation_sub_region_participant_group = {
+						every_situation_group_participant = {
+							trigger_event = ck_volcano_event.0004
+						}
+					}
+				}
 
 			}
 			on_end = {
 				ck_volcano_reverse_ash_spread = yes
+				# Set variable to scope previous phase
+				set_variable = {
+					name = volcano_previous_phase
+					value = flag:minor_ash
+					days = 5
+				}
 			}
 			max_duration_next_phase = random_non_takeover
 
@@ -474,15 +593,15 @@ ck_volcano_situation = {
 			max_duration = { years = 500 } # Overkill but once the volcano goes extinct, the situation will eventually end
 			
 			on_start = {
-				# scope:situation_sub_region = {
-				# 	save_scope_as = my_subregion
-				# 	every_situation_sub_region_participant_group = {
-				# 		limit = { participant_group_type = nomad_rulers_capital }
-				# 		every_situation_group_participant = {
-				# 			trigger_event = mpo_the_great_steppe.0002
-				# 		}
-				# 	}
-				# }
+				# Phase Change Event
+				scope:situation_sub_region = {
+					save_scope_as = my_subregion
+					every_situation_sub_region_participant_group = {
+						every_situation_group_participant = {
+							trigger_event = ck_volcano_event.0004
+						}
+					}
+				}
 			}
 
 
@@ -527,15 +646,23 @@ ck_volcano_situation = {
 			max_duration = { years = 40 }
 			
 			on_start = {
-				# scope:situation_sub_region = {
-				# 	save_scope_as = my_subregion
-				# 	every_situation_sub_region_participant_group = {
-				# 		limit = { participant_group_type = nomad_rulers_capital }
-				# 		every_situation_group_participant = {
-				# 			trigger_event = mpo_the_great_steppe.0002
-				# 		}
-				# 	}
-				# }
+				# Phase Change Event
+				scope:situation_sub_region = {
+					save_scope_as = my_subregion
+					every_situation_sub_region_participant_group = {
+						every_situation_group_participant = {
+							trigger_event = ck_volcano_event.0004
+						}
+					}
+				}
+			}
+			on_end = {
+				# Set variable to scope previous phase
+				set_variable = {
+					name = volcano_previous_phase
+					value = flag:inactive_phase
+					days = 5
+				}
 			}
 
 			max_duration_next_phase = random_non_takeover
