@@ -41,3 +41,273 @@ ck_volcano_reverse_ash_spread = {
 		}
 	}
 }
+
+### Eruption Effects
+ck_volcano_eruption_effects = {
+	if = {
+		limit = {
+			situation:ck_volcano_situation = {
+				situation_current_phase = phase_minor_eruption
+			}
+		}
+		## Spawn earthquakes in Ghilizi (above), Sokrun, and Agadir (site of extinct volcano)
+		title:c_sokrun = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+		title:c_agadir = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+
+		# Ghilizi Effects
+		title:c_ghilizi = {
+			if = {
+				limit = {
+					exists = holder
+				}
+				## Character Effects
+				# Holder modifier
+				if = {
+					limit = {
+						title_province = { has_holding_type = nomad_holding }
+					}
+					holder = {
+						add_character_modifier = ck_minor_eruption_character_nomad
+					}
+				}
+				else = {
+					holder = {
+						add_character_modifier = ck_minor_eruption_character_landed
+					}
+				}
+				## Immediate Effects
+				# Fertility
+				# Herd
+				# Development
+				holder = {
+					if = {
+						limit = {
+							government_has_flag = government_is_nomadic
+							exists = domicile
+						}
+						domicile = {
+							change_herd = {
+								value = herd
+								multiply = -0.8
+							}
+						}
+					}
+					capital_county ?= {
+						change_county_fertility = major_county_fertility_level_loss
+					}
+				}
+			}
+			# Spawn earthquake
+			change_development_level = convert_faith_development_loss
+			spawn_earthquake_in_county_skip_warning_effect = { COUNTY = this } # Spawn an earthquake too
+			## Long Term Effects
+			# Modifier
+			add_county_modifier = {
+				modifier = ck_minor_eruption_island
+				years = 8
+			}
+			## Character Effects
+			# People still in location as it erupts
+			every_in_de_jure_hierarchy = {
+				limit = {
+					tier = tier_barony
+				}
+				title_province = {
+					every_living_character = {
+						limit = {
+							location ?= prev
+						}
+						# No limits, you're on the island, you face the consequences
+						random_list = {
+							70 = { # Nothing happens, you're fine. Give a temp. flag to let the event know
+								add_character_flag = {
+									flag = ck_survived_eruption_flag
+									days = 30
+								}
+								debug_log = "[THIS.Char.GetNameNoTooltip] survive in eruption"
+							}
+							30 = { # You're caught in the pyroclastic cloud. X_X . Give a temp. flag to let the event know
+								add_character_flag = {
+									flag = ck_died_in_eruption_flag
+									days = 30
+								}
+								debug_log = "[THIS.Char.GetNameNoTooltip] died in eruption"
+							}
+						}
+						debug_log = "[THIS.Char.GetNameNoTooltip] is on the Ghilizi island"
+					}
+				}
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			situation:ck_volcano_situation = {
+				situation_current_phase = phase_major_eruption
+			}
+		}
+		## Spawn earthquakes in Ghilizi (above), Sokrun, and Agadir (site of extinct volcano)
+		title:c_sokrun = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+		title:c_agadir = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+		# Major Eruption spawns a lot more earthquakes across the region (ensuring no two neighboring counties are the epicenters)
+		## Konios
+		title:c_martilet = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+		title:c_saixys = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+		## Ksiref
+		title:c_ksiref = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+		## Mozareg
+		title:c_warya = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+		## Asulay
+		title:c_ghoust = {
+			spawn_earthquake_in_county_effect = { COUNTY = this }
+		}
+		# Ghilizi Effects
+		title:c_ghilizi = {
+			if = {
+				limit = {
+					exists = holder
+				}
+				## Character Effects
+				# Holder modifier
+				if = {
+					limit = {
+						title_province = { has_holding_type = nomad_holding }
+					}
+					holder = {
+						add_character_modifier = ck_minor_eruption_character_nomad
+					}
+				}
+				else = {
+					holder = {
+						add_character_modifier = ck_minor_eruption_character_landed
+					}
+				}
+				## Immediate Effects
+				# Fertility
+				# Herd
+				# Development
+				holder = {
+					if = {
+						limit = {
+							government_has_flag = government_is_nomadic
+							exists = domicile
+						}
+						domicile = {
+							change_herd = {
+								value = herd
+								multiply = -0.8
+							}
+						}
+					}
+					capital_county ?= {
+						change_county_fertility = major_county_fertility_level_loss
+					}
+				}
+			}
+			# Spawn earthquake
+			change_development_level = convert_faith_development_loss
+			spawn_earthquake_in_county_skip_warning_effect = { COUNTY = this } # Spawn an earthquake too
+			## Long Term Effects
+			# Modifier
+			add_county_modifier = {
+				modifier = ck_major_eruption_island
+				years = 10
+			}
+			## Character Effects
+			# People still in location as it erupts
+			every_in_de_jure_hierarchy = {
+				limit = {
+					tier = tier_barony
+				}
+				title_province = {
+					every_living_character = {
+						limit = {
+							location ?= prev
+						}
+						# No limits, you're on the island, you face the consequences
+						random_list = {
+							10 = { # Nothing happens, you're fine. Give a temp. flag to let the event know
+								add_character_flag = {
+									flag = ck_survived_eruption_flag
+									days = 30
+								}
+								debug_log = "[THIS.Char.GetNameNoTooltip] survive in eruption"
+							}
+							90 = { # You're caught in the pyroclastic cloud. X_X . Give a temp. flag to let the event know
+								add_character_flag = {
+									flag = ck_died_in_eruption_flag
+									days = 30
+								}
+								debug_log = "[THIS.Char.GetNameNoTooltip] died in eruption"
+							}
+						}
+						debug_log = "[THIS.Char.GetNameNoTooltip] is on the Ghilizi island"
+					}
+				}
+			}
+		}
+	}
+}
+
+### Spawn Earthquake, skip the warning (only for Ghilizi, also setting the severity to default max)
+spawn_earthquake_in_county_skip_warning_effect = {
+	$COUNTY$ = { save_scope_as = epicenter_county }
+
+	# Track globally for exclusivity and distribution
+	start_situation = {
+		type = natural_disaster_earthquake
+		start_phase = impact
+		save_scope_as = situation
+	}
+
+	scope:situation ?= {
+		set_situation_center_province = scope:epicenter_county.title_province
+		add_to_global_variable_list = {
+			name = ongoing_earthquakes
+			target = this
+		}
+		set_variable = {
+			name = fatalities
+			value = 0
+		}
+
+		set_variable = {
+			name = severity
+			value = 3
+		}
+
+		set_variable = {
+			name = epicenter_county
+			value = scope:epicenter_county
+		}
+
+		situation_sub_region:disaster_area = { add_dejure_title_to_sub_region = scope:epicenter_county }
+		# Add neighbours to sub_region
+		scope:epicenter_county = {
+			every_neighboring_county = {
+				add_to_temporary_list = neighbouring_counties
+				save_temporary_scope_as = neighbouring_county
+				scope:situation.situation_sub_region:disaster_area = { add_dejure_title_to_sub_region = scope:neighbouring_county }
+				# Cleanup for simpler debugging
+				clear_saved_scope = neighbouring_county
+			}
+		}
+		log_natural_disaster = "started"
+	}
+}
