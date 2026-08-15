@@ -1,12 +1,4 @@
-﻿ck_volcano_start_ash_spread = {
-	# Islands get immediately hit
-	# Nahasa coastline starts in the west and spreads east
-	# Calradia coastlines starts in Charas and spreads east
-	trigger_event = {
-		id = ck_volcano_events.1001
-		days = 60 # Volcano will erupt for a bit before the whole thing transitions to an ash cloud phase
-	}
-}
+﻿
 ck_volcano_reverse_ash_spread = {
 	# Depending on if it was a major or minor eruption depends on what county to start the reverting at
 	set_global_variable = {
@@ -43,6 +35,69 @@ ck_volcano_reverse_ash_spread = {
 }
 
 ### Eruption Effects
+ck_volcano_kill_or_survive_effect = {
+	if = {
+		limit = {
+			situation:ck_volcano_situation ?= {
+				OR = {
+					situation_current_phase = phase_minor_eruption
+					situation_current_phase = phase_major_eruption
+				}
+			}
+		}
+		title:c_ghilizi = {
+			# People still in location as it erupts
+			every_in_de_jure_hierarchy = {
+				limit = {
+					tier = tier_barony
+				}
+				title_province = {
+					every_living_character = {
+						limit = {
+							location ?= prev
+							is_ai = yes # Avoid killing players without a chance
+						}
+						custom = every_person_on_the_island
+						# No limits, you're on the island, you face the consequences
+						random_list = {
+							70 = { # Nothing happens, you're fine. Give a temp. flag to let the event know
+								show_chance = no
+								add_character_flag = {
+									flag = ck_survived_eruption_flag
+									days = 30
+								}
+								modifier = {
+									add = -60
+									situation:ck_volcano_situation = {
+										situation_current_phase = phase_major_eruption
+									}
+								}
+								custom_tooltip = ck_volcano.0010.b.tt_survive
+								debug_log = "[THIS.Char.GetNameNoTooltip] survive in eruption"
+							}
+							30 = { # You're caught in the pyroclastic cloud. X_X . Give a temp. flag to let the event know
+								# Fire event player to warn they will die if they do not take a quick decision
+								show_chance = no
+								modifier = {
+									add = 60
+									situation:ck_volcano_situation = {
+										situation_current_phase = phase_major_eruption
+									}
+								}
+								death = {
+									death_reason = death_volcano_eruption
+								}
+								debug_log = "[THIS.Char.GetNameNoTooltip] died in eruption"
+							}
+						}
+						debug_log = "[THIS.Char.GetNameNoTooltip] is on the Ghilizi island"
+					}
+				}
+			}
+		}
+	}
+}
+
 ck_volcano_eruption_effects = {
 	if = {
 		limit = {
@@ -111,37 +166,6 @@ ck_volcano_eruption_effects = {
 				years = 8
 			}
 			## Character Effects
-			# People still in location as it erupts
-			every_in_de_jure_hierarchy = {
-				limit = {
-					tier = tier_barony
-				}
-				title_province = {
-					every_living_character = {
-						limit = {
-							location ?= prev
-						}
-						# No limits, you're on the island, you face the consequences
-						random_list = {
-							70 = { # Nothing happens, you're fine. Give a temp. flag to let the event know
-								add_character_flag = {
-									flag = ck_survived_eruption_flag
-									days = 30
-								}
-								debug_log = "[THIS.Char.GetNameNoTooltip] survive in eruption"
-							}
-							30 = { # You're caught in the pyroclastic cloud. X_X . Give a temp. flag to let the event know
-								add_character_flag = {
-									flag = ck_died_in_eruption_flag
-									days = 30
-								}
-								debug_log = "[THIS.Char.GetNameNoTooltip] died in eruption"
-							}
-						}
-						debug_log = "[THIS.Char.GetNameNoTooltip] is on the Ghilizi island"
-					}
-				}
-			}
 		}
 	}
 	else_if = {
@@ -230,37 +254,6 @@ ck_volcano_eruption_effects = {
 				years = 10
 			}
 			## Character Effects
-			# People still in location as it erupts
-			every_in_de_jure_hierarchy = {
-				limit = {
-					tier = tier_barony
-				}
-				title_province = {
-					every_living_character = {
-						limit = {
-							location ?= prev
-						}
-						# No limits, you're on the island, you face the consequences
-						random_list = {
-							10 = { # Nothing happens, you're fine. Give a temp. flag to let the event know
-								add_character_flag = {
-									flag = ck_survived_eruption_flag
-									days = 30
-								}
-								debug_log = "[THIS.Char.GetNameNoTooltip] survive in eruption"
-							}
-							90 = { # You're caught in the pyroclastic cloud. X_X . Give a temp. flag to let the event know
-								add_character_flag = {
-									flag = ck_died_in_eruption_flag
-									days = 30
-								}
-								debug_log = "[THIS.Char.GetNameNoTooltip] died in eruption"
-							}
-						}
-						debug_log = "[THIS.Char.GetNameNoTooltip] is on the Ghilizi island"
-					}
-				}
-			}
 		}
 	}
 }
@@ -309,5 +302,19 @@ spawn_earthquake_in_county_skip_warning_effect = {
 			}
 		}
 		log_natural_disaster = "started"
+	}
+}
+
+## Start Ash Phase
+start_ash_phases_effect = {
+	# Counties in the direct vicinity of the islands immediately transition
+	every_county_in_region = {
+		region = region_volcano_immediate_ash
+		# Add these counties to the subregion
+		duchy = {
+			situation:ck_volcano_situation.situation_sub_region:al_ifrit = {
+				add_dejure_title_to_sub_region = prev
+			}
+		}
 	}
 }

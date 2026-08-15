@@ -1321,3 +1321,70 @@ geographical_region_county_size = {
 }
 
 ### Volcano Situation
+total_number_of_courtiers_and_guests = {
+	value = {
+		value = 0
+		every_courtier_or_guest = {
+			limit = {
+				is_travelling = no
+				location = {
+					county ?= {
+						this = title:c_ghilizi
+					}
+				}
+			}
+			add = 1
+		}
+	}
+}
+dead_courtiers_and_guests_from_eruption = {
+	value = {
+		value = 0
+		if = {
+			limit = {
+				situation:ck_volcano_situation ?= {
+					situation_current_phase = phase_minor_eruption
+				}
+			}
+			value = total_number_of_courtiers_and_guests
+			multiply = 0.3
+			round = yes
+		}
+		else_if = {
+			limit = {
+				situation:ck_volcano_situation ?= {
+					situation_current_phase = phase_major_eruption
+				}
+			}
+			value = total_number_of_courtiers_and_guests
+			multiply = 0.6
+			round = yes
+		}
+	}
+}
+saved_development_from_eruption = {
+	value = {
+		value = 0
+		add = total_number_of_courtiers_and_guests
+		subtract = dead_courtiers_and_guests_from_eruption
+		divide = total_number_of_courtiers_and_guests
+		multiply = title:c_ghilizi.development_level
+		round = yes
+	}
+}
+lost_development_from_eruption = {
+	value = {
+		value = 0
+		add = title:c_ghilizi.development_level
+		subtract = saved_development_from_eruption
+		round = no
+		# min = 0 # If it's lower than 1, do not adjust it
+	}
+}
+development_change_volcano = {
+	value = {
+		value = 0
+		add = saved_development_from_eruption
+		subtract = lost_development_from_eruption
+	}
+}

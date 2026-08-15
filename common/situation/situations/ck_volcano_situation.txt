@@ -38,13 +38,27 @@ ck_volcano_situation = {
 	# Groups
 	##################################################
 	participant_groups = {
-		# all_rulers = { # They're unaware they're part of the situation, this is just so we can apply the fertility modifiers to their counties
-		# 	is_character_valid = {
-		# 		highest_held_title_tier >= tier_empire
-		# 	}
-		# 	map_color = { 19 111 0 }
-		# }
-		affected_rulers = {
+		affected_rulers_capital = {
+			icon = "gfx/interface/icons/volcano_phases/heavy_ash_clouds.dds"
+			require_capital_in_sub_region = yes
+			require_realm_in_sub_region = yes
+			is_character_valid = {
+				highest_held_title_tier >= tier_county
+				any_realm_province = {
+					NOT = {
+						geographical_region = region_volcano_iderfani
+					}
+				}
+				capital_county ?= {
+					any_county_situation = {
+						this = situation:ck_volcano_situation
+					}
+				}
+			}
+
+			map_color = { 155 42 70 }
+		}
+		affected_rulers_realm = {
 			icon = "gfx/interface/icons/volcano_phases/heavy_ash_clouds.dds"
 			require_capital_in_sub_region = no
 			require_realm_in_sub_region = yes
@@ -55,9 +69,16 @@ ck_volcano_situation = {
 						geographical_region = region_volcano_iderfani
 					}
 				}
+				capital_county ?= {
+					NOT = {
+						any_county_situation = {
+							this = situation:ck_volcano_situation
+						}
+					}
+				}
 			}
 
-			map_color = { 255 127 80 }
+			map_color = { 96 93 127 }
 		}
 		iderfani_islanders = {
 			icon = "gfx/interface/icons/faith_doctrines/special_doctrine_west_nahasa.dds"
@@ -71,6 +92,8 @@ ck_volcano_situation = {
 					geographical_region = region_volcano_iderfani
 				}
 			}
+
+			map_color = { 255 127 80 }
 		}
 		traveller = {
 			icon = "gfx/interface/icons/volcano_phases/traveller_group.dds"
@@ -83,6 +106,8 @@ ck_volcano_situation = {
 					}
 				}
 			}
+
+			map_color = { 107 200 24 }
 		}
 	}
 
@@ -173,6 +198,7 @@ ck_volcano_situation = {
 		phase_volcano_warning = {
 			icon = "gfx/interface/icons/volcano_phases/everlasting_summer.dds"			
 			illustration = "gfx/interface/icons/volcano_phases/lava_flows.dds"
+			max_duration = { years = 1 }
 			
 			on_start = {
 				scope:situation_sub_region = {
@@ -203,7 +229,7 @@ ck_volcano_situation = {
 				# 	}
 				# }
 				trigger_event = {
-					id = ck_volcano_event.1000
+					id = ck_volcano_event.0001
 					days = 20
 				}
 			}
@@ -231,7 +257,7 @@ ck_volcano_situation = {
 				situation_volcano_county_effects = {
 					icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-					# affected_rulers = {
+					# affected_rulers_capital = {
 					# 	county_modifier = {
 					# 		county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 					# 	}
@@ -253,22 +279,48 @@ ck_volcano_situation = {
 		phase_minor_eruption = {
 			icon = "gfx/interface/icons/seasons/everlasting_summer.dds"			
 			illustration = "gfx/interface/icons/volcano_phases/minor_eruption.dds"
-			max_duration = { years = 8 }
+			max_duration = { days = 60 }
 			
 			on_start = {
+				set_global_variable = {
+					name = ck_check_minor_eruption # Using this to ensure the proper monthly pulse effect is utilized
+					value = yes
+					years = 11 # Length of cloud covers + extra for cleanup
+				}
+				# Fire effects for everyone and everything on and near island
+				ck_volcano_eruption_effects = yes
+
 				scope:situation_sub_region = {
 					save_scope_as = my_subregion
 					every_situation_sub_region_participant_group = {
 						every_situation_group_participant = {
+							limit = {
+								NOR = {
+									has_character_flag = ck_volcano_helping_evacuate
+									has_character_flag = ck_volcano_stayed_behind
+									has_character_flag = ck_volcano_stayed_behind_lunatic
+								}
+							}
 							trigger_event = ck_volcano_event.0005
 						}
 					}
 				}
-				# Start ash spread
-				ck_volcano_start_ash_spread = yes
-				# Fire effects for everyone and everything on and near island
-				ck_volcano_eruption_effects = yes
 
+				# Fire notification event for anyone on the island
+				every_ruler = {
+					limit = {
+						is_playable_character = yes
+						highest_held_title_tier >= tier_county
+						location.county ?= title:c_ghilizi
+						# OR = {
+						# 	has_character_flag = ck_volcano_helping_evacuate
+						# 	has_character_flag = ck_volcano_stayed_behind
+						# 	has_character_flag = ck_volcano_stayed_behind_lunatic
+						# }
+					}
+					trigger_event = ck_volcano_event.0010
+				}
+				
 				# Notify everyone in the wider region
 				every_ruler = {
 					limit = {
@@ -277,13 +329,9 @@ ck_volcano_situation = {
 								situation_type = ck_volcano_situation
 							}
 						}
+						location.county != title:c_ghilizi
 						highest_held_title_tier >= tier_county
-						OR = {
-							is_landed = yes
-							is_landless_adventurer = yes
-						}
-						is_mercenary_company = no
-						is_holy_order = no
+						is_playable_character = yes
 						location = {
 							geographical_region = volcano_minor_eruption_notification
 						}
@@ -296,6 +344,8 @@ ck_volcano_situation = {
 				}
 			}
 			on_end = {
+				# Start ash spread
+				start_ash_phases_effect = yes
 				# Set variable to scope previous phase
 				set_variable = {
 					name = volcano_previous_phase
@@ -314,7 +364,7 @@ ck_volcano_situation = {
 				# situation_volcano_county_effects = {
 				# 	icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-				# 	affected_rulers = {
+				# 	affected_rulers_capital = {
 				# 		county_modifier = {
 				# 			county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 				# 		}
@@ -336,13 +386,28 @@ ck_volcano_situation = {
 		phase_major_eruption = {
 			icon = "gfx/interface/icons/seasons/everlasting_summer.dds"			
 			illustration = "gfx/interface/icons/volcano_phases/major_eruption.dds"
-			max_duration = { years = 10 }
+			max_duration = { days = 60 }
 			
 			on_start = {
+				set_global_variable = {
+					name = ck_check_major_eruption # Using this to ensure the proper monthly pulse effect is utilized
+					value = yes
+					years = 13 # Length of cloud covers + extra for cleanup
+				}
+				# Fire effects for everyone and everything on and near island
+				ck_volcano_eruption_effects = yes
+
 				scope:situation_sub_region = {
 					save_scope_as = my_subregion
 					every_situation_sub_region_participant_group = {
 						every_situation_group_participant = {
+							limit = {
+								NOR = {
+									has_character_flag = ck_volcano_helping_evacuate
+									has_character_flag = ck_volcano_stayed_behind
+									has_character_flag = ck_volcano_stayed_behind_lunatic
+								}
+							}
 							trigger_event = ck_volcano_event.0005
 						}
 					}
@@ -353,11 +418,21 @@ ck_volcano_situation = {
 					value = yes
 					years = 500
 				}
-				# Start ash spread
-				ck_volcano_start_ash_spread = yes
-				# Fire effects for everyone and everything on and near island
-				ck_volcano_eruption_effects = yes
 
+				# Fire notification event for anyone on the island
+				every_ruler = {
+					limit = {
+						is_playable_character = yes
+						highest_held_title_tier >= tier_county
+						location.county ?= title:c_ghilizi
+						# OR = {
+						# 	has_character_flag = ck_volcano_helping_evacuate
+						# 	has_character_flag = ck_volcano_stayed_behind
+						# 	has_character_flag = ck_volcano_stayed_behind_lunatic
+						# }
+					}
+					trigger_event = ck_volcano_event.0010
+				}
 				# Notify everyone in the wider region
 				every_ruler = {
 					limit = {
@@ -366,14 +441,9 @@ ck_volcano_situation = {
 								situation_type = ck_volcano_situation
 							}
 						}
-						OR = {
-							is_landed = yes
-							is_landless_adventurer = yes
-						}
+						location.county != title:c_ghilizi
 						highest_held_title_tier >= tier_county
-						is_mercenary_company = no
-						is_holy_order = no
-						# is_ai = no # No sense in notifying AI w/
+						is_playable_character = yes
 						location = {
 							geographical_region = region_volcano_major_blast_sound
 						}
@@ -384,8 +454,12 @@ ck_volcano_situation = {
 					}
 					trigger_event = ck_volcano_event.0005
 				}
+
+
 			}
 			on_end = {
+				# Start ash spread
+				start_ash_phases_effect = yes
 				# Set variable to scope previous phase
 				set_variable = {
 					name = volcano_previous_phase
@@ -404,7 +478,7 @@ ck_volcano_situation = {
 				# situation_volcano_county_effects = {
 				# 	icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-				# 	affected_rulers = {
+				# 	affected_rulers_capital = {
 				# 		county_modifier = {
 				# 			county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 				# 		}
@@ -432,8 +506,28 @@ ck_volcano_situation = {
 				scope:situation_sub_region = {
 					save_scope_as = my_subregion
 					every_situation_sub_region_participant_group = {
+						limit = { participant_group_type = iderfani_islanders }
 						every_situation_group_participant = {
 							trigger_event = ck_volcano_event.0004
+							add_to_global_variable_list = {
+								name = ck_experienced_ash
+								target = this
+							}
+						}
+					}
+				}
+				scope:situation_sub_region = {
+					save_scope_as = my_subregion
+					every_situation_sub_region_participant_group = {
+						limit = {
+							OR = {
+								participant_group_type = affected_rulers_realm
+								participant_group_type = affected_rulers_capital
+								participant_group_type = traveller
+							}
+						}
+						every_situation_group_participant = {
+							trigger_event = ck_volcano_event.0008
 						}
 					}
 				}
@@ -447,6 +541,15 @@ ck_volcano_situation = {
 					value = flag:major_ash
 					days = 5
 				}
+
+				every_in_global_list = {
+					variable = ck_experienced_ash
+					save_temporary_scope_as = char_temp
+					remove_list_global_variable = {
+						name = ck_experienced_ash
+						target = scope:char_temp
+					}
+				}
 			}
 			max_duration_next_phase = random_non_takeover
 
@@ -459,7 +562,7 @@ ck_volcano_situation = {
 			modifier_sets = {
 				situation_volcano_personal_effects = {
 					icon = "gfx/interface/icons/situations/situation_modifier_character.dds"
-					affected_rulers = {
+					affected_rulers_capital = {
 						character_modifier = {
 							character_travel_speed = -15
 						}
@@ -478,7 +581,7 @@ ck_volcano_situation = {
 				situation_volcano_county_effects = {
 					icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-					affected_rulers = {
+					affected_rulers_capital = {
 						county_modifier = {
 							county_fertility_decline_add = cf_havsarsan_decline_add_value
 							county_fertility_decline_mult = cf_havsarsan_decline_mult_value
@@ -497,7 +600,7 @@ ck_volcano_situation = {
 				situation_volcano_military_effects = {
 					icon = "gfx/interface/icons/situations/situation_modifier_military.dds"
 					
-					affected_rulers = {
+					affected_rulers_capital = {
 						character_modifier = {
 							siege_phase_time = -0.15
 						}
@@ -515,8 +618,27 @@ ck_volcano_situation = {
 				scope:situation_sub_region = {
 					save_scope_as = my_subregion
 					every_situation_sub_region_participant_group = {
+						limit = {
+							NOR = {
+								participant_group_type = affected_rulers_realm
+								participant_group_type = affected_rulers_capital
+								participant_group_type = traveller
+							}
+						}
 						every_situation_group_participant = {
 							trigger_event = ck_volcano_event.0004
+						}
+					}
+					every_situation_sub_region_participant_group = {
+						limit = {
+							OR = {
+								participant_group_type = affected_rulers_realm
+								participant_group_type = affected_rulers_capital
+								participant_group_type = traveller
+							}
+						}
+						every_situation_group_participant = {
+							trigger_event = ck_volcano_event.0008
 						}
 					}
 				}
@@ -530,6 +652,15 @@ ck_volcano_situation = {
 					value = flag:minor_ash
 					days = 5
 				}
+				
+				every_in_global_list = {
+					variable = ck_experienced_ash
+					save_temporary_scope_as = char_temp
+					remove_list_global_variable = {
+						name = ck_experienced_ash
+						target = scope:char_temp
+					}
+				}
 			}
 			max_duration_next_phase = random_non_takeover
 
@@ -541,7 +672,7 @@ ck_volcano_situation = {
 			modifier_sets = {
 				situation_volcano_personal_effects = {
 					icon = "gfx/interface/icons/situations/situation_modifier_character.dds"
-					affected_rulers = {
+					affected_rulers_capital = {
 						character_modifier = {
 							character_travel_speed = -5
 						}
@@ -560,7 +691,7 @@ ck_volcano_situation = {
 				situation_volcano_county_effects = {
 					icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-					affected_rulers = {
+					affected_rulers_capital = {
 						county_modifier = {
 							county_fertility_decline_add = 0.6
 							county_fertility_decline_mult = 0.6
@@ -579,7 +710,7 @@ ck_volcano_situation = {
 				situation_volcano_military_effects = {
 					icon = "gfx/interface/icons/situations/situation_modifier_military.dds"
 					
-					affected_rulers = {
+					affected_rulers_capital = {
 						character_modifier = {
 							siege_phase_time = -0.15
 						}
@@ -612,7 +743,7 @@ ck_volcano_situation = {
 				# situation_volcano_county_effects = {
 				# 	icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-				# 	affected_rulers = {
+				# 	affected_rulers_capital = {
 				# 		county_modifier = {
 				# 			county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 				# 		}
@@ -682,7 +813,7 @@ ck_volcano_situation = {
 				# situation_volcano_county_effects = {
 				# 	icon = "gfx/interface/icons/situations/situation_modifier_fertility.dds"
 
-				# 	affected_rulers = {
+				# 	affected_rulers_capital = {
 				# 		county_modifier = {
 				# 			county_fertility_growth_mult = cf_warm_nights_growth_mult_value
 				# 		}

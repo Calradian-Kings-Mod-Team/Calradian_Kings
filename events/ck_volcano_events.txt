@@ -1,22 +1,48 @@
 ﻿namespace = ck_volcano_event
 
-ck_volcano_event.0001 = { # Introduction for islanders
-	type = character_event
-	title = ck_volcano_event.0001.t
-	desc = ck_volcano_event.0001.desc
-	theme = travel_danger
+ck_volcano_event.0001 = { # Major or Minor
+	hidden = yes
+	scope = none
 
-	override_background = {
-		event_background = wilderness_mountains
-	}
-
-	option = {
-		name = ck_volcano_event.0001.a
+	immediate = {
+		situation:ck_volcano_situation ?= {
+			random_list = {
+				10 = { # Major
+					trigger = {
+						NOT = { exists = global_var:ck_recent_major_eruption }
+					}
+					modifier = {
+						add = 90
+						has_game_rule = volcano_situation_enabled
+						AND = {
+							current_year > 1150.1.1
+							current_year < 1210.1.1
+						}
+					}
+					situation_top_sub_region = {
+						change_phase = { phase = phase_major_eruption }
+					}
+				}
+				90 = { # Minor
+					modifier = {
+						add = -85
+						has_game_rule = volcano_situation_enabled
+						AND = {
+							current_year > 1150.1.1
+							current_year < 1210.1.1
+						}
+					}
+					situation_top_sub_region = {
+						change_phase = { phase = phase_minor_eruption }
+					}
+				}
+			}
+		}
 	}
 }
 
 ### Phase Transitions
-# Transition to Warning (WARNING! YOU HAVE 60 DAYS TO EVACUATE. MOVE IT, ASSHOLE!)
+# Transition to Warning (WARNING! YOU HAVE 60 DAYS TO EVACUATE. MOVE IT, A-HOLE!)
 ck_volcano_event.0002 = {
 	type = character_event
 	title = ck_volcano_event.0002.t
@@ -50,9 +76,11 @@ ck_volcano_event.0002 = {
 	theme = ck_volcano
 
 	trigger = {
-		NOR = {
-			situation_current_phase = phase_minor_eruption
-			situation_current_phase = phase_major_eruption
+		situation:ck_volcano_situation = {
+			NOR = {
+				situation_current_phase = phase_minor_eruption
+				situation_current_phase = phase_major_eruption
+			}
 		}
 	}
 	override_background = {
@@ -164,6 +192,10 @@ ck_volcano_event.0003 = {
 				ai_boldness = 1
 				ai_energy = 0.5
 			}
+			modifier = {
+				add = 25
+				has_trait = craven
+			}
 		}
 	}
 	option = {
@@ -178,6 +210,32 @@ ck_volcano_event.0003 = {
 			}
 		}
 		flavor = ck_volcano_event.0003.b.flavor
+
+		# Give flag in case eruption occurs before character is away
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_volcano_helping_evacuate
+				days = 100
+			}
+		}
+		ai_chance = {
+			base = 40
+			modifier = {
+				add = 10
+				has_trait = brave
+			}
+			modifier = {
+				add = 15
+				has_trait = compassionate
+			}
+			modifier = {
+				add = -25
+				OR = {
+					has_trait = craven
+					has_trait = lazy
+				}
+			}
+		}
 	}
 	option = {
 		name = ck_volcano_event.0003.c
@@ -189,15 +247,35 @@ ck_volcano_event.0003 = {
 				}
 			}
 		}
+
+		# Give flag to let situation know this person stayed behind
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_volcano_stayed_behind
+				days = 100
+			}
+		}
+		ai_chance = {
+			base = 10
+			modifier = {
+				add = 20
+				has_trait = stubborn
+			}
+			modifier = {
+				add = 15
+				has_trait = arrogant
+			}
+			modifier = {
+				add = 10
+				has_trait = lazy
+			}
+		}
 	}
 	option = {
 		name = ck_volcano_event.0003.d
 		flavor = ck_volcano_event.0003.d.flavor
 		trigger = {
-			root.faith.religion = religion:west_nahasan_religion
-			NOT = {
-				has_trait = zealous
-			}
+			faith.religion = religion:west_nahasan_religion
 			OR = {
 				has_trait = lunatic_1
 				has_trait = lunatic_genetic
@@ -209,6 +287,25 @@ ck_volcano_event.0003 = {
 			}
 		}
 		trait = lunatic_1
+
+		# Give flag to let situation know this person stayed behind
+		hidden_effect = {
+			add_character_flag = {
+				flag = ck_volcano_stayed_behind_lunatic
+				days = 100
+			}
+		}
+		ai_chance = {
+			base = 0
+			modifier = {
+				add = 50
+				faith.religion = religion:west_nahasan_religion
+				OR = {
+					has_trait = lunatic_1
+					has_trait = lunatic_genetic
+				}
+			}
+		}
 	}
 	# Available only to those off of the island already
 	option = {
@@ -421,6 +518,10 @@ ck_volcano_event.0004 = {
 	override_background = {
 		reference = volcano_mountains
 	}
+	left_portrait = {
+		character = root
+		animation = pondering
+	}
 	immediate = {
 		###### SFX ######
 		if = {
@@ -508,7 +609,7 @@ ck_volcano_event.0005 = {
 			}
 		}
 	}
-	desc = {# Current Phase
+	desc = { # Current Phase
 		first_valid = {
 			# Minor Eruption - Those in immediate range of eruption, i.e. islands
 			triggered_desc = {
@@ -516,32 +617,32 @@ ck_volcano_event.0005 = {
 					situation:ck_volcano_situation = {
 						situation_current_phase = phase_minor_eruption
 					}
+					title:c_ghilizi.title_province = {
+						"squared_distance(root.location)" <= squared_distance_medium # 250px
+					}
 				}
 				desc = ck_volcano_events.0005.desc.minor_eruption
 			}
-			# Minor Eruption - Those further out
+			# Minor Eruption - Blast range of the explosion (sound) (coastlines) (region-locked)
 			triggered_desc = {
 				trigger = {
 					situation:ck_volcano_situation = {
 						situation_current_phase = phase_minor_eruption
 					}
-				}
-				desc = ck_volcano_events.0005.desc.minor_eruption
-			}
-			# Major Eruption - Immediate range of the explosion (island)
-			triggered_desc = {
-				trigger = {
-					situation:ck_volcano_situation = {
-						situation_current_phase = phase_major_eruption
+					title:c_ghilizi.title_province = {
+						"squared_distance(root.location)" > squared_distance_medium # Greater than 250px
 					}
 				}
-				desc = ck_volcano_events.0005.desc.major_eruption
+				desc = ck_volcano_events.0005.desc.minor_eruption_sound
 			}
 			# Major Eruption - Immediate range of the explosion (nearby islands)
 			triggered_desc = {
 				trigger = {
 					situation:ck_volcano_situation = {
 						situation_current_phase = phase_major_eruption
+					}
+					title:c_ghilizi.title_province = {
+						"squared_distance(root.location)" <= squared_distance_medium # 250px
 					}
 				}
 				desc = ck_volcano_events.0005.desc.major_eruption
@@ -552,8 +653,11 @@ ck_volcano_event.0005 = {
 					situation:ck_volcano_situation = {
 						situation_current_phase = phase_major_eruption
 					}
+					title:c_ghilizi.title_province = {
+						"squared_distance(root.location)" > squared_distance_medium # Greater than 250px
+					}
 				}
-				desc = ck_volcano_events.0005.desc.major_eruption
+				desc = ck_volcano_events.0005.desc.major_eruption_sound
 			}
 		}
 	}
@@ -567,82 +671,1029 @@ ck_volcano_event.0005 = {
 		###### SFX ######
 		play_music_cue = calking_volcano_eruption_effect
 		
+
 	}
 	option = {
-		name = ck_volcano_event.0005.a
+		name = {
+			trigger = {
+				title:c_ghilizi.title_province = {
+					"squared_distance(root.location)" <= squared_distance_medium # Greater than 250px
+				}
+			}
+			text = ck_volcano_event.0005.a
+		}
+		name = {
+			trigger = {
+				title:c_ghilizi.title_province = {
+					"squared_distance(root.location)" > squared_distance_medium # Greater than 250px
+				}
+			}
+			text = ck_volcano_event.0005.a_sound
+		}
 	}
 }
 ### Ash Spread
-# Heavy/Light ash passes over your realm (Heavy takes priority)
+## Heavy/Light ash passes over your realm (Heavy takes priority)
+# These will fire when someone joins the situation, so if should only occur once
+# Everyone who enters the situation will be added to a list then removed at the conclusion to ensure if someone...
+# like an adventurer leaves and comes back, the event won't fire again
 ck_volcano_event.0008 = {
 	type = character_event
-	title = ck_volcano_event.0002.t
-	desc = ck_volcano_event.0002.desc
+	title = ck_volcano_event.0008.t
+	desc = {
+		first_valid = {
+			## Light Ash
+			triggered_desc = { # Your capital is hit directly
+				trigger = {
+					is_landless_adventurer = no
+					capital_county ?= {
+						any_county_situation = {
+							situation_type = ck_volcano_situation
+						}
+					}
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_ash_clouds
+					}
+				}
+				desc = ck_volcano_event.0008.light_ash.capital
+			}
+			triggered_desc = { # Your realm is hit
+				trigger = {
+					is_landless_adventurer = no
+					any_realm_county = {
+						any_county_situation = {
+							situation_type = ck_volcano_situation
+						}
+					}
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_ash_clouds
+					}
+				}
+				desc = ck_volcano_event.0008.light_ash.realm
+			}
+			triggered_desc = { # Traveller in a county hit by ash
+				trigger = {
+					is_landless_adventurer = yes
+					location = {
+						county ?= {
+							any_county_situation = {
+								situation_type = ck_volcano_situation
+							}
+						}
+					}
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_ash_clouds
+					}
+				}
+				desc = ck_volcano_event.0008.light_ash.traveller
+			}
+			## Heavy Ash
+			triggered_desc = { # Your capital is hit directly
+				trigger = {
+					is_landless_adventurer = no
+					capital_county ?= {
+						any_county_situation = {
+							situation_type = ck_volcano_situation
+						}
+					}
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_ash_clouds
+					}
+				}
+				desc = ck_volcano_event.0008.heavy_ash.capital
+			}
+			triggered_desc = { # Your realm is hit
+				trigger = {
+					is_landless_adventurer = no
+					any_realm_county = {
+						any_county_situation = {
+							situation_type = ck_volcano_situation
+						}
+					}
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_ash_clouds
+					}
+				}
+				desc = ck_volcano_event.0008.heavy_ash.realm
+			}
+			triggered_desc = { # Traveller in a county hit by ash
+				trigger = {
+					is_landless_adventurer = yes
+					location = {
+						county ?= {
+							any_county_situation = {
+								situation_type = ck_volcano_situation
+							}
+						}
+					}
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_ash_clouds
+					}
+				}
+				desc = ck_volcano_event.0008.heavy_ash.traveller
+			}
+		}
+	}
+	theme = ck_volcano
 
 	override_background = {
-		event_background = wilderness_mountains
+		reference = throne_room
+	}
+	left_portrait = {
+		character = root
+		animation = worry
+	}
+	# ALL THE VFX!
+	override_effect_2d = {
+		reference = smoke
+	}
+	trigger = {
+		## Avoid firing the event again in case, mostly for adventurers
+		NOT = {
+			any_in_global_list = {
+				variable = ck_experienced_ash
+				this = root
+			}
+		}
 	}
 
 	option = {
-		name = ck_volcano_event.0002.a
+		name = {
+			trigger = {
+				location = {
+					county ?= {
+						any_county_situation = {
+							situation_type = ck_volcano_situation
+						}
+					}
+				}
+			}
+			text = ck_volcano_event.0008.a.capital
+		}
+		name = {
+			trigger = {
+				location = {
+					county ?= {
+						NOT = {
+							any_county_situation = {
+								situation_type = ck_volcano_situation
+							}
+						}
+					}
+				}
+			}
+			text = ck_volcano_event.0008.a.realm
+		}
+	}
+
+	after = {
+		add_to_global_variable_list = { # To avoid getting this event more than once
+			name = ck_experienced_ash
+			target = root
+		}
 	}
 }
 ### Volcanic Eruption - Player location
-# You leave the island before an eruption - Fires from decision
-ck_volcano_event.0009 = {
-	type = character_event
-	title = ck_volcano_event.0008.t
-	desc = ck_volcano_event.0008.desc
-
-	override_background = {
-		event_background = wilderness_mountains
-	}
-
-	option = {
-		name = ck_volcano_event.0009.a
-	}
-}
 # You are still on the island as it erupts. Attempt an escape to a neighboring island. Chance of failure increases if major eruption
 ck_volcano_event.0010 = {
 	type = character_event
 	title = ck_volcano_event.0010.t
-	desc = ck_volcano_event.0010.desc
+	desc = {
+		first_valid = {
+			# Minor - Some falling debris, some pyroclast
+			triggered_desc = {
+				trigger = {
+					has_character_flag = ck_volcano_helping_evacuate
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_event.0010.desc.rescue
+			}
+			triggered_desc = {
+				trigger = {
+					has_character_flag = ck_volcano_stayed_behind_lunatic
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_event.0010.desc.lunatic
+			}
+			# Major - Apocalyptic scenery
+			triggered_desc = {
+				trigger = {
+					has_character_flag = ck_volcano_helping_evacuate
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_event.0010.desc.rescue.2
+			}
+			triggered_desc = {
+				trigger = {
+					has_character_flag = ck_volcano_stayed_behind_lunatic
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_event.0010.desc.lunatic.2
+			}
+			# Fallbacks
+			triggered_desc = {
+				trigger = {
+					# has_character_flag = ck_volcano_stayed_behind
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_minor_eruption
+					}
+				}
+				desc = ck_volcano_event.0010.desc.stayed_behind
+			}
+			triggered_desc = {
+				trigger = {
+					# has_character_flag = ck_volcano_stayed_behind
+					situation:ck_volcano_situation = {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				desc = ck_volcano_event.0010.desc.stayed_behind.2
+			}
 
+		}
+	}
+	theme = ck_volcano
 	override_background = {
-		event_background = wilderness_mountains
+		reference = wilderness_mountains
+	}
+	trigger = {
+		# location.county ?= title:c_ghilizi # Must still be on the island during the eruption phase
+		# situation:ck_volcano_situation = {
+		# 	OR = {
+		# 		situation_current_phase = phase_minor_eruption
+		# 		situation_current_phase = phase_major_eruption
+		# 	}
+		# }
+	}
+	immediate = {
+		# Find a barony capital in the region that isn't hostile to you, prioritize Sokrun
+		random_county_in_region = {
+			region = volcano_minor_eruption_notification
+			limit = {
+				holder ?= {
+					opinion = {
+						target = root
+						value >= 5
+					}
+					NOR = {
+						has_imprisonment_reason = root
+						is_at_war_with = root
+					}
+				}
+				title_province = {
+					is_coastal = yes
+				}
+			}
+			weight = {
+				base = 1
+				modifier = {
+					this = title:c_sokrun
+					add = 5
+				}
+			}
+			title_province = {
+				save_scope_as = ck_volcano_0010_destination
+			}
+		}
+		save_scope_value_as = {
+			name = total_number_of_courtiers_and_guests
+			value = {
+				value = 0
+				every_courtier_or_guest = {
+					limit = {
+						is_travelling = no
+						location = {
+							county ?= {
+								this = title:c_ghilizi
+							}
+						}
+					}
+					add = 1
+				}
+			}
+		}
+		save_scope_value_as = {
+			name = dead_courtiers_and_guests_from_eruption
+			value = {
+				value = 0
+				if = {
+					limit = {
+						situation:ck_volcano_situation ?= {
+							situation_current_phase = phase_minor_eruption
+						}
+					}
+					value = scope:total_number_of_courtiers_and_guests
+					multiply = 0.4
+					round = yes
+				}
+				else_if = {
+					limit = {
+						situation:ck_volcano_situation ?= {
+							situation_current_phase = phase_major_eruption
+						}
+					}
+					value = scope:total_number_of_courtiers_and_guests
+					multiply = 0.6
+					round = yes
+				}
+			}
+		}
+		save_scope_value_as = {
+			name = saved_development_from_eruption
+			value = {
+				value = scope:total_number_of_courtiers_and_guests
+				subtract = scope:dead_courtiers_and_guests_from_eruption
+				divide = scope:total_number_of_courtiers_and_guests
+				multiply = title:c_ghilizi.development_level
+				round = yes
+			}
+		}
+		save_scope_value_as = {
+			name = lost_development_from_eruption
+			value = {
+				value = title:c_ghilizi.development_level
+				subtract = scope:saved_development_from_eruption
+				round = no
+				min = 0 # If it's lower than 1, do not adjust it
+			}
+		}
+		# If the player has a heir older than 13, scope them
+		if = {
+			limit = {
+				exists = player_heir
+				player_heir = {
+					age >= 13
+				}
+			}
+			player_heir = {
+				save_scope_as = players_heir
+			}
+		}
 	}
 
-	option = {
+	option = { # Helping to evacuate, leave early
 		name = ck_volcano_event.0010.a
-	}
-}
-# On a neighboring island, witnessing the eruption from a distance
-ck_volcano_event.0011 = {
-	type = character_event
-	title = ck_volcano_event.0011.t
-	desc = ck_volcano_event.0011.desc
+		trigger = {
+			has_character_flag = ck_volcano_helping_evacuate
+		}
+		
+		# Kill random people on the island from the volcano
+		custom_tooltip = {
+			text = ck_volcano_0010_a_kill_tt
+			while = {
+				count = scope:dead_courtiers_and_guests_from_eruption
+				random_courtier_or_guest = {
+					limit = {
+						this != root
+					}
+					weight = {
+						base = 1
+						# Try to find someone relevant
+						modifier = {
+							is_close_family_of = root
+							add = -0.6 # The first ones on board
+						}
+					}
+					death = {
+						death_reason = death_volcano_eruption
+					}
+				}
+			}
+		}
 
-	override_background = {
-		event_background = wilderness_mountains
+		# Change development level since you didn't save everyone
+		if = {
+			limit = {
+				scope:lost_development_from_eruption >= 1
+				title:c_ghilizi.holder = { # Must hold the title to change development - avoid repeating effect
+					this = root
+				}
+			}
+			custom_tooltip = ck_volcano_0010_a_kill_tt_2
+			title:c_ghilizi = {
+				change_development_level = {
+					value = 0
+					subtract = scope:lost_development_from_eruption
+				}
+			}
+		}
+		else = {
+			custom_tooltip = ck_volcano_event.0010.a.2.tt
+		}
+
+		# Start the travel
+		start_travel_plan = {
+			players_use_planner = no
+			destination = scope:ck_volcano_0010_destination
+			travel_with_domicile = yes
+			on_arrival_event = ck_volcano_event.0100
+			on_arrival_destinations = all_but_last
+			on_travel_planner_cancel_event = ck_volcano_event.0101
+		}
+		if = {
+			limit = {
+				exists = scope:players_heir
+			}
+			custom_tooltip = {
+				text = ck_volcano_0010_a_tt
+				every_courtier_or_guest = {
+					limit = {
+						is_travelling = no
+					}
+					root.current_travel_plan = { add_companion = prev }
+				}
+			}
+		}
+		ai_chance = {
+			base = 70
+			modifier = {
+				add = 30
+				OR = {
+					has_trait = craven
+					has_trait = callous
+					has_trait = sadistic
+				}
+			}
+			modifier = {
+				add = -5
+				has_trait = compassionate
+			}
+			modifier = {
+				add = -5
+				has_trait = brave
+			}
+		}
+
+		stress_impact = {
+			compassionate = minor_stress_impact_gain
+			brave = minor_stress_impact_gain
+			craven = minor_stress_impact_loss
+		}
+	}
+	option = { # Helping to evacuate, stay behind
+		name = ck_volcano_event.0010.a.2
+		flavor = ck_volcano_event.0010.a.2.flavor
+		custom_tooltip = ck_volcano_event.0010.a.2.tt
+		trigger = {
+			has_character_flag = ck_volcano_helping_evacuate
+		}
+		# Random family member will lead travel, heir prioritized
+		if = {
+			limit = {
+				exists = scope:players_heir
+			}
+			scope:players_heir = {
+				start_travel_plan = {
+					players_use_planner = no
+					destination = scope:ck_volcano_0010_destination
+					travel_with_domicile = yes
+					on_arrival_event = ck_volcano_event.0100
+					on_arrival_destinations = all_but_last
+					on_travel_planner_cancel_event = ck_volcano_event.0101
+				}
+			}
+			custom_tooltip = {
+				text = ck_volcano_0010_a_tt
+				every_courtier_or_guest = {
+					limit = {
+						is_travelling = no
+					}
+					scope:players_heir.current_travel_plan = { add_companion = prev }
+				}
+			}
+		}
+		# You find refuge or die in the fire
+		random_list = {
+			50 = {
+				show_chance = no
+				custom_tooltip = ck_volcano_event.0010.a.2.tt_survive
+				modifier = {
+					add = -20
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				hidden_effect = {
+					add_character_flag = {
+						flag = ck_survived_eruption_flag
+						days = 30
+					}
+				}
+			}
+			50 = {
+				show_chance = no
+				modifier = {
+					add = 20
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				death = {
+					death_reason = death_volcano_eruption
+				}
+			}
+		}
+
+		ai_chance = {
+			base = 50
+			modifier = {
+				factor = 0
+				OR = {
+					has_trait = craven
+					has_trait = callous
+					has_trait = sadistic
+				}
+			}
+			modifier = {
+				add = 10
+				has_trait = compassionate
+			}
+			modifier = {
+				add = 10
+				has_trait = brave
+			}
+		}
+		stress_impact = {
+			compassionate = major_stress_impact_loss
+			brave = major_stress_impact_loss
+			craven = major_stress_impact_gain
+		}
 	}
 
-	option = {
-		name = ck_volcano_event.0011.a
-	}
-}
-# Within reach of the volcano, but not in visual sight, feel the ground quake
-ck_volcano_event.0012 = {
-	type = character_event
-	title = ck_volcano_event.0012.t
-	desc = ck_volcano_event.0012.desc
+	option = { # Stayed behind - attempt to evacuate
+		name = ck_volcano_event.0010.b
+		trigger = {
+			has_character_flag = ck_volcano_stayed_behind
+		}
+		# Change development level since you didn't save everyone
+		if = {
+			limit = {
+				scope:lost_development_from_eruption >= 1
+				title:c_ghilizi.holder = { # Must hold the title to change development - avoid repeating effect
+					this = root
+				}
+			}
+			custom_tooltip = ck_volcano_event.0010.b_tt
+			title:c_ghilizi = {
+				change_development_level = {
+					value = 0
+					subtract = scope:lost_development_from_eruption
+				}
+			}
+		}
+		random_list = {
+			50 = {
+				show_chance = no
+				custom_tooltip = ck_volcano_event.0010.a.2.tt_survive
+				modifier = {
+					add = -20
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				
+				start_travel_plan = {
+					players_use_planner = no
+					destination = scope:ck_volcano_0003_destination
+					travel_with_domicile = yes
+					on_arrival_event = ck_volcano_event.0100
+					on_arrival_destinations = all_but_last
+					on_travel_planner_cancel_event = ck_volcano_event.0101
+				}
+				custom_tooltip = {
+					text = ck_volcano_0003_a_tt
+					every_courtier_or_guest = {
+						limit = {
+							is_travelling = no
+						}
+						root.current_travel_plan = { add_companion = prev }
+					}
+				}
+				if = { # Using a limiter here for landless and others who happen to be there
+					limit = {
+						title:c_ghilizi.holder = { # Must hold the title to fire this effect to avoid repeating effect
+							this = root
+						}
+					}
+					# Kill random people on the island from the volcano
+					custom_tooltip = {
+						text = ck_volcano_0010_a_kill_tt
+						while = {
+							count = scope:dead_courtiers_and_guests_from_eruption
+							random_courtier_or_guest = {
+								limit = {
+									this != root
+								}
+								weight = {
+									base = 1
+									# Try to find someone relevant
+									modifier = {
+										is_close_family_of = root
+										add = -0.6 # The first ones on board
+									}
+								}
+								death = {
+									death_reason = death_volcano_eruption
+								}
+							}
+						}
+					}
+				}
+			}
+			50 = {
+				show_chance = no
+				custom_tooltip = ck_volcano.0010.a.2.tt_failure
+				if = {
+					limit = {
+						title:c_ghilizi.holder = { # Must hold the title to fire this effect to avoid repeating effect
+							this = root
+						}
+					}
+					ck_volcano_kill_or_survive_effect = yes
+				}
+				else = {
+					# Kill random people on the island from the volcano
+					custom_tooltip = {
+						text = ck_volcano_0010_a_kill_tt
+						while = {
+							count = scope:dead_courtiers_and_guests_from_eruption
+							random_courtier_or_guest = {
+								limit = {
+									this != root
+								}
+								weight = {
+									base = 1
+									# Try to find someone relevant
+									modifier = {
+										is_close_family_of = root
+										add = -0.6 # The first ones on board
+									}
+								}
+								death = {
+									death_reason = death_volcano_eruption
+								}
+							}
+						}
+					}
+				}
+				modifier = {
+					add = 20
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+			}
+		}
 
-	override_background = {
-		event_background = wilderness_mountains
+		ai_chance = {
+			base = 80
+			modifier = {
+				add = 20
+				has_trait = craven
+			}
+		}
+
+		stress_impact = {
+			craven = minor_stress_impact_loss
+		}
+	}
+	option = { # Stayed behind - attempt to survive
+		name = ck_volcano_event.0010.b.2
+		trigger = {
+			has_character_flag = ck_volcano_stayed_behind
+		}
+		# Change development level since you didn't save everyone
+		if = {
+			limit = {
+				scope:lost_development_from_eruption >= 1
+				title:c_ghilizi.holder = { # Must hold the title to change development - avoid repeating effect
+					this = root
+				}
+			}
+			custom_tooltip = ck_volcano_event.0010.b_tt
+			title:c_ghilizi = {
+				change_development_level = {
+					value = 0
+					subtract = scope:lost_development_from_eruption
+				}
+			}
+		}
+		random_list = {
+			40 = {
+				show_chance = no
+				custom_tooltip = ck_volcano_event.0010.a.2.tt_survive
+				# Kill random people on the island from the volcano
+				custom_tooltip = {
+					text = ck_volcano_0010_a_kill_tt
+					while = {
+						count = scope:dead_courtiers_and_guests_from_eruption
+						random_courtier_or_guest = {
+							limit = {
+								this != root
+							}
+							weight = {
+								base = 1
+								# Try to find someone relevant
+								modifier = {
+									is_close_family_of = root
+									add = -0.6 # The first ones on board
+								}
+							}
+							death = {
+								death_reason = death_volcano_eruption
+							}
+						}
+					}
+				}
+				hidden_effect = {
+					add_character_flag = {
+						flag = ck_survived_eruption_flag
+						days = 30
+					}
+				}
+				modifier = {
+					add = -20
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+			}
+			60 = {
+				show_chance = no
+				if = {
+					limit = {
+						title:c_ghilizi.holder = { # Must hold the title to fire this effect to avoid repeating effect
+							this = root
+						}
+					}
+					ck_volcano_kill_or_survive_effect = yes
+				}
+				modifier = {
+					add = 20
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+			}
+		}
+
+		ai_chance = {
+			base = 5
+			modifier = {
+				factor = 0
+				has_trait = craven
+			}
+		}
+
+		stress_impact = {
+			craven = medium_stress_impact_gain
+			brave = minor_stress_impact_loss
+		}
+	}
+	### Loco
+	
+	option = { # Stayed behind (Lunatic) - Embrace the fires
+		name = ck_volcano_event.0010.c
+		trigger = {
+			has_character_flag = ck_volcano_stayed_behind_lunatic
+		}
+		# Change development level since you didn't save everyone
+		if = {
+			limit = {
+				scope:lost_development_from_eruption >= 1
+				title:c_ghilizi.holder = { # Must hold the title to change development - avoid repeating effect
+					this = root
+				}
+			}
+			custom_tooltip = ck_volcano_event.0010.b_tt
+			title:c_ghilizi = {
+				change_development_level = {
+					value = 0
+					subtract = scope:lost_development_from_eruption
+				}
+			}
+		}
+		trait = lunatic_1
+		random_list = {
+			10 = {
+				show_chance = no
+				custom_tooltip = ck_volcano_event.0010.c.tt_survive
+				# Kill random people on the island from the volcano
+				if = {
+					limit = {
+						any_courtier_or_guest = {
+							has_character_flag = ck_0010_stayed_for_lunatic
+						}
+					}
+					custom_tooltip = {
+						text = ck_volcano_0010_c_kill_tt
+						while = {
+							count = 2
+							random_courtier_or_guest = {
+								limit = {
+									this != root
+									has_character_flag = ck_0010_stayed_for_lunatic
+								}
+								weight = {
+									base = 1
+									# Try to find someone relevant
+									modifier = {
+										is_close_family_of = root
+										add = 0.6
+									}
+								}
+								death = {
+									death_reason = death_volcano_eruption
+								}
+							}
+						}
+					}
+				}
+				hidden_effect = {
+					give_nickname = nick_the_unburned
+					add_piety = 1000
+					add_character_flag = {
+						flag = ck_survived_eruption_flag
+						days = 30
+					}
+				}
+				modifier = {
+					add = -5
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+			}
+			90 = {
+				show_chance = no
+				if = {
+					limit = {
+						title:c_ghilizi.holder = { # Must hold the title to fire this effect to avoid repeating effect
+							this = root
+						}
+					}
+					ck_volcano_kill_or_survive_effect = yes
+				}
+				hidden_effect = {
+					give_nickname = nick_the_burned
+					add_piety = -500
+				}
+				death = {
+					death_reason = death_volcano_eruption
+				}
+				modifier = {
+					add = 5
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+			}
+		}
+
+		ai_chance = {
+			base = 50
+			modifier = {
+				add = 20
+				has_trait = zealous
+			}
+			modifier = {
+				factor = 0
+				has_trait = craven
+			}
+		}
+
+		stress_impact = {
+			craven = 200 # Double the massive loss
+			zealous = massive_stress_impact_loss
+		}
+	}
+	
+	option = { # Stayed behind (Lunatic) - Change mind
+		name = ck_volcano_event.0010.c.2
+		trigger = {
+			has_character_flag = ck_volcano_stayed_behind_lunatic
+		}
+		# Change development level since you didn't save everyone
+		if = {
+			limit = {
+				scope:lost_development_from_eruption >= 1
+				title:c_ghilizi.holder = { # Must hold the title to change development - avoid repeating effect
+					this = root
+				}
+			}
+			custom_tooltip = ck_volcano_event.0010.b_tt
+			title:c_ghilizi = {
+				change_development_level = {
+					value = 0
+					subtract = scope:lost_development_from_eruption
+				}
+			}
+		}
+		random_list = {
+			40 = {
+				show_chance = no
+				custom_tooltip = ck_volcano_event.0010.a.2.tt_survive
+				modifier = {
+					add = -20
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+				
+				start_travel_plan = {
+					players_use_planner = no
+					destination = scope:ck_volcano_0003_destination
+					travel_with_domicile = yes
+					on_arrival_event = ck_volcano_event.0100
+					on_arrival_destinations = all_but_last
+					on_travel_planner_cancel_event = ck_volcano_event.0101
+				}
+				custom_tooltip = {
+					text = ck_volcano_0003_a_tt
+					every_courtier_or_guest = {
+						limit = {
+							is_travelling = no
+						}
+						root.current_travel_plan = { add_companion = prev }
+					}
+				}
+				if = {
+					limit = {
+						title:c_ghilizi.holder = { # Must hold the title to fire this effect to avoid repeating effect
+							this = root
+						}
+					}
+					# Kill random people on the island from the volcano
+					custom_tooltip = {
+						text = ck_volcano_0010_a_kill_tt
+						while = {
+							count = scope:dead_courtiers_and_guests_from_eruption
+							random_courtier_or_guest = {
+								limit = {
+									this != root
+								}
+								weight = {
+									base = 1
+									# Try to find someone relevant
+									modifier = {
+										is_close_family_of = root
+										add = -0.6 # The first ones on board
+									}
+								}
+								death = {
+									death_reason = death_volcano_eruption
+								}
+							}
+						}
+					}
+				}
+			}
+			60 = {
+				show_chance = no
+				custom_tooltip = ck_volcano.0010.a.2.tt_failure
+				if = {
+					limit = {
+						title:c_ghilizi.holder = { # Must hold the title to fire this effect to avoid repeating effect
+							this = root
+						}
+					}
+					ck_volcano_kill_or_survive_effect = yes
+				}
+				modifier = {
+					add = 20
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_major_eruption
+					}
+				}
+			}
+		}
+
+		ai_chance = {
+			base = 80
+			modifier = {
+				add = 20
+				has_trait = craven
+			}
+			modifier = {
+				add = -20
+				has_trait = zealous
+			}
+		}
+
+		stress_impact = {
+			zealous = major_stress_impact_gain
+			craven = medium_stress_impact_loss
+		}
 	}
 
-	option = {
-		name = ck_volcano_event.0012.a
-	}
 }
 
 
@@ -660,7 +1711,9 @@ ck_volcano_event.0100 = {
 		reference = ep3_camp_night
 	}
 	immediate = {
-
+		location.county ?= {
+			save_scope_as = ck_volcano_0003_destination
+		}
 	}
 	option = {
 		name = ck_volcano_event.0100.a
@@ -687,95 +1740,3 @@ ck_volcano_event.0101 = { # invalidated travel, go back to the island
 
 
 ############## VOLCANO EFFECT EVENTS ##############
-ck_volcano_event.1000 = { # Major or Minor
-	hidden = yes
-	scope = none
-
-	immediate = {
-		if = {
-			limit = {
-				situation_current_phase = phase_volcano_warning
-			}
-			situation:ck_volcano_situation ?= {
-				random_list = {
-					10 = { # Major
-						trigger = {
-							NOT = { exists = global_var:ck_recent_major_eruption }
-						}
-						modifier = {
-							add = 90
-							has_game_rule = volcano_situation_enabled
-							AND = {
-								current_year > 1150.1.1
-								current_year < 1210.1.1
-							}
-						}
-						situation_top_sub_region = {
-							change_phase = { phase = phase_major_eruption }
-						}
-					}
-					90 = { # Minor
-						modifier = {
-							add = -85
-							has_game_rule = volcano_situation_enabled
-							AND = {
-								current_year > 1150.1.1
-								current_year < 1210.1.1
-							}
-						}
-						situation_top_sub_region = {
-							change_phase = { phase = phase_minor_eruption }
-						}
-					}
-				}
-			}
-		}
-	}
-}
-ck_volcano_events.1001 = { # Begin ashfall spread to nearby coastlines for eventual spread, it's an event because I want it delayed
-	hidden = yes
-	scope = none
-
-	immediate = {
-		if = {
-			limit = {
-				situation_current_phase = phase_major_eruption
-			}
-			set_global_variable = {
-				name = ck_check_major_eruption # Using this to ensure the proper monthly pulse effect is utilized
-				value = yes
-				years = 13 # Length of cloud covers + extra for cleanup
-			}
-			situation:ck_volcano_situation ?= {
-				situation_top_sub_region = {
-					change_phase = { phase = phase_major_ash_clouds }
-				}
-			}
-		}
-		else_if = {
-			limit = {
-				situation_current_phase = phase_minor_eruption
-			}
-			set_global_variable = {
-				name = ck_check_minor_eruption # Using this to ensure the proper monthly pulse effect is utilized
-				value = yes
-				years = 11 # Length of cloud covers + extra for cleanup
-			}
-			situation:ck_volcano_situation ?= {
-				situation_top_sub_region = {
-					change_phase = { phase = phase_minor_ash_clouds }
-				}
-			}
-		}
-		# Counties in the direct vicinity of the islands immediately transition
-		every_county_in_region = {
-			region = region_volcano_immediate_ash
-			# Add these counties to the subregion
-			duchy = {
-				situation:ck_volcano_situation.situation_sub_region:al_ifrit = {
-					add_dejure_title_to_sub_region = prev
-				}
-			}
-		}
-	}
-}
