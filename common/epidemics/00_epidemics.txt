@@ -306,7 +306,6 @@ bubonic_plague = {
 
 	name = {
 		first_valid = {
-			
 			triggered_desc = {
 				trigger = {
 					outbreak_intensity = apocalyptic
@@ -556,20 +555,6 @@ bubonic_plague = {
 					}
 					multiply = 0
 				}
-				if = {
-					limit = {
-						exists = situation:ck_volcano_situation
-						situation:ck_volcano_situation = {
-							situation_current_phase = phase_minor_ash_clouds
-						}
-						county = {
-							any_county_situation = {
-								this = situation:ck_volcano_situation
-							}
-						}
-					}
-					add = 25
-				}
 			}
 			spread_chance = {
 				value = spread_chance_epidemics_default_value
@@ -613,24 +598,7 @@ bubonic_plague = {
 						NOT = {
 							has_global_variable = black_death_happened
 						}
-						geographical_region = world_steppe_east
-					}
-					add = 100
-				}
-				if = {
-					limit = {
-						NOT = {
-							has_global_variable = black_death_happened
-						}
-						exists = situation:ck_volcano_situation
-						situation:ck_volcano_situation = {
-							situation_current_phase = phase_major_ash_clouds
-						}
-						county = {
-							any_county_situation = {
-								this = situation:ck_volcano_situation
-							}
-						}
+						geographical_region = region_darshi_west
 					}
 					add = 100
 				}
@@ -671,6 +639,21 @@ bubonic_plague = {
 				}
 				multiply = 0.1
 
+				if = {
+					limit = {
+						NOR = {
+							has_global_variable = black_death_happened
+							has_global_variable = ck_pause_blue_death
+						}
+						situation:ck_volcano_situation ?= {
+							situation_current_phase = phase_major_ash_clouds
+						}
+						geographical_region = region_darshi_west # Starts somewhere in the east
+					}
+					add = 1
+					max = 2
+				}
+
 			}
 			spread_chance = {
 				value = spread_chance_epidemics_default_value
@@ -686,10 +669,24 @@ bubonic_plague = {
 							# geographical_region = world_india
 							geographical_region = custom_perassoi_gulf # that perassic diet must help somehow
 							geographical_region = custom_kohinik_oasis
+							geographical_region = wb_cata_gold_coast_1 # Isolated valley
 						}
 					}
-					multiply = 0.02
-				}				
+					multiply = 0.01
+				}	
+				if = {
+					limit = {
+						situation:ck_volcano_situation ?= {
+							situation_current_phase = phase_major_ash_clouds
+						}
+						county = {
+							any_county_situation = {
+								this = situation:ck_volcano_situation
+							}
+						}
+					}
+					multiply = 10
+				}			
 			}
 			max_provinces = { 12000 13100 }
 
