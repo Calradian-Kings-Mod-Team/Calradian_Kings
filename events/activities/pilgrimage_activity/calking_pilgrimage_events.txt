@@ -1,0 +1,1350 @@
+﻿namespace = ck_pilgrimage
+## For all things related to pilgrimages, whether to vanilla or new types of pilgrimages
+
+#### Path of the Mahdi Events
+ck_pilgrimage.0002 = { # Visiting al-Ifrit
+	type = activity_event
+	title = ck_pilgrimage.0002.t
+	desc = { # Current phase of the volcano, otherwise have it be active but nothing happens
+		first_valid = {
+			triggered_desc = { # Active Flows
+				trigger = {
+					OR = {
+						has_game_rule = volcano_situation_disabled # Do not see if the situation exists because an extinct volcano can end the situation
+						situation:ck_volcano_situation ?= {
+							situation_current_phase = phase_active_flows
+						}
+					}
+				}
+				desc = ck_pilgrimage.0002.desc.active
+			}
+			triggered_desc = { # Active Flows - Cynical
+				trigger = {
+					OR = {
+						has_game_rule = volcano_situation_disabled # Do not see if the situation exists because an extinct volcano can end the situation
+						situation:ck_volcano_situation ?= {
+							situation_current_phase = phase_active_flows
+						}
+					}
+					has_trait = cynical
+				}
+				desc = ck_pilgrimage.0002.desc.active_cynical
+			}
+			triggered_desc = { # Warning - WARNING!!!!
+				trigger = {
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_volcano_warning
+					}
+				}
+				desc = ck_pilgrimage.0002.desc.warning
+			}
+			triggered_desc = { # Eruption - Seek shelter
+				trigger = {
+					situation:ck_volcano_situation ?= {
+						OR = {
+							situation_current_phase = phase_minor_eruption
+							situation_current_phase = phase_major_eruption
+						}
+					}
+				}
+				desc = ck_pilgrimage.0002.desc.eruption
+			}
+			triggered_desc = { # Ash clouds
+				trigger = {
+					situation:ck_volcano_situation ?= {
+						OR = {
+							situation_current_phase = phase_minor_ash_clouds
+							situation_current_phase = phase_major_ash_clouds
+						}
+					}
+				}
+				desc = ck_pilgrimage.0002.desc.ash_clouds
+			}
+			triggered_desc = { # Inactive
+				trigger = {
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_inactive
+					}
+				}
+				desc = ck_pilgrimage.0002.desc.inactive
+			}
+			triggered_desc = { # Extinct :( ## CK_WEST_NAHASA CK_EASTWOOD - Make two West Nahasan special doctrines and apply one here. One faith views reincarnation through a journey while the other views it through the volcano
+				trigger = {
+					situation:ck_volcano_situation ?= {
+						situation_current_phase = phase_extinct
+					}
+				}
+				desc = ck_pilgrimage.0002.desc.extinct
+			}
+		}
+	}
+	left_portrait = {
+		character = root
+		triggered_animation = {
+			trigger = { has_variable = pilgrimage_death_bury_home }
+			animation = sadness
+		}
+		triggered_animation = {
+			trigger = {
+				situation:ck_volcano_situation ?= {
+					OR = {
+						situation_current_phase = phase_minor_eruption
+						situation_current_phase = phase_major_eruption
+						situation_current_phase = phase_volcano_warning
+					}
+				}
+			}
+			animation = fear
+		}
+		animation = ecstasy
+	}
+	theme = pilgrimage_destination
+	trigger = { scope:activity.activity_location.county = title:c_ghilizi }
+	immediate = {
+		play_music_cue = mx_cue_pilgrimage_arrival
+	}
+	override_background = {
+		reference = ep2_travel_settlement_mountains
+	}
+
+	# Incredible
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = { has_variable = pilgrimage_death_bury_home }
+						desc = ck_pilgrimage.0002.a_dead
+					}
+					triggered_desc = {
+						trigger = {
+							situation:ck_volcano_situation ?= {
+								OR = {
+									situation_current_phase = phase_minor_eruption
+									situation_current_phase = phase_major_eruption
+									situation_current_phase = phase_volcano_warning
+									situation_current_phase = phase_minor_ash_clouds
+									situation_current_phase = phase_major_ash_clouds
+								}
+							}
+						}
+						desc = ck_pilgrimage.0002.a_dangerous
+					}
+					triggered_desc = {
+						trigger = { has_trait = cynical }
+						desc = ck_pilgrimage.0002.a_cynical
+					}
+					desc = ck_pilgrimage.0002.a
+				}
+			}
+		}
+		give_pilgrim_trait_or_xp_effect = yes
+		pilgrimage_arrival_stress_loss_effect = yes
+
+		# Stress Impact
+		stress_impact = {
+			zealous = minor_stress_impact_loss
+		}
+	}
+}
+## Visiting the Mahdi's Grove - Ashtari only
+ck_pilgrimage.0003 = {
+	type = activity_event
+	title = ck_pilgrimage.0003.t
+	desc = { # Who owns the island? 1257 startdate, a Nord does
+		first_valid = {
+			triggered_desc = { # Owned by a non-West Nahasan faith
+				trigger = {
+					title:c_ksiref = {
+						NOR = {
+							holder = {
+								religion = religion:west_nahasan_religion
+							}
+							faith = { religion_tag = west_nahasan_religion }
+						}
+					}
+				}
+				desc = ck_pilgrimage.0003.desc.non_religion
+			}
+			desc = ck_pilgrimage.0003.desc
+		}
+	}
+	left_portrait = {
+		character = root
+		triggered_animation = {
+			trigger = { has_variable = pilgrimage_death_bury_home }
+			animation = sadness
+		}
+		animation = ecstasy
+	}
+	theme = pilgrimage_destination
+	trigger = { scope:activity.activity_location.county = title:c_ksiref }
+	immediate = {
+		play_music_cue = mx_cue_pilgrimage_arrival
+
+		hidden_effect = {
+			add_character_flag = in_west_nahasa_event_chain # These events are railroaded
+			add_character_flag = mahdi_grove_event_chain
+			setup_mahdi_grove_trip_effect = yes
+			# Setup the success chance counter - for loc too
+			increment_variable_effect = {
+				VAR = grove_success_chance_gui
+				VAL = 0
+			}
+			increment_variable_effect = {
+				VAR = grove_lost_chance_gui
+				VAL = 0
+			}
+			save_scope_as = scope_character
+		}
+		# Scope the faith/culture if holder or culture isn't the same
+		if = {
+			limit = {
+				title:c_ksiref = {
+					NOR = {
+						holder = {
+							religion = religion:west_nahasan_religion
+						}
+						faith = { religion_tag = west_nahasan_religion }
+					}
+				}
+			}
+			title:c_ksiref = {
+				faith = {
+					save_scope_as = ksiref_faith
+				}
+			}
+		}
+	}
+	override_background = {
+		reference = bp3_coast
+	}
+	option = {
+		name = ck_pilgrimage.0003.a
+		# give_pilgrim_trait_or_xp_effect = yes # This comes later
+		pilgrimage_arrival_stress_loss_effect = yes
+		random_list = {
+			desc = ck_pilgrimage.0003.a.list_desc
+			60 = {
+				show_chance = no
+				desc = ck_pilgrimage.0003.a.find_grove
+				custom_tooltip = ck_pilgrimage.0003.a.find_grove_tt
+			}
+			30 = {
+				show_chance = no
+				desc = ck_pilgrimage.0003.a.failure_to_find_grove
+				custom_tooltip = ck_pilgrimage.0003.a.failure_to_find_grove_tt
+			}
+			10 = {
+				show_chance = no
+				desc = ck_pilgrimage.0003.a.missing_in_grove
+				custom_tooltip = ck_pilgrimage.0003.a.missing_in_grove_tt
+			}
+		}
+		# Stress
+		stress_impact = {
+			zealous = minor_stress_impact_loss
+		}
+		hidden_effect = {
+			add_character_flag = ck_0003_seeking_grove # Save flag to let pilgrimage file know
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0003.b
+		add_piety = -100
+		# give_pilgrim_trait_or_xp_effect = yes # This comes later
+		# pilgrimage_arrival_stress_loss_effect = yes
+
+		# Stress
+		stress_impact = {
+			zealous = major_stress_impact_gain
+		}
+	}
+}
+
+### On Action Events - While at destination 0050-0100
+ck_pilgrimage.0050 = { # Try to cut through thick foliage, guaranteed success if weapon is equipped
+	type = activity_event
+	title = ck_pilgrimage.0050.t
+	desc = ck_pilgrimage.0050.desc
+	theme = pilgrimage_destination
+	override_background = {
+		reference = wilderness_jungle
+	}
+	left_portrait = {
+		character = root
+		animation = war_attacker
+	}
+	widget = {
+		gui = "event_window_widget_grove"
+		container = "custom_widgets_container"
+	}
+	trigger = {
+		scope:activity.activity_location.county = title:c_ksiref
+		has_character_flag = mahdi_grove_event_chain
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	cooldown = { days = 45 }
+	immediate = {
+
+	}
+	option = {
+		name = ck_pilgrimage.0050.a
+		flavor = ck_pilgrimage.0050.a.flavor
+		custom_tooltip = ck_pilgrimage.0050.a.tt
+		custom_tooltip = ck_pilgrimage_success_increase
+		custom_tooltip = ck_pilgrimage_lost_slightly_decrease
+		hidden_effect = {
+			increment_variable_effect = {
+				VAR = grove_success_chance_gui
+				VAL = 0
+			}
+			increment_variable_effect = {
+				VAR = grove_lost_chance_gui
+				VAL = 0
+			}
+		}
+		trigger = {
+			any_character_artifact = { #do you have an artifact that could be buried in a stone?
+				OR = {
+					artifact_type = axe
+					artifact_type = spear
+					artifact_type = dagger
+					artifact_type = sword
+				}
+				artifact_can_be_gift_advance_trigger = yes
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0050.b
+		random_list = {
+			50 = {
+				show_chance = no
+				desc = ck_pilgrimage.0050.b.rl_1
+				custom_tooltip = ck_pilgrimage_success_increase_slightly
+				grove_success_lost_change_effect = {
+					SUCCESS = 1
+					LOST = 0
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_good
+						title = ck_pilgrimage.0050.b.succeed
+						custom_tooltip = ck_pilgrimage_success_increase_slightly
+					}
+				}
+			}
+			50 = {
+				show_chance = no
+				desc = ck_pilgrimage.0050.b.rl_2
+				custom_tooltip = ck_pilgrimage_lost_increase
+
+				grove_success_lost_change_effect = {
+					SUCCESS = 0
+					LOST = 2
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_bad
+						title = ck_pilgrimage.0050.b.fail
+						custom_tooltip = ck_pilgrimage_lost_increase
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				current_travel_plan = { num_entourage_characters > 1 }
+			}
+			custom_tooltip = ck_pilgrimage_mahdi_entourage
+			hidden_effect = {
+				every_entourage_character = {
+					limit = {
+						this != root
+					}
+					random_list = {
+						50 = {
+							desc = ck_pilgrimage.0051.a_success
+						}
+						50 = {
+							desc = ck_pilgrimage.0051.a_failure
+							death = {
+								death_reason = death_missing_in_grove
+							}
+							root = {
+								increment_variable_effect = {
+									VAR = grove_lost_entourage
+									VAL = 1
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage_mahdi_grove_giveup
+		add_piety = -100
+		leave_grove_early_loss_effect = yes
+	}
+	after = {
+		increment_variable_effect = {
+			VAR = grove_encounters_ticker
+			VAL = 1
+		}
+	}
+}
+
+ck_pilgrimage.0051 = { # Come across a raging rapids
+	type = activity_event
+	title = ck_pilgrimage.0050.t
+	desc = ck_pilgrimage.0050.desc
+	theme = pilgrimage_destination
+	override_background = {
+		reference = wilderness_jungle
+	}
+	left_portrait = {
+		character = root
+		animation = war_attacker
+	}
+	widget = {
+		gui = "event_window_widget_grove"
+		container = "custom_widgets_container"
+	}
+	trigger = {
+		scope:activity.activity_location.county = title:c_ksiref
+		has_character_flag = mahdi_grove_event_chain
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	cooldown = { days = 90 } # Don't wanna run into rivers too often
+	option = {
+		name = ck_pilgrimage.0051.a
+		random_list = {
+			60 = {
+				desc = ck_pilgrimage.0051.a_success
+				custom_tooltip = ck_pilgrimage_success_increase_slightly
+				grove_success_lost_change_effect = {
+					SUCCESS = 1
+					LOST = 0
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_good
+						title = ck_pilgrimage.0051.a_success_desc
+						custom_tooltip = ck_pilgrimage_success_increase_slightly
+					}
+				}
+
+			}
+			30 = {
+				desc = ck_pilgrimage.0051.a_failure
+				custom_tooltip = ck_pilgrimage_failure_increase_slightly
+				custom_tooltip = ck_pilgrimage_lost_increase
+				grove_success_lost_change_effect = {
+					SUCCESS = -1
+					LOST = 2
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_bad
+						title = ck_pilgrimage.0051.a_failure_desc
+						custom_tooltip = ck_pilgrimage_failure_increase_slightly
+						custom_tooltip = ck_pilgrimage_lost_increase
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				current_travel_plan = { num_entourage_characters > 1 }
+			}
+			custom_tooltip = ck_pilgrimage_mahdi_entourage
+			hidden_effect = {
+				every_entourage_character = {
+					limit = {
+						this != root
+					}
+					random_list = {
+						60 = {
+							desc = ck_pilgrimage.0051.a_success
+						}
+						30 = {
+							desc = ck_pilgrimage.0051.a_failure
+							death = {
+								death_reason = death_drowned
+							}
+							root = {
+								increment_variable_effect = {
+									VAR = grove_lost_entourage
+									VAL = 1
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0051.b
+		random_list = {
+			60 = {
+				desc = ck_pilgrimage.0051.b_success
+				custom_tooltip = ck_pilgrimage_success_increase
+				custom_tooltip = ck_pilgrimage_lost_decrease
+				grove_success_lost_change_effect = {
+					SUCCESS = 2
+					LOST = -1
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_bad
+						title = ck_pilgrimage.0051.b_success
+						custom_tooltip = ck_pilgrimage_success_increase
+						custom_tooltip = ck_pilgrimage_lost_decrease
+					}
+				}
+			}
+			40 = {
+				desc = ck_pilgrimage.0051.b_failure
+				custom_tooltip = ck_pilgrimage_failure_increase_slightly
+				custom_tooltip = ck_pilgrimage_lost_increase
+				grove_success_lost_change_effect = {
+					SUCCESS = -1
+					LOST = 1
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_bad
+						title = ck_pilgrimage.0051.b_failure
+						custom_tooltip = ck_pilgrimage_failure_increase_slightly
+						custom_tooltip = ck_pilgrimage_lost_increase
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				current_travel_plan = { num_entourage_characters > 1 }
+			}
+			custom_tooltip = ck_pilgrimage_mahdi_entourage
+			hidden_effect = {
+				every_entourage_character = {
+					limit = {
+						this != root
+					}
+					random_list = {
+						60 = {
+							desc = ck_pilgrimage.0051.b_success
+						}
+						40 = {
+							death = {
+								death_reason = death_missing_in_grove
+							}
+							root = {
+								increment_variable_effect = {
+									VAR = grove_lost_entourage
+									VAL = 1
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0051.c
+		# skill = learning
+		trigger = {
+			learning >= 16
+		}
+		custom_tooltip = ck_pilgrimage_success_increase_crit
+		custom_tooltip = ck_pilgrimage_lost_decrease_crit
+		grove_success_lost_change_effect = {
+			SUCCESS = 3
+			LOST = -3
+		}
+		hidden_effect = {
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = ck_pilgrimage.0051.c_success
+				custom_tooltip = ck_pilgrimage_success_increase_crit
+				custom_tooltip = ck_pilgrimage_lost_decrease_crit
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage_mahdi_grove_giveup
+		add_piety = -100
+		leave_grove_early_loss_effect = yes
+	}
+	after = {
+		increment_variable_effect = {
+			VAR = grove_encounters_ticker
+			VAL = 1
+		}
+	}
+}
+ck_pilgrimage.0052 = { # Come across another pilgrim who became lost
+	type = activity_event
+	title = ck_pilgrimage.0052.t
+	desc = ck_pilgrimage.0052.desc
+	theme = pilgrimage_destination
+	override_background = {
+		reference = wilderness_jungle
+	}
+	left_portrait = {
+		character = root
+		animation = personality_rational
+	}
+	right_portrait = {
+		character = scope:lost_pilgrim
+		animation = beg
+	}
+	widget = {
+		gui = "event_window_widget_grove"
+		container = "custom_widgets_container"
+	}
+	trigger = {
+		scope:activity.activity_location.county = title:c_ksiref
+		has_character_flag = mahdi_grove_event_chain
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	cooldown = { days = 100 } # Don't wanna run into rivers too often
+	immediate = {
+		# Spawn the pilgrim
+		create_character = {
+			template = location_pilgrim_template
+			culture = culture:izerfani
+			dynasty = none
+			random_traits = no
+			location = root.location.title_province
+			save_scope_as = lost_pilgrim
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0052.a
+		
+		custom_tooltip = ck_pilgrimage.0052.a.add_pilgrim
+		# Increment the counter.
+		change_variable = {
+			name = rando_pilgrim_counter
+			add = 1
+		}
+		stress_impact = {
+			shy = major_stress_impact_gain
+			callous = medium_stress_impact_gain
+			compassionate = medium_stress_impact_loss
+			gregarious = minor_stress_impact_loss
+			arrogant = medium_stress_impact_gain
+		}
+		custom_tooltip = ck_pilgrimage_success_increase_slightly
+		custom_tooltip = ck_pilgrimage_lost_decrease_crit
+		grove_success_lost_change_effect = {
+			SUCCESS = 1
+			LOST = -2
+		}
+		hidden_effect = {
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = ck_pilgrimage.0052.a.add_pilgrim
+				custom_tooltip = ck_pilgrimage_success_increase_slightly
+				custom_tooltip = ck_pilgrimage_lost_decrease_crit
+			}
+		}
+		current_travel_plan = {
+			every_entourage_character = {
+				limit = {
+					this != root
+				}
+				add_opinion = {
+					target = root
+					modifier = ck_pilgrimage_0052_hired
+				}
+			}
+		}
+		scope:lost_pilgrim = {
+			add_opinion = {
+				target = root
+				modifier = brought_me_on_pilgrimage_opinion
+				opinion = 30
+			}
+			add_to_entourage_court_and_activity_effect = { 
+				CHAR_TO_ADD = prev
+				NEW_COURT_OWNER = root 
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0052.b
+		scope:lost_pilgrim = {
+			custom_tooltip = ck_pilgrimage.0052.a_tt
+			hidden_effect = {
+				death = {
+					death_reason = death_missing_in_grove
+				}
+			}
+		}
+		stress_impact = {
+			shy = major_stress_impact_loss
+			callous = medium_stress_impact_loss
+			compassionate = medium_stress_impact_gain
+			gregarious = minor_stress_impact_gain
+			arrogant = medium_stress_impact_loss
+		}
+		custom_tooltip = ck_pilgrimage_lost_increase
+		grove_success_lost_change_effect = {
+			SUCCESS = 0
+			LOST = 2
+		}
+		hidden_effect = {
+			send_interface_toast = {
+				type = event_toast_effect_bad
+				title = ck_pilgrimage.0052.b_failure
+				custom_tooltip = ck_pilgrimage_lost_increase
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage_mahdi_grove_giveup
+		add_piety = -100
+		leave_grove_early_loss_effect = yes
+	}
+	after = {
+		increment_variable_effect = {
+			VAR = grove_encounters_ticker
+			VAL = 1
+		}
+	}
+}
+
+ck_pilgrimage.0053 = { # Come across a band of warriors, if your entourage is large enough, you could scare them off
+	type = activity_event
+	title = ck_pilgrimage.0053.t
+	desc = {
+		desc = ck_pilgrimage.0053.desc
+		first_valid = {
+			triggered_desc = { # Foreign ruler?
+				trigger = {
+					scope:ksiref_holder = {
+						culture = {
+							NOT = { has_cultural_pillar = heritage_west_nahasan }
+						}
+					}
+				}
+				desc = ck_pilgrimage.0053.desc.mid
+			}
+			triggered_desc = { # Foreign culture?
+				trigger = {
+					title:c_ksiref = {
+						culture = {
+							NOT = { has_cultural_pillar = heritage_west_nahasan }
+						}
+					}
+				}
+				desc = ck_pilgrimage.0053.desc.mid_2
+			}
+		}
+	}
+	theme = legend_terrain
+	override_background = {
+		reference = wilderness_jungle
+	}
+	left_portrait = {
+		character = root
+			scripted_animation = duel_wield_weapon
+		camera = camera_event_very_left
+	}
+	right_portrait = {
+		character = scope:heathen_raider
+		scripted_animation = duel_wield_weapon
+		camera = camera_event_very_right
+		hide_info = yes
+	}
+	widget = {
+		gui = "event_window_widget_grove"
+		container = "custom_widgets_container"
+	}
+	trigger = {
+		scope:activity.activity_location.county = title:c_ksiref
+		has_character_flag = mahdi_grove_event_chain
+		title:c_ksiref = {
+			OR = {
+				holder = {
+					OR = {
+						culture = {
+							NOT = { has_cultural_pillar = heritage_west_nahasan }
+						}
+						NOT = { faith.religion = religion:west_nahasan_religion }
+					}
+				}
+				culture = {
+					NOT = { has_cultural_pillar = heritage_west_nahasan }
+				}
+				NOT = { faith.religion = religion:west_nahasan_religion }
+			}
+		}
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	cooldown = { days = 60 }
+	immediate = {
+		# The county must either be under the control of a foreigner, or the culture is foreign
+		title:c_ksiref = {
+			holder ?= {
+				save_scope_as = ksiref_holder
+			}
+			culture = {
+				save_scope_as = foreign_culture
+			}
+		}
+		create_character = {
+			template = new_raider_character
+			culture = scope:ksiref_holder.culture
+			faith = scope:ksiref_holder.faith
+			dynasty = none
+			location = root.location
+			gender_female_chance = scope:ksiref_holder.root_soldier_female_chance
+			save_scope_as = heathen_raider
+		}
+		scope:heathen_raider = {
+			add_character_flag = need_military_outfit
+		}
+		# Add ransom
+		save_scope_value_as = {
+			name = 0053_gold_ransom
+			value = {
+				value = root.gold
+				multiply = 0.45
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0053.a
+		skill = prowess
+		trigger = {
+			current_travel_plan = {
+				any_entourage_character = {
+					count < 5
+				}
+			}
+		}
+		duel = {
+			skill = prowess
+			value = 14
+			50 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 1
+					min = -49
+				}
+				desc = ck_pilgrimage.0053.a.success
+				custom_tooltip = ck_pilgrimage_success_increase
+				custom_tooltip = ck_pilgrimage_lost_decrease
+				grove_success_lost_change_effect = {
+					SUCCESS = 2
+					LOST = -2
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_good
+						title = ck_pilgrimage.0053.a_alt_tt_2
+						custom_tooltip = ck_pilgrimage_success_increase
+						custom_tooltip = ck_pilgrimage_lost_decrease
+					}
+				}
+			}
+			50 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = -1
+					min = -49
+				}
+				desc = ck_pilgrimage.0053.a.failure
+				custom_tooltip = ck_pilgrimage_failure_increase_slightly
+				custom_tooltip = ck_pilgrimage_lost_increase
+				grove_success_lost_change_effect = {
+					SUCCESS = -1
+					LOST = 2
+				}
+				add_trait = wounded_1
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_bad
+						title = ck_pilgrimage.0053.a.failure
+						custom_tooltip = ck_pilgrimage_failure_increase_slightly
+						custom_tooltip = ck_pilgrimage_lost_increase
+					}
+				}
+			}
+		}
+		stress_impact = {
+			brave = major_stress_impact_loss
+			craven = massive_stress_impact_gain
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0053.a_alt
+		custom_description_no_bullet = { text = ck_pilgrimage_0053_kill }
+		trigger = {
+			current_travel_plan = {
+				any_entourage_character = {
+					count >= 5
+				}
+			}
+		}
+		custom_tooltip = ck_pilgrimage_success_increase_crit
+		custom_tooltip = ck_pilgrimage_lost_decrease_crit
+		grove_success_lost_change_effect = {
+			SUCCESS = 3
+			LOST = -3
+		}
+		hidden_effect = {
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = ck_pilgrimage.0053.a_alt_tt_2
+				custom_tooltip = ck_pilgrimage_success_increase_crit
+				custom_tooltip = ck_pilgrimage_lost_decrease_crit
+			}
+		}
+		stress_impact = {
+			craven = minor_stress_impact_loss
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0053.b
+		skill = diplomacy
+		duel = {
+			skill = diplomacy
+			value = 14
+			50 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 1
+					min = -49
+				}
+				desc = ck_pilgrimage.0053.b_success
+				custom_tooltip = ck_pilgrimage_success_increase
+				custom_tooltip = ck_pilgrimage_lost_decrease
+				grove_success_lost_change_effect = {
+					SUCCESS = 2
+					LOST = -2
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_good
+						title = ck_pilgrimage.0053.b_success
+						custom_tooltip = ck_pilgrimage_success_increase
+						custom_tooltip = ck_pilgrimage_lost_decrease
+					}
+				}
+			}
+			50 = {
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = -1
+					min = -49
+				}
+				desc = ck_pilgrimage.0053.b_failure
+				custom_tooltip = ck_pilgrimage_failure_increase_slightly
+				custom_tooltip = ck_pilgrimage_lost_increase
+				grove_success_lost_change_effect = {
+					SUCCESS = 1
+					LOST = 2
+				}
+				hidden_effect = {
+					send_interface_toast = {
+						type = event_toast_effect_bad
+						title = ck_pilgrimage.0053.b_failure
+						custom_tooltip = ck_pilgrimage_failure_increase_slightly
+						custom_tooltip = ck_pilgrimage_lost_increase
+					}
+				}
+			}
+		}
+		stress_impact = {
+			craven = medium_stress_impact_loss
+			brave = medium_stress_impact_gain
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0053.c
+		flavor = ck_pilgrimage.0053.c.flavor
+		remove_short_term_gold = scope:0053_gold_ransom
+		custom_tooltip = ck_pilgrimage_success_increase_slightly
+		custom_tooltip = ck_pilgrimage_lost_slightly_decrease
+		grove_success_lost_change_effect = {
+			SUCCESS = 1
+			LOST = -1
+		}
+		hidden_effect = {
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = ck_pilgrimage.0053.c_success
+				custom_tooltip = ck_pilgrimage_success_increase_slightly
+				custom_tooltip = ck_pilgrimage_lost_slightly_decrease
+			}
+		}
+		stress_impact = {
+			greedy = medium_stress_impact_gain
+			craven = minor_stress_impact_loss
+		}
+	}
+	option = {
+		name = ck_pilgrimage_mahdi_grove_giveup
+		add_piety = -100
+		leave_grove_early_loss_effect = yes
+	}
+	after = {
+		scope:heathen_raider = {
+			silent_disappearance_effect = yes
+		}
+		increment_variable_effect = {
+			VAR = grove_encounters_ticker
+			VAL = 1
+		}
+	}
+}
+
+# Come across a small, hidden spring. Take a moment to recuperate and reflect
+ck_pilgrimage.0054 = {
+	type = activity_event
+	title = ck_pilgrimage.0054.t
+	desc = ck_pilgrimage.0054.desc
+	theme = pilgrimage_destination
+	override_background = {
+		reference = wilderness_jungle
+	}
+	left_portrait = {
+		character = root
+		animation = prayer
+	}
+	widget = {
+		gui = "event_window_widget_grove"
+		container = "custom_widgets_container"
+	}
+	trigger = {
+		scope:activity.activity_location.county = title:c_ksiref
+		has_character_flag = mahdi_grove_event_chain
+	}
+	override_effect_2d = {
+		reference = legend_glow	
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	cooldown = { days = 60 }
+	option = {
+		name = ck_pilgrimage.0054.a
+		if = {
+			limit = {
+				NOT = {
+					has_trait = calm
+				}
+			}
+			add_stress = -100
+		}
+		stress_impact = {
+			lazy = major_stress_impact_loss
+			calm = massive_stress_impact_loss
+			impatient = major_stress_impact_gain
+			patient = major_stress_impact_loss
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0054.b
+		trigger = {
+			NOT = {
+				has_character_modifier = fp1_bathing_attraction_modifier
+			}
+		}
+		add_character_modifier = {
+			modifier = fp1_bathing_attraction_modifier
+			years = 5
+		}
+		add_stress = -15
+		stress_impact = {
+			lazy = minor_stress_impact_loss
+			calm = miniscule_stress_impact_loss
+			impatient = miniscule_stress_impact_gain
+			patient = miniscule_stress_impact_loss
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0054.c
+		stress_impact = {
+			shrewd = minor_stress_impact_loss
+		}
+		custom_tooltip = ck_pilgrimage_success_increase
+		custom_tooltip = ck_pilgrimage_lost_decrease
+		grove_success_lost_change_effect = {
+			SUCCESS = 2
+			LOST = -2
+		}
+		hidden_effect = {
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = ck_pilgrimage.0053.c_success
+				custom_tooltip = ck_pilgrimage_success_increase
+				custom_tooltip = ck_pilgrimage_lost_decrease
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0054.d
+		stress_impact = {
+			zealous = minor_stress_impact_loss
+			stubborn = medium_stress_impact_loss
+			patient = medium_stress_impact_gain
+			impatient = medium_stress_impact_loss
+		}
+	}
+	after = {
+		increment_variable_effect = {
+			VAR = grove_encounters_ticker
+			VAL = 1
+		}
+	}
+}
+# Conclusion - Hit 6 events. Tally up the lost variable and find grove variable'
+ck_pilgrimage.0055 = {
+	type = activity_event
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					exists = scope:found_spring
+				}
+				desc = ck_pilgrimage.0054.t.success
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:no_spring
+				}
+				desc = ck_pilgrimage.0054.t.failure
+			}
+		}
+	}
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					exists = scope:found_spring
+				}
+				desc = ck_pilgrimage.0054.desc.success
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:no_spring
+				}
+				desc = ck_pilgrimage.0054.desc.failure
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					AND = {
+						exists = scope:found_spring
+						exists = scope:lost
+					}
+				}
+				desc = ck_pilgrimage.0054.desc.success_but_lost
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						exists = scope:found_spring
+						exists = scope:not_lost
+					}
+				}
+				desc = ck_pilgrimage.0054.desc.success_not_lost
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						exists = scope:no_spring
+						exists = scope:not_lost
+					}
+				}
+				desc = ck_pilgrimage.0054.desc.failure_not_lost
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						exists = scope:no_spring
+						exists = scope:lost
+					}
+				}
+				desc = ck_pilgrimage.0054.desc.failure_lost
+			}
+		}
+	}
+	theme = pilgrimage_destination
+	override_background = {
+		trigger = {
+			exists = scope:no_spring
+		}
+		reference = wilderness_jungle
+	}
+	override_background = {
+		trigger = {
+			exists = scope:found_spring
+		}
+		reference = ce1_legendary_spring
+	}
+	override_effect_2d = {
+		trigger = {
+			exists = scope:found_spring
+		}
+		reference = legend_glow	
+	}
+	left_portrait = {
+		character = root
+		animation = interested_left
+		camera = camera_event_left_away_3_4
+	}
+	widget = {
+		gui = "event_window_widget_grove"
+		container = "custom_widgets_container"
+	}
+	trigger = {
+		scope:activity.activity_location.county = title:c_ksiref
+		has_character_flag = mahdi_grove_event_chain
+		var:grove_encounters_ticker >= 6
+	}
+	override_effect_2d = {
+		reference = legend_glow	
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	immediate = {
+		play_sound_effect = "event:/DLC/EP3/SFX/Stingers/Byzantine_Flavor/ep3_mx_sting_byzantineflavor_become_emperor"
+		# Calculate the success
+		hidden_effect = {
+			# Success of Finding the Grove
+			random_list = {
+				30 = {
+					show_chance = no
+					min = 0
+					modifier = {
+						var:grove_success_chance_gui < 0
+						add = {
+							value = 1
+							multiply = var:negative_success_grove
+							multiply = -1
+						}
+					}
+					save_scope_as = no_spring
+				}
+				70 = {
+					show_chance = no
+					modifier = {
+						add = {
+							value = 1
+							multiply = var:grove_success_chance_gui
+						}
+					}
+					save_scope_as = found_spring
+					add_character_flag = in_the_mahdi_grove
+					play_music_cue = "mx_cue_epic_sacral_moment"
+					add_piety = 500
+				}
+			}
+			# Are you lost or not?
+			random_list = {
+				40 = {
+					show_chance = no
+					min = 0
+					modifier = {
+						var:grove_lost_chance_gui > 0
+						add = {
+							value = 1
+							multiply = var:grove_lost_chance_gui
+						}
+					}
+					save_scope_as = lost
+				}
+				60 = {
+					show_chance = no
+					min = 0
+					modifier = {
+						add = {
+							value = 1
+							multiply = var:grove_lost_chance_gui
+							multiply = -1
+						}
+					}
+					save_scope_as = not_lost
+				}
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0005.a
+		trigger = {
+			exists = scope:not_lost
+		}
+		scope:activity = { progress_activity_phase_after = { days = 1 } }
+		if = {
+			limit = {
+				exists = scope:found_spring
+			}
+			give_pilgrim_trait_or_xp_effect = yes
+			pilgrimage_arrival_stress_loss_effect = yes
+			pilgrimage_completed_log_entry_effect = yes
+			stress_impact = {
+				zealous = major_stress_impact_loss
+				calm = major_stress_impact_loss
+			}
+		}
+		else = {
+			stress_impact = {
+				zealous = medium_stress_impact_gain
+			}
+		}
+		if = {
+			limit = {
+				is_ai = yes
+			}
+			set_variable = { # To avoid AI pilgrimaging to this spot multiple times
+				name = visited_mahdi_grove
+				value = yes
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0005.b
+		trigger = {
+			exists = scope:lost
+		}
+		custom_tooltip = {
+			text = ck_pilgrimage.0003.a.missing_in_grove_tt
+			death = {
+				death_reason = death_missing_in_grove
+			}
+		}
+	}
+	after = {
+		clean_up_pilgrimage_type_reward_flags_effect = yes
+		# Cleanup
+		remove_variable = grove_lost_chance_gui
+		remove_variable = grove_success_chance_gui
+		remove_character_flag = in_west_nahasa_event_chain # These events are railroaded
+		remove_character_flag = mahdi_grove_event_chain
+	}
+}
+### Hidden Pilgrimage Events (for delayed effects) 1000 & Up
+ck_pilgrimage.1000 = { # Do you find the Mahdi's Grove? 
+
+}

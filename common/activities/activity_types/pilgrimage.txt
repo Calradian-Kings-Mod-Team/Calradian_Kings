@@ -398,6 +398,19 @@
 							county = title:c_saneopa
 						}
 					}
+					# West Nahasan
+					AND = {
+						scope:host = { religion = religion:west_nahasan_religion }
+						OR = {
+							county = title:c_barchaz # The Black Hill
+							county = title:c_ayyur # The Red Hill
+							county = title:c_indurar # The Green Hill
+							county = title:c_zejdada # The Blue Hill
+							county = title:c_dindoranir # The White Hill
+							
+							county = title:c_ghilizi # al-Ifrit
+						}
+					}
 				}
 			}
 			desc = activity_pilgrimage_province_unique_desc
@@ -1220,8 +1233,9 @@
 			pilgrimage_type_pious = {
 				#Crashes [sometimes] if you start the game with a ruler where this is default then tag over to another ruler where this isn't default
 				default = {
-					always = no
-					# No hajj
+					NOT = {
+						faith.religion = religion:west_nahasan_religion
+					}
 				}
 				is_valid = {
 					# No hajjaj in Calradia
@@ -1290,6 +1304,49 @@
 				}
 			}
 			# No Hajj in Calradia. swwy
+			# Follow the path of the Mahdi
+			pilgrimage_type_mahdi = {
+				default = {
+					faith.religion = religion:west_nahasan_religion
+				}
+				is_shown = {
+					faith.religion = religion:west_nahasan_religion
+				}
+				is_valid = {
+					always = yes
+				}
+				ai_will_do = {
+					value = 50
+					if = {
+						limit = {
+							faith.religion = religion:west_nahasan_religion
+						}
+						add = 100
+					}
+					if = {
+						limit = {
+							OR = {
+								has_trait = zealous
+								has_trait = diligent
+								has_trait = flagellant
+								has_trait = brave
+							}
+						}
+						add = 50
+					}
+					if = {
+						limit = {
+							OR = {
+								has_trait = cynical
+								has_trait = lazy
+								has_trait = craven
+							}
+							any_secret = { type = secret_non_believer }
+						}
+						subtract = 50
+					}
+				}
+			}
 		}
 		#########
 		# LEVEL OF DEVOTION OPTION
@@ -1484,6 +1541,23 @@
 			}
 			pilgrimage_pomp_appropriate = {
 				default = yes
+				is_valid = {
+					# trigger_if = {
+					# 	limit = {
+					# 		has_activity_option = {
+					# 			category = special_type
+					# 			option = pilgrimage_type_mahdi
+					# 		}
+					# 	}
+					# 	custom_tooltip = {
+					# 		text = pilgrimage_type_mahdi_option_tt
+					# 		always = no
+					# 	}
+					# }
+					# trigger_else = {
+						always = yes
+					# }
+				}
 
 				# Entourage option grabbing suitable bodyguards & maybe someone from court who really likes you, + randos.
 				travel_entourage_selection = { 
@@ -1502,7 +1576,23 @@
 			}
 			pilgrimage_pomp_ceremonial = {
 				is_shown = { has_dlc_feature = advanced_activities }
-
+				is_valid = {
+					# trigger_if = {
+					# 	limit = {
+					# 		has_activity_option = {
+					# 			category = special_type
+					# 			option = pilgrimage_type_mahdi
+					# 		}
+					# 	}
+					# 	custom_tooltip = {
+					# 		text = pilgrimage_type_mahdi_option_tt
+					# 		always = no
+					# 	}
+					# }
+					# trigger_else = {
+						always = yes
+					# }
+				}
 				cost = { 
 					gold = {
 						add = {
@@ -1567,7 +1657,23 @@
 			}
 			pilgrimage_pomp_throng = {
 				is_shown = { has_dlc_feature = advanced_activities }
-
+				is_valid = {
+					# trigger_if = {
+					# 	limit = {
+					# 		has_activity_option = {
+					# 			category = special_type
+					# 			option = pilgrimage_type_mahdi
+					# 		}
+					# 	}
+					# 	custom_tooltip = {
+					# 		text = pilgrimage_type_mahdi_option_tt
+					# 		always = no
+					# 	}
+					# }
+					# trigger_else = {
+						always = yes
+					# }
+				}
 				cost = { 
 					gold = {
 						add = {
@@ -1815,6 +1921,10 @@
 								}
 							}
 							NOT = { has_character_flag = pilgrimage_counter_obligatory }
+							# Cannot skip the Mahdi's Grove, it has its own ways out of the event chain
+							NOT = {
+
+							}
 						}
 						trigger_event = pilgrimage.4010
 					}
@@ -1853,16 +1963,28 @@
 			on_monthly_pulse = {
 				if = {
 					limit = { this = scope:host }
-					#We are in a Pilgrimage event chain or Hajjing
+					# In a West Nahasan event chain, these take precedence over any other events below
 					if = {
 						limit = {
+							has_character_flag = in_west_nahasa_event_chain
+						}
+						trigger_event = { on_action = mahdi_destination_events }
+					}
+					#We are in a Pilgrimage event chain or Hajjing
+					else_if = {
+						limit = {
 							has_character_flag = in_pilgrimage_event_chain 
-							
 						} 
 						#No events until you're done with your chain
 					}
 					#We're just doing regular pilgrim destination stuff
-					else = {
+					else_if = {
+						limit = {
+							NOR = {
+								has_character_flag = in_pilgrimage_event_chain 
+								has_character_flag = in_west_nahasa_event_chain 
+							}
+						}
 						trigger_event = { on_action = pilgrimage_destination_events }
 					}
 				}
@@ -2131,6 +2253,87 @@
 		#Conclusion/reward event is run in the phase on_end
 
 		#Set up Hajj memories
+		# Setup Mahdhi Path Memories
+		if = {
+			limit = {
+				scope:activity = {
+					has_activity_option = {
+						category = special_type
+						option = pilgrimage_type_mahdi
+					}
+				}
+			}
+			## Add Mahdi Completed Memory
+			if = {
+				limit = {
+					NAND = {
+						any_memory = {
+							memory_type = ck_completed_mahdi_pilgrimage
+						}
+						has_variable = mahdi_step
+					}
+				}
+				# Set Variable for Player for localization
+				increment_variable_effect = {
+					VAR = mahdi_step
+					VAL = 1
+				}
+				scope:new_memory = {
+					#For the follow-up reflective event when back home, triggered through travel_plan_completion on_action
+					set_variable = {
+						name = mahdi_destination
+						value = scope:activity.activity_location
+					}
+				}
+				if = {
+					limit = { exists = var:pilgrimage_distance }
+					scope:new_memory = {
+						set_variable = {
+							name = pilgrimage_length
+							value = scope:activity.var:pilgrimage_distance
+						} 
+						if = {
+							limit = { exists = var:pilgrimage_length }
+							#To prevent 'unused except in loc' errors :catto:
+						}
+					}
+				}
+			}
+			else = {
+				# Set Variable for Player for localization
+				increment_variable_effect = {
+					VAR = mahdi_step
+					VAL = 1
+				}
+				create_character_memory = { type = ck_completed_mahdi_pilgrimage }
+				scope:new_memory = {
+					#For the follow-up reflective event when back home, triggered through travel_plan_completion on_action
+					set_variable = {
+						name = mahdi_destination
+						value = scope:activity.activity_location
+					}
+					if = {
+						limit = { exists = var:hajj_destination }
+						#To prevent 'unused except in loc' errors :catto:
+					}
+					if = {
+						limit = { exists = var:pilgrimage_distance }
+						set_variable = {
+							name = pilgrimage_length
+							value = scope:activity.var:pilgrimage_distance
+						} 
+						if = {
+							limit = { exists = var:pilgrimage_length }
+							#To prevent 'unused except in loc' errors :catto:
+						}
+					}
+					if = {
+						limit = { exists = var:memory_type_of_pilgrimage }
+						#To prevent 'unused except in loc' errors :catto:
+					}
+				}
+			}
+		}
 		#Otherwise set up Pilgrimage memories
 		#For the follow-up reflective event when back home, triggered through travel_plan_completion on_action
 			set_variable = {
@@ -2694,6 +2897,12 @@
 	}
 	background = {
 		trigger = {
+			# To avoid Mahdi conflict
+			scope:host = {
+				NOT = {
+					has_character_flag = mahdi_grove_event_chain
+				}
+			}
 			OR = {
 				activity_location.province_owner ?= { 
 					OR = {
@@ -2728,6 +2937,17 @@
 		trigger = { scope:host.religion = religion:khuzait_religion }
 		texture = "gfx/interface/illustrations/event_scenes/forest.dds"
 		environment = "environment_event_forest"
+		ambience = "event:/SFX/Events/Backgrounds/deciduous_forest_day"
+	}
+	background = { # Mahdi Event China
+		trigger = {
+			# scope:host.location.county = title:c_ksiref
+			scope:host = {
+				has_character_flag = mahdi_grove_event_chain
+			}
+		}
+		texture = "gfx/interface/illustrations/event_scenes/bp1_jungle.dds"
+		environment = "environment_event_bp1_jungle"
 		ambience = "event:/SFX/Events/Backgrounds/deciduous_forest_day"
 	}
 

@@ -1,0 +1,68 @@
+﻿#### Path of the Mahdi Effects
+mahdi_type_option_effect = {
+	involved_activity = {
+		if = {
+			limit = { activity_has_mahdi_pilgrimage_type_trigger = yes }
+			custom_tooltip = pilgrimage_mahdi_type_tt_positive
+			activity_special_type_progression_massive = yes
+		}
+	}
+}
+very_mahdi_type_option_effect = {
+	involved_activity = {
+		if = {
+			limit = { activity_has_mahdi_pilgrimage_type_trigger = yes }
+			custom_tooltip = pilgrimage_mahdi_type_tt_very_positive
+			activity_special_type_progression_massive = yes
+		}
+	}
+}
+## Mahdi Grove - Lost Effect
+# Leave early with a chance of being lost
+leave_grove_early_loss_effect = {
+	if = {
+		limit = {
+			has_variable = grove_lost_chance_gui
+		}
+		random_list = {
+			10 = { # Lost, scales by the lost variable
+				trigger = {
+					var:grove_lost_chance_gui > 0 
+				}
+				min = 0
+				modifier = { # Scaled by the gui
+					add = {
+						value = 1
+						multiply = var:grove_lost_chance_gui
+					}
+				}
+				desc = ck_pilgrimage.0003.a.missing_in_grove_tt
+				death = {
+					death_reason = death_missing_in_grove
+				}
+			}
+			90 = {
+				min = 0
+				desc = ck_pilgrimage_leave_grove
+				custom_tooltip = ck_pilgrimage_leave_grove_tt
+				send_interface_toast = {
+					type = event_toast_effect_good
+					title = ck_pilgrimage.0050.b.succeed
+				}
+			}
+		}
+	}
+	stress_impact = {
+		zealous = major_stress_impact_gain
+	}
+}
+grove_success_lost_change_effect = {
+	increment_variable_effect = {
+		VAR = grove_success_chance_gui
+		VAL = $SUCCESS$
+	}
+	increment_variable_effect = {
+		VAR = grove_lost_chance_gui
+		VAL = $LOST$
+	}
+}
