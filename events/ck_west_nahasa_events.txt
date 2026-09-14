@@ -1,0 +1,1215 @@
+﻿namespace = west_nahasa
+
+## Read up on the Mahdi (Arrival)
+west_nahasa.0001 = {
+	title = west_nahasa.0001.t
+	desc = west_nahasa.0001.desc
+	type = character_event
+	theme = learning
+	override_background = {
+		reference = ck_saajid
+	}
+	trigger = {
+		location = province:5916
+		faith = {
+			has_doctrine = tenet_path_of_the_mahdi
+		}
+	}
+
+	immediate = {
+		mp_delay_travel_plan = { DAYS = 90 }
+	}
+	
+	option = {
+		name = west_nahasa.0001.a
+		trigger_event = west_nahasa.0002
+	}
+
+	option = {
+		name = west_nahasa.0001.b
+		flavor = west_nahasa.0001.b.tt
+		remove_decision_cooldown = read_the_mahdi_tomes
+	}
+}
+scripted_effect read_tome_category_effect = {
+	# Add stress for every more you read
+	if = {
+		limit = {
+			has_variable = ck_mahdi_read_tomes
+			var:ck_mahdi_read_tomes > 0
+		}
+		add_stress = {
+			value = {
+				value = 7.5
+				multiply = var:ck_mahdi_read_tomes
+				multiply = var:ck_mahdi_read_tomes # To get an exponential rise
+				round = yes
+			}
+		}
+	}
+	# Set the appropriate variable/flag for skill-type
+	set_variable = {
+		name = west_nahasa_0003_desired_skill
+		value = flag:$SKILL$
+	}
+	# Check if the player is rereading the lore
+	if = {
+		limit = {
+			exists = var:read_all_of_$SKILL$_cooldown
+			has_variable = read_all_of_$SKILL$_cooldown
+		}
+		add_character_flag = rereading_skill_books
+	}
+	# Move onto the desired skill
+	trigger_event = west_nahasa.0003
+
+}
+scripted_effect give_character_modifiers_nahasa_0002_effect = {
+	### Putting this as a scripted_effect to avoid typing it twice for event .0003 if you leave early
+	## Give character modifiers for every 3 subjects you read in each skill
+	if = {
+		limit = {
+			exists = var:read_all_of_subject
+			has_variable = read_all_of_subject
+			NOT = {
+				has_character_modifier = ck_mahdi_book_everything
+			}
+		}
+		switch = {
+			trigger = var:read_all_of_subject
+
+			flag:diplomacy = {
+				if = {
+					limit = {
+						exists = var:num_read_subject_diplomacy
+						has_variable = num_read_subject_diplomacy
+					}
+					# 3-5
+					if = {
+						limit = {
+							AND = {
+								var:num_read_subject_diplomacy < 6
+								var:num_read_subject_diplomacy >= 3
+							}
+							# Cannot have it already
+							NOT = {
+								has_character_modifier = ck_mahdi_book_diplomacy_1
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_diplomacy_1
+							years = 15
+						}
+					}
+					# 6
+					if = {
+						limit = {
+							has_character_modifier = ck_mahdi_book_diplomacy_1
+						}
+						remove_character_modifier = ck_mahdi_book_diplomacy_1
+					}
+					if = {
+						limit = {
+							var:num_read_subject_diplomacy >= 6
+							NOT = {
+								has_character_modifier = ck_mahdi_book_diplomacy_2
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_diplomacy_2
+							years = 15
+						}
+					}
+				}
+			}
+			flag:stewardship = {
+				if = {
+					limit = {
+						exists = var:num_read_subject_stewardship
+						has_variable = num_read_subject_stewardship
+					}
+					# 3-5
+					if = {
+						limit = {
+							AND = {
+								var:num_read_subject_stewardship < 6
+								var:num_read_subject_stewardship >= 3
+							}
+							# Cannot have it already
+							NOT = {
+								has_character_modifier = ck_mahdi_book_stewardship_1
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_stewardship_1
+							years = 15
+						}
+					}
+					# 6
+					if = {
+						limit = {
+							has_character_modifier = ck_mahdi_book_stewardship_1
+						}
+						remove_character_modifier = ck_mahdi_book_stewardship_1
+					}
+					if = {
+						limit = {
+							var:num_read_subject_stewardship >= 6
+							NOT = {
+								has_character_modifier = ck_mahdi_book_stewardship_2
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_stewardship_2
+							years = 15
+						}
+					}
+				}
+			}
+
+			flag:martial = {
+				if = {
+					limit = {
+						exists = var:num_read_subject_martial
+						has_variable = num_read_subject_martial
+					}
+					# 3-5
+					if = {
+						limit = {
+							AND = {
+								var:num_read_subject_martial < 6
+								var:num_read_subject_martial >= 3
+							}
+							# Cannot have it already
+							NOT = {
+								has_character_modifier = ck_mahdi_book_martial_1
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_martial_1
+							years = 15
+						}
+					}
+					# 6
+					if = {
+						limit = {
+							has_character_modifier = ck_mahdi_book_martial_1
+						}
+						remove_character_modifier = ck_mahdi_book_martial_1
+					}
+					if = {
+						limit = {
+							var:num_read_subject_martial >= 6
+							NOT = {
+								has_character_modifier = ck_mahdi_book_martial_2
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_martial_2
+							years = 15
+						}
+					}
+				}
+			}
+
+			flag:intrigue = {
+				if = {
+					limit = {
+						exists = var:num_read_subject_intrigue
+						has_variable = num_read_subject_intrigue
+					}
+					# 3-5
+					if = {
+						limit = {
+							AND = {
+								var:num_read_subject_intrigue < 6
+								var:num_read_subject_intrigue >= 3
+							}
+							# Cannot have it already
+							NOT = {
+								has_character_modifier = ck_mahdi_book_intrigue_1
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_intrigue_1
+							years = 15
+						}
+					}
+					# 6
+					if = {
+						limit = {
+							has_character_modifier = ck_mahdi_book_intrigue_1
+						}
+						remove_character_modifier = ck_mahdi_book_intrigue_1
+					}
+					if = {
+						limit = {
+							var:num_read_subject_intrigue >= 6
+							NOT = {
+								has_character_modifier = ck_mahdi_book_intrigue_2
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_intrigue_2
+							years = 15
+						}
+					}
+				}
+			}
+
+			flag:learning = {
+				if = {
+					limit = {
+						exists = var:num_read_subject_learning
+						has_variable = num_read_subject_learning
+					}
+					# 3-5
+					if = {
+						limit = {
+							AND = {
+								var:num_read_subject_learning < 6
+								var:num_read_subject_learning >= 3
+							}
+							# Cannot have it already
+							NOT = {
+								has_character_modifier = ck_mahdi_book_learning_1
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_learning_1
+							years = 15
+						}
+					}
+					# 6
+					if = {
+						limit = {
+							has_character_modifier = ck_mahdi_book_learning_1
+						}
+						remove_character_modifier = ck_mahdi_book_learning_1
+					}
+					if = {
+						limit = {
+							var:num_read_subject_learning >= 6
+							NOT = {
+								has_character_modifier = ck_mahdi_book_learning_2
+							}
+						}
+						add_character_modifier = {
+							modifier = ck_mahdi_book_learning_2
+							years = 15
+						}
+					}
+				}
+			}
+		}
+	}
+
+	# If the character reads all the subjects (cooldown of 4 months, accumulative stress, may take some time)
+	# They gain a new trait: Erudite (placeholder is a modifier)
+	if = {
+		limit = {
+			AND = {
+				has_character_modifier = ck_mahdi_book_diplomacy_2
+				has_character_modifier = ck_mahdi_book_stewardship_2
+				has_character_modifier = ck_mahdi_book_martial_2
+				has_character_modifier = ck_mahdi_book_learning_2
+				has_character_modifier = ck_mahdi_book_intrigue_2
+			}
+		}
+		remove_character_modifier = ck_mahdi_book_diplomacy_2
+		remove_character_modifier = ck_mahdi_book_stewardship_2
+		remove_character_modifier = ck_mahdi_book_martial_2
+		remove_character_modifier = ck_mahdi_book_learning_2
+		remove_character_modifier = ck_mahdi_book_intrigue_2
+
+		# Add the trait
+		# add_trait_force_tooltip = erudite_ck
+		add_character_modifier = {
+			modifier = ck_mahdi_book_everything
+			years = 50
+		}
+	}
+}
+west_nahasa.0002 = {
+	title = west_nahasa.0002.t
+	desc = {
+		first_valid = {
+			triggered_desc = { 
+				trigger = {
+					game_start_date > 990.5.1
+				}
+				desc = west_nahasa.0002.desc # Mentions the Calradian Expedition which didn't occur until the above date
+			}
+			desc = west_nahasa.0002.desc.no_calradian
+		}
+	}
+	type = character_event
+	theme = learning
+	window = fullscreen_event
+	override_background = {
+		reference = ck_fullscreen_library
+	}
+	trigger = {
+		location = province:5916
+		faith = {
+			has_doctrine = tenet_path_of_the_mahdi
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			mp_delay_travel_plan = { DAYS = 90 } # Keep the player here until they're ready to leave
+		}
+		give_character_modifiers_nahasa_0002_effect = yes
+	}
+	
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							exists = var:read_all_of_diplomacy_cooldown
+							has_variable = read_all_of_diplomacy_cooldown
+						}
+						desc = west_nahasa.0002.a.reread
+					}
+					desc = west_nahasa.0002.a
+				}
+			}
+		}
+		flavor = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						exists = var:read_all_of_diplomacy_cooldown
+						has_variable = read_all_of_diplomacy_cooldown
+					}
+					desc = west_nahasa.0002.tt.reread
+				}
+				desc = west_nahasa.0002.tt
+			}
+		}
+		read_tome_category_effect = { SKILL = diplomacy }
+	}
+
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							exists = var:read_all_of_stewardship_cooldown
+							has_variable = read_all_of_stewardship_cooldown
+						}
+						desc = west_nahasa.0002.b.reread
+					}
+					desc = west_nahasa.0002.b
+				}
+			}
+		}
+		flavor = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						exists = var:read_all_of_stewardship_cooldown
+						has_variable = read_all_of_stewardship_cooldown
+					}
+					desc = west_nahasa.0002.tt.reread
+				}
+				desc = west_nahasa.0002.tt
+			}
+		}
+		read_tome_category_effect = { SKILL = stewardship }
+	}
+
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							exists = var:read_all_of_martial_cooldown
+							has_variable = read_all_of_martial_cooldown
+						}
+						desc = west_nahasa.0002.c.reread
+					}
+					desc = west_nahasa.0002.c
+				}
+			}
+		}
+		flavor = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						exists = var:read_all_of_martial_cooldown
+						has_variable = read_all_of_martial_cooldown
+					}
+					desc = west_nahasa.0002.tt.reread
+				}
+				desc = west_nahasa.0002.tt
+			}
+		}
+		read_tome_category_effect = { SKILL = martial }
+	}
+
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							exists = var:read_all_of_intrigue_cooldown
+							has_variable = read_all_of_intrigue_cooldown
+						}
+						desc = west_nahasa.0002.d.reread
+					}
+					desc = west_nahasa.0002.d
+				}
+			}
+		}
+		flavor = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						exists = var:read_all_of_intrigue_cooldown
+						has_variable = read_all_of_intrigue_cooldown
+					}
+					desc = west_nahasa.0002.tt.reread
+				}
+				desc = west_nahasa.0002.tt
+			}
+		}
+		read_tome_category_effect = { SKILL = intrigue }
+	}
+
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							exists = var:read_all_of_learning_cooldown
+							has_variable = read_all_of_learning_cooldown
+						}
+						desc = west_nahasa.0002.e.reread
+					}
+					desc = west_nahasa.0002.e
+				}
+			}
+		}
+		flavor = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						exists = var:read_all_of_learning_cooldown
+						has_variable = read_all_of_learning_cooldown
+					}
+					desc = west_nahasa.0002.tt.reread
+				}
+				desc = west_nahasa.0002.tt
+			}
+		}
+		read_tome_category_effect = { SKILL = learning }
+	}
+	option = {
+		name = west_nahasa.0002.f
+		flavor = west_nahasa.0002.f.flavor
+		custom_tooltip = west_nahasa.0002.f.tt
+		
+		start_travel_plan = {
+			destination = root.capital_province
+			players_use_planner = no
+			on_arrival_destinations = last
+			return_trip = no
+		}
+	}
+
+}
+scripted_effect ck_west_nahasa_0003_pick_subject_effect = {
+	# Track how many in each subject you read
+	increment_variable_with_duration_and_max_effect = {
+		VAR = num_read_subject_$SKILL$
+		VAL = 1
+		MAX = 6
+		TIME = 150 # plenty of time to accumulate read subjects for modifiers and a unique trait
+	}
+	if = {
+		limit = {
+			has_variable_list = read_subject_0003_$SKILL$
+			has_character_flag = rereading_skill_books
+		}
+		# Clear the list if the player is rereading
+		clear_variable_list = read_subject_0003_$SKILL$
+		# Then remove the flag to avoid the constant clearing 
+		remove_character_flag = rereading_skill_books
+	}
+	# Save variable for loc purposes
+	random_list = {
+		1 = {
+			trigger = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_1
+					}
+				}
+			}
+			# Add it to the read list
+			add_to_variable_list = {
+				name = read_subject_0003_$SKILL$
+				target = flag:$SKILL$_1
+			}
+			# Pull up that subject
+			set_variable = {
+				name = current_subject_0003
+				value = flag:$SKILL$_1
+			}
+		}
+		1 = {
+			trigger = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_2
+					}
+				}
+			}
+			# Add it to the read list
+			add_to_variable_list = {
+				name = read_subject_0003_$SKILL$
+				target = flag:$SKILL$_2
+			}
+			# Pull up that subject
+			set_variable = {
+				name = current_subject_0003
+				value = flag:$SKILL$_2
+			}
+		}
+		1 = {
+			trigger = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_3
+					}
+				}
+			}
+			# Add it to the read list
+			add_to_variable_list = {
+				name = read_subject_0003_$SKILL$
+				target = flag:$SKILL$_3
+			}
+			# Pull up that subject
+			set_variable = {
+				name = current_subject_0003
+				value = flag:$SKILL$_3
+			}
+		}
+		1 = {
+			trigger = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_4
+					}
+				}
+			}
+			# Add it to the read list
+			add_to_variable_list = {
+				name = read_subject_0003_$SKILL$
+				target = flag:$SKILL$_4
+			}
+			# Pull up that subject
+			set_variable = {
+				name = current_subject_0003
+				value = flag:$SKILL$_4
+			}
+		}
+		1 = {
+			trigger = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_5
+					}
+				}
+			}
+			# Add it to the read list
+			add_to_variable_list = {
+				name = read_subject_0003_$SKILL$
+				target = flag:$SKILL$_5
+			}
+			# Pull up that subject
+			set_variable = {
+				name = current_subject_0003
+				value = flag:$SKILL$_5
+			}
+		}
+		1 = {
+			trigger = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_6
+					}
+				}
+			}
+			# Add it to the read list
+			add_to_variable_list = {
+				name = read_subject_0003_$SKILL$
+				target = flag:$SKILL$_6
+			}
+			# Pull up that subject
+			set_variable = {
+				name = current_subject_0003
+				value = flag:$SKILL$_6
+			}
+		}
+		1 = {
+			trigger = {
+				AND = { # All six of the subjects are read up on
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_1
+					}
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_2
+					}
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_3
+					}
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_4
+					}
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_5
+					}
+					is_target_in_variable_list = {
+						name = read_subject_0003_$SKILL$
+						target = flag:$SKILL$_6
+					}
+				}
+			}
+			# Pull up that subject
+			set_variable = {
+				name = current_subject_0003
+				value = flag:read_all_of_this_subject
+			}
+			if = {
+				limit = { # Limit to stop players from coming back and forth to refresh the cooldown
+					NAND = {
+						has_variable = read_all_of_subject
+						var:read_all_of_subject = flag:$SKILL$
+					}
+				}
+				# Reference for .0002
+				set_variable = {
+					name = read_all_of_subject
+					value = flag:$SKILL$
+					years = 30
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_variable = read_all_of_$SKILL$_cooldown
+					}
+				}
+				set_variable = {
+					name = read_all_of_$SKILL$_cooldown
+					value = yes
+					years = 30
+				}
+			}
+		}
+	}
+	# Reading a category adds 1, stress gained scales with this
+	increment_variable_with_duration_and_max_effect = {
+		VAR = ck_mahdi_read_tomes
+		VAL = 1
+		MAX = 6
+		TIME = 4 # in time for the cooldown, when the decision is taken, we'll remove the var if it exists
+	}
+}
+west_nahasa.0003 = {
+	title = {
+		desc = west_nahasa.0003.t
+		first_valid = {
+			# desc = west_nahasa.0003.t_d
+			triggered_desc = {
+				trigger = {
+					has_variable = west_nahasa_0003_desired_skill
+					var:west_nahasa_0003_desired_skill = flag:diplomacy
+				}
+				desc = west_nahasa.0003.t_d
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = west_nahasa_0003_desired_skill
+					var:west_nahasa_0003_desired_skill = flag:stewardship
+				}
+				desc = west_nahasa.0003.t_s
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = west_nahasa_0003_desired_skill
+					var:west_nahasa_0003_desired_skill = flag:martial
+				}
+				desc = west_nahasa.0003.t_m
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = west_nahasa_0003_desired_skill
+					var:west_nahasa_0003_desired_skill = flag:intrigue
+				}
+				desc = west_nahasa.0003.t_i
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = west_nahasa_0003_desired_skill
+					var:west_nahasa_0003_desired_skill = flag:learning
+				}
+				desc = west_nahasa.0003.t_l
+			}
+		}
+	}
+	desc = {
+		random_valid = {
+			triggered_desc = {
+				trigger = {
+					NAND = {
+						has_variable = current_subject_0003
+						var:current_subject_0003 = flag:read_all_of_this_subject
+					}
+				}
+				desc = west_nahasa.0003.desc.scroll
+			}
+			triggered_desc = {
+				trigger = {
+					NAND = {
+						has_variable = current_subject_0003
+						var:current_subject_0003 = flag:read_all_of_this_subject
+					}
+				}
+				desc = west_nahasa.0003.desc.tome
+			}
+			triggered_desc = {
+				trigger = {
+					NAND = {
+						has_variable = current_subject_0003
+						var:current_subject_0003 = flag:read_all_of_this_subject
+					}
+				}
+				desc = west_nahasa.0003.desc.book
+			}
+		}
+		random_valid = {
+			## Read all of current subject
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:read_all_of_this_subject
+				}
+				desc = west_nahasa.0003.desc.read_all_of_this_subject
+			}
+			## Diplomacy
+			# Subject 1:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:diplomacy_1
+				}
+				desc = west_nahasa.0003.desc.d_1_pre
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:diplomacy_1
+					game_start_date <= 990.5.1
+				}
+				desc = west_nahasa.0003.desc.d_1_post
+			}
+			# Subject 2:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:diplomacy_2
+				}
+				desc = west_nahasa.0003.desc.d_2
+			}
+			# Subject 3:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:diplomacy_3
+				}
+				desc = west_nahasa.0003.desc.d_3
+			}
+			# Subject 4:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:diplomacy_4
+				}
+				desc = west_nahasa.0003.desc.d_4
+			}
+			# Subject 5:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:diplomacy_5
+				}
+				desc = west_nahasa.0003.desc.d_5
+			}
+			# Subject 6:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:diplomacy_6
+				}
+				desc = west_nahasa.0003.desc.d_6
+			}
+
+			## Stewardship
+			# Subject 1:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:stewardship_1
+				}
+				desc = west_nahasa.0003.desc.s_1
+			}
+			# Subject 2:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:stewardship_2
+				}
+				desc = west_nahasa.0003.desc.s_2
+			}
+			# Subject 3:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:stewardship_3
+				}
+				desc = west_nahasa.0003.desc.s_3
+			}
+			# Subject 4:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:stewardship_4
+				}
+				desc = west_nahasa.0003.desc.s_4
+			}
+			# Subject 5:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:stewardship_5
+				}
+				desc = west_nahasa.0003.desc.s_5
+			}
+			# Subject 6:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:stewardship_6
+				}
+				desc = west_nahasa.0003.desc.s_6
+			}
+
+			## Martial
+			# Subject 1:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:martial_1
+				}
+				desc = west_nahasa.0003.desc.m_1
+			}
+			# Subject 2:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:martial_2
+				}
+				desc = west_nahasa.0003.desc.m_2
+			}
+			# Subject 3:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:martial_3
+				}
+				desc = west_nahasa.0003.desc.m_3
+			}
+			# Subject 4:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:martial_4
+				}
+				desc = west_nahasa.0003.desc.m_4
+			}
+			# Subject 5:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:martial_5
+				}
+				desc = west_nahasa.0003.desc.m_5
+			}
+			# Subject 6:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:martial_6
+				}
+				desc = west_nahasa.0003.desc.m_6
+			}
+
+			## Intrigue
+			# Subject 1:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:intrigue_1
+				}
+				desc = west_nahasa.0003.desc.i_1
+			}
+			# Subject 2:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:intrigue_2
+				}
+				desc = west_nahasa.0003.desc.i_2
+			}
+			# Subject 3:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:intrigue_3
+				}
+				desc = west_nahasa.0003.desc.i_3
+			}
+			# Subject 4:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:intrigue_4
+				}
+				desc = west_nahasa.0003.desc.i_4
+			}
+			# Subject 5:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:intrigue_5
+				}
+				desc = west_nahasa.0003.desc.i_5
+			}
+			# Subject 6:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:intrigue_6
+				}
+				desc = west_nahasa.0003.desc.i_6
+			}
+
+			## Learning
+			# Subject 1:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:learning_1
+				}
+				desc = west_nahasa.0003.desc.l_1
+			}
+			# Subject 2:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:learning_2
+				}
+				desc = west_nahasa.0003.desc.l_2
+			}
+			# Subject 3:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:learning_3
+				}
+				desc = west_nahasa.0003.desc.l_3
+			}
+			# Subject 4:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:learning_4
+				}
+				desc = west_nahasa.0003.desc.l_4
+			}
+			# Subject 5:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:learning_5
+				}
+				desc = west_nahasa.0003.desc.l_5
+			}
+			# Subject 6:
+			triggered_desc = {
+				trigger = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:learning_6
+				}
+				desc = west_nahasa.0003.desc.l_6
+			}
+		}
+	}
+	widget = {
+		gui = "event_window_widget_library_mahdi"
+		container = "custom_widgets_library_container" #Fullscreen only
+	}
+	type = character_event
+	theme = learning
+	window = fullscreen_event
+	override_background = {
+		reference = ck_fullscreen_library
+	}
+	trigger = {
+		location = province:5916
+		faith = {
+			has_doctrine = tenet_path_of_the_mahdi
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			save_scope_as = scope_character
+			# Sort through the desired skills to find a subject to read, prioritize unread subjects
+			# Six subjects in each skill
+			switch = {
+				trigger = var:west_nahasa_0003_desired_skill
+
+				flag:diplomacy = {
+					ck_west_nahasa_0003_pick_subject_effect = { SKILL = diplomacy }
+				}
+
+				flag:stewardship = {
+					ck_west_nahasa_0003_pick_subject_effect = { SKILL = stewardship }
+				}
+
+				flag:martial = {
+					ck_west_nahasa_0003_pick_subject_effect = { SKILL = martial }
+				}
+
+				flag:intrigue = {
+					ck_west_nahasa_0003_pick_subject_effect = { SKILL = intrigue }
+				}
+
+				flag:learning = {
+					ck_west_nahasa_0003_pick_subject_effect = { SKILL = learning }
+				}
+			}
+
+
+			mp_delay_travel_plan = { DAYS = 90 } # Keep the player here until they're ready to leave
+		}
+	}
+
+	# Delver Deeper
+	option = {
+		name = {
+			text = {
+				random_valid = {
+					desc = west_nahasa.0003.a
+					desc = west_nahasa.0003.a.2
+					desc = west_nahasa.0003.a.3
+					desc = west_nahasa.0003.a.4
+				}
+			}
+		}
+
+		trigger = {
+			NAND = {
+				has_variable = current_subject_0003
+				var:current_subject_0003 = flag:read_all_of_this_subject
+			}
+		}
+		if = {
+			limit = {
+				has_variable = ck_mahdi_read_tomes
+				var:ck_mahdi_read_tomes > 0
+				NAND = {
+					has_variable = current_subject_0003
+					var:current_subject_0003 = flag:read_all_of_this_subject
+				}
+			}
+			add_stress = {
+				value = {
+					value = 7.5
+					multiply = var:ck_mahdi_read_tomes
+					multiply = var:ck_mahdi_read_tomes # To get an exponential rise
+					round = yes
+				}
+			}
+		}
+		
+		# Loop it
+		trigger_event = west_nahasa.0003
+	}
+	# Go to a different subject
+	option = {
+		name = {
+			text = {
+				random_valid = {
+					desc = west_nahasa.0003.b
+					desc = west_nahasa.0003.b.2
+				}
+			}
+		}
+		trigger_event = west_nahasa.0002
+		if = {
+			limit = {
+				has_variable = current_subject_0003
+			}
+			remove_variable = current_subject_0003
+		}
+	}
+	# Leave
+	option = {
+		name = west_nahasa.0003.c
+		if = {
+			limit = {
+				has_variable = current_subject_0003
+			}
+			remove_variable = current_subject_0003
+		}
+		if = {
+			limit = {
+				has_variable = west_nahasa_0003_desired_skill
+			}
+			remove_variable = west_nahasa_0003_desired_skill
+		}
+		# We will not remove the read_subject_0003_$SKILL$ variable list, so that the player can reread it
+
+		## Give the player an appropriate modifier if they've earned it
+		give_character_modifiers_nahasa_0002_effect = yes
+
+		## Return home
+		start_travel_plan = {
+			destination = root.capital_province
+			players_use_planner = no
+			on_arrival_destinations = last
+			return_trip = no
+		}
+	}
+}
