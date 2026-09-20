@@ -258,8 +258,32 @@ ck_pilgrimage.0003 = {
 		}
 	}
 }
+scripted_trigger ck_visited_all_mahdi_hs = {
+	AND = {
+		is_target_in_variable_list = {
+			name = ck_mahdi_visited_hs_list
+			target = province:5867
+		}
+		is_target_in_variable_list = {
+			name = ck_mahdi_visited_hs_list
+			target = province:5916
+		}
+		is_target_in_variable_list = {
+			name = ck_mahdi_visited_hs_list
+			target = province:6409
+		}
+		is_target_in_variable_list = {
+			name = ck_mahdi_visited_hs_list
+			target = province:5833
+		}
+		is_target_in_variable_list = {
+			name = ck_mahdi_visited_hs_list
+			target = province:5787
+		}
+	}
+}
 ### Mahdi's Path - Event Chains - Arrival Events
-# Visitng the Sacred City of Saajid - Final Trip
+# Visitng the Sacred City of Saajid
 ck_pilgrimage.0004 = {
 	type = activity_event
 	title = ck_pilgrimage.0004.t
@@ -274,8 +298,9 @@ ck_pilgrimage.0004 = {
 							option = pilgrimage_type_mahdi
 						}
 					}
+					# This is your "green" trial
 				}
-				desc = ck_pilgrimage.0004.desc.mahdi
+				desc = ck_pilgrimage.0004.desc.green
 			}
 			desc = ck_pilgrimage.0004.desc
 		}
@@ -359,7 +384,15 @@ ck_pilgrimage.0004 = {
 					}
 				}
 			}
-			custom_tooltip = ck_end_pilgrimage_mahdi
+			
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_2_effect }
+			hidden_effect = {
+				set_variable = {
+					name = mahdi_pilgrimage_cooldown
+					years = 1
+				}
+			}
 			add_piety = -100
 			scope:activity = { progress_activity_phase_after = { days = 1 } }
 			# Stress
@@ -470,7 +503,15 @@ ck_pilgrimage.0005 = {
 					}
 				}
 			}
-			custom_tooltip = ck_end_pilgrimage_mahdi
+			
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_2_effect }
+			hidden_effect = {
+				set_variable = {
+					name = mahdi_pilgrimage_cooldown
+					years = 1
+				}
+			}
 			add_piety = -100
 			scope:activity = { progress_activity_phase_after = { days = 1 } }
 			# Stress
@@ -583,7 +624,15 @@ ck_pilgrimage.0006 = {
 			stress_impact = {
 				zealous = major_stress_impact_gain
 			}
-			custom_tooltip = ck_end_pilgrimage_mahdi
+			
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_2_effect }
+			hidden_effect = {
+				set_variable = {
+					name = mahdi_pilgrimage_cooldown
+					years = 1
+				}
+			}
 		}
 	}
 }
@@ -690,7 +739,15 @@ ck_pilgrimage.0007 = {
 			stress_impact = {
 				zealous = major_stress_impact_gain
 			}
-			custom_tooltip = ck_end_pilgrimage_mahdi
+			
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_2_effect }
+			hidden_effect = {
+				set_variable = {
+					name = mahdi_pilgrimage_cooldown
+					years = 1
+				}
+			}
 		}
 	}
 }
@@ -761,9 +818,20 @@ ck_pilgrimage.0008 = {
 	}
 	option = {
 		name = ck_pilgrimage.0005.b
-		add_piety = -100
-		# give_pilgrim_trait_or_xp_effect = yes # This comes later
-		# pilgrimage_arrival_stress_loss_effect = yes
+		add_piety = -50
+		scope:activity = { progress_activity_phase_after = { days = 1 } }
+		# Stress
+		stress_impact = {
+			zealous = major_stress_impact_gain
+		}
+		# custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+		custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_2_effect }
+		hidden_effect = {
+			set_variable = {
+				name = mahdi_pilgrimage_cooldown
+				years = 1
+			}
+		}
 
 		# Stress
 		stress_impact = {
@@ -872,23 +940,25 @@ ck_pilgrimage.0050 = { # Try to cut through thick foliage, guaranteed success if
 			}
 			custom_tooltip = ck_pilgrimage_mahdi_entourage
 			hidden_effect = {
-				every_entourage_character = {
-					limit = {
-						this != root
-					}
-					random_list = {
-						50 = {
-							desc = ck_pilgrimage.0051.a_success
+				current_travel_plan = {
+					every_entourage_character = {
+						limit = {
+							this != root
 						}
-						50 = {
-							desc = ck_pilgrimage.0051.a_failure
-							death = {
-								death_reason = death_missing_in_grove
+						random_list = {
+							50 = {
+								desc = ck_pilgrimage.0051.a_success
 							}
-							root = {
-								increment_variable_effect = {
-									VAR = grove_lost_entourage
-									VAL = 1
+							50 = {
+								desc = ck_pilgrimage.0051.a_failure
+								death = {
+									death_reason = death_missing_in_grove
+								}
+								root = {
+									increment_variable_effect = {
+										VAR = grove_lost_entourage
+										VAL = 1
+									}
 								}
 							}
 						}
@@ -977,23 +1047,25 @@ ck_pilgrimage.0051 = { # Come across a raging rapids
 			}
 			custom_tooltip = ck_pilgrimage_mahdi_entourage
 			hidden_effect = {
-				every_entourage_character = {
-					limit = {
-						this != root
-					}
-					random_list = {
-						60 = {
-							desc = ck_pilgrimage.0051.a_success
+				current_travel_plan = {
+					every_entourage_character = {
+						limit = {
+							this != root
 						}
-						30 = {
-							desc = ck_pilgrimage.0051.a_failure
-							death = {
-								death_reason = death_drowned
+						random_list = {
+							60 = {
+								desc = ck_pilgrimage.0051.a_success
 							}
-							root = {
-								increment_variable_effect = {
-									VAR = grove_lost_entourage
-									VAL = 1
+							30 = {
+								desc = ck_pilgrimage.0051.a_failure
+								death = {
+									death_reason = death_drowned
+								}
+								root = {
+									increment_variable_effect = {
+										VAR = grove_lost_entourage
+										VAL = 1
+									}
 								}
 							}
 						}
@@ -1046,22 +1118,24 @@ ck_pilgrimage.0051 = { # Come across a raging rapids
 			}
 			custom_tooltip = ck_pilgrimage_mahdi_entourage
 			hidden_effect = {
-				every_entourage_character = {
-					limit = {
-						this != root
-					}
-					random_list = {
-						60 = {
-							desc = ck_pilgrimage.0051.b_success
+				current_travel_plan = {
+					every_entourage_character = {
+						limit = {
+							this != root
 						}
-						40 = {
-							death = {
-								death_reason = death_missing_in_grove
+						random_list = {
+							60 = {
+								desc = ck_pilgrimage.0051.b_success
 							}
-							root = {
-								increment_variable_effect = {
-									VAR = grove_lost_entourage
-									VAL = 1
+							40 = {
+								death = {
+									death_reason = death_missing_in_grove
+								}
+								root = {
+									increment_variable_effect = {
+										VAR = grove_lost_entourage
+										VAL = 1
+									}
 								}
 							}
 						}
@@ -1138,7 +1212,7 @@ ck_pilgrimage.0052 = { # Come across another pilgrim who became lost
 			culture = culture:izerfani
 			dynasty = none
 			random_traits = no
-			location = root.location.title_province
+			location = root.location
 			save_scope_as = lost_pilgrim
 		}
 	}
@@ -1857,4 +1931,3343 @@ ck_pilgrimage.0055 = {
 		ck_remove_character_flags = { FLAG = in_the_mahdi_grove }
 	}
 }
-### Hidden Pilgrimage Events (for delayed effects) 1000 & Up
+
+scripted_effect pull_local_marabout_or_generate = {
+	if = { # If this holy site is your capital county, use your own personal marabout (unlikely under nomads, so generate one)
+		limit = {
+			location = {
+				county ?= {
+					holder ?= {
+						exists = cp:councillor_court_chaplain
+						capital_county = prev 
+						faith.religion = religion:west_nahasan_religion # Change this to a new tenet
+					}
+				}
+			}
+		}
+		location.county.holder.cp:councillor_court_chaplain = { save_scope_as = trial_marabout }
+		set_variable = {
+			name = local_marabout
+			value = scope:trial_marabout
+		}
+	}
+	else = {
+		create_character = {
+			template = priest_character_template
+			culture = root.location.culture
+			faith = root.location.faith
+			dynasty = none
+			age = { 55 70 }
+			location = root.location
+			gender_female_chance = root_faith_clergy_gender_female_chance
+			save_scope_as = trial_marabout
+			after = {
+				add_character_flag = created
+			}
+		}
+		set_variable = {
+			name = local_marabout
+			value = scope:trial_marabout
+		}
+	}
+}
+## Path of the Mahdi Trials
+# Black Hill
+ck_pilgrimage.0060 = { # 
+	type = activity_event
+	title = ck_pilgrimage.0060.t
+	desc = ck_pilgrimage.0060.desc
+	theme = pilgrimage_destination
+	override_background = {
+		reference = fp1_tribal_temple
+	}
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	right_portrait = {
+		character = scope:trial_marabout
+		animation = prayer
+		hide_info = yes
+		camera = camera_event_left_away_3_4
+	}
+	trigger = {
+		county_is_mahdi_hs = yes
+		has_character_flag = in_west_nahasa_event_chain
+		involved_activity ?= {
+			has_activity_type = activity_pilgrimage
+			has_activity_option = {
+				category = special_type
+				option = pilgrimage_type_mahdi
+			}
+		}
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	cooldown = { days = 45 }
+	immediate = {
+		# Spawn a marabout
+		pull_local_marabout_or_generate = yes
+		# scope:activity = {
+			set_variable = {
+				name = local_marabout
+				value = scope:trial_marabout
+			}
+		# }
+	}
+	option = { # Intrigue
+		name = ck_pilgrimage.0060.a
+		trigger = {
+			scope:activity.activity_location.county = title:c_barchaz
+		}
+		flavor = ck_pilgrimage.0060.a.flavor
+		reason = ck_mahdi_intrigue
+		hidden_effect = {
+			set_variable = {
+				name = ck_mahdi_trial
+				value = flag:black_hill
+			}
+			trigger_event = ck_pilgrimage.0100
+		}
+	}
+	option = { # Learning
+		name = ck_pilgrimage.0060.a
+		trigger = {
+			scope:activity.activity_location.county = title:c_dindoranir
+		}
+		flavor = ck_pilgrimage.0060.a.flavor
+		reason = ck_mahdi_learning
+		hidden_effect = {
+			set_variable = {
+				name = ck_mahdi_trial
+				value = flag:white_hill
+			}
+			trigger_event = ck_pilgrimage.0100
+		}
+	}
+	option = { # Diplomacy
+		name = ck_pilgrimage.0060.a
+		trigger = {
+			scope:activity.activity_location.county = title:c_zejdada
+		}
+		flavor = ck_pilgrimage.0060.a.flavor
+		reason = ck_mahdi_diplomacy
+		hidden_effect = {
+			set_variable = {
+				name = ck_mahdi_trial
+				value = flag:blue_hill
+			}
+			trigger_event = ck_pilgrimage.0100
+		}
+	}
+	option = { # Martial
+		name = ck_pilgrimage.0060.a
+		trigger = {
+			scope:activity.activity_location.county = title:c_ayyur
+		}
+		flavor = ck_pilgrimage.0060.a.flavor
+		reason = ck_mahdi_martial
+		hidden_effect = {
+			set_variable = {
+				name = ck_mahdi_trial
+				value = flag:red_hill
+			}
+			trigger_event = ck_pilgrimage.0100
+		}
+	}
+	option = { # Stewardship
+		name = ck_pilgrimage.0060.a
+		trigger = {
+			scope:activity.activity_location.county = title:c_indurar
+		}
+		flavor = ck_pilgrimage.0060.a.flavor
+		reason = ck_mahdi_stewardship
+		hidden_effect = {
+			set_variable = {
+				name = ck_mahdi_trial
+				value = flag:green_hill
+			}
+			trigger_event = ck_pilgrimage.0100
+		}
+	}
+
+
+
+	option = {
+		name = ck_pilgrimage.0060.b
+		
+		# Mahdi Pilgrimage Effects for leaving early
+		if = {
+			limit = {
+				involved_activity ?= {
+					has_activity_type = activity_pilgrimage
+					has_activity_option = {
+						category = special_type
+						option = pilgrimage_type_mahdi
+					}
+				}
+			}
+			add_piety = -100
+			scope:activity = { progress_activity_phase_after = { days = 1 } }
+			# Stress
+			stress_impact = {
+				zealous = major_stress_impact_gain
+			}
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_2_effect }
+			hidden_effect = {
+				set_variable = {
+					name = mahdi_pilgrimage_cooldown
+					years = 1
+				}
+			}
+		}
+	}
+}
+
+ck_pilgrimage.0100 = { # First part of trial
+	type = activity_event
+	title = ck_pilgrimage.0100.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:black_hill
+				}
+				desc = ck_pilgrimage.0100.desc.black
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:red_hill
+				}
+				desc = ck_pilgrimage.0100.desc.red
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:green_hill
+				}
+				desc = ck_pilgrimage.0100.desc.green
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:blue_hill
+				}
+				desc = ck_pilgrimage.0100.desc.blue
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:white_hill
+				}
+				desc = ck_pilgrimage.0100.desc.white
+			}
+		}
+	}
+	theme = pilgrimage_destination
+	override_background = {
+		reference = fp1_tribal_temple
+	}
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	right_portrait = {
+		character = scope:trial_marabout
+		animation = personality_zealous
+		hide_info = yes
+		camera = camera_event_right
+	}
+	trigger = {
+		county_is_mahdi_hs = yes
+		has_character_flag = in_west_nahasa_event_chain
+		has_variable = ck_mahdi_trial
+		involved_activity ?= {
+			has_activity_type = activity_pilgrimage
+			has_activity_option = {
+				category = special_type
+				option = pilgrimage_type_mahdi
+			}
+		}
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	cooldown = { days = 60 }
+	immediate = {
+		# Spawn a marabout
+		# pull_local_marabout_or_generate = yes
+		# Spawn a marabout
+		if = {
+			limit = {
+				exists = var:local_marabout
+			}
+			var:local_marabout = {
+				save_scope_as = trial_marabout
+			}
+		}
+		else = {
+			pull_local_marabout_or_generate = yes
+		}
+	}
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							has_trait = impatient
+						}
+						desc = ck_pilgrimage.0100.a.impatient
+					}
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:red_hill
+						}
+						desc = ck_pilgrimage.0100.a.red_hill
+					}
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:blue_hill
+						}
+						desc = ck_pilgrimage.0100.a.blue_hill
+					}
+					desc = ck_pilgrimage.0100.a
+				}
+			}
+		}
+		flavor = ck_pilgrimage.0100.a.flavor
+
+		trigger_event = ck_pilgrimage.0101
+	}
+	option = {
+		name = ck_pilgrimage.0100.b
+
+		hidden_effect = {
+			remove_variable = ck_mahdi_trial
+		}
+		
+		# Mahdi Pilgrimage Effects for leaving early
+		if = {
+			limit = {
+				involved_activity ?= {
+					has_activity_type = activity_pilgrimage
+					has_activity_option = {
+						category = special_type
+						option = pilgrimage_type_mahdi
+					}
+				}
+			}
+			scope:activity = { progress_activity_phase_after = { days = 1 } }
+			stress_impact = {
+				zealous = major_stress_impact_gain
+			}
+			
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+			custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_2_effect }
+			hidden_effect = {
+				set_variable = {
+					name = mahdi_pilgrimage_cooldown
+					years = 1
+				}
+			}
+		}
+	}
+}
+scripted_effect ck_pilgrimage_0101_choose_question_effect = {
+	switch = {
+		trigger = var:ck_mahdi_trial
+
+		flag:black_hill = {
+			random_list = {
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_black_1
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_black_1
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_black_1
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_black_1
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_black_2
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_black_2
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_black_2
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_black_2
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_black_3
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_black_3
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_black_3
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_black_3
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_black_4
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_black_4
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_black_4
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_black_4
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_black_5
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_black_5
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_black_5
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_black_5
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_black_6
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_black_6
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_black_6
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_black_6
+					}
+				}
+			}
+		}
+
+		flag:red_hill = {
+			random_list = {
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_red_1
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_red_1
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_red_1
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_red_1
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_red_2
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_red_2
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_red_2
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_red_2
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_red_3
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_red_3
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_red_3
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_red_3
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_red_4
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_red_4
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_red_4
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_red_4
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_red_5
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_red_5
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_red_5
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_red_5
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_red_6
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_red_6
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_red_6
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_red_6
+					}
+				}
+			}
+		}
+
+		flag:green_hill = {
+			random_list = {
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_green_1
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_green_1
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_green_1
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_green_1
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_green_2
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_green_2
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_green_2
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_green_2
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_green_3
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_green_3
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_green_3
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_green_3
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_green_4
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_green_4
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_green_4
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_green_4
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_green_5
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_green_5
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_green_5
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_green_5
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_green_6
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_green_6
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_green_6
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_green_6
+					}
+				}
+			}
+		}
+
+		flag:white_hill = {
+			random_list = {
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_white_1
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_white_1
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_white_1
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_white_1
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_white_2
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_white_2
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_white_2
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_white_2
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_white_3
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_white_3
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_white_3
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_white_3
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_white_4
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_white_4
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_white_4
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_white_4
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_white_5
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_white_5
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_white_5
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_white_5
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_white_6
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_white_6
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_white_6
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_white_6
+					}
+				}
+			}
+		}
+
+		flag:blue_hill = {
+			random_list = {
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_blue_1
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_blue_1
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_blue_1
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_blue_1
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_blue_2
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_blue_2
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_blue_2
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_blue_2
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_blue_3
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_blue_3
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_blue_3
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_blue_3
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_blue_4
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_blue_4
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_blue_4
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_blue_4
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_blue_5
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_blue_5
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_blue_5
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_blue_5
+					}
+				}
+				1 = {
+					trigger = {
+						NAND = {
+							has_variable_list = ck_pilgrimage_0101_questions
+							is_target_in_variable_list = {
+								name = ck_pilgrimage_0101_questions
+								target = flag:question_blue_6
+							}
+						}
+					}
+					set_variable = {
+						name = ck_mahdi_question
+						value = flag:question_blue_6
+					}
+					add_to_variable_list = {
+						name = ck_pilgrimage_0101_questions
+						target = flag:question_blue_6
+					}
+					set_variable = {
+						name = asked_0101_question
+						value = flag:question_blue_6
+					}
+				}
+			}
+		}
+	}
+}
+scripted_effect ck_pilgrimage_0101_answers_A = { # For the first answer
+	switch = {
+		trigger = var:asked_0101_question
+
+		flag:question_black_1 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_black_3 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_red_1 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_red_3 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_white_1 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_white_2 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_blue_1 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_blue_2 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_green_1 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_green_2 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+	}
+	if = {
+		limit = {
+			NOT = {
+				root = scope:correct_answer
+			}
+		}
+		save_scope_as = wrong_answer
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mahdi_wrong_answer_log
+				tags = { negative }
+				score = -25
+				character = root
+				show_in_conclusion = yes
+				#Effects
+				hidden_effect = {
+					root = {
+						add_piety = miniscule_piety_loss
+					}
+				}
+			}
+			if = {
+				limit = { exists = var:activity_special_type_progression }
+				change_variable = {
+					name = activity_special_type_progression
+					add = -25 #
+				}
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			root = scope:correct_answer
+		}
+		increment_variable_effect = {
+			VAR = 0101_correct_answers
+			VAL = 1
+		}
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mahdi_correct_answer_log
+				tags = { positive }
+				score = 25
+				character = root
+				show_in_conclusion = yes
+				#Effects
+				hidden_effect = {
+					root = {
+						add_piety = miniscule_piety_gain
+					}
+				}
+			}
+			if = {
+				limit = { exists = var:activity_special_type_progression }
+				change_variable = {
+					name = activity_special_type_progression
+					add = 25 #
+				}
+			}
+		}
+	}
+}
+scripted_effect ck_pilgrimage_0101_answers_B = { # For the second answer
+	switch = {
+		trigger = var:asked_0101_question
+
+		flag:question_black_2 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_black_4 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_red_2 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_red_4 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_white_3 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_white_4 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_blue_3 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_blue_4 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_green_3 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_green_4 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+	}
+	if = {
+		limit = {
+			NOT = {
+				root = scope:correct_answer
+			}
+		}
+		save_scope_as = wrong_answer
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mahdi_wrong_answer_log
+				tags = { negative }
+				score = -25
+				character = root
+				show_in_conclusion = yes
+				#Effects
+				hidden_effect = {
+					root = {
+						add_piety = miniscule_piety_loss
+					}
+				}
+			}
+			if = {
+				limit = { exists = var:activity_special_type_progression }
+				change_variable = {
+					name = activity_special_type_progression
+					add = -25 #
+				}
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			root = scope:correct_answer
+		}
+		increment_variable_effect = {
+			VAR = 0101_correct_answers
+			VAL = 1
+		}
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mahdi_correct_answer_log
+				tags = { positive }
+				score = 25
+				character = root
+				show_in_conclusion = yes
+				#Effects
+				hidden_effect = {
+					root = {
+						add_piety = miniscule_piety_gain
+					}
+				}
+			}
+			if = {
+				limit = { exists = var:activity_special_type_progression }
+				change_variable = {
+					name = activity_special_type_progression
+					add = 25 #
+				}
+			}
+		}
+	}
+}
+scripted_effect ck_pilgrimage_0101_answers_C = { # For the third answer
+	switch = {
+		trigger = var:asked_0101_question
+
+		flag:question_black_5 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_black_6 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_red_5 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_red_6 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_white_5 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_white_6 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_blue_5 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_blue_6 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_green_5 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+		flag:question_green_6 = {
+			root = {
+				save_scope_as = correct_answer
+			}
+		}
+	}
+	if = {
+		limit = {
+			NOT = {
+				root = scope:correct_answer
+			}
+		}
+		save_scope_as = wrong_answer
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mahdi_wrong_answer_log
+				tags = { negative }
+				score = -25
+				character = root
+				show_in_conclusion = yes
+				#Effects
+				hidden_effect = {
+					root = {
+						add_piety = miniscule_piety_loss
+					}
+				}
+			}
+			if = {
+				limit = { exists = var:activity_special_type_progression }
+				change_variable = {
+					name = activity_special_type_progression
+					add = -25 #
+				}
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			root = scope:correct_answer
+		}
+		increment_variable_effect = {
+			VAR = 0101_correct_answers
+			VAL = 1
+		}
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mahdi_correct_answer_log
+				tags = { positive }
+				score = 25
+				character = root
+				show_in_conclusion = yes
+				#Effects
+				hidden_effect = {
+					root = {
+						add_piety = miniscule_piety_gain
+					}
+				}
+			}
+			if = {
+				limit = { exists = var:activity_special_type_progression }
+				change_variable = {
+					name = activity_special_type_progression
+					add = 25 #
+				}
+			}
+		}
+	}
+}
+ck_pilgrimage.0101 = { # Trial (Loops until completion)
+	### Format:
+	## Pass 3 verbal questions, answers are going to be found in the library of Indurar N'Hatif
+	## After the question, you will be put to a physical challenge relating to the subject
+	## Depending on how well read you are, you have a better chance of succeeding. Remember everything.
+	## "Bi-lal Kaifa"
+
+	type = activity_event
+	title = ck_pilgrimage.0100.t
+	desc = {
+		triggered_desc = {
+			trigger = {
+				AND = {
+					exists = scope:failed_quiz
+					this = scope:failed_quiz
+				}
+				NAND = {
+					has_variable = 0101_correct_answers
+					var:0101_correct_answers = 3
+				}
+			}
+			desc = ck_pilgrimage.0101.desc.failed_questions
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					exists = scope:wrong_answer
+					this = scope:wrong_answer
+					NAND = {
+						exists = scope:failed_quiz
+						this = scope:failed_quiz
+					}
+					NAND = {
+						has_variable = 0101_correct_answers
+						var:0101_correct_answers = 3
+					}
+				}
+				desc = ck_pilgrimage.0101.desc.wrong
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:correct_answer
+					this = scope:correct_answer
+					NAND = {
+						exists = scope:failed_quiz
+						this = scope:failed_quiz
+					}
+					NAND = {
+						has_variable = 0101_correct_answers
+						var:0101_correct_answers = 3
+					}
+				}
+				desc = ck_pilgrimage.0101.desc.correct
+			}
+		}
+		triggered_desc = {
+			trigger = {
+				NAND = {
+					exists = scope:failed_quiz
+					this = scope:failed_quiz
+				}
+				NAND = {
+					has_variable = 0101_correct_answers
+					var:0101_correct_answers = 3
+				}
+			}
+			desc = ck_pilgrimage.0101.desc.question
+		}
+		triggered_desc = {
+			trigger = {
+				AND = {
+					has_variable = 0101_correct_answers
+					var:0101_correct_answers = 3
+				}
+			}
+			desc = ck_pilgrimage.0101.desc.success
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					AND = {
+						has_variable = ck_mahdi_trial
+						var:ck_mahdi_trial = flag:black_hill
+						has_variable = 0101_correct_answers
+						var:0101_correct_answers = 3
+					}
+				}
+				desc = ck_pilgrimage.0101.desc.success_black
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						has_variable = ck_mahdi_trial
+						var:ck_mahdi_trial = flag:red_hill
+						has_variable = 0101_correct_answers
+						var:0101_correct_answers = 3
+					}
+				}
+				desc = ck_pilgrimage.0101.desc.success_red
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						has_variable = ck_mahdi_trial
+						var:ck_mahdi_trial = flag:white_hill
+						has_variable = 0101_correct_answers
+						var:0101_correct_answers = 3
+					}
+				}
+				desc = ck_pilgrimage.0101.desc.success_white
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						has_variable = ck_mahdi_trial
+						var:ck_mahdi_trial = flag:green_hill
+						has_variable = 0101_correct_answers
+						var:0101_correct_answers = 3
+					}
+				}
+				desc = ck_pilgrimage.0101.desc.success_green
+			}
+			triggered_desc = {
+				trigger = {
+					AND = {
+						has_variable = ck_mahdi_trial
+						var:ck_mahdi_trial = flag:blue_hill
+						has_variable = 0101_correct_answers
+						var:0101_correct_answers = 3
+					}
+				}
+				desc = ck_pilgrimage.0101.desc.success_blue
+			}
+		}
+		
+	}
+	theme = pilgrimage_destination
+	override_background = {
+		reference = fp1_tribal_temple
+	}
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	right_portrait = {
+		character = scope:trial_marabout
+		animation = personality_zealous
+		hide_info = yes
+		camera = camera_event_right
+	}
+	trigger = {
+		county_is_mahdi_hs = yes
+		has_character_flag = in_west_nahasa_event_chain
+		
+		involved_activity ?= {
+			has_activity_type = activity_pilgrimage
+			has_activity_option = {
+				category = special_type
+				option = pilgrimage_type_mahdi
+			}
+		}
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	# cooldown = { days = 100 }
+	immediate = {
+		# Spawn a marabout
+		if = {
+			limit = {
+				exists = var:local_marabout
+				NOT = {
+					exists = scope:local_marabout
+				}
+			}
+			var:local_marabout = {
+				save_scope_as = trial_marabout
+			}
+		}
+		else = {
+			pull_local_marabout_or_generate = yes
+		}
+		ck_pilgrimage_0101_choose_question_effect = yes
+	}
+	## ANSWERS
+	option = {
+		name = ck_pilgrimage.0101.a
+		ck_pilgrimage_0101_answers_A = yes
+		trigger_event = ck_pilgrimage.0101
+		trigger = {
+			NOR = {
+				AND = {
+					has_variable = 0101_correct_answers
+					var:0101_correct_answers = 3
+				}
+				scope:failed_quiz ?= {
+					this = root
+				}
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0101.b
+		ck_pilgrimage_0101_answers_B = yes
+		trigger_event = ck_pilgrimage.0101
+		trigger = {
+			NOR = {
+				AND = {
+					has_variable = 0101_correct_answers
+					var:0101_correct_answers = 3
+				}
+				scope:failed_quiz ?= {
+					this = root
+				}
+			}
+		}
+	}
+	option = {
+		name = ck_pilgrimage.0101.c
+		ck_pilgrimage_0101_answers_C = yes
+		trigger_event = ck_pilgrimage.0101
+		trigger = {
+			NOR = {
+				AND = {
+					has_variable = 0101_correct_answers
+					var:0101_correct_answers = 3
+				}
+				scope:failed_quiz ?= {
+					this = root
+				}
+			}
+		}
+	}
+	### OUTCOMES
+	option = { # Success
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							has_variable = ck_mahdi_trial
+							var:ck_mahdi_trial = flag:black_hill
+						}
+						desc = ck_pilgrimage.0101.d.poison
+					}
+					triggered_desc = {
+						trigger = {
+							has_variable = ck_mahdi_trial
+							var:ck_mahdi_trial = flag:white_hill
+						}
+						desc = ck_pilgrimage.0101.d.white_hill
+					}
+					desc = ck_pilgrimage.0101.d
+				}
+			}
+		}
+		trigger = {
+			AND = {
+				has_variable = 0101_correct_answers
+				var:0101_correct_answers = 3
+			}
+		}
+		if = {
+			limit = {
+				has_variable = ck_mahdi_trial
+				var:ck_mahdi_trial = flag:white_hill
+			}
+			trigger_event = {
+				id = ck_pilgrimage.0102
+				days = 15
+			}
+		}
+		else_if = {
+			limit = {
+				has_variable = ck_mahdi_trial
+				var:ck_mahdi_trial = flag:red_hill
+			}
+			trigger_event = {
+				id = ck_pilgrimage.0102
+				days = 20 # Takes time to find the bandits
+			}
+		}
+		else_if = {
+			limit = {
+				has_variable = ck_mahdi_trial
+				var:ck_mahdi_trial = flag:blue_hill
+			}
+			trigger_event = {
+				id = ck_pilgrimage.0102
+				days = 6 # Takes time to find the feuders
+			}
+		}
+		else = {
+			trigger_event = ck_pilgrimage.0102
+		}
+	}
+	option = { # Failure
+		name = ck_pilgrimage.0101.e
+		trigger = {
+			scope:failed_quiz ?= {
+				this = root
+			}
+			scope:activity = {
+				add_activity_log_entry = {
+					key = ck_pilgrimage_fail_mahdi_log
+					tags = { negative }
+					score = -50
+					character = root
+					show_in_conclusion = yes
+					#Effects
+					root = {
+						add_piety = miniscule_piety_loss
+					}
+				}
+				if = {
+					limit = { exists = var:activity_special_type_progression }
+					change_variable = {
+						name = activity_special_type_progression
+						add = -50 #
+					}
+				}
+				progress_activity_phase_after = { days = 1 }
+			}
+		}
+		custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+		hidden_effect = {
+			scope:trial_marabout ?= {
+				if = {
+					limit = {
+						has_character_flag = created
+					}
+					death = {
+						death_reason = death_disappearance
+					}
+				}
+			}
+		}
+	}
+	option = { # Succeed but change mind - Failure - bigger penalty than failing
+		name = ck_pilgrimage.0101.f
+		trigger = {
+			AND = {
+				has_variable = 0101_correct_answers
+				var:0101_correct_answers = 3
+				
+				has_variable = ck_mahdi_trial
+				var:ck_mahdi_trial = flag:black_hill
+			}
+		}
+		add_piety = -100
+		scope:activity = { progress_activity_phase_after = { days = 1 } }
+		stress_impact = {
+			zealous = major_stress_impact_gain
+		}
+		
+		custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_effect }
+		custom_description_no_bullet = { text = ck_end_pilgrimage_mahdi_2_effect }
+		hidden_effect = {
+			set_variable = {
+				name = mahdi_pilgrimage_cooldown
+				years = 1
+			}
+			scope:trial_marabout ?= {
+				if = {
+					limit = {
+						has_character_flag = created
+					}
+					death = {
+						death_reason = death_disappearance
+					}
+				}
+			}
+		}
+	}
+}
+## Second Trial
+ck_pilgrimage.0102 = { # Trial
+	### Format:
+	## Pass 3 verbal questions, answers are going to be found in the library of Indurar N'Hatif
+	## After the question, you will be put to a physical challenge relating to the subject
+	## Depending on how well read you are, you have a better chance of succeeding. Remember everything.
+	## "Bi-lal Kaifa"
+
+	type = activity_event
+	title = ck_pilgrimage.0100.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:black_hill
+				}
+				desc = ck_pilgrimage.0102.desc.black_hill
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:white_hill
+				}
+				desc = ck_pilgrimage.0102.desc.white_hill
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:red_hill
+				}
+				desc = ck_pilgrimage.0102.desc.red_hill
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:blue_hill
+				}
+				desc = ck_pilgrimage.0102.desc.blue_hill
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:green_hill
+				}
+				desc = ck_pilgrimage.0102.desc.green_hill
+			}
+		}
+	}
+	theme = pilgrimage_destination
+	override_background = {
+		reference = fp1_tribal_temple
+		trigger = {
+			var:ck_mahdi_trial ?= flag:black_hill
+		}
+	}
+	override_background = {
+		reference = wilderness
+		trigger = {
+			OR = {
+				var:ck_mahdi_trial ?= flag:white_hill
+				var:ck_mahdi_trial ?= flag:red_hill
+			}
+		}
+	}
+	override_background = {
+		reference = terrain_settlement
+		trigger = {
+			var:ck_mahdi_trial ?= flag:blue_hill
+		}
+	}
+	left_portrait = {
+		character = root
+		animation = thinking
+		triggered_animation = {
+			trigger = {
+				var:ck_mahdi_trial ?= flag:black_hill
+			}
+			animation = poison
+		}
+		triggered_animation = {
+			trigger = {
+				var:ck_mahdi_trial ?= flag:white_hill
+			}
+			animation = personality_compassionate
+		}
+		triggered_animation = {
+			trigger = {
+				var:ck_mahdi_trial ?= flag:red_hill
+			}
+			animation = random_weapon_aggressive
+		}
+		triggered_animation = {
+			trigger = {
+				var:ck_mahdi_trial ?= flag:green_hill
+			}
+			animation = personality_cynical
+			camera = camera_event_very_left_activity
+		}
+	}
+	center_portrait = {
+		character = scope:center_portrait
+		hide_info = yes
+		camera = camera_event_very_left_activity
+		triggered_animation = {
+			trigger = {
+				root = { var:ck_mahdi_trial ?= flag:blue_hill }
+			}
+			animation = aggressive_unarmed
+		}
+		triggered_animation = {
+			trigger = {
+				root = { var:ck_mahdi_trial ?= flag:green_hill }
+			}
+			animation = personality_bold
+			camera = camera_event_center_activity
+		}
+	}
+	right_portrait = {
+		character = scope:right_portrait
+		hide_info = yes
+		camera = camera_event_right
+		triggered_animation = {
+			trigger = {
+				root = { var:ck_mahdi_trial ?= flag:black_hill }
+			}
+			animation = physician
+		}
+		triggered_animation = {
+			trigger = {
+				root = { var:ck_mahdi_trial ?= flag:red_hill }
+			}
+			animation = random_weapon_aggressive
+		}
+		triggered_animation = {
+			trigger = {
+				root = { var:ck_mahdi_trial ?= flag:blue_hill }
+			}
+			animation = aggressive_unarmed
+			camera = camera_event_very_right_activity
+		}
+		triggered_animation = {
+			trigger = {
+				root = { var:ck_mahdi_trial ?= flag:green_hill }
+			}
+			animation = personality_greedy
+			camera = camera_event_center_activity
+		}
+		animation = sadness
+	}
+	trigger = {
+		county_is_mahdi_hs = yes
+		has_character_flag = in_west_nahasa_event_chain
+		
+		involved_activity ?= {
+			has_activity_type = activity_pilgrimage
+			has_activity_option = {
+				category = special_type
+				option = pilgrimage_type_mahdi
+			}
+		}
+	}
+	weight_multiplier = {
+		base = 1
+	}
+	# cooldown = { days = 100 }
+	immediate = {
+		# Spawn a marabout
+		if = {
+			limit = {
+				exists = var:local_marabout
+			}
+			var:local_marabout = {
+				save_scope_as = trial_marabout
+			}
+		}
+		else = {
+			pull_local_marabout_or_generate = yes
+		}
+		
+		## Location Effects:
+		# Black Hill - Poison
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:black_hill
+			}
+			scope:activity = {
+				add_activity_log_entry = {
+					key = mahdi_drank_poison_log
+					tags = { positive }
+					score = 25
+					character = root
+					show_in_conclusion = yes
+					#Effects
+					root = {
+						add_piety = medium_piety_gain
+					}
+				}
+				if = {
+					limit = { exists = var:activity_special_type_progression }
+					change_variable = {
+						name = activity_special_type_progression
+						add = 20 # Starts at 5, so it will be 25
+					}
+				}
+			}
+			add_character_modifier = {
+				modifier = drank_oleander_poison
+				months = 5
+			}
+			add_character_flag = drank_oleander_poison_flag
+			scope:trial_marabout ?= {
+				save_scope_as = right_portrait
+			}
+		}
+		# White Hill - Suicidal Marabout
+		else_if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:white_hill
+			}
+			create_character = {
+				template = priest_character_template
+				culture = root.location.culture
+				faith = root.location.faith
+				dynasty = none
+				age = { 55 70 }
+				location = root.location
+				gender_female_chance = 0
+				save_scope_as = right_portrait
+				save_scope_as = suicidal_marabout
+				after = {
+					add_character_flag = created
+				}
+			}
+		}
+		# Red Hill - Spawn bandit
+		else_if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:red_hill
+			}
+			create_character = {
+				template = bandit_character
+				location = root.location
+				dynasty = none
+				gender_female_chance = root_soldier_female_chance
+				culture = root.location.culture
+				faith = root.location.faith
+				save_scope_as = relic_bandit
+				save_scope_as = right_portrait
+				after = {
+					add_character_flag = created
+				}
+			}
+		}
+		# Blue Hill - Spawn bickering neighbors
+		else_if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:blue_hill
+			}
+			create_character = {
+				template = generic_peasant_character_no_rags
+				location = root.location
+				dynasty = none
+				gender_female_chance = root_soldier_female_chance
+				culture = root.location.culture
+				faith = root.location.faith
+				save_scope_as = bickering_peasant_1
+				save_scope_as = right_portrait
+				after = {
+					add_character_flag = created
+				}
+			}
+			create_character = {
+				template = generic_peasant_character_no_rags
+				location = root.location
+				dynasty = none
+				gender_female_chance = root_soldier_female_chance
+				culture = root.location.culture
+				faith = root.location.faith
+				save_scope_as = bickering_peasant_2
+				save_scope_as = center_portrait
+				after = {
+					add_character_flag = created
+				}
+			}
+		}
+		# Green Hill - Spawn merchant brothers
+		else_if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:green_hill
+			}
+			create_character = {
+				template = merchant_template
+				location = root.location
+				dynasty = none
+				gender_female_chance = 0
+				culture = culture:manden
+				faith = faith:zarurya_faith
+				save_scope_as = merchant_brother_1
+				save_scope_as = right_portrait
+				after = {
+					add_character_flag = created
+				}
+			}
+			create_character = {
+				template = merchant_template
+				location = root.location
+				dynasty = none
+				gender_female_chance = 0
+				culture = culture:manden
+				faith = faith:zarurya_faith
+				save_scope_as = merchant_brother_2
+				save_scope_as = center_portrait
+				after = {
+					add_character_flag = created
+					copy_inheritable_appearance_from = scope:merchant_brother_1
+				}
+			}
+		}
+
+	}
+	option = {
+		name = ck_pilgrimage.0102.a # Black Hill reaction
+		trigger = {
+			var:ck_mahdi_trial ?= flag:black_hill
+		}
+		hidden_effect = {
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = mahdi_trial_success_tt
+			}
+		}
+		# Stress impact if callous/sadistic/cynical
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:white_hill
+			}
+			stress_impact = {
+				cynical = miniscule_stress_impact_gain
+				callous = minor_stress_impact_gain
+				sadistic = minor_stress_impact_gain
+			}
+		}
+	}
+	option = {
+		skill = learning
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:white_hill
+						}
+						desc = ck_pilgrimage.0102.a2 # Speak of Urzor (Learning Challenge)
+					}
+				}
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:blue_hill
+						}
+						desc = ck_pilgrimage.0102.a3 # Speak of Urzor (Learning Challenge)
+					}
+				}
+			}
+		}
+		flavor = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						var:ck_mahdi_trial ?= flag:white_hill
+					}
+					desc = ck_pilgrimage.0102.a2.flavor
+				}
+			}
+		}
+		trigger = {
+			OR = {
+				var:ck_mahdi_trial ?= flag:white_hill
+				var:ck_mahdi_trial ?= flag:blue_hill
+			}
+		}
+		# Stress impact if callous/sadistic/cynical
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:white_hill
+			}
+			stress_impact = {
+				cynical = miniscule_stress_impact_gain
+				callous = minor_stress_impact_gain
+				sadistic = minor_stress_impact_gain
+			}
+			duel = {
+				skill = learning
+				value = high_skill_rating
+				55 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3
+					}
+					desc = ck_pilgrimage.0102.b2.success
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						scope:suicidal_marabout ?= {
+							silent_disappearance_effect = yes
+						}
+						add_character_flag = success_white_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.c2.success
+							custom_tooltip = mahdi_trial_success_tt
+						}
+					}
+				}
+				45 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3
+					}
+					desc = ck_pilgrimage.0102.b2.failure
+					custom_tooltip = mahdi_trial_failure_tt
+					hidden_effect = {
+						scope:suicidal_marabout ?= {
+							death = {
+								death_reason = death_suicide
+							}
+						}
+						add_character_flag = failed_white_trial
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ck_pilgrimage.0102.b2.failure
+							custom_tooltip = mahdi_trial_failure_tt
+						}
+					}
+				}
+				# Trigger Event, outcome is determined by flag & location
+				trigger_event = {
+					id = ck_pilgrimage.0104
+					days = 10
+				}
+			}
+		}
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:blue_hill
+			}
+			stress_impact = {
+				callous = minor_stress_impact_gain
+				compassionate = medium_stress_impact_loss
+				diligent = medium_stress_impact_loss
+				just = miniscule_stress_impact_loss
+			}
+			duel = {
+				skill = learning
+				value = 20
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 2.5
+					}
+					desc = ck_pilgrimage.0102.a3.success
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						add_character_flag = success_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.c2.success
+							custom_tooltip = mahdi_trial_success_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0103
+							days = 6
+						}
+					}
+				}
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -2.5
+					}
+					desc = ck_pilgrimage.0102.a3.failure
+					custom_tooltip = mahdi_trial_failure_tt
+					hidden_effect = {
+						add_character_flag = failed_trial
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ck_pilgrimage.0102.a3.failure
+							custom_tooltip = mahdi_trial_failure_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0104
+							days = 6
+						}
+					}
+				}
+			}
+		}
+	}
+	option = {
+		skill = diplomacy
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:white_hill
+						}
+						desc = ck_pilgrimage.0102.b2 # Speak to him directly (diplomacy challenge)
+					}
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:red_hill
+						}
+						desc = ck_pilgrimage.0102.b3 # Speak to him directly (diplomacy challenge)
+					}
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:blue_hill
+						}
+						desc = ck_pilgrimage.0102.b4 # Speak to him directly (diplomacy challenge)
+					}
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:green_hill
+						}
+						desc = ck_pilgrimage.0102.b5
+					}
+				}
+			}
+		}
+		trigger = {
+			OR = {
+				var:ck_mahdi_trial ?= flag:white_hill
+				AND = {
+					var:ck_mahdi_trial ?= flag:red_hill
+					short_term_gold >= 120
+				}
+				var:ck_mahdi_trial ?= flag:green_hill
+				var:ck_mahdi_trial ?= flag:blue_hill
+			}
+		}
+		show_as_unavailable = {
+			AND = {
+				var:ck_mahdi_trial ?= flag:red_hill
+				short_term_gold < 120
+			}
+		}
+		flavor = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						var:ck_mahdi_trial ?= flag:white_hill
+					}
+					desc = ck_pilgrimage.0102.b2.flavor
+				}
+			}
+		}
+		# Stress impact if callous/sadistic/compassionate
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:white_hill
+			}
+			stress_impact = {
+				callous = medium_stress_impact_gain
+				sadistic = medium_stress_impact_gain
+				compassionate = medium_stress_impact_loss
+			}
+			duel = {
+				skill = diplomacy
+				value = extremely_high_skill_rating
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3
+					}
+					desc = ck_pilgrimage.0102.b2.success
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						scope:suicidal_marabout ?= {
+							silent_disappearance_effect = yes
+						}
+						add_character_flag = success_white_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.c2.success
+							custom_tooltip = mahdi_trial_success_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0103
+							days = 10
+						}
+					}
+				}
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3
+					}
+					desc = ck_pilgrimage.0102.b2.failure
+					custom_tooltip = mahdi_trial_failure_tt
+					hidden_effect = {
+						scope:suicidal_marabout ?= {
+							death = {
+								death_reason = death_suicide
+							}
+						}
+						add_character_flag = failed_white_trial
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ck_pilgrimage.0102.b2.failure
+							custom_tooltip = mahdi_trial_failure_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0104
+							days = 10
+						}
+					}
+				}
+			}
+		}
+		# Stress impact if callous/sadistic/compassionate
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:blue_hill
+			}
+			stress_impact = {
+				callous = minor_stress_impact_gain
+				compassionate = medium_stress_impact_loss
+				diligent = medium_stress_impact_loss
+				just = miniscule_stress_impact_loss
+			}
+			duel = {
+				skill = diplomacy
+				value = 16
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3
+					}
+					desc = ck_pilgrimage.0102.e1.success_crit
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						add_character_flag = success_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.e1.success_crit
+							custom_tooltip = mahdi_trial_success_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0103
+							days = 6
+						}
+					}
+					add_prestige = 50
+				}
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3
+					}
+					desc = ck_pilgrimage.0102.e1.failure
+					custom_tooltip = mahdi_trial_failure_tt
+					hidden_effect = {
+						add_character_flag = failed_trial
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ck_pilgrimage.0102.e1.failure
+							custom_tooltip = mahdi_trial_failure_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0104
+							days = 6
+						}
+					}
+					add_prestige = -100
+				}
+			}
+		}
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:red_hill
+			}
+			stress_impact = {
+				callous = miniscule_stress_impact_gain
+				sadistic = miniscule_stress_impact_gain
+				greedy = medium_stress_impact_gain
+				compassionate = medium_stress_impact_loss
+				diligent = medium_stress_impact_loss
+				just = miniscule_stress_impact_loss
+			}
+			duel = {
+				skill = diplomacy
+				value = 11
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 2.5
+					}
+					desc = ck_pilgrimage.0102.b3.success
+					remove_short_term_gold = 120
+					hidden_effect = {
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.c2.success
+							custom_tooltip = mahdi_trial_success_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0104
+							days = 15
+						}
+					}
+					add_prestige = 50
+				}
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -2.5
+					}
+					desc = ck_pilgrimage.0102.b3.failure
+					custom_tooltip = {
+						text = ck_pilgrimage.0102.c3.tt
+						configure_start_single_combat_effect = {
+							SC_INITIATOR = root
+							SC_ATTACKER = root
+							SC_DEFENDER = scope:right_portrait
+							FATALITY = always
+							FIXED = no
+							LOCALE = terrain_scope
+							OUTPUT_EVENT = ck_pilgrimage.1000
+							INVALIDATION_EVENT = ck_pilgrimage.1001
+						}
+					}
+					add_prestige = -100
+				}
+			}
+		}
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:green_hill
+			}
+			duel = {
+				# skill = stewardship
+				skill = diplomacy
+				value = 20
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3.5
+					}
+					desc = ck_pilgrimage.0102.e2.success
+					add_prestige = 50
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						add_character_flag = success_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.e1.success
+							custom_tooltip = mahdi_trial_success_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0103
+							days = 6
+						}
+					}
+				}
+				50 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3.5
+					}
+					desc = ck_pilgrimage.0102.e1.failure
+					add_prestige = -100
+					custom_tooltip = mahdi_trial_failure_tt
+					hidden_effect = {
+						add_character_flag = failed_trial
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ck_pilgrimage.0102.e1.failure
+							custom_tooltip = mahdi_trial_failure_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0104
+							days = 6
+						}
+					}
+				}
+			}
+		}
+	}
+	option = {
+		skill = prowess
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:white_hill
+						}
+						desc = ck_pilgrimage.0102.c2 # Intimidate him (prowess w/ help from dread)
+					}
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:red_hill
+						}
+						desc = ck_pilgrimage.0102.c3 # Intimidate him (prowess w/ help from dread)
+					}
+				}
+			}
+		}
+		trigger = {
+			OR = {
+				var:ck_mahdi_trial ?= flag:white_hill
+				var:ck_mahdi_trial ?= flag:red_hill
+				# var:ck_mahdi_trial ?= flag:blue_hill
+			}
+		}
+		flavor = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						var:ck_mahdi_trial ?= flag:white_hill
+					}
+					desc = ck_pilgrimage.0102.c2.flavor
+				}
+			}
+		}
+		# Stress impact if callous/sadistic/compassionate
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:white_hill
+			}
+			stress_impact = {
+				callous = miniscule_stress_impact_loss
+				compassionate = medium_stress_impact_gain
+			}
+			duel = {
+				skill = prowess
+				value = extremely_high_skill_rating
+				60 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3
+					}
+					desc = ck_pilgrimage.0102.c2.success
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						scope:suicidal_marabout ?= {
+							silent_disappearance_effect = yes
+						}
+						add_character_flag = success_white_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.c2.success
+							custom_tooltip = mahdi_trial_success_tt
+						}
+					}
+				}
+				30 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3
+					}
+					desc = ck_pilgrimage.0102.c2.failure
+					custom_tooltip = mahdi_trial_failure_tt
+					hidden_effect = {
+						scope:suicidal_marabout ?= {
+							death = {
+								death_reason = death_suicide
+							}
+						}
+						add_character_flag = failed_white_trial
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ck_pilgrimage.0102.b2.failure
+							custom_tooltip = mahdi_trial_failure_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0104
+							days = 10
+						}
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:red_hill
+			}
+			custom_tooltip = ck_pilgrimage.0102.c3.tt
+			configure_start_single_combat_effect = {
+				SC_INITIATOR = root
+				SC_ATTACKER = root
+				SC_DEFENDER = scope:right_portrait
+				FATALITY = always
+				FIXED = no
+				LOCALE = terrain_scope
+				OUTPUT_EVENT = ck_pilgrimage.1000
+				INVALIDATION_EVENT = ck_pilgrimage.1001
+			}
+		}
+	}
+	option = { # Hire the brigand - need gallowsbait trait
+		name = ck_pilgrimage.0102.d1
+		trait = gallowsbait
+		trigger = {
+			var:ck_mahdi_trial ?= flag:red_hill
+			has_trait = gallowsbait
+			NOT = {
+				has_variable = hired_relic_bandit_recently
+			}
+		}
+		remove_short_term_gold = 50
+		custom_tooltip = {
+			text = ck_pilgrimage.0102.d1.tt
+			add_to_entourage_court_and_activity_effect = { 
+				CHAR_TO_ADD = scope:relic_bandit 
+				NEW_COURT_OWNER = root 
+			}
+		}
+		# Trigger Event, outcome is determined by flag & location
+		trigger_event = {
+			id = ck_pilgrimage.0103
+			days = 15
+		}
+	}
+	option = {
+		skill = stewardship
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:blue_hill
+						}
+						desc = ck_pilgrimage.0102.c2 # Intimidate him (prowess w/ help from dread)
+					}
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:green_hill
+						}
+						desc = ck_pilgrimage.0102.e2 # Intimidate him (prowess w/ help from dread)
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:blue_hill
+			}
+			stress_impact = {
+				callous = miniscule_stress_impact_gain
+				compassionate = medium_stress_impact_loss
+				diligent = medium_stress_impact_loss
+				just = miniscule_stress_impact_loss
+			}
+			duel = {
+				skill = stewardship
+				# skill = diplomacy
+				value = 18
+				30 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3
+					}
+					desc = ck_pilgrimage.0102.e1.success_crit
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						add_character_flag = success_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.e1.success_crit
+							custom_tooltip = mahdi_trial_success_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0103
+							days = 6
+						}
+					}
+				}
+				30 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -2.5
+					}
+					desc = ck_pilgrimage.0102.e1.success
+					remove_short_term_gold = 100
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						add_character_flag = success_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.e1.success
+							custom_tooltip = mahdi_trial_success_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0103
+							days = 6
+						}
+					}
+				}
+				30 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3
+					}
+					desc = ck_pilgrimage.0102.e1.failure
+					custom_tooltip = mahdi_trial_failure_tt
+					hidden_effect = {
+						add_character_flag = failed_trial
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ck_pilgrimage.0102.e1.failure
+							custom_tooltip = mahdi_trial_failure_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0104
+							days = 6
+						}
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:green_hill
+			}
+			duel = {
+				skill = stewardship
+				# skill = diplomacy
+				value = 18
+				30 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = 3
+					}
+					desc = ck_pilgrimage.0102.e2.success
+					custom_tooltip = mahdi_trial_success_tt
+					hidden_effect = {
+						add_character_flag = success_trial
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = ck_pilgrimage.0102.e2.success
+							custom_tooltip = mahdi_trial_success_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0103
+							days = 6
+						}
+					}
+				}
+				30 = {
+					compare_modifier = {
+						value = scope:duel_value
+						multiplier = -3
+					}
+					desc = ck_pilgrimage.0102.e1.failure
+					custom_tooltip = mahdi_trial_failure_tt
+					hidden_effect = {
+						add_character_flag = failed_trial
+						send_interface_toast = {
+							type = event_toast_effect_bad
+							title = ck_pilgrimage.0102.e1.failure
+							custom_tooltip = mahdi_trial_failure_tt
+						}
+						# Trigger Event, outcome is determined by flag & location
+						trigger_event = {
+							id = ck_pilgrimage.0104
+							days = 6
+						}
+					}
+				}
+			}
+		}
+	}
+	after = {
+		hidden_effect = {
+			if = {
+				limit = {
+					var:ck_mahdi_trial ?= flag:blue_hill
+				}
+				scope:center_portrait = {
+					death = {
+						death_reason = death_disappearance
+					}
+				}
+				scope:right_portrait = {
+					death = {
+						death_reason = death_disappearance
+					}
+				}
+			}
+		}
+	}
+}
+
+### On_Actions
+## Destination On_Actions (while at destination)
+# FINAL TRIAL - FINAL EVENT
+ck_pilgrimage.0103 = {
+	type = activity_event
+	title = ck_pilgriamage.0103.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:black_hill
+				}
+				desc = ck_pilgrimage.0103.desc
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:white_hill
+				}
+				desc = ck_pilgrimage.0103.desc.white
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:red_hill
+				}
+				desc = ck_pilgrimage.0103.desc.red
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:blue_hill
+				}
+				desc = ck_pilgrimage.0103.desc.blue
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:green_hill
+				}
+				desc = ck_pilgrimage.0103.desc.green
+			}
+		}
+	}
+	theme = pilgrimage_destination
+	override_background = {
+		reference = fp1_tribal_temple
+	}
+	left_portrait = {
+		character = root
+		animation = personality_bold
+		triggered_animation = {
+			trigger = { var:ck_mahdi_trial ?= flag:black_hill }
+			animation = sick
+		}
+	}
+	right_portrait = {
+		character = scope:trial_marabout
+		animation = personality_content
+		triggered_animation = {
+			trigger = { var:ck_mahdi_trial ?= flag:black_hill }
+			animation = physician
+		}
+		hide_info = yes
+		camera = camera_event_right
+	}
+	trigger = {
+		county_is_mahdi_hs = yes
+		has_character_flag = in_west_nahasa_event_chain
+		OR = {
+			has_character_flag = drank_oleander_poison_flag
+			has_character_flag = success_white_trial
+			has_character_flag = success_trial
+		}
+		NOR = {
+			has_character_modifier = drank_oleander_poison
+			has_character_flag = failed_white_trial
+			has_character_flag = failed_trial
+		}
+		involved_activity ?= {
+			has_activity_type = activity_pilgrimage
+			has_activity_option = {
+				category = special_type
+				option = pilgrimage_type_mahdi
+			}
+		}
+	}
+	immediate = {
+		custom_tooltip = mahdi_trial_success_tt
+		# Spawn a marabout
+		if = {
+			limit = {
+				exists = var:local_marabout
+			}
+			var:local_marabout = {
+				save_scope_as = trial_marabout
+			}
+		}
+		else = {
+			pull_local_marabout_or_generate = yes
+		}
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:black_hill
+			}
+			scope:activity = {
+				add_activity_log_entry = {
+					key = mahdi_survived_poison_log
+					tags = { positive }
+					score = 0
+					character = root
+					show_in_conclusion = yes
+					#Effects
+					root = {
+						add_piety = miniscule_piety_gain
+					}
+				}
+				add_activity_log_entry = {
+					key = ck_pilgrimage_passed_mahdi_log
+					tags = { positive }
+					score = 25
+					character = root
+					show_in_conclusion = yes
+					#Effects
+					root = {
+						add_piety = miniscule_piety_gain
+					}
+				}
+				if = {
+					limit = { exists = var:activity_special_type_progression }
+					change_variable = {
+						name = activity_special_type_progression
+						add = 25 #
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				OR = {
+					var:ck_mahdi_trial ?= flag:white_hill
+					var:ck_mahdi_trial ?= flag:red_hill
+					var:ck_mahdi_trial ?= flag:blue_hill
+					var:ck_mahdi_trial ?= flag:green_hill
+				}
+			}
+			scope:activity = {
+				add_activity_log_entry = {
+					key = ck_pilgrimage_passed_mahdi_log
+					tags = { positive }
+					score = 25
+					character = root
+					show_in_conclusion = yes
+					#Effects
+					root = {
+						add_piety = miniscule_piety_gain
+					}
+				}
+				if = {
+					limit = { exists = var:activity_special_type_progression }
+					change_variable = {
+						name = activity_special_type_progression
+						add = 25 #
+					}
+				}
+			}
+		}
+	}
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:black_hill
+						}
+						desc = ck_pilgrimage.0103.a
+					}
+					triggered_desc = {
+						trigger = {
+							var:ck_mahdi_trial ?= flag:white_hill
+						}
+						desc = ck_pilgrimage.0103.a.2
+					}
+					desc = ck_pilgrimage.0103.a.3
+				}
+			}
+		}
+		give_pilgrim_trait_or_xp_effect = yes
+		pilgrimage_arrival_stress_loss_effect = yes
+		pilgrimage_completed_log_entry_effect = yes
+		scope:activity = { progress_activity_phase_after = { days = 1 } }
+
+
+		if = {
+			limit = {
+				has_character_flag = drank_oleander_poison_flag
+			}
+			add_character_modifier = {
+				modifier = survived_oleander_poison
+			}
+		}
+		hidden_effect = {
+			# Add Pilgrimage timer
+			set_variable = {
+				name = ck_mahdi_path_cooldown
+				value = yes
+				years = 1
+			}
+			# Cleanup
+			remove_character_flag = drank_oleander_poison_flag
+			remove_variable = 0101_correct_answers
+			remove_character_flag = in_west_nahasa_event_chain
+			remove_variable = ck_mahdi_question
+			clear_variable_list = ck_pilgrimage_0101_questions
+			remove_variable = asked_0101_question
+			remove_variable = ck_mahdi_trial
+			remove_variable = local_marabout
+			if = {
+				limit = {
+					has_character_flag = success_white_trial
+				}
+				remove_character_flag = success_white_trial
+			}
+			if = {
+				limit = {
+					has_character_flag = success_trial
+				}
+				remove_character_flag = success_trial
+			}
+			add_character_flag = ck_succeeded_mahdi_trial
+			scope:trial_marabout ?= {
+				if = {
+					limit = {
+						has_character_flag = created
+					}
+					death = {
+						death_reason = death_disappearance
+					}
+				}
+			}
+		}
+		stress_impact = {
+			zealous = major_stress_impact_loss
+		}
+	}
+}
+ck_pilgrimage.0104 = {
+	type = activity_event
+	title = ck_pilgrimage.0104.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:white_hill
+				}
+				desc = ck_pilgrimage.0104.desc
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:blue_hill
+				}
+				desc = ck_pilgrimage.0104.desc.blue
+			}
+			triggered_desc = {
+				trigger = {
+					var:ck_mahdi_trial ?= flag:green_hill
+				}
+				desc = ck_pilgrimage.0104.desc.green
+			}
+		}
+	}
+	theme = pilgrimage_destination
+	override_background = {
+		reference = fp1_tribal_temple
+	}
+	left_portrait = {
+		character = root
+		animation = personality_coward
+	}
+	right_portrait = {
+		character = scope:trial_marabout
+		animation = anger
+		hide_info = yes
+		camera = camera_event_right
+	}
+	trigger = {
+		county_is_mahdi_hs = yes
+		has_character_flag = in_west_nahasa_event_chain
+
+		trigger_if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:white_hill
+			}
+			has_character_flag = failed_white_trial
+		}
+
+		involved_activity ?= {
+			has_activity_type = activity_pilgrimage
+			has_activity_option = {
+				category = special_type
+				option = pilgrimage_type_mahdi
+			}
+		}
+	}
+	immediate = {
+		# Spawn a marabout
+		if = {
+			limit = {
+				exists = var:local_marabout
+			}
+			var:local_marabout = {
+				save_scope_as = trial_marabout
+			}
+		}
+		else = {
+			pull_local_marabout_or_generate = yes
+		}
+
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:white_hill
+			}
+			scope:activity = {
+				add_activity_log_entry = {
+					key = ck_pilgrimage_fail_mahdi_log
+					tags = { negative }
+					score = -100
+					character = root
+					show_in_conclusion = yes
+					#Effects
+					root = {
+						add_piety = miniscule_piety_loss
+					}
+				}
+				if = {
+					limit = { exists = var:activity_special_type_progression }
+					change_variable = {
+						name = activity_special_type_progression
+						add = -100 #
+					}
+				}
+			}
+		}
+		custom_tooltip = mahdi_trial_failure_tt
+	}
+	option = {
+		name = ck_pilgrimage.0104.a
+		scope:activity = { progress_activity_phase_after = { days = 1 } }
+		hidden_effect = {
+			# Cleanup
+			remove_character_flag = drank_oleander_poison_flag
+			remove_variable = 0101_correct_answers
+			remove_character_flag = in_west_nahasa_event_chain
+			remove_variable = ck_mahdi_question
+			clear_variable_list = ck_pilgrimage_0101_questions
+			remove_variable = asked_0101_question
+			remove_variable = ck_mahdi_trial
+			remove_variable = local_marabout
+			scope:trial_marabout ?= {
+				if = {
+					limit = {
+						has_character_flag = created
+					}
+					death = {
+						death_reason = death_disappearance
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				var:ck_mahdi_trial ?= flag:red_hill
+			}
+			create_artifact_brooch_effect = {
+				OWNER = root
+				SMITH = root
+			}
+			if = {
+				limit = {
+					exists = scope:newly_created_artifact
+				}
+				send_interface_toast = {
+					title = bp1_yearly.3005.t.gift
+					left_icon = scope:newly_created_artifact
+					show_as_tooltip = {
+						scope:newly_created_artifact = {
+							set_owner = root
+						}
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_character_flag = failed_trial
+			}
+			remove_character_flag = failed_trial
+		}
+		stress_impact = {
+			zealous = major_stress_impact_gain
+		}
+	}
+}
+
+
+### Pilgrimage Effect Events
+ck_pilgrimage.1000 = {
+	hidden = yes
+
+	immediate = {
+		if = {
+			limit = { scope:sc_victor = root }
+			root = {
+				trigger_event = {
+					id = ck_pilgrimage.1001
+					days = 1
+				}
+			}
+		}
+		# No else, you've died
+		else = {
+			scope:sc_victor = {
+				death = {
+					death_reason = death_disappearance
+				}
+			}
+		}
+	}
+}
+ck_pilgrimage.1001 = { # Defeat the relic brigand
+	type = character_event
+	title = ck_pilgrimage.1001.t
+	desc = ck_pilgrimage.1001.desc
+	theme = laamp
+	left_portrait = {
+		character = root
+		animation = random_weapon_celebrate
+	}
+	override_background = { reference = battlefield }
+	option = {
+		name = ck_pilgrimage.1001.a
+		ep3_laamp_flavour_ewan_4001_duel_victory_effect = yes
+		hidden_effect = {
+			# Trigger Event, outcome is determined by flag & location
+			trigger_event = {
+				id = ck_pilgrimage.0103
+				days = 15
+			}
+		}
+	}
+}

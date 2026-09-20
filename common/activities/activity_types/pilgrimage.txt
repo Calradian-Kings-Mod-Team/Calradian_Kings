@@ -103,6 +103,17 @@
 				}
 			}
 		}
+		trigger_if = {
+			limit = {
+				scope:special_option = flag:pilgrimage_type_mahdi
+			}
+			custom_tooltip = {
+				text = ck_pilgrimage.0161.a.try_again_success
+				NOT = {
+					has_variable = ck_mahdi_path_cooldown
+				}
+			}
+		}
 	}
 
 	is_valid = {
@@ -151,6 +162,8 @@
 			}
 			### Mahdi Effects for Invalidation
 			leave_grove_early_loss_effect = yes
+			## Remove Mahdi location variable
+			mahdi_remove_location_effect = yes
 		}
 		# Host becomes unlanded
 		if = {
@@ -224,6 +237,32 @@
 	#Filtering for Mecca will not work if put under Phase instead of the Activity setup
 	is_location_valid = {
 		# No Hajj
+		trigger_if = {
+			limit = {
+				scope:special_option = flag:pilgrimage_type_mahdi
+				exists = barony
+			}
+			custom_tooltip = {
+				text = ck_mahdi_visited_hs_tt
+				scope:host = {
+					NOT = {
+						is_target_in_variable_list = {
+							name = ck_mahdi_visited_hs_list
+							target = root
+						}
+					}
+				}
+			}
+			custom_tooltip = {
+				text = ck_pilgrimage.0161.a.try_again
+				scope:host = {
+					NAND = {
+						has_variable = mahdi_pilgrimage_cooldown
+						var:mahdi_pilgrimage_cooldown = root
+					}
+				}
+			}
+		}
 		#You only get to visit any particular holy site once every 5 years
 		custom_tooltip = { 
 			text = activity_pilgrimage.is_location_valid.recently_visited
@@ -420,7 +459,6 @@
 							county = title:c_indurar # The Green Hill
 							county = title:c_zejdada # The Blue Hill
 							county = title:c_dindoranir # The White Hill
-							
 							county = title:c_ghilizi # al-Ifrit
 						}
 					}
@@ -1326,7 +1364,10 @@
 					faith.religion = religion:west_nahasan_religion
 				}
 				is_valid = {
-					always = yes
+					custom_tooltip = {
+						text = mahdi_pilgrimage_cooldown
+						NOT = { has_variable = mahdi_pilgrimage_cooldown }
+					}
 				}
 				ai_will_do = {
 					value = 50
@@ -2251,7 +2292,7 @@
 		}
 	}
 
-	on_passive_state_pulse = { }
+	on_passive_state_pulse = { }s
 
 	on_enter_active_state = {
 		surveyor_no_stone_unturned_perk_effect = yes
@@ -2272,6 +2313,12 @@
 						option = pilgrimage_type_mahdi
 					}
 				}
+				has_character_flag = ck_succeeded_mahdi_trial
+			}
+			## Add HS to completed list
+			add_to_variable_list = {
+				name = ck_mahdi_visited_hs_list
+				target = scope:activity.activity_location
 			}
 			## Add Mahdi Completed Memory
 			if = {
@@ -2343,6 +2390,7 @@
 					}
 				}
 			}
+			remove_character_flag = ck_succeeded_mahdi_trial
 		}
 		#Otherwise set up Pilgrimage memories
 		#For the follow-up reflective event when back home, triggered through travel_plan_completion on_action
@@ -2467,6 +2515,8 @@
 				tgp_one_up_activity_effect = yes
 				remove_variable = tgp_ceremonial_liege_events_0020_discount
 			}
+			## Remove Mahdi location variable
+			mahdi_remove_location_effect = yes
 			# Dynasty Legacies
 			if = {
 				limit = {
@@ -2868,6 +2918,12 @@
 					has_graphical_iranian_culture_group_trigger = yes
 				}
 			}
+			scope:host = {
+				NOR = {
+					has_character_flag = mahdi_grove_event_chain
+					has_character_modifier = drank_oleander_poison
+				}
+			}
 		}
 		texture = "gfx/interface/illustrations/event_scenes/ep2_holysite_mena.dds"
 		environment = "environment_generic_holy_site_mena"
@@ -2876,6 +2932,12 @@
 	background = {
 		trigger = {
 			activity_location.culture = { has_graphical_mena_culture_group_trigger = yes }
+			scope:host = {
+				NOR = {
+					has_character_flag = mahdi_grove_event_chain
+					has_character_modifier = drank_oleander_poison
+				}
+			}
 		}
 		texture = "gfx/interface/illustrations/event_scenes/ep2_holysite_mena.dds"
 		environment = "environment_generic_holy_site_mena"
@@ -2909,8 +2971,9 @@
 		trigger = {
 			# To avoid Mahdi conflict
 			scope:host = {
-				NOT = {
+				NOR = {
 					has_character_flag = mahdi_grove_event_chain
+					has_character_modifier = drank_oleander_poison
 				}
 			}
 			OR = {
@@ -2960,6 +3023,16 @@
 		environment = "environment_event_bp1_jungle"
 		ambience = "event:/SFX/Events/Backgrounds/deciduous_forest_day"
 	}
+	background = {
+		trigger = {
+			scope:host = {
+				has_character_modifier = drank_oleander_poison
+			}
+		}
+		texture = "gfx/interface/illustrations/event_scenes/ck_dark_thoughts.dds"
+		environment = "environment_event_ck_dark_thoughts"
+	}
+
 
 	#Fallback
 	background = {
@@ -3125,12 +3198,28 @@
 				triggered_animation = {
 					trigger = {
 						scope:character.location = { is_sea_province = yes }
+						scope:character = {
+							NOT = {
+								has_character_modifier = drank_oleander_poison
+							}
+						}
 					}
 					animation = { survey }
 				}
 				triggered_animation = {
 					trigger = {
-						scope:host = {
+						scope:character = {
+							has_character_modifier = drank_oleander_poison
+						}
+					}
+					animation = { poison }
+				}
+				triggered_animation = {
+					trigger = {
+						scope:character = {
+							NOT = {
+								has_character_modifier = drank_oleander_poison
+							}
 							OR = {
 								has_trait = cynical
 								any_secret = { type = secret_non_believer }
