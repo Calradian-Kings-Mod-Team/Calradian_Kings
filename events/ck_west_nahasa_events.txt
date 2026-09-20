@@ -1213,3 +1213,100 @@ west_nahasa.0003 = {
 		}
 	}
 }
+### Declared as the Mahdi
+west_nahasa.0003 = {
+	title = west_nahasa.0003.t
+	desc = west_nahasa.0003.desc
+	type = character_event
+	window = visit_settlement_window
+	theme = faith
+	override_background = {
+		reference = battlefield
+	}
+
+	override_effect_2d = {	
+		reference = legend_glow
+	}
+
+
+	left_portrait = {
+		character = root
+		animation = celebrate_sword
+	}
+	trigger = {
+		faith = {
+			has_doctrine = tenet_path_of_the_mahdi
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			mp_delay_travel_plan = { DAYS = 90 } # Keep the player here until they're ready to leave
+		}
+		play_music_cue = "mx_cue_crusade_starts"
+	}
+	option = {
+		name = west_nahasa.0003.a
+		trigger_event = {
+			id = conqueror.0001
+			months = 2
+		}
+		spawn_army = {
+			men_at_arms = {
+				type = mulaththamun
+				stacks = 4
+			}
+			men_at_arms = {
+				type = accolade_maa_lancers
+				stacks = 2
+			}
+			men_at_arms = {
+				type = accolade_maa_archers
+				stacks = 4
+			}
+			men_at_arms = {
+				type = mulaththamun
+				stacks = 4
+			}
+			inheritable = no
+			uses_supply = no
+			location = root.location
+			name = chosen_of_the_mahdi
+		}
+		if = {
+			limit = {
+				exists = location.kingdom.holder
+				location.kingdom.holder != root
+			}
+			add_pressed_claim = location.kingdom
+			start_war = {
+				cb = ep3_laamp_adventurer_kingdom_invasion
+				target = location.kingdom.holder
+				claimant = root
+				target_title = location.kingdom
+				target_title = location.kingdom.title_capital_county
+			}
+		}
+		else_if = {
+			limit = {
+				exists = location.duchy.holder
+				location.duchy.holder != root
+			}
+			add_pressed_claim = location.duchy
+			start_war = {
+				cb = claim_cb
+				target = location.duchy.holder
+				claimant = root
+				target_title = location.duchy
+				target_title = location.duchy.title_capital_county
+			}
+		}
+		if = {
+			limit = { has_dlc_feature = legends }
+			create_legend_seed = {
+				type = heroic
+				quality = famed
+				chronicle = conqueror_chronicle
+			}
+		}
+	}
+}

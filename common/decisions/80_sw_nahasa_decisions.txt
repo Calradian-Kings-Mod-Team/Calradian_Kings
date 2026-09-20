@@ -119,3 +119,70 @@ read_the_mahdi_tomes = {
 		base = 0
 	}
 }
+declare_myself_the_mahdi = {
+	ai_check_interval = 0
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_legitimacy.dds"
+	}
+	desc = declare_myself_the_mahdi_desc
+	decision_group_type = major
+
+	is_shown = {
+		is_ai = no
+		faith = {
+			has_doctrine = tenet_path_of_the_mahdi
+		}
+		has_variable = mahdi_step
+		var:mahdi_step >= 3 # Show the player once they near the end of it
+	}
+	is_valid = {
+		top_liege = this
+		is_landed = yes
+		custom_tooltip = {
+			text = control_over_half_of_the_west_nahasa_tt
+			any_county_in_region = {
+				region = wb_province_west_nahasa
+				percent > 0.3
+				holder.top_liege = root
+			}
+		}
+		custom_tooltip = {
+			text = control_over_half_of_the_west_nahasa_no_one_else
+			any_county_in_region = {
+				region = wb_province_west_nahasa
+				percent > 0.3
+				holder.top_liege = {
+					NOT = {
+						this = root
+					}
+				}
+			}
+		}
+	}
+	is_valid_showing_failures_only = { 
+		is_travelling = no
+		is_physically_able = yes
+		custom_tooltip = {
+			text = finished_all_mahdi_steps_tt
+			has_variable = mahdi_step
+			var:mahdi_step >= 5 # Show the player once they near the end of it
+		}
+	}
+	
+	cooldown = { months = 2 }
+
+	effect = {
+		trigger_event = {
+			id = west_nahasa.0003
+			days = 2
+		}
+	}
+
+	ai_potential = {
+		always = no
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
