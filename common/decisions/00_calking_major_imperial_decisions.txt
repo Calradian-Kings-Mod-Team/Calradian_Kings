@@ -104,7 +104,7 @@ choose_imperial_faction_decision = {
 				trigger_if = {
 					limit = {
 						OR = {
-							has_primary_title = title:e_calradian_empire
+							has_primary_title = title:h_calradian_empire
 							has_primary_title = title:e_southern_empire
 							has_primary_title = title:e_western_empire
 							has_primary_title = title:e_northern_empire
@@ -259,7 +259,6 @@ proclaim_the_empire = {
 					has_cultural_pillar = heritage_calradian
 				}
 				NOR = {
-					exists = title:e_calradian_empire.holder
 					exists = title:h_calradian_empire.holder
 					primary_title = {
 						tier = tier_empire
@@ -275,7 +274,6 @@ proclaim_the_empire = {
 					has_cultural_pillar = heritage_calradian
 				}
 				NOR = {
-					exists = title:e_calradian_empire.holder
 					exists = title:h_calradian_empire.holder
 					primary_title = {
 						tier = tier_empire
@@ -295,14 +293,14 @@ proclaim_the_empire = {
 			custom_tooltip = {
 				text = capital_in_ce_tt
 				capital_county = {
-					empire = title:e_calradian_empire
+					hegemony = title:h_calradian_empire
 				}
 			}
 			custom_tooltip = {
 				text = realm_portion_in_ce_tt
 				any_sub_realm_county = {
 					percent >= 0.3
-					empire = title:e_calradian_empire
+					hegemony = title:h_calradian_empire
 				}
 			}
 		}
@@ -471,7 +469,7 @@ proclaim_the_empire = {
 			has_cultural_pillar = heritage_calradian
 		}
 		NOR = {
-			exists = title:e_calradian_empire.holder
+			exists = title:h_calradian_empire.holder
 			primary_title = {
 				tier = tier_empire
 			}
@@ -494,9 +492,9 @@ restore_calradian_empire = { #Unite?
 				trigger = {
 					is_female = yes
 				}
-				desc = restore_calradian_empire_desc_woman
+				desc = restorh_calradian_empire_desc_woman
 			}
-			desc = restore_calradian_empire_desc
+			desc = restorh_calradian_empire_desc
 		}
 	}
 
@@ -506,7 +504,7 @@ restore_calradian_empire = { #Unite?
 			has_cultural_pillar = heritage_calradian
 		}
 		NOT = {
-			exists = title:e_calradian_empire.holder
+			exists = title:h_calradian_empire.holder
 		}
 		has_trait = claimant_emperor
 	}
@@ -548,7 +546,7 @@ restore_calradian_empire = { #Unite?
 				}
 				custom_tooltip = {
 					text = held_counties_1_tt
-					title:e_calradian_empire = {
+					title:h_calradian_empire = {
 						any_de_jure_county = {
 							percent >= 0.4
 							OR = {
@@ -565,7 +563,7 @@ restore_calradian_empire = { #Unite?
 			}
 			custom_tooltip = {
 				text = held_counties_2_tt
-				title:e_calradian_empire = {
+				title:h_calradian_empire = {
 					any_de_jure_county = {
 						percent >= 0.5
 						OR = {
@@ -579,7 +577,7 @@ restore_calradian_empire = { #Unite?
 			}
 			custom_tooltip = {
 				text = held_counties_3_tt
-				title:e_calradian_empire = {
+				title:h_calradian_empire = {
 					any_de_jure_county = {
 						percent >= 0.6
 						OR = {
@@ -593,7 +591,7 @@ restore_calradian_empire = { #Unite?
 			}
 			custom_tooltip = {
 				text = held_counties_4_tt
-				title:e_calradian_empire = {
+				title:h_calradian_empire = {
 					any_de_jure_county = {
 						percent >= 0.7
 						OR = {
@@ -607,7 +605,7 @@ restore_calradian_empire = { #Unite?
 			}
 			custom_tooltip = {
 				text = held_counties_5_tt
-				title:e_calradian_empire = {
+				title:h_calradian_empire = {
 					any_de_jure_county = {
 						percent >= 0.8
 						OR = {
@@ -664,7 +662,6 @@ imperial_military_expedition = {
 				has_cultural_pillar = heritage_calradian
 			}
 			primary_title ?= title:h_calradian_empire
-			primary_title ?= title:e_calradian_empire
 		}
 	}
 	
@@ -700,7 +697,6 @@ imperial_military_expedition = {
 			}
 			capital_county = {
 				OR = {
-					empire = title:e_calradian_empire
 					hegemony = title:h_calradian_empire
 				}
 			}
@@ -717,7 +713,6 @@ imperial_military_expedition = {
 				NOT = {
 					capital_county = {
 						OR = {
-							empire = title:e_calradian_empire
 							hegemony = title:h_calradian_empire
 						}
 					}
@@ -817,6 +812,311 @@ postpone_imperial_military_expedition = {
 		base = 0
 	}
 }
+### Invite Foreign Advisors (as a non-Calradian)
+## - Eventually tie this to phases for a Calradian situation
+invite_calradian_advisors = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/decision_invite_knights.dds"
+	}
+	decision_group_type = calradian
+	ai_check_interval_by_tier = {
+		barony = 0
+		county = 8
+		duchy = 8
+		kingdom = 8
+		empire = 0
+		hegemony = 0
+	}
+	
+	desc = invite_calradian_advisors_desc	
+	
+	is_shown = {
+		# Cannot have hired recently
+		NOT = {
+			has_character_flag = ck_hired_calradian_advisor_cooldown
+		}
+		is_landless_adventurer = no 
+		culture = {
+			NOT = {
+				has_cultural_pillar = heritage_calradian
+			}
+		}
+		any_county_in_region = {
+			region = region_imperial_calradia
+			culture = {
+				has_cultural_pillar = heritage_calradian
+				has_cultural_parameter = highborn_to_lowborn_marriage_ck
+			}
+			OR = {
+				holder ?= {
+					in_diplomatic_range = root
+					capital_province = {
+						squared_distance = {
+							target = root.location
+							value <= squared_distance_major
+						}
+					}
+				}
+				AND = {
+					root.top_liege = root
+					any_neighboring_county = {
+						holder.top_liege = root
+					}
+				}
+				AND = {
+					any_neighboring_county = {
+						holder = root
+					}
+				}
+			}
+		}
+	}
+
+	cooldown = { months = 8 }
+	
+	is_valid_showing_failures_only = {
+		prestige >= 500
+	}
+	
+	is_valid = {
+		highest_held_title_tier >= tier_duchy
+		
+		trigger_if = {
+			limit = {
+				highest_held_title_tier < tier_kingdom
+			}
+			custom_tooltip = {
+				text = invite_calradian_advisors_nomad
+				NOR = {
+					has_government = nomad_government
+					has_government = herder_government
+					has_government = tribal_government
+				}
+			}
+		}
+		custom_tooltip = {
+			text = invite_calradian_advisors_valid_tt
+			any_county_in_region = {
+				region = region_imperial_calradia
+				culture = {
+					has_cultural_pillar = heritage_calradian
+					has_cultural_parameter = highborn_to_lowborn_marriage_ck
+				}
+				holder ?= {
+					top_liege ?= {
+						highest_held_title_tier >= tier_empire
+						opinion = {
+							target = root
+							value > 0
+						}
+					}
+				}
+				OR = {
+					holder ?= {
+						in_diplomatic_range = root
+						capital_province = {
+							squared_distance = {
+								target = root.location
+								value <= squared_distance_major
+							}
+						}
+					}
+					AND = {
+						root.top_liege = root
+						any_neighboring_county = {
+							holder.top_liege = root
+						}
+					}
+					any_neighboring_county = {
+						holder = root
+					}
+				}
+			}
+		}
+	}
+
+	widget = {
+		gui = "decision_view_widget_option_list_generic"
+		controller = decision_option_list_controller
+		decision_to_second_step_button = "invite_calradian_advisors_widget"
+		show_from_start = no
+
+		item = { # Statesman
+			value = hire_calradian_advisor_diplomacy
+			current_description = calradian_advisor_diplo_name
+			localization = calradian_advisor_diplo_name
+			icon = "gfx/interface/icons/scheme_types/diplomacy.dds"
+			is_shown = { 
+				always = yes
+			}
+			ai_chance = { 
+				value = 10
+				if = {
+					limit = {
+						NOT = {
+							exists = cp:councillor_chancellor
+						}
+					}
+					add = 90
+				}
+			}
+		}
+		item = { # Quaestor
+			value = hire_calradian_advisor_stewardship
+			current_description = calradian_advisor_steward_name
+			localization = calradian_advisor_steward_name
+			icon = "gfx/interface/icons/scheme_types/stewardship.dds"
+			is_shown = { 
+				always = yes
+			}
+			ai_chance = { 
+				value = 10
+				if = {
+					limit = {
+						NOT = {
+							exists = cp:councillor_steward
+						}
+					}
+					add = 90
+				}
+			}
+		}
+		item = { # Veteran
+			value = hire_calradian_advisor_martial
+			current_description = calradian_advisor_veteran_name
+			localization = calradian_advisor_veteran_name
+			icon = "gfx/interface/icons/scheme_types/martial.dds"
+			is_shown = { 
+				always = yes
+			}
+			ai_chance = { 
+				value = 10
+				if = {
+					limit = {
+						NOT = {
+							exists = cp:councillor_marshal
+						}
+					}
+					add = 90
+				}
+			}
+		}
+		item = { # Intelligencer
+			value = hire_calradian_advisor_intrigue
+			current_description = calradian_advisor_intrigue_name
+			localization = calradian_advisor_intrigue_name
+			icon = "gfx/interface/icons/scheme_types/intrigue.dds"
+			is_shown = { 
+				always = yes
+			}
+			ai_chance = { 
+				value = 10
+				if = {
+					limit = {
+						NOT = {
+							exists = cp:councillor_spymaster
+						}
+					}
+					add = 90
+				}
+			}
+		}
+		item = { # Philosophus
+			value = hire_calradian_advisor_learning
+			current_description = calradian_advisor_learning_name
+			localization = calradian_advisor_learning_name
+			icon = "gfx/interface/icons/scheme_types/learning.dds"
+			is_shown = { 
+				always = yes
+			}
+			ai_chance = { 
+				value = 10
+				if = {
+					limit = {
+						OR = {
+							NOT = {
+								exists = cp:councillor_court_chaplain
+							}
+							AND = {
+								can_employ_court_position_type = court_tutor_court_position
+								NOT = {
+									employs_court_position = court_tutor_court_position
+								}
+							}
+						}
+					}
+					add = 90
+				}
+			}
+		}
+	}
+	
+	effect = {
+		custom_tooltip = invite_calradian_advisors_effect_tt
+		switch = {
+			trigger = yes
+			scope:hire_calradian_advisor_diplomacy = {
+				hidden_effect = {
+					set_variable = {
+						name = type_of_advisor_hired
+						value = flag:diplomacy
+					}
+				}
+			}
+			scope:hire_calradian_advisor_stewardship = {
+				hidden_effect = {
+					set_variable = {
+						name = type_of_advisor_hired
+						value = flag:stewardship
+					}
+				}
+			}
+			scope:hire_calradian_advisor_martial = {
+				hidden_effect = {
+					set_variable = {
+						name = type_of_advisor_hired
+						value = flag:martial
+					}
+				}
+			}
+			scope:hire_calradian_advisor_intrigue = {
+				hidden_effect = {
+					set_variable = {
+						name = type_of_advisor_hired
+						value = flag:intrigue
+					}
+				}
+			}
+			scope:hire_calradian_advisor_learning = {
+				hidden_effect = {
+					set_variable = {
+						name = type_of_advisor_hired
+						value = flag:learning
+					}
+				}
+			}
+		}
+		trigger_event = {
+			id = ck_imperial_events.0050
+			days = { 12 28 }
+		}
+	}
+	
+	cost = {
+		prestige = 500
+	}
+	
+	ai_potential = {
+		is_at_war = no
+		is_ruler = yes
+		prestige >= 700
+	}
+
+	ai_will_do = {
+		base = 10
+	}
+}
+
 
 
 #### Convert to Admin - Return to the Imperial ways ###

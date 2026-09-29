@@ -1758,13 +1758,13 @@ ck_imperial_events.0020 = { ### Restoring Calradian Empire
 		play_music_cue = "mx_ck_calradian_war"
 
 		hidden_effect = {
-			get_title = title:e_calradian_empire
-			set_primary_title_to = title:e_calradian_empire
+			get_title = title:h_calradian_empire
+			set_primary_title_to = title:h_calradian_empire
 			every_held_title = {
 				limit = {
 					tier = tier_empire
 					NOT = {
-						this = title:e_calradian_empire
+						this = title:h_calradian_empire
 					}
 				}
 				holder = {
@@ -1870,7 +1870,7 @@ ck_imperial_events.0021 = { ### Calradian Empire Restored - for players
 	
 	immediate = {
 		play_music_cue = "mx_ck_calradian_war"
-		title:e_calradian_empire.holder = {
+		title:h_calradian_empire.holder = {
 			save_scope_as = emperor
 		}
 	}
@@ -1908,7 +1908,7 @@ ck_imperial_events.0022 = { ### Calradian Empire Restored - for claimants
 	
 	immediate = {
 		play_music_cue = "mx_ck_calradian_war"
-		title:e_calradian_empire.holder = {
+		title:h_calradian_empire.holder = {
 			save_scope_as = emperor
 		}
 	}
@@ -1976,7 +1976,7 @@ ck_imperial_events.0022 = { ### Calradian Empire Restored - for claimants
 			}
 			every_vassal = {
 				change_liege = {
-					liege = title:e_calradian_empire.holder
+					liege = title:h_calradian_empire.holder
 					change = scope:change
 				}
 			}
@@ -2039,7 +2039,7 @@ ck_imperial_events.0022 = { ### Calradian Empire Restored - for claimants
 			}
 			every_vassal = {
 				change_liege = {
-					liege = title:e_calradian_empire.holder
+					liege = title:h_calradian_empire.holder
 					change = scope:change
 				}
 			}
@@ -6101,6 +6101,1376 @@ ck_imperial_events.0040 = { ### Letter - Emperor's Generosity
 	
 	option = {
 		name = ck_imperial_events.0040.a
+	}
+}
+### Inviting Calradian Advisors
+ck_imperial_events.0050 = {
+	type = character_event
+	title = ck_imperial_events.0050.t
+	desc = {
+		random_valid = { # More variety for each time you hire
+			desc = ck_imperial_events.0050.desc
+			desc = ck_imperial_events.0050.desc.2
+			desc = ck_imperial_events.0050.desc.3
+		}
+	}
+	theme = ck_imperial
+	override_background = { reference = throne_room }
+	left_portrait = { ###PLACEHOLDER
+		character = scope:ck_0050_advisor_1
+		animation = disgust
+	}
+	right_portrait = { ###PLACEHOLDER
+		character = scope:ck_0050_advisor_2
+		animation = anger
+	}
+
+	immediate = {
+		### Spawn 2 Calradians, rivals. Each with a higher stat than the other in one skill.
+		## Try to find two counties to pull these Calradians from, try to have Calradian 2 be of a different VC culture than 1
+		# Pull county no.1
+		random_county_in_region = {
+			region = region_imperial_calradia
+			limit = {
+				culture = {
+					has_cultural_pillar = heritage_calradian
+					has_cultural_parameter = highborn_to_lowborn_marriage_ck
+				}
+				OR = {
+					holder ?= {
+						in_diplomatic_range = root
+						capital_province = {
+							squared_distance = {
+								target = root.location
+								value <= squared_distance_major
+							}
+						}
+					}
+					AND = {
+						root.top_liege = root
+						any_neighboring_county = {
+							holder.top_liege = root
+						}
+					}
+					AND = {
+						any_neighboring_county = {
+							holder = root
+						}
+					}
+				}
+			}
+			save_scope_as = ck_0050_first_county
+		}
+		# Pull county no.2
+		random_county_in_region = {
+			region = region_imperial_calradia
+			limit = {
+				this != scope:ck_0050_first_county
+				culture = {
+					this != scope:ck_0050_first_county.culture
+					has_cultural_pillar = heritage_calradian
+					has_cultural_parameter = highborn_to_lowborn_marriage_ck
+				}
+				OR = {
+					holder ?= {
+						in_diplomatic_range = root
+						capital_province = {
+							squared_distance = {
+								target = root.location
+								value <= squared_distance_major
+							}
+						}
+					}
+					AND = {
+						root.top_liege = root
+						any_neighboring_county = {
+							holder.top_liege = root
+						}
+					}
+					AND = {
+						any_neighboring_county = {
+							holder = root
+						}
+					}
+				}
+			}
+			alternative_limit = { # If there is no other high calradian culture other than county 1, pull from county 1
+				culture = {
+					has_cultural_pillar = heritage_calradian
+					has_cultural_parameter = highborn_to_lowborn_marriage_ck
+				}
+				OR = {
+					holder ?= {
+						in_diplomatic_range = root
+						capital_province = {
+							squared_distance = {
+								target = root.location
+								value <= squared_distance_major
+							}
+						}
+					}
+					AND = {
+						root.top_liege = root
+						any_neighboring_county = {
+							holder.top_liege = root
+						}
+					}
+					AND = {
+						any_neighboring_county = {
+							holder = root
+						}
+					}
+				}
+			}
+			save_scope_as = ck_0050_second_county
+		}
+		### Create the advisors, give traits BASED on the type of advisor you sought out
+		# Create Advisor no.1
+		create_character = {
+			template = calradian_advisor_character
+			# dynasty = none
+			location = root.capital_province
+			culture = scope:ck_0050_first_county.culture
+			faith = scope:ck_0050_first_county.faith
+			gender_female_chance = 0
+			random_traits_list = {
+				count = 1
+				# Diplomacy
+				education_diplomacy_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:diplomacy
+						}
+					}
+				}
+				education_diplomacy_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:diplomacy
+						}
+					}
+				}
+				# Stewardship
+				education_stewardship_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:stewardship
+						}
+					}
+				}
+				education_stewardship_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:stewardship
+						}
+					}
+				}
+				# Martial
+				education_martial_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:martial
+						}
+					}
+				}
+				education_martial_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:martial
+						}
+					}
+				}
+				# Intrigue
+				education_intrigue_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:intrigue
+						}
+					}
+				}
+				education_intrigue_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:intrigue
+						}
+					}
+				}
+				# Learning
+				education_learning_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:learning
+						}
+					}
+				}
+				education_learning_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:learning
+						}
+					}
+				}
+			}
+			# Add a single perk trait
+			random_traits_list = {
+				count = 1
+				diplomat = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:diplomacy
+						}
+					}
+				}
+				strategist = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:martial
+						}
+					}
+				}
+				overseer = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:martial
+						}
+					}
+				}
+				avaricious = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:stewardship
+						}
+					}
+				}
+				architect = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:stewardship
+						}
+					}
+				}
+				schemer = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:intrigue
+						}
+					}
+				}
+				torturer = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:intrigue
+						}
+					}
+				}
+				scholar = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:learning
+						}
+					}
+				}
+				theologian = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:learning
+						}
+					}
+				}
+			}
+
+			save_scope_as = ck_0050_advisor_1
+			after_creation = {
+				add_character_flag = created
+			}
+		}
+		# Create Advisor no.2
+		create_character = {
+			template = calradian_advisor_character
+			# dynasty = none
+			location = root.capital_province
+			culture = scope:ck_0050_second_county.culture
+			faith = scope:ck_0050_second_county.faith
+			gender_female_chance = 0
+			random_traits_list = {
+				count = 1
+				# Diplomacy
+				education_diplomacy_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:diplomacy
+						}
+					}
+				}
+				education_diplomacy_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:diplomacy
+						}
+					}
+				}
+				# Stewardship
+				education_stewardship_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:stewardship
+						}
+					}
+				}
+				education_stewardship_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:stewardship
+						}
+					}
+				}
+				# Martial
+				education_martial_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:martial
+						}
+					}
+				}
+				education_martial_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:martial
+						}
+					}
+				}
+				# Intrigue
+				education_intrigue_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:intrigue
+						}
+					}
+				}
+				education_intrigue_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:intrigue
+						}
+					}
+				}
+				# Learning
+				education_learning_3 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:learning
+						}
+					}
+				}
+				education_learning_4 = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:learning
+						}
+					}
+				}
+			}
+			# Add a single perk trait
+			random_traits_list = {
+				count = 1
+				diplomat = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:diplomacy
+						}
+					}
+				}
+				strategist = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:martial
+						}
+					}
+				}
+				overseer = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:martial
+						}
+					}
+				}
+				avaricious = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:stewardship
+						}
+					}
+				}
+				architect = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:stewardship
+						}
+					}
+				}
+				schemer = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:intrigue
+						}
+					}
+				}
+				torturer = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:intrigue
+						}
+					}
+				}
+				scholar = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:learning
+						}
+					}
+				}
+				theologian = {
+					trigger = {
+						root = {
+							var:type_of_advisor_hired ?= flag:learning
+						}
+					}
+				}
+			}
+			save_scope_as = ck_0050_advisor_2
+			after_creation = {
+				add_character_flag = created
+			}
+		}
+		hidden_effect = {
+			# Add as guests
+			add_visiting_courtier = scope:ck_0050_advisor_1
+			add_visiting_courtier = scope:ck_0050_advisor_2
+			# Add rivalries
+			scope:ck_0050_advisor_2 = {
+				set_relation_rival = {
+					target = scope:ck_0050_advisor_1
+					reason = rival_repelled_during_visit
+				}
+			}
+		}
+	}
+
+	option = { # 20 year cooldown, hides decision
+		name = ck_imperial_events.0050.a
+		add_courtier = scope:ck_0050_advisor_1
+		scope:ck_0050_advisor_1 = {
+			add_opinion = {
+				target = root
+				opinion = 30
+				modifier = grateful_opinion
+			}
+			hidden_effect = {
+				set_variable = {
+					name = ck_home_county
+					value = scope:ck_0050_first_county
+				}
+			}
+			add_character_flag = calradian_advisor
+		}
+		pay_short_term_gold = {
+			target = scope:ck_0050_advisor_1
+			gold = {
+				value = 3.5
+				multiply = scope:ck_0050_advisor_1.sum_of_all_skills_value
+			}
+		}
+		custom_tooltip = ck_imperial_events.0050.cooldown_tt
+		hidden_effect = {
+			scope:ck_0050_advisor_2 = {
+				silent_disappearance_effect = yes
+			}
+		}
+	}
+	option = { # 20 year cooldown, hides decision
+		name = ck_imperial_events.0050.b
+		add_courtier = scope:ck_0050_advisor_2
+		scope:ck_0050_advisor_2 = {
+			add_opinion = {
+				target = root
+				opinion = 30
+				modifier = grateful_opinion
+			}
+			hidden_effect = {
+				set_variable = {
+					name = ck_home_county
+					value = scope:ck_0050_second_county
+				}
+			}
+			add_character_flag = calradian_advisor
+		}
+		pay_short_term_gold = {
+			target = scope:ck_0050_advisor_2
+			gold = {
+				value = 3.5
+				multiply = scope:ck_0050_advisor_2.sum_of_all_skills_value
+			}
+		}
+		hidden_effect = {
+			scope:ck_0050_advisor_1 = {
+				silent_disappearance_effect = yes
+			}
+			add_character_flag = {
+				flag = ck_hired_calradian_advisor_cooldown
+				years = 20
+			}
+		}
+		custom_tooltip = ck_imperial_events.0050.cooldown_tt
+	}
+	option = { # 8 month cooldown remains in effect
+		name = ck_imperial_events.0050.c
+		stress_impact = {
+			calm = medium_stress_impact_gain
+			wrathful = medium_stress_impact_loss
+		}
+		custom_tooltip = ck_imperial_events.0050.cooldown_tt_2
+		hidden_effect = {
+			scope:ck_0050_advisor_1 = {
+				silent_disappearance_effect = yes
+			}
+			scope:ck_0050_advisor_2 = {
+				silent_disappearance_effect = yes
+			}
+		}
+	}
+	after = {
+		if = {
+			limit = {
+				has_variable = type_of_advisor_hired
+			}
+			remove_variable = type_of_advisor_hired
+		}
+	}
+}
+ck_imperial_events.0051 = { # You spot the advisor secretly writing something
+	type = character_event
+	title = ck_imperial_events.0051.t
+	desc = {
+		desc = ck_imperial_events.0051.desc
+		triggered_desc = {
+			trigger = {
+				NOT = {
+					has_trait = paranoid
+				}
+			}
+			desc = ck_imperial_events.0051.desc.not_paranoid
+		}
+	}
+	theme = ck_imperial
+	override_background = { reference = corridor_night }
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = thinking
+	}
+	cooldown = { years = 5 }
+	trigger = {
+		is_landless_adventurer = no
+		any_courtier = {
+			has_character_flag = calradian_advisor
+		}
+	}
+	immediate = {
+		# Scope the advisor
+		random_courtier = {
+			limit = {
+				has_character_flag = calradian_advisor
+			}
+			save_scope_as = calradian_advisor
+		}
+		scope:calradian_advisor.var:ck_home_county = {
+			save_scope_as = home_county
+		}
+		# Create a reason for the letter - Low opinion increases chances of bad outcome
+		random_list = {
+			10 = { # Innocent letter to family
+				set_variable = {
+					name = reason_for_0051_letter
+					value = flag:innocent_letter
+				}
+				modifier = {
+					add = -4
+					scope:calradian_advisor = {
+						opinion = {
+							target = root
+							value <= medium_negative_opinion
+						}
+					}
+				}
+			}
+			10 = { # Letter to their family's liege (if liege exists and is Calradian)
+				trigger = {
+					scope:home_county.top_liege ?= {
+						culture = {
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				set_variable = {
+					name = reason_for_0051_letter
+					value = flag:letter_to_liege
+				}
+				modifier = {
+					add = -4
+					scope:calradian_advisor = {
+						opinion = {
+							target = root
+							value <= medium_negative_opinion
+						}
+					}
+				}
+			}
+			20 = { # Deceitful letter, sent to family spies
+				set_variable = {
+					name = reason_for_0051_letter
+					value = flag:letter_to_spies
+				}
+				modifier = {
+					add = 10
+					scope:calradian_advisor = {
+						opinion = {
+							target = root
+							value <= medium_negative_opinion
+						}
+					}
+				}
+			}
+			10 = { # Letter to merchants to invest in your capital county
+				set_variable = {
+					name = reason_for_0051_letter
+					value = flag:letter_to_merchants
+				}
+				modifier = {
+					add = -4
+					scope:calradian_advisor = {
+						opinion = {
+							target = root
+							value <= medium_negative_opinion
+						}
+					}
+				}
+			}
+			10 = { # Letter to nearby ruler to improve relations
+				set_variable = {
+					name = reason_for_0051_letter
+					value = flag:letter_to_ruler
+				}
+				modifier = {
+					add = -4
+					scope:calradian_advisor = {
+						opinion = {
+							target = root
+							value <= medium_negative_opinion
+						}
+					}
+				}
+			}
+			20 = { # Pamphlet to populists to create unrest
+				set_variable = {
+					name = reason_for_0051_letter
+					value = flag:letter_to_rebels
+				}
+				modifier = {
+					add = 10
+					scope:calradian_advisor = {
+						opinion = {
+							target = root
+							value <= medium_negative_opinion
+						}
+					}
+				}
+			}
+		}
+	}
+
+	option = { # Sneak in and look, chance of being discovered
+		name = ck_imperial_events.0051.a
+		flavor = ck_imperial_events.0051.a.flavor
+		duel = {
+			skill = intrigue
+			target = scope:calradian_advisor
+			50 = {
+				desc = ck_imperial_events.0051.a.found_something
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				custom_tooltip = ck_imperial_events.0051.a.found_something_tt
+				save_scope_as = found_something
+			}
+			50 = {
+				desc = ck_imperial_events.0051.a.found_out
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = -2.5
+					min = -49
+				}
+				save_scope_as = discovered
+				show_as_tooltip = {
+					reverse_add_opinion = {
+						modifier = distrustful
+						years = 15
+						target = scope:calradian_advisor
+					}
+				}
+				remove_variable = reason_for_0051_letter
+				if = {
+					limit = {
+						scope:calradian_advisor = {
+							opinion = {
+								target = root
+								value <= -50
+							}
+						}
+					}
+					custom_tooltip = ck_imperial_events.0051.a.discovered_tt
+				}
+			}
+		}
+		stress_impact = {
+			paranoid = minor_stress_impact_loss
+			trusting = minor_stress_impact_gain
+		}
+
+		trigger_event = ck_imperial_events.0052
+	}
+	option = { # Leave it alone and trust the advisor
+		name = ck_imperial_events.0051.b
+		flavor = ck_imperial_events.0051.b.flavor
+		stress_impact = {
+			paranoid = medium_stress_impact_gain
+			trusting = minor_stress_impact_loss
+		}
+
+		trigger_event = {
+			id = ck_imperial_events.0053
+			days = { 10 16 }
+		}
+	}
+}
+ck_imperial_events.0052 = {
+	type = character_event
+	title = ck_imperial_events.0052.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					exists = scope:discovered
+				}
+				desc = ck_imperial_events.0052.desc.discovered
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:innocent_letter
+				}
+				desc = ck_imperial_events.0052.desc.innocent_letter
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_liege
+				}
+				desc = ck_imperial_events.0052.desc.liege
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_spies
+				}
+				desc = ck_imperial_events.0052.desc.spies
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_merchants
+				}
+				desc = ck_imperial_events.0052.desc.merchants
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_ruler
+				}
+				desc = ck_imperial_events.0052.desc.ruler
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_rebels
+				}
+				desc = ck_imperial_events.0052.desc.rebels
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					exists = scope:discovered
+					scope:calradian_advisor = {
+						opinion = {
+							target = root
+							value > -50
+						}
+					}
+				}
+				desc = ck_imperial_events.0052.desc.discovered.2
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:discovered
+					scope:calradian_advisor = {
+						opinion = {
+							target = root
+							value <= -50
+						}
+					}
+				}
+				desc = ck_imperial_events.0052.desc.discovered.3
+			}
+		}
+	}
+	theme = ck_imperial
+	override_background = { reference = corridor_night }
+	left_portrait = { ###PLACEHOLDER
+		character = root
+		animation = reading
+		triggered_animation = {
+			trigger = {
+				exists = scope:discovered
+			}
+			animation = shock
+		}
+	}
+	right_portrait = { ###PLACEHOLDER
+		character = scope:calradian_advisor
+		animation = anger
+		trigger = {
+			exists = scope:discovered
+		}
+	}
+
+	trigger = {
+		is_landless_adventurer = no
+		any_courtier = {
+			has_character_flag = calradian_advisor
+		}
+	}
+
+	immediate = {
+		if = {
+			limit = {
+				has_variable = reason_for_0051_letter
+			}
+			# Mark it as a letter with negative contents
+			if = {
+				limit = {
+					OR = {
+						var:reason_for_0051_letter = flag:letter_to_rebels
+						var:reason_for_0051_letter = flag:letter_to_spies
+					}
+				}
+				save_scope_as = bad_letter
+			}
+			# Scope a nearby ruler, independent first, then try a vassal
+			else_if = {
+				limit = {
+					var:reason_for_0051_letter ?= flag:letter_to_ruler
+				}
+				if = { # If you are the top liege, check a neighboring foreign county
+					limit = {
+						top_liege = root
+						any_sub_realm_county = {
+							any_neighboring_county = {
+								holder != root
+								holder.top_liege != root
+							}
+						}
+					}
+					random_sub_realm_county = {
+						random_neighboring_county = {
+							limit = {
+								holder != root
+								holder.top_liege != root
+							}
+							save_scope_as = ruler_county
+						}
+					}
+				}
+				else_if = { # Else, if you are not the top liege, check a neighboring foreign county from your top liege
+					limit = {
+						top_liege != root
+						top_liege = {
+							any_sub_realm_county = {
+								any_neighboring_county = {
+									holder != root
+									holder.top_liege != root
+								}
+							}
+						}
+					}
+					top_liege = {
+						random_sub_realm_county = {
+							random_neighboring_county = {
+								limit = {
+									holder != root
+									holder.top_liege != root.top_liege
+								}
+								save_scope_as = ruler_county
+							}
+						}
+					}
+				}
+				else = { # Else, pull a random vassal
+					top_liege ?= {
+						random_sub_realm_county = {
+							random_neighboring_county = {
+								holder != root
+								save_scope_as = ruler_county
+							}
+						}
+					}
+				}
+				scope:ruler_county = {
+					holder ?= {
+						save_scope_as = ruler_county_holder
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:discovered
+			}
+			reverse_add_opinion = {
+				modifier = distrustful
+				years = 15
+				target = scope:calradian_advisor
+			}
+		}
+		# Scope the top liege 
+		scope:home_county = {
+			if = {
+				limit = {
+					top_liege ?= {
+						culture = {
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+				}
+				top_liege ?= {
+					save_scope_as = advisor_top_liege
+				}
+			}
+			else = {
+				holder ?= {
+					save_scope_as = advisor_top_liege
+				}
+			}
+		}
+	}
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							exists = scope:discovered
+						}
+						desc = ck_imperial_events.0052.a.discovered
+					}
+					triggered_desc = {
+						trigger = {
+							NOT = {
+								exists = scope:discovered
+							}
+							exists = scope:bad_letter
+						}
+						desc = ck_imperial_events.0052.a.bad_letter
+					}
+					desc = ck_imperial_events.0052.a
+				}
+			}
+		}
+		flavor = {
+			triggered_desc = {
+				trigger = {
+					nor = {
+						exists = scope:discovered
+						exists = scope:bad_letter
+					}
+				}
+				desc = ck_imperial_events.0052.a.flavor
+			}
+		}
+		# Discovered
+		if = {
+			limit = {
+				exists = scope:discovered
+			}
+			imprison_character_effect = {
+				TARGET = scope:calradian_advisor
+				IMPRISONER = root
+			}
+			stress_impact = {
+				vengeful = miniscule_stress_impact_loss
+				wrathful = medium_stress_impact_loss
+				arrogant = medium_stress_impact_loss
+				compassionate = major_stress_impact_gain
+			}
+		}
+		else_if = {
+			limit = {
+				NOT = {
+					exists = scope:discovered
+				}
+				exists = scope:bad_letter
+			}
+			add_prestige = 100
+		}
+		else = {
+			random_list = {
+				30 = {
+					show_chance = no
+					desc = ck_imperial_events.0052.a.success
+					custom_tooltip = ck_imperial_events.0052.desc.tt
+					trigger_event = {
+						id = ck_imperial_events.0053
+						days = { 10 16 }
+					}
+				}
+				60 = {
+					show_chance = no
+					desc = ck_imperial_events.0052.a.failure
+					hidden_effect = {
+						reverse_add_opinion = {
+							target = scope:calradian_advisor
+							opinion = -5
+							modifier = suspicious_opinion
+						}
+					}
+					custom_tooltip = ck_imperial_events.0052.desc.tt
+				}
+			}
+		}
+	}
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							exists = scope:discovered
+							scope:calradian_advisor = {
+								opinion = {
+									target = root
+									value > -50
+								}
+							}
+						}
+						desc = ck_imperial_events.0052.b.discovered
+					}
+					triggered_desc = {
+						trigger = {
+							exists = scope:discovered
+							scope:calradian_advisor = {
+								opinion = {
+									target = root
+									value <= -50
+								}
+							}
+						}
+						desc = ck_imperial_events.0052.b.discovered.2
+					}
+					triggered_desc = {
+						trigger = {
+							NOT = {
+								exists = scope:discovered
+							}
+							exists = scope:bad_letter
+						}
+						desc = ck_imperial_events.0052.b.bad_letter
+					}
+					desc = ck_imperial_events.0052.b
+				}
+			}
+		}
+		trigger = {
+			OR = {
+				exists = scope:discovered
+				exists = scope:bad_letter
+			}
+		}
+		# Discovered
+		if = {
+			limit = {
+				exists = scope:discovered
+			}
+			stress_impact = {
+				vengeful = miniscule_stress_impact_gain
+				wrathful = medium_stress_impact_gain
+				arrogant = medium_stress_impact_gain
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:bad_letter
+				NOT = {
+					exists = scope:discovered
+				}
+			}
+			custom_tooltip = ck_imperial_events.0052.b.bl
+			hidden_effect = {
+				scope:calradian_advisor = {
+					add_secret = {
+						type = secret_undermining_rule
+						target = root
+					}
+				}
+			}
+			scope:calradian_advisor = {
+				random_secret = {
+					type = secret_undermining_rule
+					limit = {
+						NOT = { is_known_by = root }
+					}
+					reveal_to = root
+				}
+			}
+		}
+	}
+}
+ck_imperial_events.0053 = {
+	type = character_event
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:innocent_letter
+				}
+				desc = ck_imperial_events.0053.t.innocent_letter
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_liege
+				}
+				desc = ck_imperial_events.0053.t.liege
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_merchants
+				}
+				desc = ck_imperial_events.0053.t.merchants
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_ruler
+				}
+				desc = ck_imperial_events.0053.t.ruler
+			}
+		}
+	}
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:innocent_letter
+				}
+				desc = ck_imperial_events.0053.desc.innocent_letter
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_liege
+				}
+				desc = ck_imperial_events.0053.desc.liege
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_spies
+				}
+				desc = ck_imperial_events.0053.desc.spies
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_merchants
+				}
+				desc = ck_imperial_events.0053.desc.merchants
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_ruler
+				}
+				desc = ck_imperial_events.0053.desc.ruler
+			}
+			triggered_desc = {
+				trigger = {
+					var:reason_for_0051_letter ?= flag:letter_to_rebels
+				}
+				desc = ck_imperial_events.0053.desc.rebels
+			}
+		}
+	}
+	theme = ck_imperial
+	override_background = { reference = courtyard }
+	right_portrait = { ###PLACEHOLDER
+		character = root
+		animation = thinking
+	}
+
+	trigger = {
+		is_landless_adventurer = no
+		any_courtier = {
+			has_character_flag = calradian_advisor
+		}
+	}
+
+	immediate = {
+		
+	}
+	
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							var:reason_for_0051_letter ?= flag:letter_to_merchants
+						}
+						desc = ck_imperial_events.0053.a.merchant
+					}
+					triggered_desc = {
+						trigger = {
+							var:reason_for_0051_letter ?= flag:letter_to_liege
+						}
+						desc = ck_imperial_events.0053.a.liege
+					}
+					triggered_desc = {
+						trigger = {
+							var:reason_for_0051_letter ?= flag:innocent_letter
+						}
+						desc = ck_imperial_events.0053.a.innocent
+					}
+					triggered_desc = {
+						trigger = {
+							var:reason_for_0051_letter ?= flag:letter_to_ruler
+						}
+						desc = ck_imperial_events.0053.a.ruler
+					}
+				}
+			}
+		}
+		switch = {
+			trigger = var:reason_for_0051_letter
+			flag:letter_to_merchants = {
+				scope:calradian_advisor = {
+					add_opinion = {
+						target = root
+						modifier = respect_opinion
+						opinion = 15
+					}
+				}
+				capital_county ?= {
+					add_county_modifier = {
+						modifier = ck_advisor_merchant
+						years = 2
+					}
+				}
+				add_character_modifier = {
+					modifier = ck_accept_advisor_advice
+					years = 2
+				}
+			}
+			flag:letter_to_liege = {
+				scope:advisor_top_liege ?= {
+					add_opinion = {
+						target = root
+						modifier = respect_opinion
+						opinion = -10
+					}
+				}
+				scope:calradian_advisor = {
+					add_opinion = {
+						target = root
+						modifier = disappointed_opinion
+						opinion = -15
+					}
+				}
+			}
+			flag:innocent_letter = {
+				
+			}
+			flag:letter_to_ruler = {
+				
+			}
+		}
+	}
+	option = {
+		name = {
+			text = {
+				first_valid = {
+					triggered_desc = {
+						trigger = {
+							var:reason_for_0051_letter ?= flag:letter_to_merchants
+						}
+						desc = ck_imperial_events.0053.b.merchant
+					}
+					triggered_desc = {
+						trigger = {
+							var:reason_for_0051_letter ?= flag:letter_to_liege
+						}
+						desc = ck_imperial_events.0053.b.liege
+					}
+					triggered_desc = {
+						trigger = {
+							var:reason_for_0051_letter ?= flag:innocent_letter
+						}
+						desc = ck_imperial_events.0053.b.innocent
+					}
+					triggered_desc = {
+						trigger = {
+							var:reason_for_0051_letter ?= flag:letter_to_ruler
+						}
+						desc = ck_imperial_events.0053.b.ruler
+					}
+				}
+			}
+		}
+		switch = {
+			trigger = var:reason_for_0051_letter
+			flag:letter_to_merchants = {
+				scope:calradian_advisor = {
+					add_opinion = {
+						target = root
+						modifier = disappointed_opinion
+						opinion = -15
+					}
+				}
+				add_character_modifier = {
+					modifier = ck_reject_advisor_advice
+					years = 2
+				}
+			}
+			flag:letter_to_liege = {
+				scope:advisor_top_liege ?= {
+					add_opinion = {
+						target = root
+						modifier = respect_opinion
+						opinion = -10
+					}
+				}
+				scope:calradian_advisor = {
+					add_opinion = {
+						target = root
+						modifier = disappointed_opinion
+						opinion = -15
+					}
+				}
+			}
+			flag:innocent_letter = {
+				
+			}
+			flag:letter_to_ruler = {
+				
+			}
+		}
 	}
 }
 ### TESTING SOMETHING
