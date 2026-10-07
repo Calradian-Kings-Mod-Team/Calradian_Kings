@@ -105,7 +105,7 @@ assign_random_nickname_effect = {
 					NOT = {
 						any_realm_county = {
 							culture = scope:nickname_root_scope.culture
-						} 
+						}
 					}
 					NOT = {
 						primary_title ?= {
@@ -123,7 +123,7 @@ assign_random_nickname_effect = {
 							culture = {
 								cultural_acceptance = { target = scope:nickname_root_scope.culture value >= 40 }
 							}
-						} 
+						}
 					}
 					factor = 2
 				}
@@ -526,7 +526,7 @@ assign_random_nickname_effect = {
 			100 = {
 				trigger = {
 					has_trait = witch
-					NOT = { faith = { has_doctrine = doctrine_witchcraft_accepted } }
+					NOT = { rite = { rite_has_parameter = witchcraft_accepted } }
 					NOT = { exists = scope:had_nick_the_witch }
 				}
 				modifier = {
@@ -1411,7 +1411,7 @@ assign_random_nickname_effect = {
 						has_trait = intellect_good
 						has_trait = shrewd
 						has_trait = theologian
-						has_trait = scholar
+						has_trait = erudite
 						learning >= 16
 					}
 					has_personality_introverted_trigger = yes
@@ -1581,7 +1581,7 @@ assign_random_nickname_effect = {
 					top_liege != this
 					NOR = {
 						religion = liege.religion
-						faith = { has_doctrine = doctrine_pluralism_pluralistic }
+						rite = { rite_has_doctrine = doctrine_pluralism_pluralistic }
 					}
 					NOT = { exists = scope:had_nick_the_heathen }
 				}
@@ -1771,7 +1771,7 @@ assign_random_nickname_effect = {
 			100 = {
 				trigger = {
 					is_male = yes
-					faith = { has_doctrine = doctrine_theocracy_temporal }
+					rite = { rite_has_doctrine = doctrine_theocracy_temporal }
 					has_personality_levelheaded_trigger = yes
 					has_personality_introverted_trigger = yes
 					has_personality_submissive_trigger = yes
@@ -2950,11 +2950,11 @@ assign_random_nickname_effect = {
 					learning >= 16
 					OR = {
 						has_trait = lifestyle_mystic
-						has_trait = scholar
+						has_trait = erudite
 						has_trait = theologian
 					}
-					NOR = { 
-						exists = scope:had_nick_the_bearded 
+					NOR = {
+						exists = scope:had_nick_the_bearded
 						has_trait = beardless_eunuch
 					}
 				}
@@ -3023,7 +3023,7 @@ assign_random_nickname_effect = {
 			100 = {
 				trigger = {
 					is_female = yes
-					faith = { has_doctrine = doctrine_theocracy_temporal }
+					rite = { rite_has_doctrine = doctrine_theocracy_temporal }
 					has_personality_levelheaded_trigger = yes
 					has_personality_introverted_trigger = yes
 					has_personality_submissive_trigger = yes
@@ -4176,7 +4176,7 @@ assign_random_nickname_effect = {
 							governor_efficiency <= 0.7
 						}
 						prestige_level <= 2
-					}	
+					}
 					NOT = { exists = scope:had_nick_the_incompetent }
 				}
 				modifier = {
@@ -4252,6 +4252,69 @@ assign_random_nickname_effect = {
 				flag_random_nickname_as_taken_in_batch_effect = { NICK = nick_the_unfortunate }
 				trigger_event = lifestyle_nicknames.1000
 			}
+			50 = {
+				trigger = {
+					has_education_learning_trigger = yes
+					learning >= very_high_skill_rating
+					OR = {
+						has_trait = erudite
+						has_trait = lifestyle_scholar
+					}
+					NOT = { exists = scope:had_nick_the_scribe }
+				}
+				modifier = {
+					OR = {
+						has_trait = humble
+						has_trait = content
+						is_ruler = no
+					}
+					factor = 2
+				}
+				give_nickname = nick_the_scribe
+				# Flag this as having been spat out already, in case we're applying several nicknames in quick succession.
+				flag_random_nickname_as_taken_in_batch_effect = { NICK = nick_the_scribe }
+				trigger_event = lifestyle_nicknames.1000
+			}
+			50 = {
+				trigger = {
+					OR = {
+						has_trait = peasant_leader
+						has_trait = populist_leader
+						has_trait = lifestyle_gardener
+					}
+					OR = {
+						has_trait = diligent
+						has_trait = generous
+						has_trait = humble
+						has_trait = just
+						has_trait = compassionate
+					}
+					stewardship >= average_skill_rating
+					NOT = { exists = scope:had_nick_the_harvester }
+				}
+				modifier = {
+					OR = {
+						rite = {
+							any_rite_tenet = {
+								status = core
+								this = tenet:tenet_communal_possessions
+							}
+						}
+						culture = {
+							OR = {
+								has_cultural_tradition = tradition_gardening
+								has_cultural_tradition = tradition_collective_lands
+								has_cultural_tradition = tradition_agrarian
+							}
+						}
+					}
+					factor = 4
+				}
+				give_nickname = nick_the_harvester
+				# Flag this as having been spat out already, in case we're applying several nicknames in quick succession.
+				flag_random_nickname_as_taken_in_batch_effect = { NICK = nick_the_harvester }
+				trigger_event = lifestyle_nicknames.1000
+			}
 		}
 	}
 }
@@ -4323,7 +4386,7 @@ set_random_negative_nickname_effect = {
 					NOT = {
 						any_realm_county = {
 							culture = scope:nick_recipient.culture
-						} 
+						}
 					}
 					NOT = {
 						primary_title ?= {
@@ -4339,7 +4402,7 @@ set_random_negative_nickname_effect = {
 							culture = {
 								cultural_acceptance = { target = scope:nick_recipient.culture value >= 40 }
 							}
-						} 
+						}
 					}
 					factor = 2
 				}
@@ -4540,7 +4603,7 @@ set_random_negative_nickname_effect = {
 			100 = {
 				trigger = {
 					has_trait = witch
-					NOT = { faith = { has_doctrine = doctrine_witchcraft_accepted } }
+					NOT = { rite = { rite_has_parameter = witchcraft_accepted } }
 				}
 				modifier = {
 					piety_level <= 1
@@ -5068,7 +5131,7 @@ set_random_negative_nickname_effect = {
 					top_liege != this
 					NOR = {
 						religion = liege.religion
-						faith = { has_doctrine = doctrine_pluralism_pluralistic }
+						rite = { rite_has_doctrine = doctrine_pluralism_pluralistic }
 					}
 				}
 				set_nickname_effect = {
@@ -6337,7 +6400,7 @@ set_random_negative_nickname_effect = {
 							government_has_mechanic = administrative
 							governor_efficiency <= 0.7
 						}
-					}	
+					}
 				}
 				modifier = {
 					government_has_mechanic = administrative
@@ -6392,6 +6455,31 @@ set_random_negative_nickname_effect = {
 				set_nickname_effect = {
 					NICKNAME = nick_the_miser
 				}
+			}
+			100 = {
+				trigger = {
+					religion = { is_in_family = rf_abrahamic }
+					piety_level >= 4
+					num_sinful_traits <= 0
+					num_virtuous_traits >= 1
+					NOT = { exists = scope:had_nick_the_angelic }
+					OR = {
+						has_trait = theologian
+						has_trait = lifestyle_mystic
+						has_trait = zealous
+						has_trait = reclusive
+					}
+					has_trait = lifestyle_mystic
+					spiritual_fulfillment >= spiritual_fulfillment_2
+				}
+				modifier = {
+					piety_level >= 5
+					factor = 2
+				}
+				give_nickname = nick_the_angelic
+				# Flag this as having been spat out already, in case we're applying several nicknames in quick succession.
+				flag_random_nickname_as_taken_in_batch_effect = { NICK = nick_the_angelic }
+				trigger_event = lifestyle_nicknames.1000
 			}
 			#Fallback
 			1 = {

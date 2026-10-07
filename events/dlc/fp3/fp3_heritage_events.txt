@@ -29,7 +29,7 @@ scripted_trigger fp3_hateful_ruler_trigger = {
 	NOR = {
 		target_is_liege_or_above = root 
 		faith = { has_doctrine = special_doctrine_is_gnostic_faith }
-		faith = { has_doctrine = doctrine_pluralism_pluralistic }
+		rite = { rite_has_doctrine = doctrine_pluralism_pluralistic }
 		has_trait = compassionate
 		has_trait = forgiving
 	}
@@ -40,11 +40,298 @@ scripted_trigger fp3_hateful_ruler_trigger = {
 		has_trait = zealous
 		has_trait = sadistic
 		has_trait = paranoid 
-		faith = { has_doctrine = doctrine_pluralism_fundamentalist }
+		rite = { rite_has_doctrine = doctrine_pluralism_fundamentalist }
 	}
 }
 
-## No Manichean Religion
+# fp3_yearly.8019 = {
+# 	type = character_event  
+# 	title = fp3_yearly.8019.t
+# 	desc = fp3_yearly.8019.desc	
+# 	theme = faith 
+
+# 	left_portrait = {
+# 		character = root
+# 		animation = boredom
+# 	}
+
+# 	right_portrait = {
+# 		character = scope:manichean_leader
+# 		animation = beg
+# 	}
+
+# 	lower_left_portrait = {
+# 		character = scope:hateful_ruler 
+# 	}
+
+# 	trigger = { 
+# 		is_ai = no
+# 		#standard sanity checks
+# 		has_fp3_dlc_trigger = yes
+# 		is_ruler = yes
+# 		is_available_healthy_adult = yes
+
+
+# 		#checking that the premise makes sense
+# 		root.capital_province = { 
+# 			OR = {
+# 				geographical_region = world_persian_empire 
+# 				geographical_region = world_steppe
+# 			}
+# 		}
+# 		NOR = { 
+# 			has_title = title:k_mesopotamia 
+# 			has_title = title:k_jazira 
+# 		}
+
+# 		#checking for a ruler that would persecute the Manicheans in Mesopotamia. Ideally the caliph, but any ruler would do. 
+# 		any_independent_ruler = {
+# 			in_diplomatic_range = root 
+# 			any_realm_province = { 
+# 				OR = {
+# 					geographical_region = world_mesopotamia #this is where the Manichean communities were originally concentrated
+# 					geographical_region = world_jazira
+# 				}
+# 			}
+# 			fp3_hateful_ruler_trigger = yes	
+# 		}
+
+# 		any_held_county = { }
+# 	}
+
+# 	cooldown = { years = 100 }
+
+# 	immediate = {
+
+# 		random_independent_ruler = { 
+# 			limit = {
+# 				in_diplomatic_range = root 
+# 				any_realm_province = {
+# 					OR = {
+# 						geographical_region = world_mesopotamia 
+# 						geographical_region = world_jazira
+# 					}
+# 				}
+# 				fp3_hateful_ruler_trigger = yes
+# 			}
+# 			weight = { #weighting for the most suitable candidate 
+# 				modifier = {
+# 					factor = 40
+# 					any_held_title = { is_head_of_faith = yes }
+# 				}
+# 				modifier = {
+# 					factor = 20
+# 					has_title = title:k_mesopotamia 
+# 				}
+# 				modifier = {
+# 					factor = 20
+# 					has_title = title:c_baghdad 
+# 				}
+# 				modifier = {
+# 					factor = 20
+# 					has_trait = zealous 
+# 				}
+# 				modifier = {
+# 					factor = 40
+# 					has_relation_rival = root
+# 				}
+# 			}
+# 			save_scope_as = hateful_ruler 	
+# 		}
+
+# 		random_held_county = {
+# 			weight = {
+# 				modifier = {
+# 					factor = 70
+# 					any_county_province = { 
+# 						barony = { 
+# 							is_holy_site_of = faith:manichaean_faith #This will typically be Samarkand 
+# 						}
+# 					}
+# 				}
+# 				modifier = {
+# 					factor = 50
+# 					faith = faith:manichaean_faith
+# 				}
+# 				modifier = {
+# 					factor = 50
+# 					any_county_province = { 
+# 						geographical_region = dlc_fp3_greater_persian_frontier_regions
+# 					}
+# 				}
+# 				modifier = {
+# 					factor = -40
+# 					any_county_province = {
+# 						this = root.capital_province 
+# 					}
+# 				}
+# 			}
+# 			save_scope_as = refuge_of_light 
+# 		}
+
+# 		create_character = { #this is the Manichean leader
+# 			template = fp3_gnostic_paragon
+# 			location = root.capital_province
+# 			culture = scope:hateful_ruler.culture
+# 			gender_female_chance = {
+# 				if = {
+# 					limit = { 
+# 						faith:manichaean_faith = { main_rite = { rite_has_doctrine = doctrine_gender_male_dominated } }
+# 					}
+# 					add = 0	
+# 				}
+# 				else_if = {
+# 					limit = { 
+# 						faith:manichaean_faith = { main_rite = { rite_has_doctrine = doctrine_gender_female_dominated } }
+# 					}
+# 					add = 100
+# 				}
+# 				else = {
+# 					add = 50
+# 				}
+# 			}
+# 			save_scope_as = manichean_leader	
+# 		}	
+# 	}	
+		
+
+# 	option = { #By all means, stay 
+# 		name = fp3_yearly.8019.a
+
+#    		scope:manichean_leader = {
+# 			add_opinion = {
+# 				target = root
+# 				opinion = 20
+# 				modifier = grateful_opinion
+# 			}
+# 		}
+
+# 		scope:hateful_ruler = {
+#    			add_opinion = {
+#    				target = root
+#    				opinion = -30
+#    				modifier = harbored_a_fugitive_opinion
+#    			}
+#    		}
+
+#    		add_courtier = scope:manichean_leader 
+
+# 		scope:refuge_of_light = {
+# 			add_county_modifier = {
+# 				modifier = fp3_gnostic_fervor_county_modifier
+# 				years = 50 
+# 			}
+# 		}
+
+# 		add_character_modifier = {
+# 			modifier = fp3_rare_books_modifier
+# 			years = 25
+# 		}
+
+# 		ai_chance = { #ambitious and sociable AI goes for this option
+#         	base = 10
+#         	ai_value_modifier = {
+#             	ai_boldness = 0.8
+#             	ai_greed = 0.5
+#             	ai_honor = 0.6
+#             	ai_sociability = 0.6
+#         	}
+#    		}
+
+#    		stress_and_fulfillment_impact = { 
+#    			paranoid = medium_stress_impact_gain
+#    			callous = medium_stress_impact_gain
+#    			sadistic = medium_stress_impact_gain				
+#    		}
+# 	}
+
+# 	option = { #stay and pay tax
+# 		name = fp3_yearly.8019.b
+
+# 		trigger = {
+# 			AND = {
+# 				OR = {
+# 					rite = { rite_has_tenet = tenet_tax_nonbelievers }
+# 					faith = { has_doctrine = special_doctrine_jizya }
+# 				}
+# 				faith = { NOT = { has_doctrine = special_doctrine_is_gnostic_faith } }
+# 			}
+# 		}
+
+# 		scope:hateful_ruler = {
+#    			add_opinion = {
+#    				target = root
+#    				opinion = -20
+#    				modifier = fp3_harbors_heretics_opinion
+#    			}
+#    		}
+
+# 		scope:refuge_of_light = {
+# 			add_county_modifier = {
+# 				modifier = fp3_gnostic_fervor_county_modifier
+# 				years = 50 
+# 			}
+# 			add_county_modifier = {
+# 				modifier = hold_court_8120_tax_modifier
+# 				years = 50
+# 			}
+# 		}
+
+#    		#Flag that scope:manichean_leader should leave. 
+# 		save_scope_as = disappear_manichean	
+
+#    		ai_chance = { #compassionate-greedy AI goes for this option
+#          base = 10
+#         	ai_value_modifier = {
+#             	ai_rationality = 0.5 
+#             	ai_compassion = 0.8
+#             	ai_greed = 0.5
+#         	}
+#    		}
+
+#    		stress_and_fulfillment_impact = { 
+#    			generous = medium_stress_impact_gain
+#    			callous = medium_stress_impact_gain
+#    			sadistic = medium_stress_impact_gain
+#    		}
+#    	}
+
+#    	option = { #Go where you may
+# 		name = fp3_yearly.8019.c
+# 		custom_tooltip = manicheans_sent_away.tt
+
+# 		add_piety = minor_piety_gain
+
+# 		scope:hateful_ruler = {
+#    			add_opinion = {
+#    				target = root
+#    				opinion = 20
+#    				modifier = pleased_opinion
+#    			}
+#    		}
+
+#    		ai_chance = { #zealous-cruel AI goes for this option
+# 			base = 10
+#         	ai_value_modifier = {
+#             	ai_zeal = 0.8 
+#             	ai_vengefulness = 0.8
+#         	}
+#    		}
+
+#    		stress_and_fulfillment_impact = { 
+#    			ambitious = minor_stress_impact_gain
+#    			compassionate = minor_stress_impact_gain 
+#    			generous = major_stress_impact_gain 
+#    		}
+#    	}
+
+#    	after = {
+#    		if = {
+#    			limit = { exists = scope:disappear_manichean }
+#    			scope:manichean_leader = { silent_disappearance_effect = yes }
+#    		}	
+#  	} 			
+# }
 
 
 ###################################
@@ -56,7 +343,7 @@ scripted_trigger fp3_zealous_caliph_trigger = {
 	is_ai = yes 
 	NOR = {
 		is_vassal_of = root 
-		faith = { has_doctrine = doctrine_pluralism_pluralistic }
+		rite = { rite_has_doctrine = doctrine_pluralism_pluralistic }
 		has_trait = compassionate
 		has_trait = forgiving
 	}
@@ -68,7 +355,7 @@ scripted_trigger fp3_zealous_caliph_trigger = {
 		has_trait = zealous
 		has_trait = sadistic
 		has_trait = paranoid 
-		faith = { has_doctrine = doctrine_pluralism_fundamentalist }
+		rite = { rite_has_doctrine = doctrine_pluralism_fundamentalist }
 	}
 }
 
@@ -138,9 +425,9 @@ scripted_trigger fp3_zoroastrian_holy_sites_province_trigger = {
 
 # 		has_game_rule = default_gender_equality #this triggers an error. Suspected code issue.
 
-# 		NOT = {
-# 			faith = { has_doctrine = doctrine_gender_female_dominated } 
-# 		}
+		# NOT = {
+		# 	rite = { rite_has_doctrine = doctrine_gender_female_dominated }
+		# }
 
 # 		#checking for approppriate county 
 # 		any_held_county = {
@@ -157,15 +444,15 @@ scripted_trigger fp3_zoroastrian_holy_sites_province_trigger = {
 
 # 		exists = root.faith.religious_head
 
-# 		root.faith.religious_head = { 
-# 			fp3_zealous_caliph_trigger = yes
-# 			#checking that his Islam hasn't been reformed into something that'd make the event's premise weird
-# 			faith = { 
-# 				NOT = {
-# 					has_doctrine = doctrine_gender_female_dominated 
-# 				}	
-# 			}	
-# 		}	
+		# root.faith.religious_head = { 
+		# 	fp3_zealous_caliph_trigger = yes
+		# 	#checking that his Islam hasn't been reformed into something that'd make the event's premise weird
+		# 	rite = {
+		# 		NOT = {
+		# 			rite_has_doctrine = doctrine_gender_female_dominated 
+		# 		}	
+		# 	}	
+		# }	
 
 # 		#checking that we have a spouse or daughter that would fit the scope
 # 		OR = { 
@@ -195,20 +482,20 @@ scripted_trigger fp3_zoroastrian_holy_sites_province_trigger = {
 
 # 		religion:zoroastrianism_religion = { save_scope_as = anahita_faith }
 
-# 		#saving the caliph as a scope
-# 		root.faith.religious_head = { 
-# 			if = {
-# 				limit = {
-# 					fp3_zealous_caliph_trigger = yes
-# 					faith = { 
-# 						NOT = {
-# 							has_doctrine = doctrine_gender_female_dominated 
-# 						}
-# 					}	
-# 				}	
-# 			}
-# 			save_scope_as = righteous_caliph
-# 		}
+		#saving the caliph as a scope
+		# root.faith.religious_head = { 
+		# 	if = {
+		# 		limit = {
+		# 			fp3_zealous_caliph_trigger = yes
+		# 			rite = {
+		# 				NOT = {
+		# 					rite_has_doctrine = doctrine_gender_female_dominated 
+		# 				}
+		# 			}	
+		# 		}	
+		# 	}
+		# 	save_scope_as = righteous_caliph
+		# }
 
 # 		random_held_county = {
 # 			limit = { this = title:c_rayy }
@@ -297,30 +584,34 @@ scripted_trigger fp3_zoroastrian_holy_sites_province_trigger = {
 
 # 		remove_short_term_gold = minor_gold_value
 
-# 		scope:pious_woman = { 
-# 			if = {
-# 				limit = { 
-# 					OR = { 
-# 						has_relation_lover = root
-# 						has_relation_soulmate = root 
-# 					}
-# 				}
-# 				add_opinion = {
-# 					target = root
-# 					modifier = happy_opinion
-# 					opinion = 20 
-# 				}
-# 			}	
-# 			else = {
-# 				root = {
-# 					progress_towards_lover_effect = {
-# 						CHARACTER = scope:pious_woman
-# 						REASON = lover_sided_with_me_against_hof
-# 						OPINION = 20 
-# 					}
-# 				}
-# 			}	
-# 		}
+		# scope:pious_woman = { 
+		# 	if = {
+		# 		limit = { 
+		# 			OR = { 
+		# 				has_relation_lover = root
+		# 				has_relation_soulmate = root 
+		# 			}
+		# 		}
+		# 		add_opinion = {
+		# 			target = root
+		# 			modifier = happy_opinion
+		# 			opinion = 20 
+		# 		}
+		# 	}	
+		# 	else_if = {
+		# 		limit = {
+		# 			matching_gender_and_sexuality_with_trigger = { CHARACTER = root }
+		# 			likely_to_commit_incest_with_trigger = { CHARACTER_1 = root CHARACTER_2 = scope:pious_woman }
+		# 		}
+		# 		root = {
+		# 			progress_towards_lover_effect = {
+		# 				CHARACTER = scope:pious_woman
+		# 				REASON = lover_sided_with_me_against_hof
+		# 				OPINION = 20 
+		# 			}
+		# 		}
+		# 	}	
+		# }
 
 # 		scope:righteous_caliph = {
 # 			add_opinion = { 
@@ -330,11 +621,11 @@ scripted_trigger fp3_zoroastrian_holy_sites_province_trigger = {
 # 			}
 # 		}
 
-# 		stress_impact = {
-#    			callous = major_stress_impact_gain
-#    			shy = medium_stress_impact_gain
-#    			zealous = major_stress_impact_gain
-# 		}
+		# stress_and_fulfillment_impact = {
+   		# 	callous = major_stress_impact_gain
+   		# 	shy = medium_stress_impact_gain
+   		# 	zealous = major_stress_impact_gain
+		# }
 
 # 		ai_chance = { 
 #         	base = 100
@@ -376,11 +667,11 @@ scripted_trigger fp3_zoroastrian_holy_sites_province_trigger = {
 # 			}
 # 		}
 
-# 		stress_impact = {
-#    			compassionate = minor_stress_impact_loss
-#    			cynical = medium_stress_impact_gain 
-#    			zealous = major_stress_impact_gain
-# 		}
+		# stress_and_fulfillment_impact = {
+   		# 	compassionate = minor_stress_impact_loss
+   		# 	cynical = medium_stress_impact_gain 
+   		# 	zealous = major_stress_impact_gain
+		# }
 
 # 		ai_chance = { 
 #         	base = 100
@@ -441,12 +732,12 @@ scripted_trigger fp3_zoroastrian_holy_sites_province_trigger = {
 # 			}
 # 		}
 
-# 		stress_impact = {
-#    			zealous = minor_stress_impact_loss
-#    			compassionate = medium_stress_impact_gain 
-#    			content = medium_stress_impact_gain
-#    			lazy = medium_stress_impact_gain
-# 		}
+		# stress_and_fulfillment_impact = {
+   		# 	zealous = minor_stress_impact_loss
+   		# 	compassionate = medium_stress_impact_gain 
+   		# 	content = medium_stress_impact_gain
+   		# 	lazy = medium_stress_impact_gain
+		# }
 
 # 		ai_chance = { 
 #         	base = 100
@@ -479,12 +770,11 @@ scripted_trigger fp3_not_super_relevant_yet_suitable_person_trigger = {
 	}
 	NAND = {
 		is_female = yes
-		root.faith = { #this is basically checking for Islam, but in a more emergent way. In medieval Islam, it wouldn't generally make sense for a noble woman to work together with a man in the way this event presupposes. 
-			AND = {
-				has_doctrine = doctrine_gender_male_dominated 
-				has_doctrine = doctrine_polygamy
-			}
-		} 					 
+		#this is basically checking for Islam, but in a more emergent way. In medieval Islam, it wouldn't generally make sense for a noble woman to work together with a man in the way this event presupposes.
+		root.rite = {
+			rite_has_doctrine = doctrine_gender_male_dominated
+			rite_has_doctrine = doctrine_polygamy
+		}
 	}
 }
 
@@ -625,6 +915,7 @@ fp3_yearly.8021 = {
 			 	}
 			 	culture = scope:alchemy_enthusiast.culture 
 			 	faith = root.faith
+			 	rite = root.rite
 			 	save_scope_as = enthusiastic_alchemist
 				
 				after_creation = {
@@ -697,7 +988,7 @@ fp3_yearly.8021 = {
 
 		trigger_event = fp3_yearly.8022
 
-		stress_impact = { 
+		stress_and_fulfillment_impact = { 
    			fickle = minor_stress_impact_loss
    			vengeful = medium_stress_impact_gain
    			paranoid = medium_stress_impact_gain		
@@ -770,7 +1061,7 @@ fp3_yearly.8021 = {
 			}
 		}
 
-		stress_impact = { 
+		stress_and_fulfillment_impact = { 
    			vengeful = medium_stress_impact_loss
    			sadistic = medium_stress_impact_loss 
    			just = major_stress_impact_gain 
@@ -815,7 +1106,7 @@ fp3_yearly.8021 = {
 			}
 		}
 
-		stress_impact = { 
+		stress_and_fulfillment_impact = { 
    			vengeful = medium_stress_impact_loss
    			compassionate = medium_stress_impact_gain 
    			just = medium_stress_impact_gain 
@@ -853,7 +1144,7 @@ fp3_yearly.8021 = {
 			}
 		}
 
-		stress_impact = { 
+		stress_and_fulfillment_impact = { 
    			vengeful = medium_stress_impact_gain
    			craven = minor_stress_impact_gain 
    			forgiving = medium_stress_impact_loss
@@ -932,10 +1223,10 @@ fp3_yearly.8022 = {
 
 		if = {
 			limit = {
-				faith = {
+				rite = {
 					OR = {
-						has_doctrine = tenet_dharmic_pacifism
-						has_doctrine = tenet_pacifism
+						rite_has_tenet = tenet_dharmic_pacifism
+						rite_has_tenet = tenet_pacifism
 					}
 				}
 			}
@@ -947,7 +1238,7 @@ fp3_yearly.8022 = {
 			years = 25
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			compassionate = medium_stress_impact_gain
 		}
 	}
@@ -978,7 +1269,7 @@ fp3_yearly.8022 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			base = minor_stress_impact_loss
    			ambitious = medium_stress_impact_gain					
 		}
@@ -1074,7 +1365,7 @@ fp3_yearly.8023 = {
 			years = 25
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			#no stress for this event
 		}
 	}
@@ -1105,7 +1396,7 @@ fp3_yearly.8023 = {
 			}
 		}
 			
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			#no stress for this event
 		}
 	}
@@ -1118,14 +1409,14 @@ fp3_yearly.8023 = {
 
 scripted_trigger non_zoroastrian_faith_trigger = {
 	NOT = {
-		faith = { has_doctrine_parameter = sky_burials_active }
+		rite = { rite_has_parameter = sky_burials_active }
 	}
 }
 
 scripted_trigger dakhma_nostalgic_trigger = {
 	culture = { has_cultural_pillar = heritage_darshi }
 	OR = {
-		faith = { has_doctrine_parameter = sky_burials_active }
+		rite = { rite_has_parameter = sky_burials_active }
 		has_trait = stubborn
 		learning > 14
 		has_character_modifier = hallucinogenic_visions_uplifting_modifier
@@ -1139,7 +1430,7 @@ scripted_trigger dakhma_nostalgic_trigger = {
 
 scripted_trigger loyal_discreet_courtier_trigger = {
 	OR = {
-		faith = { has_doctrine_parameter = sky_burials_active }
+		rite = { rite_has_parameter = sky_burials_active }
 		has_trait = trusting
 		has_trait = compassionate 
 		reverse_opinion = {
@@ -1192,7 +1483,7 @@ fp3_yearly.8024 = {
 		root.capital_province = { geographical_region = region_darshi_west }
 
 		NOT = {
-			faith = { has_doctrine_parameter = sky_burials_active }
+			rite = { rite_has_parameter = sky_burials_active }
 		}
 
 		any_consort = { #we need a dying consort
@@ -1289,7 +1580,7 @@ fp3_yearly.8024 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			base = minor_stress_impact_loss 
    			honest = medium_stress_impact_loss
    			callous = medium_stress_impact_gain 	
@@ -1373,7 +1664,7 @@ fp3_yearly.8024 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			brave = medium_stress_impact_gain
    			honest = medium_stress_impact_gain		
 		}
@@ -1398,7 +1689,7 @@ fp3_yearly.8024 = {
 			death = natural
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			zealous = medium_stress_impact_loss
    			compassionate = medium_stress_impact_gain
    			loyal = medium_stress_impact_gain 
@@ -1499,7 +1790,7 @@ fp3_yearly.8026 = {
 			target = scope:helpful_courtier 
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			base = minor_stress_impact_loss
    			paranoid = medium_stress_impact_loss
    			compassionate = massive_stress_impact_gain
@@ -1612,10 +1903,11 @@ fp3_yearly.8027 = {
 				template = writer_character
 				gender_female_chance = root_faith_dominant_gender_female_chance
 				faith = faith:darshi_faith
+				rite = rite:bazyardi
 				culture = culture:darshi
 				trait = lifestyle_poet 
 				trait = shrewd 
-				save_scope_as = snubbed_poet 	
+				save_scope_as = snubbed_poet
 			}
 		}
 	}
@@ -1649,7 +1941,7 @@ fp3_yearly.8027 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			generous = medium_stress_impact_loss
    			content = medium_stress_impact_gain
    			greedy = medium_stress_impact_gain
@@ -1742,7 +2034,7 @@ fp3_yearly.8027 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			just = medium_stress_impact_loss
    			arrogant = medium_stress_impact_gain
    			cynical = medium_stress_impact_gain
@@ -1766,7 +2058,7 @@ fp3_yearly.8027 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			greedy = medium_stress_impact_loss
    			ambitious = medium_stress_impact_gain
    			generous = medium_stress_impact_gain
@@ -2101,7 +2393,7 @@ fp3_yearly.8032 = {
 			}	
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			zealous = minor_stress_impact_loss
    			compassionate = medium_stress_impact_gain
    			humble = minor_stress_impact_gain
@@ -2153,7 +2445,7 @@ fp3_yearly.8032 = {
 			}	
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			base = medium_stress_impact_loss
    			shy = major_stress_impact_gain
 		}
@@ -2164,7 +2456,7 @@ fp3_yearly.8032 = {
 
 		dynasty ?= { add_dynasty_prestige = minor_dynasty_prestige_value }
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			arrogant = minor_stress_impact_loss
    			humble = medium_stress_impact_gain
 		}
@@ -2182,7 +2474,7 @@ fp3_yearly.8032 = {
 			years = 15
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			base = medium_stress_impact_gain
    			craven = miniscule_stress_impact_gain
 		}
@@ -2205,7 +2497,7 @@ scripted_trigger fp3_loves_faloodeh_trigger = {
 		has_trait = temperate
 		has_trait = inappetetic
 		AND = {
-			faith = { has_doctrine = tenet_asceticism	}
+			rite = { rite_has_tenet = tenet_asceticism }
 			ai_zeal >= medium_positive_ai_value
 		}
 	}
@@ -2369,7 +2661,7 @@ fp3_yearly.8033 = {
 			}	
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			arbitrary = minor_stress_impact_loss
    			just = medium_stress_impact_gain
    			temperate = medium_stress_impact_gain
@@ -2409,7 +2701,7 @@ fp3_yearly.8033 = {
 			years = 25
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			temperate = minor_stress_impact_loss
    			gluttonous = major_stress_impact_gain
    			gregarious = medium_stress_impact_gain
@@ -2441,7 +2733,7 @@ fp3_yearly.8033 = {
 			}	
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			generous = minor_stress_impact_loss
    			greedy = medium_stress_impact_gain
 		}
@@ -2465,7 +2757,7 @@ fp3_yearly.8033 = {
 			}	
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			lazy = medium_stress_impact_loss
    			diligent = medium_stress_impact_gain
    			gregarious = medium_stress_impact_gain
@@ -2549,7 +2841,7 @@ fp3_yearly.8035 = {
 		 	add = 1.6
 	 	}
 	 	modifier = { #Sufis don't get along with legalists, so legalist faiths are less likely to have sufi events 
-	 		faith = { has_doctrine = tenet_legalism }
+	 		rite = { rite_has_tenet = tenet_legalism }
 	 		add = -0.2
 	 	}
  	}
@@ -2649,7 +2941,7 @@ fp3_yearly.8035 = {
 			}	
 		}
 
- 		stress_impact = { #while the stress mods here are low, note that they stack with the base modifier
+ 		stress_and_fulfillment_impact = { #while the stress mods here are low, note that they stack with the base modifier
    			base = medium_stress_impact_gain
    			zealous = minor_stress_impact_loss
    			patient = minor_stress_impact_loss
@@ -2685,7 +2977,7 @@ fp3_yearly.8035 = {
 			}	
 		}
 
- 		stress_impact = {
+ 		stress_and_fulfillment_impact = {
    			stubborn = minor_stress_impact_loss
    			zealous = minor_stress_impact_loss
    			ambitious = medium_stress_impact_gain
@@ -2713,7 +3005,7 @@ fp3_yearly.8035 = {
 			}	
 		}
 
- 		stress_impact = {
+ 		stress_and_fulfillment_impact = {
    			base = minor_stress_impact_loss 
    			zealous = medium_stress_impact_gain
    			ambitious = medium_stress_impact_gain	
@@ -2820,7 +3112,7 @@ fp3_yearly.8036 = {
 			}	
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			craven = medium_stress_impact_gain
    			impatient = medium_stress_impact_gain
    			paranoid = medium_stress_impact_gain	
@@ -2852,7 +3144,7 @@ fp3_yearly.8036 = {
 			years = 5
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			brave = medium_stress_impact_gain
    			cynical = medium_stress_impact_gain
 		}
@@ -2882,7 +3174,7 @@ fp3_yearly.8036 = {
 			}	
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			craven = medium_stress_impact_gain	
    			callous = medium_stress_impact_gain
    			paranoid = medium_stress_impact_gain
@@ -2903,7 +3195,7 @@ fp3_yearly.8036 = {
 
 		add_piety = minor_piety_value
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
    			cynical = medium_stress_impact_gain
    			brave = medium_stress_impact_gain	
 		}

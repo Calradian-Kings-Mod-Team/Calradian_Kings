@@ -50,16 +50,9 @@
 	# House
 	else_if = {
 		limit = { is_house_head = no }
-		if = {
-			limit = { exists = var:new_japanese_house_name }
-			found_cadet_house_decision_effect = {
-				CHARACTER = root
-				PRESTIGE = 0
-			}
-			house = { save_scope_as = new_house }
-		}
-		else = {
-			create_cadet_branch = { save_scope_as = new_house }
+		found_cadet_house_decision_effect = {
+			CHARACTER = root
+			PRESTIGE = 0
 		}
 	}
 	# Government
@@ -100,7 +93,7 @@
 			limit = {
 				scope:new_head = {
 					is_landed = yes
-					NOR = { 
+					NOR = {
 						var:petition_liege_house_fief_allowed_flag ?= scope:new_head.top_liege
 						top_liege = {
 							government_has_flag = government_is_japan_feudal
@@ -225,7 +218,7 @@ fill_external_japanese_manor_building_effect = {
 		japanese_manor_main_05 = {
 			while = {
 				limit = { free_external_domicile_building_slots >= 1 }
-				add_random_external_estate_building = yes
+				add_random_external_japanese_manor_building = yes
 			}
 		}
 		japanese_manor_main_04 = {
@@ -302,7 +295,7 @@ add_random_external_japanese_manor_building = {
 			}
 			10 = {
 				trigger = {
-					owner = { government_has_flag = government_is_administrative }
+					owner = { government_has_mechanic = administrative }
 					NOT = { has_domicile_building_or_higher = japanese_archive_01 }
 					owner.house = { has_house_aspiration_parameter = unlocks_japanese_manor_archive }
 				}
@@ -542,6 +535,20 @@ japanese_become_shogun_reward_effect = {
 			}
 		}
 		else = { custom_tooltip = unlocks_bushido_tradition_tooltip }
+	}
+	every_culture_global = {
+		limit = {
+			has_cultural_tradition = tradition_tgp_imperial_peace
+			OR = {
+				has_cultural_pillar = heritage_japonic
+				culture_head ?= { government_is_japanese_trigger = yes }
+			}
+		}
+		custom_tooltip = {
+			text = tradition_tgp_bushido_tt
+			remove_culture_tradition = tradition_tgp_imperial_peace
+			add_culture_tradition = tradition_tgp_bushido
+		}
 	}
 	every_vassal = {
 		custom = every_japan_admin_vassal_custom_bullet
@@ -2527,7 +2534,7 @@ faction_demand_regent_transfer_effect = {
 		}
 	}
 	resolve_title_and_vassal_change = scope:title_change
-	scope:new_regent_temp = { 
+	scope:new_regent_temp = {
 		if = {
 			limit = {
 				has_title = scope:preferred_capital_temp # do I own the preferred capital?
@@ -2550,7 +2557,7 @@ tgp_japan_schoolhouse_education_boost_effect = {
 	save_scope_as = student
 	house.house_head.domicile ?= {
 		if = {
-			limit = { 
+			limit = {
 				has_domicile_parameter = japanese_schoolhouse_education_boost_1
 			}
 			switch = {
@@ -2571,7 +2578,7 @@ tgp_restore_japanese_monarchy_decision_effect = {
 	tgp_restore_japanese_monarchy_yamato_scion_effect = yes
 	add_prestige = major_prestige_value
 	if = {
-		limit = { government_has_mechanic = administrative }
+		limit = { government_has_flag = government_has_influence }
 		change_influence = major_influence_value
 	}
 	else = { add_piety = medium_piety_value }
@@ -3022,7 +3029,7 @@ tgp_japan_demand_administrative_refusal_effect = {
 # 						target = $LIEGE$
 # 						value >= 80
 # 					}
-# 					is_allied_to = $LIEGE$ 
+# 					is_allied_to = $LIEGE$
 # 					is_at_war_with = $REBEL$
 # 					is_at_war_with = $LIEGE$
 # 				}
@@ -3031,12 +3038,12 @@ tgp_japan_demand_administrative_refusal_effect = {
 # 					#Lovers and friends always back rebel (unless also lovers/friends of the liege)
 # 					AND = {
 # 						OR = {
-# 							is_allied_to = $REBEL$ 
+# 							is_allied_to = $REBEL$
 # 							has_relation_lover = $REBEL$
 # 							has_relation_friend = $REBEL$
 # 						}
 # 						NOR = {
-# 							is_allied_to = $LIEGE$ 
+# 							is_allied_to = $LIEGE$
 # 							has_relation_lover = $LIEGE$
 # 							has_relation_friend = $LIEGE$
 # 						}
@@ -3170,7 +3177,7 @@ tgp_setup_historical_house_relation_effect = {
 	if = {
 		limit = { game_start_date = 867.1.1 }
 		house:house_fujiwara_ashikaga = {
-			tgp_set_historical_house_relation_effect = { # 
+			tgp_set_historical_house_relation_effect = { #
 				OTHER_HOUSE = house:house_minamoto_kozuke
 				LEVEL = rivalry
 			}
@@ -3180,7 +3187,7 @@ tgp_setup_historical_house_relation_effect = {
 	else_if = {
 		limit = { game_start_date = 1066.9.15 }
 		dynasty:japanese_minamoto_murakami.dynasty_founder.house = {
-			tgp_set_historical_house_relation_effect = { # 
+			tgp_set_historical_house_relation_effect = { #
 				OTHER_HOUSE = dynasty:japanese_fujiwara.dynasty_founder.house
 				LEVEL = friendly
 			}
@@ -3190,7 +3197,7 @@ tgp_setup_historical_house_relation_effect = {
 	else_if = {
 		limit = { game_start_date = 1178.10.1 }
 		dynasty:japanese_sugawara.dynasty_founder.house = {
-			tgp_set_historical_house_relation_effect = { # 
+			tgp_set_historical_house_relation_effect = { #
 				OTHER_HOUSE = dynasty:japanese_ki.dynasty_founder.house
 				LEVEL = friendly
 			}
@@ -3422,7 +3429,7 @@ tgp_japan_assert_regional_dominion_government_decision_effect = {
 								exists = scope:super_soryo.confederation
 							}
 							confederation ?= scope:super_soryo.confederation
-						}	
+						}
 					}
 					#They wont join if you're too scary
 					has_dread_level_towards = {
@@ -3454,9 +3461,9 @@ tgp_japan_assert_regional_dominion_government_decision_effect = {
 										exists = scope:super_soryo.confederation
 									}
 									confederation ?= scope:super_soryo.confederation
-								}	
+								}
 							}
-							
+
 							#They wont join if you're too scary
 							has_dread_level_towards = {
 								target = scope:super_soryo
@@ -3471,9 +3478,9 @@ tgp_japan_assert_regional_dominion_government_decision_effect = {
 						add_to_list = war_targets
 					}
 					else = {
-						add_to_list = potential_vassals 
+						add_to_list = potential_vassals
 					}
-					
+
 				}
 				ordered_in_list = {
 					list = war_targets
@@ -3535,7 +3542,7 @@ tgp_japan_assert_regional_dominion_government_decision_effect = {
 			value = {
 				value = 0
 				every_in_list = {
-					list = war_targets 
+					list = war_targets
 					add = {
 						value = current_military_strength
 						every_tributary = {
@@ -3560,7 +3567,7 @@ tgp_japan_assert_regional_dominion_government_decision_effect = {
 									}
 								}
 							}
-						}	
+						}
 					}
 				}
 			}
@@ -3666,7 +3673,7 @@ tgp_japan_soryo_eradicate_cb_transfer_effect = {
 			holder = scope:winner
 			change = scope:change
 		}
-	}	
+	}
 	resolve_title_and_vassal_change = scope:change
 }
 
@@ -3796,16 +3803,25 @@ tgp_bloc_members_join_war_effect = {
 }
 
 tgp_renounce_estate_effect = {
+	save_scope_as = retired
 	random_held_title = {
 		limit = { is_noble_family_title = yes }
 		current_heir = { 
 			save_scope_as = new_player
 			if = {
-				limit = {
-					root = {
-						is_ai = no
-					}
-				}
+				limit = { scope:retired = { is_ai = no } }
+				save_scope_as = new_human_player_character
+			}
+		}
+	}
+	if = {
+		limit = {
+			NOT = { exists = scope:new_player }
+		}
+		player_heir ?= {
+			save_scope_as = new_player
+			if = {
+				limit = { scope:retired = { is_ai = no } }
 				save_scope_as = new_human_player_character
 			}
 		}
@@ -3818,7 +3834,7 @@ tgp_renounce_estate_effect = {
 			title = renounce_noble_family_title_decision_toast_title
 			custom_tooltip = renounce_noble_family_title_decision_toast_desc
 			left_icon = scope:new_player
-			right_icon = root
+			right_icon = this
 		}
 	}
 	if = {
@@ -3827,18 +3843,23 @@ tgp_renounce_estate_effect = {
 		}
 		add_trait = devoted
 	}
+	# TODO TIT-74285 use clean depose = yes after abdication also subjected to admin_allows_holding_multiple_primary_tier_titles
 	if = {
 		limit = { exists = scope:new_player }
 		hidden_effect = {
+			scope:new_player ?= {
+				set_variable = {
+					name = previous_holder_grandeur_value
+					value = prev.court_grandeur_current
+				}
+			}
 			create_title_and_vassal_change = {
 				type = granted
 				save_scope_as = title_change
 				add_claim_on_loss = no
 			}
 			if = {
-				limit = {
-					is_governor = no
-				}
+				limit = { is_governor = no }
 				every_held_title = {
 					limit = { tier > tier_barony }
 					change_title_holder_include_vassals = {
@@ -3846,8 +3867,45 @@ tgp_renounce_estate_effect = {
 						change = scope:title_change
 					}
 				}
+				# pass all artifacts away
+				every_character_artifact = {
+					if = {
+						limit = { is_equipped = yes }
+						add_to_list = equipped
+					}
+					set_owner = {
+						target = scope:new_player
+						history = {
+							type = inherited
+							recipient = scope:new_player
+						}
+					}
+				}
 			}
 			else = {
+				# pass the artifact if it's binded to NF (should not happen in vanilla tho), take from others title or not binded to a title
+				every_character_artifact = {
+					limit = {
+						trigger_if = {
+							limit = { has_variable = artifact_succession_title }
+							OR = {
+								var:artifact_succession_title.holder ?= { this != scope:retired }
+								var:artifact_succession_title ?= { is_noble_family_title = yes }
+							}
+						}
+					}
+					if = {
+						limit = { is_equipped = yes }
+						add_to_list = equipped
+					}
+					set_owner = {
+						target = scope:new_player
+						history = {
+							type = inherited
+							recipient = scope:new_player
+						}
+					}
+				}
 				every_held_title = {
 					limit = { is_noble_family_title = yes }
 					change_title_holder = {
@@ -3858,10 +3916,23 @@ tgp_renounce_estate_effect = {
 			}
 			resolve_title_and_vassal_change = scope:title_change
 			if = {
-				limit = {
-					is_ruler = yes
-				}
+				limit = { is_ruler = yes }
 				primary_title.current_heir = { save_scope_as = heir_temp }
+				# now handle title succession
+				every_character_artifact = {
+					limit = { var:artifact_succession_title.holder ?= scope:retired }
+					if = {
+						limit = { is_equipped = yes }
+						add_to_list = equipped
+					}
+					set_owner = {
+						target = scope:heir_temp
+						history = {
+							type = inherited
+							recipient = scope:heir_temp
+						}
+					}
+				}
 				create_title_and_vassal_change = {
 					type = appointment
 					save_scope_as = title_change
@@ -3875,20 +3946,25 @@ tgp_renounce_estate_effect = {
 					}
 				}
 				resolve_title_and_vassal_change = scope:title_change
+				every_in_list = {
+					list = equipped
+					limit = { artifact_owner = { can_equip_artifact = prev } }
+					equip_artifact_to_owner = yes
+				}
+				pay_short_term_gold = {
+					target = scope:new_player
+					gold = gold
+				}
 			}
 		}
 		house = {
 			if = {
-				limit = {
-					NOT = { house_head = scope:new_player }
-				}
+				limit = { NOT = { house_head = scope:new_player } }
 				set_house_head = scope:new_player
 			}
 		}
 		if = {
-			limit = {
-				exists = scope:new_human_player_character
-			}
+			limit = { exists = scope:new_human_player_character }
 			set_player_character = scope:new_human_player_character
 		}
 		progress_towards_friend_effect = {
@@ -3904,28 +3980,51 @@ tgp_renounce_estate_effect = {
 	}
 }
 
-# tgp_dynasty_house_name_setup_effect = {
-# 	# Fujiwara
-# 	dynasty:japanese_fujiwara.dynasty_founder.house ?= { set_house_name = "dynn_Fujiwara_Hok_ke" }
-# 	dynasty:japanese_fujiwara_oshu.dynasty_founder.house ?= { set_house_name = "dynn_Fujiwara_O_shU_" }
-# 	# Kiyohara
-# 	dynasty:japanese_kiyohara_hirozumi.dynasty_founder.house ?= { set_house_name = "dynn_Kiyohara_Hirozumi" }
-# 	# Minamoto
-# 	dynasty:japanese_minamoto_daigo.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_Daigo" }
-# 	dynasty:japanese_minamoto_kazan.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_Kazan" }
-# 	dynasty:japanese_minamoto_koko.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_KO_kO_" }
-# 	dynasty:japanese_minamoto_gosanjo.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_Go_SanjO_" }
-# 	dynasty:japanese_minamoto_montoku.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_Montoku" }
-# 	dynasty:japanese_minamoto_murakami.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_Murakami" }
-# 	dynasty:japanese_minamoto_ninmyo.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_NinmyO_" }
-# 	dynasty:japanese_minamoto_saga.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_Saga" }
-# 	dynasty:japanese_minamoto_sanjo.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_SanjO_" }
-# 	dynasty:japanese_minamoto_seiwa.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_Seiwa" }
-# 	dynasty:japanese_minamoto_uda.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_Uda" }
-# 	dynasty:japanese_minamoto_yozei.dynasty_founder.house ?= { set_house_name = "dynn_Minamoto_YO_zei" }
-# 	# Taira
-# 	dynasty:japanese_taira_kanmu.dynasty_founder.house ?= { set_house_name = "dynn_Taira_Kanmu" }
-# 	dynasty:japanese_taira_koko.dynasty_founder.house ?= { set_house_name = "dynn_Taira_KO_kO_" }
-# 	dynasty:japanese_taira_montoku.dynasty_founder.house ?= { set_house_name = "dynn_Taira_Montoku" }
-# 	dynasty:japanese_taira_ninmyo.dynasty_founder.house ?= { set_house_name = "dynn_Taira_NinmyO_" }
-# }
+setup_japan_house_name_scopes_effect = {
+	save_scope_as = new_head
+	save_scope_as = new_house_head # don't ask
+	house ?= {
+		save_scope_as = old_house
+		house_head = { save_scope_as = old_head }
+	}
+	if = {
+		limit = { domicile.domicile_location.county.holder ?= scope:new_head }
+		domicile.domicile_location.barony = {
+			save_scope_as = domicile_barony
+			county = { save_scope_as = domicile_county }
+		}
+	}
+	else_if = {
+		limit = {
+			is_landed = no
+			scope:old_head.domicile.domicile_location.county.holder ?= scope:old_head
+		}
+		scope:old_head.domicile.domicile_location.barony = {
+			save_scope_as = domicile_barony
+			county = { save_scope_as = domicile_county }
+		}
+	}
+	else_if = {
+		limit = { is_landed = yes }
+		save_scope_as = land_haver
+	}
+	else = {
+		limit = { house.house_head ?= { is_landed = yes } }
+		house.house_head = { save_scope_as = land_haver }
+	}
+	scope:land_haver.capital_county ?= {
+		save_scope_as = primary_county
+		random_county_province = {
+			limit = {
+				has_holding = yes
+				NOT = { has_holding_type = church_holding }
+			}
+			alternative_limit = { has_holding = yes }
+			barony = { save_scope_as = random_barony }
+		}
+	}
+	if = {
+		limit = { NOT = { exists = scope:random_barony } }
+		location.barony = { save_scope_as = random_barony }
+	}
+}

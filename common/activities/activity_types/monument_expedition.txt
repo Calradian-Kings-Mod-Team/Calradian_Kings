@@ -1,18 +1,16 @@
 ﻿activity_journey = {
 	is_shown = {
-		has_bp3_dlc_trigger = yes
+		OR = {
+			AND = {
+				has_bp3_dlc_trigger = yes
+				has_perk = journey_perk
+			}
+			has_personal_tenet_flag = tenet_pursuit_of_knowledge_monument_expedition
+		}
 		highest_held_title_tier >= tier_county
 		is_adult = yes
-		has_perk = journey_perk
-		#Every other activity must be blocked until an uncrowned AI crowns themselves
-		trigger_if = {
-			limit = {
-				is_ai = yes
-			}
-			NOT = {
-				has_realm_law = uncrowned
-			}
-		}
+		ai_activity_war_check = yes
+		ai_activity_coronation_check = yes
 	}
 
 	can_always_plan = no
@@ -20,14 +18,11 @@
 	can_start_showing_failures_only = {
 		NOT = { is_activity_type_on_cooldown = activity_journey }
 		is_available = yes
-		age >= 16
 	}
 
 	is_valid = {
 		scope:host = {
-			is_alive = yes
-			is_imprisoned = no
-			NOT = { is_incapable = yes }
+			is_physically_able = yes
 		}
 	}
 
@@ -81,11 +76,15 @@
 	on_invalidated = {
 		invalidation_imprisoned_effect = yes
 		invalidation_incapable_effect = yes
+		invalidation_host_isolated_effect = yes
 		invalidation_unlanded_effect = yes
 	}
 
 	on_complete = {
-
+		if = {
+			limit = { this = scope:host }
+			pam_vows_of_poverty_host_completion_piety_effect = yes
+		}
 	}
 
 	on_host_death = {
@@ -437,6 +436,9 @@
 				}
 			}
 			journey_skilled_scribes = {
+				is_valid = {
+					pam_vows_of_poverty_premium_activity_option_valid_trigger = yes
+				}
 
 				cost = {
 					gold = {
@@ -516,6 +518,8 @@
 			}
 			add = -125
 		}
+
+		add = activity_general_ai_will_do_value
 	}
 
 	ai_check_interval = 36
@@ -631,6 +635,8 @@
 	###################
 	# GRAPHICS
 	###################
+
+	header_background = "gfx/interface/illustrations/activity_header_backgrounds/activity_journey.dds"
 
 	# Travel
 	background = { # Bridge
@@ -903,6 +909,7 @@
 	}
 	
 	# Most fitting based on special building type ## CK_RELIGION CK_UPDATE - We kinda need some unique holy site buildings made
+	## CK_120 CK_UPDATE CK_SPECIAL_BUILDINGS
 	# background = {
 	# 	trigger = {
 	# 		scope:activity ?= {
@@ -1234,9 +1241,8 @@
 						culture = { has_graphical_steppe_culture_group_trigger = yes }
 					}
 					OR = {
-						government_has_flag = government_is_nomadic
+						government_has_flag = government_is_in_steppe
 						government_has_flag = government_is_tribal
-						government_has_flag = government_is_herder
 					}
 				}
 			}

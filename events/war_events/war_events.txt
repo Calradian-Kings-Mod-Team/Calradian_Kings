@@ -600,13 +600,8 @@ war_event.3100 = { #by Mathilda Bjarnehed
 					limit = {
 						root = scope:defender
 						scope:war = { using_holy_war_cb_trigger = yes } #Should only trigger of holy wars
-						scope:attacker.faith = {
-							NOT = {
-								faith_hostility_level = {
-									target = scope:defender.faith
-									value >= religious_cb_enabled_hostility_level
-								}
-							}
+						scope:attacker = {
+							NOT = { is_valid_religious_war_target_trigger = { TARGET = scope:defender } }
 						}
 						NOT = { exists = var:invalidate_defender_faith_change } #If this var is already set through interaction, don't send event
 					}
@@ -619,13 +614,8 @@ war_event.3100 = { #by Mathilda Bjarnehed
 				else_if = {
 					limit = {
 						root = scope:attacker
-						scope:attacker.faith = {
-							NOT = {
-								faith_hostility_level = {
-									target = scope:defender.faith
-									value >= religious_cb_enabled_hostility_level
-								}
-							}
+						scope:attacker = {
+							NOT = { is_valid_religious_war_target_trigger = { TARGET = scope:defender } }
 						}
 					}
 					#Then we invalidate immediately

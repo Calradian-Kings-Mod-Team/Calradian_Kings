@@ -180,6 +180,10 @@ get_artifact_quality_effect = {
 								limit = { ep1_character_had_or_has_inspiration_type_trigger = { TYPE = alchemy } }
 								value = alchemy_inspiration_average_skill_value
 							} 
+							else_if = {
+								limit = { ep1_character_had_or_has_inspiration_type_trigger = { TYPE = bow } }
+								value = weapon_inspiration_average_skill_value #Unop: As there is no "bow_inspiration_average_skill_value", use the weapon one
+							}
 							multiply = {
 								value = quality_bonus_per_skill_level_value
 								add = scope:random_inspired_skill_quality_bonus # Replaces the random_quality_bonus when an artifact is created by a character so that skill matters more
@@ -192,6 +196,7 @@ get_artifact_quality_effect = {
 									ep1_character_had_or_has_inspiration_type_trigger = { TYPE = weapon }
 									ep1_character_had_or_has_inspiration_type_trigger = { TYPE = smith }
 									ep1_character_had_or_has_inspiration_type_trigger = { TYPE = armor }
+									ep1_character_had_or_has_inspiration_type_trigger = { TYPE = bow }
 								}
 								court_owner ?= {
 									has_government = landless_adventurer_government
@@ -230,7 +235,10 @@ get_artifact_quality_effect = {
 						# Bonus quality from Cultural Traditions
 						if = {
 							limit = {
-								ep1_character_had_or_has_inspiration_type_trigger = { TYPE = weapon }
+								OR = {
+									ep1_character_had_or_has_inspiration_type_trigger = { TYPE = weapon }
+									ep1_character_had_or_has_inspiration_type_trigger = { TYPE = bow }
+								}
 								culture = { has_cultural_parameter = improved_weapon_inspiration }
 							}
 							add = 20
@@ -262,7 +270,7 @@ get_artifact_quality_effect = {
 						# Bonus quality from the Mind Without Mind tenet
 						if = {
 							limit = {
-								faith = { has_doctrine_parameter = better_artifacts }
+								rite = { rite_has_parameter = better_artifacts }
 							}
 							add = 10
 						}
@@ -745,6 +753,10 @@ get_artifact_wealth_effect = {
 change_artifact_quality_effect = {
 	save_scope_as = artifact_quality_scope
 	inspiration = { save_scope_as = inspiration }
+	if = {
+		limit = { NOT = { exists = scope:inspiration_owner } }
+		save_scope_as = inspiration_owner
+	}
 	if = {
 		limit = {
 			inspiration = { has_inspiration_type = research_inspiration }
@@ -1301,13 +1313,13 @@ add_scaled_artifact_modifier_combat_effect = {
 
 			modifier = { # More likely if you have any "knightly" cultural traditions
 				factor = 1.5
-				scope:owner = {
+				scope:owner.culture ?= {
 					OR = {
-						culture = { has_cultural_tradition = tradition_chivalry }
-						culture = { has_cultural_tradition = tradition_martial_admiration }
-						culture = { has_cultural_tradition = tradition_futuwaa }
-						culture = { has_cultural_tradition = tradition_druzhina_ck }
-						culture = { has_cultural_tradition = tradition_chanson_de_geste }
+						has_cultural_tradition = tradition_chivalry
+						has_cultural_tradition = tradition_martial_admiration
+						has_cultural_tradition = tradition_futuwaa
+						has_cultural_tradition = tradition_druzhina_ck
+						has_cultural_tradition = tradition_chanson_de_geste
 					}
 				}
 			}
@@ -4417,6 +4429,11 @@ add_scaled_artifact_modifier_majesty_effect = {
 					rarity = illustrious
 				}
 			}
+			modifier = {
+				exists = scope:inspiration_owner
+				scope:inspiration_owner = { has_variable = chosen_dynasty_mod }
+				add = 160
+			}
 			if = {
 				limit = { rarity = famed }
 				random_list = {
@@ -4946,6 +4963,11 @@ add_2_scaled_artifact_modifier_majesty_effect = {
 					rarity = illustrious
 				}
 			}
+			modifier = {
+				exists = scope:inspiration_owner
+				scope:inspiration_owner = { has_variable = chosen_dynasty_mod }
+				add = 160
+			}
 			if = {
 				limit = { rarity = famed }
 				random_list = {
@@ -5449,6 +5471,11 @@ add_scaled_artifact_modifier_rulership_effect = {
 
 		# belligerent_opinion
 		20 = {
+			modifier = {
+				exists = scope:inspiration_owner
+				scope:inspiration_owner = { has_variable = chosen_vassals_mod }
+				add = 160
+			}
 			if = {
 				limit = { rarity = common }
 				add_artifact_modifier = artifact_belligerent_vassal_opinion_1_modifier
@@ -6007,6 +6034,11 @@ add_2_scaled_artifact_modifier_rulership_effect = {
 
 		# belligerent_opinion
 		20 = {
+			modifier = {
+				exists = scope:inspiration_owner
+				scope:inspiration_owner = { has_variable = chosen_vassals_mod }
+				add = 160
+			}
 			if = {
 				limit = { rarity = common }
 				add_artifact_modifier = artifact_belligerent_vassal_opinion_1_modifier
@@ -6577,9 +6609,9 @@ add_scaled_artifact_modifier_devotion_effect = {
 		# clergy_opinion
 		20 = {
 			trigger = {
-				scope:owner.faith = {
+				scope:owner.rite = {
 					NOT = {
-						has_doctrine = doctrine_theocracy_lay_clergy
+						rite_has_doctrine = doctrine_theocracy_lay_clergy
 					}
 				}
 			}
@@ -6718,8 +6750,8 @@ add_scaled_artifact_modifier_devotion_effect = {
 		# different_faith_opinion
 		20 = {
 			trigger = {
-				scope:owner.faith = {
-					has_doctrine = doctrine_pluralism_pluralistic
+				scope:owner.rite = {
+					rite_has_doctrine = doctrine_pluralism_pluralistic
 				}
 			}
 			if = {
@@ -6790,8 +6822,8 @@ add_scaled_artifact_modifier_devotion_effect = {
 		# monthly_piety_from_buildings_mult
 		20 = {
 			trigger = {
-				scope:owner.faith = {
-					has_doctrine = doctrine_theocracy_lay_clergy
+				scope:owner.rite = {
+					rite_has_doctrine = doctrine_theocracy_lay_clergy
 				}
 			}
 			if = {
@@ -6894,8 +6926,8 @@ add_scaled_artifact_modifier_devotion_effect = {
 		20 = {
 			trigger = {
 				scope:owner = {
-					faith = {
-						has_doctrine = doctrine_pluralism_pluralistic
+					rite = {
+						rite_has_doctrine = doctrine_pluralism_pluralistic
 					}
 				}
 				OR = {
@@ -6916,8 +6948,8 @@ add_scaled_artifact_modifier_devotion_effect = {
 		20 = {
 			trigger = {
 				scope:owner = {
-					faith = {
-						has_doctrine = doctrine_pluralism_pluralistic
+					rite = {
+						rite_has_doctrine = doctrine_pluralism_pluralistic
 					}
 				}
 				OR = {
@@ -6938,10 +6970,10 @@ add_scaled_artifact_modifier_devotion_effect = {
 		20 = {
 			trigger = {
 				scope:owner = {
-					faith = {
+					rite = {
 						NOR = {
-							has_doctrine = doctrine_pluralism_pluralistic
-							has_doctrine_parameter = pacifist_opinion_active
+							rite_has_doctrine = doctrine_pluralism_pluralistic
+							rite_has_parameter = pacifist
 						}
 					}
 				}
@@ -7168,9 +7200,9 @@ add_2_scaled_artifact_modifier_devotion_effect = {
 		# clergy_opinion
 		20 = {
 			trigger = {
-				scope:owner.faith = {
+				scope:owner.rite = {
 					NOT = {
-						has_doctrine = doctrine_theocracy_lay_clergy
+						rite_has_doctrine = doctrine_theocracy_lay_clergy
 					}
 				}
 			}
@@ -7309,8 +7341,8 @@ add_2_scaled_artifact_modifier_devotion_effect = {
 		# different_faith_opinion
 		20 = {
 			trigger = {
-				scope:owner.faith = {
-					has_doctrine = doctrine_pluralism_pluralistic
+				scope:owner.rite = {
+					rite_has_doctrine = doctrine_pluralism_pluralistic
 				}
 			}
 			if = {
@@ -7381,8 +7413,8 @@ add_2_scaled_artifact_modifier_devotion_effect = {
 		# monthly_piety_from_buildings_mult
 		20 = {
 			trigger = {
-				scope:owner.faith = {
-					has_doctrine = doctrine_theocracy_lay_clergy
+				scope:owner.rite = {
+					rite_has_doctrine = doctrine_theocracy_lay_clergy
 				}
 			}
 			if = {
@@ -7485,8 +7517,8 @@ add_2_scaled_artifact_modifier_devotion_effect = {
 		20 = {
 			trigger = {
 				scope:owner = {
-					faith = {
-						has_doctrine = doctrine_pluralism_pluralistic
+					rite = {
+						rite_has_doctrine = doctrine_pluralism_pluralistic
 					}
 				}
 				OR = {
@@ -7507,8 +7539,8 @@ add_2_scaled_artifact_modifier_devotion_effect = {
 		20 = {
 			trigger = {
 				scope:owner = {
-					faith = {
-						has_doctrine = doctrine_pluralism_pluralistic
+					rite = {
+						rite_has_doctrine = doctrine_pluralism_pluralistic
 					}
 				}
 				OR = {
@@ -7529,10 +7561,10 @@ add_2_scaled_artifact_modifier_devotion_effect = {
 		20 = {
 			trigger = {
 				scope:owner = {
-					faith = {
+					rite = {
 						NOR = {
-							has_doctrine = doctrine_pluralism_pluralistic
-							has_doctrine_parameter = pacifist_opinion_active
+							rite_has_doctrine = doctrine_pluralism_pluralistic
+							rite_has_parameter = pacifist
 						}
 					}
 				}
@@ -9584,6 +9616,7 @@ create_artifact_weapon_effect = {
 		clear_saved_scope = smith
 		clear_saved_scope = dummy_gender
 	}
+	save_adventurer_location_effect = yes
 
 	hidden_effect_new_object = {
 		if = {
@@ -10306,6 +10339,7 @@ create_artifact_armor_effect = {
 		clear_saved_scope = smith
 		clear_saved_scope = dummy_gender
 	}
+	save_adventurer_location_effect = yes
 
 	hidden_effect_new_object = {
 		if = {
@@ -10744,6 +10778,7 @@ create_artifact_regalia_effect = {
 	get_artifact_quality_effect = yes
 	get_artifact_wealth_effect = yes
 
+	save_adventurer_location_effect = yes
 
 	# Create the artifact
 	if = {
@@ -11169,6 +11204,7 @@ create_artifact_crown_effect = {
 	# Get the character the artifact is being made for.
 	$OWNER$ = { save_scope_as = owner }
 	$SMITH$ = { save_scope_as = goldsmith }
+	save_adventurer_location_effect = yes
 
 	hidden_effect_new_object = {
 		# Get artifact quality, wealth, materials, and decorations
@@ -11264,6 +11300,7 @@ create_artifact_brooch_effect = {
 	# Get the character the artifact is being made for.
 	$OWNER$ = { save_scope_as = owner }
 	$SMITH$ = { save_scope_as = goldsmith }
+	save_adventurer_location_effect = yes
 
 	hidden_effect_new_object = {
 		# Get artifact quality, wealth, materials, and decorations
@@ -11550,6 +11587,7 @@ create_artifact_necklace_effect = {
 		clear_saved_scope = goldsmith
 		clear_saved_scope = dummy_gender
 	}
+	save_adventurer_location_effect = yes
 	hidden_effect_new_object = {
 		# Get artifact quality and wealth
 		get_artifact_quality_effect = yes
@@ -11685,6 +11723,7 @@ create_artifact_necklace_pedestal_effect = {
 		clear_saved_scope = goldsmith
 		clear_saved_scope = dummy_gender
 	}
+	save_adventurer_location_effect = yes
 	hidden_effect_new_object = {
 		# Get artifact quality and wealth
 		get_artifact_quality_effect = yes
@@ -12268,7 +12307,7 @@ roll_scientific_apparatus_effect = {
 				eligible_for_scientific_apparatus_armillary_sphere_trigger = { CHARACTER = $CHARACTER$ }
 			}
 			save_scope_value_as = {
-				name = artefact_scientific_apparatus_type
+				name = artifact_scientific_apparatus_type
 				value = flag:artisan_type_scientific_apparatus
 			}
 		}
@@ -12283,7 +12322,7 @@ roll_scientific_apparatus_effect = {
 #	GRAB_ALL_TRINKETS = yes/no
 #	HISTORY_TYPE = given_unknown/given/discovered_for/stolen_unknown/stolen/created_unknown/created/inherited_unknown/inherited/reforged/conquest/taken_in_siege
 # }
-#====================================
+#####################################
 #TRINKET_RECEIVER/TRINKET_GIVER - if you don't have a giver and/or receiver, set the same character as both
 #GRAB_ALL_TRINKETS - if you are not discerned with what trinkets you generate, put this as a "yes". Otherwise put it as a "no" and set your own flags.
 #If you _are_ discerning and you want to choose which trinkets you want to be able to generate:
@@ -12291,7 +12330,7 @@ roll_scientific_apparatus_effect = {
 #	> Refer to this flag in the trigger of the trinket below
 #	> Remember to remove_character_flag = used_in_stewardship_general.2001 in your after = { ... }
 #HISTORY_TYPE - pick one that fits the interaction in which you get the trinket
-#====================================
+#####################################
 generate_trinket_effect = {
 	$TRINKET_RECEIVER$ = { save_scope_as = trinket_receiver }
 	$TRINKET_GIVER$ = { save_scope_as = trinket_giver }
@@ -12723,7 +12762,7 @@ generate_trinket_effect = {
 			##^^Add more/other modifier flags above^^##
 			#DO NOT edit this part##
 			faith = {
-				random_holy_site = { save_scope_as = trinket_holy_site }
+				random_holy_site_barony = { save_scope_as = trinket_holy_site }
 			}
 			create_artifact = {
 				name = stewardship_general.2001.artifact.potsherd_holy
@@ -13552,6 +13591,7 @@ create_artifact_bow_effect = {
 		clear_saved_scope = bowyer
 		clear_saved_scope = dummy_gender
 	}
+	save_adventurer_location_effect = yes
 	hidden_effect_new_object = {
 		if = {
 			limit = { scope:bow_type_is_set = flag:no }
@@ -13922,6 +13962,7 @@ create_artifact_ring_effect = {
 		clear_saved_scope = goldsmith
 		clear_saved_scope = dummy_gender
 	}
+	save_adventurer_location_effect = yes
 	hidden_effect_new_object = {
 		# Get artifact quality, wealth, materials, and decorations
 		get_artifact_quality_effect = yes
@@ -13995,7 +14036,7 @@ create_artifact_ring_effect = {
 		# 	limit = { exists = scope:norman_noble }
 		# 	create_artifact = {
 		# 		name = artifact_ring_name
-		# 		creator = scope:host
+		# 		creator = scope:norman_noble
 		# 		description = placeholder # Will be updated in the post-creation effects after decorations are assigned.
 		# 		visuals = ring
 		# 		type = ring
@@ -15606,11 +15647,95 @@ select_random_saint_effect = {
 	random_list = {
 		1 = {
 			trigger = {
-				OR = {
-					# faith = faith:calradic
-					faith = faith:darusan
-					faith = faith:western_calradic
-				}
+				faith.religion = religion:calradian_religion
+			}
+			set_variable = {
+				name = saint
+				value = flag:rhovanis
+				days = 5
+			}
+		}
+
+		1 = {
+			trigger = {
+				faith.religion = religion:calradian_religion
+			}
+			set_variable = {
+				name = saint
+				value = flag:surmarys
+				days = 5
+			}
+		}
+
+		1 = {
+			trigger = {
+				faith.religion = religion:calradian_religion
+			}
+			set_variable = {
+				name = saint
+				value = flag:aerilia
+				days = 5
+			}
+		}
+
+		1 = {
+			trigger = {
+				faith.religion = religion:calradian_religion
+			}
+			set_variable = {
+				name = saint
+				value = flag:zoana
+				days = 5
+			}
+		}
+
+		1 = {
+			trigger = {
+				faith.religion = religion:calradian_religion
+			}
+			set_variable = {
+				name = saint
+				value = flag:phaera
+				days = 5
+			}
+		}
+
+		1 = {
+			trigger = {
+				faith.religion = religion:calradian_religion
+			}
+			set_variable = {
+				name = saint
+				value = flag:pator
+				days = 5
+			}
+		}
+
+		1 = {
+			trigger = {
+				faith.religion = religion:calradian_religion
+			}
+			set_variable = {
+				name = saint
+				value = flag:echerion
+				days = 5
+			}
+		}
+
+		1 = {
+			trigger = {
+				faith.religion = religion:calradian_religion
+			}
+			set_variable = {
+				name = saint
+				value = flag:calradios
+				days = 5
+			}
+		}
+
+		1 = {
+			trigger = {
+				faith.religion = religion:calradian_religion
 			}
 			set_variable = {
 				name = saint
@@ -15696,14 +15821,22 @@ select_random_saint_effect = {
 
 		1 = {
 			trigger = {
-				OR = {
-					faith = faith:hetjur
-					faith = faith:western_calradic
-				}
+				faith = faith:hetjur
 			}
 			set_variable = {
 				name = saint
 				value = flag:abiagus
+				days = 5
+			} 
+		}
+
+		1 = {
+			trigger = {
+				faith = faith:hetjur
+			}
+			set_variable = {
+				name = saint
+				value = flag:belsim
 				days = 5
 			} 
 		}
@@ -15745,21 +15878,7 @@ select_random_saint_effect = {
 			}
 			set_variable = {
 				name = saint
-				value = flag:mark
-				days = 5
-			}
-		}
-
-		1 = {
-			trigger = {
-				OR = {
-					faith = faith:aren
-					faith = faith:qvelgmerti
-				}
-			}
-			set_variable = {
-				name = saint
-				value = flag:maurice
+				value = flag:aren
 				days = 5
 			}
 		}

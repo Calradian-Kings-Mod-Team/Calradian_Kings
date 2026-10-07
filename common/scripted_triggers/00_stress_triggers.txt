@@ -101,7 +101,7 @@ can_be_hashishiyah = {
 	}
 
 	NAND = { # Cannot be Zealous if faith views hashish as sinful
-		faith = { trait_is_sin = hashishiyah }
+		rite = { trait_is_sin_rite = hashishiyah }
 		has_trait = zealous
 	}
 
@@ -262,7 +262,7 @@ can_be_journaller = { # Must be a learned character with the scholarship lifesty
 	NOT = { has_trait = journaller }
 	learning >= high_skill_rating
 	OR = {
-		has_trait = scholar
+		has_trait = erudite
 		has_trait = theologian
 	}
 }
@@ -290,14 +290,23 @@ can_be_athletic = { # Must be willing and interested in getting out and exercisi
 
 
 can_do_lustful_stress_conversion = {
-	is_ai = no # AI picks this way too often and makes the map predominantly Paulician/Orthodox/Karite
 	is_adult = yes
-
-	# So you don't end up with Sapmi or African pagans or Indian kings going "Yeah let's worship Jesus now!" and everyone else goes "Who is Jesus?"
-	religion = { is_in_family = rf_abrahamic }
+	#Must either be able to convert to a new puritanical rite from shame or a new accepting rite from necessity
+	#OR = {
+	#	any_available_rite = {
+	#		this != root.rite
+	#		rite_forbids_the_secular_flesh_trigger = { #CHARACTER = root }
+	#	}
+	#	any_available_rite = {
+	#		this != root.rite
+	#		rite_embraces_the_secular_flesh_trigger = { #CHARACTER = root }
+	#	}
+	#}
 		
 	# So the Caliph doesn't just convert after a bad day
 	this != faith.religious_head
+
+	spiritual_fulfillment < spiritual_fulfillment_1
 }
 
 can_inflict_torture = {
@@ -330,13 +339,13 @@ can_be_burdened = {
 	is_adult = no
 	trigger_if = {
 		limit = {
-			faith = { has_doctrine = doctrine_gender_female_dominated }
+			rite = { rite_has_doctrine = doctrine_gender_female_dominated }
 		}
 		is_female = yes
 	}
 	trigger_else_if = {
 		limit = {
-			faith = { has_doctrine = doctrine_gender_male_dominated }
+			rite = { rite_has_doctrine = doctrine_gender_male_dominated }
 		}
 		is_female = no
 	}
@@ -355,5 +364,36 @@ can_be_burdened = {
 		has_trait = stubborn
 		has_trait = vengeful
 		has_trait = callous
+	}
+}
+
+stress_rite_conversion_trigger = {
+	# A child re-founding their realm's religion over a tantrum is not a story we want.
+	is_adult = yes
+	spiritual_fulfillment < 0
+	rite_fulfillment_score = {
+		target = root.rite
+		value <= 0
+	}
+	OR = {
+		has_trait = cynical
+		has_trait = eccentric
+		has_trait = fickle
+		spiritual_fulfillment < spiritual_fulfillment_minus_1
+	}
+	faith = {
+		fervor <= 50
+	}
+	# Must stay in step with stress_threshold.1501's picker, or the option has no rite
+	any_available_rite = {
+		this != root.rite
+		pam_rite_is_regional_trigger = no
+		save_temporary_scope_as = rite_temp
+		root = {
+			rite_fulfillment_score = {
+				target = scope:rite_temp
+				value > 0
+			}
+		}
 	}
 }

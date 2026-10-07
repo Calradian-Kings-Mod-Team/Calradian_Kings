@@ -462,21 +462,6 @@ set_adventure_location_effect = {
 						}
 					}
 					10 = {
-						# Burma
-						trigger = {
-							trigger_if = {
-								limit = { exists = location }
-								adventurer_potential_destination_distance_check = {
-									REGION = world_burma
-								}
-							}
-						}
-						set_variable = {
-							name = adventure_destination
-							value = flag:burma
-						}
-					}
-					10 = {
 						# Tibet
 						trigger = {
 							trigger_if = {
@@ -554,7 +539,7 @@ set_adventure_location_effect = {
 							value = flag:japan
 						}
 					}
-					5 = {
+					2 = {
 						# East Asia - Sakhalin-Hokkaido
 						trigger = {
 							trigger_if = {
@@ -772,12 +757,6 @@ get_adventure_inspiration_start_location = {
 						title_province = { save_scope_as = location }
 					}
 				}
-				flag:burma = { # Burma
-					random_county_in_region = {
-						region = world_burma
-						title_province = { save_scope_as = location }
-					}
-				}
 				flag:tibet = { # Tibet
 					random_county_in_region = {
 						region = world_tibet
@@ -843,6 +822,18 @@ get_adventure_inspiration_start_location = {
 	}
 }
 
+save_adventurer_location_effect = {
+	if = {
+		limit = {
+			exists = scope:adventurer
+			NOT = { exists = scope:location }
+		}
+		scope:adventurer.location = {
+			save_temporary_scope_as = location
+		}
+	}
+}
+
 inspiration_adventure_create_artifact_effect = {
 	$OWNER$ = { save_scope_as = owner } #Will always exist!
 	$CREATOR$ = { save_scope_as = adventurer } #Will always exist in an adventure inspiration!
@@ -875,6 +866,7 @@ inspiration_adventure_create_artifact_effect = {
 				template = local_artisan_template
 				culture = scope:location.culture
 				faith = scope:location.faith
+				rite = scope:location.rite
 				gender = scope:adventurer
 				dynasty = none
 				save_scope_as = artifact_origin #Fictional maker of artifact
@@ -911,7 +903,7 @@ inspiration_adventure_create_artifact_effect = {
 									add = -4 #High inspiration skill adventurers will only find relics if there is nothing else to find.
 								}
 								random_list = { #This is a list inside an item in the other list because we need _one_ chance for relic and the relic types must be able to have overlapping triggers.
-									100 = {	#Christian
+									100 = {	#Calradic
 										trigger = {
 											scope:location ?= {
 												OR = {
@@ -928,7 +920,36 @@ inspiration_adventure_create_artifact_effect = {
 											OWNER = root
 										}
 									}
-									100 = { #Islamic
+									100 = { # Darusan
+										trigger = {
+											scope:location ?= {
+												OR = {
+													faith = faith:darusan
+													geographical_region = world_calradia
+												}
+											}
+										}
+										modifier = {
+											NOT = { scope:location.faith = faith:darusan }
+											add = -75
+										}
+
+										random_list = {
+											30 = {
+												create_artifact_pedestal_christian_relic_effect_hist = {
+													OWNER = root
+												}
+											}
+											25 = {
+												create_artifact_pedestal_crucifix_effect = { OWNER = root CREATOR = root }
+											}
+											25 = {
+												create_artifact_pedestal_cross_effect = { OWNER = root CREATOR = root }
+											}
+										}
+
+									}
+									100 = { #Aserai
 										trigger = {
 											scope:location ?= {
 												OR = {
@@ -944,7 +965,7 @@ inspiration_adventure_create_artifact_effect = {
 										}
 										create_artifact_pedestal_islamic_relic_effect_hist = { OWNER = root }
 									}
-									100 = { #Zoroastrian
+									100 = { #Darshi
 										trigger = {
 											scope:location ?= {
 												OR = {

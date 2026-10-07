@@ -29,7 +29,10 @@ scripted_trigger city_event_check = {
 	is_location_valid_for_travel_event_on_land = yes #Should not be needed...
 	location.county.holder != root #If I own it then it does not make sense to visit it.
 	trigger_if = {
-		limit = { has_domicile = yes }
+		limit = {
+			has_domicile = yes
+			current_travel_plan = { is_travel_with_domicile = no }
+		}
 		location != domicile.domicile_location
 	} #If I live here then it does not make sense to visit it.
 	NOR = {
@@ -275,101 +278,103 @@ scripted_trigger city_event_check = {
 # 			custom_tooltip = book_souvenir_tooltip
 # 		}
 
-# 		hidden_effect = { #A book needs an author of local culture and religion.
-# 			if = {
-# 				limit = {
-# 					exists = scope:sightseeing_companion #Two people search better than one
-# 					learning >= scope:sightseeing_companion.learning
-# 				}
-# 				create_character = {
-# 					template = scholar_character
-# 					dynasty = none
-# 					location = root.location
-# 					culture = root.location.culture
-# 					faith = root.location.faith
-# 					save_scope_as = book_seller
-# 				}
-# 			}
-# 			else = {
-# 				create_character = {
-# 					template = scholar_character
-# 					dynasty = none
-# 					location = root.location
-# 					culture = root.location.culture
-# 					faith = root.location.faith
-# 					random_traits_list = {
-# 						count = 1
-# 						education_learning_2 = {}
-# 						education_learning_3 = {}
-# 					}
-# 					learning = {
-# 						min_template_decent_skill
-# 						max_template_decent_skill
-# 					}
-# 					save_scope_as = book_seller
-# 				}
-# 			}
-# 			hidden_effect_new_object = {
-# 				create_artifact_book_effect = {
-# 					OWNER = root
-# 					CREATOR = scope:book_seller
-# 					SET_SUBJECT = flag:learning
-# 					SET_TOPIC = flag:no
-# 				}
-# 				scope:newly_created_artifact = {
-# 					save_scope_as = souvenir
-# 					if = {
-# 						limit = {
-# 							NOT = {
-# 								root = { has_royal_court = yes }
-# 							}
-# 						}
-# 						reforge_artifact = {
-# 							type = miscellaneous
-# 						}
-# 					}
-# 					set_artifact_description = book_artifact_loc
-# 				}
-# 			}
-# 			if = {
-# 				limit = {
-# 					exists = scope:sightseeing_companion
-# 				}
-# 				send_interface_toast = {
-# 					title = souvenir_bought_companion
-# 					left_icon = scope:sightseeing_companion
-# 					right_icon = scope:souvenir
-# 				}
-# 			}
-# 			else = {
-# 				send_interface_toast = {
-# 					title = souvenir_bought
-# 					left_icon = root
-# 					right_icon = scope:souvenir
-# 				}
-# 			}
-# 			hidden_effect = {
-# 				scope:book_seller = {
-# 					silent_disappearance_effect = yes
-# 				}
-# 			}
-# 		}
+	# 	hidden_effect = { #A book needs an author of local culture and religion.
+	# 		if = {
+	# 			limit = {
+	# 				exists = scope:sightseeing_companion #Two people search better than one
+	# 				learning >= scope:sightseeing_companion.learning
+	# 			}
+	# 			create_character = {
+	# 				template = scholar_character
+	# 				dynasty = none
+	# 				location = root.location
+	# 				culture = root.location.culture
+	# 				faith = root.location.faith
+	# 				rite = root.location.rite
+	# 				save_scope_as = book_seller
+	# 			}
+	# 		}
+	# 		else = {
+	# 			create_character = {
+	# 				template = scholar_character
+	# 				dynasty = none
+	# 				location = root.location
+	# 				culture = root.location.culture
+	# 				faith = root.location.faith
+	# 				rite = root.location.rite
+	# 				random_traits_list = {
+	# 					count = 1
+	# 					education_learning_2 = {}
+	# 					education_learning_3 = {}
+	# 				}
+	# 				learning = {
+	# 					min_template_decent_skill
+	# 					max_template_decent_skill
+	# 				}
+	# 				save_scope_as = book_seller
+	# 			}
+	# 		}
+	# 		hidden_effect_new_object = {
+	# 			create_artifact_book_effect = {
+	# 				OWNER = root
+	# 				CREATOR = scope:book_seller
+	# 				SET_SUBJECT = flag:learning
+	# 				SET_TOPIC = flag:no
+	# 			}
+	# 			scope:newly_created_artifact = {
+	# 				save_scope_as = souvenir
+	# 				if = {
+	# 					limit = {
+	# 						NOT = {
+	# 							root = { has_royal_court = yes }
+	# 						}
+	# 					}
+	# 					reforge_artifact = {
+	# 						type = miscellaneous
+	# 					}
+	# 				}
+	# 				set_artifact_description = book_artifact_loc
+	# 			}
+	# 		}
+	# 		if = {
+	# 			limit = {
+	# 				exists = scope:sightseeing_companion
+	# 			}
+	# 			send_interface_toast = {
+	# 				title = souvenir_bought_companion
+	# 				left_icon = scope:sightseeing_companion
+	# 				right_icon = scope:souvenir
+	# 			}
+	# 		}
+	# 		else = {
+	# 			send_interface_toast = {
+	# 				title = souvenir_bought
+	# 				left_icon = root
+	# 				right_icon = scope:souvenir
+	# 			}
+	# 		}
+	# 		hidden_effect = {
+	# 			scope:book_seller = {
+	# 				silent_disappearance_effect = yes
+	# 			}
+	# 		}
+	# 	}
 
-# 		stress_impact = {
-# 			arrogant = minor_stress_impact_gain
-# 			greedy = medium_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = arrogant
-# 					has_trait = greedy
-# 				}
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		arrogant = minor_stress_impact_gain
+	# 		greedy = medium_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = arrogant
+	# 				has_trait = greedy
+	# 			}
+	# 		}
+	# 	}
+	# }
 
 # 	option = { # Bookmarket Option B
 # 		name = travel_city_option_learning
@@ -501,29 +506,29 @@ scripted_trigger city_event_check = {
 # 			}
 # 		}
 
-# 		stress_impact = {
-# 			lazy = minor_stress_impact_gain
-# 			shy = medium_stress_impact_gain
-# 			craven = medium_stress_impact_gain
-# 			reclusive = major_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 2
-# 				has_focus_learning = yes
-# 			}
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = lazy
-# 					has_trait = shy
-# 					has_trait = craven
-# 					has_trait = reclusive
-# 				}
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		lazy = minor_stress_impact_gain
+	# 		shy = medium_stress_impact_gain
+	# 		craven = medium_stress_impact_gain
+	# 		reclusive = major_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 2
+	# 			has_focus_learning = yes
+	# 		}
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = lazy
+	# 				has_trait = shy
+	# 				has_trait = craven
+	# 				has_trait = reclusive
+	# 			}
+	# 		}
+	# 	}
+	# }
 
 # 	#Royal District - Options
 # 	option = { # Royal District Option A
@@ -543,136 +548,136 @@ scripted_trigger city_event_check = {
 # 			custom_tooltip = duel_companion_tooltip
 # 		}
 
-# 		duel = {
-# 			skill = diplomacy
-# 			value = {
-# 				value = 0
-# 				if = {
-# 					limit = {
-# 						exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 diplomacy to have been saved
-# 					}
-# 					add = high_skill_rating
-# 				}
-# 				else = {
-# 					add = very_high_skill_rating
-# 				}
-# 				if = {
-# 					limit = {
-# 						scope:city_province = { #Arabic has a special status in Baghdad but we still need to account for if it somehow changed
-# 							culture = {
-# 								has_cultural_pillar = language_nahasi
-# 							}
-# 						}
-# 						knows_language_of_culture = scope:city_province.culture
-# 					}
-# 					add = -5
-# 				}
-# 			}
-# 			# Success: Great Success - You get a Perk
-# 			15 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_great_success
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_great_success
-# 					left_icon = root
-# 					if = {
-# 						limit = {
-# 							NOT = { has_perk = inspiring_rule_perk }
-# 						}
-# 						add_perk = inspiring_rule_perk
-# 					}
-# 					else_if = { #Fallback
-# 						limit = {
-# 							has_focus_diplomacy = yes
-# 						}
-# 						add_diplomacy_lifestyle_xp = massive_lifestyle_experience
-# 					}
-# 					else = { #Final fallback
-# 						add_diplomacy_skill = 2
-# 					}
-# 				}
-# 			}
-# 			# Success: Success - You get Diplomacy
-# 			35 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_success
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_success
-# 					left_icon = root
-# 					add_diplomacy_skill = 1
-# 				}
-# 			}
-# 			20 = { # Failure: Modifier
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_fail
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_fail
-# 					left_icon = root
-# 					add_prestige = minor_prestige_gain
-# 				}
-# 			}
-# 			30 = { # Failure: You look stupid
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_great_fail
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_great_fail
-# 					left_icon = root
-# 					add_prestige = medium_prestige_loss
-# 					stress_impact = {
-# 						base = miniscule_stress_impact_gain
-# 					}
-# 				}
-# 			}
-# 		}
+	# 	duel = {
+	# 		skill = diplomacy
+	# 		value = {
+	# 			value = 0
+	# 			if = {
+	# 				limit = {
+	# 					exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 diplomacy to have been saved
+	# 				}
+	# 				add = high_skill_rating
+	# 			}
+	# 			else = {
+	# 				add = very_high_skill_rating
+	# 			}
+	# 			if = {
+	# 				limit = {
+	# 					scope:city_province = { #Arabic has a special status in Baghdad but we still need to account for if it somehow changed
+	# 						culture = {
+	# 							has_cultural_pillar = language_arabic
+	# 						}
+	# 					}
+	# 					knows_language_of_culture = scope:city_province.culture
+	# 				}
+	# 				add = -5
+	# 			}
+	# 		}
+	# 		# Success: Great Success - You get a Perk
+	# 		15 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_success
+	# 				left_icon = root
+	# 				if = {
+	# 					limit = {
+	# 						NOT = { has_perk = inspiring_rule_perk }
+	# 					}
+	# 					add_perk = inspiring_rule_perk
+	# 				}
+	# 				else_if = { #Fallback
+	# 					limit = {
+	# 						has_focus_diplomacy = yes
+	# 					}
+	# 					add_diplomacy_lifestyle_xp = massive_lifestyle_experience
+	# 				}
+	# 				else = { #Final fallback
+	# 					add_diplomacy_skill = 2
+	# 				}
+	# 			}
+	# 		}
+	# 		# Success: Success - You get Diplomacy
+	# 		35 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_success
+	# 				left_icon = root
+	# 				add_diplomacy_skill = 1
+	# 			}
+	# 		}
+	# 		20 = { # Failure: Modifier
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_fail
+	# 				left_icon = root
+	# 				add_prestige = minor_prestige_gain
+	# 			}
+	# 		}
+	# 		30 = { # Failure: You look stupid
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_fail
+	# 				left_icon = root
+	# 				add_prestige = medium_prestige_loss
+	# 				stress_and_fulfillment_impact = {
+	# 					base = miniscule_stress_impact_gain
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
-# 		stress_impact = {
-# 			lazy = minor_stress_impact_gain
-# 			shy = medium_stress_impact_gain
-# 			craven = medium_stress_impact_gain
-# 			reclusive = major_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 2
-# 				has_focus_diplomacy = yes
-# 			}
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = lazy
-# 					has_trait = shy
-# 					has_trait = craven
-# 					has_trait = reclusive
-# 				}
-# 			}
-# 		}
-# 	}
-# 	option = { # Royal District Option B
-# 		name = travel_city_option_party_hard
-# 		trigger = {
-# 			scope:city_sight = flag:palaces
-# 		}
+	# 	stress_and_fulfillment_impact = {
+	# 		lazy = minor_stress_impact_gain
+	# 		shy = medium_stress_impact_gain
+	# 		craven = medium_stress_impact_gain
+	# 		reclusive = major_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 2
+	# 			has_focus_diplomacy = yes
+	# 		}
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = lazy
+	# 				has_trait = shy
+	# 				has_trait = craven
+	# 				has_trait = reclusive
+	# 			}
+	# 		}
+	# 	}
+	# }
+	# option = { # Royal District Option B
+	# 	name = travel_city_option_party_hard
+	# 	trigger = {
+	# 		scope:city_sight = flag:palaces
+	# 	}
 
 # 		current_travel_plan = {
 # 			delay_travel_plan = {
@@ -749,13 +754,13 @@ scripted_trigger city_event_check = {
 
 # 		#I am on a way to an activity so quite possibly I am trying to relieve stress - also nice out from danger related stress
 
-# 		stress_impact = { 
-# 			base = major_stress_impact_loss #Finally an opportunity to enjoy life
-# 			gregarious = miniscule_stress_impact_loss
-# 			gluttonous = minor_stress_impact_loss
-# 			greedy = minor_stress_impact_gain
-# 			temperate = medium_stress_impact_gain
-# 		}
+		# stress_and_fulfillment_impact = { 
+		# 	base = major_stress_impact_loss #Finally an opportunity to enjoy life
+		# 	gregarious = miniscule_stress_impact_loss
+		# 	gluttonous = minor_stress_impact_loss
+		# 	greedy = minor_stress_impact_gain
+		# 	temperate = medium_stress_impact_gain
+		# }
 
 # 		ai_chance = {
 # 			base = 25
@@ -899,63 +904,63 @@ scripted_trigger city_event_check = {
 # 				}
 # 			}
 
-# 			40 = {
-# 				trigger = {
-# 					NOT = {
-# 						has_character_modifier = contemplated_life
-# 					}
-# 				}
-# 				if = {
-# 					limit = { exists = scope:sightseeing_companion }
-# 					send_interface_toast = {
-# 						title = travel_city_contemplated_life_and_death_companion
-# 						left_icon = root
-# 						add_character_modifier = {
-# 							modifier = travel_city_existential_dread
-# 							years = 15
-# 						}
-# 						if = {
-# 							limit = {
-# 								can_set_relation_friend_trigger = { CHARACTER = scope:sightseeing_companion }
-# 							}
-# 							set_relation_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
-# 						}
-# 						else_if = {
-# 							limit = {
-# 								can_set_relation_best_friend_trigger = { CHARACTER = scope:sightseeing_companion }
-# 							}
-# 							set_relation_best_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
-# 						}
-# 						hidden_effect = {
-# 							scope:sightseeing_companion = {
-# 								add_character_modifier = {
-# 									modifier = travel_city_existential_dread
-# 									years = 15
-# 								}
-# 							}
-# 						}
-# 					}
-# 				}
-# 				else = {
-# 					send_interface_toast = {
-# 						title = travel_city_contemplated_life_and_death
-# 						left_icon = root
-# 						add_character_modifier = {
-# 							modifier = travel_city_existential_dread
-# 							years = 15
-# 						}
-# 					}
-# 				}
-# 			}
-# 		}
-# 		stress_impact = { #Existential introversion can be scary
-# 			base = medium_stress_impact_gain
-# 			content = minor_stress_impact_loss #Mitigation
-# 			humble = minor_stress_impact_loss #Mitigation
-# 			craven = minor_stress_impact_gain
-# 			arrogant = minor_stress_impact_gain
-# 			ambitious = minor_stress_impact_gain
-# 		}
+		# 	40 = {
+		# 		trigger = {
+		# 			NOT = {
+		# 				has_character_modifier = contemplated_life
+		# 			}
+		# 		}
+		# 		if = {
+		# 			limit = { exists = scope:sightseeing_companion }
+		# 			send_interface_toast = {
+		# 				title = travel_city_contemplated_life_and_death_companion
+		# 				left_icon = root
+		# 				add_character_modifier = {
+		# 					modifier = travel_city_existential_dread
+		# 					years = 15
+		# 				}
+		# 				if = {
+		# 					limit = {
+		# 						can_set_relation_friend_trigger = { CHARACTER = scope:sightseeing_companion }
+		# 					}
+		# 					set_relation_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
+		# 				}
+		# 				else_if = {
+		# 					limit = {
+		# 						can_set_relation_best_friend_trigger = { CHARACTER = scope:sightseeing_companion }
+		# 					}
+		# 					set_relation_best_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
+		# 				}
+		# 				hidden_effect = {
+		# 					scope:sightseeing_companion = {
+		# 						add_character_modifier = {
+		# 							modifier = travel_city_existential_dread
+		# 							years = 15
+		# 						}
+		# 					}
+		# 				}
+		# 			}
+		# 		}
+		# 		else = {
+		# 			send_interface_toast = {
+		# 				title = travel_city_contemplated_life_and_death
+		# 				left_icon = root
+		# 				add_character_modifier = {
+		# 					modifier = travel_city_existential_dread
+		# 					years = 15
+		# 				}
+		# 			}
+		# 		}
+		# 	}
+		# }
+		# stress_and_fulfillment_impact = { #Existential introversion can be scary
+		# 	base = medium_stress_impact_gain
+		# 	content = minor_stress_impact_loss #Mitigation
+		# 	humble = minor_stress_impact_loss #Mitigation
+		# 	craven = minor_stress_impact_gain
+		# 	arrogant = minor_stress_impact_gain
+		# 	ambitious = minor_stress_impact_gain
+		# }
 
 # 		ai_chance = {
 # 			base = 15
@@ -991,99 +996,99 @@ scripted_trigger city_event_check = {
 
 # 		#What you can learn is determined in the immediate of the event as it would depend on what aspect of Baghdad history your guide has red up on
 
-# 		scope:sightseeing_companion = {
-# 			duel = {
-# 				skill = learning
-# 				value = high_skill_rating
-# 				# Success.
-# 				50 = {
-# 					compare_modifier = {
-# 						value = scope:duel_value
-# 						multiplier = 0.49
-# 					}
-# 					desc = travel_city_duel_teaching_great_success
-# 					if = {
-# 						limit = {
-# 							 scope:city_ancient_insight = flag:construction
-# 						}
-# 						root = {
-# 							send_interface_toast = {
-# 								title = travel_city_duel_teaching_great_success
-# 								left_icon = root
-# 								add_character_modifier = {
-# 									modifier = travel_city_history_city_planning
-# 									years = 15
-# 								}
-# 							}
-# 						}
-# 					}
-# 					else_if = {
-# 						limit = {
-# 							scope:city_ancient_insight = flag:rulership
-# 						}
-# 						root = {
-# 							send_interface_toast = {
-# 								title = travel_city_duel_teaching_great_success
-# 								left_icon = root
-# 								add_character_modifier = {
-# 									modifier = travel_city_history_rulership
-# 									years = 15
-# 								}
-# 							}
-# 						}
-# 					}
-# 					else_if = {
-# 						limit = {
-# 							scope:city_ancient_insight = flag:fortifications
-# 						}
-# 						root = {
-# 							send_interface_toast = {
-# 								title = travel_city_duel_teaching_great_success
-# 								left_icon = root
-# 								add_character_modifier = {
-# 									modifier = travel_city_history_fortifications
-# 									years = 15
-# 								}
-# 							}
-# 						}
-# 					}
-# 				}
-# 				# Failure - I fail to learn
-# 				50 = {
-# 					compare_modifier = {
-# 						value = scope:duel_value
-# 						multiplier = -0.49
-# 					}
-# 					desc = travel_city_duel_history_fail
-# 					root = {
-# 						send_interface_toast = {
-# 							title = travel_city_duel_history_fail
-# 							left_icon = root
-# 							add_prestige = minor_prestige_loss
-# 							stress_impact = {
-# 								base = miniscule_stress_impact_gain
-# 							}
-# 						}
-# 					}
-# 				}
-# 			}
-# 		}
+	# 	scope:sightseeing_companion = {
+	# 		duel = {
+	# 			skill = learning
+	# 			value = high_skill_rating
+	# 			# Success.
+	# 			50 = {
+	# 				compare_modifier = {
+	# 					value = scope:duel_value
+	# 					multiplier = 0.49
+	# 				}
+	# 				desc = travel_city_duel_teaching_great_success
+	# 				if = {
+	# 					limit = {
+	# 						 scope:city_ancient_insight = flag:construction
+	# 					}
+	# 					root = {
+	# 						send_interface_toast = {
+	# 							title = travel_city_duel_teaching_great_success
+	# 							left_icon = root
+	# 							add_character_modifier = {
+	# 								modifier = travel_city_history_city_planning
+	# 								years = 15
+	# 							}
+	# 						}
+	# 					}
+	# 				}
+	# 				else_if = {
+	# 					limit = {
+	# 						scope:city_ancient_insight = flag:rulership
+	# 					}
+	# 					root = {
+	# 						send_interface_toast = {
+	# 							title = travel_city_duel_teaching_great_success
+	# 							left_icon = root
+	# 							add_character_modifier = {
+	# 								modifier = travel_city_history_rulership
+	# 								years = 15
+	# 							}
+	# 						}
+	# 					}
+	# 				}
+	# 				else_if = {
+	# 					limit = {
+	# 						scope:city_ancient_insight = flag:fortifications
+	# 					}
+	# 					root = {
+	# 						send_interface_toast = {
+	# 							title = travel_city_duel_teaching_great_success
+	# 							left_icon = root
+	# 							add_character_modifier = {
+	# 								modifier = travel_city_history_fortifications
+	# 								years = 15
+	# 							}
+	# 						}
+	# 					}
+	# 				}
+	# 			}
+	# 			# Failure - I fail to learn
+	# 			50 = {
+	# 				compare_modifier = {
+	# 					value = scope:duel_value
+	# 					multiplier = -0.49
+	# 				}
+	# 				desc = travel_city_duel_history_fail
+	# 				root = {
+	# 					send_interface_toast = {
+	# 						title = travel_city_duel_history_fail
+	# 						left_icon = root
+	# 						add_prestige = minor_prestige_loss
+	# 						stress_and_fulfillment_impact = {
+	# 							base = miniscule_stress_impact_gain
+	# 						}
+	# 					}
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
-# 		stress_impact = {
-# 			arrogant = minor_stress_impact_gain #Unwilling to learn from the past
-# 			lazy = medium_stress_impact_gain #Unwilling to learn period
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = arrogant
-# 					has_trait = lazy
-# 				}
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		arrogant = minor_stress_impact_gain #Unwilling to learn from the past
+	# 		lazy = medium_stress_impact_gain #Unwilling to learn period
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = arrogant
+	# 				has_trait = lazy
+	# 			}
+	# 		}
+	# 	}
+	# }
 
 # 	option = { # General Opt Out
 # 		name = travel_city_option_opt_out
@@ -1093,9 +1098,9 @@ scripted_trigger city_event_check = {
 # 		#This one just opts out
 # 		#No travel time loss
 
-# 		stress_impact = { #Minor stress loss for focusing on the project underway
-# 			lifestyle_traveler = minor_stress_impact_loss
-# 		}
+		# stress_and_fulfillment_impact = { #Minor stress loss for focusing on the project underway
+		# 	lifestyle_traveler = minor_stress_impact_loss
+		# }
 		
 # 		ai_chance = {
 # 			base = 25
@@ -1503,81 +1508,136 @@ scripted_trigger city_event_check = {
 # 			scope:city_sight = flag:fortified_monuments
 # 		}
 
-# 		current_travel_plan = {
-# 			delay_travel_plan = {
-# 				days = 7 # 1 Week
-# 			}
-# 		}
+	# 	duel = {
+	# 		skill = diplomacy
+	# 		value = {
+	# 			value = 0
+	# 			if = {
+	# 				limit = {
+	# 					exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 diplomacy to have been saved
+	# 				}
+	# 				add = high_skill_rating
+	# 			}
+	# 			else = {
+	# 				add = very_high_skill_rating
+	# 			}
+	# 			if = {
+	# 				limit = {
+	# 					scope:city_province = {
+	# 						culture = {
+	# 							has_cultural_pillar = language_latin
+	# 						}
+	# 					}
+	# 					knows_language_of_culture = scope:city_province.culture
+	# 				}
+	# 				add = -5
+	# 			}
+	# 		}
+	# 		# Success: Great Success - You get a Perk
+	# 		15 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_success
+	# 				left_icon = root
+	# 				if = {
+	# 					limit = {
+	# 						NOT = { has_perk = flexible_truces_perk }
+	# 					}
+	# 					add_perk = flexible_truces_perk
+	# 				}
+	# 				else_if = { #Fallback
+	# 					limit = {
+	# 						has_focus_diplomacy = yes
+	# 					}
+	# 					add_diplomacy_lifestyle_xp = massive_lifestyle_experience
+	# 				}
+	# 				else = { #Final fallback
+	# 					add_diplomacy_skill = 2
+	# 				}
+	# 			}
+	# 		}
+	# 		# Success: Success - You get Diplomacy
+	# 		35 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_success
+	# 				left_icon = root
+	# 				add_diplomacy_skill = 1
+	# 			}
+	# 		}
+	# 		20 = { # Failure: Modifier
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_fail
+	# 				left_icon = root
+	# 				add_prestige = minor_prestige_gain
+	# 			}
+	# 		}
+	# 		30 = { # Failure: You look stupid
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_fail
+	# 				left_icon = root
+	# 				add_prestige = medium_prestige_loss
+	# 				stress_and_fulfillment_impact = {
+	# 					base = miniscule_stress_impact_gain
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
-# 		duel = {
-# 			skill = martial
-# 			value = high_skill_rating
-# 			# Success.
-# 			50 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 0.49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_great_success
-# 				if = {
-# 					limit = {
-# 						 scope:city_ancient_insight = flag:construction
-# 					}
-# 					send_interface_toast = {
-# 						title = travel_city_duel_teaching_great_success
-# 						left_icon = root
-# 						add_character_modifier = {
-# 							modifier = travel_city_history_city_planning
-# 							years = 15
-# 						}
-# 					}
-# 				}
-# 				else_if = {
-# 					limit = {
-# 						scope:city_ancient_insight = flag:spolia
-# 					}
-# 					send_interface_toast = {
-# 						title = travel_city_duel_teaching_great_success
-# 						left_icon = root
-# 						add_character_modifier = {
-# 							modifier = travel_city_history_spoilage
-# 							years = 15
-# 						}
-# 					}
-# 				}
-# 				else_if = {
-# 					limit = {
-# 						scope:city_ancient_insight = flag:fortifications
-# 					}
-# 					send_interface_toast = {
-# 						title = travel_city_duel_teaching_great_success
-# 						left_icon = root
-# 						add_character_modifier = {
-# 							modifier = travel_city_history_fortifications
-# 							years = 15
-# 						}
-# 					}
-# 				}
-# 			}
-# 			# Failure - I fail to learn
-# 			50 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -0.49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_fail_no_companion
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_fail_no_companion
-# 					left_icon = root
-# 					add_prestige = minor_prestige_loss
-# 					stress_impact = {
-# 						base = miniscule_stress_impact_gain
-# 					}
-# 				}
-# 			}
-# 		}
+	# 	stress_and_fulfillment_impact = {
+	# 		lazy = minor_stress_impact_gain
+	# 		shy = medium_stress_impact_gain
+	# 		craven = medium_stress_impact_gain
+	# 		reclusive = major_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 2
+	# 			has_focus_diplomacy = yes
+	# 		}
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = lazy
+	# 				has_trait = shy
+	# 				has_trait = craven
+	# 				has_trait = reclusive
+	# 			}
+	# 		}
+	# 	}
+	# }
+	# option = { # Fortified Monuments Option B
+	# 	name = travel_city_option_study_fortifications
+	# 	trigger = {
+	# 		scope:city_sight = flag:fortified_monuments
+	# 	}
 
 # 		stress_impact = {
 # 			arrogant = minor_stress_impact_gain #Unwilling to learn from the past
@@ -1594,30 +1654,104 @@ scripted_trigger city_event_check = {
 # 			}
 # 		}
 
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 0.5
-# 				stress = 0
-# 			}
-# 			modifier = {
-# 				factor = 2
-# 				stress >= higher_than_baseline_stress
-# 			}
-# 			modifier = {
-# 				factor = 1.5
-# 				has_trait = lifestyle_reveler
-# 			}
-# 			#Will always be a net stress loss option, so no blocking traits
-# 		}
-# 	}
+	# 	duel = {
+	# 		skill = martial
+	# 		value = high_skill_rating
+	# 		# Success.
+	# 		50 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 0.49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_success
+	# 			if = {
+	# 				limit = {
+	# 					 scope:city_ancient_insight = flag:construction
+	# 				}
+	# 				send_interface_toast = {
+	# 					title = travel_city_duel_teaching_great_success
+	# 					left_icon = root
+	# 					add_character_modifier = {
+	# 						modifier = travel_city_history_city_planning
+	# 						years = 15
+	# 					}
+	# 				}
+	# 			}
+	# 			else_if = {
+	# 				limit = {
+	# 					scope:city_ancient_insight = flag:spolia
+	# 				}
+	# 				send_interface_toast = {
+	# 					title = travel_city_duel_teaching_great_success
+	# 					left_icon = root
+	# 					add_character_modifier = {
+	# 						modifier = travel_city_history_spoilage
+	# 						years = 15
+	# 					}
+	# 				}
+	# 			}
+	# 			else_if = {
+	# 				limit = {
+	# 					scope:city_ancient_insight = flag:fortifications
+	# 				}
+	# 				send_interface_toast = {
+	# 					title = travel_city_duel_teaching_great_success
+	# 					left_icon = root
+	# 					add_character_modifier = {
+	# 						modifier = travel_city_history_fortifications
+	# 						years = 15
+	# 					}
+	# 				}
+	# 			}
+	# 		}
+	# 		# Failure - I fail to learn
+	# 		50 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -0.49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_fail_no_companion
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_fail_no_companion
+	# 				left_icon = root
+	# 				add_prestige = minor_prestige_loss
+	# 				stress_and_fulfillment_impact = {
+	# 					base = miniscule_stress_impact_gain
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
-# 	#Caesar's Needle - Options
-# 	option = { # Caesar's Needle Option A
-# 		name = travel_city_option_reflection_on_existance
-# 		trigger = { scope:city_sight = flag:caesars_needle }
-
-# 		#Reflect on your own existance - gain perk or long lasting skill modifier in return for a notable stress bump
+	# 	stress_and_fulfillment_impact = {
+	# 		arrogant = minor_stress_impact_gain #Unwilling to learn from the past
+	# 		lazy = medium_stress_impact_gain #Unwilling to learn period
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = arrogant
+	# 				has_trait = lazy
+	# 			}
+	# 		}
+	# 		modifier = {
+	# 			factor = 0.5
+	# 			stress = 0
+	# 		}
+	# 		modifier = {
+	# 			factor = 2
+	# 			stress >= higher_than_baseline_stress
+	# 		}
+	# 		modifier = {
+	# 			factor = 1.5
+	# 			has_trait = lifestyle_reveler
+	# 		}
+	# 		#Will always be a net stress loss option, so no blocking traits
+	# 	}
+	# }
 
 # 		current_travel_plan = {
 # 			delay_travel_plan = {
@@ -1813,12 +1947,171 @@ scripted_trigger city_event_check = {
 # 		}
 # 	}
 
-# 	option = { # Caesar's Needle Option B
-# 		name = travel_city_option_learn_local_history
-# 		trigger = {
-# 			scope:city_sight = flag:caesars_needle
-# 			exists = scope:sightseeing_companion #Requires a learned guide
-# 		}
+		# random_list = {
+		# 	15 = {
+		# 		modifier = {
+		# 			learning < decent_skill_rating
+		# 			NOT = {
+		# 				exists = scope:sightseeing_companion #Guaranteed to be better than decent
+		# 			}
+		# 			add = -10
+		# 		}
+		# 		if = {
+		# 			limit = { exists = scope:sightseeing_companion }
+		# 			send_interface_toast = {
+		# 				title = travel_city_contemplated_life_and_death_companion
+		# 				left_icon = root
+		# 				if = {
+		# 					limit = { 
+		# 						NOT = { has_perk = writing_history_perk } 
+		# 					}
+		# 					add_perk = writing_history_perk
+		# 					add_diplomacy_skill = 1
+		# 				}
+		# 				else = { #Fallback
+		# 					add_diplomacy_skill = 2
+		# 				}
+		# 			}
+		# 			if = {
+		# 				limit = {
+		# 					can_set_relation_friend_trigger = { CHARACTER = scope:sightseeing_companion }
+		# 				}
+		# 				set_relation_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
+		# 			}
+		# 			else_if = {
+		# 				limit = {
+		# 					can_set_relation_best_friend_trigger = { CHARACTER = scope:sightseeing_companion }
+		# 				}
+		# 				set_relation_best_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
+		# 			}
+		# 			hidden_effect = {
+		# 				scope:sightseeing_companion = {
+		# 					add_diplomacy_skill = 1
+		# 				}
+		# 			}
+		# 		}
+		# 		else = {
+		# 			send_interface_toast = {
+		# 				title = travel_city_contemplated_life_and_death
+		# 				left_icon = root
+		# 				if = {
+		# 					limit = { 
+		# 						NOT = { has_perk = writing_history_perk } 
+		# 					}
+		# 					add_perk = writing_history_perk
+		# 					add_diplomacy_skill = 1
+		# 				}
+		# 				else = { #Fallback
+		# 					add_diplomacy_skill = 2
+		# 				}
+		# 			}
+		# 		}
+		# 	}
+		# 	40 = {
+		# 		trigger = {
+		# 			NOT = {
+		# 				has_character_modifier = contemplated_life
+		# 			}
+		# 		}
+		# 		if = {
+		# 			limit = { exists = scope:sightseeing_companion }
+		# 			send_interface_toast = {
+		# 				title = travel_city_contemplated_life_and_death_companion
+		# 				left_icon = root
+		# 				add_character_modifier = {
+		# 					modifier = contemplated_life
+		# 					years = 15
+		# 				}
+		# 				if = {
+		# 					limit = {
+		# 						can_set_relation_friend_trigger = { CHARACTER = scope:sightseeing_companion }
+		# 					}
+		# 					set_relation_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
+		# 				}
+		# 				else_if = {
+		# 					limit = {
+		# 						can_set_relation_best_friend_trigger = { CHARACTER = scope:sightseeing_companion }
+		# 					}
+		# 					set_relation_best_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
+		# 				}
+		# 				hidden_effect = {
+		# 					scope:sightseeing_companion = {
+		# 						add_character_modifier = {
+		# 							modifier = contemplated_life
+		# 							years = 15
+		# 						}
+		# 					}
+		# 				}
+		# 			}
+		# 		}
+		# 		else = {
+		# 			send_interface_toast = {
+		# 				title = travel_city_contemplated_life_and_death
+		# 				left_icon = root
+		# 				add_character_modifier = {
+		# 					modifier = contemplated_life
+		# 					years = 15
+		# 				}
+		# 			}
+		# 		}
+		# 	}
+		# 	40 = {
+		# 		trigger = {
+		# 			NOT = {
+		# 				has_character_modifier = contemplated_life
+		# 			}
+		# 		}
+		# 		if = {
+		# 			limit = { exists = scope:sightseeing_companion }
+		# 			send_interface_toast = {
+		# 				title = travel_city_contemplated_life_and_death_companion
+		# 				left_icon = root
+		# 				add_character_modifier = {
+		# 					modifier = travel_city_existential_dread
+		# 					years = 15
+		# 				}
+		# 				if = {
+		# 					limit = {
+		# 						can_set_relation_friend_trigger = { CHARACTER = scope:sightseeing_companion }
+		# 					}
+		# 					set_relation_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
+		# 				}
+		# 				else_if = {
+		# 					limit = {
+		# 						can_set_relation_best_friend_trigger = { CHARACTER = scope:sightseeing_companion }
+		# 					}
+		# 					set_relation_best_friend = { reason = contemplated_life_and_death_together target = scope:sightseeing_companion }
+		# 				}
+		# 				hidden_effect = {
+		# 					scope:sightseeing_companion = {
+		# 						add_character_modifier = {
+		# 							modifier = travel_city_existential_dread
+		# 							years = 15
+		# 						}
+		# 					}
+		# 				}
+		# 			}
+		# 		}
+		# 		else = {
+		# 			send_interface_toast = {
+		# 				title = travel_city_contemplated_life_and_death
+		# 				left_icon = root
+		# 				add_character_modifier = {
+		# 					modifier = travel_city_existential_dread
+		# 					years = 15
+		# 				}
+		# 			}
+		# 		}
+		# 	}
+		# }
+		# stress_and_fulfillment_impact = { #Existential introversion can be scary
+		# 	base = major_stress_impact_gain
+		# 	content = minor_stress_impact_loss #Mitigation
+		# 	humble = minor_stress_impact_loss #Mitigation
+		# 	craven = minor_stress_impact_gain
+		# 	arrogant = minor_stress_impact_gain
+		# 	ambitious = minor_stress_impact_gain
+		# }
 
 # 		current_travel_plan = {
 # 			delay_travel_plan = {
@@ -1924,11 +2217,107 @@ scripted_trigger city_event_check = {
 # 		}
 # 	}
 
-# 	#Pilgrims and Shrines - Options
+	# 	scope:sightseeing_companion = {
+	# 		duel = {
+	# 			skill = learning
+	# 			value = high_skill_rating
+	# 			# Success.
+	# 			50 = {
+	# 				compare_modifier = {
+	# 					value = scope:duel_value
+	# 					multiplier = 0.49
+	# 				}
+	# 				min = 10
+	# 				desc = travel_city_duel_teaching_great_success
+	# 				if = {
+	# 					limit = {
+	# 						 scope:city_ancient_insight = flag:construction
+	# 					}
+	# 					root = {
+	# 						send_interface_toast = {
+	# 							title = travel_city_duel_teaching_great_success
+	# 							left_icon = root
+	# 							add_character_modifier = {
+	# 								modifier = travel_city_history_city_planning
+	# 								years = 15
+	# 							}
+	# 						}
+	# 					}
+	# 				}
+	# 				else_if = {
+	# 					limit = {
+	# 						scope:city_ancient_insight = flag:rulership
+	# 					}
+	# 					root = {
+	# 						send_interface_toast = {
+	# 							title = travel_city_duel_teaching_great_success
+	# 							left_icon = root
+	# 							add_character_modifier = {
+	# 								modifier = travel_city_history_rulership
+	# 								years = 15
+	# 							}
+	# 						}
+	# 					}
+	# 				}
+	# 				else_if = {
+	# 					limit = {
+	# 						scope:city_ancient_insight = flag:fortifications
+	# 					}
+	# 					root = {
+	# 						send_interface_toast = {
+	# 							title = travel_city_duel_teaching_great_success
+	# 							left_icon = root
+	# 							add_character_modifier = {
+	# 								modifier = travel_city_history_fortifications
+	# 								years = 15
+	# 							}
+	# 						}
+	# 					}
+	# 				}
+	# 			}
+	# 			# Failure - I fail to learn
+	# 			50 = {
+	# 				compare_modifier = {
+	# 					value = scope:duel_value
+	# 					multiplier = -0.49
+	# 				}
+	# 				min = 10
+	# 				desc = travel_city_duel_history_fail
+	# 				root = {
+	# 					send_interface_toast = {
+	# 						title = travel_city_duel_history_fail
+	# 						left_icon = root
+	# 						add_prestige = minor_prestige_loss
+	# 						stress_and_fulfillment_impact = {
+	# 							base = miniscule_stress_impact_gain
+	# 						}
+	# 					}
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
-# 	option = { # Pilgrims and Shrines Option A
-# 		name = travel_city_option_souvenir
-# 		trigger = { scope:city_sight = flag:pilgrims_and_shrines }
+	# 	stress_and_fulfillment_impact = {
+	# 		arrogant = minor_stress_impact_gain #Unwilling to learn from the past
+	# 		lazy = medium_stress_impact_gain #Unwilling to learn period
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = arrogant
+	# 				has_trait = lazy
+	# 			}
+	# 		}
+	# 	}
+	# }
+
+	#Pilgrims and Shrines - Options
+
+	# option = { # Pilgrims and Shrines Option A
+	# 	name = travel_city_option_souvenir
+	# 	trigger = { scope:city_sight = flag:pilgrims_and_shrines }
 	
 # 		current_travel_plan = {
 # 			delay_travel_plan = {
@@ -1949,120 +2338,122 @@ scripted_trigger city_event_check = {
 # 			custom_tooltip = souvenir_tooltip
 # 		}
 
-# 		hidden_effect = { 
-# 			if = {
-# 				limit = {
-# 					NOT = { religion = religion:calradian_religion }
-# 				}
-# 				if = {
-# 					limit = {
-# 						exists = scope:sightseeing_companion #Two people search better than one
-# 						learning >= scope:sightseeing_companion.learning
-# 					}
-# 					#A book needs an author of local culture and religion.
-# 					create_character = {
-# 						template = scholar_character
-# 						dynasty = none
-# 						location = root.location
-# 						culture = root.location.culture
-# 						faith = root.location.faith
-# 						save_scope_as = book_seller
-# 					}
-# 				}
-# 				else = {
-# 					create_character = {
-# 						template = scholar_character
-# 						dynasty = none
-# 						location = root.location
-# 						culture = root.location.culture
-# 						faith = root.location.faith
-# 						random_traits_list = {
-# 							count = 1
-# 							education_learning_2 = {}
-# 							education_learning_3 = {}
-# 						}
-# 						learning = {
-# 							min_template_decent_skill
-# 							max_template_decent_skill
-# 						}
-# 						save_scope_as = book_seller
-# 					}
-# 				}
-# 				hidden_effect_new_object = {
-# 					create_artifact_book_effect = {
-# 						OWNER = root
-# 						CREATOR = scope:book_seller
-# 						SET_SUBJECT = flag:learning
-# 						SET_TOPIC = flag:no
-# 					}
-# 					scope:newly_created_artifact = {
-# 						save_scope_as = souvenir
-# 						if = {
-# 							limit = {
-# 								NOT = {
-# 									root = { has_royal_court = yes }
-# 								}
-# 							}
-# 							reforge_artifact = {
-# 								type = miscellaneous
-# 							}
-# 						}
-# 						set_artifact_description = book_artifact_loc
-# 					}
-# 				}
-# 				if = {
-# 					limit = {
-# 						exists = scope:sightseeing_companion
-# 					}
-# 					send_interface_toast = {
-# 						title = souvenir_bought_companion
-# 						left_icon = scope:sightseeing_companion
-# 						right_icon = scope:souvenir
-# 					}
-# 				}
-# 				else = {
-# 					send_interface_toast = {
-# 						title = souvenir_bought_companion
-# 						left_icon = root
-# 						right_icon = scope:souvenir
-# 					}
-# 				}
-# 				hidden_effect = {
-# 					scope:book_seller = {
-# 						silent_disappearance_effect = yes
-# 					}
-# 				}
-# 			}
-# 			else = { #If Christian you get a relic
-# 				hidden_effect_new_object = {
-# 					create_artifact_pedestal_christian_relic_effect_hist = { OWNER = this }
-# 					scope:epic = {
-# 						save_scope_as = souvenir
-# 					}
-# 					send_interface_toast = {
-# 						title = souvenir_bought
-# 						left_icon = root
-# 						right_icon = scope:souvenir
-# 					}
-# 				}
-# 			}
-# 		}
+	# 	hidden_effect = { 
+	# 		if = {
+	# 			limit = {
+	# 				NOT = { religion = religion:christianity_religion }
+	# 			}
+	# 			if = {
+	# 				limit = {
+	# 					exists = scope:sightseeing_companion #Two people search better than one
+	# 					learning >= scope:sightseeing_companion.learning
+	# 				}
+	# 				#A book needs an author of local culture and religion.
+	# 				create_character = {
+	# 					template = scholar_character
+	# 					dynasty = none
+	# 					location = root.location
+	# 					culture = root.location.culture
+	# 					faith = root.location.faith
+	# 					rite = root.location.rite
+	# 					save_scope_as = book_seller
+	# 				}
+	# 			}
+	# 			else = {
+	# 				create_character = {
+	# 					template = scholar_character
+	# 					dynasty = none
+	# 					location = root.location
+	# 					culture = root.location.culture
+	# 					faith = root.location.faith
+	# 					rite = root.location.rite
+	# 					random_traits_list = {
+	# 						count = 1
+	# 						education_learning_2 = {}
+	# 						education_learning_3 = {}
+	# 					}
+	# 					learning = {
+	# 						min_template_decent_skill
+	# 						max_template_decent_skill
+	# 					}
+	# 					save_scope_as = book_seller
+	# 				}
+	# 			}
+	# 			hidden_effect_new_object = {
+	# 				create_artifact_book_effect = {
+	# 					OWNER = root
+	# 					CREATOR = scope:book_seller
+	# 					SET_SUBJECT = flag:learning
+	# 					SET_TOPIC = flag:no
+	# 				}
+	# 				scope:newly_created_artifact = {
+	# 					save_scope_as = souvenir
+	# 					if = {
+	# 						limit = {
+	# 							NOT = {
+	# 								root = { has_royal_court = yes }
+	# 							}
+	# 						}
+	# 						reforge_artifact = {
+	# 							type = miscellaneous
+	# 						}
+	# 					}
+	# 					set_artifact_description = book_artifact_loc
+	# 				}
+	# 			}
+	# 			if = {
+	# 				limit = {
+	# 					exists = scope:sightseeing_companion
+	# 				}
+	# 				send_interface_toast = {
+	# 					title = souvenir_bought_companion
+	# 					left_icon = scope:sightseeing_companion
+	# 					right_icon = scope:souvenir
+	# 				}
+	# 			}
+	# 			else = {
+	# 				send_interface_toast = {
+	# 					title = souvenir_bought_companion
+	# 					left_icon = root
+	# 					right_icon = scope:souvenir
+	# 				}
+	# 			}
+	# 			hidden_effect = {
+	# 				scope:book_seller = {
+	# 					silent_disappearance_effect = yes
+	# 				}
+	# 			}
+	# 		}
+	# 		else = { #If Christian you get a relic
+	# 			hidden_effect_new_object = {
+	# 				create_artifact_pedestal_christian_relic_effect_hist = { OWNER = this }
+	# 				scope:epic = {
+	# 					save_scope_as = souvenir
+	# 				}
+	# 				send_interface_toast = {
+	# 					title = souvenir_bought
+	# 					left_icon = root
+	# 					right_icon = scope:souvenir
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
-# 		stress_impact = {
-# 			arrogant = minor_stress_impact_gain
-# 			greedy = minor_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = arrogant
-# 					has_trait = greedy
-# 				}
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		arrogant = minor_stress_impact_gain
+	# 		greedy = minor_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = arrogant
+	# 				has_trait = greedy
+	# 			}
+	# 		}
+	# 	}
+	# }
 
 # 	option = { # Pilgrims and Shrines Option B - Not Christian
 # 		name = travel_city_option_learning
@@ -2166,29 +2557,29 @@ scripted_trigger city_event_check = {
 # 			}
 # 		}
 
-# 		stress_impact = {
-# 			lazy = minor_stress_impact_gain
-# 			shy = medium_stress_impact_gain
-# 			craven = medium_stress_impact_gain
-# 			reclusive = major_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 2
-# 				has_focus_diplomacy = yes
-# 			}
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = lazy
-# 					has_trait = shy
-# 					has_trait = craven
-# 					has_trait = reclusive
-# 				}
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		lazy = minor_stress_impact_gain
+	# 		shy = medium_stress_impact_gain
+	# 		craven = medium_stress_impact_gain
+	# 		reclusive = major_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 2
+	# 			has_focus_diplomacy = yes
+	# 		}
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = lazy
+	# 				has_trait = shy
+	# 				has_trait = craven
+	# 				has_trait = reclusive
+	# 			}
+	# 		}
+	# 	}
+	# }
 
 # 	option = { # Pilgrims and Shrines Option B
 # 		name = travel_city_option_learning
@@ -2258,11 +2649,11 @@ scripted_trigger city_event_check = {
 
 # 		#I am on a way to an activity so quite possibly I am trying to relieve stress - also nice out from danger related stress
 
-# 		stress_impact = { 
-# 			base = major_stress_impact_loss
-# 			gregarious = miniscule_stress_impact_loss
-# 			temperate = medium_stress_impact_gain
-# 		}
+		# stress_and_fulfillment_impact = { 
+		# 	base = major_stress_impact_loss
+		# 	gregarious = miniscule_stress_impact_loss
+		# 	temperate = medium_stress_impact_gain
+		# }
 
 # 		ai_chance = {
 # 			base = 25
@@ -2290,9 +2681,9 @@ scripted_trigger city_event_check = {
 # 		#This one just opts out
 # 		#No travel time loss
 
-# 		stress_impact = { #Minor stress loss for focusing on the project underway
-# 			lifestyle_traveler = minor_stress_impact_loss
-# 		}
+		# stress_and_fulfillment_impact = { #Minor stress loss for focusing on the project underway
+		# 	lifestyle_traveler = minor_stress_impact_loss
+		# }
 		
 # 		ai_chance = {
 # 			base = 25
@@ -2455,13 +2846,11 @@ scripted_trigger city_event_check = {
 # 		}
 # 	}
 
-# 	trigger = {
-# 		location = province:902 #Constantinople
-# 		city_event_check = yes
-# 		NOT = {
-# 			has_title = title:e_byzantium #This just does not work for a byzantine emperor, even if they moved their capital out of the city
-# 		}
-# 	}
+	# trigger = {
+	# 	location = province:496 #Constantinople
+	# 	city_event_check = yes
+	# 	is_roman_emperor_trigger = no #This just does not work for a byzantine emperor, even if they moved their capital out of the city
+	# }
 
 # 	immediate = {
 # 		play_music_cue = mx_cue_travel_arrival
@@ -2626,127 +3015,127 @@ scripted_trigger city_event_check = {
 # 			custom_tooltip = duel_companion_tooltip
 # 		}
 
-# 		duel = {
-# 			skill = stewardship
-# 			value = {
-# 				value = 0
-# 				if = {
-# 					limit = {
-# 						exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 diplomacy to have been saved
-# 					}
-# 					add = high_skill_rating
-# 				}
-# 				else = {
-# 					add = very_high_skill_rating
-# 				}
-# 				if = {
-# 					limit = {
-# 						scope:city_province = {
-# 							culture = {
-# 								has_cultural_pillar = language_calradic
-# 							}
-# 						}
-# 						knows_language_of_culture = scope:city_province.culture
-# 					}
-# 					add = -5
-# 				}
-# 			}
-# 			# Success: Great Success - You get a Perk
-# 			15 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_great_success
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_great_success
-# 					left_icon = root
-# 					if = {
-# 						limit = {
-# 							NOT = { has_perk = centralization_perk }
-# 						}
-# 						add_perk = centralization_perk
-# 					}
-# 					else_if = { #Fallback
-# 						limit = {
-# 							has_focus_stewardship = yes
-# 						}
-# 						add_stewardship_lifestyle_xp = massive_lifestyle_experience
-# 					}
-# 					else = { #Final fallback
-# 						add_stewardship_skill = 2
-# 					}
-# 				}
-# 			}
-# 			# Success: Success - You get Stewardship
-# 			35 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_success
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_success
-# 					left_icon = root
-# 					add_stewardship_skill = 1
-# 				}
-# 			}
-# 			20 = { # Failure: Modifier
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_history_fail
-# 				send_interface_toast = {
-# 					title = travel_city_duel_history_fail
-# 					left_icon = root
-# 					add_character_modifier = {
-# 						modifier = travel_city_roman_rulership
-# 						years = 15
-# 					}
-# 				}
-# 			}
-# 			30 = { # Failure: You look stupid
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_fail_no_companion
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_fail_no_companion
-# 					left_icon = root
-# 					add_prestige = medium_prestige_loss
-# 					stress_impact = {
-# 						base = miniscule_stress_impact_gain
-# 					}
-# 				}
-# 			}
-# 		}
+	# 	duel = {
+	# 		skill = stewardship
+	# 		value = {
+	# 			value = 0
+	# 			if = {
+	# 				limit = {
+	# 					exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 diplomacy to have been saved
+	# 				}
+	# 				add = high_skill_rating
+	# 			}
+	# 			else = {
+	# 				add = very_high_skill_rating
+	# 			}
+	# 			if = {
+	# 				limit = {
+	# 					scope:city_province = {
+	# 						culture = {
+	# 							has_cultural_pillar = language_greek
+	# 						}
+	# 					}
+	# 					knows_language_of_culture = scope:city_province.culture
+	# 				}
+	# 				add = -5
+	# 			}
+	# 		}
+	# 		# Success: Great Success - You get a Perk
+	# 		15 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_success
+	# 				left_icon = root
+	# 				if = {
+	# 					limit = {
+	# 						NOT = { has_perk = centralization_perk }
+	# 					}
+	# 					add_perk = centralization_perk
+	# 				}
+	# 				else_if = { #Fallback
+	# 					limit = {
+	# 						has_focus_stewardship = yes
+	# 					}
+	# 					add_stewardship_lifestyle_xp = massive_lifestyle_experience
+	# 				}
+	# 				else = { #Final fallback
+	# 					add_stewardship_skill = 2
+	# 				}
+	# 			}
+	# 		}
+	# 		# Success: Success - You get Stewardship
+	# 		35 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_success
+	# 				left_icon = root
+	# 				add_stewardship_skill = 1
+	# 			}
+	# 		}
+	# 		20 = { # Failure: Modifier
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_history_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_history_fail
+	# 				left_icon = root
+	# 				add_character_modifier = {
+	# 					modifier = travel_city_roman_rulership
+	# 					years = 15
+	# 				}
+	# 			}
+	# 		}
+	# 		30 = { # Failure: You look stupid
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_fail_no_companion
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_fail_no_companion
+	# 				left_icon = root
+	# 				add_prestige = medium_prestige_loss
+	# 				stress_and_fulfillment_impact = {
+	# 					base = miniscule_stress_impact_gain
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
 
-# 		stress_impact = {
-# 			arrogant = minor_stress_impact_gain #Unwilling to learn from the past
-# 			lazy = medium_stress_impact_gain #Unwilling to learn period
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = arrogant
-# 					has_trait = lazy
-# 				}
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		arrogant = minor_stress_impact_gain #Unwilling to learn from the past
+	# 		lazy = medium_stress_impact_gain #Unwilling to learn period
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = arrogant
+	# 				has_trait = lazy
+	# 			}
+	# 		}
+	# 	}
+	# }
 
 # 	option = { # Aqueducts & Cisterns Option B
 # 		name = travel_city_option_study_aqueducts
@@ -2800,10 +3189,10 @@ scripted_trigger city_event_check = {
 # 			}
 # 		}
 
-# 		stress_impact = {
-# 			arrogant = minor_stress_impact_gain #Unwilling to learn from the past
-# 			lazy = medium_stress_impact_gain #Unwilling to learn period
-# 		}
+		# stress_and_fulfillment_impact = {
+		# 	arrogant = minor_stress_impact_gain #Unwilling to learn from the past
+		# 	lazy = medium_stress_impact_gain #Unwilling to learn period
+		# }
 
 # 		ai_chance = {
 # 			base = 25
@@ -2850,154 +3239,156 @@ scripted_trigger city_event_check = {
 # 			custom_tooltip = souvenir_tooltip
 # 		}
 
-# 		hidden_effect = { #An artifacts needs a maker of local culture and religion.
-# 			save_scope_value_as = {
-# 				name = quality
-# 				value = {
-# 					value = 30
-# 					if = {
-# 						limit = {
-# 							exists = scope:sightseeing_companion
-# 						}
-# 						add = 20
-# 					}
-# 				}
-# 			}
-# 			save_scope_value_as = {
-# 				name = wealth
-# 				value = {
-# 					value = 30
-# 					add = root.stewardship
-# 					if = {
-# 						limit = {
-# 							exists = scope:sightseeing_companion
-# 						}
-# 						add = scope:sightseeing_companion.stewardship
-# 					}
-# 				}
-# 			}
-# 			if = { #Skill mostly relevant for books
-# 				limit = {
-# 					exists = scope:sightseeing_companion #Two people search better than one
-# 					stewardship >= scope:sightseeing_companion.stewardship
-# 				}
-# 				create_character = {
-# 					template = scholar_character
-# 					dynasty = none
-# 					location = root.location
-# 					culture = root.location.culture
-# 					faith = root.location.faith
-# 					save_scope_as = book_seller
-# 				}
-# 			}
-# 			else = {
-# 				create_character = {
-# 					template = scholar_character
-# 					dynasty = none
-# 					location = root.location
-# 					culture = root.location.culture
-# 					faith = root.location.faith
-# 					random_traits_list = {
-# 						count = 1
-# 						education_learning_2 = {}
-# 						education_learning_3 = {}
-# 					}
-# 					learning = {
-# 						min_template_decent_skill
-# 						max_template_decent_skill
-# 					}
-# 					save_scope_as = book_seller
-# 				}
-# 			}
-# 			random_list = {
-# 				33 = {
-# 					hidden_effect_new_object = {
-# 						create_artifact_book_effect = {
-# 							OWNER = root
-# 							CREATOR = scope:book_seller
-# 							SET_SUBJECT = flag:learning
-# 							SET_TOPIC = flag:no
-# 						}
-# 						scope:newly_created_artifact = {
-# 							save_scope_as = souvenir
-# 							if = {
-# 								limit = {
-# 									NOT = {
-# 										root = { has_royal_court = yes }
-# 									}
-# 								}
-# 								reforge_artifact = {
-# 									type = miscellaneous
-# 								}
-# 							}
-# 							set_artifact_description = book_artifact_loc
-# 						}
-# 					}
-# 				}
-# 				33 = {
-# 					hidden_effect_new_object = {
-# 						create_artifact_regalia_effect = {
-# 							OWNER = root
-# 							SMITH = scope:book_seller
-# 						}
-# 						scope:newly_created_artifact = {
-# 							save_scope_as = souvenir
-# 							set_artifact_description = regalia_artifact_loc
-# 						}
-# 					}
-# 				}
-# 				33 = {
-# 					hidden_effect_new_object = {
-# 						create_artifact_crown_effect = {
-# 							OWNER = root
-# 							SMITH = scope:book_seller
-# 						}
-# 						scope:newly_created_artifact = {
-# 							save_scope_as = souvenir
-# 							set_artifact_description = crown_artifact_loc
-# 						}
-# 					}
-# 				}
-# 			}
-# 			if = {
-# 				limit = {
-# 					exists = scope:sightseeing_companion
-# 				}
-# 				send_interface_toast = {
-# 					title = souvenir_bought_companion
-# 					left_icon = scope:sightseeing_companion
-# 					right_icon = scope:souvenir
-# 				}
-# 			}
-# 			else = {
-# 				send_interface_toast = {
-# 					title = souvenir_bought
-# 					left_icon = root
-# 					right_icon = scope:souvenir
-# 				}
-# 			}
-# 			hidden_effect_new_object = {
-# 				scope:book_seller = {
-# 					silent_disappearance_effect = yes
-# 				}
-# 			}
-# 		}
+	# 	hidden_effect = { #An artifacts needs a maker of local culture and religion.
+	# 		save_scope_value_as = {
+	# 			name = quality
+	# 			value = {
+	# 				value = 30
+	# 				if = {
+	# 					limit = {
+	# 						exists = scope:sightseeing_companion
+	# 					}
+	# 					add = 20
+	# 				}
+	# 			}
+	# 		}
+	# 		save_scope_value_as = {
+	# 			name = wealth
+	# 			value = {
+	# 				value = 30
+	# 				add = root.stewardship
+	# 				if = {
+	# 					limit = {
+	# 						exists = scope:sightseeing_companion
+	# 					}
+	# 					add = scope:sightseeing_companion.stewardship
+	# 				}
+	# 			}
+	# 		}
+	# 		if = { #Skill mostly relevant for books
+	# 			limit = {
+	# 				exists = scope:sightseeing_companion #Two people search better than one
+	# 				stewardship >= scope:sightseeing_companion.stewardship
+	# 			}
+	# 			create_character = {
+	# 				template = scholar_character
+	# 				dynasty = none
+	# 				location = root.location
+	# 				culture = root.location.culture
+	# 				faith = root.location.faith
+	# 				rite = root.location.rite
+	# 				save_scope_as = book_seller
+	# 			}
+	# 		}
+	# 		else = {
+	# 			create_character = {
+	# 				template = scholar_character
+	# 				dynasty = none
+	# 				location = root.location
+	# 				culture = root.location.culture
+	# 				faith = root.location.faith
+	# 				rite = root.location.rite
+	# 				random_traits_list = {
+	# 					count = 1
+	# 					education_learning_2 = {}
+	# 					education_learning_3 = {}
+	# 				}
+	# 				learning = {
+	# 					min_template_decent_skill
+	# 					max_template_decent_skill
+	# 				}
+	# 				save_scope_as = book_seller
+	# 			}
+	# 		}
+	# 		random_list = {
+	# 			33 = {
+	# 				hidden_effect_new_object = {
+	# 					create_artifact_book_effect = {
+	# 						OWNER = root
+	# 						CREATOR = scope:book_seller
+	# 						SET_SUBJECT = flag:learning
+	# 						SET_TOPIC = flag:no
+	# 					}
+	# 					scope:newly_created_artifact = {
+	# 						save_scope_as = souvenir
+	# 						if = {
+	# 							limit = {
+	# 								NOT = {
+	# 									root = { has_royal_court = yes }
+	# 								}
+	# 							}
+	# 							reforge_artifact = {
+	# 								type = miscellaneous
+	# 							}
+	# 						}
+	# 						set_artifact_description = book_artifact_loc
+	# 					}
+	# 				}
+	# 			}
+	# 			33 = {
+	# 				hidden_effect_new_object = {
+	# 					create_artifact_regalia_effect = {
+	# 						OWNER = root
+	# 						SMITH = scope:book_seller
+	# 					}
+	# 					scope:newly_created_artifact = {
+	# 						save_scope_as = souvenir
+	# 						set_artifact_description = regalia_artifact_loc
+	# 					}
+	# 				}
+	# 			}
+	# 			33 = {
+	# 				hidden_effect_new_object = {
+	# 					create_artifact_crown_effect = {
+	# 						OWNER = root
+	# 						SMITH = scope:book_seller
+	# 					}
+	# 					scope:newly_created_artifact = {
+	# 						save_scope_as = souvenir
+	# 						set_artifact_description = crown_artifact_loc
+	# 					}
+	# 				}
+	# 			}
+	# 		}
+	# 		if = {
+	# 			limit = {
+	# 				exists = scope:sightseeing_companion
+	# 			}
+	# 			send_interface_toast = {
+	# 				title = souvenir_bought_companion
+	# 				left_icon = scope:sightseeing_companion
+	# 				right_icon = scope:souvenir
+	# 			}
+	# 		}
+	# 		else = {
+	# 			send_interface_toast = {
+	# 				title = souvenir_bought
+	# 				left_icon = root
+	# 				right_icon = scope:souvenir
+	# 			}
+	# 		}
+	# 		hidden_effect_new_object = {
+	# 			scope:book_seller = {
+	# 				silent_disappearance_effect = yes
+	# 			}
+	# 		}
+	# 	}
 
-# 		stress_impact = {
-# 			arrogant = minor_stress_impact_gain
-# 			greedy = medium_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = arrogant
-# 					has_trait = greedy
-# 				}
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		arrogant = minor_stress_impact_gain
+	# 		greedy = medium_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = arrogant
+	# 				has_trait = greedy
+	# 			}
+	# 		}
+	# 	}
+	# }
 
 # 	option = { # Augustaion Option B
 # 		name = travel_city_option_study_locals
@@ -3018,124 +3409,124 @@ scripted_trigger city_event_check = {
 # 			custom_tooltip = duel_companion_tooltip
 # 		}
 
-# 		duel = {
-# 			skill = diplomacy
-# 			value = {
-# 				value = 0
-# 				if = {
-# 					limit = {
-# 						exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 diplomacy to have been saved
-# 					}
-# 					add = high_skill_rating
-# 				}
-# 				else = {
-# 					add = very_high_skill_rating
-# 				}
-# 				if = {
-# 					limit = {
-# 						scope:city_province = {
-# 							culture = {
-# 								has_cultural_pillar = language_calradic
-# 							}
-# 						}
-# 						knows_language_of_culture = scope:city_province.culture
-# 					}
-# 					add = -5
-# 				}
-# 			}
-# 			# Success: Great Success - You get a Perk
-# 			15 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_great_success
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_great_success
-# 					left_icon = root
-# 					if = {
-# 						limit = {
-# 							NOT = { has_perk = dignitas_perk }
-# 						}
-# 						add_perk = dignitas_perk
-# 					}
-# 					else_if = { #Fallback
-# 						limit = {
-# 							has_focus_diplomacy = yes
-# 						}
-# 						add_diplomacy_lifestyle_xp = massive_lifestyle_experience
-# 					}
-# 					else = { #Final fallback
-# 						add_diplomacy_skill = 2
-# 					}
-# 				}
-# 			}
-# 			# Success: Success - You get Diplomacy
-# 			35 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_success
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_success
-# 					left_icon = root
-# 					add_diplomacy_skill = 1
-# 				}
-# 			}
-# 			20 = { # Failure: Modifier
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_fail
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_fail
-# 					left_icon = root
-# 					add_prestige = minor_prestige_gain
-# 				}
-# 			}
-# 			30 = { # Failure: You look stupid
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_great_fail
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_great_fail
-# 					left_icon = root
-# 					add_prestige = medium_prestige_loss
-# 					stress_impact = {
-# 						base = miniscule_stress_impact_gain
-# 					}
-# 				}
-# 			}
-# 		}
+	# 	duel = {
+	# 		skill = diplomacy
+	# 		value = {
+	# 			value = 0
+	# 			if = {
+	# 				limit = {
+	# 					exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 diplomacy to have been saved
+	# 				}
+	# 				add = high_skill_rating
+	# 			}
+	# 			else = {
+	# 				add = very_high_skill_rating
+	# 			}
+	# 			if = {
+	# 				limit = {
+	# 					scope:city_province = {
+	# 						culture = {
+	# 							has_cultural_pillar = language_greek
+	# 						}
+	# 					}
+	# 					knows_language_of_culture = scope:city_province.culture
+	# 				}
+	# 				add = -5
+	# 			}
+	# 		}
+	# 		# Success: Great Success - You get a Perk
+	# 		15 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_success
+	# 				left_icon = root
+	# 				if = {
+	# 					limit = {
+	# 						NOT = { has_perk = dignitas_perk }
+	# 					}
+	# 					add_perk = dignitas_perk
+	# 				}
+	# 				else_if = { #Fallback
+	# 					limit = {
+	# 						has_focus_diplomacy = yes
+	# 					}
+	# 					add_diplomacy_lifestyle_xp = massive_lifestyle_experience
+	# 				}
+	# 				else = { #Final fallback
+	# 					add_diplomacy_skill = 2
+	# 				}
+	# 			}
+	# 		}
+	# 		# Success: Success - You get Diplomacy
+	# 		35 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_success
+	# 				left_icon = root
+	# 				add_diplomacy_skill = 1
+	# 			}
+	# 		}
+	# 		20 = { # Failure: Modifier
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_fail
+	# 				left_icon = root
+	# 				add_prestige = minor_prestige_gain
+	# 			}
+	# 		}
+	# 		30 = { # Failure: You look stupid
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_fail
+	# 				left_icon = root
+	# 				add_prestige = medium_prestige_loss
+	# 				stress_and_fulfillment_impact = {
+	# 					base = miniscule_stress_impact_gain
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
 
-# 		stress_impact = {
-# 			arrogant = minor_stress_impact_gain #Unwilling to learn from the past
-# 			lazy = medium_stress_impact_gain #Unwilling to learn period
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = arrogant
-# 					has_trait = lazy
-# 				}
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		arrogant = minor_stress_impact_gain #Unwilling to learn from the past
+	# 		lazy = medium_stress_impact_gain #Unwilling to learn period
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = arrogant
+	# 				has_trait = lazy
+	# 			}
+	# 		}
+	# 	}
+	# }
 
 # 	#Goldsmiths & Moneychangers - Options
 # 	option = { # Goldsmiths & Moneychangers Option A
@@ -3155,131 +3546,131 @@ scripted_trigger city_event_check = {
 # 			custom_tooltip = duel_companion_tooltip
 # 		}
 
-# 		duel = {
-# 			skill = stewardship
-# 			value = {
-# 				value = 0
-# 				if = {
-# 					limit = {
-# 						exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 Stewardship to have been saved
-# 					}
-# 					add = high_skill_rating
-# 				}
-# 				else = {
-# 					add = very_high_skill_rating
-# 				}
-# 				if = {
-# 					limit = {
-# 						knows_language_of_culture = scope:city_province.culture
-# 					}
-# 					add = -5
-# 				}
-# 			}
-# 			# Success: Great Success - You get a Perk
-# 			15 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_great_success
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_great_success
-# 					left_icon = root
-# 					if = {
-# 						limit = {
-# 							NOT = { has_perk = detailed_ledgers_perk }
-# 						}
-# 						add_perk = detailed_ledgers_perk
-# 					}
-# 					else_if = { #Fallback
-# 						limit = {
-# 							has_focus_stewardship = yes
-# 						}
-# 						add_stewardship_lifestyle_xp = massive_lifestyle_experience
-# 					}
-# 					else = { #Final fallback
-# 						add_stewardship_skill = 2
-# 					}
-# 				}
-# 			}
-# 			# Success: Success - You get Diplomacy
-# 			35 = {
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = 3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_success
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_success
-# 					left_icon = root
-# 					add_stewardship_skill = 1
-# 				}
-# 			}
-# 			20 = { # Failure: Modifier
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_fail
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_fail
-# 					left_icon = root
-# 					add_prestige = minor_prestige_gain
-# 				}
-# 			}
-# 			30 = { # Failure: You look stupid
-# 				compare_modifier = {
-# 					value = scope:duel_value
-# 					multiplier = -3.5
-# 					min = -49
-# 				}
-# 				min = 5
-# 				desc = travel_city_duel_teaching_great_fail
-# 				send_interface_toast = {
-# 					title = travel_city_duel_teaching_great_fail
-# 					left_icon = root
-# 					add_prestige = medium_prestige_loss
-# 					stress_impact = {
-# 						base = miniscule_stress_impact_gain
-# 					}
-# 				}
-# 			}
-# 		}
+	# 	duel = {
+	# 		skill = stewardship
+	# 		value = {
+	# 			value = 0
+	# 			if = {
+	# 				limit = {
+	# 					exists = scope:sightseeing_companion #You engage together in these conversations and share notes afterwards - This companion has at least 15 Stewardship to have been saved
+	# 				}
+	# 				add = high_skill_rating
+	# 			}
+	# 			else = {
+	# 				add = very_high_skill_rating
+	# 			}
+	# 			if = {
+	# 				limit = {
+	# 					knows_language_of_culture = scope:city_province.culture
+	# 				}
+	# 				add = -5
+	# 			}
+	# 		}
+	# 		# Success: Great Success - You get a Perk
+	# 		15 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_success
+	# 				left_icon = root
+	# 				if = {
+	# 					limit = {
+	# 						NOT = { has_perk = detailed_ledgers_perk }
+	# 					}
+	# 					add_perk = detailed_ledgers_perk
+	# 				}
+	# 				else_if = { #Fallback
+	# 					limit = {
+	# 						has_focus_stewardship = yes
+	# 					}
+	# 					add_stewardship_lifestyle_xp = massive_lifestyle_experience
+	# 				}
+	# 				else = { #Final fallback
+	# 					add_stewardship_skill = 2
+	# 				}
+	# 			}
+	# 		}
+	# 		# Success: Success - You get Diplomacy
+	# 		35 = {
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = 3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_success
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_success
+	# 				left_icon = root
+	# 				add_stewardship_skill = 1
+	# 			}
+	# 		}
+	# 		20 = { # Failure: Modifier
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_fail
+	# 				left_icon = root
+	# 				add_prestige = minor_prestige_gain
+	# 			}
+	# 		}
+	# 		30 = { # Failure: You look stupid
+	# 			compare_modifier = {
+	# 				value = scope:duel_value
+	# 				multiplier = -3.5
+	# 				min = -49
+	# 			}
+	# 			min = 5
+	# 			desc = travel_city_duel_teaching_great_fail
+	# 			send_interface_toast = {
+	# 				title = travel_city_duel_teaching_great_fail
+	# 				left_icon = root
+	# 				add_prestige = medium_prestige_loss
+	# 				stress_and_fulfillment_impact = {
+	# 					base = miniscule_stress_impact_gain
+	# 				}
+	# 			}
+	# 		}
+	# 	}
 
-# 		stress_impact = {
-# 			lazy = minor_stress_impact_gain
-# 			shy = medium_stress_impact_gain
-# 			craven = medium_stress_impact_gain
-# 			reclusive = major_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 25
-# 			modifier = {
-# 				factor = 2
-# 				has_focus_diplomacy = yes
-# 			}
-# 			modifier = {
-# 				factor = 0
-# 				OR = {
-# 					has_trait = lazy
-# 					has_trait = shy
-# 					has_trait = craven
-# 					has_trait = reclusive
-# 				}
-# 			}
-# 		}
-# 	}
-# 	option = { # Goldsmiths & Moneychangers Option B
-# 		name = travel_city_option_earn_money
-# 		trigger = {
-# 			scope:city_sight = flag:goldsmiths_moneychangers
-# 		}
+	# 	stress_and_fulfillment_impact = {
+	# 		lazy = minor_stress_impact_gain
+	# 		shy = medium_stress_impact_gain
+	# 		craven = medium_stress_impact_gain
+	# 		reclusive = major_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 25
+	# 		modifier = {
+	# 			factor = 2
+	# 			has_focus_diplomacy = yes
+	# 		}
+	# 		modifier = {
+	# 			factor = 0
+	# 			OR = {
+	# 				has_trait = lazy
+	# 				has_trait = shy
+	# 				has_trait = craven
+	# 				has_trait = reclusive
+	# 			}
+	# 		}
+	# 	}
+	# }
+	# option = { # Goldsmiths & Moneychangers Option B
+	# 	name = travel_city_option_earn_money
+	# 	trigger = {
+	# 		scope:city_sight = flag:goldsmiths_moneychangers
+	# 	}
 
 # 		current_travel_plan = {
 # 			delay_travel_plan = {
@@ -3314,13 +3705,13 @@ scripted_trigger city_event_check = {
 # 			}
 # 		}
 
-# 		stress_impact = {
-# 			lazy = minor_stress_impact_gain
-# 			shy = medium_stress_impact_gain
-# 			craven = medium_stress_impact_gain
-# 			reclusive = major_stress_impact_gain
-# 			diligent = medium_stress_impact_loss
-# 		}
+		# stress_and_fulfillment_impact = {
+		# 	lazy = minor_stress_impact_gain
+		# 	shy = medium_stress_impact_gain
+		# 	craven = medium_stress_impact_gain
+		# 	reclusive = major_stress_impact_gain
+		# 	diligent = medium_stress_impact_loss
+		# }
 
 # 		ai_chance = {
 # 			base = 25
@@ -3348,9 +3739,9 @@ scripted_trigger city_event_check = {
 # 		#This one just opts out
 # 		#No travel time loss
 
-# 		stress_impact = { #Minor stress loss for focusing on the project underway
-# 			lifestyle_traveler = minor_stress_impact_loss
-# 		}
+		# stress_and_fulfillment_impact = { #Minor stress loss for focusing on the project underway
+		# 	lifestyle_traveler = minor_stress_impact_loss
+		# }
 		
 # 		ai_chance = {
 # 			base = 25

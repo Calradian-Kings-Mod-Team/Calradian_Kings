@@ -252,9 +252,81 @@ war_end_legitimacy_effect = {
 		hidden_effect = {
 			if = {
 				limit = {
-					exists = scope:target_title
-					scope:target_title = title:e_calradian_empire
-					$WINNER$ = { is_valid_for_legitimacy_change = yes }
+					is_valid_for_legitimacy_change = yes
+					primary_title.tier <= $LOSER$.primary_title.tier
+				}
+				send_interface_toast = {
+					type = msg_legitimacy_gain
+					title = legitimacy_gain_toast
+					left_icon = $WINNER$
+					right_icon = $LOSER$
+					
+					add_legitimacy = {
+						value = {
+							value = 1
+
+							# You get a lot of Legitimacy for punching above your weight
+							add = $LOSER$.primary_title.tier
+							subtract = primary_title.tier
+
+							multiply = 50
+						}
+						
+						if = { # We give you extra Legitimacy for Religious Wars
+							limit = {
+								root.war ?= {
+									OR = {
+										using_cb = minor_religious_war
+										using_cb = religious_war
+									}
+								}
+							}
+							multiply = 2
+						}
+						else_if = { # And even more for Holy Wars
+							limit = {
+								root.war ?= {
+									OR = {
+										using_cb = major_religious_war
+										using_cb = undirected_great_holy_war
+										using_cb = directed_great_holy_war
+									}
+								}
+							}
+							multiply = 3
+						}
+						
+						# if = { # We give you extra Legitimacy for special On Start Wars
+						# 	limit = {
+						# 		root.war ?= {
+						# 			OR = {
+						# 				using_cb = norman_conquest_cb
+						# 				using_cb = norwegian_invasion_cb
+						# 				using_cb = sons_of_lothbrok_invasion_cb
+						# 			}
+						# 		}
+						# 	}
+						# 	multiply = 4
+						# }
+						
+						if = { # And we 50% increase whatever you have if you are a nomad
+							limit = {
+								government_has_flag = government_is_nomadic
+							}
+							multiply = 1.5
+						}
+					}
+				}
+			}
+			# Special extra Legitimacy gain for Byzantine rulers since their procedence didn't matter as much, to prevent them from always having 0 Legitimacy basically
+			hidden_effect = {
+				if = {
+					limit = {
+						exists = scope:target_title
+						scope:target_title = title:h_calradian_empire
+						$WINNER$ = { is_valid_for_legitimacy_change = yes }
+					}
+					add_legitimacy = 1000
 				}
 				add_legitimacy = 1000
 				

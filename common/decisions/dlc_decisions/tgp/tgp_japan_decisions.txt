@@ -26,11 +26,11 @@ tgp_japan_establish_house_fief_decision = {
 	}
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
 		has_government = japan_administrative_government
 		is_landed = yes
-		tgp_has_ceremonial_liege_title_trigger = no
 		is_independent_ruler = no
+		has_tgp_dlc_trigger = yes
+		tgp_has_ceremonial_liege_title_trigger = no
 	}
 
 	is_valid = {
@@ -91,8 +91,8 @@ tgp_japan_establish_house_fief_decision = {
 		# Crown Authority
 		trigger_if = {
 			limit = {
-				top_liege = { 
-					government_has_mechanic = administrative 
+				top_liege = {
+					government_has_mechanic = administrative
 					NOT = { government_has_flag = government_is_japan_feudal }
 				}
 			}
@@ -153,7 +153,7 @@ tgp_japan_establish_house_fief_decision = {
 				limit = {
 					is_independent_ruler = no
 					top_liege = { government_has_mechanic = administrative }
-					NOR = { 
+					NOR = {
 						var:petition_liege_house_fief_allowed_flag ?= scope:new_head.top_liege
 						top_liege = {
 							government_has_flag = government_is_japan_feudal
@@ -204,7 +204,7 @@ tgp_japan_establish_house_fief_decision = {
 		}
 		else = { trigger_event = tgp_japan_decision.9002 }
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 6
@@ -427,10 +427,10 @@ tgp_japan_establish_soryo_manor_decision = {
 	}
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
 		has_government = japan_administrative_government
-		tgp_has_ceremonial_liege_title_trigger = no
 		is_landed = no
+		tgp_has_ceremonial_liege_title_trigger = no
+		has_tgp_dlc_trigger = yes
 		exists = domicile
 	}
 
@@ -515,7 +515,7 @@ tgp_japan_establish_soryo_manor_decision = {
 		}
 		else = { trigger_event = tgp_japan_decision.9002 }
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 36
@@ -575,13 +575,17 @@ tgp_japan_establish_soryo_administration_decision = {
 	}
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
 		is_independent_ruler = yes
 		government_is_japanese_trigger = yes
-		NOR = { 
-			government_has_flag = government_is_japan_feudal 
+		NOR = {
+			government_has_flag = government_is_japan_feudal
 			has_global_variable = shogunate_established
+			AND = {
+				has_global_variable = tenno_restored
+				tgp_has_ceremonial_liege_title_trigger = yes
+			}
 		}
+		has_tgp_dlc_trigger = yes
 	}
 
 	is_valid = {
@@ -629,7 +633,7 @@ tgp_japan_establish_soryo_administration_decision = {
 		# 	delayed = yes
 		# }
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 0
@@ -659,14 +663,14 @@ tgp_japan_become_shogun_decision = {
 	}
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
-		tgp_is_in_ceremonial_house_trigger = no
 		government_has_flag = government_is_japan_feudal
-		top_liege = { has_title = title:e_japan }
 		NOR = {
 			has_global_variable = shogunate_established
 			has_global_variable = tenno_restored
 		}
+		top_liege ?= { has_title = title:e_japan }
+		tgp_is_in_ceremonial_house_trigger = no
+		has_tgp_dlc_trigger = yes
 	}
 
 	is_valid = {
@@ -717,7 +721,7 @@ tgp_japan_become_shogun_decision = {
 		# 	}
 		# }
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 0
@@ -747,14 +751,14 @@ tgp_japan_emperor_restoration_decision = {
 	}
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
-		top_liege = { has_title = title:e_japan }
 		tgp_realm_has_ceremonial_liege_trigger = yes
 		custom_tooltip = {
 			text = tgp_is_ceremonial_liege_tt
 			tgp_has_ceremonial_liege_title_trigger = yes
 		}
 		NOT = { has_global_variable = tenno_restored }
+		top_liege ?= { has_title = title:e_japan }
+		has_tgp_dlc_trigger = yes
 	}
 
 	is_valid = {
@@ -796,6 +800,7 @@ tgp_japan_emperor_restoration_decision = {
 	}
 
 	effect = {
+		custom_tooltip = disable_soryo_decision
 		if = {
 			limit = {
 				is_ai = no
@@ -811,7 +816,7 @@ tgp_japan_emperor_restoration_decision = {
 			restore_ceremonial_liege_faction_reward_effect = yes
 		}
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 0
@@ -844,16 +849,16 @@ tgp_japan_imperial_branch_decision = {
 	}
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
 		# Still Ritsuryo
 		government_is_japanese_trigger = yes
-		top_liege.primary_title.var:administrative_ui_special_title.holder ?= { government_is_japanese_trigger = yes }
 		# Must be Yamato
 		tgp_is_in_ceremonial_house_trigger = yes
 		# Monks need not apply
 		NOT = { has_trait = devoted }
 		# Must be within Japan
-		top_liege = { has_title = title:e_japan }
+		top_liege ?= { has_title = title:e_japan }
+		has_tgp_dlc_trigger = yes
+		top_liege.primary_title.var:administrative_ui_special_title.holder ?= { government_is_japanese_trigger = yes }
 	}
 
 	is_valid = {
@@ -993,7 +998,7 @@ tgp_japan_imperial_branch_decision = {
 		}
 		trigger_event = tgp_japan_decision.9201
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 36
@@ -1090,16 +1095,16 @@ tgp_japan_become_a_poet_decision = {
 	sort_order = 110
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
 		OR = {
 			AND = {
 				government_is_japanese_trigger = yes
-				house = { has_house_aspiration_parameter = ceremony_become_a_poet_decision }
+				house ?= { has_house_aspiration_parameter = ceremony_become_a_poet_decision }
 			}
 			top_participant_group:dynastic_cycle ?= {
 				participant_group_type = advancement_movement
 			}
 		}
+		has_tgp_dlc_trigger = yes
 	}
 
 	is_valid = {
@@ -1121,7 +1126,7 @@ tgp_japan_become_a_poet_decision = {
 			}
 		}
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 36
@@ -1160,9 +1165,9 @@ tgp_japan_train_with_troops_decision = {
 	}
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
 		government_is_japanese_trigger = yes
-		house = { has_house_aspiration_parameter = strength_train_with_troops_decision }
+		house ?= { has_house_aspiration_parameter = strength_train_with_troops_decision }
+		has_tgp_dlc_trigger = yes
 	}
 
 	is_valid_showing_failures_only = {
@@ -1224,7 +1229,7 @@ tgp_japan_train_with_troops_decision = {
 			}
 		}
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 12
@@ -1246,7 +1251,7 @@ tgp_japan_train_with_troops_decision = {
 
 # Becoming a Buddhist monk near the end of your life (or when you become seriously ill)
 ### In Search of the Pure Land ###
-## #CK_UPDATE CK_JAPAN CK_BUDDHISM
+## CALRADIAN KINGS - NO CURRENT PLANS FOR BUDDHISM OR A SIMILAR FOR NOW. UNCOMMENT WHEN OTHERWISE #CK_UPDATE CK_JAPAN CK_BUDDHISM
 tgp_japan_become_a_monk_decision = {
 	title = tgp_japan_become_a_monk_decision
 	desc = tgp_japan_become_a_monk_decision_desc
@@ -1266,27 +1271,13 @@ tgp_japan_become_a_monk_decision = {
 	}
 
 	is_shown = {
-		religion = religion:shantaya_religion
-		is_adult = yes
+		religion ?= religion:shantaya_religion
 		NOT = { government_has_flag = government_is_mandala }
+		is_adult = yes
 	}
 
 	is_valid = {
 		religion = religion:shantaya_religion
-		trigger_if = {
-			limit = { is_ai = no }
-			custom_tooltip = {
-				text = renounce_noble_family_title_decision_tt.title
-				any_held_title = { is_noble_family_title = yes }
-			}
-			custom_tooltip = {
-				text = renounce_noble_family_title_decision_tt.heir
-				any_held_title = {
-					is_noble_family_title = yes
-					current_heir = { is_available_ai_adult = yes }
-				}
-			}
-		}
 		OR = {
 			age >= 60
 			custom_tooltip = {
@@ -1295,6 +1286,9 @@ tgp_japan_become_a_monk_decision = {
 			}
 			has_contagious_deadly_disease_trigger = yes
 			has_trait = infirm
+			has_trait = withering_mind
+			has_trait = faltering_heart
+			has_trait = fragile_bones
 			has_trait = depressed_1
 		}
 	}
@@ -1309,32 +1303,38 @@ tgp_japan_become_a_monk_decision = {
 			imprisoned = no
 			incapable = no
 		}
-		custom_description = {
-			text = ALREADY_IN_ACTIVITY
-			NOR = {
-				exists = involved_activity
-				has_variable = {
-					name = homage_liege_scope
-					name = meditation_character_flag
-					name = local_shrine_rite
-					name = petition_liege_character_flag
-					name = holding_court_character_flag
-				}
-				is_being_visited_on_tour_strict = yes
-			}
-		}
-		custom_description = {
-			text = ALREADY_PLANNING_ACTIVITY
-			NOT = { has_character_flag = planning_an_activity }
-		}
-		# Variable set within the adventure inspiration events
-		NOT = { has_variable = gone_adventuring }
+		is_in_activity = no
 		is_at_war_with_liege = no
 		trigger_if = {
 			limit = {
 				has_realm_law_flag = celestial_retirement_law
 			}
 			tgp_is_above_retirement_age_trigger = { REALM_OWNER = root }
+		}
+		trigger_if = {
+			limit = {
+				is_ai = no
+			}
+			trigger_if = {
+				limit = { government_allows = noble_families }
+				custom_tooltip = {
+					text = renounce_noble_family_title_decision_tt.title
+					any_held_title = { is_noble_family_title = yes }
+				}
+				custom_tooltip = {
+					text = renounce_noble_family_title_decision_tt.heir
+					any_held_title = {
+						is_noble_family_title = yes
+						current_heir ?= { is_available_ai_adult = yes }
+					}
+				}
+			}
+			trigger_else = {
+				custom_tooltip = {
+					text = action_no_heir_label
+					exists = player_heir
+				}
+			}
 		}
 	}
 
@@ -1412,7 +1412,6 @@ tgp_japan_restore_japanese_monarchy_decision = {
 	sort_order = 80
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
 		government_is_japanese_trigger = yes
 		# Chrysanthemum no longer part of Japan or destroyed
 		trigger_if = {
@@ -1420,12 +1419,13 @@ tgp_japan_restore_japanese_monarchy_decision = {
 			NOT = { title:e_japan.holder ?= title:k_chrysanthemum_throne.holder.top_liege }
 		}
 		# Japanese culture
-		culture = {
+		culture ?= {
 			OR = {
 				this = culture:japanese_ck
 				any_parent_culture_or_above = { this = culture:japanese_ck }
 			}
 		}
+		has_tgp_dlc_trigger = yes
 	}
 
 	is_valid = {
@@ -1450,7 +1450,7 @@ tgp_japan_restore_japanese_monarchy_decision = {
 		tgp_restore_japanese_monarchy_decision_effect = yes
 		trigger_event = tgp_japan_decision.9901
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 0
@@ -1479,40 +1479,36 @@ tgp_japan_restore_japanese_monarchy_decision = {
 # 		}
 # 	}
 
-# 	is_shown = {
-# 		has_tgp_dlc_trigger = yes
-# 		government_is_japanese_trigger = yes
-# 		NOT = { government_has_flag = government_is_japan_administrative }
-# 		# Japan not governed Japanesely or destroyed
-# 		trigger_if = {
-# 			limit = { exists = title:e_japan.holder }
-# 			title:e_japan.holder = { government_is_japanese_trigger = no }
-# 		}
-# 		# Japanese culture
-# 		culture = {
-# 			OR = {
-# 				this = culture:japanese_ck
-# 				any_parent_culture_or_above = { this = culture:japanese_ck }
-# 			}
-# 		}
-# 	}
+	# is_shown = {
+	# 	government_is_japanese_trigger = yes
+	# 	NOT = { government_has_flag = government_is_japan_administrative }
+	# 	# Japan not governed Japanesely or destroyed
+	# 	trigger_if = {
+	# 		limit = { exists = title:e_japan.holder }
+	# 		title:e_japan.holder = { government_is_japanese_trigger = no }
+	# 	}
+	# 	# Japanese culture
+	# 	culture ?= {
+	# 		OR = {
+	# 			this = culture:japanese
+	# 			any_parent_culture_or_above = { this = culture:japanese }
+	# 		}
+	# 	}
+	# 	has_tgp_dlc_trigger = yes
+	# }
 
-# 	is_valid = {
-# 		is_independent_ruler = yes
-# 		has_title = title:e_japan
-# 		is_at_war = no
-# 		has_realm_law = japanese_bureaucracy_3
-# 		prestige_level >= 4
-# 		# completely_controls = title:d_kinai
-# 		# completely_controls = title:d_nankaido
-# 		# completely_controls = title:d_hokurikudo
-# 		completely_controls = title:d_west_bando
-# 		# completely_controls = title:d_north_saikaido
-# 		OR = {
-# 			government_has_mechanic = administrative
-# 			government_allows = create_cadet_branches
-# 		}
-# 	}
+	# is_valid = {
+	# 	is_independent_ruler = yes
+	# 	has_title = title:e_japan
+	# 	is_at_war = no
+	# 	has_realm_law = japanese_bureaucracy_3
+	# 	prestige_level >= 4
+	# 	completely_controls = title:d_kinai
+	# 	completely_controls = title:d_nankaido
+	# 	completely_controls = title:d_hokurikudo
+	# 	completely_controls = title:d_west_bando
+	# 	completely_controls = title:d_north_saikaido
+	# }
 
 # 	is_valid_showing_failures_only = {
 # 		is_available_adult = yes
@@ -1522,7 +1518,7 @@ tgp_japan_restore_japanese_monarchy_decision = {
 # 		show_as_tooltip = { tgp_restore_japanese_government_decision_effect = yes }
 # 		trigger_event = tgp_japan_decision.9911
 # 	}
-	
+
 # 	ai_check_interval_by_tier = {
 # 		barony = 0
 # 		county = 0
@@ -1537,6 +1533,7 @@ tgp_japan_restore_japanese_monarchy_decision = {
 
 # Assert Regional Dominion (Become Soryo Duke i.e. SuperSoryoTM)
 ### Assert Regional Dominion ###
+#Laurence Kennedy
 tgp_japan_assert_regional_dominion_government_decision = {
 	decision_group_type = major
 	title = tgp_japan_assert_regional_dominion_government_decision
@@ -1562,12 +1559,12 @@ tgp_japan_assert_regional_dominion_government_decision = {
 		}
 	}
 	is_shown = {
-		has_tgp_dlc_trigger = yes
-		is_landed = yes
 		highest_held_title_tier = tier_county
 		government_has_flag = government_is_japan_feudal
+		is_landed = yes
+		has_tgp_dlc_trigger = yes
 	}
-	  
+
 	is_valid = {
 		is_at_war = no
 		has_government = japan_feudal_government
@@ -1610,7 +1607,7 @@ tgp_japan_assert_regional_dominion_government_decision = {
 			}
 		}
 		trigger_if = {
-			limit = { 
+			limit = {
 				is_ai = no # AI are an exception as they can continue to play despite not being House Heads
 			}
 			trigger_if = {
@@ -1643,7 +1640,7 @@ tgp_japan_assert_regional_dominion_government_decision = {
 				}
 			}
 		}
-		# Kampaku or Shogun is weak. 
+		# Kampaku or Shogun is weak.
 		top_liege = {
 			trigger_if = {
 				limit = {
@@ -1680,7 +1677,7 @@ tgp_japan_assert_regional_dominion_government_decision = {
 		show_as_tooltip = { tgp_japan_assert_regional_dominion_government_decision_effect = yes }
 		trigger_event = tgp_japan_decision.9960
 	}
-	
+
 	ai_check_interval_by_tier = {
 		barony = 0
 		county = 24
@@ -1714,13 +1711,13 @@ move_shogunate_court_decision = {
 	}
 
 	is_shown = {
-		has_tgp_dlc_trigger = yes
 		always = no
-		# is_landed = yes
 		# has_global_variable = shogunate_established
-		# NOT = { has_variable = moved_shogunate_court }
+		# capital_county ?= title:c_yamashiro
 		# domain_size > 1
-		# capital_county = title:c_yamashiro
+		# NOT = { has_variable = moved_shogunate_court }
+		# is_landed = yes
+		# has_tgp_dlc_trigger = yes
 	}
 
 	is_valid = {
@@ -1746,7 +1743,7 @@ move_shogunate_court_decision = {
 
 	widget = {
 		controller = create_holy_order
-        barony_valid = {
+        title_valid = {
             trigger_if = {
                 limit = { exists = this }
 				is_capital_barony = yes
@@ -1756,7 +1753,7 @@ move_shogunate_court_decision = {
             }
 		}
 	}
-	
+
 	ai_potential = {
 		is_playable_character = yes
 		has_global_variable = shogunate_established
@@ -1802,9 +1799,9 @@ tgp_japan_emperor_war_decision = {
 					is_leading_faction_type = restore_ceremonial_liege_faction
 				}
 				any_faction_member = {
-					this != root
 					is_ai = yes
 					is_landed = yes
+					this != root
 				}
 			}
 		}
@@ -1834,7 +1831,7 @@ tgp_japan_emperor_war_decision = {
 				ordered_faction_member = {
 					order_by = current_military_strength
 					limit = {
-						this != root	
+						this != root
 						is_ai = yes
 						is_landed = yes
 					}
@@ -1858,7 +1855,7 @@ tgp_japan_emperor_war_decision = {
 			}
 		}
 	}
-	
+
 	ai_potential = {
 		is_playable_character = yes
 	}

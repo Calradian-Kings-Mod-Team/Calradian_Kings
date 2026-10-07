@@ -6,21 +6,143 @@
 # EP3 Traditions 	 #
 ######################
 
+tradition_ep3_indomitable_azatani = {
+	category = regional
+
+	layers = {
+		0 = martial
+		1 = mena
+		4 = indomitable_azatani.dds
+	}
+
+	is_shown = {
+		culture_is_or_has_ancestor_trigger = { CULTURE = culture:kohayan }
+		# DLC check.
+		has_ep3_dlc_trigger = yes
+		NOT = {
+			has_cultural_tradition = tradition_horse_breeder
+		}
+	}
+	can_pick = {
+		culture_not_pacifistic_trigger = yes
+		trigger_if = {
+			limit = {
+				OR = {
+					NOT = { exists = scope:replacing }
+					NOT = { scope:replacing = culture_tradition:tradition_horse_breeder }
+				}
+			}
+			NOT = { has_cultural_tradition = tradition_horse_breeder } #To prevent stacking after hybridization
+		}
+	}
+
+	parameters = {
+		unlock_maa_ayrudzi = yes
+		house_hostility_more_common = yes
+		vassals_more_likely_to_refuse_demands = yes
+	}
+	character_modifier = {
+		light_cavalry_maintenance_mult = -0.15
+		heavy_cavalry_maintenance_mult = -0.15
+		archer_cavalry_maintenance_mult = -0.15
+		light_cavalry_damage_mult = 0.2
+		heavy_cavalry_damage_mult = 0.2
+	}
+
+	cost = {
+		prestige = {
+			add = {
+				value = tradition_base_cost
+				desc = BASE
+				format = "BASE_VALUE_FORMAT"
+			}
+			if = {
+				limit = {
+					NOR = {
+						culture_pillar:ethos_bellicose = { is_in_list = traits }
+						culture_pillar:ethos_stoic = { is_in_list = traits }
+						culture_pillar:ethos_communal = { is_in_list = traits }
+					}
+				}
+				add = {
+					value = tradition_incompatible_ethos_penalty
+					desc = not_bellicose_stoic_or_communal_desc
+				}
+			}
+			if = {
+				limit = {
+					scope:character = {
+						NOR = { # Culture Head need to have a 8 sized regiment of either Light/Heavy/Archer Cavalry
+							number_maa_soldiers_of_base_type = {
+								type = light_cavalry
+								value >= 800
+							}
+							number_maa_soldiers_of_base_type = {
+								type = heavy_cavalry
+								value >= 400
+							}
+							number_maa_soldiers_of_base_type = {
+								type = archer_cavalry
+								value >= 800
+							}
+						}
+					}
+				}
+				add = {
+					value = tradition_unfulfilled_criteria_penalty
+					desc = culture_head_cavalry_desc
+				}
+			}
+
+			if = {
+				limit = {
+					culture_tradition_reduction_trigger = { TRADITION = tradition_ep3_indomitable_azatani }
+				}
+				multiply = {
+					value = 0.5
+					desc = inspired_by_culture_desc
+				}
+			}
+
+			multiply = tradition_replacement_cost_if_relevant
+		}
+	}
+
+	ai_will_do = {
+		value = 200
+		if = {
+			limit = { # Reduce chance slightly if the culture has access to other "cavalry" types
+				OR = {
+					has_innovation = innovation_war_camels
+					has_innovation = innovation_elephantry
+				}
+			}
+			multiply = 0.4
+		}
+		else_if = {
+			limit = {
+				scope:character ?= {
+					ai_has_warlike_personality = yes
+				}
+			}
+			multiply = 4
+		}
+	}
+}
+
 tradition_ep3_audacious_cadets = {
 	category = regional
 
 	layers = {
 		0 = martial
 		1 = western
-		4 = audacious_cadets.dds 
+		4 = audacious_cadets.dds
 	}
 
 	is_shown = {
 		OR = {
-			this = culture:vlandian
-			any_parent_culture_or_above = {
-				this = culture:vlandian
-			}
+			culture_is_or_has_ancestor_trigger = { CULTURE = culture:vlandian }
+			culture_is_or_has_ancestor_trigger = { CULTURE = culture:gotts }
 		}
 		# DLC check.
 		has_ep3_dlc_trigger = yes
@@ -40,7 +162,7 @@ tradition_ep3_audacious_cadets = {
 			NOT = { has_cultural_tradition = tradition_swords_for_hire } #To prevent stacking after hybridization
 		}
 	}
-	
+
 	parameters = {
 		unlock_voluntary_laampdom = yes
 		much_more_likely_to_be_laamps = yes
@@ -61,7 +183,7 @@ tradition_ep3_audacious_cadets = {
 		character_travel_speed_mult = 0.1
 		character_travel_safety_mult = 0.1
 	}
-	
+
 	cost = {
 		prestige = {
 			add = {
@@ -106,11 +228,11 @@ tradition_ep3_audacious_cadets = {
 					desc = inspired_by_culture_desc
 				}
 			}
-			
+
 			multiply = tradition_replacement_cost_if_relevant
 		}
 	}
-	
+
 	ai_will_do = {
 		value = 200
 		if = {
@@ -138,15 +260,12 @@ tradition_ep3_imperial_tagmata = {
 	layers = {
 		0 = martial
 		1 = mediterranean
-		4 = imperial_tagmata.dds 
+		4 = imperial_tagmata.dds
 	}
 
 	is_shown = {
 		OR = {
-			this = culture:calradian
-			any_parent_culture_or_above = {
-				this = culture:calradian
-			}
+			culture_is_or_has_ancestor_trigger = { CULTURE = culture:calradian }
 			has_cultural_pillar = heritage_calradian
 		}
 		# DLC check.
@@ -157,7 +276,7 @@ tradition_ep3_imperial_tagmata = {
 	}
 	can_pick = {
 	}
-	
+
 	parameters = {
 		unlock_maa_ballistrai = yes
 		frontier_themes_borrow_neighbor_troops = yes
@@ -170,7 +289,7 @@ tradition_ep3_imperial_tagmata = {
 		knight_effectiveness_mult = -0.25
 		men_at_arms_title_limit = 1
 	}
-	
+
 	cost = {
 		prestige = {
 			add = {
@@ -219,11 +338,11 @@ tradition_ep3_imperial_tagmata = {
 					desc = inspired_by_culture_desc
 				}
 			}
-			
+
 			multiply = tradition_replacement_cost_if_relevant
 		}
 	}
-	
+
 	ai_will_do = {
 		value = 400
 		if = {
@@ -256,10 +375,7 @@ tradition_calradian_ceremonies = {
 
 	is_shown = {
 		OR = {
-			this = culture:calradian
-			any_parent_culture_or_above = {
-				this = culture:calradian
-			}
+			culture_is_or_has_ancestor_trigger = { CULTURE = culture:calradian }
 			has_cultural_pillar = heritage_calradian
 			scope:character = {
 				OR = {
@@ -276,7 +392,7 @@ tradition_calradian_ceremonies = {
 	}
 	can_pick = {
 	}
-	
+
 	parameters = {
 		holds_triumphs = yes
 		hosts_chariot_races = yes
@@ -290,7 +406,7 @@ tradition_calradian_ceremonies = {
 	county_modifier = {
 		county_opinion_add = -10
 	}
-	
+
 	cost = {
 		prestige = {
 			add = {
@@ -337,11 +453,11 @@ tradition_calradian_ceremonies = {
 					desc = inspired_by_culture_desc
 				}
 			}
-			
+
 			multiply = tradition_replacement_cost_if_relevant
 		}
 	}
-	
+
 	ai_will_do = {
 		value = 200
 		if = {
@@ -361,15 +477,12 @@ tradition_ep3_palace_politics = {
 	layers = {
 		0 = intrigue
 		1 = mediterranean
-		4 = palace_politics.dds 
+		4 = palace_politics.dds
 	}
 
 	is_shown = {
 		OR = {
-			this = culture:calradian
-			any_parent_culture_or_above = {
-				this = culture:calradian
-			}
+			culture_is_or_has_ancestor_trigger = { CULTURE = culture:calradian }
 			has_cultural_pillar = heritage_calradian
 			scope:character = {
 				OR = {
@@ -394,7 +507,7 @@ tradition_ep3_palace_politics = {
 			NOT = { culture_tradition:tradition_merciful_blindings = { is_in_list = traits } }
 		}
 	}
-	
+
 	parameters = {
 		#unlock_maa_varangian_guards_ck = yes
 		unlock_akolouthos = yes
@@ -415,7 +528,7 @@ tradition_ep3_palace_politics = {
 		political_scheme_phase_duration_add = minor_scheme_phase_duration_bonus_value
 		personal_scheme_phase_duration_add = minor_scheme_phase_duration_bonus_value
 	}
-	
+
 	cost = {
 		prestige = {
 			add = {
@@ -463,11 +576,11 @@ tradition_ep3_palace_politics = {
 					desc = inspired_by_culture_desc
 				}
 			}
-			
+
 			multiply = tradition_replacement_cost_if_relevant
 		}
 	}
-	
+
 	ai_will_do = {
 		value = 200
 		if = {
@@ -500,7 +613,7 @@ tradition_ep3_cultivated_sophistication = {
 			scope:character = { government_has_mechanic = administrative }
 		}
 	}
-	
+
 	parameters = {
 		less_likely_to_culture_convert = yes
 		other_cultures_more_likely_to_hybridize = yes
@@ -512,7 +625,7 @@ tradition_ep3_cultivated_sophistication = {
 		diplomatic_range_mult = 0.2
 		cultural_head_fascination_mult = -0.10
 	}
-	
+
 	cost = {
 		prestige = {
 			add = {
@@ -559,20 +672,17 @@ tradition_ep3_cultivated_sophistication = {
 					desc = inspired_by_culture_desc
 				}
 			}
-			
+
 			multiply = tradition_replacement_cost_if_relevant
 		}
 	}
-	
+
 	ai_will_do = {
 		value = 200
 		if = {
 			limit = { # Admin should be more into this
 				OR = {
-					this = culture:calradian
-					any_parent_culture_or_above = {
-						this = culture:calradian
-					}
+					culture_is_or_has_ancestor_trigger = { CULTURE = culture:calradian }
 					has_cultural_pillar = heritage_calradian
 				}
 			}

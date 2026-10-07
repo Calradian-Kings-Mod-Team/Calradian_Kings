@@ -269,56 +269,56 @@
 # 		}
 # 		scope:ntd_recipient = { trigger_event = british_isles.1021 }
 
-# 		stress_impact = {
-# 			gregarious = minor_stress_impact_loss
-# 			zealous = medium_stress_impact_loss
-# 			forgiving = major_stress_impact_loss
-# 			trusting = major_stress_impact_loss
-# 			shy = minor_stress_impact_gain
-# 			cynical = medium_stress_impact_gain
-# 			vengeful = major_stress_impact_gain
-# 			paranoid = major_stress_impact_gain
-# 		}
-# 		ai_chance = {
-# 			base = 100
-# 			ai_value_modifier = {
-# 				ai_compassion = 1
-# 				ai_vengefulness = -1
-# 			}
-# 			modifier = {	# Weight up for stress.
-# 				add = 10
-# 				has_trait = gregarious
-# 			}
-# 			modifier = {	# Weight up for stress.
-# 				add = 20
-# 				has_trait = zealous
-# 			}
-# 			modifier = {	# Weight up for stress.
-# 				add = 30
-# 				has_trait = forgiving
-# 			}
-# 			modifier = {	# Weight up for stress.
-# 				add = 30
-# 				has_trait = trusting
-# 			}
-# 			modifier = {	# Weight down for stress.
-# 				add = -10
-# 				has_trait = shy
-# 			}
-# 			modifier = {	# Weight down for stress.
-# 				add = -20
-# 				has_trait = cynical
-# 			}
-# 			modifier = {	# Weight down for stress.
-# 				add = -30
-# 				has_trait = vengeful
-# 			}
-# 			modifier = {	# Weight down for stress.
-# 				add = -30
-# 				has_trait = paranoid
-# 			}
-# 		}
-# 	}
+	# 	stress_and_fulfillment_impact = {
+	# 		gregarious = minor_stress_impact_loss
+	# 		zealous = medium_stress_impact_loss
+	# 		forgiving = major_stress_impact_loss
+	# 		trusting = major_stress_impact_loss
+	# 		shy = minor_stress_impact_gain
+	# 		cynical = medium_stress_impact_gain
+	# 		vengeful = major_stress_impact_gain
+	# 		paranoid = major_stress_impact_gain
+	# 	}
+	# 	ai_chance = {
+	# 		base = 100
+	# 		ai_value_modifier = {
+	# 			ai_compassion = 1
+	# 			ai_vengefulness = -1
+	# 		}
+	# 		modifier = {	# Weight up for stress.
+	# 			add = 10
+	# 			has_trait = gregarious
+	# 		}
+	# 		modifier = {	# Weight up for stress.
+	# 			add = 20
+	# 			has_trait = zealous
+	# 		}
+	# 		modifier = {	# Weight up for stress.
+	# 			add = 30
+	# 			has_trait = forgiving
+	# 		}
+	# 		modifier = {	# Weight up for stress.
+	# 			add = 30
+	# 			has_trait = trusting
+	# 		}
+	# 		modifier = {	# Weight down for stress.
+	# 			add = -10
+	# 			has_trait = shy
+	# 		}
+	# 		modifier = {	# Weight down for stress.
+	# 			add = -20
+	# 			has_trait = cynical
+	# 		}
+	# 		modifier = {	# Weight down for stress.
+	# 			add = -30
+	# 			has_trait = vengeful
+	# 		}
+	# 		modifier = {	# Weight down for stress.
+	# 			add = -30
+	# 			has_trait = paranoid
+	# 		}
+	# 	}
+	# }
 	
 # 	# Diplomacy is the coward's way out!
 # 	option = {
@@ -429,7 +429,7 @@
 # 		name = british_isles.1021.b
 # 		trigger = { exists = scope:ntd_friendship_offered }
 
-# 		# Inform scope:ntd_actor.
+		# Inform scope:ntd_actor.
 # 		hidden_effect = {
 # 			scope:ntd_actor = {
 # 				send_interface_toast = {	
@@ -445,17 +445,17 @@
 # 		custom_tooltip = british_isles.1021.b.above_applies.tt
 # 		hidden_effect = { negotiate_the_danelaw_accept_effect = yes }
 # 		# And _also_ you switch faith and are accepted as a friend of scope:ntd_actor.
-# 		set_relation_friend = { reason = friend_partitioned_england target = scope:ntd_recipient }
+# 		set_relation_friend = { reason = friend_partitioned_england target = scope:ntd_actor }
 # 		# If possible, switch to scope:ntd_actor's faith.
 # 		## Yeah, I realise that this is an easy way to skirt the restrictions from HumSac'ing a HoF. :) Benefits of having a godperson vouch for you.
 # 		if = {
 # 			limit = {
-# 				NOT = { scope:ntd_recipient.faith = scope:ntd_actor.faith }
+# 				scope:ntd_recipient.faith != scope:ntd_actor.faith
 # 			}
-# 			scope:ntd_recipient = { set_character_faith_with_conversion = scope:ntd_actor }
+# 			scope:ntd_recipient = { set_character_faith_with_conversion = scope:ntd_actor.faith }
 # 		}
 
-# 		stress_impact = {
+# 		stress_and_fulfillment_impact = {
 # 			gregarious = minor_stress_impact_loss
 # 			cynical = medium_stress_impact_loss
 # 			trusting = medium_stress_impact_loss
@@ -565,6 +565,7 @@
 # #	Partition Result - Destruction
 # british_isles.1031 = {
 # 	hidden = yes
+# 	orphan = yes
 
 # 	trigger = {
 # 		# Partition must be active.
@@ -584,7 +585,6 @@
 # 			# Try to grab the old holder for down the line.
 # 			if = {
 # 				limit = {
-# 					exists = this
 # 					is_alive = yes
 # 				}
 # 				save_scope_as = loser
@@ -596,7 +596,6 @@
 # 			title:k_england = { save_scope_as = partition_winner }
 # 			if = {
 # 				limit = {
-# 					exists = this
 # 					is_alive = yes
 # 				}
 # 				save_scope_as = loser
@@ -712,8 +711,7 @@
 # 			title:k_england = {
 # 				if = {
 # 					limit = {
-# 						exists = this.holder
-# 						holder = { is_alive = yes }
+# 						holder ?= { is_alive = yes }
 # 					}
 # 					holder = { save_scope_as = loser }
 # 				}
@@ -727,8 +725,7 @@
 # 			title:k_danelaw = {
 # 				if = {
 # 					limit = {
-# 						exists = this.holder
-# 						holder = { is_alive = yes }
+# 						holder ?= { is_alive = yes }
 # 					}
 # 					holder = { save_scope_as = loser }
 # 				}
@@ -1055,7 +1052,7 @@
 # 			# Send event to other players
 # 			every_player = {
 # 				limit = {
-# 					NOT = { this = root }
+# 					this != root
 # 					OR = {
 # 						primary_title = {
 # 							OR = {
@@ -1064,7 +1061,7 @@
 # 								de_jure_liege.de_jure_liege.de_jure_liege = title:e_britannia
 # 							}
 # 						}
-# 						culture = { has_cultural_pillar = heritage_byalic }
+# 						culture = { has_cultural_pillar = heritage_north_germanic }
 # 						culture = { has_cultural_pillar = heritage_central_germanic }
 # 						culture = { has_cultural_pillar = heritage_west_germanic }
 # 						culture = { has_cultural_pillar = heritage_goidelic }
@@ -1135,7 +1132,7 @@
 # 		name = british_isles.3001.a
 # 		every_player = {
 # 			limit = {
-# 				NOT = { this = root }
+# 				this != root
 # 				OR = {
 # 					culture = { has_cultural_pillar = heritage_west_germanic }
 # 					culture = { has_cultural_pillar = heritage_goidelic }
@@ -1238,7 +1235,6 @@
 # 	type = character_event
 # 	title = british_isles.4001.t
 # 	desc = british_isles.4002.desc
-# 	theme = realm
 # 	theme = diplomacy
 # 	left_portrait = {
 # 		character = scope:founder

@@ -6,7 +6,7 @@
 # 0011 - 0020	Heirs of the Prophet - Shias decide which caliph they consider most appropriate.
 # 0021 - 0030	Heirs of the Prophet - Muhakkimas decide which caliph they consider most appropriate.
 # 0031 - 0040	Heirs of the Prophet - Zandaqas decide which caliph they consider most appropriate.
-#
+# 0100 - 		General - Any rite creator to choose if you want become antipope later
 ##################################################
 
 
@@ -22,14 +22,15 @@
 # # ISLAMIC CALIPHATE CONFIGURATION
 
 # scripted_trigger valid_prior_caliph_available_trigger = {
-# 	faith = { has_doctrine = muhammad_succession_$MS_TYPE$_doctrine }
+# 	rite = { rite_has_doctrine = muhammad_succession_$MS_TYPE$_doctrine }
+# 	scope:old_faith.main_rite = {
+# 		rite_has_doctrine = muhammad_succession_$MS_TYPE$_doctrine
+# 	}
 # 	scope:old_faith = {
 # 		# Uses a temporal faith...
 # 		has_doctrine = doctrine_temporal_head
 # 		# ... with a current holder...
 # 		exists = religious_head_title.holder
-# 		# ... that follows the correct succession of the Prophet.
-# 		has_doctrine = muhammad_succession_$MS_TYPE$_doctrine
 # 		# Plus make sure this isn't either of the major orthodoxies.
 # 		religious_head_title = {
 # 			NOR = {
@@ -49,27 +50,25 @@
 # }
 
 # scripted_effect set_default_caliph_effect = {
-# 	faith = {
-# 		# Default to scope:old_title, if it exists.
-# 		if = {
-# 			limit = { exists = scope:old_title }
-# 			set_religious_head_title = scope:old_title
+# 	# Default to scope:old_title, if it exists.
+# 	if = {
+# 		limit = { exists = scope:old_title }
+# 		faith = { set_religious_head_title = scope:old_title }
+# 	}
+# 	# Otherwise, try to pick the correct orthodoxy.
+# 	else_if = {
+# 		limit = {
+# 			rite = { rite_has_doctrine = muhammad_succession_sunni_doctrine }
+# 			exists = scope:sunni_title
 # 		}
-# 		# Otherwise, try to pick the correct orthodoxy.
-# 		else_if = {
-# 			limit = {
-# 				has_doctrine = muhammad_succession_sunni_doctrine
-# 				exists = scope:sunni_title
-# 			}
-# 			set_religious_head_title = scope:sunni_title
+# 		faith = { set_religious_head_title = scope:sunni_title }
+# 	}
+# 	else_if = {
+# 		limit = {
+# 			rite = { rite_has_doctrine = muhammad_succession_shia_doctrine }
+# 			exists = scope:shia_title
 # 		}
-# 		else_if = {
-# 			limit = {
-# 				has_doctrine = muhammad_succession_shia_doctrine
-# 				exists = scope:shia_title
-# 			}
-# 			set_religious_head_title = scope:shia_title
-# 		}
+# 		faith = { set_religious_head_title = scope:shia_title }
 # 	}
 # }
 
@@ -79,7 +78,10 @@
 # 	# Next, if possible, we give a hook on the new religious head.
 # 	if = {
 # 		limit = {
-# 			NOT = { has_hook = $NEW_RELIGIOUS_HEAD_TITLE$.holder }
+# 			can_add_hook = {
+# 				target = $NEW_RELIGIOUS_HEAD_TITLE$.holder
+# 				type = indebted_hook
+# 			}
 # 		}
 # 		$NEW_RELIGIOUS_HEAD_TITLE$.holder = {
 # 			send_interface_toast = {	
@@ -108,7 +110,12 @@
 # 	# Next, if possible, we give a hook on the new religious head.
 # 	if = {
 # 		limit = {
-# 			NOT = { has_hook = $NEW_RELIGIOUS_HEAD_TITLE$.holder }
+# 			$NEW_RELIGIOUS_HEAD_TITLE$.holder = {
+# 				can_add_hook = {
+# 					target = prev
+# 					type = indebted_hook
+# 				}
+# 			}
 # 		}
 # 		$NEW_RELIGIOUS_HEAD_TITLE$.holder = {
 # 			send_interface_toast = {	
@@ -146,11 +153,43 @@
 # 	}
 # }
 
-# ##################################################
-# # Heirs of the Prophet - Sunni
-# # by Ewan Cowhig Croft
-# # 0001 - 0010
-# ##################################################
+# scripted_effect create_caliph_title_effect = {
+# 	save_scope_as = founder
+# 	faith.religious_head = { save_scope_as = old_caliph }
+# 	show_as_tooltip = { appoint_a_righteous_caliph_scripted_effect = yes }
+# 	# Notify co-faithists; we do this first so we can sort the feed message for how many did/didn't convert.
+# 	faith = {
+# 		every_faith_ruler = {
+# 			limit = {
+# 				highest_held_title_tier >= tier_county
+# 				this != root
+# 			}
+# 			trigger_event = religious_decision.0602
+# 		}
+# 	}
+# 	# Now notify other players.
+# 	every_player = {
+# 		limit = {
+# 			OR = {
+# 				religion = religion:islam_religion
+# 				any_neighboring_and_across_water_top_liege_realm_owner = { this = root }
+# 				any_liege_or_above = { religion = religion:islam_religion }
+# 			}
+# 			# Exempt same-faith characters, who already got an event.
+# 			faith != root.faith
+# 		}
+# 		# Players who share the faith get
+# 		trigger_event = religious_decision.0603
+# 	}
+# 	# Finally, we trigger the main conversion.
+# 	trigger_event = religious_decision.0601
+# }
+
+##################################################
+# Heirs of the Prophet - Sunni
+# by Ewan Cowhig Croft
+# 0001 - 0010
+##################################################
 
 # #	A temporal Sunni reformer decides their HoF.
 # head_of_faith.0001 = {
@@ -170,18 +209,27 @@
 # 		}
 # 	}
 
-# 	cooldown = { years = 10 }
-
-# 	trigger = {
-# 		# Requires either a prior caliphate or a Shia one to exist.
-# 		OR = {
-# 			exists = title:d_sunni.holder
-# 			AND = {
-# 				exists = scope:old_faith.religious_head_title.holder
-# 				valid_prior_caliph_available_trigger = { MS_TYPE = sunni }
-# 			}
-# 		}
-# 	}
+	# trigger = {
+	# 	# Requires either a prior caliphate or a Shia one to exist.
+	# 	OR = {
+	# 		exists = title:d_sunni.holder
+	# 		AND = {
+	# 			exists = scope:old_faith.religious_head_title.holder
+	# 			valid_prior_caliph_available_trigger = { MS_TYPE = sunni }
+	# 		}
+	# 	}
+	# }
+	# on_trigger_fail = {
+	# 	if = {
+	# 		limit = {
+	# 			OR = {
+	# 				pam_is_antipope_trigger = yes
+	# 				has_character_flag = wishes_to_schism_caliphate_flag
+	# 			}
+	# 		}
+	# 		create_caliph_title_effect = yes
+	# 	}
+	# }
 
 # 	immediate = {
 # 		play_music_cue = "mx_cue_sacredrite"
@@ -236,40 +284,14 @@
 # 			}
 # 		}
 # 	}
-	
-# 	# Scope:sunni_caliph has our _present_ loyalties.
+
+# 	# I #EMP am #! the caliph.
 # 	option = {
-# 		name = head_of_faith.0001.c
-# 		trigger = { exists = scope:sunni_caliph }
-
-# 		# Set up the new HoF.
-# 		set_religious_head_title_to_&_gain_flag_effect = { NEW_RELIGIOUS_HEAD_TITLE = scope:sunni_title }
-
-# 		# No stress for faith-guiding.
-# 		ai_chance = {
-# 			base = 100
-# 			ai_value_modifier = {
-# 				ai_vengefulness = 1
-# 				ai_zeal = 1
-# 			}
-# 			opinion_modifier = {
-# 				opinion_target = scope:sunni_caliph
-# 				multiplier = -2
-# 			}
-# 		}
-
-# 	}
-
-# 	# We shall follow scope:old_faith... for now...
-# 	option = {
-# 		name = head_of_faith.0001.d
+# 		name = head_of_faith.0001.e
 # 		trigger = {
-# 			exists = scope:old_caliph
-# 			valid_prior_caliph_available_trigger = { MS_TYPE = sunni }
+# 			faith = { can_create_temporal_head_of_faith_title_trigger = yes }
 # 		}
-
-# 		# Set up the new HoF.
-# 		set_religious_head_title_to_&_gain_flag_effect = { NEW_RELIGIOUS_HEAD_TITLE = scope:old_title }
+# 		create_caliph_title_effect = yes
 
 # 		# No stress for faith-guiding.
 # 		ai_chance = {
@@ -282,10 +304,38 @@
 # 				opinion_target = scope:old_caliph
 # 				multiplier = -2
 # 			}
+# 			modifier = {
+# 				add = 1000
+# 				pam_is_antipope_trigger = yes
+# 			}
 # 		}
 # 	}
-	
-# 	# No option for striking out on your own immediately; you have a decision for that, or could've taken a different succession doctrine.
+# 	# Go our own way.
+# 	option = {
+# 		name = head_of_faith.0031.a
+# 		trigger = {
+# 			faith = { can_create_temporal_head_of_faith_title_trigger = no}
+# 		}
+
+# 		# Another splinter faith enters the ring.
+# 		faith = { remove_religious_head_title = yes }
+# 		# Nice chunk of piety for asserting your independence.
+# 		add_piety = major_piety_gain
+
+# 		# No stress for faith-guiding.
+# 		ai_chance = {
+# 			base = 100
+# 			ai_value_modifier = {
+# 				ai_zeal = 1
+# 				ai_boldness = 1
+# 				ai_vengefulness = 0.5
+# 			}
+# 			opinion_modifier = {
+# 				opinion_target = scope:old_caliph
+# 				multiplier = -2
+# 			}
+# 		}
+# 	}
 # }
 
 # ##################################################
@@ -312,18 +362,27 @@
 # 	}
 # 	lower_right_portrait = scope:shia_caliph
 
-# 	cooldown = { years = 10 }
-
-# 	trigger = {
-# 		# Requires either a prior caliphate or a Shia one to exist.
-# 		OR = {
-# 			exists = title:d_shiite.holder
-# 			AND = {
-# 				exists = scope:old_faith.religious_head_title.holder
-# 				valid_prior_caliph_available_trigger = { MS_TYPE = shia }
-# 			}
-# 		}
-# 	}
+	# trigger = {
+	# 	# Requires either a prior caliphate or a Shia one to exist.
+	# 	OR = {
+	# 		exists = title:d_shiite.holder
+	# 		AND = {
+	# 			exists = scope:old_faith.religious_head_title.holder
+	# 			valid_prior_caliph_available_trigger = { MS_TYPE = shia }
+	# 		}
+	# 	}
+	# }
+	# on_trigger_fail = {
+	# 	if = {
+	# 		limit = {
+	# 			OR = {
+	# 				pam_is_antipope_trigger = yes
+	# 				has_character_flag = wishes_to_schism_caliphate_flag
+	# 			}
+	# 		}
+	# 		create_caliph_title_effect = yes
+	# 	}
+	# }
 
 # 	immediate = {
 # 		play_music_cue = "mx_cue_sacredrite"
@@ -379,38 +438,13 @@
 # 		}
 # 	}
 	
-# 	# Scope:shia_caliph has our _present_ loyalties.
+	# I #EMP am #! the caliph.
 # 	option = {
-# 		name = head_of_faith.0011.b
-# 		trigger = { exists = scope:shia_caliph }
-
-# 		# Set up the new HoF.
-# 		set_religious_head_title_to_&_gain_flag_effect = { NEW_RELIGIOUS_HEAD_TITLE = scope:shia_title }
-
-# 		# No stress for faith-guiding.
-# 		ai_chance = {
-# 			base = 100
-# 			ai_value_modifier = {
-# 				ai_vengefulness = 1
-# 				ai_zeal = 1
-# 			}
-# 			opinion_modifier = {
-# 				opinion_target = scope:shia_caliph
-# 				multiplier = -2
-# 			}
-# 		}
-# 	}
-	
-# 	# We shall follow scope:old_faith... for now...
-# 	option = {
-# 		name = head_of_faith.0011.d
+# 		name = head_of_faith.0001.e
 # 		trigger = {
-# 			exists = scope:old_caliph
-# 			valid_prior_caliph_available_trigger = { MS_TYPE = shia }
+# 			faith = { can_create_temporal_head_of_faith_title_trigger = yes }
 # 		}
-
-# 		# Set up the new HoF.
-# 		set_religious_head_title_to_&_gain_flag_effect = { NEW_RELIGIOUS_HEAD_TITLE = scope:old_title }
+# 		create_caliph_title_effect = yes
 
 # 		# No stress for faith-guiding.
 # 		ai_chance = {
@@ -423,10 +457,38 @@
 # 				opinion_target = scope:old_caliph
 # 				multiplier = -2
 # 			}
+# 			modifier = {
+# 				add = 1000
+# 				pam_is_antipope_trigger = yes
+# 			}
 # 		}
 # 	}
-	
-# 	# No option for striking out on your own immediately; you have a decision for that, or could've taken a different succession doctrine.
+# 	# Go our own way.
+# 	option = {
+# 		name = head_of_faith.0031.a
+# 		trigger = {
+# 			faith = { can_create_temporal_head_of_faith_title_trigger = no}
+# 		}
+
+# 		# Another splinter faith enters the ring.
+# 		faith = { remove_religious_head_title = yes }
+# 		# Nice chunk of piety for asserting your independence.
+# 		add_piety = major_piety_gain
+
+# 		# No stress for faith-guiding.
+# 		ai_chance = {
+# 			base = 100
+# 			ai_value_modifier = {
+# 				ai_zeal = 1
+# 				ai_boldness = 1
+# 				ai_vengefulness = 0.5
+# 			}
+# 			opinion_modifier = {
+# 				opinion_target = scope:old_caliph
+# 				multiplier = -2
+# 			}
+# 		}
+# 	}
 # }
 
 # ##################################################
@@ -452,13 +514,22 @@
 # 		}
 # 	}
 
-# 	cooldown = { years = 10 }
-
-# 	trigger = {
-# 		# Requires an old religious head to exist in some form.
-# 		exists = scope:old_faith.religious_head_title.holder
-# 		valid_prior_caliph_available_trigger = { MS_TYPE = muhakkima }
-# 	}
+	# trigger = {
+	# 	# Requires an old religious head to exist in some form.
+	# 	exists = scope:old_faith.religious_head_title.holder
+	# 	valid_prior_caliph_available_trigger = { MS_TYPE = muhakkima }
+	# }
+	# on_trigger_fail = {
+	# 	if = {
+	# 		limit = {
+	# 			OR = {
+	# 				pam_is_antipope_trigger = yes
+	# 				has_character_flag = wishes_to_schism_caliphate_flag
+	# 			}
+	# 		}
+	# 		create_caliph_title_effect = yes
+	# 	}
+	# }
 
 # 	immediate = {
 # 		play_music_cue = "mx_cue_sacredrite"
@@ -502,7 +573,7 @@
 # 		# Set up the new HoF.
 # 		set_religious_head_title_to_and_gain_hook_effect = { NEW_RELIGIOUS_HEAD_TITLE = scope:old_title }
 
-# 		# No stress for faith-guiding.
+		# No stress for faith-guiding.
 # 		ai_chance = {
 # 			base = 0
 # 			opinion_modifier = {
@@ -511,16 +582,42 @@
 # 			}
 # 		}
 # 	}
+
+# 	# I #EMP am #! the caliph.
+# 	option = {
+# 		name = head_of_faith.0001.e
+# 		create_caliph_title_effect = yes
+# 		trigger = {
+# 			faith = { can_create_temporal_head_of_faith_title_trigger = yes }
+# 		}
+
+# 		# No stress for faith-guiding.
+# 		ai_chance = {
+# 			base = 100
+# 			ai_value_modifier = {
+# 				ai_vengefulness = 1
+# 				ai_zeal = 1
+# 			}
+# 			opinion_modifier = {
+# 				opinion_target = scope:old_caliph
+# 				multiplier = -2
+# 			}
+# 			modifier = {
+# 				add = 1000
+# 				pam_is_antipope_trigger = yes
+# 			}
+# 		}
+# 	}
 # }
 
-# ##################################################
-# # Heirs of the Prophet - Zandaqa
-# # by Ewan Cowhig Croft
-# # 0001 - 0010
-# ##################################################
+##################################################
+# Heirs of the Prophet - Zandaqa
+# by Ewan Cowhig Croft
+# 0001 - 0010
+##################################################
 # scripted_effect decide_if_worthy_of_consideration_for_new_hof_effect = {
 # 	if = {
-# 		limit = { faith = { has_doctrine = muhammad_succession_zandaqa_doctrine } } # Check if Zandaqa (in case this gets expanded in the future for outside the Zandaqa)
+# 		limit = { rite = { rite_has_doctrine = muhammad_succession_zandaqa_doctrine } } # Check if Zandaqa (in case this gets expanded in the future for outside the Zandaqa)
 
 # 		if = {
 # 			limit = { has_strong_hook = scope:pledge_target }
@@ -579,19 +676,28 @@
 # 	}
 # 	lower_right_portrait = scope:shia_caliph
 
-# 	cooldown = { years = 10 }
-
-# 	trigger = {
-# 		# Requires any one caliphate to be around.
-# 		OR = {
-# 			exists = title:d_sunni.holder
-# 			exists = title:d_shiite.holder
-# 			AND = {
-# 				exists = scope:old_faith.religious_head_title.holder
-# 				valid_prior_caliph_available_trigger = { MS_TYPE = zandaqa }
-# 			}
-# 		}
-# 	}
+	# trigger = {
+	# 	# Requires any one caliphate to be around.
+	# 	OR = {
+	# 		exists = title:d_sunni.holder
+	# 		exists = title:d_shiite.holder
+	# 		AND = {
+	# 			exists = scope:old_faith.religious_head_title.holder
+	# 			valid_prior_caliph_available_trigger = { MS_TYPE = zandaqa }
+	# 		}
+	# 	}
+	# }
+	# on_trigger_fail = {
+	# 	if = {
+	# 		limit = {
+	# 			OR = {
+	# 				pam_is_antipope_trigger = yes
+	# 				has_character_flag = wishes_to_schism_caliphate_flag
+	# 			}
+	# 		}
+	# 		create_caliph_title_effect = yes
+	# 	}
+	# }
 
 # 	immediate = {
 # 		play_music_cue = "mx_cue_sacredrite"
@@ -685,16 +791,48 @@
 # 		scope:old_caliph = { save_scope_as = pledge_target }
 # 		decide_if_worthy_of_consideration_for_new_hof_effect = yes
 
-# 		# No stress for faith-guiding.
-# 		ai_chance = {
-# 			base = 0
-# 			opinion_modifier = {
-# 				opinion_target = scope:old_caliph
-# 				multiplier = 5
-# 			}
-# 		}
-# 	}
-# }
+		# No stress for faith-guiding.
+	# 	ai_chance = {
+	# 		base = 0
+	# 		opinion_modifier = {
+	# 			opinion_target = scope:old_caliph
+	# 			multiplier = 5
+	# 		}
+	# 	}
+	# }
+
+	# # I #EMP am #! the caliph.
+	# option = {
+	# 	name = head_of_faith.0001.e
+	# 	trigger = {
+	# 		faith = { can_create_temporal_head_of_faith_title_trigger = yes }
+	# 		NAND = {
+	# 			exists = scope:sunni_caliph
+	# 			exists = scope:shia_caliph
+	# 			exists = scope:old_caliph
+	# 			valid_prior_caliph_available_trigger = { MS_TYPE = zandaqa }
+	# 		}
+	# 	}
+	# 	create_caliph_title_effect = yes
+
+	# 	# No stress for faith-guiding.
+	# 	ai_chance = {
+	# 		base = 100
+	# 		ai_value_modifier = {
+	# 			ai_vengefulness = 1
+	# 			ai_zeal = 1
+	# 		}
+	# 		opinion_modifier = {
+	# 			opinion_target = scope:old_caliph
+	# 			multiplier = -2
+	# 		}
+	# 		modifier = {
+	# 			add = 1000
+	# 			pam_is_antipope_trigger = yes
+	# 		}
+	# 	}
+	# }
+}
 
 # head_of_faith.0032 = {
 # 	type = letter_event
@@ -752,5 +890,67 @@
 # 		}
 
 # 		ai_chance = { base = 100 }
+# 	}
+# }
+
+# head_of_faith.0100 = {
+# 	type = character_event
+# 	title = head_of_faith.0100.t
+# 	desc = head_of_faith.0100.desc
+# 	theme = faith
+# 	left_portrait = {
+# 		character = root
+# 		animation = personality_rational
+# 	}
+# 	lower_center_portrait = {
+# 		character = scope:hof
+# 	}
+
+# 	trigger = {
+# 		exists = faith.religious_head
+# 	}
+
+# 	immediate = {
+# 		play_music_cue = "mx_cue_sacredrite"
+# 		faith.religious_head = { save_scope_as = hof }
+# 	}
+
+# 	option = {
+# 		name = head_of_faith.0100.a
+
+# 		reverse_add_opinion = {
+# 			target = scope:hof
+# 			modifier = repentant_opinion
+# 			opinion = 25
+# 		}
+
+# 		# No stress for faith-guiding.
+# 		ai_chance = {
+# 			base = 100
+# 			opinion_modifier = {
+# 				opinion_target = scope:hof
+# 				multiplier = 5
+# 			}
+# 		}
+# 	}
+
+# 	option = {
+# 		name = head_of_faith.0100.b
+
+# 		# Plus, we flag it that this character will likely try for independence later.
+# 		add_character_flag = wishes_to_schism_caliphate_flag
+# 		custom_tooltip = head_of_faith.0000.wishes_to_schism_caliphate_flag_added
+# 		# No stress for faith-guiding.
+# 		ai_chance = {
+# 			base = 100
+# 			ai_value_modifier = {
+# 				ai_vengefulness = 1
+# 				ai_zeal = 1
+# 			}
+# 			opinion_modifier = {
+# 				opinion_target = scope:hof
+# 				multiplier = -2
+# 			}
+# 		}
 # 	}
 # }

@@ -4144,7 +4144,7 @@ headgear_base = {
 					CULTURE_INPUT = chinese
 				}
 				has_tgp_dlc_trigger = yes
-				NOT = { exists = global_var:chinese_fashion_change }
+				global_var:chinese_fashion ?= flag:tang
 			}
 		}
 	}
@@ -4175,7 +4175,17 @@ headgear_base = {
 					}
 				}
 				has_tgp_dlc_trigger = yes
-				exists = global_var:chinese_fashion_change
+				global_var:chinese_fashion ?= flag:song
+				# Korean handling
+				trigger_if = {
+					limit = {
+						OR = {
+							liege.culture = { has_clothing_gfx = korean_clothing_gfx }
+							culture = { has_clothing_gfx = korean_clothing_gfx }
+						}
+					}
+					is_merit_based_official = no
+				}
 			}
 			modifier = { #For Tangut King
 				add = 120
@@ -4288,19 +4298,53 @@ headgear_base = {
 		weight = {
 			base = 0
 			modifier = {
+				add = 101
+				is_alive = no
+				tgp_primary_title_is_ministry = yes
+				highest_held_title_tier = tier_empire
+				has_tgp_dlc_trigger = yes
+				year_of_birth < 960
+			}
+			modifier = {
 				add = 51
 				is_merit_based_official = yes
 				OR = {
 					liege.culture = {
-						has_clothing_gfx = chinese_clothing_gfx
+						OR = {
+							has_clothing_gfx = chinese_clothing_gfx
+							has_clothing_gfx = korean_clothing_gfx
+						}
 					}
 					culture = {
-						has_clothing_gfx = chinese_clothing_gfx
+						OR = {
+							has_clothing_gfx = chinese_clothing_gfx
+							has_clothing_gfx = korean_clothing_gfx
+						}
 					}
 				}
 				OR = {
-					NOT = { exists = global_var:chinese_fashion_change }
-					portrait_era4_trigger = yes  # for Ming style
+					global_var:chinese_fashion ?= flag:tang
+					# Korean handling
+					trigger_if = {
+						limit = {
+							OR = {
+								liege.culture = { has_clothing_gfx = korean_clothing_gfx }
+								culture = { has_clothing_gfx = korean_clothing_gfx }
+							}
+						}
+						OR = {
+							# Silla used Tang-style Bokdu (Putou)
+							portrait_era1_trigger = yes
+							# Low ranking officials in Korea use the Tang-style Bokdu (Putou)
+							AND = {
+								korea_high_rank_trigger = no
+								royal_councillor_or_regent_trigger = no
+							}
+						}
+					}
+					trigger_else = {
+						portrait_era4_trigger = yes  # for Ming style
+					}
 				}
 			}
 		}
@@ -4318,20 +4362,49 @@ headgear_base = {
 		weight = {
 			base = 0
 			modifier = {
+				add = 100
+				is_alive = no
+				tgp_primary_title_is_ministry = yes
+				highest_held_title_tier = tier_empire
+				has_tgp_dlc_trigger = yes
+			}
+			modifier = {
 				add = 51
 				is_merit_based_official = yes
 				OR = {
 					liege.culture = {
-						has_clothing_gfx = chinese_clothing_gfx
-						NOT = { has_clothing_gfx = korean_clothing_gfx }
+						OR = {
+							has_clothing_gfx = chinese_clothing_gfx
+							has_clothing_gfx = korean_clothing_gfx
+						}
 					}
 					culture = {
-						has_clothing_gfx = chinese_clothing_gfx
-						NOT = { has_clothing_gfx = korean_clothing_gfx }
+						OR = {
+							has_clothing_gfx = chinese_clothing_gfx
+							has_clothing_gfx = korean_clothing_gfx
+						}
 					}
 				}
 				has_tgp_dlc_trigger = yes
-				exists = global_var:chinese_fashion_change
+				# Korean handling
+				trigger_if = {
+					limit = {
+						OR = {
+							liege.culture = { has_clothing_gfx = korean_clothing_gfx }
+							culture = { has_clothing_gfx = korean_clothing_gfx }
+						}
+					}
+					# Silla used Tang-style Bokdu (Putou)
+					NOT = { portrait_era1_trigger = yes }
+					# High rank officials only
+					OR = {
+						korea_high_rank_trigger = yes
+						royal_councillor_or_regent_trigger = yes
+					}
+				}
+				trigger_else = {
+					global_var:chinese_fashion ?= flag:song
+				}
 			}
 		}
 	}
@@ -4426,7 +4499,11 @@ headgear_base = {
 				# 	}
 				# }
 				has_tgp_dlc_trigger = yes
-				exists = global_var:chinese_fashion_change
+				global_var:chinese_fashion ?= flag:song
+				trigger_if = {
+					limit = { is_alive = no }
+					tgp_primary_title_is_ministry = no
+				}
 			}
 		}
 	}
@@ -4445,7 +4522,7 @@ headgear_base = {
 			modifier = {
 				add = 100
 				is_independent_ruler = yes
-				highest_held_title_tier = tier_empire
+				highest_held_title_tier >= tier_empire
 				government_has_flag = government_has_merit
 				NOT = {
 					government_has_flag = government_is_celestial
@@ -4462,7 +4539,11 @@ headgear_base = {
 					}
 				}
 				has_tgp_dlc_trigger = yes
-				exists = global_var:chinese_fashion_change
+				global_var:chinese_fashion ?= flag:song
+				trigger_if = {
+					limit = { is_alive = no }
+					tgp_primary_title_is_ministry = no
+				}
 			}
 		}
 	}
@@ -4484,7 +4565,7 @@ headgear_base = {
 					primary_spouse.primary_title ?= title:h_china
 					primary_title ?= title:h_china
 				}
-				NOT = { exists = global_var:chinese_fashion_change }
+				global_var:chinese_fashion ?= flag:tang
 			}
 			modifier = {
 				add = 110
@@ -4521,7 +4602,7 @@ headgear_base = {
 			modifier = {
 				add = -1000
 				is_landed = no
-				tgp_has_minister_title = yes
+				tgp_primary_title_is_ministry = yes
 			}
 		}
 	}
@@ -4544,7 +4625,7 @@ headgear_base = {
 					primary_spouse.primary_title ?= title:h_china
 				}
 				has_tgp_dlc_trigger = yes
-				exists = global_var:chinese_fashion_change
+				global_var:chinese_fashion ?= flag:song
 			}
 			modifier = {
 				add = 110
@@ -4746,7 +4827,7 @@ headgear_base = {
 			base = 0
 			modifier = {
 				add = 51
-				is_merit_based_official = yes
+				is_merit_based_official = no
 				OR = {
 					portrait_low_nobles_clothing_trigger = {
 						CULTURE_INPUT = korean

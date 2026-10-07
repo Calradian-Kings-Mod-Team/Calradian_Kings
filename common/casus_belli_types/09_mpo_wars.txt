@@ -267,7 +267,7 @@ migration_cb = {
 # NOMAD INVASION
 ###################################
 
-mpo_nomad_invasion_cb = {
+mpo_nomad_invasion_cb = { ### CK_STEPPE CK_SAM - Enable this for the new regions/phases for Calradia mainland
 	icon = migration_cb
 	group = invasion
 
@@ -290,7 +290,8 @@ mpo_nomad_invasion_cb = {
 				is_landed = no
 				capital_county = {
 					any_county_situation_sub_region = {
-							sub_region_current_phase = situation_steppe_havsarsan_zud_season
+						situation_sub_region_has_county = prev
+						sub_region_current_phase = situation_steppe_havsarsan_zud_season
 					}
 				}
 				AND = {
@@ -306,7 +307,8 @@ mpo_nomad_invasion_cb = {
 					NOT = {
 						capital_county = {
 							any_county_situation_sub_region = {
-									sub_region_current_phase = situation_steppe_havsarsan_zud_season
+								situation_sub_region_has_county = prev
+								sub_region_current_phase = situation_steppe_havsarsan_zud_season
 							}
 						}
 					}
@@ -347,7 +349,8 @@ mpo_nomad_invasion_cb = {
 						scope:attacker = {
 							capital_county = {
 								any_county_situation_sub_region = {
-										sub_region_current_phase = situation_steppe_havsarsan_zud_season
+									situation_sub_region_has_county = prev
+									sub_region_current_phase = situation_steppe_havsarsan_zud_season
 								}
 							}
 						}
@@ -372,6 +375,7 @@ mpo_nomad_invasion_cb = {
 									ai_boldness >= 50
 									capital_county = {
 										any_county_situation_sub_region = {
+											situation_sub_region_has_county = prev
 											OR = {
 													sub_region_current_phase = situation_steppe_white_zud_season
 													sub_region_current_phase = situation_steppe_cold_zud_season
@@ -1438,14 +1442,14 @@ mpo_nomad_invasion_cb = {
 			add_dread = minor_dread_loss
 			add_legitimacy = minor_legitimacy_loss
 			add_prestige = mongol_invasion_cb_prestige_white_peace
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				ambitious = medium_stress_impact_gain
 				arrogant = medium_stress_impact_gain
 			}
 		}
 
 		scope:defender = {
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				arrogant = medium_stress_impact_gain
 			}
 		}
@@ -1592,6 +1596,7 @@ mpo_nomad_duchy_invasion_cb = {
 					NOT = {
 						capital_county = {
 							any_county_situation_sub_region = {
+								situation_sub_region_has_county = prev
 								sub_region_current_phase = situation_steppe_havsarsan_zud_season
 							}
 						}
@@ -1629,6 +1634,7 @@ mpo_nomad_duchy_invasion_cb = {
 						scope:attacker = {
 							capital_county = {
 								any_county_situation_sub_region = {
+									situation_sub_region_has_county = prev
 									sub_region_current_phase = situation_steppe_havsarsan_zud_season
 								}
 							}
@@ -1654,6 +1660,7 @@ mpo_nomad_duchy_invasion_cb = {
 									ai_boldness >= 50
 									capital_county = {
 										any_county_situation_sub_region = {
+											situation_sub_region_has_county = prev
 											OR = {
 												sub_region_current_phase = situation_steppe_white_zud_season
 												sub_region_current_phase = situation_steppe_cold_zud_season
@@ -2455,14 +2462,14 @@ mpo_nomad_duchy_invasion_cb = {
 			add_dread = minor_dread_loss
 			add_legitimacy = minor_legitimacy_loss
 			add_prestige = mongol_invasion_cb_prestige_white_peace
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				ambitious = medium_stress_impact_gain
 				arrogant = medium_stress_impact_gain
 			}
 		}
 
 		scope:defender = {
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				arrogant = medium_stress_impact_gain
 			}
 		}
@@ -3336,10 +3343,7 @@ domination_cb = {
 			every_war_defender = {
 				custom = every_defender
 				limit = {
-					OR = {
-						government_has_flag = government_is_nomadic
-						government_has_flag = government_is_herder
-					}
+					government_has_flag = government_is_in_steppe
 				}
 				if = {
 					limit = {
@@ -3871,7 +3875,8 @@ de_jure_cb_nomadic = {
 						is_landed = no
 						capital_county = {
 							any_county_situation_sub_region = {
-									sub_region_current_phase = situation_steppe_havsarsan_zud_season
+								situation_sub_region_has_county = prev
+								sub_region_current_phase = situation_steppe_havsarsan_zud_season
 							}
 						}
 					}
@@ -4557,99 +4562,90 @@ sovereignty_cb = {
 # 			}
 # 		}
 		
-# 		scope:defender = {
-# 			custom_tooltip = will_become_greatest_of_khans_tt
-# 			primary_title = {
-# 				save_scope_as = defender_title
-# 			}
-# 			custom_tooltip = every_new_vassal_becomes_obedient_tt
-# 			every_in_list = {
-# 				list = anti_gok_attackers
-# 				limit = {
-# 					OR = {
-# 						government_has_flag = government_is_nomadic
-# 						government_has_flag = government_is_herder
-# 					}
-# 					is_independent_ruler = yes
-# 				}
-# 				hidden_effect = {
-# 					add_opinion = {
-# 						modifier = obedience_opinion
-# 						target = scope:defender
-# 						years = 10
-# 					}
-# 				}
-# 				if = {
-# 					limit = {
-# 						highest_held_title_tier < scope:defender.highest_held_title_tier
-# 					}
-# 					create_title_and_vassal_change = {
-# 						type = swear_fealty
-# 						save_scope_as = change
-# 						add_claim_on_loss = no
-# 					}
-# 					change_liege = {
-# 						liege = scope:defender
-# 						change = scope:change
-# 					}
-# 					resolve_title_and_vassal_change = scope:change
-# 				}
-# 				#They're the same rank... which is annoying 
-# 				else = {
-# 					hidden_effect = {
-# 						#Vassalize their vassals that are one rank lower than them
-# 						every_vassal = {
-# 							limit = {
-# 								highest_held_title_tier = prev.highest_held_title_tier_minus_one
-# 							}
-# 							hidden_effect = {
-# 								add_opinion = {
-# 									modifier = obedience_opinion
-# 									target = scope:defender
-# 									years = 10
-# 								}
-# 							}
-# 							create_title_and_vassal_change = {
-# 								type = swear_fealty
-# 								save_scope_as = change
-# 								add_claim_on_loss = no
-# 							}
-# 							change_liege = {
-# 								liege = scope:defender
-# 								change = scope:change
-# 							}
-# 							resolve_title_and_vassal_change = scope:change
-# 						}
-# 						#Take all their titles of highest tier
-# 						create_title_and_vassal_change = {
-# 							type = swear_fealty
-# 							save_scope_as = change
-# 							add_claim_on_loss = no
-# 						}
-# 						every_held_title = {
-# 							limit = {
-# 								tier = scope:defender_title.tier
-# 							}
-# 							change_title_holder = {
-# 								holder = scope:defender
-# 								change = scope:change
-# 							}
-# 						}
-# 						resolve_title_and_vassal_change = scope:change
-# 					}
-# 					#Vassalize them
-# 					create_title_and_vassal_change = {
-# 						type = swear_fealty
-# 						save_scope_as = change
-# 						add_claim_on_loss = no
-# 					}
-# 					change_liege = {
-# 						liege = scope:defender
-# 						change = scope:change
-# 					}
-# 					resolve_title_and_vassal_change = scope:change
-# 				}
-# 			}
+		# scope:defender = {
+		# 	custom_tooltip = will_become_greatest_of_khans_tt
+		# 	primary_title = {
+		# 		save_scope_as = defender_title
+		# 	}
+		# 	custom_tooltip = every_new_vassal_becomes_obedient_tt
+		# 	every_in_list = {
+		# 		list = anti_gok_attackers
+		# 		limit = {
+		# 			government_has_flag = government_is_in_steppe
+		# 			is_independent_ruler = yes
+		# 		}
+		# 		hidden_effect = {
+		# 			add_opinion = {
+		# 				modifier = obedience_opinion
+		# 				target = scope:defender
+		# 				years = 10
+		# 			}
+		# 		}
+		# 		if = {
+		# 			limit = {
+		# 				highest_held_title_tier < scope:defender.highest_held_title_tier
+		# 			}
+		# 			create_title_and_vassal_change = {
+		# 				type = swear_fealty
+		# 				save_scope_as = change
+		# 				add_claim_on_loss = no
+		# 			}
+		# 			change_liege = {
+		# 				liege = scope:defender
+		# 				change = scope:change
+		# 			}
+		# 			resolve_title_and_vassal_change = scope:change
+		# 		}
+		# 		#They're the same rank... which is annoying 
+		# 		else_if = {
+		# 			limit = {
+		# 				highest_held_title_tier = scope:defender.highest_held_title_tier
+		# 			}
+		# 			hidden_effect = {
+		# 				#Vassalize their vassals that are one rank lower than them
+		# 				every_vassal = {
+		# 					limit = {
+		# 						highest_held_title_tier = prev.highest_held_title_tier_minus_one
+		# 					}
+		# 					hidden_effect = {
+		# 						add_opinion = {
+		# 							modifier = obedience_opinion
+		# 							target = scope:defender
+		# 							years = 10
+		# 						}
+		# 					}
+		# 					create_title_and_vassal_change = {
+		# 						type = swear_fealty
+		# 						save_scope_as = change
+		# 						add_claim_on_loss = no
+		# 					}
+		# 					change_liege = {
+		# 						liege = scope:defender
+		# 						change = scope:change
+		# 					}
+		# 					resolve_title_and_vassal_change = scope:change
+		# 				}
+		# 				#Destroy all their same tier titles
+		# 				every_held_title = {
+		# 					limit = {
+		# 						tier = scope:defender_title.tier
+		# 					}
+		# 					scope:attacker = { destroy_title = prev }
+		# 				}
+		# 			}
+		# 			#Vassalize them
+		# 			create_title_and_vassal_change = {
+		# 				type = swear_fealty
+		# 				save_scope_as = change
+		# 				add_claim_on_loss = no
+		# 			}
+		# 			change_liege = {
+		# 				liege = scope:defender
+		# 				change = scope:change
+		# 			}
+		# 			resolve_title_and_vassal_change = scope:change
+		# 		}
+		# 	}
 			
 # 			add_legitimacy = monumental_legitimacy_gain
 # 			add_prestige = monumental_prestige_gain
@@ -4968,218 +4964,218 @@ sovereignty_cb = {
 	# 			exists = situation:dynastic_cycle
 	# 			scope:defender = {
 					
-	# 				any_character_situation = {
-	# 					this = situation:dynastic_cycle
-	# 				}
-	# 			}
-	# 		}
-	# 		situation:dynastic_cycle = {
-	# 			if = {
-	# 				limit = {
-	# 					scope:defender = {
-	# 						any_realm_county = {
-	# 							count >= 20
-	# 							any_county_situation = {
-	# 								this = situation:dynastic_cycle
-	# 							}
-	# 						}
-	# 					}
-	# 					situation_top_has_catalyst = catalyst_event_mongol_empire_attacks_major
-	# 				}
-	# 				trigger_situation_catalyst = {
-	# 					catalyst = catalyst_event_mongol_empire_attacks_major
-	# 					character = scope:attacker
-	# 				}
-	# 			}
-	# 			else_if = {
-	# 				limit = {
-	# 					situation_top_has_catalyst = catalyst_event_mongol_empire_attacks_minor
-	# 				}
-	# 				trigger_situation_catalyst = {
-	# 					catalyst = catalyst_event_mongol_empire_attacks_minor
-	# 					character = scope:attacker
-	# 				}
-	# 			}
-	# 		}
-	# 	}
-	# 	scope:attacker = {
-	# 		save_scope_as = gok
-	# 	}
-	# 	scope:defender = {
-	# 		save_scope_as = gok_victim
-	# 		primary_title = {
-	# 			save_scope_as = defender_primary
-	# 		}
-	# 		#Scripted effect that selects acceptable-tier admin vassals to preserve and moves lower tier admin vassals under them
-	# 		if = {
-	# 			limit = {
-	# 				NOT = {
-	# 					scope:attacker = {
-	# 						government_has_mechanic = administrative
-	# 					}
-	# 				}
-	# 				any_vassal_or_below = {
-	# 					highest_held_title_tier >= tier_kingdom
-	# 					government_has_mechanic = administrative
-	# 				}
-	# 			}
-	# 			hidden_effect = {
-	# 				mpo_gok_onslaught_admin_vassal_reorganization = yes
-	# 			}
-	# 		}
-	# 		every_vassal_or_below = {
-	# 			limit = {
-	# 				is_ai = no
-	# 				highest_held_title_tier > tier_barony
-	# 			}
-	# 			add_to_list = defender_player_vassals
-	# 		}
-	# 		#Make list of defender's vassals eligible for transfer or un-landing
-	# 		every_vassal_or_below = {
-	# 			limit = {
-	# 				trigger_if = {
-	# 					limit = {
-	# 						scope:attacker = {
-	# 							NOT = {
-	# 								government_has_mechanic = administrative
-	# 							}
-	# 						}
-	# 					}
-	# 					is_landed = yes
-	# 				}
-	# 				highest_held_title_tier >= tier_county
-	# 			}
-	# 			add_to_list = defender_vassals
-	# 		}
-	# 		#List of all defender's titles
-	# 		every_held_title = {
-	# 			limit = {
-	# 				is_landless_type_title = no
-	# 				tier >= tier_county
-	# 				tier < tier_empire
-	# 			}
-	# 			add_to_list = target_titles
-	# 		}
+		# 			any_character_situation = {
+		# 				this = situation:dynastic_cycle
+		# 			}
+		# 		}
+		# 	}
+		# 	situation:dynastic_cycle = {
+		# 		if = {
+		# 			limit = {
+		# 				scope:defender = {
+		# 					any_realm_county = {
+		# 						count >= 20
+		# 						any_county_situation = {
+		# 							this = situation:dynastic_cycle
+		# 						}
+		# 					}
+		# 				}
+		# 				situation_top_has_catalyst = catalyst_event_mongol_empire_attacks_major
+		# 			}
+		# 			trigger_situation_catalyst = {
+		# 				catalyst = catalyst_event_mongol_empire_attacks_major
+		# 				character = scope:attacker
+		# 			}
+		# 		}
+		# 		else_if = {
+		# 			limit = {
+		# 				situation_top_has_catalyst = catalyst_event_mongol_empire_attacks_minor
+		# 			}
+		# 			trigger_situation_catalyst = {
+		# 				catalyst = catalyst_event_mongol_empire_attacks_minor
+		# 				character = scope:attacker
+		# 			}
+		# 		}
+		# 	}
+		# }
+		# scope:attacker = {
+		# 	save_scope_as = gok
+		# }
+		# scope:defender = {
+		# 	save_scope_as = gok_victim
+		# 	primary_title = {
+		# 		save_scope_as = defender_primary
+		# 	}
+		# 	#Scripted effect that selects acceptable-tier admin vassals to preserve and moves lower tier admin vassals under them
+		# 	if = {
+		# 		limit = {
+		# 			NOT = {
+		# 				scope:attacker = {
+		# 					government_has_mechanic = administrative
+		# 				}
+		# 			}
+		# 			any_vassal_or_below = {
+		# 				highest_held_title_tier >= tier_kingdom
+		# 				government_has_mechanic = administrative
+		# 			}
+		# 		}
+		# 		hidden_effect = {
+		# 			mpo_gok_onslaught_admin_vassal_reorganization = yes
+		# 		}
+		# 	}
+		# 	every_vassal_or_below = {
+		# 		limit = {
+		# 			is_ai = no
+		# 			highest_held_title_tier > tier_barony
+		# 		}
+		# 		add_to_list = defender_player_vassals
+		# 	}
+		# 	#Make list of defender's vassals eligible for transfer or un-landing
+		# 	every_vassal_or_below = {
+		# 		limit = {
+		# 			trigger_if = {
+		# 				limit = {
+		# 					scope:attacker = {
+		# 						NOT = {
+		# 							government_has_mechanic = administrative
+		# 						}
+		# 					}
+		# 				}
+		# 				is_landed = yes
+		# 			}
+		# 			highest_held_title_tier >= tier_county
+		# 		}
+		# 		add_to_list = defender_vassals
+		# 	}
+		# 	#List of all defender's titles
+		# 	every_held_title = {
+		# 		limit = {
+		# 			is_landless_type_title = no
+		# 			tier >= tier_county
+		# 			tier < tier_empire
+		# 		}
+		# 		add_to_list = target_titles
+		# 	}
 
-	# 		every_vassal_or_below = {
-	# 			limit = {
-	# 				is_landed = yes
-	# 				OR = {
-	# 					AND = {
-	# 						NOT = {
-	# 							government_has_mechanic = administrative
-	# 						}
-	# 						highest_held_title_tier >= tier_duchy
-	# 						gok_desirable_vassal_trigger = no
-	# 					}
-	# 					is_in_list = vulnerable_admin_vassals
-	# 				}
-	# 			}
-	# 			every_held_title = {
-	# 				limit = {
-	# 					is_landless_type_title = no
-	# 					tier >= tier_county
-	# 					tier < tier_empire
-	# 					is_head_of_faith = no
-	# 				}
-	# 				add_to_list = target_titles
-	# 			}
-	# 		}
-	# 		if = {
-	# 			limit = {
-	# 				scope:defender = {
-	# 					OR = {
-	# 						any_held_title = {
-	# 							has_variable = refused_submission
-	# 						}
-	# 						any_vassal_or_below = {
-	# 							any_held_title = {
-	# 								has_variable = refused_submission
-	# 							}
-	# 						}
-	# 					}
-	# 				}
-	# 			}
-	# 			scope:defender = {
-	# 				save_scope_as = khans_retribution_target
-	# 			}
-	# 		}
-	# 	}
-	# 	scope:attacker = {
-	# 		#Save value that's used to increase submit acceptance - you've successfully waged a war of terror!
-	# 		custom_tooltip = goK_war_gain_all_titles
-	# 		if = {
-	# 			limit = {
-	# 				scope:defender = {
-	# 					NAND = {
-	# 						government_has_mechanic = administrative
-	# 						any_vassal = {
-	# 							count >= 2
-	# 							government_has_mechanic = administrative
-	# 							highest_held_title_tier >= main_administrative_tier
-	# 						}
-	# 					}
-	# 				}
-	# 			}
-	# 			custom_tooltip = goK_war_gain_vassal_titles
-	# 		}
-	# 		custom_tooltip = gok_offer_submission_acceptance_bonus_tt
-	# 		if = {
-	# 			limit = {
-	# 				NOT = {
-	# 					has_variable = gok_terror_war_value
-	# 				}
-	# 			}
-	# 			#Higher value if defender refused submission, causing this war
-	# 			if = {
-	# 				limit = {
-	# 					exists = scope:khans_retribution_target
-	# 				}
-	# 				set_variable = {
-	# 					name = gok_terror_war_value
-	# 					value = {
-	# 						value = scope:defender.highest_held_title_tier
-	# 						multiply = 2
-	# 					}
-	# 				}
-	# 			}
-	# 			else = {
-	# 				set_variable = {
-	# 					name = gok_terror_war_value
-	# 					value = {
-	# 						value = scope:defender.highest_held_title_tier
-	# 						divide = 2
-	# 						ceiling = yes
-	# 					}
-	# 				}
-	# 			}
-	# 		}
-	# 		else = {
-	# 			if = {
-	# 				limit = {
-	# 					exists = scope:khans_retribution_target
-	# 					#Cap the bonus so that powerful rulers should still resist
-	# 					var:gok_terror_war_value < 60
-	# 				}
-	# 				change_variable = {
-	# 					name = gok_terror_war_value
-	# 					add = {
-	# 						value = scope:defender.highest_held_title_tier
-	# 						multiply = 2
-	# 					}
-	# 				}
-	# 			}
-	# 			else = {
-	# 				change_variable = {
-	# 					name = gok_terror_war_value
-	# 					add = {
-	# 						value = scope:defender.highest_held_title_tier
-	# 						divide = 2
-	# 						ceiling = yes
-	# 					}
-	# 				}
-	# 			}
-	# 		}
+		# 	every_vassal_or_below = {
+		# 		limit = {
+		# 			is_landed = yes
+		# 			OR = {
+		# 				AND = {
+		# 					NOT = {
+		# 						government_has_mechanic = administrative
+		# 					}
+		# 					highest_held_title_tier >= tier_duchy
+		# 					gok_desirable_vassal_trigger = no
+		# 				}
+		# 				is_in_list = vulnerable_admin_vassals
+		# 			}
+		# 		}
+		# 		every_held_title = {
+		# 			limit = {
+		# 				is_landless_type_title = no
+		# 				tier >= tier_county
+		# 				tier < tier_empire
+		# 				is_head_of_faith = no
+		# 			}
+		# 			add_to_list = target_titles
+		# 		}
+		# 	}
+		# 	if = {
+		# 		limit = {
+		# 			scope:defender = {
+		# 				OR = {
+		# 					any_held_title = {
+		# 						has_variable = refused_submission
+		# 					}
+		# 					any_vassal_or_below = {
+		# 						any_held_title = {
+		# 							has_variable = refused_submission
+		# 						}
+		# 					}
+		# 				}
+		# 			}
+		# 		}
+		# 		scope:defender = {
+		# 			save_scope_as = khans_retribution_target
+		# 		}
+		# 	}
+		# }
+		# scope:attacker = {
+		# 	#Save value that's used to increase submit acceptance - you've successfully waged a war of terror!
+		# 	custom_tooltip = goK_war_gain_all_titles
+		# 	if = {
+		# 		limit = {
+		# 			scope:defender = {
+		# 				NAND = {
+		# 					government_has_mechanic = administrative
+		# 					any_vassal = {
+		# 						count >= 2
+		# 						government_has_mechanic = administrative
+		# 						highest_held_title_tier >= main_administrative_tier
+		# 					}
+		# 				}
+		# 			}
+		# 		}
+		# 		custom_tooltip = goK_war_gain_vassal_titles
+		# 	}
+		# 	custom_tooltip = gok_offer_submission_acceptance_bonus_tt
+		# 	if = {
+		# 		limit = {
+		# 			NOT = {
+		# 				has_variable = gok_terror_war_value
+		# 			}
+		# 		}
+		# 		#Higher value if defender refused submission, causing this war
+		# 		if = {
+		# 			limit = {
+		# 				exists = scope:khans_retribution_target
+		# 			}
+		# 			set_variable = {
+		# 				name = gok_terror_war_value
+		# 				value = {
+		# 					value = scope:defender.highest_held_title_tier
+		# 					multiply = 2
+		# 				}
+		# 			}
+		# 		}
+		# 		else = {
+		# 			set_variable = {
+		# 				name = gok_terror_war_value
+		# 				value = {
+		# 					value = scope:defender.highest_held_title_tier
+		# 					divide = 2
+		# 					ceiling = yes
+		# 				}
+		# 			}
+		# 		}
+		# 	}
+		# 	else = {
+		# 		if = {
+		# 			limit = {
+		# 				exists = scope:khans_retribution_target
+		# 				#Cap the bonus so that powerful rulers should still resist
+		# 				var:gok_terror_war_value < 60
+		# 			}
+		# 			change_variable = {
+		# 				name = gok_terror_war_value
+		# 				add = {
+		# 					value = scope:defender.highest_held_title_tier
+		# 					multiply = 2
+		# 				}
+		# 			}
+		# 		}
+		# 		else = {
+		# 			change_variable = {
+		# 				name = gok_terror_war_value
+		# 				add = {
+		# 					value = scope:defender.highest_held_title_tier
+		# 					divide = 2
+		# 					ceiling = yes
+		# 				}
+		# 			}
+		# 		}
+		# 	}
 		
 # 			scope:attacker = {
 # 				if = {
@@ -5221,47 +5217,46 @@ sovereignty_cb = {
 
 # 			gok_retribution_cleanup_effect = yes
 
-# 			custom_tooltip = gok_cb_event_troops_tt
-# 			hidden_effect = {
-# 				if = {
-# 					limit = {
-# 						exists = scope:khans_retribution_target
-# 						exists = scope:requested_siege_army
-# 					}
-# 					gok_spawn_subjugated_siege_army_effect = { CHARACTER = scope:defender }
-# 				}
-# 				else_if = {
-# 					limit = {
-# 						exists = scope:khans_retribution_target
-# 						exists = scope:requested_quality_army
-# 					}
-# 					gok_spawn_subjugated_quality_army_effect = { CHARACTER = scope:defender }
-# 				}
-# 				else_if = {
-# 					limit = {
-# 						scope:defender = {
-# 							NOR = {
-# 								government_has_flag = government_is_nomadic
-# 								government_has_flag = government_is_herder
-# 								government_has_flag = government_is_tribal
-# 							}
-# 						}
-# 					}
-# 					random_list = {
-# 						1 = {
-# 							gok_spawn_subjugated_siege_army_effect = { CHARACTER = scope:defender }
-# 						}
-# 						1 = {
-# 							gok_spawn_subjugated_quality_army_effect = { CHARACTER = scope:defender }
-# 						}
-# 					}
-# 				}
-# 				else = {
-# 					gok_spawn_subjugated_quality_army_effect = { CHARACTER = scope:defender }
-# 				}
-# 			}
-# 			show_pow_release_message_effect = yes
-# 		}
+		# 	custom_tooltip = gok_cb_event_troops_tt
+		# 	hidden_effect = {
+		# 		if = {
+		# 			limit = {
+		# 				exists = scope:khans_retribution_target
+		# 				exists = scope:requested_siege_army
+		# 			}
+		# 			gok_spawn_subjugated_siege_army_effect = { CHARACTER = scope:defender }
+		# 		}
+		# 		else_if = {
+		# 			limit = {
+		# 				exists = scope:khans_retribution_target
+		# 				exists = scope:requested_quality_army
+		# 			}
+		# 			gok_spawn_subjugated_quality_army_effect = { CHARACTER = scope:defender }
+		# 		}
+		# 		else_if = {
+		# 			limit = {
+		# 				scope:defender = {
+		# 					NOR = {
+		# 						government_has_flag = government_is_in_steppe
+		# 						government_has_flag = government_is_tribal
+		# 					}
+		# 				}
+		# 			}
+		# 			random_list = {
+		# 				1 = {
+		# 					gok_spawn_subjugated_siege_army_effect = { CHARACTER = scope:defender }
+		# 				}
+		# 				1 = {
+		# 					gok_spawn_subjugated_quality_army_effect = { CHARACTER = scope:defender }
+		# 				}
+		# 			}
+		# 		}
+		# 		else = {
+		# 			gok_spawn_subjugated_quality_army_effect = { CHARACTER = scope:defender }
+		# 		}
+		# 	}
+		# 	show_pow_release_message_effect = yes
+		# }
 		
 # 		# Legitimacy
 # 		add_legitimacy_attacker_victory_effect = yes
@@ -5549,7 +5544,7 @@ sovereignty_cb = {
 		# scope:attacker = {
 		# 	add_prestige = major_prestige_loss
 		# 	add_legitimacy = minor_legitimacy_loss
-		# 	stress_impact = {
+		# 	stress_and_fulfillment_impact = {
 		# 		ambitious = minor_stress_impact_gain
 		# 		arrogant = minor_stress_impact_gain
 		# 	}
@@ -5610,14 +5605,14 @@ sovereignty_cb = {
 # 				# Legitimacy
 # 				add_legitimacy_attacker_defeat_effect = yes
 
-# 				scope:attacker = {
-# 					add_prestige = massive_prestige_loss
-# 					add_legitimacy = major_legitimacy_loss
-# 					stress_impact = {
-# 						ambitious = medium_stress_impact_gain
-# 						arrogant = medium_stress_impact_gain
-# 					}
-# 				}
+				# scope:attacker = {
+				# 	add_prestige = massive_prestige_loss
+				# 	add_legitimacy = major_legitimacy_loss
+				# 	stress_and_fulfillment_impact = {
+				# 		ambitious = medium_stress_impact_gain
+				# 		arrogant = medium_stress_impact_gain
+				# 	}
+				# }
 				
 # 				add_prestige = mongol_invasion_cb_prestige_gain
 # 				#They defeated Genghis Khan... maybe they're a worthy foe?

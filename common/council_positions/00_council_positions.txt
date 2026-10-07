@@ -1,6 +1,6 @@
 ﻿councillor_chancellor = {
 	skill = diplomacy
-	
+
 	name = {
 		first_valid = {
 			triggered_desc = {
@@ -51,8 +51,8 @@
 	}
 
 	valid_position = {
-		NOR = { 
-			government_has_flag = government_is_landless_adventurer 
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
 			government_has_flag = government_is_nomadic
 		}
 	}
@@ -124,11 +124,8 @@
 	}
 
 	on_fired_from_position = {
-		fired_from_council_position_effect = yes
-	}
-
-	on_lose_position = {
 		fired_minister_position_effect = yes
+		fired_from_council_position_effect = yes
 	}
 
 	portrait_animation = chancellor
@@ -141,7 +138,7 @@
 
 councillor_steward = {
 	skill = stewardship
-	
+
 	name = {
 		first_valid = {
 			triggered_desc = {
@@ -202,13 +199,10 @@ councillor_steward = {
 			desc = game_concept_steward_desc
 		}
 	}
-	
-	auto_fill = {
-	}
-	
+
 	valid_position = {
-		NOR = { 
-			government_has_flag = government_is_landless_adventurer 
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
 			government_has_flag = government_is_nomadic
 		}
 	}
@@ -266,11 +260,8 @@ councillor_steward = {
 	}
 
 	on_fired_from_position = {
-		fired_from_council_position_effect = yes
-	}
-
-	on_lose_position = {
 		fired_minister_position_effect = yes
+		fired_from_council_position_effect = yes
 	}
 
 	portrait_animation = steward
@@ -283,7 +274,7 @@ councillor_steward = {
 
 councillor_marshal = {
 	skill = martial
-	
+
 	name = {
 		first_valid = {
 			triggered_desc = {
@@ -344,13 +335,10 @@ councillor_marshal = {
 			desc = game_concept_marshal_desc
 		}
 	}
-	
-	auto_fill = {
-	}
 
 	valid_position = {
-		NOR = { 
-			government_has_flag = government_is_landless_adventurer 
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
 			government_has_flag = government_is_nomadic
 		}
 	}
@@ -414,11 +402,8 @@ councillor_marshal = {
 	}
 
 	on_fired_from_position = {
-		fired_from_council_position_effect = yes
-	}
-
-	on_lose_position = {
 		fired_minister_position_effect = yes
+		fired_from_council_position_effect = yes
 	}
 
 	portrait_animation = marshal
@@ -431,7 +416,7 @@ councillor_marshal = {
 
 councillor_spymaster = {
 	skill = intrigue
-	
+
 	name = {
 		first_valid = {
 			triggered_desc = {
@@ -492,9 +477,6 @@ councillor_spymaster = {
 			desc = game_concept_spymaster_desc
 		}
 	}
-	
-	auto_fill = {
-	}
 
 	valid_position = {
 		NOT = { government_has_flag = government_is_landless_adventurer }
@@ -554,13 +536,10 @@ councillor_spymaster = {
 	}
 
 	on_fired_from_position = {
+		fired_minister_position_effect = yes
 		fired_from_council_position_effect = yes
 	}
 
-	on_lose_position = {
-		fired_minister_position_effect = yes
-	}
-	
 	use_for_scheme_phase_duration = yes
 	use_for_scheme_resistance = yes
 
@@ -590,8 +569,8 @@ councillor_court_chaplain = {
 			always = no
 		}
 		trigger_else = {
-			faith = {
-				NOT = { has_doctrine_parameter = clerical_appointment_ruler }
+			rite = {
+				NOT = { rite_has_parameter = clerical_appointment_ruler }
 			}
 		}
 	}
@@ -606,52 +585,39 @@ councillor_court_chaplain = {
 			}
 			custom_description = {
 				text = "court_chaplain_cant_fire_doctrines"
-				faith = {
-					NOT = { has_doctrine_parameter = clerical_appointment_fixed }
-				}
+				can_appoint_own_court_chaplain_trigger = yes
 			}
 		}
 	}
-	
+
 	can_reassign = {
 		trigger_if = {
 			limit = {
-				NAND = {
-					government_has_flag = government_has_merit
-					highest_held_title_tier >= tier_hegemony
-				}
+				tgp_has_access_to_ministry_trigger = no
 			}
 			custom_description = {
 				text = "court_chaplain_cant_reassign_doctrines"
 				OR = {
-					faith = {
-						NOT = { has_doctrine_parameter = clerical_appointment_fixed }
-					}
+					can_appoint_own_court_chaplain_trigger = yes
 					NOT = { exists = cp:councillor_court_chaplain }
 				}
 			}
 		}
 	}
-	
+
 	can_change_once = {
-		faith = {
-			has_doctrine_parameter = clerical_appointment_fixed
-		}
-		NAND = {
-			government_has_flag = government_has_merit
-			highest_held_title_tier >= tier_hegemony
-		}
+		can_appoint_own_court_chaplain_trigger = no
 		exists = cp:councillor_court_chaplain
 	}
-	
+
 	inherit = no
-	
+
 	name = {
 		first_valid = {
 			triggered_desc = {
 				trigger = {
 					highest_held_title_tier >= tier_hegemony
-					government_has_flag = government_has_merit 
+					government_has_flag = government_has_merit
 				}
 				desc = councillor_court_chaplain_celestial_government_imperial
 			}
@@ -675,15 +641,15 @@ councillor_court_chaplain = {
 				}
 				desc = councillor_court_chaplain_confucian_chinese
 			}
-			triggered_desc = {
-				trigger = {
-					OR = {
-						culture = { has_cultural_pillar = heritage_tibetan_ck }
-					}
-					religion = religion:shantaya_religion
-				}
-				desc = councillor_court_chaplain_buddhist_tibetan
-			}
+			# triggered_desc = {
+			# 	trigger = {
+			# 		OR = {
+			# 			culture = { has_cultural_pillar = heritage_tibetan_ck }
+			# 		}
+			# 		religion = religion:buddhism_religion
+			# 	}
+			# 	desc = councillor_court_chaplain_buddhist_tibetan
+			# }
 			triggered_desc = {
 				trigger = {
 					government_has_flag = government_is_mandala
@@ -692,21 +658,42 @@ councillor_court_chaplain = {
 			}
 			triggered_desc = {
 				trigger = {
-					faith = {
-						OR = {
-							has_doctrine = doctrine_theocracy_temporal
-							religion = { is_in_family = rf_pagan }
-						}
+					religion = religion:christianity_religion
+					government_has_flag = government_is_theocracy
+					exists = scope:councillor
+					scope:councillor = {
+						is_ruler = no
 					}
 				}
-				desc = actual_bishop_title
+				desc = councillor_court_chaplain_confessor
 			}
 			triggered_desc = {
 				trigger = {
-					faith = {
+					exists = scope:councillor
+					scope:councillor = {
+						faith.religion = faith:catholic.religion
+					}
+				}
+				desc = councillor_actual_bishop_title
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:councillor
+					rite = {
+						OR = {
+							rite_has_doctrine = doctrine_theocracy_temporal
+							faith.religion = { is_in_family = rf_pagan }
+						}
+					}
+				}
+				desc = councillor_actual_bishop_title
+			}
+			triggered_desc = {
+				trigger = {
+					rite = {
 						NOR = {
-							has_doctrine = doctrine_theocracy_temporal
-							religion = { is_in_family = rf_pagan }
+							rite_has_doctrine = doctrine_theocracy_temporal
+							faith.religion = { is_in_family = rf_pagan }
 						}
 					}
 				}
@@ -747,7 +734,7 @@ councillor_court_chaplain = {
 			}
 			triggered_desc = {
 				trigger = {
-					faith = { has_doctrine = doctrine_theocracy_temporal }
+					rite = { rite_has_doctrine = doctrine_theocracy_temporal }
 				}
 				desc = game_concept_realm_priest_desc
 			}
@@ -781,9 +768,10 @@ councillor_court_chaplain = {
 	}
 
 	pool_character_config = pool_court_chaplain
-	
+
 	valid_character = {
 		exists = root.liege_or_court_owner
+
 		trigger_if = { # If the liege has a ministry, we check a separate minister trigger
 			limit = {
 				root.liege_or_court_owner = { tgp_has_access_to_ministry_trigger = yes }
@@ -795,10 +783,10 @@ councillor_court_chaplain = {
 		}
 		tgp_is_ceremonial_liege_trigger = no
 	}
-	
+
 	valid_position = {
-		NOR = { 
-			government_has_flag = government_is_landless_adventurer 
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
 			government_has_flag = government_is_nomadic
 		}
 	}
@@ -806,56 +794,27 @@ councillor_court_chaplain = {
 	on_get_position = {
 		got_council_position_effect = yes
 		got_minister_position_effect = { MINISTER_TITLE = e_minister_of_rites MINISTER_POSITION = councillor_court_chaplain }
+		christian_clergy_learn_liturgical_language_effect = yes
+		# Only fixes the automatic fill, since a see vacated by death has already been inherited
+		if = {
+			limit = {
+				is_ruler = no
+				liege = {
+					rite = { rite_has_parameter = has_clerical_regions } # As at game start. The trigger below, not the doctrine, is what exempts owners who pick their own
+					can_appoint_own_court_chaplain_trigger = no
+				}
+			}
+			liege = {
+				assign_landed_realm_priest_effect = yes
+			}
+			if = {
+				limit = { is_councillor = no }
+				move_to_pool = yes
+			}
+		}
 		if = {
 			limit = {
 				years_from_game_start >= 1
-			}
-			if = {
-				limit = {
-					is_ruler = no
-					liege = {
-						faith = { has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment }
-						any_vassal = {
-							is_physically_able_adult = yes
-							is_councillor = no
-							government_has_flag = government_is_theocracy
-							can_be_court_chaplain_trigger = { COURT_OWNER = liege }
-							faith = liege.faith
-						}
-					}
-				}
-				liege = {
-					random_vassal = {
-						limit = {
-							is_physically_able_adult = yes
-							is_councillor = no
-							government_has_flag = government_is_theocracy
-							can_be_court_chaplain_trigger = { COURT_OWNER = liege }
-							faith = liege.faith
-						}
-						weight = {
-							base = 1
-							modifier = {
-								add = 1000
-								faith.religious_head ?= this
-							}
-							modifier = {
-								add = learning
-							}
-							modifier = {
-								add = primary_title.tier
-							}
-						}
-						liege = {
-							assign_councillor_type = {
-								type = councillor_court_chaplain
-								remove_existing_councillor = yes
-								target = prev
-							}
-						}
-					}
-				}
-				move_to_pool = yes
 			}
 			if = {
 				limit = {
@@ -874,9 +833,9 @@ councillor_court_chaplain = {
 					}
 					5 = {
 						trigger = {
-							can_start_scheme = { 
-								type = learn_language 
-								target_character = liege 
+							can_start_scheme = {
+								type = learn_language
+								target_character = liege
 							}
 						}
 						start_scheme = {
@@ -900,11 +859,110 @@ councillor_court_chaplain = {
 	}
 
 	on_fired_from_position = {
+		fired_minister_position_effect = yes
 		fired_from_council_position_effect = yes
+		# We send a toast for the same petition catalyst, because the council UI shows nothing
+		if = {
+			limit = {
+				scope:councillor_liege ?= {
+					religion = religion:christianity_religion
+					government_is_religious_trigger = no
+					exists = top_participant_group:the_christian_church
+					NOT = { has_character_flag = pam_church_replacing_realm_priest }
+					NOT = { exists = root.clerical_elector_title }
+				}
+				situation:the_christian_church ?= {
+					situation_top_has_catalyst = catalyst_the_christian_church_requested_realm_priest_replacement
+				}
+			}
+			scope:councillor_liege = {
+				send_interface_toast = {
+					title = pam_replaced_own_realm_priest_toast
+					left_icon = this
+					right_icon = root
+					custom_tooltip = {
+						text = pam_replaced_own_realm_priest_catalyst_tt
+						situation:the_christian_church = {
+							trigger_situation_catalyst = catalyst_the_christian_church_requested_realm_priest_replacement
+						}
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				exists = root.faith.religious_head
+				root.faith.religious_head != root
+				scope:councillor_liege ?= {
+					this != root.faith.religious_head
+					government_is_religious_trigger = no
+					religion = religion:christianity_religion
+					exists = top_participant_group:the_christian_church
+				}
+			}
+			save_scope_as = pam_dismissed_realm_priest
+			root.faith.religious_head = { save_scope_as = pam_slighted_religious_head }
+			scope:councillor_liege = {
+				send_interface_toast = {
+					title = pam_fired_realm_priest_toast
+					left_icon = scope:pam_slighted_religious_head
+					right_icon = scope:pam_dismissed_realm_priest
+					scope:pam_slighted_religious_head = {
+						add_opinion = {
+							target = scope:councillor_liege
+							modifier = pam_fired_realm_priest_opinion
+						}
+					}
+				}
+			}
+		}
 	}
 
 	on_lose_position = {
-		fired_minister_position_effect = yes
+		# We promote first, because clearing the Realm Priest link first made puppeteer?= fail
+		if = {
+			limit = {
+				is_alive = yes
+				is_clergy = yes
+				is_ai = yes
+				any_held_title = {}
+				OR = {
+					NOT = { liege ?= scope:councillor_liege }
+					puppeteer ?= scope:councillor_liege
+				}
+				scope:councillor_liege = {
+					can_have_theological_agent_puppet_trigger = yes
+					NOT = {
+						exists = puppet:external_theological_agent_puppet
+					}
+				}
+			}
+			if = {
+				limit = { puppeteer ?= scope:councillor_liege }
+				hidden_effect = { clear_puppet_status = yes }
+			}
+			scope:councillor_liege = {
+				send_interface_toast = {
+					type = event_toast_effect_good
+					title = make_external_clerical_puppet_on_action_notification
+					left_icon = scope:councillor_liege
+					right_icon = root
+					set_puppet = {
+						target = root
+						type = external_theological_agent_puppet
+					}
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				is_alive = yes
+				is_clergy = yes
+				puppeteer ?= scope:councillor_liege
+				is_puppet_of_type = theological_agent_puppet
+			}
+			clear_puppet_status = yes
+		}
 	}
 
 	portrait_animation = chaplain
@@ -988,7 +1046,7 @@ councillor_spouse = {
 						#Tibetan Feudal/Clan
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								OR = {
 									government_has_flag = government_is_feudal
 									government_has_flag = government_is_clan
@@ -1091,7 +1149,7 @@ councillor_spouse = {
 						#Dravidian/Indo-Aryan Feudal/Clan/Tribal
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								OR = {
 									government_has_flag = government_is_feudal
 									government_has_flag = government_is_clan
@@ -1178,7 +1236,7 @@ councillor_spouse = {
 						#Mongolic and Turkic All
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								OR = {
 									government_has_flag = government_is_feudal
 									government_has_flag = government_is_clan
@@ -1213,7 +1271,7 @@ councillor_spouse = {
 						#Iranian Feudal/Clan
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								OR = {
 									government_has_flag = government_is_feudal
 									government_has_flag = government_is_clan
@@ -1294,7 +1352,7 @@ councillor_spouse = {
 						#Arabic Feudal/Clan/Tribal
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								OR = {
 									government_has_flag = government_is_feudal
 									government_has_flag = government_is_tribal
@@ -1382,7 +1440,7 @@ councillor_spouse = {
 						# Sturgian Feudal
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								government_has_flag = government_is_feudal
 								culture = { has_name_list = name_list_sturgian }
 							}
@@ -1422,7 +1480,7 @@ councillor_spouse = {
 						# Calradian Feudal
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								OR = {
 									government_has_flag = government_is_feudal
 									government_has_flag = government_is_tribal
@@ -1434,7 +1492,7 @@ councillor_spouse = {
 						# Calradic Republic
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								government_has_flag = government_is_republic
 								culture = { has_name_list = name_list_calradoi }
 							}
@@ -1518,7 +1576,7 @@ councillor_spouse = {
 						#Tribal Default
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								government_has_flag = government_is_tribal
 							}
 							desc = emperor_tribal_male
@@ -1554,7 +1612,7 @@ councillor_spouse = {
 						#Clan Default
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								government_has_flag = government_is_clan
 							}
 							desc = emperor_clan_male
@@ -1590,7 +1648,7 @@ councillor_spouse = {
 						#Republic Default
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								government_has_flag = government_is_republic
 							}
 							desc = emperor_republic_male
@@ -1641,7 +1699,7 @@ councillor_spouse = {
 						#Feudal/Default Fallback
 						triggered_desc = {
 							trigger = {
-								highest_held_title_tier = tier_empire
+								highest_held_title_tier >= tier_empire
 								NOR = { #The following governments have "Spouses"
 									government_has_flag = government_is_theocracy
 									government_has_flag = government_is_mercenary
@@ -1738,50 +1796,50 @@ councillor_spouse = {
 						desc = baron_feudal_female_anglo_saxon
 					}
 					#Tibetan Feudal/Clan
-					# triggered_desc = {
-					# 	trigger = {
-					# 		highest_held_title_tier = tier_empire
-					# 		OR = {
-					# 			government_has_flag = government_is_feudal
-					# 			government_has_flag = government_is_clan
-					# 		}
-					# 		culture = { has_cultural_pillar = heritage_tibetan_ck }
-					# 	}
-					# 	desc = emperor_feudal_female_tibetan_group
-					# }
-					# triggered_desc = {
-					# 	trigger = {
-					# 		highest_held_title_tier = tier_kingdom
-					# 		OR = {
-					# 			government_has_flag = government_is_feudal
-					# 			government_has_flag = government_is_clan
-					# 		}
-					# 		culture = { has_cultural_pillar = heritage_tibetan_ck }
-					# 	}
-					# 	desc = king_feudal_female_tibetan_group
-					# }
-					# triggered_desc = {
-					# 	trigger = {
-					# 		highest_held_title_tier = tier_duchy
-					# 		OR = {
-					# 			government_has_flag = government_is_feudal
-					# 			government_has_flag = government_is_clan
-					# 		}
-					# 		culture = { has_cultural_pillar = heritage_tibetan_ck }
-					# 	}
-					# 	desc = duke_feudal_female_tibetan_group
-					# }
-					# triggered_desc = {
-					# 	trigger = {
-					# 		highest_held_title_tier = tier_county
-					# 		OR = {
-					# 			government_has_flag = government_is_feudal
-					# 			government_has_flag = government_is_clan
-					# 		}
-					# 		culture = { has_cultural_pillar = heritage_tibetan_ck }
-					# 	}
-					# 	desc = count_feudal_female_tibetan_group
-					# }
+					triggered_desc = {
+						trigger = {
+							highest_held_title_tier >= tier_empire
+							OR = {
+								government_has_flag = government_is_feudal
+								government_has_flag = government_is_clan
+							}
+							culture = { has_cultural_pillar = heritage_tibetan_ck }
+						}
+						desc = emperor_feudal_female_tibetan_group
+					}
+					triggered_desc = {
+						trigger = {
+							highest_held_title_tier = tier_kingdom
+							OR = {
+								government_has_flag = government_is_feudal
+								government_has_flag = government_is_clan
+							}
+							culture = { has_cultural_pillar = heritage_tibetan_ck }
+						}
+						desc = king_feudal_female_tibetan_group
+					}
+					triggered_desc = {
+						trigger = {
+							highest_held_title_tier = tier_duchy
+							OR = {
+								government_has_flag = government_is_feudal
+								government_has_flag = government_is_clan
+							}
+							culture = { has_cultural_pillar = heritage_tibetan_ck }
+						}
+						desc = duke_feudal_female_tibetan_group
+					}
+					triggered_desc = {
+						trigger = {
+							highest_held_title_tier = tier_county
+							OR = {
+								government_has_flag = government_is_feudal
+								government_has_flag = government_is_clan
+							}
+							culture = { has_cultural_pillar = heritage_tibetan_ck }
+						}
+						desc = count_feudal_female_tibetan_group
+					}
 					#West-African Feudal/Clan/Tribal
 					triggered_desc = {
 						trigger = {
@@ -1843,7 +1901,7 @@ councillor_spouse = {
 					#Dravidian/Indo-Aryan Feudal/Clan/Tribal
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							OR = {
 								government_has_flag = government_is_feudal
 								government_has_flag = government_is_clan
@@ -1915,7 +1973,7 @@ councillor_spouse = {
 					#Mongolic and Turkic All
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							OR = {
 								government_has_flag = government_is_feudal
 								government_has_flag = government_is_clan
@@ -1950,7 +2008,7 @@ councillor_spouse = {
 					#Iranian non-Muslim Feudal/Clan
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							OR = {
 								government_has_flag = government_is_feudal
 								government_has_flag = government_is_clan
@@ -2062,7 +2120,7 @@ councillor_spouse = {
 					#Turkish Feudal/Clan
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							OR = {
 								government_has_flag = government_is_feudal
 								government_has_flag = government_is_clan
@@ -2143,7 +2201,7 @@ councillor_spouse = {
 					#Arabic Feudal/Clan/Tribal
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							OR = {
 								government_has_flag = government_is_feudal
 								government_has_flag = government_is_tribal
@@ -2205,7 +2263,7 @@ councillor_spouse = {
 					#Russian Feudal
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							government_has_flag = government_is_feudal
 							culture = { has_name_list = name_list_sturgian }
 						}
@@ -2280,7 +2338,7 @@ councillor_spouse = {
 					# Calradian Feudal
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							government_has_flag = government_is_feudal
 							culture = { has_name_list = name_list_calradoi }
 						}
@@ -2391,7 +2449,7 @@ councillor_spouse = {
 					#Tribal Default
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							government_has_flag = government_is_tribal
 						}
 						desc = emperor_tribal_female
@@ -2427,7 +2485,7 @@ councillor_spouse = {
 					#Clan Default
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							government_has_flag = government_is_clan
 						}
 						desc = emperor_clan_female
@@ -2463,7 +2521,7 @@ councillor_spouse = {
 					#Republic Default
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							government_has_flag = government_is_republic
 						}
 						desc = emperor_republic_female
@@ -2516,7 +2574,7 @@ councillor_spouse = {
 					#Feudal/Default Fallback
 					triggered_desc = {
 						trigger = {
-							highest_held_title_tier = tier_empire
+							highest_held_title_tier >= tier_empire
 							NOR = { #The following governments have "Spouses"
 								government_has_flag = government_is_theocracy
 								government_has_flag = government_is_mercenary
@@ -2642,7 +2700,7 @@ councillor_vizier = {
 	auto_fill = yes
 	can_fire = yes
 	can_reassign = yes
-	
+
 	name = councillor_vizier
 	tooltip = councillor_vizier_desc
 
@@ -2686,14 +2744,14 @@ councillor_kurultai_1 = {
 
 	valid_character = {
 		exists = root.liege_or_court_owner
-		can_be_kurultai_trigger = { 
-			COURT_OWNER = root.liege_or_court_owner 
+		can_be_kurultai_trigger = {
+			COURT_OWNER = root.liege_or_court_owner
 			CP1 = councillor_kurultai_2
 			CP2 = councillor_kurultai_3
 			CP3 = councillor_kurultai_4
 		}
 	}
-	
+
 	council_owner_modifier = {
 		name = learn_on_the_job_modifier
 		diplomacy = 1
@@ -2780,14 +2838,14 @@ councillor_kurultai_2 = {
 
 	valid_character = {
 		exists = root.liege_or_court_owner
-		can_be_kurultai_trigger = { 
-			COURT_OWNER = root.liege_or_court_owner 
+		can_be_kurultai_trigger = {
+			COURT_OWNER = root.liege_or_court_owner
 			CP1 = councillor_kurultai_1
 			CP2 = councillor_kurultai_3
 			CP3 = councillor_kurultai_4
 		}
 	}
-	
+
 	council_owner_modifier = {
 		name = learn_on_the_job_modifier
 		diplomacy = 1
@@ -2874,14 +2932,14 @@ councillor_kurultai_3 = {
 
 	valid_character = {
 		exists = root.liege_or_court_owner
-		can_be_kurultai_trigger = { 
-			COURT_OWNER = root.liege_or_court_owner 
+		can_be_kurultai_trigger = {
+			COURT_OWNER = root.liege_or_court_owner
 			CP1 = councillor_kurultai_1
 			CP2 = councillor_kurultai_2
 			CP3 = councillor_kurultai_4
 		}
 	}
-	
+
 	council_owner_modifier = {
 		name = learn_on_the_job_modifier
 		diplomacy = 1
@@ -2968,14 +3026,14 @@ councillor_kurultai_4 = {
 
 	valid_character = {
 		exists = root.liege_or_court_owner
-		can_be_kurultai_trigger = { 
-			COURT_OWNER = root.liege_or_court_owner 
+		can_be_kurultai_trigger = {
+			COURT_OWNER = root.liege_or_court_owner
 			CP1 = councillor_kurultai_1
 			CP2 = councillor_kurultai_2
 			CP3 = councillor_kurultai_3
 		}
 	}
-	
+
 	council_owner_modifier = {
 		name = learn_on_the_job_modifier
 		diplomacy = 1

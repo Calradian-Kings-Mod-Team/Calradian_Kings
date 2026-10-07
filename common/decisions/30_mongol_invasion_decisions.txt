@@ -17,37 +17,35 @@
 # 	sort_order = 110
 # 	decision_group_type = major
 
-# 	is_shown = {
-# 		is_landless_adventurer = no
-# 		is_independent_ruler = yes
-# 		OR = {
-# 			exists = global_var:mongol_empire_has_spawned
-# 			AND = {
-# 				exists = global_var:greatest_of_khans_title
-# 				exists = global_var:greatest_of_khans_title.holder
-# 			}
-# 		}
-# 		NOT = {
-# 			mpo_has_gok_mongol_empire_trigger = yes
-# 		}
-# 		OR = {
-# 			any_neighboring_top_liege_realm_owner = {
-# 				mpo_has_gok_mongol_empire_trigger = yes
-# 			}
-# 			AND = {
-# 				is_ai = no # this heavier check is for players, AI will only evaluate decision when immediately bordering the Mongols
-# 				any_neighboring_top_liege_realm_owner = {
-# 					any_neighboring_top_liege_realm_owner = {
-# 						mpo_has_gok_mongol_empire_trigger = yes
-# 					}
-# 				}
-# 			}
-# 		}
-# 	}
+	# is_shown = {
+	# 	is_independent_ruler = yes
+	# 	OR = {
+	# 		exists = global_var:mongol_empire_has_spawned
+	# 		AND = {
+	# 			exists = global_var:greatest_of_khans_title
+	# 			exists = global_var:greatest_of_khans_title.holder
+	# 		}
+	# 	}
+	# 	OR = {
+	# 		any_neighboring_top_liege_realm_owner = {
+	# 			mpo_has_gok_mongol_empire_trigger = yes
+	# 		}
+	# 		AND = {
+	# 			is_ai = no # this heavier check is for players, AI will only evaluate decision when immediately bordering the Mongols
+	# 			any_neighboring_top_liege_realm_owner = {
+	# 				any_neighboring_top_liege_realm_owner = {
+	# 					mpo_has_gok_mongol_empire_trigger = yes
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# 	mpo_has_gok_mongol_empire_trigger = no
+	# 	is_landless_adventurer = no
+	# }
 
-# 	is_valid_showing_failures_only = {
-# 		NOT = { highest_held_title_tier = tier_empire }
-# 	}
+	# is_valid_showing_failures_only = {
+	# 	highest_held_title_tier < tier_empire
+	# }
 
 # 	effect = {
 # 		hidden_effect = {
@@ -101,91 +99,90 @@
 # 				title = mpo_greatest_of_khans.0020_title
 # 				left_icon = root
 	
-# 				root = {
-# 					create_title_and_vassal_change = {
-# 						type = swear_fealty
-# 						save_scope_as = title_change
-# 						add_claim_on_loss = no
-# 					}
-# 					change_liege = {
-# 						liege = scope:mongol_emperor
-# 						change = scope:title_change
-# 					}
-# 					resolve_title_and_vassal_change = scope:title_change
-# 					if = {
-# 						limit = {
-# 							government_has_flag = government_is_nomadic
-# 						}
-# 						pay_herd = {
-# 							target = scope:mongol_emperor
-# 							value = domicile.major_herd_value
-# 						}
-# 					}
-# 					else_if = {
-# 						limit = {
-# 							NOT = {
-# 								government_has_flag = government_is_herder
-# 							}
-# 						}
-# 						pay_short_term_gold = {
-# 							target = scope:mongol_emperor
-# 							gold = major_gold_value
-# 						}
-# 					}
-# 					if = {
-# 						limit = {
-# 							#khan is still nomadic or pluralist and thus doesn't care about religion
-# 							scope:mongol_emperor = {
-# 								faith = {
-# 									has_doctrine = doctrine_pluralism_pluralistic
-# 								}
-# 							}
-# 							OR = {
-# 								government_has_flag = government_is_feudal
-# 								government_has_flag = government_is_clan
-# 							}
-# 						}
-# 						hidden_effect = {
-# 							if = {
-# 								limit = { is_independent_ruler = no } # To avoid errors during tooltip generation (prior to the contract being generated)
-# 								vassal_contract_set_obligation_level = { type = religious_rights level = 1 }
-# 							}
-# 						}
-# 						custom_tooltip = religious_protection_tt
-# 					}
-# 				}
-# 			}
-# 		}
-# 	}
+	# 			root = {
+	# 				create_title_and_vassal_change = {
+	# 					type = swear_fealty
+	# 					save_scope_as = title_change
+	# 					add_claim_on_loss = no
+	# 				}
+	# 				change_liege = {
+	# 					liege = scope:mongol_emperor
+	# 					change = scope:title_change
+	# 				}
+	# 				resolve_title_and_vassal_change = scope:title_change
+	# 				if = {
+	# 					limit = {
+	# 						government_has_flag = government_is_nomadic
+	# 					}
+	# 					pay_herd = {
+	# 						target = scope:mongol_emperor
+	# 						value = domicile.major_herd_value
+	# 					}
+	# 				}
+	# 				else_if = {
+	# 					limit = {
+	# 						NOT = {
+	# 							government_has_flag = government_is_herder
+	# 						}
+	# 					}
+	# 					pay_short_term_gold = {
+	# 						target = scope:mongol_emperor
+	# 						gold = major_gold_value
+	# 					}
+	# 				}
+	# 				if = {
+	# 					limit = {
+	# 						#khan is still nomadic or pluralist and thus doesn't care about religion
+	# 						scope:mongol_emperor = {
+	# 							rite = {
+	# 								rite_has_doctrine = doctrine_pluralism_pluralistic
+	# 							}
+	# 						}
+	# 						OR = {
+	# 							government_has_flag = government_is_feudal
+	# 							government_has_flag = government_is_clan
+	# 						}
+	# 					}
+	# 					hidden_effect = {
+	# 						if = {
+	# 							limit = { is_independent_ruler = no } # To avoid errors during tooltip generation (prior to the contract being generated)
+	# 							vassal_contract_set_obligation_level = { type = religious_rights level = 1 }
+	# 						}
+	# 					}
+	# 					custom_tooltip = religious_protection_tt
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# }
 
-# 	ai_potential = {
-# 		OR = {
-# 			exists = global_var:mongol_empire_has_spawned
-# 			AND = {
-# 				exists = global_var:greatest_of_khans_title
-# 				exists = global_var:greatest_of_khans_title.holder
-# 			}
-# 		}
-# 		is_independent_ruler = yes
-# 		highest_held_title_tier < tier_empire
-# 		trigger_if = {
-# 			limit = {
-# 				government_has_flag = government_is_nomadic
-# 			}
-# 			domicile = {
-# 				herd >= massive_herd_value
-# 			}
-# 		}
-# 		trigger_if = {
-# 			limit = {
-# 				NOR = {
-# 					government_has_flag = government_is_herder
-# 					government_has_flag = government_is_nomadic
-# 				}
-# 			}
-# 			gold >= medium_gold_value
-# 		}
-# 	}
+	# ai_potential = {
+	# 	OR = {
+	# 		exists = global_var:mongol_empire_has_spawned
+	# 		AND = {
+	# 			exists = global_var:greatest_of_khans_title
+	# 			exists = global_var:greatest_of_khans_title.holder
+	# 		}
+	# 	}
+	# 	is_independent_ruler = yes
+	# 	highest_held_title_tier < tier_empire
+	# 	trigger_if = {
+	# 		limit = {
+	# 			government_has_flag = government_is_nomadic
+	# 		}
+	# 		domicile = {
+	# 			herd >= massive_herd_value
+	# 		}
+	# 	}
+	# 	trigger_if = {
+	# 		limit = {
+	# 			NOT = {
+	# 				government_has_flag = government_is_in_steppe
+	# 			}
+	# 		}
+	# 		gold >= medium_gold_value
+	# 	}
+	# }
 
 # 	ai_will_do = { # is_shown trigger means AI will only evaluate these when immediate neighbors with the Mongols
 # 		base = 0

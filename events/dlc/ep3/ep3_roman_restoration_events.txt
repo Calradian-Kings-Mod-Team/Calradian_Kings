@@ -45,10 +45,11 @@
 # 	}
 # }
 
-# # Should I LARP or nah?
+# Should I LARP or nah?
 # ep3_roman_restoration.0100 = {
 # 	type = character_event
 # 	window = fullscreen_event
+# 	queue_icon = "gfx/interface/icons/splash_icons/splash_byzantine.dds"
 # 	title = ep3_roman_restoration.0100.t
 # 	desc = ep3_roman_restoration.0100.desc
 # 	theme = emperor
@@ -78,7 +79,10 @@
 	# 		}
 	# 		custom_description_no_bullet = { text = mandala_monotheist_warning_tt }
 	# 	}
-	# 	primary_title = { set_state_faith = faith:hellenic_pagan }
+	# 	primary_title = {
+	# 		set_state_rite = faith:hellenic_pagan.main_rite
+	# 		pam_tenet_popularity_boost_rite_effect = { RITE = state_rite }
+	# 	}
 	# 	every_held_title = {
 	# 		custom = custom.every_held_county
 	# 		title_tier = county
@@ -106,6 +110,12 @@
 	# 	custom_tooltip = {
 	# 		text = ep3_roman_restoration.household_gods_tenet
 	# 		set_global_variable = household_gods_tenet_unlocked
+	# 		faith:hellenic_pagan = {
+	# 			set_tenet_status = {
+	# 				tenet = tenet:tenet_household_gods
+	# 				status = permitted
+	# 			}
+	# 		}
 	# 	}
 	# 	custom_tooltip = {
 	# 		text = uses_custom_caesar_flavourization_tt
@@ -140,7 +150,10 @@
 	# 		}
 	# 		custom_description_no_bullet = { text = mandala_monotheist_warning_tt }
 	# 	}
-	# 	primary_title = { set_state_faith = faith:hellenic_pagan }
+	# 	primary_title = {
+	# 		set_state_rite = faith:hellenic_pagan.main_rite
+	# 		pam_tenet_popularity_boost_rite_effect = { RITE = state_rite }
+	# 	}
 	# 	every_held_title = {
 	# 		custom = custom.every_held_county
 	# 		title_tier = county
@@ -168,6 +181,12 @@
 	# 	custom_tooltip = {
 	# 		text = ep3_roman_restoration.household_gods_tenet
 	# 		set_global_variable = household_gods_tenet_unlocked
+	# 		faith:hellenic_pagan = {
+	# 			set_tenet_status = {
+	# 				tenet = tenet:tenet_household_gods
+	# 				status = permitted
+	# 			}
+	# 		}
 	# 	}
 	# 	custom_tooltip = {
 	# 		text = uses_custom_caesar_flavourization_tt
@@ -201,16 +220,22 @@
 # ep3_roman_restoration.0101 = {
 # 	type = character_event
 # 	window = fullscreen_event
+# 	queue_icon = "gfx/interface/icons/splash_icons/splash_byzantine.dds"
 # 	title = roman_restoration.0002.t
 # 	desc = {
 # 		desc = ep3_roman_restoration.0101.intro
 # 		first_valid = {
 # 			triggered_desc = {
-# 				trigger = { scope:scoped_emperor.primary_title.state_faith ?= faith:hellenic_pagan }
+# 				trigger = { scope:scoped_emperor.primary_title.state_rite.faith ?= faith:hellenic_pagan }
 # 				desc = ep3_roman_restoration.0101.hellenic
 # 			}
 # 			triggered_desc = {
-# 				trigger = { scope:scoped_emperor.primary_title.state_faith ?= faith:orthodox }
+# 				trigger = {
+# 					OR = {
+# 						scope:scoped_emperor.primary_title.state_rite ?= rite:byzantine_rite
+# 						scope:scoped_emperor.primary_title.state_rite.faith ?= faith:orthodox
+# 					}
+# 				}
 # 				desc = ep3_roman_restoration.0101.orthodox
 # 			}
 # 			desc = ep3_roman_restoration.0101.fallback
@@ -223,7 +248,7 @@
 # 	immediate = {
 # 		#Same-faith non-empire tier rulers are over-awed.
 # 		if = {
-# 			limit = { faith = scope:scoped_emperor.primary_title.state_faith }
+# 			limit = { faith = scope:scoped_emperor.primary_title.state_rite.faith }
 # 			play_music_cue = "mx_cue_epic_sacral_moment"
 # 		}
 # 		#Otherwise, this is a tacit statement of imperial threat.
@@ -366,7 +391,7 @@
 # 			}
 # 		}
 
-# 		stress_impact = {
+# 		stress_and_fulfillment_impact = {
 # 			base = medium_stress_impact_loss
 # 			lazy = minor_stress_impact_loss
 # 			diligent = medium_stress_impact_gain
@@ -506,10 +531,21 @@
 # 	}
 # }
 
-# # Mongol Invasion Spawns
-# ep3_roman_restoration.0520 = {
-# 	scope = none
-# 	hidden = yes
+	# trigger = {
+	# 	NOR = {
+	# 		has_global_variable = mongols_have_appeared
+	# 		any_player = {
+	# 			THIS = culture:mongol.culture_head
+	# 			realm_size >= 100
+	# 		}
+	# 		#Greatest of khans hasn't come along
+	# 		has_global_variable = greatest_of_khans_title
+	# 		#Someone's not currently trying to be greatest of khans
+	# 		has_global_variable = mpo_gok_war_ongoing
+	# 		#Temujin dying prevents Mongol invasion for at least 50 years
+	# 		has_global_variable = temujin_failed
+	# 	}
+	# }
 
 # 	trigger = {
 # 		NOR = {

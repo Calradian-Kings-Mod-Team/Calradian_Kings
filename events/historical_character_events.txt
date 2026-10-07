@@ -46,10 +46,7 @@ historical_char_creation_events.1 = {
 	override_background = {
 		trigger = {
 			scope:historical_character = {
-				OR = {
-					has_trait = eunuch_1
-					has_trait = beardless_eunuch
-				}
+				is_eunuch_trigger = yes
 			}
 		}
 		reference = relaxing_room
@@ -93,7 +90,7 @@ historical_char_creation_events.1 = {
 		trigger = {
 			scope:historical_character = {
 				OR = {
-					has_trait = scholar
+					has_trait = erudite
 					has_trait = administrator
 				}
 			}
@@ -146,19 +143,19 @@ historical_char_creation_events.1 = {
 		}
 		triggered_animation = {
 			trigger = {
-				OR = {
-					has_variable = takezaki_suenaga
-					has_variable = sakata_kintoki
+				has_variable = {
+					name = takezaki_suenaga
+					name = sakata_kintoki
 				}
 			}
 			animation = hasso_no_kamae
 		}
 		triggered_animation = {
 			trigger = {
-				OR = {
-					has_variable = yue_fei
-					has_variable = wen_tianxiang
-					has_variable = pham_ngu_lao
+				has_variable = {
+					name = yue_fei
+					name = wen_tianxiang
+					name = pham_ngu_lao
 				}
 			}
 			animation = relaxed_spear
@@ -171,20 +168,14 @@ historical_char_creation_events.1 = {
 		}
 		triggered_animation = {
 			trigger = {
-				OR = {
-					has_trait = eunuch_1
-					has_trait = beardless_eunuch
-				}
+				is_eunuch_trigger = yes
 				has_education_intrigue_trigger = yes
 			}
 			animation = scheme
 		}
 		triggered_animation = {
 			trigger = {
-				OR = {
-					has_trait = eunuch_1
-					has_trait = beardless_eunuch
-				}
+				is_eunuch_trigger = yes
 			}
 			animation = obsequious_bow
 		}
@@ -220,7 +211,7 @@ historical_char_creation_events.1 = {
 				has_trait = lifestyle_poet
 				OR = {
 					has_trait = theologian
-					has_trait = scholar
+					has_trait = erudite
 				}
 			}
 			animation = happy_teacher
@@ -312,9 +303,13 @@ historical_char_creation_events.1 = {
 		
 		hidden_effect = {
 			scope:historical_character = {
-				populate_location_with_contracts_effect = {
-					AREA_CHAR = scope:historical_character
-					AMOUNT = 3
+				# The option tooltip evaluates this before the adventurer title exists; skip the null capital_province there.
+				if = {
+					limit = { has_government = landless_adventurer_government }
+					populate_location_with_contracts_effect = {
+						AREA_CHAR = scope:historical_character
+						AMOUNT = 3
+					}
 				}
 				# if = {
 				# 	limit = {

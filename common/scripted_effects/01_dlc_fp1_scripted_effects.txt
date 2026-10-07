@@ -118,12 +118,13 @@ forge_the_jomsvikings_scripted_effect = {
 		location = scope:leased_barony.title_province
 		save_scope_as = leader
 	}
-	# Create the actual holy order.
+	# Create the actual Military Order.
 	create_holy_order_neutral_effect = {
 		LEADER = scope:leader
 		CAPITAL = scope:leased_barony
 		NEW_HO_SCOPE = new_holy_order
-		# FOUNDER = scope:founder
+		FOUNDER = scope:founder
+		ORDER_TYPE = military
 	}
 	# Make the local settlement Jomsberg.
 	## Rename it.
@@ -188,7 +189,7 @@ forge_the_jomsvikings_scripted_effect = {
 		value = scope:leader.primary_title
 	}
 	# Some minor misc effects.
-	create_holy_order_effect = yes
+	create_holy_order_accompanying_effect = yes
 	scope:leader.primary_title = { set_coa = ho_jomsvikings }
 	# Flag the Jomsvikings as forged.
 	hidden_effect = {
@@ -224,7 +225,7 @@ forge_the_jomsvikings_maa_reward_effect = {
 forge_the_jomsvikings_decision_tooltip_effect = {
 	# Standard info.
 	custom_tooltip = create_holy_order_decision_effect_message
-	create_holy_order_effect = yes
+	create_holy_order_accompanying_effect = yes
 	# And the free army.
 	forge_the_jomsvikings_maa_reward_effect = yes
 }
@@ -764,6 +765,35 @@ calculate_authority_cooldown_break_effect = {
 	}
 	else_if = {
 		limit = {
+			has_variable = church_authority_cooldown
+			realm_law_use_church_authority = yes
+		}
+		# Set it up if it doesn't exist.
+		if = {
+			limit = {
+				NOT = { has_variable = authority_cooldown_break_tally }
+			}
+			set_variable = {
+				name = authority_cooldown_break_tally
+				value = authority_cooldown_breaker_value
+			}
+			# And increment it once, since they've just taken the first use and we give no freebies.
+			change_variable = {
+				name = authority_cooldown_break_tally
+				add = authority_cooldown_breaker_value
+			}
+		}
+		# Otherwise, increment it.
+		else_if = {
+			limit = { has_variable = authority_cooldown_break_tally }
+			change_variable = {
+				name = authority_cooldown_break_tally
+				add = authority_cooldown_breaker_value
+			}
+		}
+	}
+	else_if = {
+		limit = {
 			has_variable = imperial_bureaucracy_cooldown
 			realm_law_use_imperial_bureaucracy = yes
 		}
@@ -823,5 +853,23 @@ fp1_culture_innovation_setup_effect = {
 				remove_innovation = innovation_all_things
 			}
 		}
+	}
+}
+
+grant_varangian_trait_if_revelant = {
+	if = {
+		limit = {
+			current_date < 1400
+			scope:new_owner = {
+				is_roman_emperor_trigger = yes
+			}
+			culture = {
+				OR = {
+					has_cultural_parameter = unlock_maa_huscarls
+					has_cultural_parameter = unlock_maa_varangian_veterans
+				}
+			}
+		}
+		add_trait = varangian
 	}
 }

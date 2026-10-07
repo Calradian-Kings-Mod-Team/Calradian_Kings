@@ -116,7 +116,6 @@ scripted_effect faction_demand_independence_rejected_effect = {
 
 	show_as_tooltip = {
 		scope:faction = {
-			faction_start_war = {}
 			custom_tooltip = faction_starts_war.tt.replacement
 		}
 	}
@@ -527,7 +526,6 @@ scripted_effect faction_demand_liberty_rejected_effect = {
 	trigger_event = { on_action = on_faction_demand_rejected }
 	show_as_tooltip = {
 		scope:faction = {
-			faction_start_war = {}
 			custom_tooltip = faction_starts_war.tt.replacement
 		}
 	}
@@ -563,45 +561,7 @@ faction_demand.0101 = {
 
 		# LEGITIMACY LOSS FOR ACCEPTING FACTION DEMANDS
 		faction_accept_demand_legitimacy_effect = yes
-		switch = {
-			trigger = has_realm_law_in_group
-			celestial_bureaucracy = {
-				change_realm_law_level = {
-					law_group = celestial_bureaucracy
-					change = -1
-				}
-			}
-			imperial_bureaucracy = {
-				change_realm_law_level = {
-					law_group = imperial_bureaucracy
-					change = -1
-				}
-			}
-			japanese_bureaucracy = {
-				change_realm_law_level = {
-					law_group = japanese_bureaucracy
-					change = -1
-				}
-			}
-			meritocratic_bureaucracy = {
-				change_realm_law_level = {
-					law_group = meritocratic_bureaucracy
-					change = -1
-				}
-			}
-			crown_authority = {
-				change_realm_law_level = {
-					law_group = crown_authority
-					change = -1
-				}
-			}
-			tribal_authority = {
-				change_realm_law_level = {
-					law_group = tribal_authority
-					change = -1
-				}
-			}
-		}
+		change_authority_effect = { CHANGE = -1 }
 
 		add_prestige = -200
 
@@ -886,7 +846,7 @@ faction_demand.1001 = {
 			triggered_desc = {
 				trigger = {
 					government_allows = state_faith
-					primary_title.state_faith != scope:peasant_leader.faith
+					primary_title.state_rite != scope:peasant_leader.rite
 				}
 				desc = FACTION_DEMAND_POPULIST_DESC_ADMIN
 			}
@@ -1061,7 +1021,7 @@ faction_demand.1001 = {
 			destroy_faction = yes # Show this to have it explicitly said in the tooltip that the faction actually disbands.
 		}
 		
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			zealous = massive_stress_gain
 		}
 		
@@ -1101,7 +1061,7 @@ faction_demand.1001 = {
 
 		trigger = { # Only available if ruler fulfills the following:
 			government_allows = state_faith
-			primary_title.state_faith != scope:peasant_leader.faith
+			primary_title.state_rite != scope:peasant_leader.rite
 			OR = { # You share religion OR faction leader's faith is the largest faith in the realm - This is to avoid flipping to a faith that doesn't make sense
 				religion = scope:peasant_leader.religion
 				any_realm_county = {
@@ -1115,7 +1075,10 @@ faction_demand.1001 = {
 		# This effect should always be placed here, _before_ all the other effects in the block.
 		trigger_event = { on_action = on_faction_demand_accepted }
 
-		primary_title = { set_state_faith = scope:peasant_leader.faith }
+		primary_title = {
+			set_state_rite = scope:peasant_leader.rite
+			pam_tenet_popularity_boost_rite_effect = { RITE = state_rite }
+		}
 		if = {
 			limit = { government_has_flag = government_has_influence }
 			change_influence = monumental_influence_loss
@@ -1153,11 +1116,13 @@ faction_demand.1001 = {
 				faith.religion != scope:peasant_leader.faith.religion
 			}
 			
-			modifier = { # Byzantium should try to avoid becoming Catholic
+			modifier = { # Byzantium should try to avoid becoming Latin-rite
 				factor = 0
-				primary_title = title:e_calradian_empire
-				primary_title.state_faith.religion = scope:peasant_leader.faith.religion
-				scope:peasant_leader.faith = faith:darusan
+				primary_title = title:h_calradian_empire
+				primary_title.state_rite.faith.religion = scope:peasant_leader.faith.religion
+				scope:peasant_leader.rite = {
+					NOT = { rite_has_doctrine = special_doctrine_darusian }
+				}
 			}
 		}
 	}
@@ -1177,7 +1142,7 @@ faction_demand.1001 = {
 				limit = {
 					government_allows = state_faith
 				}
-				primary_title.state_faith = scope:peasant_leader.faith
+				primary_title.state_rite = scope:peasant_leader.rite
 				culture != scope:peasant_leader.culture
 			}
 		}
@@ -1307,7 +1272,7 @@ faction_demand.1001 = {
 					triggered_desc = {
 						trigger = {
 							government_allows = state_faith
-							primary_title.state_faith != scope:peasant_leader.faith
+							primary_title.state_rite != scope:peasant_leader.rite
 						}
 						desc = FACTION_DEMAND_POPULIST_REFUSE_ADMIN
 					}
@@ -1536,14 +1501,8 @@ faction_demand.0099 = {
 			limit = {
 				faith != scope:peasant_leader.faith
 			}
-			set_character_faith = scope:peasant_leader.faith
-			if = {
-				limit = { 
-					scope:peasant_leader.faith = { has_doctrine = doctrine_monotheist }
-				}
-				custom_description_no_bullet = { text = mandala_monotheist_warning_tt }
-			}
-			add_piety_level = -1
+			save_scope_as = convert_at_war
+			convert_to_rite_with_consequences_effect = { RITE = scope:peasant_leader.rite }
 		}
 		
 		# Join the war.
@@ -1552,7 +1511,7 @@ faction_demand.0099 = {
 		}
 		custom_tooltip = FACTION_DEMAND_POPULIST_VASSAL_CONVERTS_TT
 		
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			zealous = massive_stress_gain
 		}
 		
@@ -2563,7 +2522,6 @@ scripted_effect faction_demand_imperial_policy_rejected_effect = {
 	trigger_event = { on_action = on_faction_demand_rejected }
 	show_as_tooltip = {
 		scope:faction = {
-			hidden_effect = { faction_start_war = {} }
 			custom_tooltip = faction_starts_war.tt.replacement
 		}
 	}
@@ -2892,6 +2850,12 @@ faction_demand.0227 = {
 	}
 
 	immediate = {
+		# Fired from the war victory as well as from faction_demand.0222, and the war path carries no faction scopes.
+		save_scope_as = faction_leader
+		if = {
+			limit = { NOT = { exists = scope:faction_target } }
+			top_liege = { save_scope_as = faction_target }
+		}
 		if = {
 			limit = {
 				NOT = { exists = var:page }
@@ -3116,7 +3080,6 @@ scripted_effect faction_demand_nation_fracturing_rejected_effect = {
 
 	show_as_tooltip = {
 		scope:faction = {
-			faction_start_war = {}
 			custom_tooltip = faction_starts_war.tt.replacement
 		}
 	}

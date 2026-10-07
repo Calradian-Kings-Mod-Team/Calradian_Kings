@@ -5,8 +5,8 @@ tgp_east_asia_mandala_events.0010 = {
 	hidden = yes
 
 	trigger = {
-		house = { has_house_aspiration_parameter = aspect_of_creation } #Unop aspect_of_creation is a house aspiration parameter 
-		is_house_head = yes #Unop: And we also need to ensure current char is the house head for this
+		house = { has_house_aspiration_parameter = aspect_of_creation }
+		is_house_head = yes
 		NOT = {
 			has_variable = mandala_house_power_accumulated_creator
 		}
@@ -530,6 +530,7 @@ scripted_effect mandala_events_1000_random_onlooker_effect = {
 	if = {
 		limit = {
 			NOT = { exists = scope:onlooker }
+			exists = root.capital_province # Landless Mandala rulers have no capital to draw a pool character from
 		}
 		random_pool_character = {
 			province = root.capital_province
@@ -548,6 +549,7 @@ scripted_effect mandala_events_1000_random_onlooker_effect = {
 	if = {
 		limit = {
 			NOT = { exists = scope:onlooker_2 }
+			exists = root.capital_province
 		}
 		random_pool_character = {
 			province = root.capital_province
@@ -1622,8 +1624,16 @@ tgp_east_asia_mandala_events.8510 = {
 				}
 			}
 		}
+		# Landless Mandala rulers have no capital
+		if = {
+			limit = { exists = root.capital_province }
+			root.capital_province = { save_scope_as = mandala_scene_province }
+		}
+		else = {
+			root.location = { save_scope_as = mandala_scene_province }
+		}
 		random_pool_character = {
-			province = root.capital_province
+			province = scope:mandala_scene_province
 			limit = {
 				is_available_healthy_adult = yes
 				trigger_if = {
@@ -1634,7 +1644,7 @@ tgp_east_asia_mandala_events.8510 = {
 			save_scope_as = arguer
 		}
 		random_pool_character = {
-			province = root.capital_province
+			province = scope:mandala_scene_province
 			limit = {
 				is_available_healthy_adult = yes
 				trigger_if = {
@@ -1650,7 +1660,7 @@ tgp_east_asia_mandala_events.8510 = {
 				NOT = { exists = scope:arguer }
 			}
 			create_character = {
-				location = root.capital_province
+				location = scope:mandala_scene_province
 				template = pool_repopulate_local_flavor
 				save_scope_as = arguer
 				after_creation = { save_scope_as = created_character }
@@ -1661,7 +1671,7 @@ tgp_east_asia_mandala_events.8510 = {
 				NOT = { exists = scope:arguer_2 }
 			}
 			create_character = {
-				location = root.capital_province
+				location = scope:mandala_scene_province
 				template = pool_repopulate_local_flavor
 				save_scope_as = arguer_2
 				after_creation = { save_scope_as = created_character }
@@ -2416,7 +2426,7 @@ tgp_east_asia_mandala_events.8550 = {
 		}
 		#Failure
 		else = {
-			stress_impact = { base = medium_stress_impact_gain }
+			stress_and_fulfillment_impact = { base = medium_stress_impact_gain }
 			if = {
 				limit = {
 					has_legitimacy = yes
@@ -2477,10 +2487,10 @@ tgp_east_asia_mandala_events.8550 = {
 scripted_trigger mandala_events_9000_appropriate_relationship_character_trigger = {
 	is_available_ai_adult = yes
 	location = root.location
-	OR = {
+	# OR = {
 		faith = faith:ghaavatism
 		# faith = faith:shaivism ## CK_INDIA CK_HINDU CK_GHAVATI - Eventually add a new plethora of India-like faiths in the future
-	}
+	# }
 }
 
 #Find our bystander
@@ -2491,10 +2501,10 @@ scripted_effect mandala_events_9000_find_local_bystander_effect = {
 			is_lowborn = yes
 			age > 10
 			is_available = yes
-			OR = {
+			# OR = {
 				faith = faith:ghaavatism
 				# faith = faith:shaivism ## CK_INDIA CK_HINDU CK_GHAVATI - Eventually add a new plethora of India-like faiths in the future
-			}
+			# }
 			has_mandala_faith_trigger = yes
 			NOT = {
 				is_of_major_or_minor_interest_trigger = { CHARACTER = root }
@@ -2692,6 +2702,10 @@ tgp_east_asia_mandala_events.9000 = {
 		set_variable = {
 			name = vying_for_mandala_divinity
 			years = cheaper_mandala_government_conversion_years
+		}
+		stress_and_fulfillment_impact = {
+			arrogant = medium_stress_impact_loss
+			ambitious = medium_stress_impact_loss
 		}
 		ai_chance = {
 			base = 100

@@ -21,9 +21,15 @@ drinks_alcohol_trigger = {
 }
 
 faith_forbids_alcohol_trigger = {
-	AND = {
-		has_trait = zealous
-		religion = religion:aserai_religion # Discouraged as it disrupts progress to follow Asera
+	OR = {
+		AND = {
+			has_trait = zealous
+			religion = religion:aserai_religion # Discouraged as it disrupts progress to follow Asera
+		}
+		AND = {
+			has_trait = zealous
+			religion = religion:shantaya_religion # Discouraged as it disrupts progress along the eightfold path
+		}
 	}
 }
 
@@ -32,7 +38,7 @@ faith_only_forbids_alcohol_trigger = {
 	OR = {
 		religion = religion:aserai_religion # Prohibited by khamr, a prohibition against intoxicants
 		# religion = religion:jainism_religion # Prohibited along with the consumption of any fermented food
-		religion = religion:buddhism_religion # Discouraged as it disrupts progress along the eightfold path
+		religion = religion:shantaya_religion # Discouraged as it disrupts progress along the eightfold path
 	}
 }
 
@@ -569,7 +575,7 @@ cultures_share_relevant_region_trigger = {
 		AND = {
 			culture_overlaps_geographical_region = world_asia_china
 			scope:culture = {
-				culture_overlaps_geographical_region = world_asia_southeast
+				culture_overlaps_geographical_region = world_asia_southeast_mainland
 			}
 		}
 		AND = {
@@ -587,19 +593,13 @@ is_vegetarian_trigger = {
 			has_cultural_parameter = cannot_hunt
 		}
 		religion = religion:ghavati_religion
-		# faith_is_vegetarian_trigger = yes
+		faith_is_vegetarian_trigger = yes
 	}
 }
 
 faith_is_vegetarian_trigger = {
 	faith = {
-		# OR = {
-			religion = religion:shantaya_religion
-			# religion = religion:jainism_religion
-			# religion = religion:bon_religion
-			# this = faith:mazdakism
-			# this = faith:manichean
-		# }
+		religion = religion:shantaya_religion
 	}
 }
 
@@ -617,5 +617,15 @@ culture_is_or_has_ancestor_trigger = {
 	OR = {
 		this = $CULTURE$
 		any_parent_culture_or_above = { this = $CULTURE$ }
+	}
+}
+
+culture_is_historically_admin_trigger = {
+	OR = {
+		culture_is_or_has_ancestor_trigger = { CULTURE = culture:calradian }
+		culture_is_or_has_ancestor_trigger = { CULTURE = culture:han_ck }
+		# no japanese, they got warlord instead.
+		culture_is_or_has_ancestor_trigger = { CULTURE = culture:goryeo_ck }
+		culture_is_or_has_ancestor_trigger = { CULTURE = culture:viet_ck }
 	}
 }

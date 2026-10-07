@@ -41,7 +41,7 @@ ach_coronation.0001 = {
 						}
 						triggered_desc = {
 							trigger = {
-								scope:host = { primary_title = title:e_calradian_empire }
+								scope:host = { is_roman_emperor_trigger = yes }
 								this = scope:host
 							}
 							desc = ach_coronation.0001.intro.calradian_host
@@ -70,14 +70,14 @@ ach_coronation.0001 = {
 						}
 						triggered_desc = {
 							trigger = {
-								scope:host = { primary_title = title:e_calradian_empire }
+								scope:host = { is_roman_emperor_trigger = yes }
 								game_start_date < 1084.5.1
 							}
 							desc = ach_coronation.0001.intro.calradian
 						}
 						triggered_desc = {
 							trigger = {
-								scope:host = { primary_title = title:e_calradian_empire }
+								scope:host = { is_roman_emperor_trigger = yes }
 								game_start_date >= 1084.5.1
 							}
 							desc = ach_coronation.0001.intro.calradian_arenicos
@@ -107,7 +107,7 @@ ach_coronation.0001 = {
 								has_trait = cynical
 								OR = {
 									scope:priest ?= { is_important_hof_trigger = yes }
-									faith = { has_doctrine_parameter = theocratic_coronation } # To give something to complain about
+									rite = { rite_has_parameter = theocratic_coronation } # To give something to complain about
 								}
 							}
 							desc = {
@@ -117,7 +117,7 @@ ach_coronation.0001 = {
 										desc = ach_coronation.0001.ending.host_cynical_hof
 									}
 									triggered_desc = {
-										trigger = { faith = { has_doctrine_parameter = theocratic_coronation } }
+										trigger = { rite = { rite_has_parameter = theocratic_coronation } }
 										desc = ach_coronation.0001.ending.host_cynical
 									}
 								}
@@ -246,22 +246,13 @@ ach_coronation.0001 = {
 		involved_activity = {
 			activity_host = { save_scope_as = host }
 			var:officiator ?= { save_scope_as = priest }
-			if = {
-				limit = {
-					has_activity_option = {
-						category = special_type
-						option = coronation_type_anointment
-					}
-				}
-				scope:host.faith.religious_head = { save_scope_as = priest }
-			}
 		}
-		# Send out the papal fanfare
+		# Send out the religious authority's fanfare
 		if = {
 			limit = {
-				# Is the host's religious head
-				scope:host.faith.religious_head ?= this
-				# The HoF actually matters for the ceremony
+				# Is the authority that approved the anointment
+				scope:activity.var:anointment_authority ?= this
+				# The authority actually matters for the ceremony
 				scope:activity = {
 					has_activity_option = {
 						category = special_type
@@ -500,7 +491,7 @@ scripted_effect ach_coronation_0010_choose_greeters = {
 			# Grab the greeter's court chaplain if they exist
 			exists = scope:greeter.cp:councillor_court_chaplain
 			# Make sure it isn't the player
-			scope:greeter.cp:councillor_court_chaplain = { is_physically_able_ai = yes } 
+			scope:greeter.cp:councillor_court_chaplain = { is_physically_able_ai = yes }
 		}
 		scope:greeter.cp:councillor_court_chaplain = { save_scope_as = greeter_2 }
 	}
@@ -825,7 +816,7 @@ ach_coronation.0010 = {
 					title = ach_coronation.0010.a.tt.success
 					left_icon = scope:hof
 					remove_trait = excommunicated
-					stress_impact = {
+					stress_and_fulfillment_impact = {
 						base = major_stress_loss
 						arrogant = minor_stress_loss
 						zealous = major_stress_loss
@@ -838,7 +829,7 @@ ach_coronation.0010 = {
 						}
 					}
 				}
-				
+
 			}
 			50 = { # They ignore you
 				compare_modifier = {
@@ -864,7 +855,7 @@ ach_coronation.0010 = {
 					if = {
 						limit = { is_ai = yes }
 					}
-					stress_impact = {
+					stress_and_fulfillment_impact = {
 						base = minor_stress_gain
 						shy = minor_stress_loss # Honestly? Thank HighGod
 					}
@@ -907,7 +898,7 @@ ach_coronation.0010 = {
 						opinion = -30
 					}
 					add_prestige = minor_prestige_loss
-					stress_impact = {
+					stress_and_fulfillment_impact = {
 						base = medium_stress_gain
 						arrogant = minor_stress_gain
 						zealous = minor_stress_gain
@@ -1162,7 +1153,7 @@ ach_coronation.0011 = {
 				}
 				weight = {
 					base = 1
-					
+
 					ach_likely_plotter_modifier = yes
 
 					modifier = { # Weighted up if there is actually a scheme against a guest
@@ -1234,7 +1225,7 @@ ach_coronation.0011 = {
 		trigger = {
 			intrigue >= very_high_skill_rating
 		}
-		
+
 		hidden_effect = {
 			if = {
 				limit = { exists = scope:coward_scheme }
@@ -1274,7 +1265,7 @@ ach_coronation.0011 = {
 			}
 		}
 		scope:coward = {
-			add_opinion = { 
+			add_opinion = {
 				target = root
 				modifier = scared_opinion
 				opinion = -20
@@ -1283,7 +1274,7 @@ ach_coronation.0011 = {
 			add_prestige = minor_prestige_loss
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			sadistic = medium_stress_loss
 			trusting = medium_stress_gain
 			compassionate = medium_stress_gain
@@ -1331,7 +1322,7 @@ ach_coronation.0011 = {
 			}
 		}
 	}
-	
+
 	option = { # Arrest the traitors!
 		name = {
 			trigger = { has_trait = paranoid }
@@ -1380,7 +1371,7 @@ ach_coronation.0011 = {
 			coronation_weaken_detractors_opinion_effect = yes
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			wrathful = medium_stress_loss
 			arbitrary = medium_stress_loss
 			paranoid = major_stress_loss
@@ -1431,7 +1422,7 @@ ach_coronation.0011 = {
 			}
 		}
 	}
-	
+
 	option = { # Catch HerHim in a lie!
 		name = ach_coronation.0011.a
 		skill = intrigue
@@ -1495,14 +1486,14 @@ ach_coronation.0011 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			trusting = medium_stress_gain
 			paranoid = medium_stress_loss
 		}
 
 		ai_chance = {
 			base = 150
-			modifier = { 
+			modifier = {
 				intrigue <= mediocre_skill_rating
 				add = -50
 			}
@@ -1558,7 +1549,7 @@ ach_coronation.0011 = {
 			opinion = 10
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			# This is somewhat worrying
 			base = minor_stress_gain
 			# Doesn't actually care
@@ -1646,7 +1637,7 @@ scripted_effect get_random_coronation_object = {
 			trigger = {
 				faith = {
 					NOR = {
-						has_doctrine_parameter = unreformed_syncretic_actor_opinion_active
+						has_doctrine_parameter = unreformed_syncretic_actor
 						has_doctrine_parameter = unreformed
 					}
 				}
@@ -1796,7 +1787,7 @@ ach_coronation.0012 = {
 				save_scope_as = first
 			}
 			random_attending_character = {
-				limit = { 
+				limit = {
 					is_eligible_random_squabbler = yes
 					this != scope:first
 					# Try and get the rival of the first character
@@ -1804,7 +1795,7 @@ ach_coronation.0012 = {
 					highest_held_title_tier >= tier_duchy
 					ach_coronation_0012_mutual_enmity = yes
 				}
-				alternative_limit = { 
+				alternative_limit = {
 					is_eligible_random_squabbler = yes
 					this != scope:first
 					# Try and get the rival of the first character
@@ -1886,7 +1877,7 @@ ach_coronation.0012 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			fickle = minor_stress_gain
 		}
 
@@ -1943,7 +1934,7 @@ ach_coronation.0012 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			fickle = minor_stress_gain
 		}
 
@@ -2028,7 +2019,7 @@ ach_coronation.0012 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			craven = minor_stress_loss
 			fickle = minor_stress_loss
 		}
@@ -2113,7 +2104,7 @@ ach_coronation.0012 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			arrogant = medium_stress_loss
 		}
 
@@ -2169,14 +2160,14 @@ ach_coronation.0012 = {
 				opinion = -10
 			}
 		}
-		
+
 		add_character_modifier = {
 			modifier = ach_imperious_modifier
 			years = 5
 		}
 		add_prestige = minor_prestige_gain
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			impatient = minor_stress_loss
 			lazy = minor_stress_loss
 			arrogant = minor_stress_loss
@@ -2409,9 +2400,9 @@ ach_coronation.0013 = {
 
 	override_effect_2d = {
 		trigger = { exists = scope:rain_day }
-		reference = rain	
+		reference = rain
 	}
-	
+
 	trigger = {
 		OR = {
 			involved_activity.var:activity_special_type_progression < 25
@@ -2449,6 +2440,7 @@ ach_coronation.0013 = {
 			template = drunken_peasant_character
 			culture = root.location.county.culture
 			faith = root.location.county.faith
+			rite = root.location.county.rite
 			save_scope_as = peasant
 			after_creation = { # To make sure they fit the event window
 				if = {
@@ -2466,6 +2458,7 @@ ach_coronation.0013 = {
 			template = drunken_peasant_character
 			culture = root.location.county.culture
 			faith = root.location.county.faith
+			rite = root.location.county.rite
 			save_scope_as = peasant_2
 			after_creation = {
 				if = {
@@ -2537,7 +2530,7 @@ ach_coronation.0013 = {
 						base = 1
 						is_of_major_interest_to_weight_up_modifier = { CHARACTER = root }
 						is_of_minor_interest_to_weight_up_modifier = { CHARACTER = root }
-						
+
 						# Less likely to get rumors to stick on proper political operators
 						modifier = {
 							add = {
@@ -2561,7 +2554,7 @@ ach_coronation.0013 = {
 				title = ach_coronation.0013.a.weaken_detractors.tt
 				left_icon = scope:detractor_1
 				right_icon = scope:detractor_2
-				
+
 				scope:detractor_1 = {
 					add_character_modifier = {
 						modifier = ach_negative_rumors_modifier
@@ -2584,7 +2577,7 @@ ach_coronation.0013 = {
 
 		coronation_weaken_detractors_opinion_effect = yes
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			arrogant = minor_stress_gain # Talking to peasants
 			shy = minor_stress_gain # Talking to anyone
 		}
@@ -2671,7 +2664,7 @@ ach_coronation.0013 = {
 					min = -49
 				}
 				desc = ach_coronation.0013.c.tt.failure
-				send_interface_toast = {	
+				send_interface_toast = {
 					title = ach_coronation.0013.c.tt.failure
 					left_icon = root
 					add_prestige = minor_prestige_loss
@@ -2684,7 +2677,7 @@ ach_coronation.0013 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			forgiving = minor_stress_gain
 			just = minor_stress_loss
 			wrathful = minor_stress_loss
@@ -2737,7 +2730,7 @@ ach_coronation.0013 = {
 
 		highlight_portrait = scope:peasant
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			forgiving = medium_stress_gain
 			compassionate = minor_stress_gain
 			calm = miniscule_stress_gain
@@ -2802,7 +2795,7 @@ ach_coronation.0013 = {
 		highlight_portrait = scope:peasant
 		highlight_portrait = scope:peasant_2
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			base = medium_stress_loss
 			gregarious = minor_stress_loss
 			lifestyle_reveler = minor_stress_loss
@@ -2842,7 +2835,7 @@ ach_coronation.0013 = {
 				modifier = ach_positive_rumors_modifier
 				years = 5
 			}
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				base = minor_stress_loss
 			}
 		}
@@ -2851,7 +2844,7 @@ ach_coronation.0013 = {
 				modifier = ach_negative_rumors_modifier
 				years = 5
 			}
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				base = minor_stress_loss
 				vengeful = medium_stress_gain
 				wrathful = minor_stress_gain
@@ -2989,9 +2982,9 @@ ach_coronation.0014 = {
 				trigger = {
 					culture = { has_cultural_pillar = language_calradic }
 					OR = {
-						has_title = title:e_calradian_empire
+						is_roman_emperor_trigger = yes
 						top_liege = {
-							has_title = title:e_calradian_empire
+							is_roman_emperor_trigger = yes
 						}
 					}
 				}
@@ -3048,7 +3041,7 @@ ach_coronation.0014 = {
 			exists = scope:rain_day
 			NOT = { scope:crush_scenario = flag:generic_indoors }
 		}
-		reference = rain	
+		reference = rain
 	}
 
 	trigger = {
@@ -3194,6 +3187,7 @@ ach_coronation.0014 = {
 			template = soldier_friend_character
 			culture = scope:first.culture
 			faith = scope:first.faith
+			rite = scope:first.rite
 			save_scope_as = guard
 		}
 		create_character = {
@@ -3201,6 +3195,7 @@ ach_coronation.0014 = {
 			template = servant_character
 			culture = root.location.county.culture
 			faith = root.location.county.faith
+			rite = root.location.county.rite
 			save_scope_as = peasant
 		}
 
@@ -3307,7 +3302,7 @@ ach_coronation.0014 = {
 				}
 				show_as_tooltip = { ach_coronation_0015_minor_crush_effect = yes }
 				custom_tooltip = ach_coronation.0014.a.tt.host.success
-				
+
 				custom_description_no_bullet = {
 					text = if_crush_happens_desc
 					object = scope:host
@@ -3363,7 +3358,7 @@ ach_coronation.0014 = {
 				factor = 2
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			sadistic = medium_stress_impact_loss
 			callous = minor_stress_impact_loss
 			honest = minor_stress_impact_gain
@@ -3372,7 +3367,7 @@ ach_coronation.0014 = {
 			compassionate = massive_stress_gain
 		}
 	}
-	
+
 	option = { # These crowds could be useful...
 		name = ach_coronation.0014.b
 		trigger = {
@@ -3399,7 +3394,7 @@ ach_coronation.0014 = {
 			base = 150
 		}
 	}
-	
+
 	option = { # Go schmooze with the oncoming lord instead
 		name = ach_coronation.0014.c
 		reverse_add_opinion = {
@@ -3464,7 +3459,7 @@ ach_coronation.0015 = {
 
 	override_effect_2d = {
 		trigger = { exists = scope:rain_day }
-		reference = rain	
+		reference = rain
 	}
 
 	trigger = {
@@ -3480,6 +3475,7 @@ ach_coronation.0015 = {
 			template = diseased_peasant_character
 			culture = root.location.county.culture
 			faith = root.location.county.faith
+			rite = root.location.county.rite
 			save_scope_as = filthy_peasant
 		}
 		create_character = {
@@ -3487,9 +3483,10 @@ ach_coronation.0015 = {
 			template = servant_character
 			culture = root.location.county.culture
 			faith = root.location.county.faith
+			rite = root.location.county.rite
 			save_scope_as = peasant
 		}
-		
+
 		ach_coronation_0015_minor_crush_effect = yes
 
 		custom_tooltip = ach_coronation.0015.has_happened
@@ -3585,7 +3582,7 @@ ach_coronation.0015 = {
 							left_icon = root
 							right_icon = scope:host
 
-							stress_impact = {
+							stress_and_fulfillment_impact = {
 								base = medium_stress_impact_gain
 								irritable = medium_stress_impact_gain
 							}
@@ -3713,7 +3710,7 @@ ach_coronation.0015 = {
 						left_icon = root
 						type = event_toast_effect_bad
 
-						stress_impact = {
+						stress_and_fulfillment_impact = {
 							base = medium_stress_impact_gain
 							irritable = medium_stress_impact_gain
 						}
@@ -3731,7 +3728,7 @@ ach_coronation.0015 = {
 
 							show_as_tooltip = {
 								scope:host = {
-									stress_impact = {
+									stress_and_fulfillment_impact = {
 										base = medium_stress_impact_gain
 										irritable = medium_stress_impact_gain
 									}
@@ -3754,7 +3751,7 @@ ach_coronation.0015 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			callous = minor_stress_impact_gain # Doesn't care
 			shy = minor_stress_impact_gain # Talk to people!?
 		}
@@ -3865,7 +3862,7 @@ ach_coronation.0015 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			arrogant = medium_stress_impact_gain # "Peasant blood? On *my* hands?"
 			sadistic = medium_stress_impact_gain # "No wait this is great let's just watch"
 			compassionate = major_stress_impact_loss # "Mass casualty events are bad :(((" ~ local buzzkill
@@ -4008,7 +4005,7 @@ ach_coronation.0015 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			compassionate = medium_stress_impact_gain
 			arrogant = minor_stress_impact_loss # Loves calling guards on the commons
 			# Loves seeing guards beat people
@@ -4016,7 +4013,7 @@ ach_coronation.0015 = {
 			sadistic = medium_stress_impact_loss
 			overseer = minor_stress_impact_loss
 		}
-		
+
 		ai_chance = {
 			base = 100
 			modifier = {
@@ -4073,7 +4070,7 @@ ach_coronation.0015 = {
 
 					show_as_tooltip = {
 						scope:host = {
-							stress_impact = {
+							stress_and_fulfillment_impact = {
 								base = medium_stress_impact_gain
 								irritable = medium_stress_impact_gain
 							}
@@ -4088,7 +4085,7 @@ ach_coronation.0015 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			arrogant = minor_stress_impact_loss
 			callous = minor_stress_impact_loss
 			sadistic = medium_stress_impact_loss
@@ -4173,7 +4170,7 @@ scripted_effect liege_reward_effect = {
 			}
 			else_if = {
 				limit = {
-					government_has_mechanic = administrative
+					government_has_flag = government_has_influence
 					top_liege = involved_activity.activity_host
 				}
 				change_influence = medium_influence_gain
@@ -4243,7 +4240,7 @@ scripted_effect liege_reward_effect = {
 		coronation_seize_advantages = {
 			if = {
 				limit = {
-					government_has_mechanic = administrative
+					government_has_flag = government_has_influence
 					top_liege = involved_activity.activity_host
 				}
 				change_influence = medium_influence_gain
@@ -4265,7 +4262,7 @@ scripted_effect liege_reward_effect = {
 			opinion = 15
 		}
 	}
-	
+
 	custom_tooltip = ach_coronation.0016.reward.tt
 }
 
@@ -4297,7 +4294,7 @@ ach_coronation.0016 = {
 
 	trigger = {
 		is_physically_able = yes
-		involved_activity = {
+		involved_activity ?= {
 			activity_host = {
 				this != root
 				is_ai = yes
@@ -4316,10 +4313,10 @@ ach_coronation.0016 = {
 				is_in_guest_subset = { name = detractor }
 			}
 			trigger_else = {
-				involved_activity = {
+				involved_activity ?= {
 					is_target_in_variable_list = {
 						name = major_detractor
-						target = root 
+						target = root
 					}
 				}
 			}
@@ -4392,7 +4389,7 @@ ach_coronation.0016 = {
 			}
 		}
 	}
-	
+
 	option = { # A: Martial - Promise Troops
 		name = ach_coronation.0016.a.martial
 		trigger = {
@@ -4454,21 +4451,21 @@ ach_coronation.0016 = {
 			}
 		}
 		add_martial_lifestyle_xp = minor_lifestyle_xp
-		
+
 		liege_reward_effect = yes
 
 		ai_chance = {
 			base = 100
 		}
 	}
-	
+
 	option = { # A: Stewardship - Organize Donations
 		name = ach_coronation.0016.a.stewardship
 		trigger = {
 			highest_skill = stewardship
 			stewardship >= good_skill_level
 		}
-		
+
 		if = {
 			limit = { has_trait = greedy }
 			# Custom tooltip since flavor text isn't triggerable
@@ -4536,7 +4533,7 @@ ach_coronation.0016 = {
 		}
 		liege_reward_effect = yes
 	}
-	
+
 	option = { # A: Intrigue - Offer Spies
 		name = ach_coronation.0016.a.intrigue
 		trigger = {
@@ -4569,7 +4566,7 @@ ach_coronation.0016 = {
 			}
 		}
 	}
-	
+
 	option = { # A: Learning - Appeal to Church
 		name = ach_coronation.0016.a.learning
 		trigger = {
@@ -4594,7 +4591,7 @@ ach_coronation.0016 = {
 			}
 		}
 	}
-	
+
 	option = { # A: Fallback - Become Loyal and give a hook
 		name = ach_coronation.0016.a.loyal
 
@@ -4613,7 +4610,7 @@ ach_coronation.0016 = {
 		}
 
 		add_trait = loyal
-		scope:host = {	
+		scope:host = {
 			add_hook = {
 				type = loyalty_hook
 				target = root
@@ -4636,7 +4633,7 @@ ach_coronation.0016 = {
 				add = 50
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			base = minor_stress_impact_gain
 			ambitious = medium_stress_impact_gain
 			content = medium_stress_impact_loss
@@ -4685,7 +4682,7 @@ ach_coronation.0016 = {
 			add_stress = minor_stress_gain
 		}
 	}
-	
+
 	option = { # B: Host has Embrace Supporters
 		name = ach_coronation.0016.b.bonds
 		trigger = {
@@ -4720,7 +4717,7 @@ ach_coronation.0016 = {
 			add_stress = minor_stress_gain
 		}
 	}
-	
+
 	option = { # C: Give artifact
 		name = ach_coronation.0016.c.artifact
 		trigger = { exists = scope:gifted_artifact }
@@ -4731,8 +4728,8 @@ ach_coronation.0016 = {
 				value = yes
 				days = 1
 			}
-			set_variable = { 
-				name = gifted_artifact 
+			set_variable = {
+				name = gifted_artifact
 				value = yes
 				days = 1825
 			}
@@ -4770,7 +4767,7 @@ ach_coronation.0016 = {
 				add_dynasty_prestige = miniscule_dynasty_prestige_gain
 			}
 		}
-		
+
 
 		ai_chance = {
 			base = 100
@@ -4791,14 +4788,14 @@ ach_coronation.0016 = {
 				add = 50
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			greedy = minor_stress_impact_gain
 			avaricious = minor_stress_impact_gain
 			disloyal = medium_stress_impact_gain
 			loyal = medium_stress_impact_loss
 		}
 	}
-	
+
 	option = { # C: Fallback: Give gold
 		name = ach_coronation.0016.c.gold
 
@@ -4840,7 +4837,7 @@ ach_coronation.0016 = {
 				add = 50
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			generous = minor_stress_impact_loss
 			greedy = minor_stress_impact_gain
 			avaricious = minor_stress_impact_gain
@@ -4849,7 +4846,7 @@ ach_coronation.0016 = {
 			disloyal = medium_stress_impact_gain
 		}
 	}
-	
+
 	option = { # D: I'm good, thanks
 		name = {
 			trigger = { has_any_bad_relationship_with_character_trigger = { CHARACTER = scope:host } }
@@ -4863,7 +4860,7 @@ ach_coronation.0016 = {
 			}
 			reverse_add_opinion = {
 				target = scope:host
-				modifier = insulted_opinion 
+				modifier = insulted_opinion
 				opinion = -5
 			}
 		}
@@ -4884,7 +4881,7 @@ ach_coronation.0016 = {
 				add = -25
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			greedy = minor_stress_impact_loss
 			disloyal = minor_stress_impact_loss
 			loyal = minor_stress_impact_gain
@@ -5164,7 +5161,7 @@ ach_coronation.0017 = {
 				custom = every_zealot_vassal_guest_tt
 				add_opinion = {
 					target = scope:host
-					modifier = impious_opinion 
+					modifier = impious_opinion
 					opinion = -15
 				}
 			}
@@ -5172,7 +5169,7 @@ ach_coronation.0017 = {
 		scope:host = {
 			add_opinion = {
 				target = root
-				modifier = shamed_me_opinion 
+				modifier = shamed_me_opinion
 				opinion = -25
 			}
 			add_prestige = medium_prestige_loss
@@ -5250,7 +5247,7 @@ ach_coronation.0017 = {
 				}
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			# Doesn't care that much, but can be doing this cynically
 			cynical = minor_stress_impact_gain
 			# Doesn't like the attention
@@ -5274,7 +5271,7 @@ ach_coronation.0017 = {
 			modifier = ach_focusing_on_prayer_modifier
 			years = 5
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			# Is annoyed by it
 			base = medium_stress_impact_gain
 			# Does *not* want to pray, actually
@@ -5332,12 +5329,12 @@ ach_coronation.0017 = {
 		scope:guest = {
 			add_opinion = {
 				target = root
-				modifier = respect_opinion 
+				modifier = respect_opinion
 				opinion = 10
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			# No Zealot impact because the player can interpret this either way
 			arrogant = medium_stress_impact_gain # You *do* deserve it more
 			humble = medium_stress_impact_loss
@@ -5483,7 +5480,7 @@ ach_coronation.0018 = {
 		# If there is a Seneschal than low Aptitude raises likeliness
 		activity_court_position_aptitude_negative_modifier = { LIEGE = root POS = seneschal }
 	}
-	
+
 	theme = coronation_activity
 
 	cooldown = { years = 1 }
@@ -5646,7 +5643,7 @@ ach_coronation.0018 = {
 					multiplier = 2
 				}
 				desc = ach_coronation.0018.a.tt_success
-				
+
 				custom_tooltip = ach_can_refuse_reward
 
 				if = { # Offer a title
@@ -5705,7 +5702,7 @@ ach_coronation.0018 = {
 				else = { # Give public praise
 					show_as_tooltip = {
 						add_prestige = medium_prestige_gain
-						
+
 						involved_activity = {
 							every_attending_character = {
 								limit = {
@@ -5752,14 +5749,14 @@ ach_coronation.0018 = {
 				desc = ach_coronation.0018.a.tt_failure
 				send_interface_toast = {
 					title = ach_coronation.0018.a.tt_failure
-					stress_impact = {   
+					stress_and_fulfillment_impact = {
 						base = medium_stress_impact_gain
 						arrogant = minor_stress_impact_gain
 					}
 				}
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			base = minor_stress_impact_gain
 			arrogant = minor_stress_impact_gain
 			lazy = medium_stress_impact_gain
@@ -5893,7 +5890,7 @@ ach_coronation.0018 = {
 				desc = ach_coronation.0018.a.tt_failure
 				send_interface_toast = {
 					title = ach_coronation.0018.a.tt_failure
-					stress_impact = {
+					stress_and_fulfillment_impact = {
 						base = minor_stress_impact_gain
 						arrogant = minor_stress_impact_gain
 					}
@@ -5901,7 +5898,7 @@ ach_coronation.0018 = {
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			# Work is hard
 			base = minor_stress_impact_gain
 			# But not for some
@@ -5965,7 +5962,7 @@ ach_coronation.0018 = {
 					}
 				}
 			}
-			25 = {	
+			25 = {
 				compare_modifier = {
 					value = scope:duel_value
 					multiplier = -5
@@ -5985,7 +5982,7 @@ ach_coronation.0018 = {
 				}
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			gregarious = minor_stress_impact_loss
 			# Sitting around and talking sucks, actually
 			impatient = minor_stress_impact_gain
@@ -6057,7 +6054,7 @@ ach_coronation.0018 = {
 			years = 5
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			diligent = minor_stress_impact_loss
 			# Super down for not talking
 			shy = minor_stress_impact_loss
@@ -6081,7 +6078,7 @@ ach_coronation.0018 = {
 
 		highlight_portrait = root
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			base = medium_stress_impact_loss
 			# Wants to do something
 			diligent = minor_stress_impact_gain
@@ -6205,7 +6202,7 @@ ach_coronation.0019 = {
 			}
 			flag:praise = {
 				add_prestige = medium_prestige_gain
-				
+
 				involved_activity = {
 					every_attending_character = {
 						limit = {
@@ -6355,7 +6352,7 @@ ach_coronation.0020 = {
 		triggered_animation = {
 			trigger = { NOT = { scope:host.religion = religion:calradian_religion } }
 			animation = thinking
-		}	
+		}
 		camera = camera_event_very_left_pointing_right
 	}
 
@@ -6568,7 +6565,7 @@ ach_coronation.0020 = {
 			}
 		}
 	}
-	
+
 	option = { # C: They truly are a great GetRelationToMe
 		name = ach_coronation.0020.c
 		if = {
@@ -6597,7 +6594,7 @@ ach_coronation.0020 = {
 			}
 		}
 	}
-	
+
 	option = { # D: They're a model for all my subjects
 		name = ach_coronation.0020.d
 		add_prestige = minor_prestige_gain
@@ -6672,7 +6669,7 @@ ach_coronation.0022 = {
 		desc = ach_coronation.0022.desc
 		first_valid = {
 			triggered_desc = {
-				trigger = { scope:host = { primary_title = title:e_calradian_empire } }
+				trigger = { scope:host = { is_roman_emperor_trigger = yes } }
 				desc = ach_coronation.0022.desc.whisper.calradian
 			}
 			triggered_desc = {
@@ -7109,7 +7106,7 @@ ach_coronation.0022 = {
 				}
 			}
 		}
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			fickle = minor_stress_impact_gain
 		}
 		ai_chance = {
@@ -7161,9 +7158,9 @@ ach_coronation.0022 = {
 				opinion = 20
 			}
 		}
-		
 
-		stress_impact = {
+
+		stress_and_fulfillment_impact = {
 			cynical = medium_stress_impact_gain
 			zealous = medium_stress_impact_loss
 			compassionate = minor_stress_impact_loss
@@ -7208,7 +7205,7 @@ ach_coronation.0022 = {
 			years = 4
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			gregarious = miniscule_stress_impact_gain
 		}
 
@@ -7274,7 +7271,7 @@ scripted_trigger ach_coronation_0023_eligible_clergy_trigger = {
 scripted_effect ach_coronation_0023_generic_acceptance_effect = {
 	if = {
 		limit = {
-			faith = { NOT = { has_doctrine = doctrine_pluralism_pluralistic } }
+			rite = { NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic } }
 		}
 		# Fundamentalists won't be happy about this
 		every_vassal = {
@@ -7292,7 +7289,7 @@ scripted_effect ach_coronation_0023_generic_acceptance_effect = {
 		add_piety = medium_piety_loss
 		if = {
 			limit = { has_trait = zealous }
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				zealous = medium_stress_impact_gain
 			}
 		}
@@ -7305,7 +7302,7 @@ scripted_effect ach_coronation_0023_generic_acceptance_effect = {
 		}
 	}
 
-	stress_impact = {
+	stress_and_fulfillment_impact = {
 		trusting = medium_stress_loss # Trusts this strange foreigner implicitly
 		paranoid = medium_stress_loss # Is very happy to have less incompetent guards
 	}
@@ -7320,8 +7317,8 @@ ach_coronation.0023 = {
 			triggered_desc = {
 				trigger = {
 					exists = scope:clergy
-					scope:clergy.faith = {
-						NOT = { has_doctrine = doctrine_pluralism_pluralistic }
+					scope:clergy.rite = {
+						NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic }
 					}
 				}
 				desc = ach_coronation.0023.desc.clergy.angry
@@ -7351,8 +7348,8 @@ ach_coronation.0023 = {
 		trigger = { exists = scope:clergy }
 		triggered_animation = {
 			trigger = {
-				scope:clergy.faith = {
-					NOT = { has_doctrine = doctrine_pluralism_pluralistic }
+				scope:clergy.rite = {
+					NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic }
 				}
 			}
 			animation = disapproval
@@ -7362,7 +7359,7 @@ ach_coronation.0023 = {
 	}
 
 	cooldown = { years = 1 }
-	
+
 	theme = coronation_activity
 
 	override_background = {
@@ -7458,6 +7455,7 @@ ach_coronation.0023 = {
 			template = bp1_yearly_2021_martial_person_template
 			location = root.location
 			faith = scope:foreign_ruler.faith
+			rite = scope:foreign_ruler.rite
 			culture = scope:foreign_ruler.culture
 			trait = loyal
 			save_scope_as = foreign_warrior
@@ -7550,13 +7548,13 @@ ach_coronation.0023 = {
 				multiplier = -1
 			}
 			# Faith modifiers
-			modifier = { 
-				faith = { NOT = { has_doctrine = doctrine_pluralism_pluralistic } }
+			modifier = {
+				rite = { NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic } }
 				NOT = { has_trait = cynical }
 				add = -50
 			}
-			modifier = { 
-				faith = { NOT = { has_doctrine = doctrine_pluralism_pluralistic } }
+			modifier = {
+				rite = { NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic } }
 				has_trait = zealous
 				factor = 0
 			}
@@ -7609,13 +7607,13 @@ ach_coronation.0023 = {
 				multiplier = -1
 			}
 			# Faith modifiers
-			modifier = { 
-				faith = { NOT = { has_doctrine = doctrine_pluralism_pluralistic } }
+			modifier = {
+				rite = { NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic } }
 				NOT = { has_trait = cynical }
 				add = -50
 			}
-			modifier = { 
-				faith = { NOT = { has_doctrine = doctrine_pluralism_pluralistic } }
+			modifier = {
+				rite = { NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic } }
 				has_trait = zealous
 				factor = 0
 			}
@@ -7639,13 +7637,13 @@ ach_coronation.0023 = {
 		ai_chance = {
 			base = 100
 			# Faith modifiers
-			modifier = { 
-				faith = { NOT = { has_doctrine = doctrine_pluralism_pluralistic } }
+			modifier = {
+				rite = { NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic } }
 				NOT = { has_trait = cynical }
 				add = -50
 			}
-			modifier = { 
-				faith = { NOT = { has_doctrine = doctrine_pluralism_pluralistic } }
+			modifier = {
+				rite = { NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic } }
 				has_trait = zealous
 				factor = 0
 			}
@@ -7657,7 +7655,7 @@ ach_coronation.0023 = {
 
 		if = {
 			limit = {
-				faith = { NOT = { has_doctrine = doctrine_pluralism_pluralistic } }
+				rite = { NOT = { rite_has_doctrine = doctrine_pluralism_pluralistic } }
 			}
 			every_vassal = {
 				limit = {
@@ -7694,7 +7692,7 @@ ach_coronation.0023 = {
 }
 
 ######################
-# Open up drinks to the locals 
+# Open up drinks to the locals
 # by Jay Zaborowski
 # 0025
 ach_coronation.0025 = {
@@ -7766,10 +7764,10 @@ ach_coronation.0025 = {
 				}
 			}
 			# And a willing host
-			activity_host = { drinks_alcohol_trigger = yes } #Unop: Prefer this trigger over faith_forbids_alcohol_trigger to not select children
+			activity_host = { drinks_alcohol_trigger = yes }
 		}
 		# And a willing you
-		faith_forbids_alcohol_trigger = no
+		drinks_alcohol_trigger = yes
 	}
 
 	immediate = {
@@ -7850,7 +7848,7 @@ ach_coronation.0025 = {
             CHAR = root
         }
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			base = medium_stress_impact_loss
 			temperate = medium_stress_impact_gain # Doesn't partake
 		}
@@ -7969,7 +7967,7 @@ ach_coronation.0025 = {
         				}
 					}
 
-					stress_impact = {
+					stress_and_fulfillment_impact = {
 						base = medium_stress_impact_loss
 						temperate = medium_stress_impact_gain # Doesn't partake
 					}
@@ -8007,7 +8005,7 @@ ach_coronation.0025 = {
 					min = -49
 				}
 				desc = ach_coronation.0025.b.tt.failure
-				send_interface_toast = {	
+				send_interface_toast = {
 					title = ach_coronation.0025.b.tt.failure
 					left_icon = scope:baron
 
@@ -8022,7 +8020,7 @@ ach_coronation.0025 = {
 						}
 					}
 
-					stress_impact = { # Disappointment
+					stress_and_fulfillment_impact = { # Disappointment
 						drunkard = minor_stress_impact_gain
 						lifestyle_reveler = minor_stress_impact_gain
 					}
@@ -8054,7 +8052,7 @@ ach_coronation.0025 = {
 		flavor = ach_coronation.0025.c.flavor
 
 		# Stress loss
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			base = minor_stress_impact_loss
 			drunkard = minor_stress_impact_gain
 			lifestyle_reveler = minor_stress_impact_gain
@@ -8085,7 +8083,7 @@ ach_coronation.0026 = {
 		camera = camera_event_very_left_fov35
 	}
 
-	center_portrait = { 
+	center_portrait = {
 		character = root
 		animation = stress
 		camera = camera_event_center_very_large
@@ -8219,7 +8217,7 @@ ach_coronation.0026 = {
 						opinion = 15
 					}
 
-					stress_impact = {
+					stress_and_fulfillment_impact = {
 						base = minor_stress_loss
 					}
 				}
@@ -8316,7 +8314,7 @@ scripted_trigger can_be_hashishiyah_ignoring_region_trigger = {
 		has_trait = temperate
 	}
 	NAND = {
-		faith = { trait_is_sin = hashishiyah }
+		rite = { trait_is_sin_rite = hashishiyah }
 		has_trait = zealous
 	}
 }
@@ -8359,23 +8357,23 @@ ach_coronation.0027 = {
 		}
 	}
 
-	left_portrait = { 
+	left_portrait = {
 		character = root
 		animation = interested
 	}
 
-	center_portrait = { 
+	center_portrait = {
 		character = scope:partaker
 		animation = interested_left
 	}
 
-	right_portrait = { 
+	right_portrait = {
 		character = scope:stoner
 		animation = wedding_drunk
 	}
 
 	cooldown = { years = 1 }
-	
+
 	theme = feast_activity
 
 	trigger = {
@@ -8433,7 +8431,6 @@ ach_coronation.0027 = {
 	}
 
 	immediate = {
-		play_music_cue = "middleeasterncourt_cue"
 		involved_activity = {
 			random_attending_character = {
 				limit = {
@@ -8470,7 +8467,7 @@ ach_coronation.0027 = {
 							location = { geographical_region = world_europe_north }
 							title:e_calradian_empire ?= { has_variable = founded_varangian_guard }
 							OR = {
-								culture = { has_cultural_pillar = heritage_byalic } 
+								culture = { has_cultural_pillar = heritage_byalic }
 								dynasty = { has_dynasty_perk = fp1_adventure_legacy_1 }
 							}
 						}
@@ -8478,6 +8475,7 @@ ach_coronation.0027 = {
 							save_scope_as = stoner
 							culture = root.culture
 							faith = root.faith
+							rite = root.rite
 							location = root.location
 							template = varangian_template
 							trait = hashishiyah
@@ -8494,6 +8492,7 @@ ach_coronation.0027 = {
 							save_scope_as = stoner
 							culture = root.culture
 							faith = root.faith
+							rite = root.rite
 							location = root.location
 							template = knight
 							trait = hashishiyah
@@ -8505,6 +8504,7 @@ ach_coronation.0027 = {
 							save_scope_as = stoner
 							culture = root.culture
 							faith = root.faith
+							rite = root.rite
 							location = root.location
 							template = diplomacy_court_position_holder_template
 							trait = hashishiyah
@@ -8513,8 +8513,8 @@ ach_coronation.0027 = {
 					}
 					scope:stoner = {
 						add_to_activity = root.involved_activity
+						add_character_flag = created_character_ach_coronation_0027
 					}
-					add_character_flag = created_character_ach_coronation_0027
 				}
 			}
 
@@ -8566,31 +8566,31 @@ ach_coronation.0027 = {
 
 		if = {
 			limit = {
-				faith = { trait_is_sin = hashishiyah }
+				rite = { trait_is_sin_rite = hashishiyah }
 			}
 			add_piety = major_piety_loss
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				zealous = major_stress_impact_gain
 				cynical = minor_stress_impact_loss
 			}
 		}
 		else_if = {
 			limit = {
-				faith = { trait_is_virtue = hashishiyah }
+				rite = { trait_is_virtue_rite = hashishiyah }
 			}
 			add_piety = minor_piety_gain
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				cynical = medium_stress_impact_gain
 				zealous = minor_stress_impact_loss
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			greedy = minor_stress_impact_gain
 			avaricious = minor_stress_impact_gain
 			temperate = medium_stress_impact_gain
 		}
-		
+
 		ai_chance = {
 			modifier = {
 				OR = {
@@ -8690,37 +8690,37 @@ ach_coronation.0027 = {
 
 		if = {
 			limit = {
-				faith = { trait_is_sin = hashishiyah }
+				rite = { trait_is_sin_rite = hashishiyah }
 			}
 			add_piety = minor_piety_loss
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				zealous = medium_stress_impact_gain
 				cynical = minor_stress_impact_loss
 			}
 		}
 		else_if = {
 			limit = {
-				faith = { trait_is_virtue = hashishiyah }
+				rite = { trait_is_virtue_rite = hashishiyah }
 			}
 			add_piety = minor_piety_gain
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				cynical = medium_stress_impact_gain
 				zealous = minor_stress_impact_loss
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			base = medium_stress_impact_loss
 			temperate = medium_stress_impact_gain
 			shy = minor_stress_impact_gain
 			hashishiyah = minor_stress_impact_loss # Bonus stress loss if you're already a fan
 		}
-		
+
 		ai_chance = {
 			base = 100
 			modifier = {
 				NOT = { has_trait = cynical }
-				faith = { trait_is_virtue = hashishiyah }
+				rite = { trait_is_virtue_rite = hashishiyah }
 				factor = 2
 			}
 			modifier = {
@@ -8762,41 +8762,41 @@ ach_coronation.0027 = {
 
 		if = {
 			limit = {
-				faith = { trait_is_sin = hashishiyah }
+				rite = { trait_is_sin_rite = hashishiyah }
 			}
 			add_piety = medium_piety_gain
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				cynical = minor_stress_impact_gain
 				zealous = medium_stress_impact_loss
 			}
 		}
 		else_if = {
 			limit = {
-				faith = { trait_is_virtue = hashishiyah }
+				rite = { trait_is_virtue_rite = hashishiyah }
 			}
 			add_piety = medium_piety_loss
-			stress_impact = {
+			stress_and_fulfillment_impact = {
 				zealous = minor_stress_impact_gain
 				cynical = medium_stress_impact_loss
 			}
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			gregarious = minor_stress_impact_gain
 			lifestyle_reveler = minor_stress_impact_gain
 			hashishiyah = major_stress_impact_gain
 		}
-		
+
 		ai_chance = {
 			base = 50
 			modifier = {
 				has_trait = zealous
-				faith = { trait_is_sin = hashishiyah }
+				rite = { trait_is_sin_rite = hashishiyah }
 				factor = 4
 			}
 			modifier = {
 				has_trait = cynical
-				faith = { trait_is_virtue = hashishiyah }
+				rite = { trait_is_virtue_rite = hashishiyah }
 				factor = 4
 			}
 		}
@@ -8826,24 +8826,24 @@ ach_coronation.0027 = {
 
 		if = {
 			limit = {
-				faith = { trait_is_sin = hashishiyah }
+				rite = { trait_is_sin_rite = hashishiyah }
 			}
 			add_piety = minor_piety_gain
 		}
 		else_if = {
 			limit = {
-				faith = { trait_is_virtue = hashishiyah }
+				rite = { trait_is_virtue_rite = hashishiyah }
 			}
 			add_piety = minor_piety_loss
 		}
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			lifestyle_reveler = minor_stress_impact_gain
 			gregarious = minor_stress_impact_gain
 			temperate = minor_stress_impact_loss
 			hashishiyah = medium_stress_impact_gain
 		}
-		
+
 		ai_chance = {
 			base = 100
 			modifier = {
@@ -8866,13 +8866,16 @@ ach_coronation.0027 = {
 	}
 
 	after = {
-		if = {
-			limit = {
-				has_character_flag = created_character_ach_coronation_0027
-				scope:stoner = { NOT = { has_relation_friend = root } }
-			}
-			hidden_effect = {
-				scope:stoner = { silent_disappearance_effect = yes }
+		scope:stoner = {
+			if = {
+				limit = { has_character_flag = created_character_ach_coronation_0027 }
+				if = {
+					limit = { has_relation_friend = root }
+					remove_character_flag = created_character_ach_coronation_0027
+				}
+				else = {
+					hidden_effect = { silent_disappearance_effect = yes }
+				}
 			}
 		}
 		#Unop Remove the created_character_ach_coronation_0027 flag so we don't kill non-created stoners next time the event fires
@@ -8950,24 +8953,24 @@ ach_coronation.0028 = {
 	title = ach_coronation.0028.t
 	desc = ach_coronation.0028.desc
 
-	left_portrait = { 
+	left_portrait = {
 		character = root
 		animation = disapproval
 		camera = camera_event_left_pointing_back_fov20
 	}
 
-	center_portrait = { 
+	center_portrait = {
 		character = scope:drinker
 		animation = rage
 		camera = camera_event_center_pointing_forward_fov35
 	}
 
-	right_portrait = { 
+	right_portrait = {
 		character = scope:onlooker
 		animation = interested
 		camera = camera_event_very_right_forward_fov30
 	}
-	
+
 	theme = feast_activity
 
 	cooldown = { years = 1 }
@@ -9129,8 +9132,8 @@ ach_coronation.0028 = {
 			chance = 5
 			add_trait = drunkard
 		}
-		
-		stress_impact = {
+
+		stress_and_fulfillment_impact = {
 			drunkard = medium_stress_impact_loss
 			lifestyle_reveler = minor_stress_impact_loss
 			gregarious = minor_stress_impact_loss
@@ -9282,8 +9285,8 @@ ach_coronation.0028 = {
 				}
 			}
 		}
-		
-		stress_impact = {
+
+		stress_and_fulfillment_impact = {
 			honest = massive_stress_impact_gain
 			just = medium_stress_impact_gain
 			temperate = minor_stress_impact_gain
@@ -9320,7 +9323,7 @@ ach_coronation.0028 = {
 
 		add_legitimacy = minor_legitimacy_loss
 
-		stress_impact = {
+		stress_and_fulfillment_impact = {
 			temperate = minor_stress_impact_loss
 			drunkard = medium_stress_impact_gain
 			lifestyle_reveler = minor_stress_impact_gain
@@ -9356,13 +9359,13 @@ ach_coronation.0029 = {
 	title = ach_coronation.0029.t
 	desc = ach_coronation.0029.desc
 
-	left_portrait = { 
+	left_portrait = {
 		character = root
 		animation = thinking
 		camera = camera_event_table_left
 	}
 
-	center_portrait = { 
+	center_portrait = {
 		character = scope:second
 		triggered_animation = {
 			trigger = { use_goblet_in_tavern_trigger = yes }
@@ -9375,7 +9378,7 @@ ach_coronation.0029 = {
 		camera = camera_event_table_center
 	}
 
-	right_portrait = { 
+	right_portrait = {
 		character = scope:first
 		triggered_animation = {
 			trigger = { use_goblet_in_tavern_trigger = yes }
@@ -9387,7 +9390,7 @@ ach_coronation.0029 = {
 		}
 		camera = camera_event_table_right_far
 	}
-	
+
 	theme = feast_activity
 
 	cooldown = { years = 1 }
@@ -9407,7 +9410,7 @@ ach_coronation.0029 = {
 			}
 		}
 	}
-	
+
 	weight_multiplier = {
 		base = 1
 		modifier = {
@@ -9582,7 +9585,7 @@ ach_coronation.0029 = {
 				}
 			}
 		}
-		
+
 		switch = {
 			trigger = has_activity_intent
 			coronation_impress_attendees = {
@@ -9603,7 +9606,7 @@ ach_coronation.0029 = {
 	option = { # Want to try falconry?
 		name = ach_coronation.0029.b
 		trigger = { has_dlc_feature = tours_and_tournaments }
-		
+
 		flavor = ach_coronation.0029.b.flavor
 
 		custom_tooltip = ach_coronation.0029.b.free_falconry
@@ -9613,7 +9616,7 @@ ach_coronation.0029 = {
 	option = { # Is Temperance not a virtue?
 		name = {
 			trigger = {
-				faith = { trait_is_virtue = temperate }
+				rite = { trait_is_virtue_rite = temperate }
 				NOR = {
 					has_trait = gluttonous
 					has_trait = cynical
@@ -9625,14 +9628,14 @@ ach_coronation.0029 = {
 
 		if = {
 			limit = {
-				faith = { trait_is_virtue = temperate }
+				rite = { trait_is_virtue_rite = temperate }
 				NOR = {
 					has_trait = gluttonous
 					has_trait = cynical
 				}
 			}
 			custom_tooltip = ach_coronation.0029.c.virtuous.tt
-			
+
 			add_piety = medium_piety_gain
 
 			every_vassal = {

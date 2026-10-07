@@ -1490,145 +1490,105 @@ scripted_effect tgp_establish_house_fief_save_scopes_effect = {
 # 		}
 # 	}
 
-# 	immediate = {
-# 		top_liege = { save_scope_as = regent }
-# 		save_scope_as = new_head
-# 		save_scope_as = new_house_head # don't ask
-# 		house = {
-# 			save_scope_as = old_house
-# 			house_head = { save_scope_as = old_head }
-# 		}
-# 		if = {
-# 			limit = { domicile.domicile_location.county.holder ?= root }
-# 			domicile.domicile_location.barony = {
-# 				save_scope_as = domicile_barony
-# 				county = { save_scope_as = domicile_county }
-# 			}
-# 		}
-# 		else_if = {
-# 			limit = {
-# 				is_landed = no
-# 				scope:old_head.domicile.domicile_location.county.holder ?= scope:old_head
-# 			}
-# 			scope:old_head.domicile.domicile_location.barony = {
-# 				save_scope_as = domicile_barony
-# 				county = { save_scope_as = domicile_county }
-# 			}
-# 		}
-# 		else_if = {
-# 			limit = { is_landed = yes }
-# 			save_scope_as = land_haver
-# 		}
-# 		else = {
-# 			limit = { house.house_head = { is_landed = yes } }
-# 			house.house_head = { save_scope_as = land_haver }
-# 		}
-# 		scope:land_haver.capital_county ?= {
-# 			save_scope_as = primary_county
-# 			random_county_province = {
-# 				limit = {
-# 					NOT = { has_holding_type = church_holding }
-# 				}
-# 				alternative_limit = { always = yes }
-# 				barony = { save_scope_as = random_barony }
-# 			}
-# 		}
-# 		hidden_effect = {
-# 			if = {
-# 				limit = {
-# 					NOT = { has_character_flag = found_cadet_branch }
-# 				}
-# 				if = {
-# 					limit = { domicile.domicile_location.county ?= title:c_yamashiro }
-# 					while = {
-# 						count = 3
-# 						assign_japanese_house_name_options_kyoto_effect = yes
-# 					}
-# 				}
-# 				else = {
-# 					while = {
-# 						count = 3
-# 						assign_japanese_house_name_options_effect = yes
-# 					}
-# 				}
-# 			}
-# 			else = {
-# 				if = {
-# 					limit = { domicile.domicile_location.county ?= title:c_yamashiro }
-# 					while = {
-# 						count = 1
-# 						assign_japanese_house_name_options_kyoto_effect = yes
-# 					}
-# 				}
-# 				else = {
-# 					while = {
-# 						count = 1
-# 						assign_japanese_house_name_options_effect = yes
-# 					}
-# 				}
-# 			}
-# 		}
-# 		if = {
-# 			limit = { is_ai = yes }
-# 			random_list = {
-# 				10 = {
-# 					trigger = { has_variable_list = japanese_house_names }
-# 					random_in_list = {
-# 						variable = japanese_house_names
-# 						save_scope_as = house_name
-# 						root = {
-# 							set_variable = {
-# 								name = new_japanese_house_name
-# 								value = scope:house_name
-# 							}
-# 						}
-# 					}
-# 				}
-# 				1 = {
-# 					trigger = { exists = scope:domicile_barony }
-# 					set_variable = {
-# 						name = new_japanese_house_name
-# 						value = flag:japanese_house_domicile_barony
-# 					}
-# 				}
-# 				1 = {
-# 					trigger = { exists = scope:domicile_county }
-# 					set_variable = {
-# 						name = new_japanese_house_name
-# 						value = flag:japanese_house_domicile_county
-# 					}
-# 				}
-# 				1 = {
-# 					trigger = { exists = scope:random_barony }
-# 					set_variable = {
-# 						name = new_japanese_house_name
-# 						value = flag:japanese_house_random_barony
-# 					}
-# 				}
-# 				1 = {
-# 					trigger = {
-# 						exists = scope:old_head
-# 						has_character_flag = found_cadet_branch
-# 						government_has_mechanic = administrative
-# 					}
-# 					set_variable = {
-# 						name = new_japanese_house_name
-# 						value = flag:japanese_house_first_name
-# 					}
-# 				}
-# 			}
-# 		}
-# 		switch = {
-# 			trigger = has_character_flag
-# 			establish_house_fief = {
-# 				tgp_establish_house_fief_save_scopes_effect = yes
-# 				play_sound_effect = "event:/DLC/EP4/SFX/Stingers/Japan/tgp_mx_sting_adopting_feudal_government"
-# 			}
-# 			fallback = {
-# 				play_music_cue = "mx_cue_low_key_positive"
-# 			}
-# 		}
-# 	}
+	# immediate = {
+	# 	top_liege = { save_scope_as = regent }
+	# 	setup_japan_house_name_scopes_effect = yes
+	# 	hidden_effect = {
+	# 		if = {
+	# 			limit = {
+	# 				NOT = { has_character_flag = found_cadet_branch }
+	# 			}
+	# 			if = {
+	# 				limit = { domicile.domicile_location.county ?= title:c_yamashiro }
+	# 				while = {
+	# 					count = 3
+	# 					assign_japanese_house_name_options_kyoto_effect = yes
+	# 				}
+	# 			}
+	# 			else = {
+	# 				while = {
+	# 					count = 3
+	# 					assign_japanese_house_name_options_effect = yes
+	# 				}
+	# 			}
+	# 		}
+	# 		else = {
+	# 			if = {
+	# 				limit = { domicile.domicile_location.county ?= title:c_yamashiro }
+	# 				while = {
+	# 					count = 1
+	# 					assign_japanese_house_name_options_kyoto_effect = yes
+	# 				}
+	# 			}
+	# 			else = {
+	# 				while = {
+	# 					count = 1
+	# 					assign_japanese_house_name_options_effect = yes
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# 	if = {
+	# 		limit = { is_ai = yes }
+	# 		random_list = {
+	# 			10 = {
+	# 				trigger = { has_variable_list = japanese_house_names }
+	# 				random_in_list = {
+	# 					variable = japanese_house_names
+	# 					save_scope_as = house_name
+	# 					root = {
+	# 						set_variable = {
+	# 							name = new_japanese_house_name
+	# 							value = scope:house_name
+	# 						}
+	# 					}
+	# 				}
+	# 			}
+	# 			1 = {
+	# 				trigger = { exists = scope:domicile_barony }
+	# 				set_variable = {
+	# 					name = new_japanese_house_name
+	# 					value = flag:japanese_house_domicile_barony
+	# 				}
+	# 			}
+	# 			1 = {
+	# 				trigger = { exists = scope:domicile_county }
+	# 				set_variable = {
+	# 					name = new_japanese_house_name
+	# 					value = flag:japanese_house_domicile_county
+	# 				}
+	# 			}
+	# 			1 = {
+	# 				trigger = { exists = scope:random_barony }
+	# 				set_variable = {
+	# 					name = new_japanese_house_name
+	# 					value = flag:japanese_house_random_barony
+	# 				}
+	# 			}
+	# 			1 = {
+	# 				trigger = {
+	# 					exists = scope:old_head
+	# 					has_character_flag = found_cadet_branch
+	# 					government_has_mechanic = administrative
+	# 				}
+	# 				set_variable = {
+	# 					name = new_japanese_house_name
+	# 					value = flag:japanese_house_first_name
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# 	switch = {
+	# 		trigger = has_character_flag
+	# 		establish_house_fief = {
+	# 			tgp_establish_house_fief_save_scopes_effect = yes
+	# 			play_sound_effect = "event:/DLC/EP4/SFX/Stingers/Japan/tgp_mx_sting_adopting_feudal_government"
+	# 		}
+	# 		fallback = {
+	# 			play_music_cue = "mx_cue_low_key_positive"
+	# 		}
+	# 	}
+	# }
 
 # 	option = {
 # 		name = {
@@ -1685,7 +1645,9 @@ scripted_effect tgp_establish_house_fief_save_scopes_effect = {
 # 				is_ai = yes
 # 				exists = scope:new_title
 # 				exists = domicile
-# 				exists = scope:old_head.domicile
+# 				scope:old_head.domicile ?= {
+# 					has_ongoing_domicile_construction = no
+# 				}
 # 			}
 # 			scope:old_head.domicile = {
 # 				if = {
@@ -1840,6 +1802,7 @@ tgp_japan_decision.9005 = { # NOTIFICATION FOR OLD HOUSE HEADS
 tgp_japan_decision.9101 = {
 	type = character_event
 	window = fullscreen_event
+	queue_icon = "gfx/interface/icons/splash_icons/splash_japan_feudal.dds"
 	title = tgp_japan_decision.9101.t
 	desc = tgp_japan_decision.9101.desc
 	theme = crown
@@ -1873,8 +1836,8 @@ tgp_japan_decision.9101 = {
 		}
 		# Inform Vassals
 		every_vassal_or_below = {
-			limit = { 
-				is_ruler = yes 
+			limit = {
+				is_ruler = yes
 			}
 			trigger_event = tgp_japan_decision.9102
 		}
@@ -1988,6 +1951,10 @@ tgp_japan_decision.9201 = {
 		house = {
 			save_scope_as = old_house
 			house_head = { save_scope_as = old_house_head }
+		}
+		set_variable = {
+			name = block_dynamic_dynasty_naming
+			days = 1
 		}
 	}
 
@@ -2268,7 +2235,7 @@ tgp_japan_decision.9401 = {
 					add = 10
 				}
 				modifier = {
-					has_trait = scholar
+					has_trait = erudite
 					add = 10
 				}
 				send_interface_toast = {
@@ -2622,8 +2589,6 @@ tgp_japan_decision.9500 = { ## Currently orphaned CK_ORPHAN CK_BUDDHISM
 # 				list = bloc_leaders
 # 				order_by = {
 # 					value = 0
-# 					# TODO_CD_TGP_JP AWAITING CODE SUPPORT
-# 					#add = tgp_confederation_military_power
 # 				}
 # 				max = 3
 # 				if = {
@@ -3115,7 +3080,7 @@ scripted_trigger dominion_fight_partial = {
 	}
 }
 #Assert Regional Dominion
-#tgp_japan_decision.9960
+#Laurence Kennedy
 tgp_japan_decision.9960 = {
 	type = character_event
 	window = big_event_window

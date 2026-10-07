@@ -2007,7 +2007,7 @@
 	brooch_centerpiece_sword = {
 		group = brooch_centerpiece
 		trigger = {
-			scope:owner.faith ?= { NOT = { has_doctrine_parameter = pacifist_opinion_active } }
+			scope:owner.rite ?= { NOT = { rite_has_parameter = pacifist } }
 		}
 		weight = 33
 	}
@@ -2203,7 +2203,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2222,7 +2222,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2241,7 +2241,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2260,7 +2260,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2279,7 +2279,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2298,7 +2298,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2317,7 +2317,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2336,7 +2336,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2355,7 +2355,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -2374,7 +2374,7 @@
 				scope:owner = {
 					NOR = {
 						religion = religion:aserai_religion
-						faith = { has_doctrine = tenet_aniconism }
+						rite = { rite_has_tenet = tenet_aniconism }
 					}
 				}
 			}
@@ -3783,7 +3783,7 @@
 					OR = { #Mystic lifestyle, adventurers, scholarly educated or scholarly court - not formal theologian
 						has_trait = lifestyle_mystic
 						has_trait = scholarly_court
-						has_trait = scholar
+						has_trait = erudite
 						has_trait = education_learning
 						has_trait = adventurer
 					}
@@ -3795,7 +3795,7 @@
 					OR = { #Mystic lifestyle, adventurers, scholarly educated or scholarly court - not formal theologian
 						has_trait = lifestyle_mystic
 						has_trait = scholarly_court
-						has_trait = scholar
+						has_trait = erudite
 						has_trait = education_learning
 						has_trait = adventurer
 					}
@@ -3842,7 +3842,7 @@
 					OR = { #Herbalist lifestyle, adventurers, gardener, scholarly educated or scholarly court
 						has_trait = lifestyle_herbalist
 						has_trait = scholarly_court
-						has_trait = scholar
+						has_trait = erudite
 						has_trait = education_learning
 						has_trait = adventurer
 						has_trait = lifestyle_gardener
@@ -3854,7 +3854,7 @@
 					OR = { #Herbalist lifestyle, adventurers, gardener, scholarly educated or scholarly court
 						has_trait = lifestyle_herbalist
 						has_trait = scholarly_court
-						has_trait = scholar
+						has_trait = erudite
 						has_trait = education_learning
 						has_trait = adventurer
 						has_trait = lifestyle_gardener
@@ -4262,6 +4262,17 @@
 		weight = 1
 	}
 
+	book_subject_religious_text = {
+		group = book_subject
+		trigger = {
+			trigger_if = { # If the subject has been pre-saved from events etc. we make sure it's picked
+				limit = { exists = scope:owner.var:book_artifact_subject }
+				scope:owner.var:book_artifact_subject = flag:religious_text
+			}
+		}
+		weight = 1
+	}
+
 	book_subject_alchemy = {
 		group = book_subject
 		trigger = {
@@ -4314,6 +4325,18 @@
 			trigger_if = { # If the subject has been pre-saved from events etc. we make sure it's picked
 				limit = { exists = scope:owner.var:book_artifact_topic }
 				scope:owner.var:book_artifact_topic = flag:language_manual
+			}
+		}
+		weight = 1
+	}
+
+	book_topic_religious_text = {
+		group = book_topic
+		trigger = {
+			has_artifact_feature = book_subject_religious_text
+			trigger_if = { # If the subject has been pre-saved from events etc. we make sure it's picked
+				limit = { exists = scope:owner.var:book_artifact_topic }
+				scope:owner.var:book_artifact_topic = flag:religious_text
 			}
 		}
 		weight = 1
@@ -5290,7 +5313,7 @@
 			scope:owner.faith.religion = religion:aserai_religion
 			exists = scope:owner.var:book_artifact_author
 			scope:owner.var:book_artifact_author.faith.religion = religion:aserai_religion
-			scope:owner.var:book_artifact_author = { has_trait = scholar }
+			scope:owner.var:book_artifact_author = { has_trait = erudite }
 		}
 		weight = 1
 	}
@@ -5937,7 +5960,7 @@
 				limit = { exists = scope:owner.var:book_artifact_topic }
 				scope:owner.var:book_artifact_topic = flag:galen
 			}
-			scope:owner.capital_province = {
+			scope:owner.capital_province ?= {
 				OR = {
 					geographical_region = world_europe
 					geographical_region = world_middle_east
@@ -6498,6 +6521,12 @@
 	book_title_language_manual = {
 		group = book_title
 		trigger = { has_artifact_feature = book_subject_language_manual }
+		weight = 1
+	}
+
+	book_title_religious_text = {
+		group = book_title
+		trigger = { has_artifact_feature = book_subject_religious_text }
 		weight = 1
 	}
 
