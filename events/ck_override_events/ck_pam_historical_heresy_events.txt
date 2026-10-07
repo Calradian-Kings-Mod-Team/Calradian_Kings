@@ -1,0 +1,298 @@
+﻿namespace = heresy_historical
+
+heresy_historical.0001 = {
+	id_override_priority = 120
+	hidden = yes
+	scope = faith
+
+	immediate = {
+		save_scope_as = origin_faith
+
+		# --- Pick which heresy to fire ---
+		clear_saved_scope = heresy_faith
+		clear_saved_scope = heresy_strict_capital
+		clear_saved_scope = is_resurgence
+
+		random_list = {
+			# --- Named historical heresies (first-then-resurgence) ---
+			# Ember of the Flames
+			30 = {
+				trigger = { pam_heresy_embers_eligible_trigger = yes }
+				modifier = {
+					factor = 1.5
+					any_faith_county = {
+						title_province = { pam_heresy_embers_region_trigger = yes }
+					}
+				}
+				faith:ember_flame = { save_scope_as = heresy_faith }
+				save_scope_value_as = { name = is_resurgence value = yes }
+			}
+		}
+
+		if = {
+			limit = { exists = scope:heresy_faith }
+
+			# --- Pick the epicenter ruler ---
+			pam_heresy_pick_epicenter_ruler_effect = yes
+
+			if = {
+				limit = { exists = scope:epicenter_ruler }
+
+				scope:epicenter_ruler.capital_county = { save_scope_as = birth_location }
+
+				# --- Spawn the founder via the per-heresy template ---
+				pam_heresy_dispatch_founder_spawn_effect = yes
+
+				if = {
+					limit = { exists = scope:founder }
+
+					if = {
+						limit = {
+							scope:heresy_faith = { pam_heresy_faith_is_pre_declaration_trigger = yes }
+						}
+						pam_heresy_c3_pre_declaration_setup_effect = yes
+					}
+					else = {
+						pam_heresy_c3_already_declared_setup_effect = yes
+					}
+
+					scope:founder = {
+						pam_heresy_finalise_founder_effect = yes
+					}
+
+					# We store the budget on the rite or heresy_faith, never origin_faith, so outbreaks stay separate
+					if = {
+						limit = { exists = scope:new_rite }
+						scope:new_rite = { save_scope_as = c3_spread_owner }
+					}
+					else = {
+						scope:heresy_faith = { save_scope_as = c3_spread_owner }
+					}
+					scope:c3_spread_owner = {
+						set_variable = {
+							name = c3_spread_remaining_converts
+							value = pam_heresy_c3_spread_budget_base_value
+						}
+					}
+					trigger_event = {
+						id = heresy_historical.0011
+						days = { 5 10 }
+					}
+
+					every_player = {
+						limit = {
+							faith = scope:origin_faith
+							this != scope:founder
+						}
+						trigger_event = heresy_historical.0050
+					}
+
+					pam_heresy_set_per_heresy_cooldown_effect = yes
+
+					pam_heresy_fervor_reset_effect = { COMPONENT = 3 }
+					pam_heresy_push_catalyst_effect = { CATALYST = catalyst_heresy_historical_outbreak }
+				}
+			}
+		}
+	}
+}
+
+###################################################
+# 0050 - Global player notification event         #
+###################################################
+# Sent to every same-faith landed and landless player worldwide. The epicenter
+# ruler is always AI so this is the only player-facing event for Component 3.
+# Three options:
+#   1. Embrace the new ways - convert via rite or faith depending on declaration
+#   2. Abandon your throne to follow the prophet (DLC-gated, founder must be alive)
+#   3. Reject and continue as before
+
+heresy_historical.0050 = {
+	id_override_priority = 120
+	type = character_event
+	window = big_event_window
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { exists = scope:is_resurgence }
+				desc = heresy_historical.0050.t.resurgence
+			}
+			desc = heresy_historical.0050.t.fallback
+		}
+	}
+	desc = {
+		first_valid = {
+			# Insider variants for readers already on the heresy's rite/faith.
+			# Outsider framings ("our priests denounce") would be self-contradictory.
+			triggered_desc = {
+				trigger = {
+					pam_heresy_player_is_heresy_insider_trigger = yes
+					exists = scope:is_resurgence
+				}
+				desc = heresy_historical.0050.desc.insider.resurgence
+			}
+			triggered_desc = {
+				trigger = {
+					pam_heresy_player_is_heresy_insider_trigger = yes
+				}
+				desc = heresy_historical.0050.desc.insider.first
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:is_resurgence
+					exists = scope:founder.location
+					exists = capital_county
+					capital_county = {
+						squared_distance = {
+							target = scope:founder.location
+							value <= squared_distance_medium
+						}
+					}
+				}
+				desc = heresy_historical.0050.desc.nearby.resurgence
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:founder.location
+					exists = capital_county
+					capital_county = {
+						squared_distance = {
+							target = scope:founder.location
+							value <= squared_distance_medium
+						}
+					}
+				}
+				desc = heresy_historical.0050.desc.nearby.first
+			}
+			triggered_desc = {
+				trigger = { exists = scope:is_resurgence }
+				desc = heresy_historical.0050.desc.distant.resurgence
+			}
+			triggered_desc = {
+				trigger = { always = yes }
+				desc = heresy_historical.0050.desc.distant.first
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:heresy_faith = faith:ember_flame }
+				desc = heresy_historical.0050.gloss.ember
+			}
+			triggered_desc = {
+				trigger = { always = yes }
+				desc = heresy_historical.0050.gloss.generic
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:heresy_faith = faith:ember_flame }
+				desc = heresy_historical.0050.history.ember
+			}
+			triggered_desc = {
+				trigger = { always = yes }
+				desc = heresy_historical.0050.history.generic
+			}
+		}
+	}
+
+	major = yes
+	theme = christian
+	override_background = holy_site_scope
+
+	major_trigger = {
+		faith = scope:origin_faith
+	}
+
+	widget = {
+		gui = "event_window_widget_rite_founder"
+		container = "custom_widgets_container"
+	}
+	
+	left_portrait = {
+		character = scope:founder
+		animation = preaching
+		camera = camera_event_right_forward
+	}
+	
+	immediate = {
+		location = {
+			save_scope_as = holy_site_scope
+			save_scope_as = background_terrain_scope
+		}
+	}
+
+	option = {
+		name = heresy_historical.0050.a
+		add_internal_flag = dangerous
+		trigger = {
+			NOT = { pam_heresy_player_is_heresy_insider_trigger = yes }
+			NOR = {
+				faith.religious_head ?= this
+				rite.head_of_rite ?= this
+			}
+		}
+		if = {
+			limit = {
+				scope:heresy_faith = { pam_heresy_faith_is_pre_declaration_trigger = yes }
+				exists = scope:new_rite
+			}
+			set_character_rite_with_conversion = scope:new_rite
+		}
+		else = {
+			set_character_faith_with_conversion = scope:heresy_faith
+		}
+		add_character_flag = {
+			flag = recently_converted_by_heresy
+			years = 10
+		}
+		change_spiritual_fulfillment = 20
+		ai_chance = {
+			base = 0
+		}
+	}
+
+	option = {
+		name = heresy_historical.0050.b
+		add_internal_flag = dangerous
+		trigger = {
+			has_ep3_dlc_trigger = yes
+			exists = scope:founder
+			scope:founder = { is_alive = yes }
+		}
+		flavor = danger_dynasty_abandon_tt
+		scope:founder = {
+			create_landless_adventurer_title_effect = {
+				REASON = flag:voluntary
+				FLAVOR_CHAR = root
+			}
+		}
+		set_player_character = scope:founder
+		hidden_effect = {
+			scope:founder = {
+				# The option tooltip evaluates this before the adventurer title exists; skip the null capital_province there.
+				if = {
+					limit = { has_government = landless_adventurer_government }
+					populate_location_with_contracts_effect = {
+						AREA_CHAR = scope:founder
+						AMOUNT = 3
+					}
+				}
+			}
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+
+	option = {
+		name = {
+			trigger = { pam_heresy_player_is_heresy_insider_trigger = yes }
+			text = heresy_historical.0050.c.insider
+		}
+		name = heresy_historical.0050.c
+		add_piety = medium_piety_gain
+		ai_chance = {
+			base = 100
+		}
+	}
+}

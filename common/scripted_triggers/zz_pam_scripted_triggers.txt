@@ -1,0 +1,987 @@
+﻿rite_has_pre_scripted_liturgical_language_trigger = {
+	OR = {
+		is_a_darusan_rite = yes
+		this = rite:hetjur
+		faith = faith:calradic
+		this = rite:calradic_rite
+		this = rite:miraclist
+		this = rite:agreki
+		this = rite:aekekartel
+		this = rite:merechati_rite
+		this = rite:aren
+		this = rite:qvelgmerti
+		this = rite:calradic_battanian
+	}
+}
+
+# These are founding-see rites in rite scope, not map-wide or ordinary swap traditions
+pam_rite_is_regional_trigger = {
+	OR = {
+		this = rite:calradic_battanian
+		this = rite:aren
+		this = rite:qvelgmerti
+		this = rite:miraclist
+		this = rite:agreki
+		this = rite:aekekartel
+		this = rite:krevmetiqstvo
+		this = rite:merechati_rite
+	}
+}
+
+pam_latin_as_liturgical_language_trigger = {
+	always = no
+}
+
+pam_greek_as_liturgical_language_trigger = {
+	OR = {
+		faith = faith:calradic
+		this = rite:calradic_rite
+		is_a_darusan_rite = yes
+		this = rite:darusan_rite
+		AND = {
+			rite_has_pre_scripted_liturgical_language_trigger = no
+			head_of_rite.culture ?= {
+				OR = {
+					this = culture:calradian
+					has_same_culture_language = culture:calradian
+				}
+			}
+		}
+	}
+}
+
+pam_irish_as_liturgical_language_trigger = {
+	OR = {
+		this = rite:calradic_battanian
+		AND = {
+			rite_has_pre_scripted_liturgical_language_trigger = no
+			head_of_rite.culture ?= {
+				OR = {
+					this = culture:battanian
+					has_same_culture_language = culture:battanian
+				}
+			}
+		}
+	}
+}
+
+pam_ethiopic_as_liturgical_language_trigger = {
+	OR = {
+		this = rite:merechati_rite
+		AND = {
+			rite_has_pre_scripted_liturgical_language_trigger = no
+			head_of_rite.culture ?= {
+				OR = {
+					this = culture:merichati
+					has_same_culture_language = culture:merichati
+				}
+			}
+		}
+	}
+}
+
+pam_armenian_as_liturgical_language_trigger = {
+	OR = {
+		this = rite:qvelgmerti
+		this = rite:aren
+		AND = {
+			rite_has_pre_scripted_liturgical_language_trigger = no
+			head_of_rite.culture ?= {
+				OR = {
+					this = culture:kohayan
+					has_same_culture_language = culture:kohayan
+				}
+			}
+		}
+	}
+}
+
+can_hold_ecumenical_council_trigger = {
+	religion = religion:calradian_religion
+}
+
+pam_can_pick_great_schism_stance_trigger = {
+	situation:the_christian_church ?= {
+		var:pam_great_schism_status ?= flag:ongoing
+		pam_great_schism_progress_can_change_trigger = yes
+		exists = var:schism_mainline_rite
+		exists = var:schism_competitor_rite
+	}
+	is_ruler = yes
+	faith = faith:mandatist_faith
+}
+
+
+pam_is_ecumenical_patriarch_trigger = {
+	faith = faith:mandatist_faith
+	exists = faith.religious_head
+	this = faith.religious_head
+	OR = {
+		faith.religious_head_title ?= title:d_et_lycaron
+		faith.religious_head_title ?= title:k_calradic
+	}
+}
+pam_schism_stance_supports_rite_trigger = {
+	OR = {
+		AND = {
+			var:pam_schism_stance ?= flag:mainline
+			faith:mandatist_faith.main_rite ?= rite:$RITE$
+		}
+		AND = {
+			var:pam_schism_stance ?= flag:competitor
+			faith:mandatist_faith.main_rite ?= rite:$OTHER_RITE$
+		}
+	}
+}
+pam_schism_is_chalcedonian_trigger = {
+	OR = {
+		faith = scope:schism_western_faith
+		faith = scope:schism_eastern_faith
+		faith = faith:mandatist_faith
+	}
+}
+
+# Heading a rite does not make the holder follow it
+pam_is_head_of_schism_pair_rite_trigger = {
+	OR = {
+		AND = {
+			rite = rite:darusan_rite
+			rite:darusan_rite.head_of_rite ?= this
+		}
+		AND = {
+			rite = rite:calradic_rite
+			rite:calradic_rite.head_of_rite ?= this
+		}
+	}
+}
+
+pam_can_use_investiture_conflict_cb_trigger = {
+	has_pam_dlc_trigger = yes
+	faith = { religion = religion:calradian_religion }
+	situation:the_christian_church ?= {
+		has_situation_top_phase_parameter = the_christian_church_investiture_controversy
+	}
+	# We block new conflicts while the council is pending, as a war would pull the host away and cancel it
+	custom_tooltip = {
+		text = pam_investiture_cb_council_pending_tt
+		NOT = { faith = { has_variable = investiture_council_pending } }
+	}
+}
+
+# We skip is_landed because ecclesiastical government is landless_playable
+pam_court_wants_monk_courtiers_trigger = {
+	has_pam_dlc_trigger = yes
+	is_ruler = yes
+	highest_held_title_tier >= tier_county # A village priest is not a bishop with a familia
+	religion = religion:calradian_religion
+	pam_government_is_religious_playable_trigger = yes
+	faith = { faith_has_monasticism_trigger = yes }
+	primary_title = {
+		is_mercenary_company = no
+		is_holy_order = no
+	}
+}
+# Any living ruler of kingdom tier or above whose capital lies in Europe and follows a non-Christian religion
+pam_non_christian_kingdom_holder_in_europe_trigger = {
+	any_ruler = {
+		is_alive = yes
+		religion != religion:calradian_religion
+		highest_held_title_tier >= tier_kingdom
+		capital_province = {
+			geographical_region = world_calradia
+		}
+		NOT = { has_variable = pam_non_christian_kingdom_holder_in_europe_trigger_var } # To avoid the same ruler counting every year
+	}
+}
+# A cardinal, Head of Rite, or archbishop of $CHARACTER$'s faith
+pam_is_senior_cleric_of_character_trigger = {
+	has_pam_dlc_trigger = yes
+	religion = religion:calradian_religion
+	faith = $CHARACTER$.faith
+	OR = {
+		exists = clerical_elector_title
+		$CHARACTER$.rite.head_of_rite ?= this
+		any_held_title = { has_clerical_region = yes }
+	}
+}
+# Head of Rite dies while still subject to short_reign on their primary title.
+pam_head_of_rite_had_short_reign_trigger = {
+	has_pam_dlc_trigger = yes
+	religion = religion:calradian_religion
+	rite.head_of_rite ?= root
+	primary_title ?= {
+		title_held_years < 10
+	}
+}
+pam_clergy_court_chaplain_murdered_catalyst_trigger = {
+	has_pam_dlc_trigger = yes
+	religion = religion:calradian_religion
+	has_council_position = councillor_court_chaplain
+	pam_died_from_murder_reason_trigger = yes
+}
+
+pam_clergy_archbishop_murdered_catalyst_trigger = {
+	has_pam_dlc_trigger = yes
+	religion = religion:calradian_religion
+	any_held_title = { has_clerical_region = yes }
+	pam_died_from_murder_reason_trigger = yes
+}
+
+pam_clergy_cardinal_murdered_catalyst_trigger = {
+	has_pam_dlc_trigger = yes
+	religion = religion:calradian_religion
+	exists = clerical_elector_title
+	pam_died_from_murder_reason_trigger = yes
+}
+
+pam_clergy_head_of_rite_murdered_catalyst_trigger = {
+	has_pam_dlc_trigger = yes
+	religion = religion:calradian_religion
+	rite.head_of_rite ?= this
+	pam_died_from_murder_reason_trigger = yes
+}
+
+pam_the_christian_church_head_of_faith_murdered_catalyst_trigger = {
+	has_pam_dlc_trigger = yes
+	religion = religion:calradian_religion
+	pam_died_from_murder_reason_trigger = yes
+	any_held_title = { is_head_of_faith = yes }
+}
+
+pam_the_christian_church_civil_war_in_christian_kingdom_participant_trigger = {
+	has_pam_dlc_trigger = yes
+	religion = religion:calradian_religion
+	highest_held_title_tier >= tier_kingdom
+	any_character_situation = {
+		situation_type = the_christian_church
+		situation_top_has_catalyst = catalyst_the_christian_church_civil_war_in_christian_kingdom
+	}
+}
+
+pam_the_christian_church_ruler_died_in_battle_against_non_christian_catalyst_trigger = {
+	has_pam_dlc_trigger = yes
+	is_ruler = yes
+	# death_reason errors on living characters; in on_death the dier is still is_alive = yes, so use has_variable = battle_death_enemy there.
+	trigger_if = {
+		limit = { is_alive = no }
+		death_reason = death_battle
+	}
+	trigger_else = {
+		has_variable = battle_death_enemy
+	}
+	OR = {
+		exists = scope:killer
+		has_variable = battle_death_enemy
+	}
+	trigger_if = {
+		limit = { exists = scope:killer }
+		scope:killer = {
+			religion != religion:calradian_religion
+		}
+	}
+	trigger_else = {
+		has_variable = battle_death_enemy
+		var:battle_death_enemy = {
+			religion != religion:calradian_religion
+		}
+	}
+	any_character_situation = {
+		situation_type = the_christian_church
+		situation_top_has_catalyst = catalyst_the_christian_church_ruler_died_in_battle_against_non_christian
+	}
+}
+
+# Holder of the Byzantine Empire (or Eastern Roman hegemony) with a non-Christian religion
+pam_byzantine_emperor_non_christian_trigger = {
+	OR = {
+		title:h_calradian_empire.holder ?= {
+			is_alive = yes
+			religion != religion:calradian_religion
+		}
+		title:h_eastern_calradian_empire.holder ?= {
+			is_alive = yes
+			religion != religion:calradian_religion
+		}
+	}
+}
+
+pam_is_christian_clergy_trigger = {
+	religion = religion:calradian_religion
+	OR = {
+		government_has_flag = government_is_theocracy
+		government_has_flag = government_is_monastic_holy_order
+	}
+}
+pam_is_eastern_christian_trigger = {
+	faith.religion = religion:calradian_religion
+	rite = {
+		rite_has_doctrine = special_doctrine_is_eastern_christian_faith
+	}
+}
+pam_is_western_christian_trigger = {
+	faith.religion = religion:calradian_religion
+	rite = {
+		rite_has_doctrine = special_doctrine_is_western_christian_faith
+	}
+}
+
+# Grand cathedral is the highest church background
+pam_church_event_background_is_grand_western_trigger = {
+	#Gothic movement starts in 12th century
+	current_year >= 1160
+	trigger_if = {
+		limit = {
+			scope:activity.activity_location ?= {
+				faith.religion = religion:calradian_religion
+			}
+		}
+		scope:activity.activity_location.rite = {
+			rite_has_doctrine = special_doctrine_is_western_christian_faith
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			exists = scope:activity.activity_host
+		}
+		scope:activity.activity_host.rite = {
+			rite_has_doctrine = special_doctrine_is_western_christian_faith
+		}
+	}
+	trigger_else = {
+		location.rite ?= {
+			rite_has_doctrine = special_doctrine_is_western_christian_faith
+		}
+	}
+	OR = {
+		AND = {
+			this = faith.religious_head
+			highest_held_title_tier >= tier_kingdom
+			capital_county.faith ?= faith
+		}
+		domicile ?= { has_domicile_building_or_higher = ecclesiastical_domicile_main_03 }
+		capital_county ?= {
+			any_county_province = {
+				has_building_with_flag = { flag = grand_cathedral_flag }
+			}
+		}
+		holy_order ?= {
+			num_leased_titles >= 12
+		}
+	}
+}
+pam_church_event_background_is_grand_western_pre_gothic_trigger = {
+	#Gothic movement starts in 12th century
+	current_year < 1160
+	trigger_if = {
+		limit = {
+			scope:activity.activity_location ?= {
+				faith.religion = religion:calradian_religion
+			}
+		}
+		scope:activity.activity_location.rite = {
+			rite_has_doctrine = special_doctrine_is_western_christian_faith
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			exists = scope:activity.activity_host
+		}
+		scope:activity.activity_host.rite = {
+			rite_has_doctrine = special_doctrine_is_western_christian_faith
+		}
+	}
+	trigger_else = {
+		location.rite ?= {
+			rite_has_doctrine = special_doctrine_is_western_christian_faith
+		}
+	}
+	OR = {
+		AND = {
+			this = faith.religious_head
+			highest_held_title_tier >= tier_kingdom
+			capital_county.faith ?= faith
+		}
+		domicile ?= { has_domicile_building_or_higher = ecclesiastical_domicile_main_03 }
+		capital_county ?= {
+			any_county_province = {
+				has_building_with_flag = { flag = grand_cathedral_flag }
+			}
+		}
+		holy_order ?= {
+			num_leased_titles >= 12
+		}
+	}
+}
+
+#For using the Hagia Sophia background
+pam_church_event_background_is_grand_eastern_trigger = {
+	trigger_if = {
+		limit = {
+			scope:activity.activity_location ?= {
+				faith.religion = religion:calradian_religion
+			}
+		}
+		scope:activity.activity_location.rite = {
+			rite_has_doctrine = special_doctrine_is_eastern_christian_faith
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			exists = scope:activity.activity_host
+		}
+		scope:activity.activity_host.rite = {
+			rite_has_doctrine = special_doctrine_is_eastern_christian_faith
+		}
+	}
+	trigger_else = {
+		location.rite ?= {
+			rite_has_doctrine = special_doctrine_is_eastern_christian_faith
+		}
+	}
+	OR = {
+		AND = {
+			this = faith.religious_head
+			highest_held_title_tier >= tier_kingdom
+			capital_county.faith ?= faith
+		}
+		domicile ?= { has_domicile_building_or_higher = ecclesiastical_domicile_main_03 }
+		capital_county ?= {
+			any_county_province = {
+				has_building_with_flag = { flag = grand_cathedral_flag }
+			}
+		}
+		holy_order ?= {
+			num_leased_titles >= 12
+		}
+	}
+}
+
+# This grandeur check does not care about religion, so the call site checks religion
+pam_church_event_background_is_developed_trigger = {
+	OR = {
+		domicile ?= { has_domicile_building_or_higher = ecclesiastical_domicile_main_02 }
+		capital_county ?= {
+			OR = {
+				# this = title:c_ile_de_france
+				# this = title:c_antiocheia
+				any_county_province = {
+					OR = {
+						has_building_or_higher = temple_02
+						has_building_with_flag = holy_building
+						#A wooden church looks wrong here
+						geographical_region = world_middle_east
+						geographical_region = world_africa
+						geographical_region = world_steppe_tarim
+						geographical_region = world_steppe_central
+					}
+				}
+			}
+		}
+		AND = {
+			highest_held_title_tier >= tier_duchy
+			this = rite.head_of_rite
+		}
+		holy_order ?= {
+			OR = {
+				num_leased_titles >= 5
+				holy_order_patron.highest_held_title_tier >= tier_empire
+			}
+		}
+	}
+}
+pam_any_christian_holy_site_not_under_christian_control_trigger = {
+	faith:darusan = {
+		any_holy_site_barony = {
+			holder.top_liege.faith.religion != religion:calradian_religion
+		}
+	}
+}
+
+pam_ai_can_proclaim_armed_pilgrimages_core_trigger = {
+	faith = {
+		this = faith:darusan
+		has_doctrine = doctrine_spiritual_head
+		main_rite = {
+			NOT = {
+				has_tenet_status = {
+					tenet = tenet_armed_pilgrimages
+					status = core
+				}
+			}
+		}
+	}
+}
+
+pam_any_muslim_holy_site_not_under_muslim_control_trigger = {
+	religion:aserai_religion {
+		any_faith = {
+			any_holy_site_barony = {
+				holder.top_liege.faith.religion != religion:aserai_religion
+			}
+		}
+	}
+}
+pam_ai_can_proclaim_struggle_submission_core_trigger = {
+	faith.religion = {
+		this = religion:aserai_religion
+		exists = var:variable_ghw_unlocked # You've entered the Age of Crusades
+	}
+	faith = {
+		main_rite = {
+			NOT = {
+				has_tenet_status = {
+					tenet = tenet_struggle_submission
+					status = core
+				}
+			}
+		}
+	}
+}
+
+# Gates the tenet popularity system, for PAM it's only for Christian faiths. Runs in a faith scope.
+has_tenet_popularity_trigger = {
+	religion = religion:calradian_religion
+}
+has_papacy_trigger = {
+	this = faith:darusan
+}
+pam_request_white_peace_enemy_trigger = {
+	is_ruler = yes
+	religion = religion:calradian_religion
+	OR = {
+		rite ?= scope:puppet_or_actor.rite
+		faith ?= scope:puppet_or_actor.faith
+		religious_head_or_challenger ?= {
+			scope:puppet_or_actor.religious_head_or_challenger ?= this
+		}
+	}
+	NOR = {
+		government_has_flag = government_is_theocracy
+		has_trait = excommunicated
+	}
+	scope:puppet_or_actor = {
+		is_at_war_with = prev
+	}
+}
+
+eligible_for_pam_legacy_trigger = {
+	has_pam_dlc_trigger = yes
+	OR = {
+		game_rule_unrestricted_dynasty_legacies_trigger = yes
+		dynasty = {
+			OR = {
+				dynast = { faith.religion = religion:calradian_religion }
+				has_dynasty_perk = pam_legacy_1
+			}
+		}
+	}
+}
+pam_ai_oriental_christian_actor_trigger = {
+	OR = {
+		culture = { has_cultural_pillar = heritage_kohinik }
+		faith ?= faith:aren
+		faith ?= faith:qvelgmerti
+	}
+}
+pam_ai_armenian_actor_trigger = {
+	OR = {
+		culture = culture:kohayan
+		culture = { has_same_culture_language = culture:kohayan }
+	}
+}
+pam_ai_pentarchy_christian_actor_trigger = {
+	OR = {
+		culture = culture:calradian
+		culture = { has_same_culture_language = culture:calradian }
+		rite ?= { pam_greek_as_liturgical_language_trigger = yes }
+		# Alexandria and Antioch are Oriental Orthodox sees, so those churches count the five as their own.
+		pam_ai_oriental_christian_actor_trigger = yes
+	}
+}
+pam_ai_southeast_asian_actor_trigger = {
+	OR = {
+		culture = { has_cultural_pillar = heritage_austronesian_ck }
+		culture = { has_cultural_pillar = heritage_mon_khmer_ck }
+		culture = { has_cultural_pillar = heritage_viet_ck }
+		culture = { has_cultural_pillar = heritage_burman_ck }
+	}
+}
+pam_catholic_hof_weak_papal_state_control_trigger = {
+	has_pam_dlc_trigger = yes
+	title:k_darusan = {
+		title_preferred_capital_county = {
+			holder ?= {
+				is_alive = yes
+				NOR = {
+					faith = faith:darusan
+					faith = faith:mandatist_faith
+				}
+			}
+		}
+	}
+}
+
+pam_valid_excommunication_target_trigger = {
+	age >= 12
+	save_temporary_scope_as = target_char
+	$EXCOMMUNICATOR$ = { save_temporary_scope_as = excommunicator }
+	trigger_if = {
+		limit = { has_title = title:k_darusan }
+		custom_tooltip = {
+			text = cannot_excommunicate_pope_without_patriarch_or_antipope_tt
+			liege ?= $EXCOMMUNICATOR$
+			$EXCOMMUNICATOR$ = {
+				OR = {
+					pam_holds_christian_patriarch_title_trigger = yes
+					pam_is_antipope_trigger = yes
+				}
+			}
+		}
+	}
+	#always valid if Hof
+	#This trigger is only relevant if excommunicator is not
+	trigger_if = {
+		limit = {
+			scope:target_char = { need_hof_for_clergy_interaction_trigger = yes }
+			scope:target_char.faith = {
+				has_doctrine = doctrine_spiritual_head
+				exists = scope:target_char.religious_head_or_challenger
+			}
+		}
+		custom_tooltip = {
+			text = excommunicator_must_be_hof_tt
+			scope:excommunicator = scope:target_char.religious_head_or_challenger
+		}
+	}
+	trigger_else_if = {
+		limit = {
+			scope:target_char.religious_head_or_challenger = scope:excommunicator
+		}
+	}
+	trigger_else = {
+		# If there is no HoF, a clergy HoR can take it
+		trigger_if = {
+			limit = {
+				NOT = { exists = scope:target_char.faith.religious_head }
+				scope:target_char.rite.head_of_rite ?= $EXCOMMUNICATOR$
+			}
+		}
+		#Wanderers and courtiers
+		trigger_else_if = {
+			limit = {
+				is_ruler = no
+			}
+			#Courtiers
+			trigger_if = {
+				limit = {
+					exists = liege
+				}
+				custom_tooltip = {
+					text = bishop_excommunication_target_courtier_tt
+					liege = {
+						OR = {
+							target_is_same_character_or_above = $EXCOMMUNICATOR$
+							AND = {
+								is_landed = yes
+								any_character_to_title_neighboring_county = {
+									holder ?= {
+										target_is_same_character_or_above = $EXCOMMUNICATOR$
+									}
+								}
+							}
+							capital_province.county = {
+								clerical_region_title ?= {
+									holder = $EXCOMMUNICATOR$
+								}
+							}
+							cp:councillor_court_chaplain ?= $EXCOMMUNICATOR$
+							any_liege_or_above = {
+								cp:councillor_court_chaplain ?= $EXCOMMUNICATOR$
+							}
+						}
+					}
+				}
+			}
+			#Wanderers
+			trigger_else = {
+				custom_tooltip = {
+					text = bishop_excommunication_target_wanderer_tt
+					location.county = {
+						OR = {
+							holder ?= {
+								target_is_same_character_or_above = $EXCOMMUNICATOR$
+							}
+							any_neighboring_county = {
+								holder ?= {
+									target_is_same_character_or_above = $EXCOMMUNICATOR$
+								}
+							}
+							clerical_region_title ?= {
+								holder = $EXCOMMUNICATOR$
+							}
+							holder.cp:councillor_court_chaplain ?= $EXCOMMUNICATOR$
+							holder = {
+								any_liege_or_above = {
+									cp:councillor_court_chaplain ?= $EXCOMMUNICATOR$
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		#Theocrats/ecclesiasticals
+		trigger_else_if = {
+			limit = {
+				government_has_flag = government_is_theocracy
+			}
+			custom_tooltip = {
+				text = target_char_must_be_clerical_subordinate_tt
+				OR = {
+					$EXCOMMUNICATOR$ = {
+						any_subordinate = {
+							OR = {
+								this = scope:target_char
+								any_subordinate = {
+									OR = {
+										this = scope:target_char
+										any_subordinate = {
+											OR = {
+												this = scope:target_char
+												any_subordinate = {
+													this = scope:target_char
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					target_is_liege_or_above = $EXCOMMUNICATOR$
+				}
+				
+			}
+		}
+		#Secular rulers
+		trigger_else = {
+			custom_tooltip = {
+				text = bishop_excommunication_target_secular_tt
+				OR = {
+					$EXCOMMUNICATOR$ = {
+						exists = scope:target_char.cp:councillor_court_chaplain
+						OR = {
+							AND = {
+								this = scope:target_char.cp:councillor_court_chaplain
+								NOT = {
+									exists = superior
+								}
+							}
+							any_subordinate = {
+								OR = {
+									this = scope:target_char.cp:councillor_court_chaplain
+									any_subordinate = {
+										OR = {
+											this = scope:target_char.cp:councillor_court_chaplain
+											any_subordinate = {
+												OR = {
+													this = scope:target_char.cp:councillor_court_chaplain
+													any_subordinate = {
+														this = scope:target_char.cp:councillor_court_chaplain
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					target_is_liege_or_above = $EXCOMMUNICATOR$
+					AND = {
+						is_landed = yes
+						any_character_to_title_neighboring_county = {
+							holder ?= {
+								target_is_same_character_or_above = $EXCOMMUNICATOR$
+							}
+						}
+					}
+					capital_county ?= {
+						clerical_region_title ?= {
+							holder = $EXCOMMUNICATOR$
+						}
+					}
+					any_liege_or_above = {
+						cp:councillor_court_chaplain ?= $EXCOMMUNICATOR$
+					}
+				}
+			}
+		}
+	}
+}
+
+pam_college_of_cardinals_election_active_trigger = {
+	exists = title:k_darusan
+	title:k_darusan.holder ?= {
+		has_realm_law = theocratic_elective_succession_law
+	}
+}
+
+pam_leads_college_of_cardinals_trigger = {
+	has_title = title:k_darusan
+	pam_college_of_cardinals_election_active_trigger = yes
+}
+
+pam_pope_is_head_of_faith_or_rite_trigger = {
+	OR = {
+		rite.head_of_rite ?= { has_title = title:k_darusan }
+		faith.religious_head ?= { has_title = title:k_darusan }
+	}
+}
+pam_title_is_church_seat_trigger = {
+	OR = {
+		$TITLE$ = title:k_darusan
+		AND = {
+			exists = faith.religious_head_title
+			$TITLE$ = faith.religious_head_title
+		}
+	}
+}
+
+pam_holds_christian_patriarch_title_trigger = {
+	OR = {
+		has_title = title:d_et_lycaron
+		has_title = title:k_calradic
+		has_title = title:d_et_charas
+		has_title = title:d_et_pravend
+		has_title = title:d_et_vostrum
+		has_title = title:d_et_sanala
+		has_title = title:d_et_husn_fulq
+		has_title = title:d_et_diathma
+		has_title = title:d_et_ortysia
+	}
+}
+pam_holds_church_seat_trigger = {
+	OR = {
+		any_held_title = { is_head_of_faith = yes }
+		has_title = title:k_darusan
+	}
+}
+
+pam_college_election_title_has_electors_trigger = {
+	trigger_if = {
+		limit = { exists = faith.religious_head_title }
+		# any_elector rather than a bare exists: is_candidate_from_set errors on a title with no election law.
+		faith.religious_head_title = { any_elector = {} }
+	}
+	trigger_else = {
+		title:k_darusan = { any_elector = {} }
+	}
+}
+
+
+pam_college_election_title_is_theocratic_elective_trigger = {
+	trigger_if = {
+		limit = { exists = faith.religious_head_title }
+		faith.religious_head_title.holder ?= { has_realm_law = theocratic_elective_succession_law }
+	}
+	trigger_else = {
+		title:k_darusan.holder ?= { has_realm_law = theocratic_elective_succession_law }
+	}
+}
+pam_is_college_election_candidate_trigger = {
+	trigger_if = {
+		limit = { pam_college_election_title_has_electors_trigger = yes }
+		trigger_if = {
+			limit = { exists = faith.religious_head_title }
+			is_candidate_from_set = {
+				title = faith.religious_head_title
+				source = $SOURCE$
+			}
+		}
+		trigger_else = {
+			is_candidate_from_set = {
+				title = title:k_darusan
+				source = $SOURCE$
+			}
+		}
+	}
+	trigger_else = { # Error log suppressing
+		always = no
+	}
+}
+
+pam_papal_ruling_rite_has_parameter_trigger = {
+	trigger_if = {
+		limit = { exists = faith.religious_head_title }
+		faith.religious_head_title.holder.rite ?= { rite_has_parameter = $PARAMETER$ }
+	}
+	trigger_else = {
+		title:k_darusan.holder.rite ?= { rite_has_parameter = $PARAMETER$ }
+	}
+}
+
+pam_ai_meaningful_jewish_presence_trigger = {
+	OR = {
+		any_vassal = {
+			faith ?= { religion_tag = surrani_religion }
+		}
+		any_sub_realm_county = {
+			faith ?= { religion_tag = surrani_religion }
+		}
+		any_neighboring_and_across_water_realm_owner = {
+			faith ?= { religion_tag = surrani_religion }
+		}
+	}
+}
+
+pam_ai_meaningful_christian_presence_trigger = {
+	OR = {
+		any_vassal = {
+			faith ?= { religion_tag = calradian_religion }
+		}
+		any_sub_realm_county = {
+			faith ?= { religion_tag = calradian_religion }
+		}
+		any_neighboring_and_across_water_realm_owner = {
+			faith ?= { religion_tag = calradian_religion }
+		}
+	}
+}
+
+pam_ai_meaningful_islamic_presence_trigger = {
+	OR = {
+		any_vassal = {
+			faith ?= { religion_tag = aserai_religion }
+		}
+		any_sub_realm_county = {
+			faith ?= { religion_tag = aserai_religion }
+		}
+		any_neighboring_and_across_water_realm_owner = {
+			faith ?= { religion_tag = aserai_religion }
+		}
+	}
+}
+
+# Expects interaction scopes actor/target/secondary_recipient
+pam_clerical_self_candidacy_restriction_trigger = {
+	trigger_if = {
+		limit = {
+			exists = scope:target
+			scope:actor ?= scope:secondary_recipient
+			scope:actor = {
+				any_held_title = { has_clerical_region = yes }
+			}
+		}
+		custom_tooltip = {
+			text = pam_clerical_self_candidacy_restriction_tt
+			scope:target = {
+				OR = {
+					this = title:d_et_lycaron
+					is_head_of_faith = yes
+					holder ?= { faith.religious_head ?= this }
+				}
+			}
+		}
+	}
+}

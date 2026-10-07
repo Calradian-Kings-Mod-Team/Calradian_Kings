@@ -1,0 +1,29 @@
+﻿namespace = great_schism
+
+great_schism.0001 = {
+	id_override_priority = 120 
+	scope = none
+	hidden = yes
+
+	# The PAM path can still have split the Church between the yearly pulse and this event landing
+	trigger = {
+		NOT = { has_global_variable = pam_great_schism_decision_taken }
+	}
+
+	immediate = {
+		faith:mandatist_faith = { save_scope_as = chalcedonian_faith }
+		# Shared with the PAM path so both routes leave the same faiths, rites and religious heads behind
+		pam_apply_great_schism_creation_effect = yes
+		set_global_variable = pam_great_schism_decision_taken
+
+		faith:darusan = { save_scope_as = schism_western_faith }
+		faith:calradic = { save_scope_as = schism_eastern_faith }
+		faith:darusan.religious_head ?= { save_scope_as = schism_western_head }
+		faith:calradic.religious_head ?= { save_scope_as = schism_eastern_head }
+
+		every_player = {
+			limit = { faith.religion = religion:calradian_religion }
+			trigger_event = great_schism.0002
+		}
+	}
+}

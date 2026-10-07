@@ -1,0 +1,88 @@
+﻿# Christian Situation catalyst
+pam_heresy_push_catalyst_effect = {
+	if = {
+		limit = { religion = religion:calradian_religion }
+		situation:the_christian_church ?= {
+			trigger_situation_catalyst = $CATALYST$
+		}
+	}
+}
+# Faith scope. Picks the rite to diverge in Component 1.
+# Saves scope:diverging_rite.
+# Filters: exclude mainline, damper insular_celtic / mozarabic_church to factor 0.1.
+# Weighted by current divergence so already-divergent rites are more likely.
+pam_heresy_c1_pick_diverging_rite_effect = {
+	clear_saved_scope = diverging_rite
+
+	random_faith_rite = {
+		limit = {
+			this != faith.main_rite
+			rite_counties >= 1
+			exists = head_of_rite
+		}
+
+		weight = {
+			base = 5
+			# More divergent rites are more likely to deepen further.
+			modifier = {
+				add = 10
+				"divergence(faith.main_rite)" >= 25
+			}
+			modifier = {
+				add = 20
+				"divergence(faith.main_rite)" >= 50
+			}
+			modifier = {
+				add = 20
+				"divergence(faith.main_rite)" >= 75
+			}
+			# Pluralism-resistant rites are less prone to lurching toward heresy.
+			modifier = {
+				factor = 0.5
+				rite_has_parameter = pluralism_pluralistic_resistant_to_heresy
+			}
+			# Hetjur and Wilundist are doctrinally weird but historically not the seedbed for heresy outbreaks; dampen without excluding outright.
+			modifier = {
+				factor = 0.1
+				OR = {
+					this = rite:hetjur
+					this = rite:western_calradic
+				}
+			}
+		}
+
+		save_scope_as = diverging_rite
+	}
+}
+
+# --- Founder spawn dispatcher (any scope) ---
+# Calls the matching per-heresy founder template based on scope:heresy_faith
+# and the resurgence stage. Saves scope:founder at scope:birth_location.
+#
+# Stage logic (named historical heresies):
+#   first outbreak:                spawn the primary historical figure
+#   second outbreak (resurgence):  spawn the named secondary historical figure
+#   third+ outbreak:               spawn the per-heresy anonymous resurgence
+#
+# Always-anonymous heresies always use their single anonymous template.
+pam_heresy_dispatch_founder_spawn_effect = {
+	if = {
+		limit = { scope:heresy_faith = faith:ember_flame }
+		pam_heresy_spawn_ember_founder_effect = yes
+	}
+}
+
+# --- Per-heresy 50-year cooldown setter (faith scope on origin_faith) ---
+pam_heresy_set_per_heresy_cooldown_effect = {
+	if = {
+		limit = { scope:heresy_faith = faith:ember_flame }
+		set_global_variable = { name = pam_heresy_embers_cooldown value = yes years = 50 }
+	}
+}
+# create_rite_from_type takes a literal rite type key, so dispatch on heresy_faith.
+pam_heresy_dispatch_create_pre_declaration_rite_effect = {
+	if = {
+		limit = { scope:heresy_faith = faith:ember_flame }
+		create_rite_from_type = { type = ember_rite save_scope_as = new_rite convert = yes }
+	}
+}

@@ -1,0 +1,2377 @@
+﻿on_game_start = {
+	on_actions = {
+		ck_game_start
+		ck_resources
+	}
+	#events = { 
+	#}
+	# effect = {
+	# }
+}
+on_game_start_after_lobby = {
+	on_actions = {
+		ck_game_start_after_lobby
+	}
+}
+random_yearly_playable_pulse = {
+	on_actions = {
+		random_yearly_playable_pulse_ck
+	}
+}
+random_yearly_playable_pulse_ck = {
+	random_on_action = {
+		chance_of_no_event = {
+			value = 0
+			if = {
+				limit = {
+					is_ai = yes
+					highest_held_title_tier < tier_duchy
+				}
+				add = 75 # AI counts aren't particularly important
+			}
+		}
+		50 = ck_geroian_events
+		200 = ck_rhodok_events
+	}
+}
+ck_game_start = {
+	effect = {
+		### Pull from the vanilla game_start file
+		### CORONATION LOCATION SETUP ###
+		if = {
+			limit = {
+				current_date >= 976.8.10
+				has_dlc_feature = coronations
+			}
+			# Glanys (Battanian) ## CK_ACH TEMPORARY
+			province:296 = { 
+				add_province_modifier = coronation_tradition_modifier 
+				set_variable = {
+					name = coronation_tradition_location
+					value = 5
+				}
+			}
+			# Palace District of Lycaron (Calradians) ## CK_ACH TEMPORARY
+			province:903 = { 
+				add_province_modifier = coronation_tradition_modifier 
+				set_variable = {
+					name = coronation_tradition_location
+					value = 5
+				}
+			}
+		}
+		### Khuzait Shatter Rule ###
+		if = {
+			limit = {
+				has_game_rule = ck_shatter_khanate
+			}
+			shatter_khanate_effect = yes
+			make_khuzait_khanate_nomadic_effect = yes
+		}
+		if = {
+			limit = {
+				has_game_rule = ck_shatter_khanate_duchies
+			}
+			shatter_khanate_duchies_effect = yes
+			shatter_khanate_effect = yes
+			make_khuzait_khanate_nomadic_effect = yes
+		}
+		### No Feudal Battania or Sturgia ###
+		# Makes sure Battania & Sturgia are NOT feudal #
+		if = {
+			limit = {
+				AND = {
+					game_start_date <= 1084.5.1
+					OR = {
+						exists = title:k_battania.holder
+						exists = title:e_grand_principality_of_sturgia.holder
+					}
+				}
+			}
+			title:k_battania.holder = {
+				every_vassal_or_below = {
+					limit = {
+						has_government = feudal_government
+						culture = {
+							has_cultural_pillar = heritage_battanian
+						}
+					}
+					change_government = tribal_government
+				}
+			}
+			title:e_grand_principality_of_sturgia.holder = {
+				every_vassal_or_below = {
+					limit = {
+						has_government = feudal_government
+					}
+					change_government = tribal_government
+				}
+			}
+		}
+		### CALRADIC KINGS - GAMERULES ###
+		if = {
+		 	limit = {
+				OR = {
+		 			has_game_rule = ck_shatter_all_but_calradians
+					has_game_rule = ck_full_shatter_calradia
+				}
+		 	}
+		 	shatter_kingdoms_and_empires_effect = yes
+		}
+		if = {
+		 	limit = {
+				OR = {
+		 			has_game_rule = ck_shatter_calradian_empires
+					has_game_rule = ck_full_shatter_calradia
+				}
+		 	}
+		 	shatter_calradian_empires_effect = yes
+		}
+		### RELIGIOUS THINGS ###
+		# Set up Holy Site Buildings to be buildable in Holy Sites
+		religion:aserai_religion = {
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_mosque_01
+					}
+				}
+			}
+		}
+		religion:calradian_religion = {
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_cathedral_01
+					}
+				}
+			}
+		}
+		religion:darshi_religion = {
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_fire_temple_01
+					}
+				}
+			}
+		}
+		### Holy Site Special Slots ###
+		religion:shantaya_religion = { ## CK_BUDDHISM CK_shantaya
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_buddhist_grand_temple_01
+					}
+				}
+			}
+		}
+		religion:shintoism_ph_religion = {
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_japanese_temple_01
+					}
+				}
+			}
+		}
+		religion:taoism_ph_religion = {
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_chinese_temple_01
+					}
+				}
+			}
+		}
+		religion:confucianism_religion = {
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_chinese_temple_01
+					}
+				}
+			}
+		}
+		every_religion_global = {
+			limit = {
+				OR = {
+					this = religion:ghavati_religion
+					this = religion:shantaya_religion
+				}
+			}
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_indian_grand_temple_01
+					}
+				}
+			}
+		}
+		every_religion_global = { # CK_RELIGION CK_CHINA - We don't have these religions currently and may not given the map size. Cannot put temporary titles because this effect will force put a SE Asian pagan temple there
+			limit = {
+				OR = {
+					# this = religion:satsana_phi_religion
+					# this = religion:dayawism_religion
+					# this = religion:hantuism_religion
+					# this = religion:satsana_phi_religion
+					this = religion:kaharingan_ph_religion
+					# this = religion:tolotang_religion
+					# this = religion:aluk_religion
+					this = religion:dab_qhuas_ph_religion
+					# this = religion:biliku_religion
+				}
+			}
+			every_faith = {
+				every_holy_site = {
+					limit = {
+						title_province = {
+							has_special_building_slot = no
+						}
+					}
+					title_province = {
+						add_special_building_slot = holy_site_se_asia_pagan_temple_01
+					}
+				}
+			}
+		}
+		### Unavailable Faiths
+		## Warband Faiths not available before 1257
+		if = {
+			limit = {
+				game_start_date < 1257.3.23
+			}
+			faith:darusan = {
+				set_variable = { name = block_conversion_till_decision_taken }
+			}
+			faith:eleftheroi_faith = {
+				set_variable = { name = block_conversion_till_nebulous_circumstances }
+			}
+			faith:krevmetiqstvo = {
+				set_variable = { name = block_conversion_till_warband }
+			}
+			faith:lamentite = {
+				set_variable = { name = block_conversion_till_warband }
+			}
+			faith:excellite = {
+				set_variable = { name = block_conversion_till_warband }
+			}
+			faith:calradistasi = {
+				set_variable = { name = block_conversion_till_warband }
+			}
+			faith:sarranid_faith = {
+				set_variable = { name = block_conversion_till_nebulous_circumstances }
+			}
+		}
+		### 1257 CRUSADE SETUP ###
+		if = {
+			limit = {
+				game_start_date >= 1257.3.23
+			}
+			religion:aserai_religion = {
+				set_variable = {
+					name = variable_ghw_unlocked
+					value = yes
+				}
+			}
+			religion:calradian_religion = {
+				set_variable = {
+					name = variable_ghw_unlocked
+					value = yes
+				}
+			}
+			# set_global_variable = {
+			# 	name = had_first_catholic_crusade
+			# 	value = yes
+			# }
+		}
+		## 1257, set Swadian and Rhodok heritage and language to Esbalian
+		if = {
+			limit = {
+				game_start_date >= 1160.1.1
+			}
+			culture:swadian = {
+				set_heritage_from = culture:tyvallian
+				set_language_from = culture:tyvallian
+			}
+			culture:rhodok = {
+				set_heritage_from = culture:tyvallian
+				set_language_from = culture:tyvallian
+			}
+		}
+		### CALRADIC KINGS - UNIVERSITIES ###
+		title:b_charas.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_ortysia.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_pravend.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_lycaron.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_sanala.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		title:b_razih.title_province = { 
+			if = {
+				limit = {
+					NOT = {
+						has_special_building_slot = yes
+					}
+				}
+				add_special_building_slot = generic_university
+			}
+		}
+		## Add buildings to canon settlements
+		add_canon_buildings_effect = yes
+		## Non-Standard COAs at 976 game start ##
+		# Vlandian CoAs #
+		if = {
+			limit = {
+				game_start_date = 976.8.10
+			}
+			# Change Vlandian from Calradian CoA to Vlandian variant
+			title:c_pravend = { set_coa = c_pravend_vlandian }
+		}
+		## Minor Clan COA's ##
+		if = {
+			limit = {
+				game_start_date <= 1084.5.1
+			}
+			title:d_laamp_embers = { set_coa = laamp_embers }
+			title:d_laamp_boar = { set_coa = laamp_boars }
+			title:d_laamp_vaegirs = { set_coa = laamp_vaegirs }
+			title:d_laamp_barcel = { set_coa = d_laamp_barcel }
+			title:d_laamp_brotherhood = { set_coa = laamp_brotherhood_coa }
+			title:d_laamp_hand = { set_coa = laamp_hand_coa }
+			title:d_laamp_skold = { set_coa = laamp_skold_coa }
+			title:d_laamp_legion = { set_coa = laamp_legion_coa }
+			title:d_laamp_wolfskins = { set_coa = laamp_wolfskins_coa }
+			title:d_laamp_shumsan = { set_coa = laamp_jawwal_coa }
+			title:d_laamp_beni = { set_coa = laamp_beni_coa }
+			title:d_laamp_ghilman = { set_coa = ghilman_coa }
+			title:d_laamp_lakerats = { set_coa = lakerats_coa }
+			title:d_laamp_karakhergit = { set_coa = karakhergit_coa }
+			title:d_laamp_eleftheroi = { set_coa = eleftheroi_coa }
+			title:d_laamp_forest_people = { set_coa = forest_people_coa }
+			title:d_laamp_khergit_1 = { set_coa = laamp_khergit_1 }
+			### Some starter for eleftheroi ###
+			if = {
+				limit = {
+					exists = title:d_laamp_eleftheroi
+				}
+				title:d_laamp_eleftheroi.holder ?= {
+					create_maa_regiment = {
+						type = veteran_eleftheroi
+						check_can_recruit = no
+						size = 6
+					}
+					create_maa_regiment = {
+						type = veteran_eleftheroi
+						check_can_recruit = no
+						size = 6
+					}
+					create_maa_regiment = {
+						type = veteran_eleftheroi
+						check_can_recruit = no
+						size = 3
+					}
+					domicile ?= { # don't starve
+						change_provisions = 3000
+					}
+				}
+			}
+		}
+		### Warband Setup
+		else_if = {
+			limit = {
+				game_start_date >= 1257.3.23
+			}
+			### BOOKMARK USAGE - CK
+			## Rename Titles back to their originals (in history now)
+			1257_set_dynn_coas = yes
+			## LAAMP COA's - Warband
+			title:d_laamp_warriders = { set_coa = laamp_warriders_coa }
+			# Claimant LAAMP COA's -  Placeholders as of 2/17/2026
+			title:d_laamp_isolla = { set_coa = d_laamp_isolla_coa }
+			title:d_laamp_kastor = { set_coa = d_laamp_kastor_coa }
+			title:d_laamp_dustum = { set_coa = d_laamp_dustum_coa }
+			title:d_laamp_lethwin = { set_coa = d_laamp_lethwin_coa }
+			title:d_laamp_arwa = { set_coa = d_laamp_arwa_coa }
+			title:d_laamp_valdym = { set_coa = d_laamp_valdym_coa }
+		}
+		### Setting up dynamic colours - For Bannerlord startdate ###
+		if = {
+			limit = {
+				current_year = 1084
+			}
+			title:e_calradian_empire = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						OR = {
+							tier = tier_duchy
+							tier = tier_kingdom
+						}
+					}
+					set_variable = dynamic_title_colors_var
+				}
+				every_in_de_jure_hierarchy = {
+					limit = {
+						OR = {
+							tier = tier_duchy
+							tier = tier_kingdom
+						}
+						NOR = {
+							this = title:d_weyard
+							this = title:d_charas
+							this = title:d_contiere
+						}
+					}
+					set_variable = original_calradian_title_colors_var
+				}
+			}
+			title:k_battania = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						OR = {
+							tier = tier_duchy
+							tier = tier_kingdom
+						}
+					}
+					set_variable = dynamic_title_colors_var
+				}
+			}
+			title:k_vlandia = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						OR = {
+							tier = tier_duchy
+							tier = tier_kingdom
+						}
+					}
+					set_variable = dynamic_title_colors_var
+					set_variable = original_vlandian_title_colors_var
+				}
+			}
+			title:k_wempire_k_3 = {
+				every_in_de_jure_hierarchy = {
+					limit = {
+						tier = tier_duchy
+						OR = {
+							this = title:d_weyard
+							this = title:d_charas
+							this = title:d_contiere
+						}
+					}
+					set_variable = original_vlandian_title_colors_var
+				}
+			}
+		}
+		### FERTILE LANDS ###
+		# For deserts that are supposed to be very fertile
+		title:c_riqwa = { add_county_modifier = fertile_desert_mountains_modifier }
+		### CALRADIAN BACKWATER COUNTIES ### ## CK_COMPATCH
+		if = {
+			limit = { has_ep3_dlc_trigger = yes }
+			title:c_eiopagys = { add_county_modifier = backwater_county_modifier }
+			title:c_askagra = { add_county_modifier = backwater_county_modifier }
+			title:c_eleutais = { add_county_modifier = backwater_county_modifier }
+			title:c_chersis = { add_county_modifier = backwater_county_modifier }
+			title:c_vasantina = { add_county_modifier = backwater_county_modifier }
+			title:c_monatys = { add_county_modifier = backwater_county_modifier }
+			title:c_morgathys = { add_county_modifier = backwater_county_modifier }
+			title:c_atrion = { add_county_modifier = backwater_county_modifier }
+			title:c_lipathos = { add_county_modifier = backwater_county_modifier }
+			title:c_agalmon = { add_county_modifier = backwater_county_modifier }
+			title:c_obo = { add_county_modifier = backwater_county_modifier }
+			title:c_assinyras = { add_county_modifier = backwater_county_modifier }
+		}
+		### Imperial Academy IN LYCARON ###
+		if = {
+			limit = {
+				has_ep3_dlc_trigger = yes
+				current_date >= 750.1.1
+			}
+			title:c_lycaron = { add_county_modifier = pandidakterion_university_modifier }
+		}
+		### Varangian Guard ###
+		if = {
+			limit = {
+				has_ep3_dlc_trigger = yes
+				current_date >= 976.8.10
+			}
+			title:e_calradian_empire = { set_variable = founded_varangian_guard }
+		}
+		### Nomadic Culture traditions
+		if = {
+			limit = {
+				has_dlc_feature = hybridize_culture
+				NOT = {
+					has_dlc_feature = khans_of_the_steppe
+				}
+			}
+			culture:khergit = {
+				add_culture_tradition = tradition_malleable_invaders
+			}
+			culture:arkits = {
+				add_culture_tradition = tradition_malleable_invaders
+			}
+			culture:khuzait = {
+				add_culture_tradition = tradition_malleable_invaders
+			}
+			culture:nachagan = {
+				add_culture_tradition = tradition_malleable_invaders
+			}
+			# Khiindai / Guzzic
+			culture:kreshnorhe = {
+				add_culture_tradition = tradition_malleable_invaders
+			}
+			culture:yatanborhe = {
+				add_culture_tradition = tradition_malleable_invaders
+			}
+			culture:yolguzz = {
+				add_culture_tradition = tradition_malleable_invaders
+			}
+		}
+
+		if = {
+			limit = {
+				NOT = {
+					has_dlc_feature = khans_of_the_steppe
+				}
+			}
+			culture:khergit = { 
+				add_culture_tradition = tradition_horse_lords 
+				add_culture_tradition = tradition_steppe_tolerance 
+			}
+			culture:arkits = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
+			culture:khuzait = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
+			culture:nachagan = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
+			culture:yolguzz = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
+			culture:yatanborhe = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
+			culture:kreshnorhe = { 
+				add_culture_tradition = tradition_horse_lords 
+			}
+			#culture:turkish = { add_culture_tradition = tradition_horse_lords }
+		}
+		### LEGITIMACY SETUP
+		# 1084
+		if = {
+			limit = { game_start_date = 1084.5.1 }
+			## Basileus Basileios was actually elected, so he's technically legitimate, but starts at level 2. With this he should be level 3.
+			character:Nimp_O_1 = {
+				add_legitimacy = game_start_legitimacy_gain
+				dynasty = {
+					add_dynasty_prestige_level = 2
+					add_dynasty_prestige = 150
+				}
+			}
+			character:Simp_P_1 = {
+				add_legitimacy = game_start_legitimacy_gain
+				dynasty = {
+					add_dynasty_prestige_level = 4
+					add_dynasty_prestige = 300
+				}
+			}
+			character:Wimp_C_1 = {
+				add_legitimacy = game_start_legitimacy_gain
+				dynasty = {
+					add_dynasty_prestige_level = 1
+					add_dynasty_prestige = 75
+				}
+			}
+			character:Battania_FG_1 = {
+				add_legitimacy = 700
+			}
+			character:Sturgia_GR_1 = {
+				add_legitimacy = 500
+				dynasty = {
+					add_dynasty_prestige_level = 1
+				}
+			}
+			character:Aserai_BH_1 = {
+				add_legitimacy = game_start_legitimacy_gain
+				dynasty = {
+					add_dynasty_prestige_level = 2
+					add_dynasty_prestige = 100
+				}
+			}
+			character:Khuzait_UK_1 = {
+				add_legitimacy = 800
+				dynasty = {
+					add_dynasty_prestige_level = 2
+					add_dynasty_prestige = 80
+				}
+			}
+			character:Nimp_N_1 = {
+				dynasty = {
+					add_dynasty_prestige_level = 4
+					add_dynasty_prestige = 525
+				}
+			}
+		}
+		# Kholradyan Empire name game rule
+		if = {
+			limit = {
+				game_start_date >= 1257.3.23
+			}
+			title:e_southern_empire = {
+				if = {
+					limit = {
+						has_game_rule = southern_empire_name_of_southern_empire_1257
+					}
+					set_title_name = e_southern_empire
+				}
+				else_if = {
+					limit = {
+						has_game_rule = calradian_empire_name_of_southern_empire_1247
+					}
+					set_title_name = e_calradian_empire
+				}
+			}
+		}
+
+		
+
+		#### === WARBAND RELATED === ####
+		### Warband Setup
+		if = {
+			limit = {
+				game_start_date >= 1257.3.23
+			}
+			if = {
+				limit = {
+					has_game_rule = ck_shatter_warband
+				}
+				every_kingdom = {
+					limit = {
+						exists = holder
+						NOT = {
+							this = title:k_mytophion # offshore
+						}
+						empire ?= {
+							OR = {
+								this = title:e_west_calradia
+								this = title:e_nords
+								this = title:e_sturgia
+								this = title:e_khergits
+							}
+						}
+						# capital_county.title_province = {
+						# 	geographical_region = region_warband
+						# }
+					}
+					holder ?= {
+						if = {
+							limit = {
+								highest_held_title_tier >= tier_empire
+							}
+							destroy_title = primary_title
+						}
+						destroy_title = prev
+					}
+				}
+			}
+			warband_king_armor = yes
+			# MAKE NORDIC & STURGIC FAITHS REFORMED 
+			faith:jumne = {
+				set_variable = { name = has_been_reformed }
+				remove_doctrine = unreformed_faith_doctrine
+			}
+			faith:northern_gods = {
+				set_variable = { name = has_been_reformed }
+				remove_doctrine = unreformed_faith_doctrine
+			}
+			# Moving Myzead & Eleftheroi Language from Calradic to Glos'Valans
+			# Characters from these cultures will know both languages
+			culture:palaic_myzead = {
+				set_language_from = culture:lascoicau
+			}
+			culture:eleftheroi = {
+				set_language_from = culture:lascoicau
+			}
+			# Spawn in companions into random cities
+			warband_companions_location_effect = yes
+			## Change Khergit name list to name_list_khergit for proper Noyan titles
+			culture:khergit = {
+				set_name_list = name_list_khergit
+				# no more permafrost in calradia
+				if = {
+					limit = {
+						has_dlc_feature = khans_of_the_steppe
+						has_cultural_tradition = tradition_mpo_northern_tribes
+					}
+					#tradition_winter_warriors is now fallback instead of tradition_horse_lords (added in game_start.txt)
+					remove_culture_tradition = tradition_mpo_northern_tribes
+					add_culture_tradition = tradition_devoted_horsemanship
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_game_rule = ck_khergit_clan
+						}
+					}
+					every_culture_county = {
+						if = {
+							limit = {
+								has_game_rule = ck_khergit_nomad
+							}
+							raze_county = {
+								holding_type = nomad_holding
+								purge_secondary_holdings = yes
+							}
+						}
+						else_if = {
+							limit = {
+								has_game_rule = ck_khergit_tribe
+							}
+							raze_county = {
+								holding_type = tribal_holding
+								purge_secondary_holdings = yes
+							}
+						}
+					}
+					if = {
+						limit = {
+							has_game_rule = ck_khergit_tribe
+						}
+						if = {
+							limit = {
+								has_game_rule = situation_the_great_steppe_toggle_on
+								exists = situation:the_great_steppe
+							}
+							# region_warband_khergits + a few extra borders
+							expanding_steppe_add_region_effect = {
+								SUB_REGION = warband
+								REGION = world_steppe_khergits
+							}
+						}
+						every_ruler = {
+							limit = {
+								is_landed = yes
+								culture = culture:khergit
+							}
+							change_government = tribal_government
+						}
+					}
+					else_if = {
+						limit = {
+							has_game_rule = ck_khergit_nomad
+						}
+						if = {
+							limit = {
+								has_game_rule = situation_the_great_steppe_toggle_on
+								# situation:the_great_steppe ?= {
+								# }
+							}
+							# grab the whole region until decision for partial expansion is added
+							expanding_steppe_add_region_effect = {
+								SUB_REGION = warband
+								REGION = region_warband
+							}
+							situation:the_great_steppe = {
+								situation_sub_region:steppe_warband ?= {
+									every_situation_sub_region_participant = {
+										limit = {
+											is_landed = yes
+											culture = culture:khergit
+										}
+										change_government = nomad_government
+										# every_directly_owned_province = {
+										# 	limit = {
+										# 		NOR = {
+										# 			culture = province_owner.culture
+										# 			faith = province_owner.faith
+										# 		}
+										# 	}
+										# }
+									}
+								}
+							}
+						}
+						# why would you play this with situation_the_great_steppe_toggle_off? khergit herders?
+						
+					}
+				}
+			}
+			# was at "base origin" instead of bookmark's 4 value
+			dynasty:dynn_banu_sarran = {
+				if = {
+					limit = {
+						dynasty_prestige_level < 4
+					}
+					add_dynasty_prestige_level = 5
+				}
+			}
+		}
+	}
+}
+ck_game_start_after_lobby = {
+	effect = {
+		#### PULL FROM GAME_START.TXT
+		### Nomadic Setup Game Rule for Khuzaits
+		# Non-Canon Nomads Rule (region = khuzait_non_canon_nomads )
+		if = {
+			limit = {
+				has_mpo_dlc_trigger = yes
+				has_game_rule = ck_non_canon_nomads
+			}
+			every_county_in_region = {
+				region = khuzait_non_canon_nomads
+
+				if = {
+					limit = {
+						holder = {
+							capital_county = {
+								any_county_situation = {
+									# NOT = {
+										situation:the_great_steppe ?= this
+									# }
+								}
+							}
+							highest_held_title_tier = tier_county
+							government_has_flag = government_is_tribal
+							culture = {
+								OR = {
+									has_cultural_pillar = heritage_lir_ovus
+									has_cultural_pillar = heritage_khuzic
+								}
+							}
+						}
+					}
+					holder = {
+						set_variable = {
+							name = steppe_game_start_var
+							years = 1
+						}
+						every_held_title = {
+							if = {
+								limit = {
+									title_province = {
+										has_holding_type = tribal_holding
+									}
+								}
+								title_province = {
+									set_holding_type = nomad_holding
+								}
+							}
+						}
+						change_government = nomad_government
+					}
+				}
+			}
+		}
+		# Duchy Nomads Rule
+		if = {
+			limit = {
+				has_mpo_dlc_trigger = yes
+				has_game_rule = ck_duchy_nomads
+			}
+			situation:the_great_steppe ?= {
+				every_situation_county = {
+					if = {
+						limit = {
+							holder = {
+								capital_county = {
+									any_county_situation = {
+										# NOT = {
+											situation:the_great_steppe ?= this
+										# }
+									}
+								}
+								highest_held_title_tier <= tier_duchy
+								government_has_flag = government_is_tribal
+								culture = {
+									OR = {
+										has_cultural_pillar = heritage_lir_ovus
+										has_cultural_pillar = heritage_khuzic
+									}
+								}
+							}
+						}
+						holder = {
+							set_variable = {
+								name = steppe_game_start_var
+								years = 1
+							}
+							every_held_title = {
+								if = {
+									limit = {
+										title_province = {
+											has_holding_type = tribal_holding
+										}
+									}
+									title_province = {
+										set_holding_type = nomad_holding
+									}
+								}
+							}
+							change_government = nomad_government
+						}
+					}
+				}
+			}
+		}
+		## Whole Khanate
+		make_khuzait_khanate_nomadic_effect = yes
+		## Nahasa Nomadic Steppe Region Setup
+		#Arabia
+		if = {
+		    limit = {
+				has_mpo_dlc_trigger = yes
+				has_game_rule = nahasa_nomad_region_on_on
+			}
+			start_situation = {
+				type = game_rule_extra_nomads_arabs
+				start_phase = situation_steppe_severe_drought_season
+				save_scope_as = my_situation
+				sub_region = {
+					key = arabia_nomads
+					start_phase = situation_steppe_severe_drought_season
+					map_color = { 34 255 76 }
+					geographical_regions = { nahasan_desert_nomad }
+				}
+				sub_region = {
+					key = egypt_nomads
+					start_phase = situation_steppe_abundant_grazing_season
+					map_color = { 24 155 76 }
+					geographical_regions = { nahasan_desert_nomad_east }
+				}
+			}
+			scope:my_situation = {
+				every_situation_county = {
+					limit = {
+						holder = {
+							government_has_flag = government_is_tribal
+							OR = {
+								culture = { has_cultural_pillar = heritage_nahasi }
+								culture = culture:nahrawi
+								culture = culture:tamari
+								is_ai = no
+							}
+						}
+					}
+					holder = {
+						set_variable = {
+							name = steppe_game_start_var
+							years = 1
+						}
+						every_held_title = {
+							if = {
+								limit = {
+									title_province = {
+										has_holding_type = tribal_holding
+									}
+								}
+								title_province = {
+									set_holding_type = nomad_holding
+								}
+							}
+						}
+						change_government = nomad_government
+					}
+				}
+			}
+		}
+		### CHINESE HERITAGE MERIT AND TREASURY
+		if = {
+			limit = {
+				title:h_china.holder ?= top_liege
+				this != top_liege
+			}
+			### TGP MERIT AND TREASURY HANDOUT ON GAME START ###
+			if = {
+				limit = {
+					culture = {
+						has_cultural_pillar = heritage_chinese_ck
+					}
+					NOR = {
+						AND = {
+							has_council_position = councillor_court_chaplain
+							NOT = { has_title = title:e_minister_of_rites }
+						}
+						has_trait = devoted
+					}
+					government_has_flag = government_is_celestial
+					is_faith_dominant_gender = yes
+				}
+				save_temporary_scope_as = exam_contender
+				hidden_effect = {
+					assign_completed_exams_based_on_merit_effect = yes
+				}
+				if = {
+					limit = {
+						any_parent = {
+							OR = {
+								has_trait = ambitious
+								has_trait = scholar
+								has_trait = diligent
+								has_trait = confucian_education
+							}
+						}
+						NOR = {
+							has_trait = lazy
+							has_trait = dull
+							has_trait = intellect_bad
+							location.county ?= {
+								development_level <= bad_development_level
+							}
+						}
+					}
+					add_character_flag = passed_child_exam
+				}
+				if = { # We adjust Merit depending on the dynastic cycle phase
+					limit = {
+						situation:dynastic_cycle ?= {
+							situation_current_phase = situation_dynastic_cycle_phase_stability_advancement
+						}
+					}
+					change_merit = {
+						value = merit
+						multiply = 0.1
+					}
+				}
+				if = {
+					limit = {
+						is_ai = no
+						is_governor_or_admin_count = yes
+					}
+					spawn_celestial_governance_contract_effect = yes
+				}
+			}
+			### Examination pass status and initial wave of governor candidates done after game start, in order to include generated families ###
+			every_courtier = {
+				limit = {
+					is_lowborn = no
+					culture = { has_cultural_pillar = heritage_chinese_ck }
+					NOR = {
+						has_council_position = councillor_court_chaplain
+						has_trait = devoted
+					}
+					government_has_flag = government_is_celestial # courtiers have governments, too!
+					is_faith_dominant_gender = yes
+					age >= 30
+					static_group_filter = {
+						group = ai_filter
+						match = 0.5
+					}
+				}
+				hidden_effect = {
+					add_character_flag = passed_provincial_exam
+					add_character_modifier = {
+						modifier = tgp_passed_provincial_exam_modifier
+					}
+					add_character_flag = passed_metropolitan_exam
+					add_character_modifier = {
+						modifier = tgp_passed_metropolitan_exam_modifier
+					}
+					change_merit = {
+						value = county_starting_merit_value
+						add = age
+						add = learning
+					}
+				}
+			}
+			save_scope_as = governor
+		}
+		### LANDLOCKED NOMADIC CULTURES
+		if = {
+			limit = {
+				has_mpo_dlc_trigger = yes
+				game_start_date < 1257.3.23
+			}
+			#Fully Landlocked Nomad Cultures Setup
+			# every_culture_global = {
+			# 	limit = {
+			# 		OR = {
+			# 			has_cultural_pillar = heritage_khiindai
+			# 			has_cultural_pillar = heritage_chertygic # CK_REPLACE CK_UPDATE CK_NOMAD CK_NORTHEAST - replace with new northeast Ugro equivalent heritage
+			# 		}
+			# 	}
+			# 	add_to_global_variable_list = {
+			# 		name = fully_landlocked_nomad_cultures
+			# 		target = this
+			# 	}
+			# }
+			add_to_global_variable_list = {
+				name = fully_landlocked_nomad_cultures
+				target = culture:khergit
+			}
+			add_to_global_variable_list = {
+				name = fully_landlocked_nomad_cultures
+				target = culture:arkits
+			}
+			add_to_global_variable_list = {
+				name = fully_landlocked_nomad_cultures
+				target = culture:nachagan
+			}
+			add_to_global_variable_list = {
+				name = fully_landlocked_nomad_cultures
+				target = culture:akbeqs
+			}
+			add_to_global_variable_list = {
+				name = fully_landlocked_nomad_cultures
+				target = culture:us_darshi
+			}
+			recalculate_cultural_heads_of_type = herd
+		}
+		### Setup Cultural Acceptance
+		culture:sturgian = {
+			change_cultural_acceptance = {
+				target = culture:nord
+				value = 35
+				desc = cultural_acceptance_historical_relations
+			}
+			change_cultural_acceptance = {
+				target = culture:vakken
+				value = 15
+				desc = cultural_acceptance_historical_relations
+			}
+			change_cultural_acceptance = {
+				target = culture:iltanlar
+				value = 5
+				desc = cultural_acceptance_historical_relations
+			}
+		}
+		culture:pamphian = {
+			change_cultural_acceptance = {
+				target = culture:vlandian
+				value = 25
+				desc = cultural_acceptance_historical_relations
+			}
+		}
+		culture:darshi = {
+			change_cultural_acceptance = {
+				target = culture:aserai
+				value = 20
+				desc = cultural_acceptance_historical_relations
+			}
+		}
+		culture:thogott = {
+			change_cultural_acceptance = {
+				target = culture:azrefi
+				value = 20
+				desc = cultural_acceptance_historical_relations
+			}
+		}
+		## This is for a bookmark cultural tolerance/acceptance, for Warband era 
+		if = {
+			limit = { game_start_date >= 1257.3.23 }
+			# Rhodok
+			culture:rhodok = {
+				change_cultural_acceptance = {
+					target = culture:jendea
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:tojjeredi
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:taevisti
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:konarchi
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+			}
+			# Swadian
+			culture:swadian = {
+				change_cultural_acceptance = {
+					target = culture:vorgott
+					value = 15
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:drenulsi
+					value = 40
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:konarchi
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:tyvallian
+					value = 50
+					desc = cultural_acceptance_historical_relations
+				}
+			}
+			# Nord
+			culture:hacardian = {
+				change_cultural_acceptance = {
+					target = culture:vorgott
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+			}
+			# Vaegir
+			culture:vaegir = {
+				change_cultural_acceptance = {
+					target = culture:vysoicau
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+			}
+			# Sarranid
+			culture:sarranid = {
+				change_cultural_acceptance = {
+					target = culture:tojjeredi
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:taevisti
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+			}
+			### Southwest Nahasa
+			## Sinaysianan Tolerance of Dambayans and Yenkanji, with Tekreans to a lesser extent
+			culture:sinaysian = {
+				change_cultural_acceptance = {
+					target = culture:yenkanji
+					value = 35
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:dambaya
+					value = 25
+					desc = cultural_acceptance_historical_relations
+				}
+				change_cultural_acceptance = {
+					target = culture:tekrali
+					value = 15
+					desc = cultural_acceptance_historical_relations
+				}
+			}
+		}
+		###So player-controlled Rhagaea doesn't immediately abandon widow trait
+		character:Simp_P_1 = {
+		    if = {
+		        limit = {
+		    	    is_ai = no
+		    	}
+		    	add_character_flag = {
+		    	    flag = recently_widowed
+		    		years = 5
+		    	}
+		    }
+		}
+		### Give Imperials their appropriate faction traits ###
+		if = { # SIMPs
+			limit = {
+				AND = {
+					game_start_date = 1084.5.1 
+					exists = title:e_southern_empire.holder
+				}
+			}
+			title:e_southern_empire.holder = {
+				every_vassal = {
+					limit = {
+						is_ai = yes
+						culture = {
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+					save_temporary_scope_as = sempire_game_start_vassal
+					add_trait = ck_royalist
+					if = {
+						limit = {
+							title:e_southern_empire.holder = {
+								NOT = {
+									is_rightful_liege_of = scope:sempire_game_start_vassal
+								}
+							}
+						}
+						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
+					}
+				}
+			}
+		}
+		if = { # NIMPs
+			limit = {
+				AND = {
+					game_start_date = 1084.5.1 
+					exists = title:e_northern_empire.holder
+				}
+
+			}
+			title:e_northern_empire.holder = {
+				every_vassal = {
+					limit = {
+						is_ai = yes
+						culture = {
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+					save_temporary_scope_as = nempire_game_start_vassal
+					add_trait = ck_oligarch
+					if = {
+						limit = {
+							title:e_northern_empire.holder = {
+								NOT = {
+									is_rightful_liege_of = scope:nempire_game_start_vassal
+								}
+							}
+						}
+						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
+					}
+				}
+			}
+		}
+		if = { # WIMPs
+			limit = {
+				AND = {
+					game_start_date = 1084.5.1 
+					exists = title:e_western_empire.holder
+				}
+
+			}
+			title:e_western_empire.holder = {
+				every_vassal = {
+					limit = {
+						is_ai = yes
+						culture = {
+							has_cultural_pillar = heritage_calradian
+						}
+					}
+					save_temporary_scope_as = wempire_game_start_vassal
+					add_trait = ck_militarist
+					if = {
+						limit = {
+							title:e_western_empire.holder = {
+								NOT = {
+									is_rightful_liege_of = scope:wempire_game_start_vassal
+								}
+							}
+						}
+						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
+					}
+				}
+			}
+		}
+		### EP3 SETUP ###
+		if = {
+			limit = { has_ep3_dlc_trigger = yes }
+			### EP3 LAAMP SETUP ###
+			# Resources.
+			every_independent_ruler = {
+				limit = { has_government = landless_adventurer_government }
+				# Cash.
+				add_gold = {
+					value = {
+						value = 0
+						add = prestige
+						add = piety
+						divide = 10
+					}
+				}
+				save_temporary_scope_as = adventurer_scope
+				# Set CoA
+				primary_title = { set_coa = scope:adventurer_scope.house }
+				# Cleanup characters
+				every_councillor = {
+					if = {
+						limit = {
+							NOR = {
+								has_council_position = councillor_court_chaplain
+								has_council_position = councillor_spouse
+							}
+						}
+						scope:adventurer_scope = {
+							fire_councillor = prev
+						}
+						remove_opinion = {
+							modifier = fired_from_council_opinion
+							target = scope:adventurer_scope
+						}
+					}
+					else_if = {
+						limit = {
+							NOR = {
+								is_close_or_extended_family_of = prev
+								has_relation_lover = prev
+								has_relation_friend = prev
+								is_consort_of = prev
+								has_council_position = councillor_spouse
+							}
+						}
+						death = {
+							death_reason = death_vanished
+						}
+					}
+				}
+				# Evict everyone who isn't your family from your camp.
+				every_courtier = {
+					limit = {
+						prev = { save_temporary_scope_as = char_temp }
+						NOR = {
+							dynasty ?= scope:char_temp.dynasty
+							is_imprisoned_by = scope:char_temp
+							# Plus any relations, who are presumably meant to be here.
+							has_important_relationship_with_character_trigger = { CHARACTER = scope:char_temp }
+							# Catch bastards and such that may be left over.
+							is_close_or_extended_family_of = scope:char_temp
+							# you better not be a manhunter
+							has_any_court_position = yes
+							# ...or a womanhunter (could also trigger_if combined with likes_character_trigger)
+							is_consort_of = scope:char_temp
+						}
+					}
+					move_to_pool = yes
+				}
+				# Courtiers.
+				if = {
+					limit = {
+						is_ai = no
+						has_game_rule = ck_backstory_enabled
+						is_from_ruler_designer = yes
+					}
+					trigger_event = ck_backstory.0001
+				}
+				else = {
+					trigger_event = ep3_laamps.1001
+				}
+			}
+			
+			every_independent_ruler = {
+				if = {
+					limit = { is_landless_adventurer = yes }
+					# C... food.
+					domicile = { change_provisions = starting_provisions_value }
+					# Contracts
+					if = {
+						limit = { is_ai = no }
+						# Set up additional firing contracts.
+						player_adventurer_contract_generation_on_wait_in_place_effect = yes
+						#generate contracts if you are far away from your previous location
+						player_adventurer_contract_generation_on_domicile_moved_effect = yes
+					}
+					else = {
+						create_story = { type = story_adventurer_ai }
+						trigger_event = {
+							on_action = on_adventurer_ai_new_employer_arrival
+							days = { 10 30 }
+						}
+						# starting with high martial means they get the perk very often, point them elsewhere
+						if = {
+							limit = {
+								has_perk = gallant_perk
+								has_trait = gallowsbait
+							}
+							remove_perk = gallant_perk
+							# add_wanderer_lifestyle_perk_points = 1
+							random_list = {
+								10 = {
+									add_perk = mustering_the_troops_perk
+								}
+								15 = {
+									add_perk = well_prepared_perk
+								}
+								15 = {
+									add_perk = power_at_home_perk
+								}
+								5 = {
+									add_perk = mercenary_contacts_perk
+								}
+							}
+							set_focus = wanderer_destination_focus
+						}
+					}
+					# Sort our starting flavourisation.
+					if = {
+						limit = { has_realm_law = camp_purpose_mercenaries }
+						set_variable = flavourise_camp_purpose_mercenaries
+					}
+					else_if = {
+						limit = { has_realm_law = camp_purpose_wanderers }
+						set_variable = flavourise_camp_purpose_wanderers
+					}
+					else_if = {
+						limit = { has_realm_law = camp_purpose_scholars }
+						set_variable = flavourise_camp_purpose_scholars
+					}
+					else_if = {
+						limit = { has_realm_law = camp_purpose_explorers }
+						set_variable = flavourise_camp_purpose_explorers
+					}
+					else_if = {
+						limit = { has_realm_law = camp_purpose_brigands }
+						set_variable = flavourise_camp_purpose_brigands
+					}
+					else_if = {
+						limit = { has_realm_law = camp_purpose_legitimists }
+						set_variable = flavourise_camp_purpose_legitimists
+					}
+					# And tally our numbers for performance purposes.
+					add_to_global_variable_list = {
+						name = laamps_tally
+						target = this.primary_title
+					}
+				}
+				### EP3 ADMIN SETUP ###
+				if = {
+					limit = { government_has_mechanic = administrative }
+					save_scope_as = top_liege
+					### EP3 NOBLE FAMILIES & DOMICILE SETUP ###
+					random_held_title = { # May be removed once every_noble_family includes liege (TIT-51212)
+						limit = { is_noble_family_title = yes }
+						set_coa = scope:top_liege.house
+					}
+					every_noble_family = {
+						# Ensure Noble Family CoA match House
+						set_coa = holder.house
+						# Ensure holders of historical noble family titles are the default house heads
+						holder ?= {
+							save_scope_as = nf_holder
+							if = {
+								limit = { is_landed = yes }
+								capital_province = { save_scope_as = domicile_location }
+							}
+							house ?= {
+								if = {
+									limit = { house_head != scope:nf_holder }
+									set_house_head = scope:nf_holder
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		### LANDED RULER BACKSTORIES ENABLED
+		if = {
+			limit = {
+				has_game_rule = ck_landed_backstory_enabled
+			}
+			every_ruler = {
+				limit = {
+					AND = {
+						is_landless_adventurer = no 
+						is_from_ruler_designer = yes
+						is_ai = no
+					}
+				}	
+				trigger_event = ck_backstory.0001
+			}
+		}
+		### Kholradyan naming
+		if = {
+			limit = {
+				game_start_date >= 1257.3.23
+			}
+			title:e_southern_empire = {
+				if = {
+					limit = {
+						has_game_rule = southern_empire_name_of_southern_empire_1257
+					}
+					set_title_name = e_southern_empire
+				}
+				else_if = {
+					limit = {
+						has_game_rule = calradian_empire_name_of_southern_empire_1247
+					}
+					set_title_name = e_calradian_empire
+				}
+			}
+		}
+		### 976-1084-1257 Building Setup
+		if = {
+			limit = {
+				game_start_date >= 976.8.10
+				game_start_date < 1257.3.23
+			}
+			every_province = {
+				limit = {
+					has_holding = yes
+				}
+				generate_building = yes
+				brewery_counter_start_effect = yes
+			}
+			every_domicile = {
+				limit = { exists = owner }
+				switch = {
+					trigger = is_domicile_type
+					estate = {
+						if = {
+							limit = {
+								NOT = { has_domicile_building_or_higher = estate_main_02 }
+								owner.culture ?= { has_innovation = innovation_city_planning }
+							}
+							add_domicile_building = estate_main_02
+							add_random_internal_estate_building = yes
+						}
+						fill_external_estate_building_effect = yes
+					}
+					japanese_manor = {
+						if = {
+							limit = {
+								NOT = { has_domicile_building_or_higher = japanese_manor_main_02 }
+								owner.culture ?= { has_innovation = innovation_city_planning }
+							}
+							add_domicile_building = japanese_manor_main_02
+							add_random_internal_japanese_manor_building = yes
+						}
+						fill_external_japanese_manor_building_effect = yes
+					}
+					east_asian_estate = {
+						if = {
+							limit = {
+								NOT = { has_domicile_building_or_higher = east_asian_estate_main_02 }
+								owner.culture ?= { has_innovation = innovation_city_planning }
+							}
+							add_domicile_building = east_asian_estate_main_02
+							add_random_internal_east_asian_estate_building = yes
+						}
+						fill_external_east_asian_estate_building_effect = yes
+					}
+				}
+			}
+		}
+		# 1178 Buildings
+		else_if = {
+			limit = {
+				game_start_date >= 1257.3.23
+			}
+			every_province = {
+				limit = {
+					has_holding = yes
+				}
+				generate_building = yes
+				generate_building = yes
+				generate_building = yes
+				generate_building = yes
+				generate_building = yes
+				generate_building = yes
+				if = {
+					limit = {
+						county.development_level >= 8
+					}
+					generate_building = yes
+					generate_building = yes
+				}
+				if = {
+					limit = {
+						county.development_level >= 10
+					}
+					generate_building = yes
+				}
+				if = {
+					limit = {
+						county.development_level >= 12
+					}
+					generate_building = yes
+				}
+				if = {
+					limit = {
+						county.development_level >= 14
+					}
+					generate_building = yes
+					generate_building = yes
+				}
+				if = {
+					limit = {
+						county.development_level >= 16
+					}
+					generate_building = yes
+				}
+				if = {
+					limit = {
+						county.development_level >= 18
+					}
+					generate_building = yes
+				}
+				if = {
+					limit = {
+						county.development_level >= 20
+					}
+					generate_building = yes
+				}
+				if = {
+					limit = {
+						county.development_level >= 25
+					}
+					generate_building = yes
+					generate_building = yes
+					generate_building = yes
+				}
+				brewery_counter_start_effect = yes
+			}
+			every_domicile = {
+				#if = { # Left in if we want adventurers to spawn with stuff
+				#	limit = {
+				#		is_domicile_type = camp
+				#	}
+				#	add_domicile_building = camp_main_02
+				#	add_domicile_building = camp_main_03
+				#	random_list = {
+				#		10 = {
+				#			add_domicile_building = supply_tent_01
+				#			add_domicile_building = supply_tent_02
+				#			random_list = {
+				#				10 = {
+				#					add_domicile_building = supply_tent_sutler
+				#				}
+				#				10 = {
+				#					add_domicile_building = supply_tent_mender
+				#				}
+				#				10 = {
+				#					add_domicile_building = supply_tent_smithy
+				#				}
+				#				10 = {
+				#					add_domicile_building = supply_tent_arsenal
+				#				}
+				#			}
+				#		}
+				#		10 = {
+				#			add_domicile_building = barber_tent_01
+				#			add_domicile_building = barber_tent_02
+				#			random_list = {
+				#				10 = {
+				#					add_domicile_building = barber_tent_surgeons_tools
+				#				}
+				#				10 = {
+				#					add_domicile_building = barber_tent_dentists_tools
+				#				}
+				#				10 = {
+				#					add_domicile_building = barber_tent_torturers_tools
+				#				}
+				#			}
+				#		}
+				#		10 = {
+				#			add_domicile_building = baggage_train_01
+				#			add_domicile_building = baggage_train_02
+				#			random_list = {
+				#				10 = {
+				#					add_domicile_building = baggage_train_ample_steeds
+				#				}
+				#				10 = {
+				#					add_domicile_building = baggage_train_porters
+				#				}
+				#				10 = {
+				#					add_domicile_building = baggage_train_trackers
+				#				}
+				#				10 = {
+				#					add_domicile_building = baggage_train_kennel
+				#				}
+				#			}
+				#		}
+				#	}
+				#	random_list = {
+				#		10 = {
+				#			add_domicile_building = mess_tent_01
+				#			add_domicile_building = mess_tent_02
+				#			random_list = {
+				#				10 = {
+				#					add_domicile_building = mess_tent_herbalists
+				#				}
+				#				10 = {
+				#					add_domicile_building = mess_tent_brewers
+				#				}
+				#				10 = {
+				#					add_domicile_building = mess_tent_curers
+				#				}
+				#				10 = {
+				#					add_domicile_building = mess_tent_bakers
+				#				}
+				#				10 = {
+				#					add_domicile_building = mess_tent_cooks
+				#				}
+				#			}
+				#		}
+				#		10 = {
+				#			add_domicile_building = camp_fire_01
+				#			add_domicile_building = camp_fire_02
+				#			random_list = {
+				#				10 = {
+				#					add_domicile_building = camp_fire_trailing_musicians
+				#				}
+				#				10 = {
+				#					add_domicile_building = camp_fire_wandering_poets
+				#				}
+				#				10 = {
+				#					add_domicile_building = camp_fire_capering_fools
+				#				}
+				#				10 = {
+				#					add_domicile_building = camp_fire_libations_for_the_lost
+				#				}
+				#			}
+				#		}
+				#	}
+				#	random_list = {
+				#		10 = {
+				#			add_domicile_building = camp_perimeter_01
+				#			add_domicile_building = camp_perimeter_02
+				#			random_list = {
+				#				10 = {
+				#					add_domicile_building = camp_perimeter_good_siting
+				#				}
+				#				10 = {
+				#					add_domicile_building = camp_perimeter_fixed_layout
+				#				}
+				#			}
+				#		}
+				#		10 = {
+				#			add_domicile_building = proving_grounds_01
+				#			add_domicile_building = proving_grounds_02
+				#		}
+				#	}
+				#}
+				every_domicile = {
+					limit = { exists = owner }
+					switch = {
+						trigger = is_domicile_type
+						estate = {
+							if = {
+								limit = {
+									NOT = { has_domicile_building_or_higher = estate_main_02 }
+									owner.culture ?= { has_innovation = innovation_city_planning }
+								}
+								add_domicile_building = estate_main_02
+								add_random_internal_estate_building = yes
+							}
+							if = {
+								limit = {
+									has_domicile_building = estate_main_02
+									NOT = { has_domicile_building_or_higher = estate_main_03 }
+									owner.culture ?= { has_innovation = innovation_manorialism }
+								}
+								add_domicile_building = estate_main_03
+								while = {
+									count = 2
+									add_random_internal_estate_building = yes
+								}
+							}
+							fill_external_estate_building_effect = yes
+						}
+						japanese_manor = {
+							if = {
+								limit = {
+									NOT = { has_domicile_building_or_higher = japanese_manor_main_02 }
+									owner.culture ?= { has_innovation = innovation_city_planning }
+								}
+								add_domicile_building = japanese_manor_main_02
+								add_random_internal_japanese_manor_building = yes
+							}
+							if = {
+								limit = {
+									has_domicile_building = japanese_manor_main_02
+									NOT = { has_domicile_building_or_higher = japanese_manor_main_03 }
+									owner.culture ?= { has_innovation = innovation_manorialism }
+								}
+								add_domicile_building = japanese_manor_main_03
+								while = {
+									count = 2
+									add_random_internal_japanese_manor_building = yes
+								}
+							}
+							fill_external_japanese_manor_building_effect = yes
+						}
+						east_asian_estate = {
+							if = {
+								limit = {
+									NOT = { has_domicile_building_or_higher = east_asian_estate_main_02 }
+									owner.culture ?= { has_innovation = innovation_city_planning }
+								}
+								add_domicile_building = east_asian_estate_main_02
+								add_random_internal_east_asian_estate_building = yes
+							}
+							if = {
+								limit = {
+									has_domicile_building = east_asian_estate_main_02
+									NOT = { has_domicile_building_or_higher = east_asian_estate_main_03 }
+									owner.culture ?= { has_innovation = innovation_manorialism }
+								}
+								add_domicile_building = east_asian_estate_main_03
+								while = {
+									count = 2
+									add_random_internal_east_asian_estate_building = yes
+								}
+							}
+							fill_external_east_asian_estate_building_effect = yes
+						}
+					}
+				}
+			}
+		}
+		### LAAMP COA SETUP ###
+		if = {
+			limit = {
+				game_start_date <= 1084.5.1
+			}
+			# LAAMP COA's - Bannerlord / Pre-Bannerlord
+			title:d_laamp_embers = { set_coa = laamp_embers }
+			title:d_laamp_boar = { set_coa = laamp_boars }
+			title:d_laamp_vaegirs = { set_coa = laamp_vaegirs }
+			title:d_laamp_barcel = { set_coa = d_laamp_barcel }
+			title:d_laamp_brotherhood = { set_coa = laamp_brotherhood_coa }
+			title:d_laamp_hand = { set_coa = laamp_hand_coa }
+			title:d_laamp_skold = { set_coa = laamp_skold_coa }
+			title:d_laamp_legion = { set_coa = laamp_legion_coa }
+			title:d_laamp_wolfskins = { set_coa = laamp_wolfskins_coa }
+			title:d_laamp_shumsan = { set_coa = laamp_jawwal_coa }
+			title:d_laamp_beni = { set_coa = laamp_beni_coa }
+			title:d_laamp_ghilman = { set_coa = ghilman_coa }
+			title:d_laamp_lakerats = { set_coa = lakerats_coa }
+			title:d_laamp_karakhergit = { set_coa = karakhergit_coa }
+			title:d_laamp_eleftheroi = { set_coa = eleftheroi_coa }
+			title:d_laamp_forest_people = { set_coa = forest_people_coa }
+			title:d_laamp_khergit_1 = { set_coa = laamp_khergit_1 }
+		}
+		### CLAIMANT COA SETUP ###
+		if = {
+			limit = {
+				game_start_date >= 1257.3.23
+			}
+			## Duchy Title Recolors
+			warband_title_renamings_effect = yes
+			warband_duchy_color_recolor = yes
+			## LAAMP COA's - Warband
+			title:d_laamp_warriders = { set_coa = laamp_warriders_coa }
+			# Claimant LAAMP COA's -  Placeholders as of 2/17/2026
+			title:d_laamp_isolla = { set_coa = d_laamp_isolla_coa }
+			title:d_laamp_kastor = { set_coa = d_laamp_kastor_coa }
+			title:d_laamp_dustum = { set_coa = d_laamp_dustum_coa }
+			title:d_laamp_lethwin = { set_coa = d_laamp_lethwin_coa }
+			title:d_laamp_arwa = { set_coa = d_laamp_arwa_coa }
+			title:d_laamp_valdym = { set_coa = d_laamp_valdym_coa }
+		}
+		### HOUSE COA EXEMPTIONS ###
+		ck_game_start_heraldry_default_effect = yes
+		### HOUSE COA FOR TITLES ###
+		if = {
+			limit = {
+				has_game_rule = ck_titles_coa_house_coa
+			}
+			every_ruler = {
+				limit = {
+					is_landed = yes
+					is_lowborn = no
+				}
+				every_held_title = {
+					limit = {
+						NOR = {
+							tier = tier_empire
+							has_variable = default_coa_var
+						}
+					}
+					set_coa = prev.house
+				}
+			}
+		}
+		### SETTING UP DYNASTY PRESTIGE ###
+		ck_house_prestige_level_setup = yes
+
+
+		### SETUP CAMP PURPOSES ###
+			character:jawwal_landless_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_explorers
+				}
+			}
+
+			character:ember_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_brigands
+				}
+			}
+
+			character:west_isle_laamp_barcel ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						has_government = landless_adventurer_government
+					}
+					add_realm_law_skip_effects = camp_purpose_brigands
+				}
+			}
+
+			character:vaegir_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						has_government = landless_adventurer_government
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+
+			character:boar_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						has_government = landless_adventurer_government
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+
+			character:brotherhood_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_brigands
+				}
+			}
+
+			character:hand_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_brigands
+				}
+			}
+
+			character:skold_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+				if = {
+					limit = {
+						is_alive = yes
+						NOT = {
+							has_character_flag = skolderbroda_male_only
+						}
+					}
+					add_character_flag = skolderbroda_male_only
+				}
+			}
+
+			character:legion_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+
+			character:wolf_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_brigands
+				}
+			}
+
+			character:beni_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_brigands
+				}
+			}
+
+			character:khergit_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+
+			character:ghilman_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+
+			character:forest_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+
+			character:khergit_laamp_2 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+
+			character:lakerats_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_brigands
+				}
+			}
+
+			character:eleftheroi_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						is_landless_adventurer = yes
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+			## Warband LAAMPs
+			character:warrider_laamp_1 ?= {
+				if = {
+					limit = {
+						is_alive = yes
+						has_government = landless_adventurer_government
+					}
+					add_realm_law_skip_effects = camp_purpose_mercenaries
+				}
+			}
+
+		### WB effects
+		if = {
+			limit = {
+				game_start_date >= 1257.3.23
+			}
+			# Gamerule: Canonical Families - If enabled, rulers like Harlaus will start with a pre-generated family
+			if = {
+				limit = {
+					NOT = {
+						has_game_rule = ck_canon_single
+					}
+				}
+				# this effect was moved down so the player can be checked
+				ck_warband_canonical_family_effect = yes
+			}
+			# else = {
+ 			# 	# disappear the fake family if true?
+			# }
+			# Destroy the titles of AI claimants, if game rule is enabled
+			if = {
+				limit = {
+					has_game_rule = ck_claimants_no_camps
+				}
+				warband_claimant_destroy_title_effect = yes
+				warband_claimant_location_effect = yes
+			}
+			else_if = {
+				every_duchy = {
+					limit = {
+						is_landless_type_title = yes
+						var:adventurer_creation_reason ?= flag:exile
+						holder ?= { has_variable = wb_claimant }
+					}
+					holder = {
+						if = {
+							limit = {
+								has_game_rule = ck_claimants_off
+							}
+							var:wb_claimant = {
+								holder ?= {
+									save_temporary_scope_as = killer
+								}
+							}
+							if = {
+								limit = {
+									exists = scope:killer
+								}
+								death = {
+									killer = scope:killer
+									death_reason = death_coup_successful
+								}
+							}
+							else = {
+								silent_disappearance_effect = yes
+							}
+						}
+						else_if = {
+							limit = {
+								has_game_rule = ck_claimants_invert
+							}
+							if = {
+								limit = {
+									primary_title.var:can_keep_realm_law ?= flag:equal_law
+								}
+								var:wb_claimant = {
+									set_variable = { name = can_keep_realm_law value = flag:equal_law }
+								}
+							}
+							warband_claimants_retake_effect = yes
+						}
+						else = { # populate contracts without any visits
+							trigger_event = ep3_laamps.9982
+						}
+					}
+				}
+			}
+		}
+	}
+}
+ck_resources = {
+	effect = {
+		##### Resource Setup #####
+		# title:c_askar = {
+		# 	add_county_modifier = {
+		# 		modifier = resource_papyrus
+		# 	}
+		# }
+	}
+}
+
+ck_geroian_events = {
+	trigger = {
+		AND = {
+			exists = capital_province
+			capital_province = {
+				geographical_region = region_perassic_isles
+			}
+		}
+	}
+	random_events = {
+		chance_to_happen = 50
+		150 = 0
+		# Foreign Merchant
+		100 = ck_geroian_events.0020
+		# Warrior Monk
+		75 = ck_geroian_events.0018
+		# Melancholic Ransom Broker
+		10 = ck_geroian_events.0016
+	}
+}
+
+ck_rhodok_events = {
+	trigger = {
+		AND = {
+			exists = capital_province
+			capital_province = {
+				geographical_region = region_rhodokia
+			}
+		}
+	}
+	random_events = { 
+		# ck_rhodok.0002-0004 is for pre-war Grunwalder events
+		100 = ck_rhodok.0002
+		100 = ck_rhodok.0003
+		100 = ck_rhodok.0004
+	}
+}

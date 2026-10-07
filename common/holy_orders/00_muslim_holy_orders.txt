@@ -1,0 +1,400 @@
+﻿###################
+# MILITARY ORDERS #
+###################
+
+# Defined - Ash'ari
+ho_aserai_sahabi_asera = {
+
+	type = military
+	government = holy_order_government
+	title = d_ho_sahabi
+	name = "holy_order_sahabi_of_asera"
+
+	trigger = {
+		trigger_if = {
+			limit = {
+				scope:founder = { has_variable = military_order_game_start_founder }
+			}
+			always = no
+		}
+		trigger_else = {
+			scope:founder.faith = { religion = religion:aserai_religion }
+			# scope:founder.rite = { rite_has_doctrine = muhammad_succession_sunni_doctrine }
+		}
+	}
+
+	weight = {
+		value = 0
+		if = {
+			limit = {
+				scope:founder = {
+					culture = {
+						has_cultural_pillar = heritage_aserai
+					}
+				}
+			}
+			add = 25
+		}
+		if = {
+			limit = {
+				scope:province.county ?= title:c_sahel
+			}
+			add = 200
+		}
+		if = {
+			limit = {
+				scope:province = {
+					kingdom = title:k_kanniq
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:province = {
+					geographical_region = world_nahasa
+				}
+			}
+			add = 25
+		}
+		if = {
+			limit = {
+				current_year < 1150
+			}
+			multiply = 0.5
+		}
+		# if = {
+		# 	limit = {
+		# 		NOT = {scope:founder.faith = faith:aserai_faith }
+		# 	}
+		# 	multiply = 0.05
+		# }
+	}
+}
+ho_aserai_warriors_wahi = {
+
+	type = military
+	government = holy_order_government
+	title = d_ho_wahi
+	name = "holy_order_sahabi_of_asera"
+
+	trigger = {
+		trigger_if = {
+			limit = {
+				scope:founder = { has_variable = military_order_game_start_founder }
+			}
+			always = no
+		}
+		trigger_else = {
+			scope:founder.faith = { religion = religion:aserai_religion }
+			# scope:founder.rite = { rite_has_doctrine = muhammad_succession_sunni_doctrine }
+		}
+	}
+
+	weight = {
+		value = 0
+		if = {
+			limit = {
+				scope:founder = {
+					culture = {
+						has_cultural_pillar = heritage_darshi
+					}
+				}
+			}
+			add = 25
+		}
+		if = {
+			limit = {
+				scope:province.county ?= title:c_husn_fulq
+			}
+			add = 200
+		}
+		if = {
+			limit = {
+				scope:province = {
+					kingdom = title:k_ardiqa
+				}
+			}
+			add = 100
+		}
+		if = {
+			limit = {
+				scope:province = {
+					geographical_region = region_east_nahasa
+				}
+			}
+			add = 25
+		}
+		if = {
+			limit = {
+				current_year < 1150
+			}
+			multiply = 0.5
+		}
+		if = {
+			limit = {
+				NOT = {scope:founder.faith = faith:aserai_faith }
+			}
+			multiply = 0.05
+		}
+	}
+}
+#Dynamic, general muslim
+
+#Culture Ghazis
+ho_muslim_culture_ghazis = {
+	type = military
+	government = holy_order_government
+
+	trigger = {
+		#Stop game start creation
+		trigger_if = {
+			limit = {
+				scope:founder = { has_variable = military_order_game_start_founder }
+			}
+			always = no
+		}
+		trigger_else = {
+			scope:founder.faith.religion = religion:islam_religion
+			#Need to access barony being leased again
+			exists = scope:founder.culture
+			#Check that this dynamic template isn't used with the same title
+			NOT = {
+				scope:leader.faith = {
+					any_faith_holy_order = {
+						title = {
+							has_variable = culture_ghazis
+							var:culture_ghazis = scope:founder.culture
+						}
+					}
+				}
+			}
+		}
+	}
+
+	effect = {
+		#Need to be able to run effects here so I can save the kingdom the first leased barony is in
+		scope:founder.culture = {
+			save_scope_as = culture_ghazis
+		}
+		#Setting the culture as a variable so that we don't get duplicate names
+		set_variable = {
+			name = culture_ghazis
+			value = scope:culture_ghazis
+		}
+		scope:title = {
+			set_variable = {
+				name = order_heritage
+				value = scope:founder.culture
+			}
+		}
+		scope:leader = {
+			if = {
+				limit = {
+					NOT = {
+						has_realm_law = cultural_holy_order_succession_law
+					}
+				}
+				add_realm_law = cultural_holy_order_succession_law
+			}
+		}
+	}
+
+	# this will be used for both the HO name and the title name, since we don't define a title
+	name = "holy_order_culture_ghazis"
+	weight = 10
+}
+
+ho_muslim_ghazis_of_kingdom = {
+	type = military
+	government = holy_order_government
+
+	trigger = {
+		#Stop game start creation
+		trigger_if = {
+			limit = {
+				scope:founder = { has_variable = military_order_game_start_founder }
+			}
+			always = no
+		}
+		trigger_else = {
+			scope:founder.faith.religion = religion:islam_religion
+			#Need to access barony being leased again
+			exists = scope:province.barony.kingdom
+			#Check that this dynamic template isn't used with the same title
+			NOT = {
+				scope:leader.faith = {
+					any_faith_holy_order = {
+						title = {
+							has_variable = kingdom_ghazis
+							var:kingdom_ghazis = scope:province.barony.kingdom
+						}
+					}
+				}
+			}
+		}
+	}
+
+	effect = {
+		#Need to be able to run effects here so I can save the kingdom the first leased barony is in
+		scope:province.barony.kingdom = {
+			save_scope_as = kingdom_ghazis
+		}
+		#Setting the kingdom as a variable so that we don't get duplicate names
+		set_variable = {
+			name = kingdom_ghazis
+			value = scope:kingdom_ghazis
+		}
+	}
+
+	# this will be used for both the HO name and the title name, since we don't define a title
+	name = "holy_order_ghazis_of_kingdom"
+	weight = 10
+
+	#No landed title defined, so the name is automatically reusable
+}
+
+ho_muslim_mujahideen_of_duchy = {
+	type = military
+	government = holy_order_government
+
+	trigger = {
+		#Stop game start creation
+		trigger_if = {
+			limit = {
+				scope:founder = { has_variable = military_order_game_start_founder }
+			}
+			always = no
+		}
+		trigger_else = {
+			scope:founder.faith.religion = religion:islam_religion
+			#Need to access barony being leased again
+			exists = scope:province.barony.duchy
+			#Check that this dynamic template isn't used with the same title
+			NOT = {
+				scope:leader.faith = {
+					any_faith_holy_order = {
+						title = {
+							has_variable = duchy_mujahideen
+							var:duchy_mujahideen = scope:province.barony.duchy
+						}
+					}
+				}
+			}
+		}
+	}
+
+	effect = {
+		#Need to be able to run effects here so I can save the duchy the first leased barony is in
+		scope:province.barony.duchy = {
+			save_scope_as = duchy_mujahideen
+		}
+		#Setting the duchy as a variable so that we don't get duplicate names
+		set_variable = {
+			name = duchy_mujahideen
+			value = scope:duchy_mujahideen
+		}
+	}
+
+	# this will be used for both the HO name and the title name, since we don't define a title
+	name = "holy_order_mujahideen_of_duchy"
+	weight = 10
+}
+
+ho_muslim_ghazis_of_place = {
+	type = military
+	government = holy_order_government
+
+	trigger = {
+		trigger_if = {
+			limit = {
+				scope:founder = {
+					has_variable = {
+						name = military_order_game_start_founder
+					}
+				}
+			}
+			always = no
+		}
+		trigger_else = {
+			scope:founder.faith.religion = religion:islam_religion
+			#Need to access barony being leased again
+			exists = scope:province.barony
+			#Check that this dynamic template isn't used with the same title
+			NOT = {
+				scope:leader.faith = {
+					any_faith_holy_order = {
+						title = {
+							has_variable = ghazis_place
+							var:ghazis_place = scope:province.barony
+						}
+					}
+				}
+			}
+		}
+	}
+
+	effect = {
+		scope:province.barony = {
+			save_scope_as = ghazis_place
+		}
+		set_variable = {
+			name = ghazis_place
+			value = scope:ghazis_place
+		}
+	}
+
+	# this will be used for both the HO name and the title name, since we don't define a title
+	name = "holy_order_ghazis_of_place"
+	weight = 1
+}
+
+ho_muslim_name_order = {
+	type = military
+	government = holy_order_government
+
+	trigger = {
+		#Stop game start creation
+		trigger_if = {
+			limit = {
+				scope:founder = { has_variable = military_order_game_start_founder }
+			}
+			always = no
+		}
+		trigger_else = {
+			scope:founder.faith.religion = religion:islam_religion
+			exists = scope:founder.house
+			NOT = {
+				scope:leader.faith = {
+					any_faith_holy_order = {
+						title = {
+							has_variable = house_order
+							var:house_order = scope:founder.house
+						}
+					}
+				}
+			}
+		}
+	}
+
+	effect = {
+		scope:founder.house = {
+			save_scope_as = house_order
+		}
+		set_variable = {
+			name = house_order
+			value = scope:house_order
+		}
+	}
+
+	name = "holy_order_house_order"
+	weight = 2
+}
+
+###################
+# MONASTIC ORDERS #
+###################
+
+# Fixed
+
+# Dynamic
