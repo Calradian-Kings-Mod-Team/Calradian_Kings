@@ -180,7 +180,7 @@ pam_decision_act_of_devotion = {
 		if = {
 			limit = {
 				has_pam_dlc_trigger = yes
-				religion = religion:christianity_religion
+				religion = religion:calradian_religion
 				situation:the_christian_church ?= {
 					situation_top_has_catalyst = catalyst_the_christian_church_staged_act_of_devotion
 				}
@@ -617,7 +617,7 @@ pam_convert_theocracy_to_feudal_decision = {
 		trigger = {
 			has_tgp_dlc_trigger = yes
 			liege = {
-				culture = { has_cultural_pillar = heritage_japonic }
+				culture = { has_cultural_pillar = heritage_japonic_ck }
 			}
 		}
 		reference = "gfx/interface/illustrations/decisions/tgp_dominance.dds"
@@ -803,7 +803,7 @@ pam_kowtow_to_pope_decision = {
 			situation_current_phase = investiture_crisis
 		}
 		government_is_religious_trigger = no
-		religion ?= religion:christianity_religion
+		religion ?= religion:calradian_religion
 		has_pam_dlc_trigger = yes
 	}
 
@@ -888,7 +888,7 @@ pam_determine_patron_saint_decision = {
 
 	is_shown = {
 		# Christian specific
-		religion ?= religion:christianity_religion
+		religion ?= religion:calradian_religion
 		NOT = { has_variable = pam_chose_patron_saint_var }
 		has_pam_dlc_trigger = yes
 	}
@@ -1090,24 +1090,24 @@ pam_decision_last_rites = {
 
 create_hof_decision = {
 	picture = {
-		trigger = { religion = religion:islam_religion }
+		trigger = { religion = religion:aserai_religion }
 		reference = "gfx/interface/illustrations/holding_types/temple_islamic.dds"
 	}
 	picture = {
-		trigger = { religion = religion:judaism_religion }
+		trigger = { religion = religion:surrani_religion }
 		reference = "gfx/interface/illustrations/holding_types/temple_generic_arid.dds"
 	}
 	picture = {
 		trigger = {
-			OR = {
-				religion = religion:zoroastrianism_religion
-				religion = religion:dualism_religion
-			}
+			# OR = {
+				religion = religion:darshi_religion
+				# religion = religion:dualism_religion
+			# }
 		}
 		reference = "gfx/interface/illustrations/holding_types/fp3_temple_iranian_zoroastrian.dds"
 	}
 	picture = {
-		trigger = { religion = religion:shintoism_religion }
+		trigger = { religion = religion:shintoism_ph_religion }
 		reference = "gfx/interface/illustrations/holding_types/tgp_shinto_temple.dds"
 	}
 	picture = {
@@ -1119,17 +1119,22 @@ create_hof_decision = {
 		reference = "gfx/interface/illustrations/holding_types/temple_india.dds"
 	}
 	picture = {
-		trigger = { religion = religion:tengrism_religion }
+		trigger = {
+			OR = {
+				religion = religion:khuzait_religion
+				religion = religion:guzzic_religion
+			}
+		}
 		reference = "gfx/interface/illustrations/holding_types/mpo_temple_steppe.dds"
 	}
 	picture = {
 		trigger = {
 			OR = {
-				religion = religion:germanic_religion
-				religion = religion:baltic_religion
-				religion = religion:finno_ugric_religion
-				religion = religion:slavic_religion
-				religion = religion:magyar_religion
+				religion = religion:jumne_religion
+				religion = religion:northern_gods_religion
+				religion = religion:vakken_religion
+				# religion = religion:slavic_religion
+				# religion = religion:magyar_religion
 			}
 		}
 		reference = "gfx/interface/illustrations/holding_types/temple_northern_pagan.dds"
@@ -2347,111 +2352,111 @@ pam_shape_the_christian_church_decision = {
 }
 
 # Kingdom of Heaven (Christian HoF hegemony)
-pam_kingdom_of_heaven_decision = {
-	picture = {
-		reference = "gfx/interface/illustrations/decisions/pam_decision_kingdom_of_heaven.dds"
-	}
-	desc = pam_kingdom_of_heaven_decision_desc
-	selection_tooltip = pam_kingdom_of_heaven_decision_tooltip
-	decision_group_type = major
-	sort_order = 125
+# pam_kingdom_of_heaven_decision = {
+# 	picture = {
+# 		reference = "gfx/interface/illustrations/decisions/pam_decision_kingdom_of_heaven.dds"
+# 	}
+# 	desc = pam_kingdom_of_heaven_decision_desc
+# 	selection_tooltip = pam_kingdom_of_heaven_decision_tooltip
+# 	decision_group_type = major
+# 	sort_order = 125
 
-	ai_check_interval_by_tier = {
-		barony = 0
-		county = 0
-		duchy = 0
-		kingdom = 36
-		empire = 24
-		hegemony = 0
-	}
+# 	ai_check_interval_by_tier = {
+# 		barony = 0
+# 		county = 0
+# 		duchy = 0
+# 		kingdom = 36
+# 		empire = 24
+# 		hegemony = 0
+# 	}
 
-	is_shown = {
-		any_held_title = {
-			is_head_of_faith = yes
-		}
-		faith.religion ?= religion:christianity_religion
-		exists = situation:the_christian_church
-		NOT = { has_global_variable = created_kingdom_of_heaven }
-		has_pam_dlc_trigger = yes
-	}
+# 	is_shown = {
+# 		any_held_title = {
+# 			is_head_of_faith = yes
+# 		}
+# 		faith.religion ?= religion:calradian_religion
+# 		exists = situation:the_christian_church
+# 		NOT = { has_global_variable = created_kingdom_of_heaven }
+# 		has_pam_dlc_trigger = yes
+# 	}
 
-	is_valid = {
-		custom_tooltip = {
-			text = pam_kingdom_of_heaven_decision_hof_tt
-			any_held_title = {
-				is_head_of_faith = yes
-			}
-		}
-		custom_tooltip = {
-			text = pam_kingdom_of_heaven_decision_situation_tt
-			top_participant_group:the_christian_church ?= {
-				has_participant_group_parameter = the_christian_church_can_create_kingdom_of_heaven
-			}
-		}
-		custom_tooltip = {
-			text = pam_kingdom_of_heaven_decision_jerusalem_tt
-			completely_controls = title:c_jerusalem
-		}
-		custom_tooltip = {
-			text = pam_kingdom_of_heaven_decision_holy_sites_tt
-			faith = {
-				any_holy_site_barony = {
-					OR = {
-						holder = root
-						holder.top_liege = root
-					}
-					count >= 3
-				}
-			}
-		}
-		custom_tooltip = {
-			text = pam_kingdom_of_heaven_decision_piety_highest_tt
-			pam_kingdom_of_heaven_has_highest_piety_level_in_faith_trigger = yes
-		}
-		custom_tooltip = {
-			text = pam_kingdom_of_heaven_decision_emperor_hooks_tt
-			pam_kingdom_of_heaven_hooks_on_all_faith_emperors_or_none_trigger = yes
-		}
-		custom_tooltip = {
-			text = pam_kingdom_of_heaven_decision_half_faith_tt
-			pam_kingdom_of_heaven_half_faith_in_realm_trigger = yes
-		}
-	}
+# 	is_valid = {
+# 		custom_tooltip = {
+# 			text = pam_kingdom_of_heaven_decision_hof_tt
+# 			any_held_title = {
+# 				is_head_of_faith = yes
+# 			}
+# 		}
+# 		custom_tooltip = {
+# 			text = pam_kingdom_of_heaven_decision_situation_tt
+# 			top_participant_group:the_christian_church ?= {
+# 				has_participant_group_parameter = the_christian_church_can_create_kingdom_of_heaven
+# 			}
+# 		}
+# 		custom_tooltip = {
+# 			text = pam_kingdom_of_heaven_decision_jerusalem_tt
+# 			completely_controls = title:c_charas
+# 		}
+# 		custom_tooltip = {
+# 			text = pam_kingdom_of_heaven_decision_holy_sites_tt
+# 			faith = {
+# 				any_holy_site_barony = {
+# 					OR = {
+# 						holder = root
+# 						holder.top_liege = root
+# 					}
+# 					count >= 3
+# 				}
+# 			}
+# 		}
+# 		custom_tooltip = {
+# 			text = pam_kingdom_of_heaven_decision_piety_highest_tt
+# 			pam_kingdom_of_heaven_has_highest_piety_level_in_faith_trigger = yes
+# 		}
+# 		custom_tooltip = {
+# 			text = pam_kingdom_of_heaven_decision_emperor_hooks_tt
+# 			pam_kingdom_of_heaven_hooks_on_all_faith_emperors_or_none_trigger = yes
+# 		}
+# 		custom_tooltip = {
+# 			text = pam_kingdom_of_heaven_decision_half_faith_tt
+# 			pam_kingdom_of_heaven_half_faith_in_realm_trigger = yes
+# 		}
+# 	}
 
-	is_valid_showing_failures_only = {
-		is_alive = yes
-		is_imprisoned = no
-		is_at_war = no
-		NOT = { has_trait = excommunicated }
-	}
+# 	is_valid_showing_failures_only = {
+# 		is_alive = yes
+# 		is_imprisoned = no
+# 		is_at_war = no
+# 		NOT = { has_trait = excommunicated }
+# 	}
 
-	cost = {
-		piety = monumental_piety_value
-	}
+# 	cost = {
+# 		piety = monumental_piety_value
+# 	}
 
-	effect = {
-		custom_tooltip = pam_kingdom_of_heaven_decision_hegemony_effect_tt
-		custom_tooltip = pam_kingdom_of_heaven_decision_vassals_effect_tt
-		custom_tooltip = pam_kingdom_of_heaven_decision_subjugation_effect_tt
-		custom_tooltip = pam_kingdom_of_heaven_decision_de_jure_effect_tt
-		show_as_tooltip = {
-			dynasty ?= {
-				add_dynasty_prestige = 10000
-				add_dynasty_modifier = pam_founded_kingdom_of_heaven_modifier
-			}
-		}
-		trigger_event = pam_kingdom_of_heaven.0001
-	}
+# 	effect = {
+# 		custom_tooltip = pam_kingdom_of_heaven_decision_hegemony_effect_tt
+# 		custom_tooltip = pam_kingdom_of_heaven_decision_vassals_effect_tt
+# 		custom_tooltip = pam_kingdom_of_heaven_decision_subjugation_effect_tt
+# 		custom_tooltip = pam_kingdom_of_heaven_decision_de_jure_effect_tt
+# 		show_as_tooltip = {
+# 			dynasty ?= {
+# 				add_dynasty_prestige = 10000
+# 				add_dynasty_modifier = pam_founded_kingdom_of_heaven_modifier
+# 			}
+# 		}
+# 		trigger_event = pam_kingdom_of_heaven.0001
+# 	}
 
-	ai_potential = {
-		any_held_title = { is_head_of_faith = yes }
-		exists = situation:the_christian_church
-	}
+# 	ai_potential = {
+# 		any_held_title = { is_head_of_faith = yes }
+# 		exists = situation:the_christian_church
+# 	}
 
-	ai_will_do = {
-		base = 100 # Do it if you can
-	}
-}
+# 	ai_will_do = {
+# 		base = 100 # Do it if you can
+# 	}
+# }
 
 # Proclaim yourself a living voice of the faith and gain the herald trait
 pam_proclaim_living_word_decision = {
@@ -2574,7 +2579,7 @@ pam_prevent_great_schism_decision = {
 			pam_great_schism_progress_value >= pam_great_schism_progress_threshold_value
 		}
 		exists = top_participant_group:the_christian_church
-		faith.religion ?= faith:catholic.religion #Christian Only
+		faith.religion ?= faith:darusan.religion #Christian Only
 	}
 
 	is_valid = {
@@ -2661,7 +2666,7 @@ pam_prevent_great_schism_decision = {
 			every_situation_participant = {
 				limit = {
 					is_ruler = yes
-					faith.religion = religion:christianity_religion
+					faith.religion = religion:calradian_religion
 				}
 				trigger_event = pam_the_christian_church.0062
 			}
@@ -2690,10 +2695,10 @@ pam_cause_great_schism_decision = {
 	is_shown = {
 		NOT = { has_global_variable = pam_great_schism_decision_taken }
 		has_pam_dlc_trigger = yes
-		faith.religion ?= faith:catholic.religion #Christian Only
+		faith.religion ?= faith:darusan.religion #Christian Only
 		exists = top_participant_group:the_christian_church
-		exists = rite:byzantine_rite
-		exists = rite:roman_rite
+		exists = rite:calradic_rite
+		exists = rite:darusan_rite
 		situation:the_christian_church ?= {
 			var:pam_great_schism_status ?= flag:ongoing
 			has_situation_top_phase_parameter = the_christian_church_great_schism
@@ -2811,7 +2816,7 @@ pam_mend_great_schism_decision = {
 	}
 
 	is_shown = {
-		faith.religion ?= faith:catholic.religion #Christian Only
+		faith.religion ?= faith:darusan.religion #Christian Only
 		is_playable_character = yes
 		has_pam_dlc_trigger = yes
 		# Schism has happened
@@ -2824,11 +2829,11 @@ pam_mend_great_schism_decision = {
 			}
 		}
 		# Schism faiths must still exist to merge
-		faith:catholic = {
+		faith:darusan = {
 			num_county_followers > 0
 			exists = religious_head
 		}
-		faith:orthodox = {
+		faith:calradic = {
 			num_county_followers > 0
 			exists = religious_head
 		}
@@ -2872,15 +2877,15 @@ pam_mend_great_schism_decision = {
 		highest_held_title_tier >= tier_kingdom
 		piety_level >= very_high_piety_level
 		faith = { holy_sites_controlled >= 1 }
-		# Orthodox HoF must be on board if not you
+		# Calradic HoF must be on board if not you
 		trigger_if = {
 			limit = {
-				exists = faith:orthodox.religious_head
-				NOT = { faith:orthodox.religious_head = root }
+				exists = faith:calradic.religious_head
+				NOT = { faith:calradic.religious_head = root }
 			}
 			custom_description = {
 				text = pam_prevent_great_schism_orthodox_hof_tt
-				faith:orthodox.religious_head = {
+				faith:calradic.religious_head = {
 					OR = {
 						has_relation_friend = root
 						has_relation_lover = root
@@ -2889,15 +2894,15 @@ pam_mend_great_schism_decision = {
 				}
 			}
 		}
-		# Catholic HoF must be on board if not you
+		# Darusan HoF must be on board if not you
 		trigger_if = {
 			limit = {
-				exists = faith:catholic.religious_head
-				NOT = { faith:catholic.religious_head = root }
+				exists = faith:darusan.religious_head
+				NOT = { faith:darusan.religious_head = root }
 			}
 			custom_description = {
 				text = pam_prevent_great_schism_catholic_hof_tt
-				faith:catholic.religious_head = {
+				faith:darusan.religious_head = {
 					OR = {
 						has_relation_friend = root
 						has_relation_lover = root
@@ -2957,146 +2962,146 @@ pam_mend_great_schism_decision = {
 }
 
 # Unite the Miaphysite Churches - fold the other Miaphysite-communion faith into your own as a rite
-pam_unite_miaphysite_churches_decision = {
-	picture = {
-		reference = "gfx/interface/illustrations/decisions/pam_decision_create_hof.dds"
-	}
-	desc = pam_unite_miaphysite_churches_decision_desc
-	selection_tooltip = pam_unite_miaphysite_churches_decision_tooltip
-	decision_group_type = major
-	sort_order = 2
+# pam_unite_miaphysite_churches_decision = {
+# 	picture = {
+# 		reference = "gfx/interface/illustrations/decisions/pam_decision_create_hof.dds"
+# 	}
+# 	desc = pam_unite_miaphysite_churches_decision_desc
+# 	selection_tooltip = pam_unite_miaphysite_churches_decision_tooltip
+# 	decision_group_type = major
+# 	sort_order = 2
 
-	ai_check_interval_by_tier = {
-		barony = 0
-		county = 0
-		duchy = 0
-		kingdom = 120
-		empire = 120
-		hegemony = 120
-	}
+# 	ai_check_interval_by_tier = {
+# 		barony = 0
+# 		county = 0
+# 		duchy = 0
+# 		kingdom = 120
+# 		empire = 120
+# 		hegemony = 120
+# 	}
 
-	is_shown = {
-		OR = {
-			faith = faith:miaphysitism
-			faith = faith:armenian_apostolic
-		}
-		is_playable_character = yes
-		has_pam_dlc_trigger = yes
-		NOT = { #Can only do it once.
-			is_target_in_global_variable_list = {
-				name = unavailable_unique_decisions
-				target = flag:flag_united_miaphysite_churches
-			}
-		}
-		# Both communion faiths must still exist to merge
-		faith:miaphysitism = {
-			num_county_followers > 0
-			exists = religious_head
-		}
-		faith:armenian_apostolic = {
-			num_county_followers > 0
-			exists = religious_head
-		}
-	}
+# 	is_shown = {
+# 		OR = {
+# 			faith = faith:aren
+# 			faith = faith:qvelgmerti
+# 		}
+# 		is_playable_character = yes
+# 		has_pam_dlc_trigger = yes
+# 		NOT = { #Can only do it once.
+# 			is_target_in_global_variable_list = {
+# 				name = unavailable_unique_decisions
+# 				target = flag:flag_united_miaphysite_churches
+# 			}
+# 		}
+# 		# Both communion faiths must still exist to merge
+# 		faith:miaphysitism = {
+# 			num_county_followers > 0
+# 			exists = religious_head
+# 		}
+# 		faith:armenian_apostolic = {
+# 			num_county_followers > 0
+# 			exists = religious_head
+# 		}
+# 	}
 
-	is_valid = {
-		OR = {
-			custom_description = {
-				text = is_head_of_faith_or_rite_tt
-				subject = root
-				OR = {
-					faith.religious_head ?= this
-					this = rite.head_of_rite
-				}
-			}
-			custom_tooltip = {
-				text = has_theological_agent_puppet_hof_or_hor_tt
-				puppet:theological_agent_puppet ?= {
-					OR = {
-						any_held_title = { is_head_of_faith = yes }
-						this = rite.head_of_rite
-					}
-				}
-			}
-			custom_tooltip = {
-				text = has_external_theological_agent_puppet_hof_or_hor_tt
-				puppet:external_theological_agent_puppet ?= {
-					OR = {
-						any_held_title = { is_head_of_faith = yes }
-						this = rite.head_of_rite
-					}
-				}
-			}
-		}
-		highest_held_title_tier >= tier_kingdom
-		piety_level >= max_piety_level
-		faith = { holy_sites_controlled >= 3 }
-		# The Coptic Pope must be on board if not you
-		trigger_if = {
-			limit = {
-				exists = faith:miaphysitism.religious_head
-				NOT = { faith:miaphysitism.religious_head = root }
-			}
-			custom_description = {
-				text = pam_unite_miaphysite_churches_coptic_hof_tt
-				faith:miaphysitism.religious_head = {
-					OR = {
-						has_relation_friend = root
-						has_relation_lover = root
-						root = { has_hook = prev }
-					}
-				}
-			}
-		}
-		# The Armenian Catholicos must be on board if not you
-		trigger_if = {
-			limit = {
-				exists = faith:armenian_apostolic.religious_head
-				NOT = { faith:armenian_apostolic.religious_head = root }
-			}
-			custom_description = {
-				text = pam_unite_miaphysite_churches_apostolic_hof_tt
-				faith:armenian_apostolic.religious_head = {
-					OR = {
-						has_relation_friend = root
-						has_relation_lover = root
-						root = { has_hook = prev }
-					}
-				}
-			}
-		}
-	}
+# 	is_valid = {
+# 		OR = {
+# 			custom_description = {
+# 				text = is_head_of_faith_or_rite_tt
+# 				subject = root
+# 				OR = {
+# 					faith.religious_head ?= this
+# 					this = rite.head_of_rite
+# 				}
+# 			}
+# 			custom_tooltip = {
+# 				text = has_theological_agent_puppet_hof_or_hor_tt
+# 				puppet:theological_agent_puppet ?= {
+# 					OR = {
+# 						any_held_title = { is_head_of_faith = yes }
+# 						this = rite.head_of_rite
+# 					}
+# 				}
+# 			}
+# 			custom_tooltip = {
+# 				text = has_external_theological_agent_puppet_hof_or_hor_tt
+# 				puppet:external_theological_agent_puppet ?= {
+# 					OR = {
+# 						any_held_title = { is_head_of_faith = yes }
+# 						this = rite.head_of_rite
+# 					}
+# 				}
+# 			}
+# 		}
+# 		highest_held_title_tier >= tier_kingdom
+# 		piety_level >= max_piety_level
+# 		faith = { holy_sites_controlled >= 3 }
+# 		# The Coptic Pope must be on board if not you
+# 		trigger_if = {
+# 			limit = {
+# 				exists = faith:miaphysitism.religious_head
+# 				NOT = { faith:miaphysitism.religious_head = root }
+# 			}
+# 			custom_description = {
+# 				text = pam_unite_miaphysite_churches_coptic_hof_tt
+# 				faith:miaphysitism.religious_head = {
+# 					OR = {
+# 						has_relation_friend = root
+# 						has_relation_lover = root
+# 						root = { has_hook = prev }
+# 					}
+# 				}
+# 			}
+# 		}
+# 		# The Armenian Catholicos must be on board if not you
+# 		trigger_if = {
+# 			limit = {
+# 				exists = faith:armenian_apostolic.religious_head
+# 				NOT = { faith:armenian_apostolic.religious_head = root }
+# 			}
+# 			custom_description = {
+# 				text = pam_unite_miaphysite_churches_apostolic_hof_tt
+# 				faith:armenian_apostolic.religious_head = {
+# 					OR = {
+# 						has_relation_friend = root
+# 						has_relation_lover = root
+# 						root = { has_hook = prev }
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
 
-	is_valid_showing_failures_only = {
-		is_capable_adult = yes
-		is_imprisoned = no
-	}
+# 	is_valid_showing_failures_only = {
+# 		is_capable_adult = yes
+# 		is_imprisoned = no
+# 	}
 
-	cost = {
-		piety = 5000
-	}
+# 	cost = {
+# 		piety = 5000
+# 	}
 
-	effect = {
-		pam_unite_miaphysite_churches_effect = yes
-		dynasty ?= {
-			add_dynasty_prestige = monumental_dynasty_prestige_gain
-		}
-		hidden_effect = {
-			add_to_global_variable_list = {
-				name = unavailable_unique_decisions
-				target = flag:flag_united_miaphysite_churches
-			}
-		}
-	}
+# 	effect = {
+# 		pam_unite_miaphysite_churches_effect = yes
+# 		dynasty ?= {
+# 			add_dynasty_prestige = monumental_dynasty_prestige_gain
+# 		}
+# 		hidden_effect = {
+# 			add_to_global_variable_list = {
+# 				name = unavailable_unique_decisions
+# 				target = flag:flag_united_miaphysite_churches
+# 			}
+# 		}
+# 	}
 
-	ai_potential = {
-		always = yes
-	}
+# 	ai_potential = {
+# 		always = yes
+# 	}
 
-	ai_will_do = {
-		base = 25
-	}
-}
+# 	ai_will_do = {
+# 		base = 25
+# 	}
+# }
 
 # Promulgate Word of Pious Deeds - Boost Papal Election Score and sainthood chance
 pam_promulgate_word_of_pious_deeds_decision = {
@@ -4202,7 +4207,7 @@ pam_raise_khachkar_decision = {
 pam_proclaim_crusade_age_tenet_decision = {
 	picture = {
 		trigger = {
-			faith ?= faith:catholic
+			faith ?= faith:darusan
 		}
 		reference = "gfx/interface/illustrations/event_story/pam_the_christian_church_crusade.dds"
 	}
@@ -4229,11 +4234,11 @@ pam_proclaim_crusade_age_tenet_decision = {
 		has_pam_dlc_trigger = yes
 		years_from_game_start >= 10
 		OR = {
-			faith ?= faith:catholic
-			religion ?= religion:islam_religion
+			faith ?= faith:darusan
+			religion ?= religion:aserai_religion
 		}
 		this = faith.religious_head
-		current_date >= 1066.1.1
+		current_date >= 1160.1.1
 		is_ai = yes
 	}
 
@@ -4256,7 +4261,7 @@ pam_proclaim_crusade_age_tenet_decision = {
 		save_scope_as = hof_scope
 		if = {
 			limit = {
-				faith = faith:catholic
+				faith = faith:darusan
 			}
 			if = { # Remove incompatible tenets
 				limit = {
@@ -4387,11 +4392,11 @@ pam_proclaim_crusade_age_tenet_decision = {
 			add = 50
 			OR = {
 				AND = {
-					faith = faith:catholic
+					faith = faith:darusan
 					pam_any_christian_holy_site_not_under_christian_control_trigger = yes
 				}
 				AND = {
-					religion = religion:islam_religion
+					religion = religion:aserai_religion
 					pam_any_muslim_holy_site_not_under_muslim_control_trigger = yes
 				}
 			}
@@ -4400,7 +4405,7 @@ pam_proclaim_crusade_age_tenet_decision = {
 			add = 100
 			OR = {
 				AND = {
-					title:c_jerusalem.holder = {
+					title:c_charas.holder = {
 						faith.religion != root.religion
 					}
 					current_date >= 1095.1.1
@@ -4441,7 +4446,7 @@ pam_secure_pilgrim_routes_decision = {
 			}
 		}
 		this = faith.religious_head
-		faith ?= faith:catholic
+		faith ?= faith:darusan
 		has_pam_dlc_trigger = yes
 	}
 
@@ -4959,7 +4964,7 @@ pam_persecute_tenet_decision = {
 
 		modifier = { # Completely immersion-breaking
 			add = -200
-			faith = faith:catholic
+			faith = faith:darusan
 			scope:selected_item = {
 				OR = {
 					this = tenet:tenet_communion
@@ -5459,345 +5464,345 @@ consecrate_kingdom_decision = {
 }
 
 # Prepare the Holy Myron, with the artifact's quality set by how far the journey goes
-pam_prepare_holy_myron_decision = {
-	picture = {
-		reference = "gfx/interface/illustrations/decisions/pam_decision_demote_holy_site.dds"
-	}
-	decision_group_type = religious
-	desc = pam_prepare_holy_myron_decision_desc
-	selection_tooltip = pam_prepare_holy_myron_decision_tooltip
-	confirm_text = pam_prepare_holy_myron_decision_confirm
-    sort_order = 111
+# pam_prepare_holy_myron_decision = {
+# 	picture = {
+# 		reference = "gfx/interface/illustrations/decisions/pam_decision_demote_holy_site.dds"
+# 	}
+# 	decision_group_type = religious
+# 	desc = pam_prepare_holy_myron_decision_desc
+# 	selection_tooltip = pam_prepare_holy_myron_decision_tooltip
+# 	confirm_text = pam_prepare_holy_myron_decision_confirm
+#     sort_order = 111
 
-	ai_check_interval_by_tier = {
-		barony = 0
-		county = 0
-		duchy = 70
-		kingdom = 36
-		empire = 36
-		hegemony = 36
-	}
+# 	ai_check_interval_by_tier = {
+# 		barony = 0
+# 		county = 0
+# 		duchy = 70
+# 		kingdom = 36
+# 		empire = 36
+# 		hegemony = 36
+# 	}
 
-	cooldown = { years = 10 }
+# 	cooldown = { years = 10 }
 
-	is_shown = {
-		# Landless heads of faith are is_landed = no, but they still hold a Court Chaplain seat.
-		OR = {
-			is_landed = yes
-			government_has_flag = government_is_theocracy
-		}
-		rite ?= {
-			rite_has_parameter = tenet_holy_myron_artifact
-		}
-		has_pam_dlc_trigger = yes
-	}
+# 	is_shown = {
+# 		# Landless heads of faith are is_landed = no, but they still hold a Court Chaplain seat.
+# 		OR = {
+# 			is_landed = yes
+# 			government_has_flag = government_is_theocracy
+# 		}
+# 		rite ?= {
+# 			rite_has_parameter = tenet_holy_myron_artifact
+# 		}
+# 		has_pam_dlc_trigger = yes
+# 	}
 
-	is_valid = {
-		custom_description = {
-			text = pam_prepare_holy_myron_decision_needs_chaplain
-			cp:councillor_court_chaplain ?= {
-				is_available_adult = yes
-				is_travelling = no
-			}
-		}
-		custom_description = {
-			text = pam_prepare_holy_myron_decision_already_owned
-			pam_has_usable_holy_myron_trigger = no
-		}
-	}
+# 	is_valid = {
+# 		custom_description = {
+# 			text = pam_prepare_holy_myron_decision_needs_chaplain
+# 			cp:councillor_court_chaplain ?= {
+# 				is_available_adult = yes
+# 				is_travelling = no
+# 			}
+# 		}
+# 		custom_description = {
+# 			text = pam_prepare_holy_myron_decision_already_owned
+# 			pam_has_usable_holy_myron_trigger = no
+# 		}
+# 	}
 
-	is_valid_showing_failures_only = {
-		custom_description = {
-			text = pam_prepare_holy_myron_decision_journey_underway
-			# The abort on_action only runs for rulers, so an unlanded chaplain never reaches cleanup
-			trigger_if = {
-				limit = { has_variable = pam_holy_myron_journey_active }
-				NOT = {
-					var:pam_holy_myron_journey_active ?= {
-						is_alive = yes
-						is_travelling = yes
-					}
-				}
-			}
-		}
-	}
+# 	is_valid_showing_failures_only = {
+# 		custom_description = {
+# 			text = pam_prepare_holy_myron_decision_journey_underway
+# 			# The abort on_action only runs for rulers, so an unlanded chaplain never reaches cleanup
+# 			trigger_if = {
+# 				limit = { has_variable = pam_holy_myron_journey_active }
+# 				NOT = {
+# 					var:pam_holy_myron_journey_active ?= {
+# 						is_alive = yes
+# 						is_travelling = yes
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
 
-	# The selected widget option is exposed as a bool scope, so the cost tracks the chosen journey.
-	cost = {
-		gold = {
-			if = {
-				limit = { scope:pam_myron_india_journey ?= yes }
-				value = pam_holy_myron_india_journey_gold_value
-			}
-			else_if = {
-				limit = { scope:pam_myron_arabia_journey ?= yes }
-				value = major_gold_value
-			}
-			else = {
-				value = medium_gold_value
-			}
-		}
-	}
+# 	# The selected widget option is exposed as a bool scope, so the cost tracks the chosen journey.
+# 	cost = {
+# 		gold = {
+# 			if = {
+# 				limit = { scope:pam_myron_india_journey ?= yes }
+# 				value = pam_holy_myron_india_journey_gold_value
+# 			}
+# 			else_if = {
+# 				limit = { scope:pam_myron_arabia_journey ?= yes }
+# 				value = major_gold_value
+# 			}
+# 			else = {
+# 				value = medium_gold_value
+# 			}
+# 		}
+# 	}
 
-	widget = {
-		gui = "decision_view_widget_option_list_generic"
-		controller = decision_option_list_controller
-		decision_to_second_step_button = "SELECT_ACTION"
-		show_from_start = yes
+# 	widget = {
+# 		gui = "decision_view_widget_option_list_generic"
+# 		controller = decision_option_list_controller
+# 		decision_to_second_step_button = "SELECT_ACTION"
+# 		show_from_start = yes
 
-		item = { # Balsam only: Jerusalem
-			value = pam_myron_levant_journey
-			is_default = yes
-			localization = pam_prepare_holy_myron_decision_levant_name
-			current_description = pam_prepare_holy_myron_decision_levant_desc
-			icon = "gfx/interface/icons/artifact/pilgrim_jerusalem.dds"
-			ai_chance = {
-				value = 0
-				if = {
-					limit = {
-						gold < pam_holy_myron_arabia_ai_gold_value
-					}
-					add = 100
-				}
-			}
-		}
-		item = { # Balsam and frankincense: Jerusalem, Dhofar
-			value = pam_myron_arabia_journey
-			is_valid = {
-				custom_tooltip = {
-					text = pam_prepare_holy_myron_decision_afford_arabia_tt
-					gold >= major_gold_value
-				}
-			}
-			localization = pam_prepare_holy_myron_decision_arabia_name
-			current_description = pam_prepare_holy_myron_decision_arabia_desc
-			icon = "gfx/interface/icons/artifact/artifact_icons_unique_artifact_holy_branch.dds"
-			ai_chance = {
-				value = 0
-				if = {
-					limit = {
-						gold >= pam_holy_myron_arabia_ai_gold_value
-						gold < pam_holy_myron_india_ai_gold_value
-					}
-					add = 100
-				}
-			}
-		}
-		item = { # The full recipe: Jerusalem, Dhofar, Kerala
-			value = pam_myron_india_journey
-			is_valid = {
-				custom_tooltip = {
-					text = pam_prepare_holy_myron_decision_afford_india_tt
-					gold >= pam_holy_myron_india_journey_gold_value
-				}
-			}
-			localization = pam_prepare_holy_myron_decision_india_name
-			current_description = pam_prepare_holy_myron_decision_india_desc
-			icon = "gfx/interface/icons/artifact/artifact_pressed_flowers.dds"
-			ai_chance = {
-				value = 0
-				if = {
-					limit = {
-						gold >= pam_holy_myron_india_ai_gold_value
-					}
-					add = 100
-				}
-			}
-		}
-	}
+# 		item = { # Balsam only: Jerusalem
+# 			value = pam_myron_levant_journey
+# 			is_default = yes
+# 			localization = pam_prepare_holy_myron_decision_levant_name
+# 			current_description = pam_prepare_holy_myron_decision_levant_desc
+# 			icon = "gfx/interface/icons/artifact/pilgrim_jerusalem.dds"
+# 			ai_chance = {
+# 				value = 0
+# 				if = {
+# 					limit = {
+# 						gold < pam_holy_myron_arabia_ai_gold_value
+# 					}
+# 					add = 100
+# 				}
+# 			}
+# 		}
+# 		item = { # Balsam and frankincense: Jerusalem, Dhofar
+# 			value = pam_myron_arabia_journey
+# 			is_valid = {
+# 				custom_tooltip = {
+# 					text = pam_prepare_holy_myron_decision_afford_arabia_tt
+# 					gold >= major_gold_value
+# 				}
+# 			}
+# 			localization = pam_prepare_holy_myron_decision_arabia_name
+# 			current_description = pam_prepare_holy_myron_decision_arabia_desc
+# 			icon = "gfx/interface/icons/artifact/artifact_icons_unique_artifact_holy_branch.dds"
+# 			ai_chance = {
+# 				value = 0
+# 				if = {
+# 					limit = {
+# 						gold >= pam_holy_myron_arabia_ai_gold_value
+# 						gold < pam_holy_myron_india_ai_gold_value
+# 					}
+# 					add = 100
+# 				}
+# 			}
+# 		}
+# 		item = { # The full recipe: Jerusalem, Dhofar, Kerala
+# 			value = pam_myron_india_journey
+# 			is_valid = {
+# 				custom_tooltip = {
+# 					text = pam_prepare_holy_myron_decision_afford_india_tt
+# 					gold >= pam_holy_myron_india_journey_gold_value
+# 				}
+# 			}
+# 			localization = pam_prepare_holy_myron_decision_india_name
+# 			current_description = pam_prepare_holy_myron_decision_india_desc
+# 			icon = "gfx/interface/icons/artifact/artifact_pressed_flowers.dds"
+# 			ai_chance = {
+# 				value = 0
+# 				if = {
+# 					limit = {
+# 						gold >= pam_holy_myron_india_ai_gold_value
+# 					}
+# 					add = 100
+# 				}
+# 			}
+# 		}
+# 	}
 
-	effect = {
-		if = {
-			limit = { scope:pam_myron_levant_journey = yes }
-			custom_tooltip = pam_prepare_holy_myron_decision_levant_effect_tt
-			send_interface_toast = {
-				type = event_toast_effect_neutral
-				title = pam_prepare_holy_myron_journey_toast
-				left_icon = cp:councillor_court_chaplain
-				custom_tooltip = pam_prepare_holy_myron_journey_toast_tt
-			}
-			hidden_effect = {
-				set_variable = {
-					name = pam_holy_myron_journey_active
-					value = cp:councillor_court_chaplain
-					years = 30
-				}
-				cp:councillor_court_chaplain = {
-					set_variable = {
-						name = pam_holy_myron_journey_tier
-						value = 1
-						years = 30
-					}
-					set_variable = {
-						name = pam_holy_myron_liege
-						value = root
-						years = 30
-					}
-					set_variable = {
-						name = pam_holy_myron_legs
-						value = 0
-						years = 30
-					}
-					# The homecoming leg is skipped when the destination is already the departure province
-					set_variable = {
-						name = pam_holy_myron_expected_legs
-						value = 2
-						years = 30
-					}
-					if = {
-						limit = { location = title:c_jerusalem.title_province }
-						change_variable = {
-							name = pam_holy_myron_expected_legs
-							subtract = 1
-						}
-					}
-					add_character_modifier = {
-						modifier = pam_holy_myron_pilgrim_modifier
-						years = 30
-					}
-					start_travel_plan = {
-						destination = title:c_jerusalem.title_province
-						return_trip = yes
-						on_arrival_event = pam_holy_myron.0010
-						on_arrival_destinations = all
-					}
-				}
-			}
-		}
-		else_if = {
-			limit = { scope:pam_myron_arabia_journey = yes }
-			custom_tooltip = pam_prepare_holy_myron_decision_arabia_effect_tt
-			send_interface_toast = {
-				type = event_toast_effect_neutral
-				title = pam_prepare_holy_myron_journey_toast
-				left_icon = cp:councillor_court_chaplain
-				custom_tooltip = pam_prepare_holy_myron_journey_toast_tt
-			}
-			hidden_effect = {
-				set_variable = {
-					name = pam_holy_myron_journey_active
-					value = cp:councillor_court_chaplain
-					years = 30
-				}
-				cp:councillor_court_chaplain = {
-					set_variable = {
-						name = pam_holy_myron_journey_tier
-						value = 2
-						years = 30
-					}
-					set_variable = {
-						name = pam_holy_myron_liege
-						value = root
-						years = 30
-					}
-					set_variable = {
-						name = pam_holy_myron_legs
-						value = 0
-						years = 30
-					}
-					set_variable = {
-						name = pam_holy_myron_expected_legs
-						value = 3
-						years = 30
-					}
-					if = {
-						limit = { location = title:c_dhofar.title_province }
-						change_variable = {
-							name = pam_holy_myron_expected_legs
-							subtract = 1
-						}
-					}
-					add_character_modifier = {
-						modifier = pam_holy_myron_pilgrim_modifier
-						years = 30
-					}
-					start_travel_plan = {
-						destination = title:c_jerusalem.title_province
-						destination = title:c_dhofar.title_province
-						return_trip = yes
-						on_arrival_event = pam_holy_myron.0010
-						on_arrival_destinations = all
-					}
-				}
-			}
-		}
-		else = {
-			custom_tooltip = pam_prepare_holy_myron_decision_india_effect_tt
-			send_interface_toast = {
-				type = event_toast_effect_neutral
-				title = pam_prepare_holy_myron_journey_toast
-				left_icon = cp:councillor_court_chaplain
-				custom_tooltip = pam_prepare_holy_myron_journey_toast_tt
-			}
-			hidden_effect = {
-				set_variable = {
-					name = pam_holy_myron_journey_active
-					value = cp:councillor_court_chaplain
-					years = 30
-				}
-				cp:councillor_court_chaplain = {
-					set_variable = {
-						name = pam_holy_myron_journey_tier
-						value = 3
-						years = 30
-					}
-					set_variable = {
-						name = pam_holy_myron_liege
-						value = root
-						years = 30
-					}
-					set_variable = {
-						name = pam_holy_myron_legs
-						value = 0
-						years = 30
-					}
-					set_variable = {
-						name = pam_holy_myron_expected_legs
-						value = 4
-						years = 30
-					}
-					if = {
-						limit = { location = title:c_kerala.title_province }
-						change_variable = {
-							name = pam_holy_myron_expected_legs
-							subtract = 1
-						}
-					}
-					add_character_modifier = {
-						modifier = pam_holy_myron_pilgrim_modifier
-						years = 30
-					}
-					start_travel_plan = {
-						destination = title:c_jerusalem.title_province
-						destination = title:c_dhofar.title_province
-						destination = title:c_kerala.title_province
-						return_trip = yes
-						on_arrival_event = pam_holy_myron.0010
-						on_arrival_destinations = all
-					}
-				}
-			}
-		}
-	}
+# 	effect = {
+# 		if = {
+# 			limit = { scope:pam_myron_levant_journey = yes }
+# 			custom_tooltip = pam_prepare_holy_myron_decision_levant_effect_tt
+# 			send_interface_toast = {
+# 				type = event_toast_effect_neutral
+# 				title = pam_prepare_holy_myron_journey_toast
+# 				left_icon = cp:councillor_court_chaplain
+# 				custom_tooltip = pam_prepare_holy_myron_journey_toast_tt
+# 			}
+# 			hidden_effect = {
+# 				set_variable = {
+# 					name = pam_holy_myron_journey_active
+# 					value = cp:councillor_court_chaplain
+# 					years = 30
+# 				}
+# 				cp:councillor_court_chaplain = {
+# 					set_variable = {
+# 						name = pam_holy_myron_journey_tier
+# 						value = 1
+# 						years = 30
+# 					}
+# 					set_variable = {
+# 						name = pam_holy_myron_liege
+# 						value = root
+# 						years = 30
+# 					}
+# 					set_variable = {
+# 						name = pam_holy_myron_legs
+# 						value = 0
+# 						years = 30
+# 					}
+# 					# The homecoming leg is skipped when the destination is already the departure province
+# 					set_variable = {
+# 						name = pam_holy_myron_expected_legs
+# 						value = 2
+# 						years = 30
+# 					}
+# 					if = {
+# 						limit = { location = title:c_charas.title_province }
+# 						change_variable = {
+# 							name = pam_holy_myron_expected_legs
+# 							subtract = 1
+# 						}
+# 					}
+# 					add_character_modifier = {
+# 						modifier = pam_holy_myron_pilgrim_modifier
+# 						years = 30
+# 					}
+# 					start_travel_plan = {
+# 						destination = title:c_charas.title_province
+# 						return_trip = yes
+# 						on_arrival_event = pam_holy_myron.0010
+# 						on_arrival_destinations = all
+# 					}
+# 				}
+# 			}
+# 		}
+# 		else_if = {
+# 			limit = { scope:pam_myron_arabia_journey = yes }
+# 			custom_tooltip = pam_prepare_holy_myron_decision_arabia_effect_tt
+# 			send_interface_toast = {
+# 				type = event_toast_effect_neutral
+# 				title = pam_prepare_holy_myron_journey_toast
+# 				left_icon = cp:councillor_court_chaplain
+# 				custom_tooltip = pam_prepare_holy_myron_journey_toast_tt
+# 			}
+# 			hidden_effect = {
+# 				set_variable = {
+# 					name = pam_holy_myron_journey_active
+# 					value = cp:councillor_court_chaplain
+# 					years = 30
+# 				}
+# 				cp:councillor_court_chaplain = {
+# 					set_variable = {
+# 						name = pam_holy_myron_journey_tier
+# 						value = 2
+# 						years = 30
+# 					}
+# 					set_variable = {
+# 						name = pam_holy_myron_liege
+# 						value = root
+# 						years = 30
+# 					}
+# 					set_variable = {
+# 						name = pam_holy_myron_legs
+# 						value = 0
+# 						years = 30
+# 					}
+# 					set_variable = {
+# 						name = pam_holy_myron_expected_legs
+# 						value = 3
+# 						years = 30
+# 					}
+# 					if = {
+# 						limit = { location = title:c_dhofar.title_province }
+# 						change_variable = {
+# 							name = pam_holy_myron_expected_legs
+# 							subtract = 1
+# 						}
+# 					}
+# 					add_character_modifier = {
+# 						modifier = pam_holy_myron_pilgrim_modifier
+# 						years = 30
+# 					}
+# 					start_travel_plan = {
+# 						destination = title:c_jerusalem.title_province
+# 						destination = title:c_dhofar.title_province
+# 						return_trip = yes
+# 						on_arrival_event = pam_holy_myron.0010
+# 						on_arrival_destinations = all
+# 					}
+# 				}
+# 			}
+# 		}
+# 		else = {
+# 			custom_tooltip = pam_prepare_holy_myron_decision_india_effect_tt
+# 			send_interface_toast = {
+# 				type = event_toast_effect_neutral
+# 				title = pam_prepare_holy_myron_journey_toast
+# 				left_icon = cp:councillor_court_chaplain
+# 				custom_tooltip = pam_prepare_holy_myron_journey_toast_tt
+# 			}
+# 			hidden_effect = {
+# 				set_variable = {
+# 					name = pam_holy_myron_journey_active
+# 					value = cp:councillor_court_chaplain
+# 					years = 30
+# 				}
+# 				cp:councillor_court_chaplain = {
+# 					set_variable = {
+# 						name = pam_holy_myron_journey_tier
+# 						value = 3
+# 						years = 30
+# 					}
+# 					set_variable = {
+# 						name = pam_holy_myron_liege
+# 						value = root
+# 						years = 30
+# 					}
+# 					set_variable = {
+# 						name = pam_holy_myron_legs
+# 						value = 0
+# 						years = 30
+# 					}
+# 					set_variable = {
+# 						name = pam_holy_myron_expected_legs
+# 						value = 4
+# 						years = 30
+# 					}
+# 					if = {
+# 						limit = { location = title:c_kerala.title_province }
+# 						change_variable = {
+# 							name = pam_holy_myron_expected_legs
+# 							subtract = 1
+# 						}
+# 					}
+# 					add_character_modifier = {
+# 						modifier = pam_holy_myron_pilgrim_modifier
+# 						years = 30
+# 					}
+# 					start_travel_plan = {
+# 						destination = title:c_jerusalem.title_province
+# 						destination = title:c_dhofar.title_province
+# 						destination = title:c_kerala.title_province
+# 						return_trip = yes
+# 						on_arrival_event = pam_holy_myron.0010
+# 						on_arrival_destinations = all
+# 					}
+# 				}
+# 			}
+# 		}
+# 	}
 
-	ai_potential = {
-		is_at_war = no
-		cp:councillor_court_chaplain ?= {
-			is_ai = yes
-			is_available_adult = yes
-			is_travelling = no
-		}
-		pam_has_usable_holy_myron_trigger = no
-		NOR = {
-			has_trait = cynical
-			has_variable = pam_holy_myron_journey_active
-		}
-	}
+# 	ai_potential = {
+# 		is_at_war = no
+# 		cp:councillor_court_chaplain ?= {
+# 			is_ai = yes
+# 			is_available_adult = yes
+# 			is_travelling = no
+# 		}
+# 		pam_has_usable_holy_myron_trigger = no
+# 		NOR = {
+# 			has_trait = cynical
+# 			has_variable = pam_holy_myron_journey_active
+# 		}
+# 	}
 
-	ai_will_do = {
-		base = 100
-	}
-}
+# 	ai_will_do = {
+# 		base = 100
+# 	}
+# }
 
 # Anoint an artifact with the Holy Myron to sanctify it for your faith, spending a charge
 pam_anoint_artifact_decision = {
@@ -5912,13 +5917,13 @@ pam_anoint_artifact_decision = {
 		# The effect tooltip renders before an item is picked, so scope:selected_item can be unset
 		if = {
 			limit = { exists = scope:selected_item }
-			pam_holy_myron_spend_warning_effect = yes
-			hidden_effect = {
-				pam_save_holy_myron_artifact_effect = yes
-				pam_holy_myron_consume_charge_effect = {
-					ARTIFACT = scope:pam_holy_myron_artifact
-				}
-			}
+			# pam_holy_myron_spend_warning_effect = yes
+			# hidden_effect = {
+			# 	pam_save_holy_myron_artifact_effect = yes
+			# 	pam_holy_myron_consume_charge_effect = {
+			# 		ARTIFACT = scope:pam_holy_myron_artifact
+			# 	}
+			# }
 			# Saved before add_sanctified_for_faith, or it becomes a holy relic and the check fails
 			scope:selected_item = {
 				save_scope_as = pam_anointed_artifact
@@ -6345,7 +6350,7 @@ pam_develop_clerical_court_decision = {
 	desc = {
 		first_valid = {
 			triggered_desc = {
-				trigger = { religion = religion:christianity_religion }
+				trigger = { religion = religion:calradian_religion }
 				desc = pam_develop_clerical_court_decision_desc_christian
 			}
 			desc = pam_develop_clerical_court_decision_desc

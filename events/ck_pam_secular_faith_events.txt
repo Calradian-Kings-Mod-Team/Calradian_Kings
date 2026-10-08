@@ -1,0 +1,712 @@
+﻿namespace = pam_secular_faith_events
+
+
+scripted_effect pam_secular_faith_shabbat_rescue_failure_ck_effect = {
+	scope:traveler_in_danger = {
+		increase_wounds_no_death_effect = { REASON = fight }
+		if = {
+			limit = { exists = current_travel_plan }
+			current_travel_plan = { add_travel_plan_modifier = pam_sf_waylaid_road_modifier }
+		}
+	}
+}
+
+pam_secular_faith_events.0002 = {
+	id_override_priority = 120 
+	type = character_event
+	title = pam_secular_faith_events.0002.t
+	desc = pam_secular_faith_events.0002.desc
+	theme = christian
+	override_background = terrain_scope
+	widgets = {
+		widget = { gui = event_window_widget_vfx_heavy_smoke container = foreground_shader_vfx_container }
+	}
+
+	left_portrait = {
+		character = scope:traveler_in_danger
+		animation = sword_yield_start
+		camera = camera_event_right_forward
+	}
+	lower_right_portrait = {
+		character = scope:chaplain
+	}
+
+	cooldown = { years = 10 }
+
+	trigger = {
+		pam_secular_faith_landed_actor_trigger = yes
+		cp:councillor_court_chaplain ?= {
+			is_available_ai_adult = yes
+		}
+		religion = religion:surrani_religion
+		any_held_title = {
+			tier = tier_county
+			any_county_province = {
+				any_character_in_location = {
+					is_ai = yes
+					current_travel_plan.travel_plan_owner ?= this
+					this != root
+					is_physically_able_adult = yes
+				}
+			}
+		}
+	}
+
+	immediate = {
+		cp:councillor_court_chaplain = { save_scope_as = chaplain }
+
+		random_held_title = {
+			limit = {
+				tier = tier_county
+				any_county_province = {
+					any_character_in_location = {
+						is_ai = yes
+						current_travel_plan.travel_plan_owner ?= this
+						this != root
+						is_physically_able_adult = yes
+					}
+				}
+			}
+			random_county_province = {
+				limit = {
+					any_character_in_location = {
+						is_ai = yes
+						current_travel_plan.travel_plan_owner ?= this
+						this != root
+						is_physically_able_adult = yes
+					}
+				}
+				save_scope_as = background_terrain_scope
+				random_character_in_location = {
+					limit = {
+						is_ai = yes
+						current_travel_plan.travel_plan_owner ?= this
+						this != root
+						is_physically_able_adult = yes
+					}
+					save_scope_as = traveler_in_danger
+				}
+			}
+		}
+	}
+
+	option = { # Ride out at once and save them
+		name = pam_secular_faith_events.0002.a
+		add_piety = major_piety_gain
+		pam_secular_faith_shabbat_rescue_success_effect = yes
+		random = {
+			chance = {
+				value = 30
+				subtract = {
+					add = root.prowess
+					multiply = 2
+				}
+				min = 1
+			}
+			increase_wounds_no_death_effect = { REASON = fight }
+		}
+		stress_and_fulfillment_impact = {
+			base = medium_stress_gain
+			craven = massive_stress_impact_gain
+			sadistic = minor_stress_impact_gain
+			callous = minor_stress_impact_gain
+			brave = massive_stress_impact_loss
+			zealous = medium_stress_impact_loss
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				OR = {
+					has_trait = craven
+					has_trait = sadistic
+					has_trait = callous
+					prowess < 10
+				}
+				factor = 0
+			}
+		}
+	}
+
+	option = { # Learning challenge: the higher the learning, the likelier the rescue
+		name = pam_secular_faith_events.0002.b
+		duel = {
+			skill = learning
+			value = high_skill_rating
+			50 = { # Success
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = 3.5
+					min = -49
+				}
+				pam_secular_faith_shabbat_rescue_success_effect = yes
+				add_piety = major_piety_gain
+				scope:chaplain = { add_opinion = { target = root modifier = pious_opinion opinion = 30 } }
+			}
+			50 = { # We took too long
+				compare_modifier = {
+					value = scope:duel_value
+					multiplier = -3.5
+					min = -49
+				}
+				pam_secular_faith_shabbat_rescue_failure_ck_effect = yes
+				scope:chaplain = {
+					add_opinion = {
+						target = root
+						modifier = impious_opinion
+						opinion = -20
+					}
+				}
+			}
+		}
+		stress_and_fulfillment_impact = {
+			impatient = massive_stress_impact_gain
+			sadistic = minor_stress_impact_gain
+			callous = minor_stress_impact_gain
+			humble = medium_stress_impact_loss
+			patient = medium_stress_impact_loss
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				OR = {
+					has_trait = impatient
+					has_trait = sadistic
+					has_trait = callous
+				}
+				factor = 0
+			}
+		}
+	}
+
+	option = { # Do not save them
+		name = pam_secular_faith_events.0002.c
+		pam_secular_faith_shabbat_rescue_failure_ck_effect = yes
+		stress_and_fulfillment_impact = {
+			craven = major_stress_impact_loss
+			brave = massive_stress_impact_gain
+			compassionate = medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 25
+			modifier = {
+				OR = {
+					has_trait = brave
+					has_trait = compassionate
+				}
+				factor = 0
+			}
+		}
+	}
+}
+
+scripted_trigger pam_sf_baptism_convert_valid_ck_trigger = {
+	is_available_ai_adult = yes
+	religion != root.religion
+	religion != religion:surrani_religion
+	NOR = {
+		has_relation_rival = root
+		has_character_flag = ai_will_not_convert
+		culture = {
+			has_cultural_tradition = tradition_diasporic
+		}
+	}
+}
+
+pam_secular_faith_events.0025 = {
+	id_override_priority = 120 
+	type = character_event
+	title = pam_secular_faith_events.0025.t
+	desc = pam_secular_faith_events.0025.desc
+	theme = christian
+	override_background = temple
+
+	left_portrait = {
+		character = root
+		animation = divine_gesture_3
+		camera = camera_event_left_to_the_left
+	}
+	right_portrait = {
+		character = scope:converting_char
+		animation = prayer_standing
+	}
+
+	cooldown = { years = 10 }
+
+	trigger = {
+		pam_secular_faith_christian_actor_trigger = yes
+		faith = { has_doctrine = special_doctrine_darusian } # There's no baptism in the old Calradic Church, only in the Darusan Church
+		any_courtier = {
+			pam_sf_baptism_convert_valid_ck_trigger = yes
+		}
+	}
+
+	immediate = {
+		random_courtier = {
+			limit = { pam_sf_baptism_convert_valid_ck_trigger = yes }
+			save_scope_as = converting_char
+		}
+	}
+
+	option = { # Make it a spectacle
+		name = pam_secular_faith_events.0025.a
+		add_piety = medium_piety_gain
+		scope:converting_char = {
+			set_character_rite = root.rite
+			add_opinion = {
+				modifier = pam_sf_godkin_opinion
+				target = root
+			}
+		}
+		if = {
+			limit = {
+				can_set_relation_friend_trigger = { CHARACTER = scope:converting_char }
+			}
+			set_relation_friend = {
+				reason = pam_sf_friend_godparent
+				target = scope:converting_char
+			}
+		}
+		stress_and_fulfillment_impact = {
+			content = minor_stress_impact_gain
+			humble = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				OR = {
+					has_trait = content
+					has_trait = humble
+				}
+			}
+		}
+	}
+
+	option = { # Secluded ceremony
+		name = pam_secular_faith_events.0025.b
+		change_spiritual_fulfillment = minor_spiritual_fulfillment_value
+		scope:converting_char = {
+			set_character_rite = root.rite
+			add_opinion = {
+				modifier = pam_sf_godkin_opinion
+				target = root
+				opinion = 15
+			}
+		}
+		if = {
+			limit = {
+				can_set_relation_friend_trigger = { CHARACTER = scope:converting_char }
+			}
+			set_relation_friend = {
+				reason = pam_sf_friend_godparent
+				target = scope:converting_char
+			}
+		}
+		stress_and_fulfillment_impact = {
+			arrogant = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				has_trait = arrogant
+			}
+		}
+	}
+
+	option = { # Not interested
+		name = pam_secular_faith_events.0025.c
+		add_prestige = miniscule_prestige_gain
+		stress_and_fulfillment_impact = {
+			zealous = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				has_trait = zealous
+			}
+		}
+	}
+}
+
+
+scripted_trigger pam_secular_faith_events_0027_new_tenet_ck_trigger = {
+	save_temporary_scope_as = pam_sf_tenet_candidate
+	root = {
+		NOR = {
+			any_personal_tenet = { this = scope:pam_sf_tenet_candidate }
+			faith.main_rite = {
+				has_tenet_status = {
+					tenet = scope:pam_sf_tenet_candidate
+					status = prohibited
+				}
+			}
+		}
+	}
+}
+
+pam_secular_faith_events.0027 = {
+	id_override_priority = 120 
+	type = character_event
+	title = pam_secular_faith_events.0027.t
+	desc = pam_secular_faith_events.0027.desc
+	theme = christian
+	override_background = temple
+
+	left_portrait = {
+		character = root
+		animation = mental_anguish
+		camera = camera_event_kneeling
+	}
+
+	widgets = {
+		widget = { gui = event_window_widget_vfx_background_night_scene container = foreground_shader_vfx_container }
+		widget = { gui = event_window_widget_vfx_left_character_night_scene container = foreground_shader_vfx_container }
+		widget = { gui = event_window_widget_vfx_godray container = foreground_shader_vfx_container }
+	}
+
+	cooldown = { years = 10 }
+
+	trigger = {
+		pam_secular_faith_clergy_ok_actor_trigger = yes
+		religion = religion:calradian_religion
+		spiritual_fulfillment < 0
+		any_personal_tenet = { count >= 1 } # The desc names scope:old_tenet
+		any_desired_tenet = {
+			only_positive = yes
+			threshold = 1
+			selection_count = 97
+			pam_secular_faith_events_0027_new_tenet_ck_trigger = yes
+		}
+	}
+
+	immediate = {
+		random_personal_tenet = { save_scope_as = old_tenet }
+		random_desired_tenet = {
+			only_positive = yes
+			threshold = 1
+			selection_count = 97
+			limit = {
+				pam_secular_faith_events_0027_new_tenet_ck_trigger = yes
+			}
+			save_scope_as = new_tenet
+		}
+		random_desired_tenet = {
+			only_positive = yes
+			threshold = 1
+			selection_count = 97
+			limit = {
+				NOT = { scope:new_tenet ?= this }
+				pam_secular_faith_events_0027_new_tenet_ck_trigger = yes
+			}
+			save_scope_as = forbidden_tenet
+		}
+	}
+
+	option = { # Realign your faith to your heart
+		name = pam_secular_faith_events.0027.a
+		force_set_personal_tenet = scope:new_tenet
+		ai_chance = {
+			base = 100
+		}
+	}
+
+	option = { # Find meaning in a hidden truth
+		name = pam_secular_faith_events.0027.b
+		add_internal_flag = dangerous
+		trigger = {
+			exists = scope:forbidden_tenet
+		}
+		force_set_personal_tenet = scope:forbidden_tenet
+		change_spiritual_fulfillment = 50
+		stress_and_fulfillment_impact = {
+			zealous = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = { has_trait = zealous factor = 0 }
+		}
+	}
+
+	option = { # Mask it and go through the motions
+		name = pam_secular_faith_events.0027.c
+		add_intrigue_skill = 1
+		stress_and_fulfillment_impact = {
+			base = minor_stress_impact_gain
+			craven = massive_stress_impact_gain
+			sadistic = minor_stress_impact_gain
+			callous = minor_stress_impact_gain
+			brave = massive_stress_impact_loss
+			zealous = medium_stress_impact_loss
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				OR = {
+					has_trait = craven
+					has_trait = sadistic
+					has_trait = callous
+					prowess < 10
+				}
+				factor = 0
+			}
+		}
+	}
+}
+
+
+scripted_trigger pam_sf_adenmite_valid_trigger = {
+	is_available_healthy_ai_adult = yes
+	has_no_particular_noble_roots_trigger = yes
+	faith = root.faith
+	OR = {
+		has_personality_submissive_trigger = yes
+		has_personality_introverted_trigger = yes
+	}
+}
+
+pam_secular_faith_events.0041 = {
+	id_override_priority = 120 
+	type = character_event
+	title = pam_secular_faith_events.0041.t
+	desc = pam_secular_faith_events.0041.desc
+	theme = christian
+	override_background = garden
+
+	left_portrait = {
+		character = root
+		animation = shock
+		camera = camera_event_very_left
+	}
+	right_portrait = {
+		character = scope:adamite
+		animation = divine_gesture_1
+	}
+
+	cooldown = { years = 50 }
+
+	trigger = {
+		pam_secular_faith_landed_actor_trigger = yes
+		should_be_naked_trigger = no
+		religion = { is_in_family = rf_abrahamic }
+		NOT = {
+			has_personal_tenet = tenet_natural_primitivism
+		}
+		any_pool_character = {
+			province = root.location
+			pam_sf_adenmite_valid_trigger = yes
+		}
+	}
+
+	immediate = {
+		random_pool_character = {
+			province = root.location
+			limit = { pam_sf_adenmite_valid_trigger = yes }
+			hidden_effect = {
+				if = {
+					limit = {
+						root = { is_ai = no } # Avoid flooding the pool with adamites
+						faith != faith:adenmites
+					}
+					set_character_faith = faith:adenmites
+				}
+			}
+			save_scope_as = adamite
+		}
+	}
+
+	option = { # Secretly embrace it yourself
+		name = pam_secular_faith_events.0041.a
+		add_courtier = scope:adamite
+		if = {
+			limit = {
+				NOT = {
+					knows_tenet = tenet_natural_primitivism
+				}
+			}
+			add_known_tenet = tenet_natural_primitivism
+			pam_secular_faith_seed_tenet_message_effect = { TENET = tenet:tenet_natural_primitivism }
+		}
+		force_set_personal_tenet = tenet_natural_primitivism
+		change_spiritual_fulfillment = major_spiritual_fulfillment_value
+		stress_and_fulfillment_impact = {
+			base = medium_stress_impact_loss
+			zealous = medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 1
+			modifier = { has_trait = zealous factor = 0 }
+		}
+	}
+
+	option = { # Hear them out
+		name = pam_secular_faith_events.0041.b
+		add_scholar_trait_or_xp_effect = { VALUE = 10 }
+		if = {
+			limit = {
+				NOT = {
+					knows_tenet = tenet_natural_primitivism
+				}
+			}
+			add_known_tenet = tenet_natural_primitivism
+			pam_secular_faith_seed_tenet_message_effect = { TENET = tenet:tenet_natural_primitivism }
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+
+	option = { # Imprison the trespasser
+		name = pam_secular_faith_events.0041.c
+		add_piety = minor_piety_gain
+		rightfully_imprison_character_effect = {
+			TARGET = scope:adamite
+			IMPRISONER = root
+		}
+		stress_and_fulfillment_impact = {
+			compassionate = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = { has_trait = compassionate factor = 0 }
+		}
+	}
+}
+
+
+pam_secular_faith_events.0058 = {
+	id_override_priority = 120 
+	type = character_event
+	title = pam_secular_faith_events.0058.t
+	desc = pam_secular_faith_events.0058.desc
+	theme = christian
+	override_background = temple
+	widgets = {
+		widget = { gui = event_window_widget_vfx_background_flickering_candlelight container = foreground_shader_vfx_container }
+		widget = { gui = event_window_widget_vfx_left_character_flickering_candlelight container = foreground_shader_vfx_container }
+		widget = { gui = event_window_widget_vfx_right_character_flickering_candlelight container = foreground_shader_vfx_container }
+	}
+
+	left_portrait = {
+		character = root
+		animation = contemplating
+		camera = camera_event_left_to_the_left
+	}
+	right_portrait = {
+		character = scope:chaplain
+		animation = worry
+	}
+
+	cooldown = { years = 30 }
+
+	trigger = {
+		pam_secular_faith_christian_actor_trigger = yes
+		rite = {
+			has_at_least_tenet_status = {
+				tenet = tenet_communion
+				status = permitted
+			}
+		}
+		faith = { has_doctrine = special_doctrine_darusian } # There's no jesus or communion w/o Darusos
+		cp:councillor_court_chaplain ?= {
+			is_available_ai_adult = yes
+		}
+	}
+
+	immediate = {
+		cp:councillor_court_chaplain = { save_scope_as = chaplain }
+	}
+
+	option = { # Scholar: the mouse ate bread, and nothing more
+		name = pam_secular_faith_events.0058.scholar
+		trigger = {
+			has_trait = lifestyle_scholar
+		}
+		show_as_unavailable = { always = yes }
+		add_piety = medium_piety_gain
+		add_scholar_trait_or_xp_effect = { VALUE = 20 }
+		scope:chaplain = {
+			add_opinion = {
+				target = root
+				modifier = respect_opinion
+				opinion = 15
+			}
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+
+	option = { # Blow the negligence out of proportion and drive the chaplain from office
+		name = pam_secular_faith_events.0058.mean
+		trigger = {
+			learning >= 12
+		}
+		show_as_unavailable = { always = yes }
+		add_piety = minor_piety_loss
+		fire_councillor = scope:chaplain
+		scope:chaplain = {
+			select_and_move_to_pool_effect = yes
+			add_opinion = {
+				target = root
+				modifier = hate_opinion
+				opinion = -30
+			}
+		}
+		stress_and_fulfillment_impact = {
+			compassionate = medium_stress_impact_gain
+			humble = medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 25
+			modifier = {
+				factor = 0
+				OR = {
+					has_trait = compassionate
+					has_trait = humble
+					has_trait = just
+				}
+			}
+		}
+	}
+
+	option = { # Buy a pyx with a better lock
+		name = pam_secular_faith_events.0058.a
+		remove_short_term_gold = miniscule_gold_value
+		add_piety = minor_piety_gain
+		stress_and_fulfillment_impact = {
+			greedy = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = { has_trait = greedy factor = 0 }
+		}
+	}
+
+	option = { # Laugh in the poor man's face
+		name = pam_secular_faith_events.0058.b
+		add_stress = minor_stress_loss
+		scope:chaplain = {
+			add_opinion = {
+				target = root
+				modifier = upset_opinion
+				opinion = -10
+			}
+		}
+		stress_and_fulfillment_impact = {
+			zealous = minor_stress_impact_gain
+			compassionate = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				factor = 0
+				OR = {
+					has_trait = zealous
+					has_trait = compassionate
+				}
+			}
+		}
+	}
+}

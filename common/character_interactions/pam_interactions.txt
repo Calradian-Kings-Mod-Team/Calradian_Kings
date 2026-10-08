@@ -3602,14 +3602,6 @@ sway_vassal_to_my_rite_interaction = {
 				NOT = { has_trait = zealous }
 			}
 		}
-		modifier = { # Less likely for Mozarabic priests to try and convert all of Iberia's nobility
-			add = -40
-			scope:puppet_or_actor = {
-				is_clergy = yes
-				rite = rite:mozarabic_church
-			}
-			scope:recipient.rite = scope:recipient.faith.main_rite
-		}
 	}
 }
 
@@ -4218,14 +4210,6 @@ sway_ruler_to_my_rite_interaction = {
 				NOT = { has_trait = zealous }
 			}
 		}
-		modifier = { # Less likely for Mozarabic priests to try and convert all of Iberia's nobility
-			add = -40
-			scope:puppet_or_actor = {
-				is_clergy = yes
-				rite = rite:mozarabic_church
-			}
-			scope:recipient.rite = scope:recipient.faith.main_rite
-		}
 	}
 }
 
@@ -4378,12 +4362,12 @@ pam_sway_schism_stance_interaction = {
 			desc = pam_sway_schism_stance_tenet_aligned_reason
 			OR = {
 				AND = {
-					scope:actor = { pam_schism_stance_supports_rite_trigger = { RITE = byzantine_rite OTHER_RITE = roman_rite } }
-					scope:recipient = { pam_has_personal_tenet_of_rite_trigger = { RITE = byzantine_rite } }
+					scope:actor = { pam_schism_stance_supports_rite_trigger = { RITE = calradic_rite OTHER_RITE = darusan_rite } }
+					scope:recipient = { pam_has_personal_tenet_of_rite_trigger = { RITE = calradic_rite } }
 				}
 				AND = {
-					scope:actor = { pam_schism_stance_supports_rite_trigger = { RITE = roman_rite OTHER_RITE = byzantine_rite } }
-					scope:recipient = { pam_has_personal_tenet_of_rite_trigger = { RITE = roman_rite } }
+					scope:actor = { pam_schism_stance_supports_rite_trigger = { RITE = darusan_rite OTHER_RITE = calradic_rite } }
+					scope:recipient = { pam_has_personal_tenet_of_rite_trigger = { RITE = darusan_rite } }
 				}
 			}
 		}
@@ -4392,12 +4376,12 @@ pam_sway_schism_stance_interaction = {
 			desc = pam_sway_schism_stance_tenet_opposed_reason
 			OR = {
 				AND = {
-					scope:actor = { NOT = { pam_schism_stance_supports_rite_trigger = { RITE = byzantine_rite OTHER_RITE = roman_rite } } }
-					scope:recipient = { pam_has_personal_tenet_of_rite_trigger = { RITE = byzantine_rite } }
+					scope:actor = { NOT = { pam_schism_stance_supports_rite_trigger = { RITE = calradic_rite OTHER_RITE = darusan_rite } } }
+					scope:recipient = { pam_has_personal_tenet_of_rite_trigger = { RITE = calradic_rite } }
 				}
 				AND = {
-					scope:actor = { NOT = { pam_schism_stance_supports_rite_trigger = { RITE = roman_rite OTHER_RITE = byzantine_rite } } }
-					scope:recipient = { pam_has_personal_tenet_of_rite_trigger = { RITE = roman_rite } }
+					scope:actor = { NOT = { pam_schism_stance_supports_rite_trigger = { RITE = darusan_rite OTHER_RITE = calradic_rite } } }
+					scope:recipient = { pam_has_personal_tenet_of_rite_trigger = { RITE = darusan_rite } }
 				}
 			}
 		}
@@ -28508,137 +28492,137 @@ demand_divorce_interaction = {
 # Holy Myron
 
 # Gift a charge of your Holy Myron to another ruler: a fresh single-charge ampulla is filled from yours
-pam_give_holy_myron_interaction = {
-	category = interaction_category_religion
-	icon = religious
-	interface_priority = 35
+# pam_give_holy_myron_interaction = {
+# 	category = interaction_category_religion
+# 	icon = religious
+# 	interface_priority = 35
 
-	desc = pam_give_holy_myron_interaction_desc
+# 	desc = pam_give_holy_myron_interaction_desc
 
-	auto_accept = yes
+# 	auto_accept = yes
 
-	cooldown_against_recipient = { years = 5 }
+# 	cooldown_against_recipient = { years = 5 }
 
-	is_available = {
-		pam_has_usable_holy_myron_trigger = yes
-		has_pam_dlc_trigger = yes
-		is_christian_trigger = yes
-		rite ?= { rite_has_parameter = tenet_holy_myron_artifact_interaction_unlock }
-		trigger_if = {
-			limit = { is_ai = yes }
-			any_character_artifact = {
-				pam_is_holy_myron_artifact_trigger = yes
-				trigger_if = {
-					limit = { has_variable = pam_holy_myron_charges }
-					var:pam_holy_myron_charges >= 3
-				}
-				trigger_else = {
-					always = no
-				}
-			}
-		}
-	}
+# 	is_available = {
+# 		pam_has_usable_holy_myron_trigger = yes
+# 		has_pam_dlc_trigger = yes
+# 		is_christian_trigger = yes
+# 		rite ?= { rite_has_parameter = tenet_holy_myron_artifact_interaction_unlock }
+# 		trigger_if = {
+# 			limit = { is_ai = yes }
+# 			any_character_artifact = {
+# 				pam_is_holy_myron_artifact_trigger = yes
+# 				trigger_if = {
+# 					limit = { has_variable = pam_holy_myron_charges }
+# 					var:pam_holy_myron_charges >= 3
+# 				}
+# 				trigger_else = {
+# 					always = no
+# 				}
+# 			}
+# 		}
+# 	}
 
-	is_shown = {
-		scope:actor != scope:recipient
-		scope:recipient = {
-			is_ruler = yes
-			faith.religion ?= scope:actor.faith.religion
-			pam_has_usable_holy_myron_trigger = no
-		}
-	}
+# 	is_shown = {
+# 		scope:actor != scope:recipient
+# 		scope:recipient = {
+# 			is_ruler = yes
+# 			faith.religion ?= scope:actor.faith.religion
+# 			pam_has_usable_holy_myron_trigger = no
+# 		}
+# 	}
 
-	is_valid_showing_failures_only = {
-		scope:actor = {
-			is_imprisoned = no
-		}
-		scope:recipient = {
-			is_adult = yes
-			is_imprisoned = no
-		}
-	}
+# 	is_valid_showing_failures_only = {
+# 		scope:actor = {
+# 			is_imprisoned = no
+# 		}
+# 		scope:recipient = {
+# 			is_adult = yes
+# 			is_imprisoned = no
+# 		}
+# 	}
 
-	on_accept = {
-		scope:actor = {
-			pam_holy_myron_spend_warning_effect = yes
-			hidden_effect = {
-				pam_save_holy_myron_artifact_effect = yes
-				pam_holy_myron_consume_charge_effect = {
-					ARTIFACT = scope:pam_holy_myron_artifact
-				}
-			}
-			add_piety = medium_piety_gain
-			if = {
-				limit = { is_playable_character = yes }
-				change_spiritual_fulfillment = medium_spiritual_fulfillment_value
-			}
-		}
-		scope:recipient = {
-			send_interface_toast = {
-				type = event_toast_effect_good
-				title = pam_give_holy_myron_recipient_toast
-				left_icon = scope:actor
-				custom_tooltip = pam_give_holy_myron_recipient_tt
-				hidden_effect_new_object = {
-					pam_create_holy_myron_artifact_effect = {
-						OWNER = scope:recipient
-						CREATOR = scope:actor
-						RARITY = common
-					}
-				}
-			}
-			add_opinion = {
-				target = scope:actor
-				modifier = grateful_opinion
-				opinion = 20
-			}
-		}
-	}
+# 	on_accept = {
+# 		scope:actor = {
+# 			pam_holy_myron_spend_warning_effect = yes
+# 			hidden_effect = {
+# 				pam_save_holy_myron_artifact_effect = yes
+# 				pam_holy_myron_consume_charge_effect = {
+# 					ARTIFACT = scope:pam_holy_myron_artifact
+# 				}
+# 			}
+# 			add_piety = medium_piety_gain
+# 			if = {
+# 				limit = { is_playable_character = yes }
+# 				change_spiritual_fulfillment = medium_spiritual_fulfillment_value
+# 			}
+# 		}
+# 		scope:recipient = {
+# 			send_interface_toast = {
+# 				type = event_toast_effect_good
+# 				title = pam_give_holy_myron_recipient_toast
+# 				left_icon = scope:actor
+# 				custom_tooltip = pam_give_holy_myron_recipient_tt
+# 				hidden_effect_new_object = {
+# 					pam_create_holy_myron_artifact_effect = {
+# 						OWNER = scope:recipient
+# 						CREATOR = scope:actor
+# 						RARITY = common
+# 					}
+# 				}
+# 			}
+# 			add_opinion = {
+# 				target = scope:actor
+# 				modifier = grateful_opinion
+# 				opinion = 20
+# 			}
+# 		}
+# 	}
 
-	ai_targets = {
-		ai_recipients = neighboring_rulers
-		ai_recipients = peer_vassals
-		ai_recipients = liege
-		ai_recipients = family
-		ai_recipients = head_of_faith
-	}
+# 	ai_targets = {
+# 		ai_recipients = neighboring_rulers
+# 		ai_recipients = peer_vassals
+# 		ai_recipients = liege
+# 		ai_recipients = family
+# 		ai_recipients = head_of_faith
+# 	}
 
-	ai_target_quick_trigger = {
-		adult = yes
-	}
+# 	ai_target_quick_trigger = {
+# 		adult = yes
+# 	}
 
-	ai_frequency = 120
+# 	ai_frequency = 120
 
-	ai_will_do = {
-		base = 15
-		modifier = {
-			add = 15
-			has_trait = generous
-		}
-		modifier = {
-			add = 15
-			has_trait = zealous
-		}
-		modifier = {
-			add = {
-				value = 10
-				multiply = 2
-			}
-			opinion = {
-				target = scope:recipient
-				value >= 50
-			}
-		}
-		modifier = {
-			factor = 0
-			has_trait = greedy
-		}
-		modifier = {
-			factor = 0
-			has_trait = cynical
-		}
-	}
-}
+# 	ai_will_do = {
+# 		base = 15
+# 		modifier = {
+# 			add = 15
+# 			has_trait = generous
+# 		}
+# 		modifier = {
+# 			add = 15
+# 			has_trait = zealous
+# 		}
+# 		modifier = {
+# 			add = {
+# 				value = 10
+# 				multiply = 2
+# 			}
+# 			opinion = {
+# 				target = scope:recipient
+# 				value >= 50
+# 			}
+# 		}
+# 		modifier = {
+# 			factor = 0
+# 			has_trait = greedy
+# 		}
+# 		modifier = {
+# 			factor = 0
+# 			has_trait = cynical
+# 		}
+# 	}
+# }
 
 seek_communion_interaction = {
 	category = interaction_category_religion
