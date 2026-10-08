@@ -686,8 +686,96 @@ ho_generic_military_kingdom_knight_brothers = {
 	government = holy_order_government
 	type = military
 }
+###################
+# MONASTIC ORDERS #
+###################
 
-## Dynamic Monastic
+# Fixed
+ho_calradic_ulvardites = {
+	type = monastic
+	government = monastic_holy_order_government
+	title = d_benedictine_order
+	name = "holy_order_ulvardites"
+
+	trigger = {
+		trigger_if = {
+			limit = {
+				scope:founder = { has_variable = monastic_game_start_founder }
+				current_year >= 905
+			}
+			scope:province.county ?= title:c_galend ##  CK_120 CK_TODO - Change to the mountain church between Swadia and Rhodok
+		}
+		trigger_else = {
+			scope:founder = {
+				faith = {
+					has_doctrine_parameter = is_western_christian_faith
+				}
+				location ?= {
+					geographical_region = region_vlandia
+				}
+			}
+		}
+	}
+
+	weight = {
+		value = 1
+		#Should be founded in Italy
+		if = {
+			limit = {
+				scope:province.county ?= title:c_galend
+			}
+			add = 5
+		}
+		#Trying to put benedictines here on game start
+		if = {
+			limit = {
+				years_from_game_start < 1
+				current_year >= 867
+				
+				scope:province.county ?= title:c_galend
+			}
+			add = 10000
+		}
+		if = {
+			limit = {
+				scope:province = {
+					OR = {
+						kingdom = title:k_rhodok
+						kingdom = title:k_vlandia
+					}
+				}
+			}
+			add = 5
+		}
+	}
+
+	effect = {
+		if = {
+			limit = {
+				scope:founder = { has_variable = monastic_game_start_founder }
+				current_year >= 1178
+			}
+			scope:new_holy_order = { set_order_tenet = tenet:tenet_simony }
+		}
+		else_if = {
+			limit = {
+				scope:founder = { has_variable = monastic_game_start_founder }
+				current_year >= 1066
+			}
+			scope:new_holy_order = { set_order_tenet = tenet:tenet_dulia }
+		}
+		else_if = {
+			limit = {
+				scope:founder = { has_variable = monastic_game_start_founder }
+				current_year >= 867
+			}
+			scope:new_holy_order = { set_order_tenet = tenet:tenet_ora_et_labora }
+		}
+	}
+}
+
+
+# DYNAMIC MONASTIC
 ho_generic_monastic_culture_abbeys = {
 
 	trigger = {
