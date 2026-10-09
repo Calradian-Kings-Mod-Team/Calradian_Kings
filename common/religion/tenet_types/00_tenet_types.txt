@@ -4323,59 +4323,80 @@ tenet_islamic_syncretism = {
 	}
 }
 
-# tenet_jewish_syncretism = {
-# 	icon = core_tenet_jewish_syncretism
+tenet_jewish_syncretism = {
+	icon = core_tenet_jewish_syncretism
 
-# 	piety_cost = {
-# 		if = {
-# 			limit = {
-# 				OR = {
-					
-# 					rite_religion_tag = calradian_religion
-# 					rite_religion_tag = darshi_religion
-# 				}
-# 			}
-# 			value = faith_tenet_cost_low
-# 		}
-# 		else = {
-# 			value = faith_tenet_cost_mid
-# 		}
+	piety_cost = {
+		if = {
+			limit = {
+				religion = { is_in_family = rf_nahasan }
+			}
+			value = faith_tenet_cost_low
+		}
+		else = {
+			value = faith_tenet_cost_mid
+		}
 
-# 		# Multiplier for keeping same tenet
-# 		if = {
-# 			limit = { has_doctrine = tenet_jewish_syncretism }
-# 			multiply = faith_unchanged_doctrine_cost_mult
-# 		}
-# 	}
+		# Multiplier for keeping same tenet
+		if = {
+			limit = { rite_has_parameter = jewish_syncretic_actor }
+			multiply = faith_unchanged_doctrine_cost_mult
+		}
+	}
 
-# 	is_shown = {
-# 		NOT = {  }
-# 	}
-# 	can_pick = {
-# 		custom_description = {
-# 			text = incompatible_tenet_other_syncretism_trigger
-# 			NOR = {
-# 				doctrine:tenet_eastern_syncretism = { is_in_list = selected_doctrines }
-# 				doctrine:tenet_unreformed_syncretism = { is_in_list = selected_doctrines }
-# 				doctrine:tenet_christian_syncretism = { is_in_list = selected_doctrines }
-# 				doctrine:tenet_islamic_syncretism = { is_in_list = selected_doctrines }
-# 			}
-# 		}
-# 	}
+	can_pick = {
+		NOT = { religion = religion:surrani_religion }
+		unique_syncretism_trigger = yes
+		trigger_if = {
+			limit = { scope:actor ?= { is_ai = yes } }
+			scope:actor = { pam_ai_meaningful_jewish_presence_trigger = yes }
+		}
+	}
 
-# 	parameters = {
-# 		hostility_override_special_doctrine_is_jewish_faith = 2
-# 		# This parameter is empty; the syncretic religious trigger checks against the doctrine, as that's much clearer in tooltips and allows us to use a unified syncretic trigger per-religion rather than having bitty situational triggers.
-# 		can_use_jewish_artefacts = yes
-# 		jewish_syncretic_actor_opinion_active = yes
-# 		opinion_of_jewish_syncretic_recipient_opinion_active = 30 #Sync this to syncretic_mutual_opinion_bonus_value
-# 	}
+	can_pick_as_personal_tenet = {
+		NOT = {
+			faith = { religion = religion:surrani_religion }
+		}
+		trigger_if = {
+			limit = { is_ai = yes }
+			pam_ai_meaningful_jewish_presence_trigger = yes
+		}
+	}
 
-# 	traits = {
-# 		virtues = { patient }
-# 		sins = { cynical greedy }
-# 	}
-# }
+	personal_tenet_parameters = {
+		tenet_syncretism_invite_religious_exiles
+		tenet_syncretism_county_bonus
+		can_use_jewish_artifacts
+		tenet_jewish_syncretism_study_rite_bonus
+	}
+
+	parameters = {
+		can_use_jewish_artifacts
+		jewish_syncretic_actor
+		tenet_jewish_syncretism_study_rite_bonus
+		unreformed_syncretic_conversion_malus_active
+	}
+
+	special_parameters = {
+		hostility_level_override = {
+			special_doctrine_is_jewish_faith = astray
+		}
+		parameter_opinion_override = {
+			#Sync this to syncretic_mutual_opinion_bonus_value
+			jewish_syncretic_recipient = 30
+		}
+	}
+
+	traits = {
+		virtues = { 
+			patient = { weight = 15 scale = 1 }
+		}
+		sins = { 
+			greedy = { weight = 10 scale = 1 }
+			cynical = { weight = 10 scale = 1 }
+		}
+	}
+}
 
 #############################
 # Custom Faith Tenets		#

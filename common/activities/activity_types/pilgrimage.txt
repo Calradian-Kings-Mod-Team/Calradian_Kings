@@ -1401,7 +1401,7 @@
 			pilgrimage_type_pious = {
 				#Crashes [sometimes] if you start the game with a ruler where this is default then tag over to another ruler where this isn't default
 				default = {
-					always = no
+					always = yes
 					# No hajj
 				}
 				is_valid = {
@@ -2744,117 +2744,116 @@
 		#Set up Hajj memories
 		#Otherwise set up Pilgrimage memories
 		#For the follow-up reflective event when back home, triggered through travel_plan_completion on_action
-			set_variable = {
-				name = has_completed_pilgrimage
-				value = flag:pilgrimage
-			}
-			if = {
-				limit = { var:has_completed_pilgrimage ?= flag:pilgrimage }
-				#To prevent 'unused except in loc' errors :catto:
-			}
-			#Create a memory of your very first pilgrimage
-			if = {
-				limit = { 
-					NOT = {
-						any_memory = {
-							memory_type = completed_pilgrimage
-							has_variable = first_pilgrimage
-						}
+		set_variable = {
+			name = has_completed_pilgrimage
+			value = flag:pilgrimage
+		}
+		if = {
+			limit = { var:has_completed_pilgrimage ?= flag:pilgrimage }
+			#To prevent 'unused except in loc' errors :catto:
+		}
+		#Create a memory of your very first pilgrimage
+		if = {
+			limit = { 
+				NOT = {
+					any_memory = {
+						memory_type = completed_pilgrimage
+						has_variable = first_pilgrimage
 					}
 				}
-				create_character_memory = { type = completed_pilgrimage }
+			}
+			create_character_memory = { type = completed_pilgrimage }
+			scope:new_memory = {
+				set_variable = {
+					name = first_pilgrimage
+					value = flag:completed_pilgrimage
+				}
+				set_variable = {
+					name = pilgrimage_destination
+					value = scope:activity.activity_location
+				}
+			}
+			if = {
+				limit = { exists = var:pilgrimage_distance }
 				scope:new_memory = {
 					set_variable = {
-						name = first_pilgrimage
-						value = flag:completed_pilgrimage
+						name = pilgrimage_length
+						value = scope:activity.var:pilgrimage_distance
+					} 
+					if = {
+						limit = { exists = var:pilgrimage_length }
+						#To prevent 'unused except in loc' errors :catto:
+					}
+				}
+			}
+		}
+		#Creates a character memory of the completed pilgrimage with your friend
+		else_if = {
+			limit = { exists = scope:activity.var:friend_companion }
+			create_character_memory = {
+				type = completed_pilgrimage_friend 
+				participants = { friend = scope:activity.var:friend_companion }
+			}
+			scope:new_memory = {
+				set_variable = {
+					name = pilgrimage_destination
+					value = scope:activity.activity_location
+				} 
+			}
+		}
+		#Creates a character memory of the completed pilgrimage
+		else = {
+			create_character_memory = { type = completed_pilgrimage }
+			scope:new_memory = {
+				set_variable = {
+					name = pilgrimage_destination
+					value = scope:activity.activity_location
+				}
+				#Save type of pilgrimage for loc - Pious/Worldly
+				if = {
+					limit = {
+						scope:activity = {
+							has_activity_option = {
+								category = special_type
+								option = pilgrimage_type_pious
+							}
+						}
 					}
 					set_variable = {
-						name = pilgrimage_destination
-						value = scope:activity.activity_location
+						name = memory_type_of_pilgrimage
+						value = flag:pious
+					}
+				}
+				else_if = {
+					limit = {
+						scope:activity = {
+							has_activity_option = {
+								category = special_type
+								option = pilgrimage_type_worldly
+							}
+						}
+					}
+					set_variable = {
+						name = memory_type_of_pilgrimage
+						value = flag:worldly
 					}
 				}
 				if = {
 					limit = { exists = var:pilgrimage_distance }
-					scope:new_memory = {
-						set_variable = {
-							name = pilgrimage_length
-							value = scope:activity.var:pilgrimage_distance
-						} 
-						if = {
-							limit = { exists = var:pilgrimage_length }
-							#To prevent 'unused except in loc' errors :catto:
-						}
-					}
-				}
-			}
-			#Creates a character memory of the completed pilgrimage with your friend
-			else_if = {
-				limit = { exists = scope:activity.var:friend_companion }
-				create_character_memory = {
-					type = completed_pilgrimage_friend 
-					participants = { friend = scope:activity.var:friend_companion }
-				}
-				scope:new_memory = {
 					set_variable = {
-						name = pilgrimage_destination
-						value = scope:activity.activity_location
+						name = pilgrimage_length
+						value = scope:activity.var:pilgrimage_distance
 					} 
-				}
-			}
-			#Creates a character memory of the completed pilgrimage
-			else = {
-				create_character_memory = { type = completed_pilgrimage }
-				scope:new_memory = {
-					set_variable = {
-						name = pilgrimage_destination
-						value = scope:activity.activity_location
-					}
-					#Save type of pilgrimage for loc - Pious/Worldly
 					if = {
-						limit = {
-							scope:activity = {
-								has_activity_option = {
-									category = special_type
-									option = pilgrimage_type_pious
-								}
-							}
-						}
-						set_variable = {
-							name = memory_type_of_pilgrimage
-							value = flag:pious
-						}
-					}
-					else_if = {
-						limit = {
-							scope:activity = {
-								has_activity_option = {
-									category = special_type
-									option = pilgrimage_type_worldly
-								}
-							}
-						}
-						set_variable = {
-							name = memory_type_of_pilgrimage
-							value = flag:worldly
-						}
-					}
-					if = {
-						limit = { exists = var:pilgrimage_distance }
-						set_variable = {
-							name = pilgrimage_length
-							value = scope:activity.var:pilgrimage_distance
-						} 
-						if = {
-							limit = { exists = var:pilgrimage_length }
-							#To prevent 'unused except in loc' errors :catto:
-						}
-					}
-					if = {
-						limit = { exists = var:memory_type_of_pilgrimage }
+						limit = { exists = var:pilgrimage_length }
 						#To prevent 'unused except in loc' errors :catto:
 					}
-				}	
-			}
+				}
+				if = {
+					limit = { exists = var:memory_type_of_pilgrimage }
+					#To prevent 'unused except in loc' errors :catto:
+				}
+			}	
 		}
 		
 		# Keep holy-site cooldown tracking unified across all pilgrimage completion memories.
