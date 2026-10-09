@@ -190,6 +190,7 @@ adviser = {
 						NOT = { has_court_position = executioner_court_position }
 						NOT = { has_court_position = bodyguard_court_position }
 						NOT = { has_court_position = champion_court_position }
+						NOT = { has_court_position = garuda_court_position }
 						NOT = { has_court_position = akolouthos_court_position }
 					}
 				}
@@ -203,6 +204,7 @@ adviser = {
 						NOT = { has_court_position = executioner_court_position }
 						NOT = { has_court_position = bodyguard_court_position }
 						NOT = { has_court_position = champion_court_position }
+						NOT = { has_court_position = garuda_court_position }
 						NOT = { has_court_position = akolouthos_court_position }
 					}
 					add_to_list = characters
@@ -366,14 +368,7 @@ intrigue_character = {
 			if = {
 				limit = {
 					has_ep3_dlc_trigger = yes
-					OR = {
-						capital_county ?= title:c_lycaron
-						primary_title ?= title:e_calradian_empire
-						primary_title ?= title:e_southern_empire
-						primary_title ?= title:e_western_empire
-						primary_title ?= title:e_northern_empire
-						has_trait = claimant_emperor
-					}
+					is_calradian_claimant_or_emperor = yes
 				}
 				cp:councillor_spymaster ?= { add_to_list = characters }
 				court_position:chief_eunuch_court_position ?= { add_to_list = characters }
@@ -430,6 +425,28 @@ special_guard = {
 	effect = {
 		scope:ruler = {
 			if = {
+				limit = {
+					employs_court_position = garuda_court_position
+		        	any_court_position_holder = {
+				        type = garuda_court_position
+						exists = location
+						location = scope:ruler.capital_province
+						is_available_healthy_ai_adult = yes
+						NOT = { has_short_disease_trigger = yes }
+					}
+		        }
+				random_court_position_holder = {
+					type = garuda_court_position
+					limit = {
+						exists = location
+						location = scope:ruler.capital_province
+						is_available_healthy_ai_adult = yes
+						NOT = { has_short_disease_trigger = yes }
+					}
+					add_to_list = characters
+				}
+			}
+			else_if = {
 				limit = {
 					employs_court_position = executioner_court_position
 		        	any_court_position_holder = {
@@ -1110,14 +1127,7 @@ low_prio_warriors = {
 								has_court_type = court_warlike
 								has_court_type = court_nomadic
 							}
-							NOR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = no
 							OR = {
 								any_knight = {
 									exists = location
@@ -1163,15 +1173,7 @@ low_prio_warriors = {
 					}
 					if = {
 						limit = {
-							
-							OR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = yes
 							OR = {
 								any_knight = {
 									exists = location
@@ -1353,14 +1355,7 @@ low_prio_clergy = {
 					}
 					if = {
 						limit = {
-							OR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = yes
 							OR = {
 								any_courtier_or_guest = {
 									is_available_healthy_ai_adult = yes
@@ -1490,14 +1485,7 @@ low_prio_diplomats = {
 					if = {
 						limit = {
 							has_court_type = court_diplomatic
-							NOR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = no
 							OR = {
 								any_courtier_or_guest = {
 									is_available_healthy_ai_adult = yes
@@ -1537,14 +1525,7 @@ low_prio_diplomats = {
 					}
 					if = {
 						limit = {
-							OR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = yes
 							OR = {
 								any_courtier_or_guest = {
 									is_available_healthy_ai_adult = yes
@@ -1647,14 +1628,7 @@ low_prio_stewards = {
 					if = {
 						limit = {
 							has_court_type = court_administrative
-							NOR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = no
 							OR = {
 								any_courtier_or_guest = {
 									is_available_healthy_ai_adult = yes
@@ -1703,14 +1677,7 @@ low_prio_stewards = {
 					if = {
 						limit = {
 							has_court_type = court_administrative
-							OR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = yes
 							OR = {
 								any_courtier_or_guest = {
 									is_available_healthy_ai_adult = yes
@@ -1830,14 +1797,7 @@ low_prio_intriguers = {
 					if = {
 						limit = {
 							has_court_type = court_intrigue
-							NOR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = no
 							OR = {
 								any_courtier_or_guest = {
 									is_available_healthy_ai_adult = yes
@@ -1878,14 +1838,7 @@ low_prio_intriguers = {
 					if = {
 						limit = {
 							has_court_type = court_intrigue
-							OR = {
-								has_title = title:e_calradian_empire
-								has_title = title:e_southern_empire
-								has_title = title:e_western_empire
-								has_title = title:e_northern_empire
-								has_trait = claimant_emperor
-								is_roman_emperor_trigger = yes
-							}
+							is_calradian_claimant_or_emperor = yes
 							OR = {
 								any_courtier_or_guest = {
 									is_available_healthy_ai_adult = yes
