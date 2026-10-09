@@ -1,4 +1,4 @@
-# create_roman_empire_scripted_effect = {
+﻿# create_roman_empire_scripted_effect = {
 # 	add_trait = augustus
 # 	if = {
 # 		limit = { has_dlc_feature = legends }
@@ -459,240 +459,246 @@ declare_bloodline_holy_decision_effect = {
 # 		add_character_flag = flag_restorer_of_rome #used for Eulogy.
 # 	}
 # }
-# mend_great_schism_scripted_effect = {
-# 	root.faith = {
-# 		if = { #If from obscure branch of Christianity, make it official.
-# 			limit = {
-# 				root.faith = { NOT = { has_doctrine = special_doctrine_ecumenical_christian } }
-# 			}
-# 			add_doctrine = special_doctrine_ecumenical_christian
-# 		}
-# 		change_fervor = {
-# 			value = 25
-# 			desc = fervor_gain_mended_schism
-# 		}
-# 	}
-# 	every_player = { #Notify all players of the same Faith.
-# 		limit = {
-# 			NOT = { this = root }
-# 			faith = root.faith
-# 		}
-# 		trigger_event = roman_restoration.0103
-# 	}
-# 	every_ruler = { #Notify rulers of other Christian branches that they are no longer valid and offer chance at conversion.
-# 		limit = {
-# 			faith.religion = root.faith.religion
-# 			NOT = { faith = root.faith }
-# 			NOT = { government_has_flag = government_is_theocracy }
-# 			NOT = { this = this.faith.religious_head }
-# 			faith = {
-# 				has_doctrine = special_doctrine_ecumenical_christian
-# 			}
-# 		}
-# 		trigger_event = roman_restoration.0101
-# 	}
-# 	every_player = { #Then notify all infidel players that might be around.
-# 		limit = {
-# 			OR = {
-# 				AND = { #Either filthy heretics...
-# 					faith.religion = root.faith.religion
-# 					faith = { NOT = { has_doctrine = special_doctrine_ecumenical_christian } }
-# 				}
-# 				NOT = { faith.religion = root.faith.religion } #...Or Heathens.
-# 			}
-# 		}
-# 		trigger_event = roman_restoration.0102
-# 	}
-# 	religion:calradian_religion = {
-# 		every_faith = { #All main branches of Christianity that were considered Ecumenical are now heresies.
-# 			custom = every_ecumenical_christian_faith.tt
-# 			limit = {
-# 				this.religion = root.faith.religion
-# 				has_doctrine = special_doctrine_ecumenical_christian
-# 				NOT = { this = root.faith }
-# 			}
-# 			remove_doctrine = special_doctrine_ecumenical_christian
-# 			change_fervor = {
-# 				value = -25
-# 				desc = fervor_loss_mended_schism
-# 			}
-# 		}
-# 	}
+mend_great_schism_scripted_effect = {
+	root.faith = {
+		change_fervor = {
+			value = 25
+			desc = fervor_gain_mended_schism
+		}
+	}
+	every_player = { #Notify all players of the same Faith.
+		limit = {
+			NOT = { this = root }
+			faith = root.faith
+		}
+		trigger_event = roman_restoration.0103
+	}
+	every_ruler = { #Notify rulers of other Christian branches that they are no longer valid and offer chance at conversion.
+		limit = {
+			faith.religion = root.faith.religion
+			NOT = { faith = root.faith }
+			NOT = { government_has_flag = government_is_theocracy }
+			NOT = { this = this.faith.religious_head }
+			faith = {
+				has_doctrine = special_doctrine_darusian
+			}
+		}
+		trigger_event = roman_restoration.0101
+	}
+	every_player = { #Then notify all infidel players that might be around.
+		limit = {
+			OR = {
+				AND = { #Either filthy heretics...
+					faith.religion = root.faith.religion
+					faith = { NOT = { has_doctrine = special_doctrine_darusian } }
+				}
+				NOT = { faith.religion = root.faith.religion } #...Or Heathens.
+			}
+		}
+		trigger_event = roman_restoration.0102
+	}
+	religion:calradian_religion = {
+		every_faith = { #All main branches of Christianity that were considered Ecumenical are now heresies.
+			custom = every_ecumenical_christian_faith.tt
+			limit = {
+				this.religion = root.faith.religion
+				has_doctrine = special_doctrine_ecumenical_christian
+				NOT = { this = root.faith }
+			}
+			remove_doctrine = special_doctrine_ecumenical_christian
+			change_fervor = {
+				value = -25
+				desc = fervor_loss_mended_schism
+			}
+		}
+	}
 
-# 	set_nickname_effect = { NICKNAME = nick_the_ecumenist }
-# }
+	set_nickname_effect = { NICKNAME = nick_the_ecumenist }
+}
 
-# restore_papacy_scripted_effect = {
-# 	save_scope_as = reformer
-# 	if = { #Pick your chaplain first.
-# 		limit = {
-# 			exists = cp:councillor_court_chaplain
-# 			cp:councillor_court_chaplain = { faith = faith:catholic }
-# 		}
-# 		cp:councillor_court_chaplain = { save_scope_as = new_pope }
-# 	}
-# 	else = {
-# 		hidden_effect = {
-# 			create_character = {
-# 				employer = root
-# 				template = religious_leader_character
-# 				random_traits = no
-# 				save_scope_as = new_pope
-# 			}
-# 		}
-# 		scope:new_pope = {
-# 			add_trait = education_learning_3
-# 			add_trait = zealous
-# 			add_trait = intellect_good_1
-# 			random_list = {
-# 				1 = { add_trait = lustful }
-# 				1 = { add_trait = chaste }
-# 				1 = { add_trait = wrathful }
-# 				1 = { add_trait = diligent }
-# 				1 = { add_trait = impatient }
-# 				1 = { add_trait = arrogant }
-# 				1 = { add_trait = humble }
-# 				1 = { add_trait = gregarious }
-# 			}
-# 			random_list = {
-# 				1 = { add_trait = honest }
-# 				1 = { add_trait = ambitious }
-# 				1 = { add_trait = just }
-# 				1 = { add_trait = cynical }
-# 				1 = { add_trait = zealous }
-# 				1 = { add_trait = compassionate }
-# 				1 = { add_trait = stubborn }
-# 			}
-# 		}
-# 	}
-# 	create_title_and_vassal_change = {
-# 		type = returned
-# 		save_scope_as = change
-# 		add_claim_on_loss = no
-# 	}
-# 	title:k_papal_state = {
-# 		change_title_holder = {
-# 			holder = scope:new_pope
-# 			change = scope:change
-# 		}
-# 	}
-# 	title:c_roma = {
-# 		change_title_holder = {
-# 			holder = scope:new_pope
-# 			change = scope:change
-# 		}
-# 	}
-# 	title:d_latium = {
-# 		change_title_holder = {
-# 			holder = scope:new_pope
-# 			change = scope:change
-# 		}
-# 	}
-# 	title:d_spoleto = {
-# 		change_title_holder = {
-# 			holder = scope:new_pope
-# 			change = scope:change
-# 		}
-# 	}
-# 	resolve_title_and_vassal_change = scope:change
-# 	faith:catholic = {
-# 		change_fervor = {
-# 			value = 15
-# 			desc = fervor_gain_papacy_restored
-# 		}
-# 		if = {
-# 			limit = { NOT = { has_doctrine = special_doctrine_ecumenical_christian } }
-# 			add_doctrine = special_doctrine_ecumenical_christian
-# 		}
-# 		if = {
-# 			limit = { has_doctrine = doctrine_no_head }
-# 			hidden_effect = { remove_doctrine = doctrine_no_head }
-# 			add_doctrine = doctrine_spiritual_head
-# 		}
-# 		set_religious_head_title = title:k_papal_state
-# 	}
-# }
+restore_papacy_scripted_effect = {
+	save_scope_as = reformer
+	if = { #Pick your chaplain first.
+		limit = {
+			exists = cp:councillor_court_chaplain
+			cp:councillor_court_chaplain = { faith = faith:darusan }
+		}
+		cp:councillor_court_chaplain = { save_scope_as = new_pope }
+	}
+	else = {
+		hidden_effect = {
+			create_character = {
+				employer = root
+				template = religious_leader_character
+				random_traits = no
+				save_scope_as = new_pope
+			}
+		}
+		scope:new_pope = {
+			add_trait = education_learning_3
+			add_trait = zealous
+			add_trait = intellect_good_1
+			random_list = {
+				1 = { add_trait = lustful }
+				1 = { add_trait = chaste }
+				1 = { add_trait = wrathful }
+				1 = { add_trait = diligent }
+				1 = { add_trait = impatient }
+				1 = { add_trait = arrogant }
+				1 = { add_trait = humble }
+				1 = { add_trait = gregarious }
+			}
+			random_list = {
+				1 = { add_trait = honest }
+				1 = { add_trait = ambitious }
+				1 = { add_trait = just }
+				1 = { add_trait = cynical }
+				1 = { add_trait = zealous }
+				1 = { add_trait = compassionate }
+				1 = { add_trait = stubborn }
+			}
+		}
+	}
+	create_title_and_vassal_change = {
+		type = returned
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	title:k_darusan = {
+		change_title_holder = {
+			holder = scope:new_pope
+			change = scope:change
+		}
+	}
+	title:c_charas = {
+		change_title_holder = {
+			holder = scope:new_pope
+			change = scope:change
+		}
+	}
+	title:d_charas = {
+		change_title_holder = {
+			holder = scope:new_pope
+			change = scope:change
+		}
+	}
+	title:d_weyard = {
+		change_title_holder = {
+			holder = scope:new_pope
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+	faith:darusan = {
+		change_fervor = {
+			value = substantial_fervor_gain
+			desc = fervor_gain_papacy_restored
+		}
+		if = {
+			limit = { NOT = { has_doctrine = special_doctrine_ecumenical_christian } }
+			add_doctrine = special_doctrine_ecumenical_christian
+		}
+		if = {
+			limit = { has_doctrine = doctrine_no_head }
+			hidden_effect = { remove_doctrine = doctrine_no_head }
+			add_doctrine = doctrine_spiritual_head
+		}
+		set_religious_head_title = title:k_darusan
+	}
+}
 
-# destroy_papacy_scripted_effect = {
-# 	save_scope_as = scoped_destroyer
-# 	if = {
-# 		limit = { exists = title:k_papal_state.holder }
-# 		title:k_papal_state.holder = { save_scope_as = scoped_pope }
-# 	}
-# 	add_piety = massive_piety_gain
-# 	root.faith = {
-# 		change_fervor = {
-# 			value = 50
-# 			desc = fervor_gain_papacy_destroyed
-# 		}
-# 	}
+destroy_papacy_scripted_effect = {
+	save_scope_as = scoped_destroyer
+	if = {
+		limit = { exists = title:k_darusan.holder }
+		title:k_darusan.holder = { save_scope_as = scoped_pope }
+	}
+	if = {
+		limit = {
+			exists = scope:scoped_pope
+			scope:scoped_pope = { is_ai = no }
+		}
+		save_scope_value_as = { name = pope_was_player value = yes }
+	}
+	add_piety = massive_piety_gain
+	root.faith = {
+		change_fervor = {
+			value = major_fervor_gain
+			desc = fervor_gain_papacy_destroyed
+		}
+	}
 
-# 	# Destroy the papacy title if it exists.
-# 	if = {
-# 		limit = {
-# 			exists = title:k_papal_state
-# 		}
-# 		destroy_title = title:k_papal_state
-# 	}
+	# Destroy the papacy title if it exists.
+	if = {
+		limit = {
+			exists = title:k_darusan
+		}
+		destroy_title = title:k_darusan
+	}
 
-# 	# If the Pope exists, they will suffer some kind of humiliating or tragic fate.
-# 	if = {
-# 		limit = {
-# 			exists = scope:scoped_pope
-# 		}
-# 		if = {
-# 			limit = {
-# 				faith = {
-# 					has_doctrine_parameter = human_sacrifice_active
-# 				}
-# 			}
-# 			scope:scoped_pope = {
-# 				death = {
-# 					death_reason = death_sacrificed_to_gods
-# 					killer = root
-# 				}
-# 			}
-# 		}
-# 		else_if = { 
-# 			limit = {
-# 				faith.religion = faith:hellenic_pagan.religion
-# 			}
-# 			scope:scoped_pope = {
-# 				death = {
-# 					death_reason = death_crucified
-# 					killer = root
-# 				}
-# 			}
-# 		}
-# 		else = {
-# 			scope:scoped_pope = { set_character_faith = root.faith }
-# 		}
+	# An AI Pope suffers a humiliating or tragic fate here. A player Pope instead gets roman_restoration.0132 and picks their own way out.
+	if = {
+		limit = {
+			exists = scope:scoped_pope
+			NOT = { exists = scope:pope_was_player }
+		}
+		if = {
+			limit = {
+				faith = {
+					has_doctrine_parameter = human_sacrifice_active
+				}
+			}
+			scope:scoped_pope = {
+				death = {
+					death_reason = death_sacrificed_to_gods
+					killer = root
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				faith.religion = faith:thexnyian_pagan.religion
+			}
+			scope:scoped_pope = {
+				death = {
+					death_reason = death_crucified
+					killer = root
+				}
+			}
+		}
+		else = {
+			scope:scoped_pope = {
+				set_character_faith = root.faith
+				set_character_rite = root.rite
+			}
+		}
 
-# 		if = {
-# 			limit = { scope:scoped_pope.gold > 0 }
-# 			scope:scoped_pope = {
-# 				hidden_effect = { remove_short_term_gold = scope:scoped_pope.gold }
-# 			}
-# 		}
-# 	}
+		if = {
+			limit = { scope:scoped_pope.gold > 0 }
+			scope:scoped_pope = {
+				hidden_effect = { remove_short_term_gold = scope:scoped_pope.gold }
+			}
+		}
+	}
 
-# 	# Catholicism is now sad.
-# 	faith:catholic = {
-# 		change_fervor = {
-# 			value = -100
-# 			desc = fervor_loss_papacy_destroyed
-# 		}
-# 		if = {
-# 			limit = { has_doctrine = special_doctrine_ecumenical_christian }
-# 			remove_doctrine = special_doctrine_ecumenical_christian
-# 		}
-# 		if = {
-# 			limit = { has_doctrine = doctrine_spiritual_head }
-# 			remove_doctrine = doctrine_spiritual_head
-# 			hidden_effect = { add_doctrine = doctrine_no_head }
-# 		}
-# 	}
-# }
+	# Catholicism is now sad.
+	faith:darusan = {
+		change_fervor = {
+			value = massive_fervor_loss
+			desc = fervor_loss_papacy_destroyed
+		}
+		if = {
+			limit = { has_doctrine = special_doctrine_ecumenical_christian }
+			remove_doctrine = special_doctrine_ecumenical_christian
+		}
+		if = {
+			limit = { has_doctrine = doctrine_spiritual_head }
+			remove_doctrine = doctrine_spiritual_head
+			hidden_effect = { add_doctrine = doctrine_no_head }
+		}
+	}
+}
+
 
 # form_switzerland_scripted_effect = { ## UNUSED
 # 	save_scope_as = scoped_ruler
