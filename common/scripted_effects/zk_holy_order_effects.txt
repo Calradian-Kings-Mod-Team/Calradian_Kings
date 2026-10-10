@@ -121,6 +121,69 @@ military_order_yearly_trait_gain_effect = {
 set_up_historical_monastic_orders_effect = {
 	### CK_UPDATE CK_120 CK_RELIGION CK_TODO - Need to work out what Monastic Orders to create and implement
 	## REFER TO VANILLA FILES FOR REFERENCE
+	## Saneopian Order
+	
+	##Eremetic Benedictines
+	#the mixed pattern in Spain of older eremeticism and Benedictine 
+	if = {
+		limit = {
+			current_date < 1150.1.1
+			current_date >= 700.1.1
+		}
+		
+		title:b_saneopa_4 = {
+			save_scope_as = monastic_barony
+			county.holder = {
+				save_scope_as = game_start_founder
+				set_variable = {
+					name = monastic_game_start_founder
+					days = 10
+				}
+				set_variable = {
+					name = 867_founder
+					days = 10
+				}
+			}
+		}
+		character:d_ho_saneopian_order_1084 = {
+			save_scope_as = monastic_leader
+		}
+		scope:game_start_founder = {
+			create_holy_order_neutral_effect = {
+				LEADER = scope:monastic_leader
+				CAPITAL = scope:monastic_barony
+				NEW_HO_SCOPE = new_holy_order
+				FOUNDER = scope:game_start_founder
+				ORDER_TYPE = monastic
+			}
+		}
+		scope:monastic_leader = {
+			every_courtier = {
+				add_trait = devoted
+				add_trait_xp = {
+					trait = devoted
+					value = { 20 80 }
+				}
+			}
+			faith = {
+				random_faith_holy_order = {
+					limit = {
+						leader = scope:monastic_leader
+					}
+					save_scope_as = saneopian_order
+				}
+			}
+		}
+		#Lease out additional holdings
+		# if = {
+		# 	limit = {
+		# 		exists = scope:saneopian_order
+		# 	}
+		# 	title:b_lycaorn_4 = { lease_out_to_holy_order = scope:saneopian_order }
+		# }
+	}
+
+
 
 	#Give all monastic leaders some monastic trait XP
 	every_religion_global = {
@@ -151,5 +214,165 @@ set_up_historical_military_orders_effect = {
 	### CK_UPDATE CK_120 CK_RELIGION CK_TODO - Need to work out what Monastic Orders to create and implement
 	## ASERAI AND CALRADIAN MILITARY ORDERS
 	## REFER TO VANILLA FILES FOR REFERENCE
-	
+
+	#Knights of Calradia
+	if = {
+		limit = {
+			current_year > 1067
+		}
+		title:b_lycaron_1 = {
+			save_scope_as = order_barony
+			create_title_and_vassal_change = {
+				type = revoked
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			change_title_holder = {
+				holder = title:c_lycaron.holder
+				change = scope:change
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		title:c_lycaron.holder = {
+			save_scope_as = game_start_founder
+			set_variable = {
+				name = military_order_game_start_founder
+				days = 10
+			}
+		}
+		character:d_knights_of_calradia_1084 = {
+			save_scope_as = order_leader
+		}
+		scope:game_start_founder = {
+			create_holy_order_neutral_effect = {
+				LEADER = scope:order_leader
+				CAPITAL = scope:order_barony
+				NEW_HO_SCOPE = new_holy_order
+				FOUNDER = scope:game_start_founder
+				ORDER_TYPE = military
+			}
+		}
+		scope:order_leader = {
+			every_courtier = {
+				add_trait = order_member
+			}
+		}
+	}
+	## Order of the Rose
+	if = {
+		limit = {
+			game_start_date >= 1071.1.1
+		}
+		character:d_order_of_the_rose_1084 = {
+			save_scope_as = leader_1
+		}
+		title:c_saverip.holder = {
+			save_scope_as = founder_1
+			set_variable = {
+				name = military_order_game_start_founder
+				days = 10
+			}
+		}
+		title:b_materak = {
+			save_scope_as = barony_1
+		}
+		create_holy_order_neutral_effect = {
+			LEADER = scope:leader_1
+			CAPITAL = scope:barony_1
+			NEW_HO_SCOPE = new_holy_order
+			FOUNDER = scope:founder_1
+			ORDER_TYPE = military
+		}
+		scope:leader_1 = {
+			every_courtier = {
+				add_trait = order_member
+			}
+		}
+	}
+	## Band of Heroes
+	if = {
+		limit = {
+			current_year > 968
+		}
+		title:b_taram = {
+			save_scope_as = order_barony
+			create_title_and_vassal_change = {
+				type = revoked
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			change_title_holder = {
+				holder = title:c_ancrid.holder
+				change = scope:change
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		title:c_ancrid.holder = {
+			save_scope_as = game_start_founder
+			set_variable = {
+				name = military_order_game_start_founder
+				days = 10
+			}
+		}
+		character:d_ho_band_of_heroes_1084 = {
+			save_scope_as = order_leader
+		}
+		scope:game_start_founder = {
+			create_holy_order_neutral_effect = {
+				LEADER = scope:order_leader
+				CAPITAL = scope:order_barony
+				NEW_HO_SCOPE = new_holy_order
+				FOUNDER = scope:game_start_founder
+				ORDER_TYPE = military
+			}
+		}
+		scope:order_leader = {
+			every_courtier = {
+				add_trait = order_member
+			}
+		}
+	}
+	## Order of Carsten
+	if = {
+		limit = {
+			current_year > 998
+		}
+		title:b_galian = {
+			save_scope_as = order_barony
+			create_title_and_vassal_change = {
+				type = revoked
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			change_title_holder = {
+				holder = title:c_pravend.holder
+				change = scope:change
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		title:c_pravend.holder = {
+			save_scope_as = game_start_founder
+			set_variable = {
+				name = military_order_game_start_founder
+				days = 10
+			}
+		}
+		character:d_ho_carsten_1084 = {
+			save_scope_as = order_leader
+		}
+		scope:game_start_founder = {
+			create_holy_order_neutral_effect = {
+				LEADER = scope:order_leader
+				CAPITAL = scope:order_barony
+				NEW_HO_SCOPE = new_holy_order
+				FOUNDER = scope:game_start_founder
+				ORDER_TYPE = military
+			}
+		}
+		scope:order_leader = {
+			every_courtier = {
+				add_trait = order_member
+			}
+		}
+	}
 }
