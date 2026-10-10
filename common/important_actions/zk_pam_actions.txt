@@ -1,0 +1,119 @@
+action_can_request_enforce_succession = {
+	type = action
+	icon = action_take_decision
+	priority = 400
+	combine_into_one = yes
+
+	check_create_action = {
+		if = {
+			limit = {
+				is_ai = no
+				has_pam_dlc_trigger = yes
+				is_ruler = yes
+				has_religion = religion:calradian_religion
+				NOT = {
+					government_has_flag = government_is_theocracy
+				}
+				has_legitimacy = yes
+				legitimacy_level >= 3
+				any_claim = { }
+				capital_county.clerical_region_title ?= {
+					exists = holder
+					holder != root
+				}
+			}
+			capital_county.clerical_region_title.holder = {
+				save_temporary_scope_as = local_archbishop
+			}
+			every_claim = {
+				limit = {
+					save_temporary_scope_as = enforce_succession_title_candidate
+					pam_valid_enforce_succession_title_trigger = {
+						TITLE = scope:enforce_succession_title_candidate
+						ACTOR = root
+					}
+					root = {
+						is_character_interaction_potentially_accepted = {
+							interaction = request_enforce_succession_interaction
+							recipient = scope:local_archbishop
+							target_title = scope:enforce_succession_title_candidate
+						}
+					}
+				}
+				try_create_important_action = {
+					important_action_type = action_can_request_enforce_succession
+					actor = root
+					recipient = scope:local_archbishop
+					landed_title = this
+				}
+			}
+		}
+	}
+
+	effect = {
+		open_interaction_window = {
+			interaction = request_enforce_succession_interaction
+			actor = scope:actor
+			recipient = scope:recipient
+			target_title = scope:landed_title
+		}
+	}
+}
+
+# Grabs the 5 Archbishops with the highest piety
+action_can_appoint_cardinals = {
+	priority = 400
+	icon = action_take_decision
+	combine_into_one = yes
+
+	check_create_action = {
+		if = {
+			limit = {
+				has_pam_dlc_trigger = yes
+				is_adult = yes
+				is_incapable = no
+				has_religion = religion:calradian_religion
+				pam_leads_college_of_cardinals_trigger = yes
+				faith = {
+					has_doctrine_parameter = has_clerical_electors
+					any_clerical_elector_title = {
+						count < 15
+					}
+				}
+			}
+			faith = {
+				ordered_clerical_region_title = {
+					limit = {
+						holder ?= {
+							this != root
+							is_incapable = no
+							NOT = { has_trait = excommunicated }
+							NOT = { exists = clerical_elector_title } # Not already a cardinal
+							pam_can_hold_cardinalate_trigger = yes
+							pam_pope_is_head_of_faith_or_rite_trigger = yes
+						}
+					}
+					order_by = holder.piety_level
+					max = 5
+					check_range_bounds = no
+					holder = {
+						try_create_important_action = {
+							important_action_type = action_can_appoint_cardinals
+							actor = root
+							recipient = this
+						}
+					}
+				}
+			}
+		}
+	}
+
+	effect = {
+		open_interaction_window = {
+			interaction = appoint_cardinal_interaction
+			actor = scope:actor
+			recipient = scope:recipient
+			secondary_actor = scope:actor
+		}
+	}
+}

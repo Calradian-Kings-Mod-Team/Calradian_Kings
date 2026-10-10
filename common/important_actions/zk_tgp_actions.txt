@@ -1,0 +1,111 @@
+﻿
+action_hegemonic_tributary_has_low_subject_standing_tributary = {
+	type = action
+	icon = action_tax_collector
+
+	check_create_action = {
+		if = {
+			limit = {
+				is_tributary = yes
+				suzerain = { highest_held_title_tier = tier_hegemony }
+				subject_standing < exact_tribute_subject_standing_value
+			}
+			try_create_important_action = {
+				important_action_type = action_hegemonic_tributary_has_low_subject_standing_tributary
+				actor = root
+				recipient = suzerain
+			}
+		}
+	}
+
+	effect = {
+		if = {
+			limit = { suzerain.primary_title = title:h_china }
+			decision:tribute_mission_decision_china = { open_view_data = decision_detail }
+		}
+		else_if = {
+			limit = { suzerain.primary_title = title:h_calradian_empire }
+			decision:tribute_mission_decision_roman_empire = { open_view_data = decision_detail }
+		}
+		else_if = {
+			limit = { suzerain.primary_title = title:h_eastern_calradian_empire }
+			decision:tribute_mission_decision_eastern_roman_empire = { open_view_data = decision_detail }
+		}
+		else_if = {
+			limit = { suzerain.primary_title = title:h_dar_al_islam }
+			decision:tribute_mission_decision_dar_al_islam = { open_view_data = decision_detail }
+		}
+		else_if = {
+			limit = { suzerain.primary_title = title:h_india }
+			decision:tribute_mission_decision_india = { open_view_data = decision_detail }
+		}
+	}
+}
+
+
+action_no_house_aspiration = {
+	type = alert
+	icon = action_no_aspiration
+
+	check_create_action = {
+		if = {
+			limit = {
+				is_house_head = yes
+				is_culture_or_descended_from_trigger = { CULTURE = culture:japanese_ck }
+				house = {
+					can_change_house_aspiration = yes
+					has_house_aspiration_trigger = no
+				}
+			}
+			try_create_important_action = {
+				important_action_type = action_no_house_aspiration
+				actor = root
+			}
+		}
+	}
+
+	effect = {
+		house = {
+			open_view_data = {
+				view = house_aspiration_window
+				player = root
+			}
+		}
+	}
+}
+
+# Can start a Great Project
+action_start_great_project = { # Only non-important ones, Important GPs get their own alert
+	type = action
+	check_create_action = {
+		if = {
+			limit = {
+				root = {
+					OR = {
+						can_plan_great_project = great_project_type:minister_project_culture
+						can_plan_great_project = great_project_type:minister_project_development
+						can_plan_great_project = great_project_type:minister_project_establish_control
+						can_plan_great_project = great_project_type:construct_great_barracks
+						can_plan_great_project = great_project_type:strengthen_capital
+						# can_plan_great_project = great_project_type:great_wall
+						# can_plan_great_project = great_project_type:great_wall_extend_to_shanhai_pass
+						# can_plan_great_project = great_project_type:great_wall_extend_to_liaodong
+						can_plan_great_project = great_project_type:grand_canals
+					}
+				}
+			}
+			try_create_important_action = {
+				important_action_type = action_start_great_project
+				actor = root
+				recipient = this
+			}
+		}
+	}
+
+	effect = {
+		open_view_data = {
+			view = decisions
+			data = flag:great_projects
+		}
+	}
+}
