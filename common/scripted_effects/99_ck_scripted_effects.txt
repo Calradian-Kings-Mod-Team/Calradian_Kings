@@ -2278,3 +2278,67 @@ add_canon_buildings_effect = {
 		}
 	}
 }
+
+# replaced from 00_councillor_effects
+got_council_position_effect = {
+	save_scope_as = new_councillor
+	# Travel Leaders can't be councillors, but should appear in the councillor list
+	if = {
+		limit = { has_court_position = travel_leader_court_position }
+		liege = {
+			revoke_court_position = {
+				recipient = scope:new_councillor
+				court_position = travel_leader_court_position
+			}
+		}
+	}
+	#If there is a fired opinion remove it
+	if = {
+		limit = {
+			has_opinion_modifier = {
+				modifier = fired_from_council_opinion
+				target = liege
+			}			
+		}
+		remove_opinion = {
+			modifier = fired_from_council_opinion
+			target = liege
+		}
+	}
+	# No longer angry for losing court position - this is *better*!
+	if = {
+		limit = {
+			has_opinion_modifier = {
+				modifier = revoked_court_position_opinion
+				target = liege
+			}			
+		}
+		remove_opinion = {
+			modifier = revoked_court_position_opinion
+			target = liege
+		}
+	}
+
+	add_character_flag = is_in_the_council
+	if = {
+		limit = {
+			has_pam_dlc_trigger = yes
+			exists = situation:the_christian_church
+			NOT = {
+				christianity_or_syncretic_with_christianity_trigger = {
+					CHARACTER = scope:new_councillor
+				}
+			}
+			scope:councillor_liege ?= {
+				highest_held_title_tier >= tier_kingdom
+				any_character_situation = {
+					situation_type = the_christian_church
+					situation_top_has_catalyst = catalyst_the_christian_church_ruler_hired_non_christian_councillor
+				}
+			}
+		}
+		situation:the_christian_church = {
+			trigger_situation_catalyst = catalyst_the_christian_church_ruler_hired_non_christian_councillor
+		}
+	}
+}
