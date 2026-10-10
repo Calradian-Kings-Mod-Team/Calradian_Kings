@@ -4,34 +4,6 @@ scripted_effect ck_laamp_1000_return_to_tavern_effect = {
 	custom_tooltip = ep3_laamp_decision_event.1031.return.tt
 	trigger_event = ep3_laamp_decision_event.1030
 }
-
-
-#Technically these could be rolled into the HUB variant if we add a 3rd random loc for all current SCENEs
-#For scenes. All events that use this need to account for loc in relation to the value being 0 or 1 (e.g. scope:weaponsmith_loc_tracker ?= 0 )
-scripted_effect 1025_set_and_check_scene_loc_tracker_scope_effect = {
-	if = {
-		limit = {
-			NOT = { exists = scope:$SCENE$_loc_tracker }	#e.g. scope:weaponsmith_loc_tracker
-		}
-		save_scope_value_as = {
-			name = $SCENE$_loc_tracker
-			value = 0
-		}
-	}
-	else_if = {
-		limit = { scope:$SCENE$_loc_tracker ?= 1 }
-		save_scope_value_as = {
-			name = $SCENE$_loc_tracker
-			value = 0
-		}
-	}
-	else = {
-		save_scope_value_as = {
-			name = $SCENE$_loc_tracker
-			value = 1
-		}			
-	}
-}
 #We return to the church grounds event to peruse other options
 scripted_effect ck_1041_return_to_church_grounds_effect = {
 	custom_tooltip = ep3_laamp_decision_event.1041.return.tt
@@ -49,7 +21,7 @@ scripted_effect ck_1061_return_to_craftsmen_effect = {
 }
 
 #Return to the holding hub (church grounds, castle grounds etc) from a subsequent event
-scripted_effect 1031_been_to_effect = {
+scripted_effect ck_1031_been_to_effect = {
 	#For desc flavor
 	if = {
 		limit = {
@@ -79,7 +51,7 @@ scripted_effect 1031_been_to_effect = {
 	}
 }
 #What was our last location?
-scripted_effect 1000_update_last_location_effect = {
+scripted_effect ck_1000_update_last_location_effect = {
 	if = {
 		limit = { has_variable = return_from_location }
 		remove_variable = return_from_location
@@ -95,65 +67,6 @@ scripted_effect 1000_update_last_location_effect = {
 		}
 	}
 }
-scripted_effect 1033_add_courtier_with_opinion_effect = {
-	if = {
-		limit = {
-			has_perk = professional_workforce_perk
-		}
-		$TARGET$ = {
-			if = {
-				limit = {
-					highest_skill_including_prowess = prowess
-				}
-				add_prowess_skill = 5
-			}
-			else_if = {
-				limit = {
-					highest_skill = intrigue
-				}
-				add_intrigue_skill = 5
-			}
-			else_if = {
-				limit = {
-					highest_skill = martial
-				}
-				add_martial_skill = 5
-			}
-			else_if = {
-				limit = {
-					highest_skill = stewardship
-				}
-				add_stewardship_skill = 5
-			}
-			else_if = {
-				limit = {
-					highest_skill = diplomacy
-				}
-				add_diplomacy_skill = 5
-			}
-			else_if = {
-				limit = {
-					highest_skill = learning
-				}
-				add_learning_skill = 5
-			}
-			hidden_effect = {
-				force_character_skill_recalculation = yes
-			}
-		}
-	}
-	add_courtier = $TARGET$
-	hidden_effect = {
-		$TARGET$ = {
-			add_opinion = {
-				modifier = recruited_me_opinion
-				target = root
-				opinion = 50
-			}
-		}
-	}
-}
-
 scripted_effect 1000_ck_update_companion_story = {
 	if = {
 		limit = { has_variable = ck_1000_update_story }
@@ -796,8 +709,6 @@ ck_laamp_visit_events.1000 = {
 			#... and the thief on the right
 			scope:laamp_warband_companion_recruitable = { save_scope_as = ck_1000_right_character }
 		}
-		#Can we _not_ repeat the loc?
-		1025_set_and_check_scene_loc_tracker_scope_effect = { SCENE = companion }
 	}
 	# Offer your company
 	option = {
@@ -1127,7 +1038,7 @@ ck_laamp_visit_events.1000 = {
 			}
 		}
 		#Set the variables and redirect us back to the tavern main room
-		1031_been_to_effect = { GUILD = companion }
+		ck_1031_been_to_effect = { GUILD = companion }
 		#Go back to the tavern
 		hidden_effect = {
 			if = {
@@ -1500,7 +1411,62 @@ ck_laamp_visit_events.1001 = {
 		}
 		reason = recruitment
 		#Hire wo/manpower
-		1033_add_courtier_with_opinion_effect = { TARGET = scope:laamp_warband_companion_recruitable }
+		if = {
+			limit = {
+				has_perk = professional_workforce_perk
+			}
+			scope:laamp_warband_companion_recruitable = {
+				if = {
+					limit = {
+						highest_skill_including_prowess = prowess
+					}
+					add_prowess_skill = 5
+				}
+				else_if = {
+					limit = {
+						highest_skill = intrigue
+					}
+					add_intrigue_skill = 5
+				}
+				else_if = {
+					limit = {
+						highest_skill = martial
+					}
+					add_martial_skill = 5
+				}
+				else_if = {
+					limit = {
+						highest_skill = stewardship
+					}
+					add_stewardship_skill = 5
+				}
+				else_if = {
+					limit = {
+						highest_skill = diplomacy
+					}
+					add_diplomacy_skill = 5
+				}
+				else_if = {
+					limit = {
+						highest_skill = learning
+					}
+					add_learning_skill = 5
+				}
+				hidden_effect = {
+					force_character_skill_recalculation = yes
+				}
+			}
+		}
+		add_courtier = scope:laamp_warband_companion_recruitable
+		hidden_effect = {
+			scope:laamp_warband_companion_recruitable = {
+				add_opinion = {
+					modifier = recruited_me_opinion
+					target = root
+					opinion = 50
+				}
+			}
+		}
 		#Rewards for the Camp Party
 		hidden_effect = {
 			if = {
@@ -1677,7 +1643,7 @@ ck_laamp_visit_events.1001 = {
 			}
 		}
 		#Set the variables and redirect us back to the tavern main room
-		1031_been_to_effect = { GUILD = companion }
+		ck_1031_been_to_effect = { GUILD = companion }
 		#Go back to the tavern
 		ck_laamp_1000_return_to_tavern_effect = yes
 
@@ -1703,7 +1669,7 @@ ck_laamp_visit_events.1001 = {
 		exclusive = yes
 		flavor = ck_laamp_visit_events.1001.c.reason
 		#Set the variables and redirect us back to the tavern main room
-		1031_been_to_effect = { GUILD = companion }
+		ck_1031_been_to_effect = { GUILD = companion }
 		#Go back to the tavern main room
 		ck_laamp_1000_return_to_tavern_effect = yes
 
