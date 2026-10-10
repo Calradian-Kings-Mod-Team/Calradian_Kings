@@ -1,6 +1,22 @@
 ﻿namespace = pam_secular_faith_events
 
 
+##########################################################################################
+# 0002 - Pikuach Nefesh (rescue a traveler on the Sabbath)
+##########################################################################################
+scripted_effect pam_secular_faith_shabbat_rescue_success_ck_effect = {
+	if = {
+		limit = { can_add_hook = { target = scope:traveler_in_danger type = saved_my_life_hook } }
+		add_hook = { type = saved_my_life_hook target = scope:traveler_in_danger }
+	}
+	scope:traveler_in_danger = {
+		add_opinion = { target = root modifier = grateful_opinion opinion = 30 }
+		if = {
+			limit = { exists = current_travel_plan }
+			current_travel_plan = { add_travel_plan_modifier = pam_sf_safe_passage_modifier }
+		}
+	}
+}
 scripted_effect pam_secular_faith_shabbat_rescue_failure_ck_effect = {
 	scope:traveler_in_danger = {
 		increase_wounds_no_death_effect = { REASON = fight }
@@ -93,7 +109,7 @@ pam_secular_faith_events.0002 = {
 	option = { # Ride out at once and save them
 		name = pam_secular_faith_events.0002.a
 		add_piety = major_piety_gain
-		pam_secular_faith_shabbat_rescue_success_effect = yes
+		pam_secular_faith_shabbat_rescue_success_ck_effect = yes
 		random = {
 			chance = {
 				value = 30
@@ -138,7 +154,7 @@ pam_secular_faith_events.0002 = {
 					multiplier = 3.5
 					min = -49
 				}
-				pam_secular_faith_shabbat_rescue_success_effect = yes
+				pam_secular_faith_shabbat_rescue_success_ck_effect = yes
 				add_piety = major_piety_gain
 				scope:chaplain = { add_opinion = { target = root modifier = pious_opinion opinion = 30 } }
 			}
