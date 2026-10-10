@@ -54,6 +54,114 @@ pam_clergy_events.0001 = {
 		name = pam_clergy_events.0001.a
 	}
 }
+
+scripted_effect pam_strip_personal_landed_titles_ck_effect = {
+	if = {
+		limit = {
+			any_held_title = {
+				tier >= tier_county
+				has_clerical_region = no
+			}
+		}
+		create_title_and_vassal_change = {
+			type = revoked
+			save_scope_as = pam_strip_land_change
+			add_claim_on_loss = no
+		}
+
+		if = {
+			limit = { scope:reason ?= flag:character_converted }
+			if = {
+				limit = {
+					primary_heir = {
+						rite ?= root.var:old_rite
+						OR = {
+							is_ruler = no
+							government_has_flag = government_is_theocracy
+						}
+					}
+				}
+				primary_heir ?= { save_scope_as = heir }
+			}
+			else_if = {
+				limit = {
+					player_heir = {
+						rite ?= root.var:old_rite
+						OR = {
+							is_ruler = no
+							government_has_flag = government_is_theocracy
+						}
+					}
+				}
+				player_heir ?= { save_scope_as = heir }
+			}
+			# final fallback, I don't think we need this...
+			else = {
+				create_character = {
+					template = monk_character_template
+					employer = root
+					save_scope_as = heir
+				}
+			}
+		}
+		else = {
+			if = {
+				limit = { liege != this }
+				liege ?= { save_scope_as = heir }
+			}
+			else_if = {
+				limit = { exists = primary_heir }
+				primary_heir ?= { save_scope_as = heir }
+			}
+			else_if = {
+				limit = { exists = player_heir }
+				player_heir ?= { save_scope_as = heir }
+			}
+			# final fallback, I don't think we need this...
+			else = {
+				create_character = {
+					template = monk_character_template
+					employer = root
+					save_scope_as = heir
+				}
+			}
+		}
+		if = {
+			limit = { scope:reason ?= flag:character_converted }
+			scope:heir = {
+				set_character_rite = root.var:old_rite
+			}
+		}
+		every_held_title = {
+			limit = {
+				tier >= tier_county
+				trigger_if = {
+					limit = {
+						scope:reason != flag:character_converted
+					}
+					has_clerical_region = no
+				}
+			}
+			change_title_holder_include_vassals = {
+				holder = scope:heir
+				change = scope:pam_strip_land_change
+			}
+		}
+		resolve_title_and_vassal_change = scope:pam_strip_land_change
+		if = {
+			limit = { scope:reason = flag:character_converted }
+			scope:heir = {
+				change_government = faith.faith_theocratic_goverment_type
+				rite = { force_refresh_head_of_rite = yes }
+				if = {
+					limit = { should_use_theocratic_elective_succession_law_trigger = yes }
+					add_realm_law_skip_effects = theocratic_elective_succession_law
+				}
+			}
+		}
+	}
+}
+
 pam_clergy_events.0051 = {
 	id_override_priority = 120 
 	theme = faith
@@ -178,7 +286,7 @@ pam_clergy_events.0051 = {
 		resolve_title_and_vassal_change = scope:pam_translation_change
 
 		destroy_title = scope:title
-		pam_strip_personal_landed_titles_effect = yes
+		pam_strip_personal_landed_titles_ck_effect = yes
 	}
 
 	# C — Accept game over (landless offer comes from normal systems if available)
@@ -187,7 +295,7 @@ pam_clergy_events.0051 = {
 		add_internal_flag = dangerous
 		custom_tooltip = pam_clergy_events.0051.c.tt
 
-		pam_strip_personal_landed_titles_effect = yes
+		pam_strip_personal_landed_titles_ck_effect = yes
 		destroy_title = scope:title
 		hidden_effect = {
 			if = {
@@ -198,5 +306,176 @@ pam_clergy_events.0051 = {
 				}
 			}
 		}
+	}
+}
+pam_clergy_events.0060 = {
+	id_override_priority = 120 
+	theme = christian
+	type = character_event
+	window = big_event_window
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:prelate_office = flag:antipope }
+				desc = pam_clergy_events.0060.t.antipope
+			}
+			triggered_desc = {
+				trigger = { scope:prelate_title = title:k_darusan }
+				desc = pam_clergy_events.0060.t.pope
+			}
+			triggered_desc = {
+				trigger = { scope:prelate_office = flag:head_of_faith }
+				desc = pam_clergy_events.0060.t.head_of_faith
+			}
+			desc = pam_clergy_events.0060.t.archbishop
+		}
+	}
+	desc = {
+		desc = pam_clergy_events.0060.desc.intro
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:prelate_office = flag:antipope }
+				desc = pam_clergy_events.0060.desc.antipope
+			}
+			triggered_desc = {
+				trigger = { scope:prelate_title = title:k_darusan }
+				desc = pam_clergy_events.0060.desc.pope
+			}
+			triggered_desc = {
+				trigger = { scope:prelate_office = flag:head_of_faith }
+				desc = pam_clergy_events.0060.desc.head_of_faith
+			}
+			desc = pam_clergy_events.0060.desc.archbishop
+		}
+		triggered_desc = {
+			trigger = { scope:prelate_office = flag:head_of_faith }
+			desc = pam_clergy_events.0060.desc.hof_outro
+		}
+		triggered_desc = {
+			trigger = { faith != scope:new_prelate.faith }
+			desc = pam_clergy_events.0060.desc.different_faith
+		}
+	}
+
+	override_background = {
+		reference = temple
+	}
+	override_sound = {
+		trigger = { scope:prelate_office = flag:antipope }
+		reference = "event:/DLC/CE3/SFX/Stingers/ce3_mx_sting_becomeHeretic"
+	}
+	override_sound = {
+		trigger = { scope:prelate_office = flag:head_of_faith }
+		reference = "event:/DLC/CE3/SFX/Stingers/ce3_mx_sting_ElectPope"
+	}
+
+	widgets = {
+		widget = {
+			is_shown = {
+				scope:new_prelate = { pam_is_western_christian_trigger = yes }
+			}
+			gui = event_window_widget_vfx_stained_glass_foreground
+			container = foreground_shader_vfx_container
+		}
+	}
+
+	trigger = {
+		is_ai = no
+		exists = scope:new_prelate
+		exists = scope:prelate_title
+		scope:new_prelate = {
+			this != root
+			is_alive = yes
+		}
+		# The office can change hands again before the news reaches us
+		scope:prelate_title.holder ?= scope:new_prelate
+		# Office and see resolve unordered in one batch, so the double announce is settled here
+		trigger_if = {
+			limit = { scope:prelate_office = flag:archbishop }
+			scope:new_prelate = { pam_holds_church_seat_trigger = no }
+		}
+	}
+
+	immediate = {
+		# The scene belongs to the prelate's church, not ours; we may not even share their faith
+		scope:new_prelate = { save_scope_as = bg_override_char }
+
+		# An antipope only reads as an antipope next to the incumbent being defied.
+		# Skipped when that incumbent is us, since root already holds the right-hand portrait
+		if = {
+			limit = {
+				scope:prelate_office = flag:antipope
+				exists = scope:new_prelate.faith.religious_head
+				scope:new_prelate.faith.religious_head != scope:new_prelate
+				scope:new_prelate.faith.religious_head != root
+			}
+			scope:new_prelate.faith.religious_head = { save_scope_as = seated_prelate }
+		}
+	}
+
+	left_portrait = {
+		character = scope:new_prelate
+		animation = acknowledging_crozier
+		camera = camera_body
+	}
+
+	right_portrait = {
+		character = root
+		animation = personality_zealous
+		camera = camera_event_right
+	}
+
+	lower_center_portrait = {
+		trigger = { exists = scope:seated_prelate }
+		character = scope:seated_prelate
+		animation = anger
+	}
+
+	# Stay as myself
+	option = {
+		name = {
+			trigger = { scope:prelate_office = flag:antipope }
+			text = pam_clergy_events.0060.a.antipope
+		}
+		name = pam_clergy_events.0060.a
+
+		add_piety = minor_piety_gain
+		dynasty ?= { add_dynasty_prestige = minor_dynasty_prestige_gain }
+		scope:new_prelate = {
+			add_opinion = {
+				modifier = pleased_opinion
+				target = root
+				opinion = 20
+			}
+		}
+	}
+
+	# Continue as the new prelate
+	option = {
+		name = {
+			trigger = { scope:prelate_office = flag:antipope }
+			text = pam_clergy_events.0060.b.antipope
+		}
+		name = pam_clergy_events.0060.b
+
+		# A second player must not be able to take over a character someone else is already playing
+		trigger = {
+			scope:new_prelate = {
+				is_ai = yes
+				is_playable_character = yes
+			}
+		}
+		add_internal_flag = dangerous
+
+		custom_tooltip = pam_clergy_events.0060.b.tt
+		if = {
+			limit = { faith != scope:new_prelate.faith }
+			custom_tooltip = pam_clergy_events.0060.b.faith_tt
+		}
+		if = {
+			limit = { scope:prelate_office = flag:antipope }
+			custom_tooltip = pam_clergy_events.0060.b.antipope_tt
+		}
+		set_player_character = scope:new_prelate
 	}
 }

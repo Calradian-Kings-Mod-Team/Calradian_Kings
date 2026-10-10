@@ -273,12 +273,6 @@ purchase_land_interaction = {
 					}
 				}
 			}
-			if = { # Unop: This check was missing from this block, (found inside on_accept)
-				limit = {
-					scope:actor = { has_variable = ep3_grace_to_the_family_var }
-				}
-				multiply = 0.5
-			}
 			if = {
 				limit = {
 					scope:actor = { has_variable = ep3_grace_to_the_family_var }
@@ -400,11 +394,6 @@ purchase_land_interaction = {
 			}
 		}
 		scope:actor = { trigger_event = ep3_laamps.0100 }
-		hidden_effect = { # Unop: Give the actor the gold that was taken from the cost = {} block, since it will be taken inside purchase_land_interaction_effect to be given to the recipient
-			scope:actor = {
-				add_gold = scope:purchase_land_cost
-			}
-		}
 	}
 
 	on_decline = {
@@ -2614,13 +2603,12 @@ negotiate_settlement_interaction = {
 		modifier = { # Defending against a LAAMP
 			any_character_war = {
 				primary_defender = scope:actor
-				save_temporary_scope_as = war #Unop ck3-tiger
 				any_war_attacker = {
 					scope:recipient ?= this
 					has_government = landless_adventurer_government
 					NOT = { has_realm_law = camp_purpose_legitimists }
 					# Attacking laamp's troops at least 10% of defender's total troops
-					current_military_strength > scope:war.war_defender_total_strength_tenth_value #Unop ck3-tiger
+					current_military_strength > prev.war_defender_total_strength_tenth_value
 				}
 				OR = {
 					attacker_war_score >= 25
@@ -2634,13 +2622,12 @@ negotiate_settlement_interaction = {
 				every_character_war = {
 					limit = {
 						primary_defender = scope:actor
-						save_temporary_scope_as = war #Unop ck3-tiger
 						any_war_attacker = {
 							scope:recipient ?= this
 							has_government = landless_adventurer_government
 							NOT = { has_realm_law = camp_purpose_legitimists }
 							# Attacking laamp's troops at least 10% of defender's total troops
-							current_military_strength > scope:war.war_defender_total_strength_tenth_value #Unop ck3-tiger
+							current_military_strength > prev.war_defender_total_strength_tenth_value
 						}
 					}
 					add = {
@@ -2666,12 +2653,11 @@ negotiate_settlement_interaction = {
 		modifier = { # Attacking a LAAMP
 			any_character_war = {
 				primary_attacker = scope:actor
-				save_temporary_scope_as = war #Unop ck3-tiger
 				any_war_defender = {
 					scope:recipient ?= this
 					has_government = landless_adventurer_government
 					# Defending laamp's troops at least 10% of attacker's total troops
-					current_military_strength > scope:war.war_attacker_total_strength_tenth_value #Unop ck3-tiger
+					current_military_strength > prev.war_attacker_total_strength_tenth_value
 				}
 				OR = {
 					defender_war_score >= 25
@@ -2685,12 +2671,11 @@ negotiate_settlement_interaction = {
 				every_character_war = {
 					limit = {
 						primary_attacker = scope:actor
-						save_temporary_scope_as = war #Unop ck3-tiger
 						any_war_defender = {
 							scope:recipient ?= this
 							has_government = landless_adventurer_government
 							# Defending laamp's troops at least 10% of attacker's total troops
-							current_military_strength > scope:war.war_attacker_total_strength_tenth_value #Unop ck3-tiger
+							current_military_strength > prev.war_attacker_total_strength_tenth_value
 						}
 					}
 					add = {
@@ -3230,7 +3215,6 @@ complete_task_contract_interaction = {
 	}
 
 	is_valid_showing_failures_only = {
-		#Unop Check full availability before starting travel
 		scope:actor = {
 			is_available = yes
 		}
@@ -3245,17 +3229,6 @@ complete_task_contract_interaction = {
 	}
 
 	send_option = {
-		#Unop Ensure the LAAMP can't move camp to provinces they are exiled from
-		is_valid = {
-			custom_tooltip = {
-				text = the_wake_1
-				NOT = {
-					scope:recipient = {
-						is_laamp_exiled_from_holder_or_liege_trigger = { LAAMP = scope:actor }
-					}
-				}
-			}
-		}
 		flag = with_domicile
 		is_valid = {
 			custom_tooltip = {
@@ -7568,10 +7541,6 @@ relocate_camp_to_interaction = {
 			scope:actor.domicile.domicile_location != scope:recipient.capital_province
 		}
 		scope:actor = {
-			#Unop Check full availability before starting travel
-			#is_travelling = no
-			#is_in_army = no
-			#is_imprisoned = no
 			is_available = yes
 		}
 		# Adventurers can't join wars in places they're exiled from.

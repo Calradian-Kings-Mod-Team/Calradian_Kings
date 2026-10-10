@@ -457,6 +457,7 @@ ep3_contract_event.0001 = {
 	#take the contract and start the travel with domicile
 	option = {
 		name = ep3_contract_event.0001.with_domicile
+
 		trigger = {
 			custom_tooltip = {
 				text = can_move_domicile_camp_exile.tt
@@ -3486,13 +3487,11 @@ ep3_contract_event.0030 = {
 			# Success.
 			AGENT_1 = agent_thief
 			AGENT_2 = agent_thug
-			AGENT_3 = agent_muscle #Unop: Since vanilla agent 4 & 5 are useless, reorder the agents to all have success first, speed second
 			# Speed.
-			AGENT_4 = agent_infiltrator
-			AGENT_5 = agent_lookout_speed
-			# Secrecy. #Unop: This scheme was probably secret when it was created, then changed to not be secret anymore for unknown reason (since laamp_extra_contract_schemes.0011 is not adding secrecy bonus)
-			#AGENT_4 = agent_lookout
-			#AGENT_5 = agent_decoy
+			AGENT_3 = agent_infiltrator
+			# Secrecy.
+			AGENT_4 = agent_lookout
+			AGENT_5 = agent_decoy
 		}
 		scope:task_contract.scheme = {
 			save_scope_as = scheme
@@ -3711,20 +3710,13 @@ ep3_contract_event.0041 = {
 				0040_traveling_towards_treasure_without_domicile_trigger = yes
 			}
 		}
-		#Unop Reroute to home available only if traveling to the treasure location
-		trigger = {
-			OR = {
-				0040_traveling_towards_treasure_with_domicile_trigger = yes
-				0040_traveling_towards_treasure_without_domicile_trigger = yes
-			}
-		}
 		#No point in traveling without the map
 		return_home = yes
 	}
 	#Already paid for my domicile to travel. We're continuing!
 	option = {
 		name = travel_danger_events.1011.c
-		trigger = { 0040_traveling_towards_treasure_without_domicile_trigger = no } #Unop Keep up moving available unless traveling to the treasure location without domicile
+		trigger = { 0040_traveling_towards_treasure_with_domicile_trigger = yes }
 	}
 	after = { remove_variable ?= ep3_laamp_decision_1000_is_excavating }
 }
@@ -4935,13 +4927,6 @@ ep3_contract_event.0080 = {
 					actor = root
 					recipient = scope:task_contract_target
 				}
-			}
-		}
-		else = { #Unop: open the interaction for human players (it will throw an error in the logs for an AI)
-			open_interaction_window = {
-				interaction = start_generate_claim_interaction
-				actor = root
-				recipient = scope:task_contract_target
 			}
 		}
 		ai_chance = {
