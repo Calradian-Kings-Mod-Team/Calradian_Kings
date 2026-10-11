@@ -1,0 +1,228 @@
+namespace = ecumenical_council_events_josh
+
+# A Saintly Celebration
+ecumenical_council_events_josh.0010 = {
+	id_override_priority = 120
+	type = activity_event
+	title = ecumenical_council_events_josh.0010.t
+	desc = ecumenical_council_events_josh.0010.desc
+	theme = ecumenical_council
+	left_portrait = {
+		character = root
+		animation = priest_good
+	}
+	center_portrait = {
+		trigger = { exists = scope:guest_1 }
+		character = scope:guest_1
+		animation = drink
+		camera = camera_event_right_to_the_right
+	}
+	right_portrait = {
+		trigger = { exists = scope:guest_2 }
+		character = scope:guest_2
+		animation = toast
+	}
+	lower_right_portrait = {
+		character = scope:monthly_saint
+		animation = divine_gesture_3
+	}
+
+	cooldown = { years = 5 }
+	
+	trigger = {
+    	is_clergy = yes
+    }
+
+	override_effect_2d = {
+		reference = legend_glow
+	}
+	
+	immediate = {
+		involved_activity = {
+			random_attending_character = {
+				limit = {
+					NOR = {
+						this = root
+						this = involved_activity.activity_host			
+					}
+				}
+				weight = {
+					base = 1
+					modifier = {
+						add = 5
+						has_trait = gregarious
+					}
+					modifier = {
+						add = 10
+						has_trait = lifestyle_reveler
+					}
+				}
+				save_scope_as = guest_1
+			}
+			random_attending_character = {
+				limit = {
+					NOR = {
+						this = root
+						this = involved_activity.activity_host
+						this = scope:guest_1					
+					}
+				}
+				weight = {
+					base = 1
+					modifier = {
+						add = 5
+						has_trait = gregarious
+					}
+					modifier = {
+						add = 10
+						has_trait = lifestyle_reveler
+					}
+				}
+				save_scope_as = guest_2
+			}
+		}
+
+		character:Imp_Rhovanis = {
+			save_scope_as = monthly_saint
+		}
+		# if = { # January – Anthony
+        #     limit = { current_month = 1 }
+        #     character:saint_0015 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # February – Peter
+        #     limit = { current_month = 2 }
+        #     character:145292 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # March – Cyprian
+        #     limit = { current_month = 3 }
+        #     character:saint_0005 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # April – George
+        #     limit = { current_month = 4 }
+        #     character:saint_0010 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # May – Mary
+        #     limit = { current_month = 5 }
+        #     character:saint_0001 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # June – Boniface
+        #     limit = { current_month = 6 }
+        #     character:saint_0017 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # July – Mary Magdalene
+        #     limit = { current_month = 7 }
+        #     character:saint_0003 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # August – Augustine
+        #     limit = { current_month = 8 }
+        #     character:saint_0008 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # September – Gregory I
+        #     limit = { current_month = 9 }
+        #     character:7893 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # October – Ignatius
+        #     limit = { current_month = 10 }
+        #     character:saint_0004 = { save_scope_as = monthly_saint }
+        # }
+        # else_if = { # November – Catherine
+        #     limit = { current_month = 11 }
+        #     character:saint_0012  = { save_scope_as = monthly_saint }
+        # }
+        # else = { # December – Nicholas
+        #     limit = { current_month = 12 }
+        #     character:saint_0011 = { save_scope_as = monthly_saint }
+        # }
+	}
+	
+	option = { # Dedicate the mass
+		name = ecumenical_council_events_josh.0010.a
+		add_piety = medium_piety_gain
+		stress_and_fulfillment_impact = {
+			shy = medium_stress_impact_gain
+			cynical = medium_stress_impact_gain
+			compassionate = medium_stress_impact_loss
+			forgiving = medium_stress_impact_loss
+			zealous = medium_stress_impact_loss
+		}
+		involved_activity = {
+		    every_attending_character = {
+		        custom = every_ruler_guest_scope_tt
+		        limit = {
+		        	is_available_quick = {
+						advanced_ruler = yes
+					}
+		        	this != root
+		        }
+				change_spiritual_fulfillment = minor_spiritual_fulfillment_value
+		    }
+		}
+		
+		ai_chance = {
+			base = 100
+		}
+	}
+	
+	option = { # Hold a sermon
+		name = ecumenical_council_events_josh.0010.b
+		add_piety = minor_piety_gain
+		add_learning_lifestyle_xp = medium_lifestyle_experience
+		stress_and_fulfillment_impact = {
+			base = minor_stress_gain
+			impatient = medium_stress_impact_gain
+			wrathful = minor_stress_impact_gain
+			patient = minor_stress_impact_loss
+		}	
+		
+		ai_chance = {
+			base = 100
+			modifier = {
+				has_trait = patient
+				factor = 2
+			}
+			modifier = {
+				has_trait = impatient
+				factor = 0
+			}
+			modifier = {
+				has_trait = wrathful
+				factor = 0
+			}									
+		}
+	}
+	
+	option = { # Just add a psalm instead
+		name = ecumenical_council_events_josh.0010.c
+		add_piety = minor_piety_gain
+		stress_and_fulfillment_impact = {
+			base = minor_stress_loss
+			gregarious = minor_stress_impact_loss
+			temperate = minor_stress_impact_loss
+		}
+		involved_activity = {
+		    every_attending_character = {
+		        custom = every_guest_scope_tt
+		        limit = {
+		        	this != root
+		        }
+		        add_opinion = {
+		            target = ROOT
+		            modifier = thankful_opinion
+		            opinion = 15
+		        }
+		    }
+		}
+		
+		ai_chance = {
+			base = 100
+			modifier = {
+				has_trait = gregarious
+				factor = 2
+			}
+			modifier = {
+				has_trait = temperate
+				factor = 2
+			}					
+		}
+	}
+}
