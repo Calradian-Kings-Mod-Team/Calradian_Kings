@@ -1,0 +1,401 @@
+﻿namespace = pam_generic_events
+
+#override 8,9
+
+# You hear the voice of god telling you how virtuous you are
+pam_generic_events.0008 = {
+	id_override_priority = 120
+	type = character_event
+	title = pam_generic_events.0008.t
+	desc = pam_generic_events.0008.desc
+	theme = christian
+	override_background = { reference = corridor_night }
+	widgets = {
+		widget = { gui = event_window_widget_vfx_background_night_scene container = foreground_shader_vfx_container }
+		widget = { gui = event_window_widget_vfx_fog container = foreground_shader_vfx_container }
+		widget = { gui = event_window_widget_vfx_left_character_night_scene container = foreground_shader_vfx_container }
+	}
+
+	left_portrait = {
+		character = root
+		animation = sick
+	}
+
+	cooldown = { years = 10 }
+
+	trigger = {
+		has_pam_dlc_trigger = yes
+		is_available_adult = yes
+		religion = religion:calradian_religion
+		num_virtuous_traits > 0
+	}
+
+	weight_multiplier = {
+		base = 1
+		modifier = {
+			add = 1
+			OR = {
+				has_trait = possessed
+				has_trait = witch
+			}
+		}
+	}
+
+	immediate = {
+		random_character_trait = {
+			limit = {
+				root.rite = {
+					trait_is_virtue_rite = prev
+				}
+			}
+			save_scope_as = virtuous_trait
+		}
+	}
+
+	option = { # Possessed
+		name = pam_generic_events.0008.a
+		trigger = {
+			OR = {
+				has_trait = possessed_1
+				has_trait = possessed_genetic
+			}
+		}
+		change_spiritual_fulfillment = medium_spiritual_fulfillment_value
+		add_character_modifier = pam_religious_delirium_modifier
+		stress_and_fulfillment_impact = {
+			zealous = minor_stress_impact_loss
+			cynical = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			ai_value_modifier = {
+				ai_zeal = 0.5
+			}
+		}
+	}
+
+	option = { # Neither possessed nor witch: believe it is God
+		name = pam_generic_events.0008.b
+		trigger = {
+			NOR = {
+				has_trait = possessed_1
+				has_trait = possessed_genetic
+				has_trait = witch
+			}
+		}
+		change_spiritual_fulfillment = medium_spiritual_fulfillment_value
+		if = {
+			limit = { is_ai = no }
+			random = {
+				chance = 5
+				add_trait = possessed_1
+			}
+		}
+		stress_and_fulfillment_impact = {
+			zealous = minor_stress_impact_loss
+			cynical = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 75
+			ai_value_modifier = {
+				ai_zeal = 0.5
+			}
+			modifier = {
+				factor = 2
+				has_trait = zealous
+			}
+			modifier = {
+				factor = 0
+				has_trait = cynical
+			}
+		}
+	}
+
+	option = { # Witch
+		name = pam_generic_events.0008.c
+		trigger = {
+			has_trait = witch
+			NOR = {
+				has_trait = possessed_1
+				has_trait = possessed_genetic
+			}
+		}
+		add_character_modifier = pam_religious_delirium_modifier
+		random = {
+			chance = 10
+			add_trait = possessed_1
+		}
+		stress_and_fulfillment_impact = {
+			zealous = minor_stress_impact_loss
+			cynical = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 75
+			ai_value_modifier = {
+				ai_zeal = 0.25
+			}
+		}
+	}
+
+	option = { # I know exactly what this is
+		name = pam_generic_events.0008.d
+		trigger = { learning >= high_skill_rating }
+		show_as_unavailable = {
+			learning < high_skill_rating
+		}
+		if = {
+			limit = { NOT = { has_trait = lifestyle_physician } }
+			add_trait = lifestyle_physician
+		}
+		else = {
+			add_trait_xp = {
+				trait = lifestyle_physician
+				value = 10
+			}
+		}
+		stress_and_fulfillment_impact = {
+			base = medium_stress_impact_loss
+		}
+		ai_chance = {
+			base = 100
+			ai_value_modifier = {
+				ai_rationality = 0.5
+			}
+		}
+	}
+
+	option = { # Speculate it was the food
+		name = pam_generic_events.0008.e
+		trigger = { learning < high_skill_rating }
+		add_learning_lifestyle_xp = minor_lifestyle_xp
+		stress_and_fulfillment_impact = {
+			cynical = minor_stress_impact_loss
+			zealous = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 50
+			ai_value_modifier = {
+				ai_rationality = 0.25
+			}
+		}
+	}
+
+	option = { # Pray
+		name = pam_generic_events.0008.f
+		add_piety = minor_piety_gain
+		stress_and_fulfillment_impact = {
+			zealous = minor_stress_impact_loss
+			cynical = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 50
+			ai_value_modifier = {
+				ai_zeal = 0.5
+			}
+			modifier = {
+				factor = 2
+				has_trait = zealous
+			}
+		}
+	}
+}
+
+# Clergy member has a hellish nightmare
+
+pam_generic_events.0009 = {
+	id_override_priority = 120 
+	type = character_event
+	title = pam_generic_events.0009.t
+	desc = pam_generic_events.0009.desc
+	theme = christian
+	override_background = { reference = bedchamber }
+	widgets = {
+		widget = { gui = event_window_widget_vfx_background_night_scene container = foreground_shader_vfx_container }
+		widget = { gui = event_window_widget_vfx_left_character_night_scene container = foreground_shader_vfx_container }
+	}
+
+	left_portrait = {
+		character = root
+		animation = mental_anguish
+		outfit_tags = { nightgown }
+	}
+	
+	lower_right_portrait = {
+		trigger = { exists = scope:comforting_courtier }
+		character = scope:comforting_courtier
+	}
+
+	cooldown = { years = 10 }
+
+	trigger = {
+		has_pam_dlc_trigger = yes
+		is_available_adult = yes
+		religion = religion:calradian_religion
+		pam_is_clergy_ruler_trigger = yes
+		num_sinful_traits > 0
+	}
+
+	weight_multiplier = {
+		base = 1
+		modifier = {
+			add = 0.25
+			has_trait = flagellant
+		}
+		modifier = {
+			add = 0.25
+			has_trait = zealous
+		}
+	}
+
+	immediate = {
+		random_character_trait = {
+			limit = {
+				root.rite = {
+					trait_is_sin_rite = prev
+				}
+			}
+			save_scope_as = sinful_trait
+		}
+		if = {
+			limit = {
+				any_courtier = {
+					is_available_ai_adult = yes
+					opinion = {
+						target = root
+						value > 0
+					}
+				}
+			}
+			random_courtier = {
+				limit = {
+					is_available_ai_adult = yes
+					opinion = {
+						target = root
+						value > 0
+					}
+				}
+				save_scope_as = comforting_courtier
+			}
+		}
+	}
+
+	option = { # Already flagellant: scourge yourself
+		name = pam_generic_events.0009.a
+		trigger = { has_trait = flagellant }
+		change_spiritual_fulfillment = medium_spiritual_fulfillment_value
+		stress_and_fulfillment_impact = {
+			base = minor_stress_impact_loss
+			zealous = minor_stress_impact_loss
+			cynical = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			ai_value_modifier = {
+				ai_zeal = 0.5
+			}
+		}
+	}
+
+	option = { # Not flagellant: take up the scourge
+		name = pam_generic_events.0009.b
+		trigger = {
+			NOT = { has_trait = flagellant }
+		}
+		add_trait = flagellant
+		change_spiritual_fulfillment = medium_spiritual_fulfillment_value
+		if = {
+			limit = {
+				NOT = { knows_tenet = tenet_mortification_of_the_flesh }
+			}
+			add_known_tenet = tenet_mortification_of_the_flesh
+		}
+		stress_and_fulfillment_impact = {
+			base = minor_stress_impact_loss
+			zealous = minor_stress_impact_loss
+			cynical = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 75
+			ai_value_modifier = {
+				ai_zeal = 0.5
+			}
+			modifier = {
+				factor = 2
+				has_trait = zealous
+			}
+			modifier = {
+				factor = 0
+				has_trait = cynical
+			}
+		}
+	}
+
+	option = { # Seek refuge in the scriptures
+		name = pam_generic_events.0009.c
+		trigger = { learning >= high_skill_rating }
+		add_scholar_trait_or_xp_effect = { VALUE = 10 }
+		stress_and_fulfillment_impact = {
+			base = minor_stress_impact_gain
+			zealous = minor_stress_impact_loss
+			diligent = minor_stress_impact_loss
+			cynical = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 75
+			ai_value_modifier = {
+				ai_zeal = 0.25
+			}
+			modifier = {
+				factor = 2
+				has_trait = lifestyle_scholar
+			}
+		}
+	}
+
+	option = { # Seek refuge in a friend
+		name = pam_generic_events.0009.d
+		trigger = { exists = scope:comforting_courtier }
+		progress_towards_friend_effect = {
+			CHARACTER = scope:comforting_courtier
+			REASON = friend_comforted_hell_nightmare_reason
+			OPINION = default_friend_opinion
+		}
+		stress_and_fulfillment_impact = {
+			base = minor_stress_impact_gain
+			gregarious = minor_stress_impact_loss
+			shy = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 100
+			ai_value_modifier = {
+				ai_sociability = 0.5
+				ai_compassion = 0.25
+			}
+			modifier = {
+				factor = 2
+				has_trait = gregarious
+			}
+			modifier = {
+				factor = 0
+				has_trait = shy
+			}
+		}
+	}
+
+	option = { # Go back to sleep
+		name = pam_generic_events.0009.e
+		stress_and_fulfillment_impact = {
+			base = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 50
+			ai_value_modifier = {
+				ai_energy = -0.25
+			}
+			modifier = {
+				factor = 2
+				has_trait = lazy
+			}
+		}
+	}
+}
