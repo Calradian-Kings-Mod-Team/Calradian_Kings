@@ -1,0 +1,520 @@
+﻿namespace = pam_great_projects_events
+
+############################
+
+#Pick stained glass subject for your cathedral contribution
+pam_great_projects_events.0003 = {
+	id_override_priority = 120
+	type = character_event
+	title = pam_great_projects_events.0003.t
+	desc = pam_great_projects_events.0003.desc
+	center_portrait = {
+		character = scope:religion_buddy
+		animation = admiration
+		camera = camera_activity_horse
+	}
+	left_portrait = {
+		character = root
+		animation = throne_room_conversation_4
+		camera = camera_event_center_pointing_right
+	}
+	right_portrait = {
+		character = scope:glazier
+		animation = personality_bold
+		camera = camera_event_center_pointing_left
+	}
+	override_background = { reference = pam_cathedral_construction }
+	window = big_event_window
+	theme = christian
+	widgets = {
+		widget = {
+			gui = event_window_widget_vfx_stained_glass
+			container = background_shader_vfx_container
+		}
+	}
+	immediate = {
+		save_scope_as = contributor
+		#Priest: cathedral owner, else court chaplain if you are owner, else local clergy
+		if = {
+			limit = {
+				root != scope:owner
+				scope:owner = {
+					is_alive = yes
+				}
+			}
+			scope:owner = {
+				save_scope_as = religion_buddy
+			}
+		}
+		else_if = {
+			limit = {
+				exists = cp:councillor_court_chaplain
+				cp:councillor_court_chaplain = {
+					basic_is_available_ai = yes
+				}
+			}
+			cp:councillor_court_chaplain = {
+				save_scope_as = religion_buddy
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					exists = scope:religion_buddy
+				}
+			}
+			ordered_pool_character = {
+				province = scope:province
+				limit = {
+					is_clergy = yes
+					faith = scope:province.faith
+					basic_is_available_ai = yes
+					NOT = {
+						this = root
+					}
+				}
+				order_by = primary_title.tier
+				save_scope_as = religion_buddy
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					exists = scope:religion_buddy
+				}
+			}
+			create_character = {
+				template = priest_character_template
+				dynasty = none
+				location = scope:province
+				culture = scope:province.culture
+				faith = scope:province.faith
+				rite = scope:province.rite
+				save_scope_as = religion_buddy
+			}
+			scope:religion_buddy = {
+				add_character_flag = {
+					flag = pam_great_projects_fake_priest
+					days = 10
+				}
+			}
+		}
+		#Glazier: skilled local pool character, else temporary workshop hand
+		ordered_pool_character = {
+			province = scope:province
+			limit = {
+				learning >= high_skill_rating
+				culture = scope:province.culture
+				faith = scope:province.faith
+				is_available_ai_adult = yes
+				NOT = {
+					this = root
+				}
+				trigger_if = {
+					limit = {
+						exists = scope:religion_buddy
+					}
+					NOT = {
+						this = scope:religion_buddy
+					}
+				}
+			}
+			order_by = learning
+			save_scope_as = glazier
+		}
+		if = {
+			limit = {
+				NOT = {
+					exists = scope:glazier
+				}
+			}
+			create_character = {
+				template = generic_peasant_character
+				dynasty = none
+				location = scope:province
+				culture = scope:province.culture
+				faith = scope:province.faith
+				rite = scope:province.rite
+				learning = {
+					min_template_high_skill
+					max_template_high_skill
+				}
+				save_scope_as = glazier
+			}
+			scope:glazier = {
+				add_character_flag = {
+					flag = pam_great_projects_fake_glazier
+					days = 10
+				}
+			}
+		}
+		character:Imp_Rhovanis = {
+			save_scope_as = blessed_mary
+		}
+	}
+	after = {
+		scope:glazier ?= {
+			if = {
+				limit = {
+					has_character_flag = pam_great_projects_fake_glazier
+				}
+				silent_disappearance_effect = yes
+			}
+		}
+		scope:religion_buddy ?= {
+			if = {
+				limit = {
+					has_character_flag = pam_great_projects_fake_priest
+				}
+				silent_disappearance_effect = yes
+			}
+		}
+	}
+
+	#kingship / Tree of Jesse
+	option = { #option a
+		trigger = {
+			#These are triggered this way to avoid crowding option with trait icons
+			trigger_if = {
+				limit = {
+					OR = {
+						highest_held_title_tier >= tier_kingdom
+						legitimacy_level <= 3
+					}
+				}
+				OR = {
+					highest_held_title_tier >= tier_kingdom
+					legitimacy_level <= 3
+				}
+			}
+			trigger_else_if = {
+				limit = {
+					OR = {
+						has_trait = ambitious
+						has_trait = august
+						has_trait = born_in_the_purple
+					}
+				}
+				OR = {
+					has_trait = ambitious
+					has_trait = august
+					has_trait = born_in_the_purple
+				}
+			}
+			trigger_else = {
+				OR = {
+					has_trait = diplomat
+					has_lifestyle = diplomacy_lifestyle
+					has_trait = education_diplomacy_4
+				}
+			}
+		}
+		name = pam_great_projects_events.0003.a.ck
+		flavor = pam_great_projects_events.0003.a.flavor
+		custom_tooltip = pam_great_projects_events.0003.a.tt
+		add_legitimacy_effect = { LEGITIMACY = minor_legitimacy_gain }
+		scope:province = {
+			set_variable = {
+				name = cathedral_glass_tree_of_jesse
+			}
+		}
+		if = {
+			limit = { exists = dynasty }
+			dynasty = {
+				add_dynasty_prestige = minor_dynasty_prestige_gain
+			}
+		}
+		ai_chance = {
+			base = 500
+			modifier = {
+				has_trait = ck_royalist
+				factor = 1.5
+			}
+		}
+	}
+	#donor portrait / dynasty
+	option = { #option b
+		trigger = {
+			dynasty ?= {
+				#These are triggered this way to avoid crowding option with trait icons
+				trigger_if = {
+					limit = {
+						root = {
+							OR = {
+								has_trait = arrogant
+								has_trait = gregarious
+								has_trait = lustful
+							}
+						}
+					}
+					root = {
+						OR = {
+							has_trait = arrogant
+							has_trait = gregarious
+							has_trait = lustful
+						}
+					}
+				}
+				trigger_else_if = {
+					limit = {
+						OR = {
+							dynasty_prestige_level >= 2
+							root = {
+								is_dynast = yes
+							}
+							root = {
+								has_trait = family_first
+							}
+						}
+					}
+					OR = {
+						dynasty_prestige_level >= 2
+						root = {
+							is_dynast = yes
+						}
+						root = {
+							has_trait = family_first
+						}
+					}
+				}
+				trigger_else = {
+					OR = {
+						root = {
+							has_trait = generous
+						}
+						dynasty_prestige_level >= 1
+					}
+				}
+			}
+		}
+		name = pam_great_projects_events.0003.b
+		custom_tooltip = pam_great_projects_events.0003.b.tt
+		scope:province = {
+			set_variable = {
+				name = cathedral_glass_dynasty
+			}
+		}
+		add_prestige = minor_prestige_gain
+		ai_chance = {
+			base = 500
+			modifier = {
+				has_trait = ck_oligarch
+				factor = 1.5
+			}
+		}
+	}
+	#pilgrim miracles
+	option = { #option c
+		trigger = {
+			#These are triggered this way to avoid crowding option with trait icons
+			trigger_if = {
+				limit = {
+					OR = {
+						has_trait = pilgrim
+					}
+				}
+				OR = {
+					has_trait = pilgrim
+				}
+			}
+			trigger_else_if = {
+				limit = {
+					OR = {
+						has_trait = improvident
+						has_trait = holy_warrior
+					}
+				}
+				OR = {
+					has_trait = improvident
+					has_trait = holy_warrior
+				}
+			}
+			trigger_else = {
+				OR = {
+					has_trait = diligent
+					has_trait = fickle
+				}
+			}
+		}
+		name = pam_great_projects_events.0003.c
+		custom_tooltip = pam_great_projects_events.0003.c.tt
+		scope:province = {
+			set_variable = {
+				name = cathedral_glass_pilgrim
+			}
+		}
+		if = {
+			limit = { has_trait = pilgrim }
+			add_trait_xp = {
+				trait = pilgrim
+				value = {
+					value = pilgrim_xp_gain_minor_value
+					multiply = 2
+				}
+			}
+			add_piety = minor_piety_gain
+		}
+		ai_chance = {
+			base = 500
+			modifier = {
+				has_trait = ck_populist
+				factor = 2
+			}
+		}
+	}
+	#Marian light
+	option = { #option d
+		trigger = {
+			trigger_if = {
+				limit = {
+					OR = {
+						rite = {
+							rite_has_tenet = tenet_dulia
+						}
+						has_personal_tenet = tenet_dulia
+					}
+				}
+				OR = {
+					rite = {
+						rite_has_tenet = tenet_dulia
+					}
+					has_personal_tenet = tenet_dulia
+				}
+			}
+			trigger_else_if = {
+				limit = {
+					OR = {
+						has_trait = devoted
+						has_trait = humble
+					}
+				}
+				OR = {
+					has_trait = devoted
+					has_trait = humble
+				}
+			}
+			trigger_else = {
+				OR = {
+					has_trait = temperate
+					piety_level >= 4
+				}
+			}
+		}
+		name = pam_great_projects_events.0003.d.ck
+		flavor = pam_great_projects_events.0003.d.flavor
+		custom_tooltip = pam_great_projects_events.0003.d.tt
+		custom_tooltip = pam_great_projects_events.0003.d.dulia.tt
+		scope:province = {
+			set_variable = {
+				name = cathedral_glass_marian_light
+			}
+		}
+		stress_and_fulfillment_impact = { base = minor_stress_impact_loss }
+		if = {
+			limit = { has_spiritual_fulfillment_type = christian_fulfillment }
+			if = {
+				limit = { has_personal_tenet = tenet_dulia }
+				change_spiritual_fulfillment = major_spiritual_fulfillment_value
+			}
+			else = {
+				change_spiritual_fulfillment = medium_spiritual_fulfillment_value
+			}
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				has_trait = ck_oligarch
+				factor = 0.5
+			}
+		}
+	}
+	#martyrdom cycle
+	option = {
+		trigger = {
+			game_start_date > 976.8.10 # CK_DARUSOS
+			#These are triggered this way to avoid crowding option with trait icons
+			trigger_if = {
+				limit = {
+					has_trait = zealous
+				}
+				has_trait = zealous
+			}
+			trigger_else_if = {
+				limit = {
+					OR = {
+						has_trait = brave
+						has_trait = stubborn
+						has_trait = contrite
+					}
+				}
+				OR = {
+					has_trait = brave
+					has_trait = stubborn
+					has_trait = contrite
+				}
+			}
+			trigger_else = {
+				has_trait = theologian
+			}
+		}
+		name = pam_great_projects_events.0003.e.ck
+		custom_tooltip = pam_great_projects_events.0003.e.tt
+		scope:province = {
+			set_variable = {
+				name = cathedral_glass_martyrdom
+			}
+		}
+		if = {
+			limit = {
+				has_trait = zealous
+				has_spiritual_fulfillment_type = christian_fulfillment
+			}
+			add_piety = major_piety_gain
+			stress_and_fulfillment_impact = { base = minor_stress_impact_loss }
+		}
+		scope:owner ?= {
+			if = {
+				limit = {
+					this != root
+				}
+				send_interface_message = {
+					type = msg_great_project_reward
+					title = pam_great_projects_events.0003.e.owner_msg.title
+					desc = pam_great_projects_events.0003.e.owner_msg.desc
+					right_icon = scope:contributor
+					add_piety = medium_piety_gain
+					if = {
+						limit = {
+							has_spiritual_fulfillment_type = christian_fulfillment
+						}
+						change_spiritual_fulfillment = medium_spiritual_fulfillment_value
+					}
+				}
+			}
+			else = {
+				add_piety = medium_piety_gain
+				if = {
+					limit = {
+						has_spiritual_fulfillment_type = christian_fulfillment
+					}
+					change_spiritual_fulfillment = medium_spiritual_fulfillment_value
+				}
+			}
+		}
+		ai_chance = {
+			base = 100
+			modifier = {
+				has_strong_religious_conviction_trigger = yes
+				add = 200
+			}
+			modifier = {
+				is_a_darusan_rite = yes
+				add = 150
+			}
+			modifier = {
+				has_trait = ck_militarist
+				factor = 0.5
+			}
+		}
+	}
+}
