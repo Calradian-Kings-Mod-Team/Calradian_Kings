@@ -374,3 +374,2765 @@ court_amenities_cost_food_modifier = {
 		multiply = 0.8
 	}
 }
+
+### PAM-RELATED VALUES
+pam_heresy_pulse_no_event_value = {
+	if = {
+		limit = { fervor > 30 }
+		value = 99
+	}
+	else_if = {
+		limit = { fervor > 20 }
+		value = 32
+	}
+	else_if = {
+		limit = { fervor > 10 }
+		value = 11
+	}
+	else = { value = 2 }
+	# In the more turbulent phases we lower this, so outbreaks happen more often
+	if = {
+		limit = {
+			religion = religion:calradian_religion
+			situation:the_christian_church ?= {
+				OR = {
+					situation_current_phase = saeculum_obscurum
+					situation_current_phase = investiture_crisis
+				}
+			}
+		}
+		divide = 1.5
+	}
+	else_if = {
+		limit = {
+			religion = religion:calradian_religion
+			situation:the_christian_church ?= { situation_current_phase = concord }
+		}
+		multiply = 2
+	}
+	else_if = {
+		limit = {
+			religion = religion:calradian_religion
+			situation:the_christian_church ?= {
+				OR = {
+					situation_current_phase = conversion_phase
+					situation_current_phase = crusade_phase
+				}
+			}
+		}
+		multiply = 1.4
+	}
+	# For a small faith we make outbreaks much rarer
+	if = {
+		limit = { NOT = { pam_heresy_main_rite_substantial_trigger = yes } }
+		multiply = 4
+	}
+	if = {
+		limit = { has_game_rule = much_less_heresy_outbreak_frequency }
+		multiply = 4
+	}
+	else_if = {
+		limit = { has_game_rule = less_heresy_outbreak_frequency }
+		multiply = 2
+	}
+	else_if = {
+		limit = { has_game_rule = more_heresy_outbreak_frequency }
+		multiply = 0.5
+	}
+	else_if = {
+		limit = { has_game_rule = much_more_heresy_outbreak_frequency }
+		multiply = 0.25
+	}
+	min = 1
+}
+# Keyed on ec_desire_target: activity_doctrine_pick_score scores alternatives in a context where
+# 'doctrine' is a permanent target and cannot be shadowed by a temporary one.
+# Scopes:
+#	root: the evaluating character
+#	ec_desire_target: the doctrine being evaluated
+ecumenical_council_doctrine_desire_core_value = { ### CK_DARUSOS CK_DARUSAN CK_CHURCH CK_WARBAND CK_TODO CK_120 - Maybe look into Ecumenical Councils on Mandatist stances? THEO A IRLFIT RUK EASTWOOD
+	value = 0
+	save_temporary_scope_as = voter
+	# generally
+	# good to me-> +100
+	# very good to me-> +125
+	# alternative option but still good to me -> +75
+	# bad to opposite of me -> +50
+	# bad to me -> -100
+	# I don't like but not harmful to me -> -50
+
+	switch = {
+		trigger = scope:ec_desire_target
+		doctrine:doctrine_monogamy = {
+			# A chaste ruler favours monogamy over concubinage.
+			if = {
+				limit = {
+					has_trait = chaste
+					faith = {
+						NOT = { has_doctrine = doctrine_monogamy }
+					}
+				}
+				add = 50
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_trait = lustful
+						any_personal_tenet = { tenet_has_virtue = lustful }
+						rite = { trait_is_virtue_rite = lustful }
+						any_consort = { count > 1 }
+					}
+				}
+				add = -100
+			}
+		}
+		doctrine:doctrine_polygamy = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					OR = {
+						has_trait = lustful
+						any_personal_tenet = { tenet_has_virtue = lustful }
+						rite = { trait_is_virtue_rite = lustful }
+					}
+					# don't switch between polygamy and concubines - it make no sense.
+					faith = {
+						has_doctrine = doctrine_monogamy
+					}
+				}
+				add = 75
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_trait = chaste
+						any_consort = { count <= 1 }
+					}
+				}
+				add = -50
+			}
+		}
+		doctrine:doctrine_concubines = {
+			# A lustful ruler favours being able to take concubines.
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					OR = {
+						has_trait = lustful
+						any_personal_tenet = { tenet_has_virtue = lustful }
+						rite = { trait_is_virtue_rite = lustful }
+					}
+					faith = {
+						has_doctrine = doctrine_monogamy
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_trait = chaste
+						any_consort = { count <= 1 }
+					}
+				}
+				add = -50
+			}
+		}
+
+		doctrine:doctrine_divorce_disallowed = {
+			# A chaste or content ruler favours disallowing divorce.
+			if = {
+				limit = {
+					OR = {
+						has_trait = chaste
+						has_trait = content
+					}
+					faith = {
+						NOT = { has_doctrine = doctrine_divorce_disallowed }
+					}
+					# and don't have any spouse you really don't like
+					NOT = {
+						any_spouse = {
+							reverse_opinion = {
+								target = prev
+								value < -25
+							}
+						}
+					}
+				}
+				add = 50
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_trait = lustful
+						has_trait = ambitious
+						any_spouse = {
+							OR = {
+								reverse_opinion = {
+									target = prev
+									value < -25
+								}
+								# average Anglican behavior
+								AND = {
+									fertility < 0
+									prev.fertility > 0
+									is_pregnant = no
+									NOT = {
+										any_child = {
+											is_child_of = scope:voter
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				add = -100
+			}
+		}
+		doctrine:doctrine_divorce_approval = {
+			# I'm the one approve things!
+			if = {
+				limit = {
+					is_clergy = yes
+					NOR = {
+						has_trait = chaste
+						has_trait = content
+					}
+					faith = {
+						NOT = { has_doctrine = doctrine_divorce_approval }
+					}
+				}
+				add = 100
+			}
+			# Second choice
+			else_if = {
+				limit = {
+					is_clergy = no
+					OR = {
+						has_trait = lustful
+						has_trait = ambitious
+						any_spouse = {
+							OR = {
+								reverse_opinion = {
+									target = prev
+									value < -25
+								}
+								# average Anglican behavior
+								AND = {
+									fertility < 0
+									prev.fertility > 0
+									is_pregnant = no
+									NOT = {
+										any_child = {
+											is_child_of = scope:voter
+										}
+									}
+								}
+							}
+						}
+					}
+					faith = {
+						NOT = { has_doctrine = doctrine_divorce_allowed }
+					}
+				}
+				add = 75
+			}
+			else_if = {
+				limit = {
+					has_trait = chaste
+				}
+				add = -50
+			}
+		}
+		doctrine:doctrine_divorce_allowed = {
+			# A lustful or ambitious ruler favours being able to divorce freely.
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					OR = {
+						has_trait = lustful
+						has_trait = ambitious
+						any_spouse = {
+							OR = {
+								reverse_opinion = {
+									target = prev
+									value < -25
+								}
+								# average Anglican behavior
+								AND = {
+									fertility < 0
+									prev.fertility > 0
+									is_pregnant = no
+									NOT = {
+										any_child = {
+											is_child_of = scope:voter
+										}
+									}
+								}
+							}
+						}
+					}
+					faith = {
+						NOT = { has_doctrine = doctrine_divorce_allowed }
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					has_trait = chaste
+				}
+				add = -50
+			}
+		}
+
+		doctrine:doctrine_bastardry_none = {
+			# A ruler with bastard children favours allowing bastards to inherit.
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							is_clergy = no
+							any_child = {
+								has_trait = bastard
+								prev.faith = { has_dominant_ruling_gender = prev }
+								has_weak_physical_health_traits_trigger = yes
+							}
+							NOT = {
+								any_child = {
+									prev.faith = { has_dominant_ruling_gender = prev }
+									has_weak_physical_health_traits_trigger = no
+								}
+							}
+						}
+						has_trait = bastard
+					}
+				}
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = {
+							NOT = { has_doctrine = doctrine_bastardry_none }
+						}
+					}
+					add = 125
+				}
+			}
+			# bastard siblings don't steal my title!
+			else_if = {
+				limit = {
+					any_heir_title = {
+						NOR = {
+							has_order_of_succession = appointment
+							has_order_of_succession = election
+						}
+					}
+					any_sibling = {
+						has_trait = bastard
+					}
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_trait = celibate
+						has_trait = chaste
+					}
+				}
+				add = -50
+			}
+		}
+		doctrine:doctrine_bastardry_legitimization = {
+			# A ruler with bastard children favours allowing bastards to inherit.
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							is_clergy = no
+							any_child = {
+								has_trait = bastard
+								prev.faith = { has_dominant_ruling_gender = prev }
+								has_weak_physical_health_traits_trigger = yes
+							}
+							NOT = {
+								any_child = {
+									prev.faith = { has_dominant_ruling_gender = prev }
+									has_weak_physical_health_traits_trigger = no
+								}
+							}
+						}
+						has_trait = bastard
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_bastardry_all
+						}
+					}
+					add = 100
+				}
+			}
+			# bastard siblings don't steal my title!
+			else_if = {
+				limit = {
+					any_heir_title = {
+						NOR = {
+							has_order_of_succession = appointment
+							has_order_of_succession = election
+						}
+					}
+					any_sibling = {
+						has_trait = bastard
+					}
+				}
+				add = -75
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_trait = celibate
+						has_trait = chaste
+					}
+					faith = {
+						has_doctrine = doctrine_bastardry_none
+					}
+				}
+				add = -25
+			}
+		}
+		doctrine:doctrine_bastardry_all = {
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							is_clergy = no
+							any_child = {
+								has_trait = bastard
+								prev.faith = { has_dominant_ruling_gender = prev }
+								has_weak_physical_health_traits_trigger = yes
+							}
+							NOT = {
+								any_child = {
+									prev.faith = { has_dominant_ruling_gender = prev }
+									has_weak_physical_health_traits_trigger = no
+								}
+							}
+						}
+						has_trait = bastard
+					}
+				}
+				add = -100
+			}
+			# A ruler without bastard children favours barring bastards from inheritance.
+			else_if = {
+				limit = {
+					OR = {
+						has_trait = celibate
+						has_trait = chaste
+					}
+					faith = {
+						NOT = { has_doctrine = doctrine_bastardry_all }
+					}
+				}
+				add = 100
+			}
+		}
+
+		doctrine:doctrine_homosexuality_crime = {
+			if = {
+				limit = {
+					OR = {
+						is_attracted_to_gender_of = this
+						is_sodomite_trigger = yes
+					}
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					has_sexuality = heterosexual
+					faith = {
+						NOT = { has_doctrine = doctrine_homosexuality_crime }
+					}
+				}
+				add = 50
+			}
+		}
+		doctrine:doctrine_homosexuality_shunned = {
+			if = {
+				limit = {
+					OR = {
+						is_attracted_to_gender_of = this
+						is_sodomite_trigger = yes
+					}
+					faith = {
+						has_doctrine = doctrine_homosexuality_crime
+					}
+				}
+				add = 75
+			}
+			else_if = {
+				limit = {
+					has_sexuality = heterosexual
+					faith = {
+						has_doctrine = doctrine_homosexuality_crime
+					}
+				}
+				add = -25
+			}
+		}
+		doctrine:doctrine_homosexuality_accepted = {
+			# A homosexual character whose faith does not accept it strongly favours the accepted doctrine
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					OR = {
+						is_attracted_to_gender_of = this
+						is_sodomite_trigger = yes
+					}
+					faith = {
+						NOT = { has_doctrine = doctrine_homosexuality_accepted }
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					has_sexuality = heterosexual
+				}
+				add = -50
+			}
+		}
+
+		doctrine:doctrine_deviancy_crime = {
+			if = {
+				limit = {
+					is_deviant_trigger = yes
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					has_trait = chaste
+					faith = {
+						NOT = { has_doctrine = doctrine_deviancy_crime }
+					}
+				}
+				add = 50
+			}
+		}
+		doctrine:doctrine_deviancy_shunned = {
+			if = {
+				limit = {
+					is_deviant_trigger = yes
+				}
+				if = {
+					limit = {
+						faith = {
+							NOT = { has_doctrine = doctrine_deviancy_crime }
+						}
+					}
+					add = -75
+				}
+				else = {
+					add = 75
+				}
+			}
+			else_if = {
+				limit = {
+					has_trait = chaste
+					faith = {
+						NOT = { has_doctrine = doctrine_deviancy_crime }
+					}
+				}
+				add = -25
+			}
+			else_if = {
+				limit = {
+					has_trait = chaste
+					faith = {
+						has_doctrine_parameter = deviancy_accepted
+					}
+				}
+				add = 25
+			}
+		}
+		doctrine:doctrine_deviancy_accepted = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					is_deviant_trigger = yes
+					faith = {
+						NOT = { has_doctrine_parameter = deviancy_accepted }
+					}
+				}
+				add = 100
+			}
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					OR = {
+						has_trait = lustful
+						any_personal_tenet = { tenet_has_virtue = lustful }
+						rite = { trait_is_virtue_rite = lustful }
+					}
+					faith = {
+						NOT = { has_doctrine_parameter = deviancy_accepted }
+					}
+				}
+				add = 50
+			}
+			else_if = {
+				limit = {
+					has_trait = chaste
+					faith = {
+						NOT = { has_doctrine_parameter = deviancy_accepted }
+					}
+				}
+				add = -50
+			}
+			else_if = {
+				limit = { is_deviant_trigger = no }
+				add = -25
+			}
+		}
+		doctrine:doctrine_deviancy_virtuous = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					is_deviant_trigger = yes
+					faith = {
+						NOT = { has_doctrine_parameter = deviancy_accepted }
+					}
+				}
+				add = 125
+			}
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					OR = {
+						has_trait = lustful
+						any_personal_tenet = { tenet_has_virtue = lustful }
+						rite = { trait_is_virtue_rite = lustful }
+					}
+					faith = {
+						NOT = { has_doctrine_parameter = deviancy_accepted }
+					}
+				}
+				add = 50
+			}
+			else_if = {
+				limit = {
+					has_trait = chaste
+					faith = {
+						NOT = { has_doctrine_parameter = deviancy_accepted }
+					}
+				}
+				add = -75
+			}
+			else_if = {
+				limit = { is_deviant_trigger = no }
+				add = -50
+			}
+		}
+
+		doctrine:doctrine_adultery_men_crime = {
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_adultery_men_crime }
+					}
+				}
+				# A chaste people favours criminalising adultery.
+				if = {
+					limit = {
+						has_trait = chaste
+					}
+					add = 50
+				}
+				# A lustful man favours having male adultery accepted.
+				else_if = {
+					limit = {
+						is_male = yes
+						OR = {
+							has_trait = lustful
+							any_personal_tenet = { tenet_has_virtue = lustful }
+							rite = { trait_is_virtue_rite = lustful }
+						}
+					}
+					add = -100
+				}
+			}
+		}
+		doctrine:doctrine_adultery_men_shunned = {
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_adultery_men_crime
+					}
+				}
+				# A chaste people favours criminalising adultery.
+				if = {
+					limit = {
+						has_trait = chaste
+					}
+					add = -25
+				}
+				# A lustful man favours having male adultery accepted.
+				else_if = {
+					limit = {
+						is_male = yes
+						OR = {
+							has_trait = lustful
+							any_personal_tenet = { tenet_has_virtue = lustful }
+							rite = { trait_is_virtue_rite = lustful }
+						}
+					}
+					add = 75
+				}
+			}
+			else_if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_adultery_men_accepted
+					}
+				}
+				# A chaste people favours criminalising adultery.
+				if = {
+					limit = {
+						has_trait = chaste
+					}
+					add = 25
+				}
+				# A lustful man favours having male adultery accepted.
+				else_if = {
+					limit = {
+						is_male = yes
+						has_trait = lustful
+					}
+					add = -100
+				}
+			}
+		}
+		doctrine:doctrine_adultery_men_accepted = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_adultery_men_accepted }
+					}
+				}
+				# A chaste people favours criminalising adultery.
+				if = {
+					limit = {
+						has_trait = chaste
+					}
+					add = -50
+				}
+				# A lustful man favours having male adultery accepted.
+				else_if = {
+					limit = {
+						is_male = yes
+						OR = {
+							has_trait = lustful
+							any_personal_tenet = { tenet_has_virtue = lustful }
+							rite = { trait_is_virtue_rite = lustful }
+						}
+					}
+					add = 100
+				}
+			}
+		}
+
+		doctrine:doctrine_adultery_women_crime = {
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_adultery_women_crime }
+					}
+				}
+				# A chaste people favours criminalising adultery.
+				if = {
+					limit = {
+						has_trait = chaste
+					}
+					add = 50
+				}
+				# A lustful woman favours having female adultery accepted.
+				else_if = {
+					limit = {
+						is_female = yes
+						OR = {
+							has_trait = lustful
+							any_personal_tenet = { tenet_has_virtue = lustful }
+							rite = { trait_is_virtue_rite = lustful }
+						}
+					}
+					add = -100
+				}
+			}
+		}
+		doctrine:doctrine_adultery_women_shunned = {
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_adultery_women_crime
+					}
+				}
+				# A chaste people favours criminalising adultery.
+				if = {
+					limit = {
+						has_trait = chaste
+					}
+					add = -25
+				}
+				# A lustful woman favours having female adultery accepted.
+				else_if = {
+					limit = {
+						is_female = yes
+						OR = {
+							has_trait = lustful
+							any_personal_tenet = { tenet_has_virtue = lustful }
+							rite = { trait_is_virtue_rite = lustful }
+						}
+					}
+					add = 75
+				}
+			}
+			else_if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_adultery_women_accepted
+					}
+				}
+				# A chaste people favours criminalising adultery.
+				if = {
+					limit = {
+						has_trait = chaste
+					}
+					add = 25
+				}
+				# A lustful man favours having female adultery accepted.
+				else_if = {
+					limit = {
+						is_female = yes
+						has_trait = lustful
+					}
+					add = -100
+				}
+			}
+		}
+		doctrine:doctrine_adultery_women_accepted = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_adultery_women_accepted }
+					}
+				}
+				# A chaste people favours criminalising adultery.
+				if = {
+					limit = {
+						has_trait = chaste
+					}
+					add = -50
+				}
+				# A lustful woman favours having female adultery accepted.
+				else_if = {
+					limit = {
+						is_female = yes
+						OR = {
+							has_trait = lustful
+							any_personal_tenet = { tenet_has_virtue = lustful }
+							rite = { trait_is_virtue_rite = lustful }
+						}
+					}
+					add = 100
+				}
+			}
+		}
+
+		doctrine:doctrine_kinslaying_any_dynasty_member_crime = {
+			if = {
+				limit = {
+					is_kinslayer = yes
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					has_trait = family_first
+				}
+				add = 100
+			}
+			else = {
+				add = 50
+			}
+		}
+		doctrine:doctrine_kinslaying_extended_family_crime = {
+			if = {
+				limit = {
+					OR = {
+						has_trait = kinslayer_3
+						has_trait = kinslayer_2
+						any_secret = {
+							type = secret_murder
+							secret_target = { is_close_or_extended_family_of = scope:voter }
+						}
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							NOR = {
+								has_doctrine = doctrine_kinslaying_any_dynasty_member_crime
+								has_doctrine = doctrine_kinslaying_extended_family_crime
+							}
+						}
+					}
+					add = -100
+				}
+				# tiny chance to have another EC again..
+				else = {
+					add = 50
+				}
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_trait = kinslayer_1
+						any_secret = {
+							type = secret_murder
+							secret_target = {
+								OR = {
+									is_close_or_extended_family_of = scope:voter
+									AND = {
+										exists = scope:voter.dynasty
+										dynasty ?= scope:voter.dynasty
+									}
+								}
+							}
+						}
+					}
+					faith = {
+						has_doctrine = doctrine_kinslaying_any_dynasty_member_crime
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					has_trait = family_first
+				}
+				add = -25
+			}
+		}
+		doctrine:doctrine_kinslaying_close_kin_crime = {
+			if = {
+				limit = {
+					OR = {
+						has_trait = kinslayer_3
+						any_secret = {
+							type = secret_murder
+							secret_target = { is_close_family_of = scope:voter }
+						}
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							OR = {
+								has_doctrine = doctrine_kinslaying_shunned
+								has_doctrine = doctrine_kinslaying_accepted
+							}
+						}
+					}
+					add = -100
+				}
+				# tiny chance to have another EC again..
+				else = {
+					add = 50
+				}
+			}
+			else_if = {
+				limit = {
+					is_kinslayer = yes
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					has_trait = family_first
+				}
+				add = -50
+			}
+			else = {
+				add = -25
+			}
+		}
+		doctrine:doctrine_kinslaying_shunned = {
+			if = {
+				limit = {
+					is_kinslayer = yes
+				}
+				if = {
+					limit = {
+						faith = {
+							NOR = {
+								has_doctrine = doctrine_kinslaying_shunned
+								has_doctrine = doctrine_kinslaying_accepted
+							}
+						}
+					}
+					add = 75
+				}
+				else_if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_kinslaying_accepted
+						}
+					}
+					add = -100
+				}
+			}
+			else_if = {
+				limit = {
+					has_trait = family_first
+				}
+				add = -75
+			}
+			else = {
+				add = -25
+			}
+		}
+		doctrine:doctrine_kinslaying_accepted = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					is_kinslayer = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_kinslaying_accepted }
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					is_kinslayer = no
+				}
+				if = {
+					limit = {
+						has_trait = family_first
+					}
+					add = -100
+				}
+				else = {
+					add = -50
+				}
+			}
+		}
+
+		doctrine:doctrine_witchcraft_crime = {
+			if = {
+				limit = {
+					OR = {
+						is_witch_trigger = yes
+						rite = { rite_has_tenet = tenet_astrology }
+						has_personal_tenet = tenet_astrology
+					}
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					faith = { NOT = { has_doctrine = doctrine_witchcraft_crime } }
+				}
+				add = ai_zeal
+				multiply = 0.5
+			}
+		}
+		doctrine:doctrine_witchcraft_shunned = {
+			if = {
+				limit = { is_witch_trigger = yes }
+				if = {
+					limit = {
+						faith = { NOT = { has_doctrine = doctrine_witchcraft_crime } }
+					}
+					add = -75
+				}
+				else = {
+					add = 75
+				}
+			}
+			else_if = {
+				limit = {
+					faith = { NOT = { has_doctrine = doctrine_witchcraft_crime } }
+				}
+				add = ai_zeal
+				divide = 4
+			}
+			else_if = {
+				limit = {
+					faith = { has_doctrine_parameter = witchcraft_accepted }
+				}
+				add = ai_zeal
+				divide = -4
+			}
+		}
+		doctrine:doctrine_witchcraft_accepted = {
+			if = {
+				limit = { is_witch_trigger = yes }
+				if = {
+					limit = {
+						faith = {
+							NOT = { has_doctrine_parameter = witchcraft_accepted }
+						}
+						the_christian_church_radical_change_allowed_trigger = yes
+					}
+					add = 100
+				}
+				else_if = {
+					limit = {
+						faith = { has_doctrine = doctrine_witchcraft_virtuous }
+					}
+					add = -100
+				}
+			}
+			else_if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine_parameter = witchcraft_accepted }
+					}
+				}
+				subtract = ai_zeal
+				multiply = 0.5
+			}
+		}
+		doctrine:doctrine_witchcraft_virtuous = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					is_witch_trigger = yes
+					faith = {
+						NOT = { has_doctrine_parameter = witchcraft_accepted }
+					}
+				}
+				add = 125
+			}
+			else_if = {
+				limit = {
+					has_trait = zealous
+					faith = {
+						NOT = { has_doctrine_parameter = witchcraft_accepted }
+					}
+				}
+				subtract = ai_zeal
+				multiply = 0.75
+			}
+		}
+
+		doctrine:doctrine_gender_male_dominated = {
+			# A ruler favours having their own gender dominate the faith.
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					is_male = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_gender_male_dominated }
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					is_female = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_gender_male_dominated }
+					}
+				}
+				add = -100
+			}
+		}
+		doctrine:doctrine_gender_equal = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					faith = {
+						NOT = { has_dominant_ruling_gender = prev }
+					}
+				}
+				add = 75
+			}
+			else = {
+				add = -75
+			}
+		}
+		doctrine:doctrine_gender_female_dominated = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					is_female = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_gender_female_dominated }
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					is_male = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_gender_female_dominated }
+					}
+				}
+				add = -100
+			}
+		}
+
+		doctrine:doctrine_consanguinity_dynastic = {
+			if = {
+				limit = {
+					OR = {
+						has_trait = inbred
+						has_trait = pure_blooded
+						has_personal_tenet = tenet_divine_marriage
+						rite = { rite_has_tenet = tenet_divine_marriage }
+						any_relation = {
+							type = lover
+							OR = {
+								is_close_or_extended_family_of = prev
+								trigger_if = {
+									limit = { exists = dynasty }
+									prev.dynasty ?= dynasty
+								}
+							}
+						}
+						any_consort = {
+							OR = {
+								is_close_or_extended_family_of = prev
+								trigger_if = {
+									limit = { exists = dynasty }
+									prev.dynasty ?= dynasty
+								}
+							}
+						}
+					}
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_consanguinity_dynastic }
+					}
+				}
+				add = 25
+			}
+		}
+		doctrine:doctrine_consanguinity_restricted = {
+			if = {
+				limit = {
+					OR = {
+						has_trait = inbred
+						has_trait = pure_blooded
+						has_personal_tenet = tenet_divine_marriage
+						rite = { rite_has_tenet = tenet_divine_marriage }
+						any_relation = {
+							type = lover
+							is_close_or_extended_family_of = prev
+						}
+						any_consort = {
+							is_close_or_extended_family_of = prev
+						}
+					}
+				}
+				if = {
+					limit = {
+						faith = { has_doctrine = doctrine_consanguinity_dynastic }
+					}
+					add = -100
+				}
+				else = {
+					add = 50
+				}
+			}
+			else_if = {
+				limit = {
+					OR = {
+						any_relation = {
+							type = lover
+							NOT = { is_close_or_extended_family_of = prev }
+							exists = dynasty
+							prev.dynasty ?= dynasty
+						}
+						any_consort = {
+							NOT = { is_close_or_extended_family_of = prev }
+							exists = dynasty
+							prev.dynasty ?= dynasty
+						}
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_consanguinity_dynastic
+						}
+					}
+					add = 75
+				}
+				else = {
+					add = -75
+				}
+			}
+			else = {
+				add = 50
+			}
+		}
+		doctrine:doctrine_consanguinity_cousins = {
+			if = {
+				limit = {
+					OR = {
+						has_trait = inbred
+						has_trait = pure_blooded
+						has_personal_tenet = tenet_divine_marriage
+						rite = { rite_has_tenet = tenet_divine_marriage }
+						any_relation = {
+							type = lover
+							OR = {
+								is_close_family_of = prev
+								is_uncle_or_aunt_of = prev
+								is_nibling_of = prev
+							}
+						}
+						any_consort = {
+							OR = {
+								is_close_family_of = prev
+								is_uncle_or_aunt_of = prev
+								is_nibling_of = prev
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							OR = {
+								has_doctrine = doctrine_consanguinity_restricted
+								has_doctrine = doctrine_consanguinity_dynastic
+							}
+						}
+					}
+					add = 50
+				}
+				else = {
+					add = -100
+				}
+			}
+			else_if = {
+				limit = {
+					OR = {
+						any_relation = {
+							type = lover
+							OR = {
+								trigger_if = {
+									limit = { exists = dynasty }
+									prev.dynasty ?= dynasty
+								}
+								is_close_or_extended_family_of = prev
+							}
+						}
+						any_consort = {
+							OR = {
+								trigger_if = {
+									limit = { exists = dynasty }
+									prev.dynasty ?= dynasty
+								}
+								is_close_or_extended_family_of = prev
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							OR = {
+								has_doctrine = doctrine_consanguinity_dynastic
+								has_doctrine = doctrine_consanguinity_restricted
+							}
+						}
+					}
+					add = 50
+				}
+				else = {
+					add = -50
+				}
+			}
+			else = {
+				add = 50
+			}
+		}
+		doctrine:doctrine_consanguinity_aunt_nephew_and_uncle_niece = {
+			if = {
+				limit = {
+					OR = {
+						has_trait = inbred
+						has_trait = pure_blooded
+						has_personal_tenet = tenet_divine_marriage
+						rite = { rite_has_tenet = tenet_divine_marriage }
+						any_relation = {
+							type = lover
+							is_close_family_of = prev
+						}
+						any_consort = {
+							is_close_family_of = prev
+						}
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							NOR = {
+								has_doctrine = doctrine_consanguinity_aunt_nephew_and_uncle_niece
+								has_doctrine = doctrine_consanguinity_unrestricted
+							}
+						}
+					}
+					add = 50
+				}
+				else = {
+					add = -100
+				}
+			}
+			else_if = {
+				limit = {
+					OR = {
+						any_relation = {
+							type = lover
+							OR = {
+								trigger_if = {
+									limit = { exists = dynasty }
+									prev.dynasty ?= dynasty
+								}
+								is_close_or_extended_family_of = prev
+							}
+						}
+						any_consort = {
+							OR = {
+								trigger_if = {
+									limit = { exists = dynasty }
+									prev.dynasty ?= dynasty
+								}
+								is_close_or_extended_family_of = prev
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						faith = {
+							has_doctrine = doctrine_consanguinity_unrestricted
+						}
+					}
+					add = -75
+				}
+				else = {
+					add = 100
+				}
+			}
+			else = {
+				add = 25
+			}
+		}
+		doctrine:doctrine_consanguinity_unrestricted = {
+			if = {
+				limit = {
+					OR = {
+						has_trait = inbred
+						has_trait = pure_blooded
+						has_personal_tenet = tenet_divine_marriage
+						rite = { rite_has_tenet = tenet_divine_marriage }
+						any_relation = {
+							type = lover
+							is_close_family_of = prev
+						}
+						any_consort = {
+							is_close_family_of = prev
+						}
+					}
+				}
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+					}
+					add = 100
+				}
+			}
+			else = {
+				add = -100
+			}
+		}
+
+		doctrine:doctrine_pluralism_fundamentalist = {
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_pluralism_fundamentalist }
+					}
+				}
+				if = {
+					limit = {
+						OR = {
+							has_personal_tenet = tenet_alexandrian_catechism
+							has_personal_tenet = tenet_adaptive
+							rite = { rite_has_tenet = tenet_alexandrian_catechism }
+							rite = { rite_has_tenet = tenet_adaptive }
+						}
+					}
+					add = -100
+				}
+				else_if = {
+					limit = {
+						OR = {
+							has_trait = zealous
+							has_personal_tenet = tenet_literalism
+							rite = { rite_has_tenet = tenet_literalism }
+						}
+					}
+					add = 100
+				}
+				else_if = {
+					limit = {
+						OR = {
+							has_trait = cynical
+							has_any_syncretism_personal_tenet_trigger = yes
+						}
+					}
+					add = -100
+				}
+			}
+		}
+		doctrine:doctrine_pluralism_righteous = {
+			if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_pluralism_fundamentalist
+					}
+				}
+				if = {
+					limit = {
+						has_trait = zealous
+					}
+					add = -100
+				}
+				else_if = {
+					limit = {
+						OR = {
+							has_trait = cynical
+							has_any_syncretism_personal_tenet_trigger = yes
+						}
+					}
+					add = 100
+				}
+				else_if = {
+					limit = { ai_zeal < medium_positive_ai_value }
+					add = 50
+				}
+			}
+			else_if = {
+				limit = {
+					faith = {
+						has_doctrine = doctrine_pluralism_pluralistic
+					}
+				}
+				if = {
+					limit = {
+						has_trait = zealous
+					}
+					add = 100
+				}
+				else_if = {
+					limit = {
+						OR = {
+							has_trait = cynical
+							has_any_syncretism_personal_tenet_trigger = yes
+						}
+					}
+					add = -100
+				}
+				else_if = {
+					limit = { ai_zeal < medium_positive_ai_value }
+					add = 50
+				}
+			}
+		}
+		doctrine:doctrine_pluralism_pluralistic = {
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_pluralism_pluralistic }
+					}
+				}
+				if = {
+					limit = { has_trait = zealous }
+					add = -100
+				}
+				else_if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						OR = {
+							has_trait = cynical
+							has_any_syncretism_personal_tenet_trigger = yes
+						}
+					}
+					add = 100
+				}
+			}
+		}
+
+		doctrine:doctrine_theocracy_temporal = {
+			# Clergy push to restore the theocratic church where a rite has lost it
+			if = {
+				limit = {
+					is_clergy = yes
+					faith = {
+						NOT = { has_doctrine = doctrine_theocracy_temporal }
+					}
+				}
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+					}
+					add = 100
+				}
+			}
+			else_if = {
+				limit = {
+					is_clergy = no
+				}
+				add = -75
+			}
+		}
+		# The laity would take the church's lands; the clergy will not hand them over
+		doctrine:doctrine_theocracy_lay_clergy = {
+			if = {
+				limit = {
+					is_clergy = no
+					faith = {
+						NOT = { has_doctrine = doctrine_theocracy_lay_clergy }
+					}
+				}
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+					}
+					add = 75
+				}
+			}
+			else_if = {
+				limit = {
+					is_clergy = yes
+				}
+				add = -100
+			}
+		}
+
+		# if you really want no head, create a new faith instead.
+		doctrine:doctrine_no_head = {
+			value = -100
+		}
+		doctrine:doctrine_spiritual_head = {
+			# A member of the clergy favours a spiritual head over a lay temporal head.
+			if = {
+				limit = { is_clergy = yes }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = {
+							NOT = { has_doctrine = doctrine_spiritual_head }
+						}
+					}
+					add = 100
+				}
+			}
+			else = {
+				add = -50
+				if = {
+					limit = { highest_held_title_tier >= tier_kingdom }
+					add = -50
+				}
+			}
+		}
+		doctrine:doctrine_temporal_head = {
+			# A powerful lay ruler favours becoming the temporal head of the faith.
+			if = {
+				limit = { is_clergy = no }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						highest_held_title_tier >= tier_kingdom
+						faith = {
+							# can_pick rejects temporal_head with these doctrines, so debating it first wastes the council
+							NOR = {
+								has_doctrine = doctrine_temporal_head
+								has_doctrine = doctrine_theocracy_temporal
+								has_doctrine = doctrine_clerical_succession_spiritual_appointment
+								has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment
+							}
+						}
+					}
+					add = 100
+				}
+			}
+			else = {
+				add = -100
+			}
+		}
+
+		doctrine:doctrine_clerical_function_taxation = {
+			# A greedy ruler favours taxing the clergy.
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_clerical_function_taxation }
+					}
+				}
+				add = ai_greed
+			}
+		}
+		doctrine:doctrine_clerical_function_alms_and_pacification = {
+			# A generous ruler favours directing the clergy towards alms over taxation.
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_clerical_function_alms_and_pacification }
+					}
+				}
+				subtract = ai_greed
+			}
+		}
+		doctrine:doctrine_clerical_function_recruitment = {
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_clerical_function_recruitment }
+					}
+					OR = {
+						has_trait = crusader_king
+						has_trait = holy_warrior
+						any_personal_tenet = {
+							tenet_has_virtue = brave
+						}
+						has_personal_tenet = tenet_struggle_submission
+					}
+				}
+				add = 90
+			}
+		}
+
+		doctrine:doctrine_clerical_gender_male_only = {
+			# A male ruler favours restricting clergy to men.
+			if = {
+				limit = {
+					is_male = yes
+					the_christian_church_radical_change_allowed_trigger = yes
+				}
+				if = {
+					limit = { faith = { has_doctrine = doctrine_clerical_gender_female_only } }
+					add = 100
+				}
+				else_if = {
+					limit = { faith = { has_doctrine = doctrine_clerical_gender_either } }
+					add = 75
+				}
+			}
+			else_if = {
+				limit = { is_male = no }
+				if = {
+					limit = { faith = { has_doctrine = doctrine_clerical_gender_female_only } }
+					add = -100
+				}
+				else_if = {
+					limit = { faith = { has_doctrine = doctrine_clerical_gender_either } }
+					add = -75
+				}
+			}
+		}
+		doctrine:doctrine_clerical_gender_either = {
+			if = {
+				limit = { faith = { has_allowed_gender_for_clergy = prev } }
+				add = -75
+			}
+			else_if = {
+				limit = { the_christian_church_radical_change_allowed_trigger = yes }
+				add = 75
+			}
+		}
+		doctrine:doctrine_clerical_gender_female_only = {
+			# A female ruler favours restricting clergy to women.
+			if = {
+				limit = {
+					is_female = yes
+					the_christian_church_radical_change_allowed_trigger = yes
+				}
+				if = {
+					limit = { faith = { has_doctrine = doctrine_clerical_gender_male_only } }
+					add = 100
+				}
+				else_if = {
+					limit = { faith = { has_doctrine = doctrine_clerical_gender_either } }
+					add = 75
+				}
+			}
+			else_if = {
+				limit = { is_female = no }
+				if = {
+					limit = { faith = { has_doctrine = doctrine_clerical_gender_male_only } }
+					add = -100
+				}
+				else_if = {
+					limit = { faith = { has_doctrine = doctrine_clerical_gender_either } }
+					add = -75
+				}
+			}
+		}
+
+		doctrine:doctrine_clerical_marriage_allowed = {
+			# A lustful member of the clergy favours allowing clerical marriage.
+			if = {
+				limit = { has_trait = lustful }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = {
+							NOT = { has_doctrine = doctrine_clerical_marriage_allowed }
+						}
+					}
+					add = 50
+				}
+			}
+			else_if = {
+				limit = { has_trait = chaste }
+				add = -30
+			}
+			if = {
+				limit = { is_clergy = yes }
+				multiply = 2
+			}
+		}
+		doctrine:doctrine_clerical_marriage_disallowed = {
+			# A chaste member of the clergy favours disallowing clerical marriage.
+			if = {
+				limit = { has_trait = chaste }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = {
+							NOT = { has_doctrine = doctrine_clerical_marriage_disallowed }
+						}
+					}
+					add = 50
+				}
+			}
+			else_if = {
+				limit = { has_trait = lustful }
+				add = -30
+			}
+			if = {
+				limit = { is_clergy = yes }
+				multiply = 2
+			}
+		}
+
+		doctrine:doctrine_clerical_succession_temporal_appointment = {
+			# A lay ruler favours appointing clergy themselves.
+			if = {
+				limit = { is_clergy = no }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = {
+							NOT = { has_doctrine = doctrine_clerical_succession_temporal_appointment }
+						}
+					}
+					if = {
+						limit = { faith = { has_doctrine = doctrine_clerical_succession_conditional } }
+						add = 75
+					}
+					else = {
+						add = 100
+					}
+				}
+			}
+			else = {
+				add = -100
+			}
+		}
+		doctrine:doctrine_clerical_succession_spiritual_appointment = {
+			if = {
+				limit = { is_clergy = no }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = { has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment }
+					}
+					add = 75
+				}
+				else_if = {
+					limit = {
+						faith = { has_doctrine = doctrine_clerical_succession_temporal_appointment }
+					}
+					add = -75
+				}
+				else_if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = { has_doctrine = doctrine_clerical_succession_conditional }
+					}
+					add = 50
+				}
+			}
+			# clergy does not want this change unless is from worse
+			else_if = {
+				limit = {
+					faith = { has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment }
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					faith = {
+						OR = {
+							has_doctrine = doctrine_clerical_succession_temporal_appointment
+							has_doctrine = doctrine_clerical_succession_temporal_fixed_appointment
+							has_doctrine = doctrine_clerical_succession_conditional
+						}
+					}
+				}
+				add = 75
+			}
+		}
+		doctrine:doctrine_clerical_succession_temporal_fixed_appointment = {
+			if = {
+				limit = { is_clergy = no }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = { has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment }
+					}
+					if = {
+						limit = {
+							cp:councillor_court_chaplain ?= {
+								opinion = {
+									target = prev
+									value < 0
+								}
+							}
+						}
+						add = -100
+					}
+					else = {
+						add = 75
+					}
+				}
+				else_if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = { has_doctrine = doctrine_clerical_succession_spiritual_appointment }
+						cp:councillor_court_chaplain ?= {
+							opinion = {
+								target = prev
+								value < 0
+							}
+						}
+					}
+					add = -100
+				}
+				else_if = {
+					limit = {
+						faith = { has_doctrine = doctrine_clerical_succession_temporal_appointment }
+					}
+					add = -75
+				}
+			}
+			# clergy does not want this change unless is from worse
+			else_if = {
+				limit = {
+					faith = { has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment }
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					faith = {
+						OR = {
+							has_doctrine = doctrine_clerical_succession_temporal_appointment
+							has_doctrine = doctrine_clerical_succession_temporal_fixed_appointment
+						}
+					}
+				}
+				add = 75
+			}
+		}
+		doctrine:doctrine_clerical_succession_spiritual_fixed_appointment = {
+			# A clergy ruler favours fixed clergy.
+			if = {
+				limit = { is_clergy = yes }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = {
+							NOT = { has_doctrine = doctrine_clerical_succession_spiritual_fixed_appointment }
+						}
+					}
+					add = 100
+				}
+			}
+			else = {
+				add = -100
+			}
+		}
+		doctrine:doctrine_clerical_succession_conditional = {
+			# Lay rulers warm to Conditional appointment
+			if = {
+				limit = { is_clergy = no }
+				if = {
+					limit = {
+						the_christian_church_radical_change_allowed_trigger = yes
+						faith = {
+							NOT = { has_doctrine = doctrine_clerical_succession_conditional }
+						}
+					}
+					add = 50
+				}
+			}
+			else = {
+				add = -50
+			}
+		}
+
+		doctrine:doctrine_pilgrimage_forbidden = {
+			if = {
+				limit = {
+					OR = {
+						has_personal_tenet = tenet_simony
+						rite = { rite_has_tenet = tenet_simony }
+						has_trait = pilgrim
+					}
+				}
+				add = -100
+			}
+			else_if = {
+				limit = {
+					NOT = { faith = { has_doctrine = doctrine_pilgrimage_forbidden } }
+					OR = {
+						has_personal_tenet = tenet_aniconism
+						rite = { rite_has_tenet = tenet_aniconism }
+					}
+				}
+				if = {
+					limit = { the_christian_church_radical_change_allowed_trigger = yes }
+					add = 50
+				}
+			}
+			else = {
+				add = -50
+			}
+		}
+		doctrine:doctrine_pilgrimage_encouraged = {
+			if = {
+				limit = {
+					NOT = { faith = { has_doctrine = doctrine_pilgrimage_encouraged } }
+				}
+				if = {
+					limit = {
+						OR = {
+							has_personal_tenet = tenet_simony
+							rite = { rite_has_tenet = tenet_simony }
+							has_trait = pilgrim
+						}
+					}
+					add = 75
+				}
+				else_if = {
+					limit = {
+						NOR = {
+							has_personal_tenet = tenet_aniconism
+							rite = { rite_has_tenet = tenet_aniconism }
+						}
+					}
+					add = ai_zeal
+					multiply = 0.5
+				}
+				else = {
+					add = ai_zeal
+					multiply = 0.5
+				}
+			}
+		}
+		doctrine:doctrine_pilgrimage_local_rites = {
+			# bro are you mad?
+			if = {
+				limit = {
+					NOT = { faith = { has_doctrine = doctrine_pilgrimage_local_rites } }
+					religion_is_broadly_asian_trigger = yes
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					NOT = { faith = { has_doctrine = doctrine_pilgrimage_local_rites } }
+					the_christian_church_radical_change_allowed_trigger = yes
+					OR = {
+						rite = { rite_has_parameter = sinitic_syncretic_actor }
+						rite = { rite_has_parameter = eastern_syncretic_actor }
+						has_personal_tenet = tenet_sinitic_syncretism
+						has_personal_tenet = tenet_eastern_syncretism
+					}
+				}
+				add = 50
+			}
+			else_if = {
+				# don't remove my virtue
+				limit = { has_trait = pilgrim }
+				subtract = 50
+			}
+			else = {
+				subtract = ai_zeal
+				multiply = 0.5
+			}
+		}
+		doctrine:doctrine_pilgrimage_mandatory = {
+			if = {
+				limit = {
+					NOT = { faith = { has_doctrine = doctrine_pilgrimage_mandatory } }
+					the_christian_church_radical_change_allowed_trigger = yes
+				}
+				if = {
+					limit = {
+						OR = {
+							has_personal_tenet = tenet_simony
+							rite = { rite_has_tenet = tenet_simony }
+							has_trait = pilgrim
+						}
+					}
+					add = 100
+				}
+				else_if = {
+					limit = {
+						OR = {
+							has_personal_tenet = tenet_aniconism
+							rite = { rite_has_tenet = tenet_aniconism }
+						}
+					}
+					subtract = ai_zeal
+				}
+				else = {
+					add = ai_zeal
+					multiply = 0.5
+				}
+			}
+		}
+
+		doctrine:doctrine_funeral_stoic = {
+			if = {
+				limit = {
+					faith = {
+						OR = {
+							has_doctrine = doctrine_funeral_sky_burial
+							has_doctrine = doctrine_funeral_mummification
+						}
+					}
+				}
+				subtract = 100
+			}
+		}
+		doctrine:doctrine_funeral_bewailment = {
+			if = {
+				limit = {
+					faith = {
+						OR = {
+							has_doctrine = doctrine_funeral_sky_burial
+							has_doctrine = doctrine_funeral_mummification
+						}
+					}
+				}
+				subtract = 100
+			}
+		}
+		doctrine:doctrine_funeral_cremation = {
+			if = {
+				limit = {
+					faith = {
+						OR = {
+							has_doctrine = doctrine_funeral_sky_burial
+							has_doctrine = doctrine_funeral_mummification
+						}
+					}
+				}
+				subtract = 100
+			}
+			else_if = {
+				limit = {
+					OR = {
+						rite = { trait_is_virtue_rite = cannibal }
+						any_personal_tenet = { tenet_has_virtue = cannibal }
+						is_cannibal_trigger = yes
+					}
+				}
+				subtract = 50
+			}
+		}
+		doctrine:doctrine_funeral_sky_burial = {
+			# strange to those not adopt it yet.
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_funeral_sky_burial }
+					}
+				}
+				add = -100
+			}
+		}
+		doctrine:doctrine_funeral_mummification = {
+			# strange to those not adopt it yet.
+			if = {
+				limit = {
+					faith = {
+						NOT = { has_doctrine = doctrine_funeral_mummification }
+					}
+				}
+				add = -100
+			}
+		}
+		doctrine:doctrine_family_rites = {
+			if = {
+				limit = {
+					faith = {
+						OR = {
+							has_doctrine = doctrine_funeral_sky_burial
+							has_doctrine = doctrine_funeral_mummification
+						}
+					}
+				}
+				subtract = 100
+			}
+		}
+
+		doctrine:doctrine_no_anointment = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					faith = { NOT = { has_doctrine = doctrine_no_anointment } }
+					has_trait = cynical
+				}
+				add = 100
+			}
+			else_if = {
+				limit = { is_clergy = yes }
+				subtract = 100
+			}
+		}
+		doctrine:doctrine_anointment_permitted = {
+			if = {
+				limit = {
+					has_realm_law = uncrowned
+					highest_held_title_tier >= tier_empire
+					faith = { has_doctrine = doctrine_imperial_anointment }
+					the_christian_church_radical_change_allowed_trigger = yes
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					is_clergy = yes
+					faith = { has_doctrine = doctrine_no_anointment }
+					the_christian_church_radical_change_allowed_trigger = yes
+				}
+				add = 50
+			}
+			else_if = {
+				limit = { is_clergy = yes }
+				add = -50
+			}
+		}
+		doctrine:doctrine_imperial_anointment = {
+			if = {
+				limit = {
+					is_clergy = yes
+					NOT = { faith = { has_doctrine = doctrine_imperial_anointment } }
+					the_christian_church_radical_change_allowed_trigger = yes
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					NOT = { faith = { has_doctrine = doctrine_imperial_anointment } }
+					OR = {
+						AND = {
+							has_realm_law = uncrowned
+							highest_held_title_tier >= tier_empire
+						}
+						has_trait = cynical
+					}
+				}
+				add = -100
+			}
+		}
+
+		# you must be mad to do this...
+		doctrine:doctrine_monotheist = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					has_trait = lunatic
+					faith = { NOT = { has_doctrine = doctrine_monotheist } }
+				}
+				add = 100
+			}
+			# Lunatics skip the distaste for the held side, so mad theology does not always top the pick
+			else_if = {
+				limit = {
+					NOT = { has_trait = lunatic }
+				}
+				add = -100
+			}
+		}
+		doctrine:doctrine_polytheist = {
+			if = {
+				limit = {
+					the_christian_church_radical_change_allowed_trigger = yes
+					has_trait = lunatic
+					faith = { NOT = { has_doctrine = doctrine_polytheist } }
+				}
+				add = 100
+			}
+			else_if = {
+				limit = {
+					NOT = { has_trait = lunatic }
+				}
+				add = -100
+			}
+		}
+
+		doctrine:doctrine_monasticism_encouraged = {
+			if = {
+				limit = { NOT = { faith = { has_doctrine = doctrine_monasticism_encouraged } } }
+				if = {
+					limit = {
+						OR = {
+							has_personal_tenet = tenet_pastoral_isolation
+							has_personal_tenet = tenet_vows_of_poverty
+							has_personal_tenet = tenet_ora_et_labora
+							rite = { rite_has_tenet = tenet_pastoral_isolation }
+							rite = { rite_has_tenet = tenet_vows_of_poverty }
+							rite = { rite_has_tenet = tenet_ora_et_labora }
+							has_trait = devoted
+						}
+					}
+					add = 100
+				}
+				else_if = {
+					limit = {
+						OR = {
+							rite = { rite_has_tenet = tenet_hedonistic }
+							has_personal_tenet = tenet_hedonistic
+						}
+					}
+					subtract = 50
+					if = {
+						limit = { is_clergy = yes }
+						multiply = 2
+					}
+				}
+			}
+		}
+		doctrine:doctrine_monasticism_accepted = {
+			if = {
+				limit = { NOT = { faith = { has_doctrine = doctrine_monasticism_accepted } } }
+				if = {
+					limit = {
+						OR = {
+							has_personal_tenet = tenet_pastoral_isolation
+							has_personal_tenet = tenet_vows_of_poverty
+							has_personal_tenet = tenet_ora_et_labora
+							rite = { rite_has_tenet = tenet_pastoral_isolation }
+							rite = { rite_has_tenet = tenet_vows_of_poverty }
+							rite = { rite_has_tenet = tenet_ora_et_labora }
+							has_trait = devoted
+						}
+					}
+					add = 75
+				}
+				else_if = {
+					limit = {
+						OR = {
+							rite = { rite_has_tenet = tenet_hedonistic }
+							has_personal_tenet = tenet_hedonistic
+						}
+					}
+					subtract = 25
+					if = {
+						limit = { is_clergy = yes }
+						multiply = 2
+					}
+				}
+			}
+		}
+		doctrine:doctrine_monasticism_absent = {
+			# Absent means monasticism never took root, so a faith that already has monasteries has nothing to gain by claiming otherwise. Rites that legitimately sit here are filtered by rite_can_choose_doctrine on the council option instead.
+			add = -100
+		}
+		doctrine:doctrine_monasticism_forbidden = {
+			if = {
+				limit = { NOT = { faith = { has_doctrine = doctrine_monasticism_forbidden } } }
+				if = {
+					limit = {
+						OR = {
+							has_personal_tenet = tenet_pastoral_isolation
+							has_personal_tenet = tenet_vows_of_poverty
+							has_personal_tenet = tenet_ora_et_labora
+							rite = { rite_has_tenet = tenet_pastoral_isolation }
+							rite = { rite_has_tenet = tenet_vows_of_poverty }
+							rite = { rite_has_tenet = tenet_ora_et_labora }
+							has_trait = devoted
+						}
+					}
+					add = -100
+				}
+				else_if = {
+					limit = {
+						OR = {
+							rite = { rite_has_tenet = tenet_hedonistic }
+							has_personal_tenet = tenet_hedonistic
+						}
+					}
+					add = 50
+				}
+			}
+		}
+
+		doctrine:doctrine_sacraments_central = {
+			if = {
+				limit = {
+					faith = { has_doctrine = doctrine_sacraments_absent }
+					the_christian_church_radical_change_allowed_trigger = yes
+					OR = {
+						is_clergy = yes
+						has_personal_tenet = tenet_divine_liturgy
+						has_personal_tenet = tenet_transubstantiation
+						has_personal_tenet = tenet_communion
+						has_personal_tenet = tenet_confession
+						rite = { rite_has_tenet = tenet_divine_liturgy }
+						rite = { rite_has_tenet = tenet_transubstantiation }
+						rite = { rite_has_tenet = tenet_communion }
+						rite = { rite_has_tenet = tenet_confession }
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = { has_trait = cynical }
+				subtract = 100
+			}
+		}
+		doctrine:doctrine_sacraments_absent = {
+			if = {
+				limit = {
+					faith = { has_doctrine = doctrine_sacraments_central }
+					the_christian_church_radical_change_allowed_trigger = yes
+					has_trait = cynical
+					NOR = {
+						has_personal_tenet = tenet_divine_liturgy
+						has_personal_tenet = tenet_transubstantiation
+						has_personal_tenet = tenet_communion
+						has_personal_tenet = tenet_confession
+					}
+				}
+				add = 100
+			}
+			else_if = {
+				limit = { is_clergy = yes }
+				subtract = 100
+			}
+		}
+	}
+}
+
+
+pam_request_ecclesiastical_title_split_cost_value = {
+	value = 0
+
+	# We charge piety per Christian de jure county
+	# A secular duke or above uses their own primary title, otherwise the liege's
+	if = {
+		limit = {
+			scope:puppet_or_actor ?= {
+				NOT = { pam_government_is_religious_playable_trigger = yes }
+				is_landed = yes
+				highest_held_title_tier >= tier_duchy
+			}
+		}
+		add = {
+			scope:puppet_or_actor.primary_title = {
+				every_de_jure_county = {
+					limit = { faith.religion = religion:calradian_religion }
+					add = minor_piety_value
+				}
+			}
+		}
+	}
+	else = {
+		add = {
+			scope:puppet_or_actor.liege.primary_title = {
+				every_de_jure_county = {
+					limit = { faith.religion = religion:calradian_religion }
+					add = minor_piety_value
+				}
+			}
+		}
+	}
+}
+pam_new_clerical_region_cost_value = {
+	value = 0
+
+	# create_clerical_region always uses the de jure kingdom of the title you pick, whatever its tier
+	if = {
+		limit = {
+			exists = scope:target
+			exists = scope:target.title_capital_county
+			exists = scope:target.title_capital_county.kingdom
+		}
+		add = {
+			scope:target.title_capital_county.kingdom = {
+				every_de_jure_county = {
+					limit = {
+						faith.religion = religion:calradian_religion
+						NOT = { exists = clerical_region_title }
+					}
+					add = minor_piety_value
+				}
+			}
+		}
+	}
+}
+
+pam_split_ecclesiastical_title_cost_value = {
+	value = 0
+
+	# Piety cost for each Christian de jure county in the chosen secular ruler's primary title
+	add = {
+		scope:secondary_actor.primary_title ?= {
+			every_de_jure_county = {
+				limit = { faith.religion = religion:calradian_religion }
+				add = minor_piety_value
+			}
+		}
+	}
+}
+pam_new_ecclesiastical_title_cost_value = {
+	value = 0
+
+	# * piety cost for each Christian county in the title
+	if = {
+		limit = { exists = scope:target }
+		add = {
+			scope:target = {
+				every_de_jure_county = {
+					limit = { faith.religion = religion:calradian_religion }
+					add = minor_piety_value
+				}
+			}
+		}
+	}
+}
+pam_request_ecclesiastical_title_merger_cost_value = {
+	value = 0
+
+	# Exact piety cost per Christian county in the selected absorbed clerical region; guarded for when scope:target is not yet set (pre-selection tooltip)
+	if = {
+		limit = { exists = scope:target }
+		add = {
+			scope:target = {
+				every_county_in_clerical_region = {
+					limit = { faith.religion = religion:calradian_religion }
+					add = medium_piety_value
+				}
+			}
+		}
+	}
+}
+pam_merge_new_ecclesiastical_title_cost_value = {
+	value = 0
+
+	# Piety cost for each Christian county in the absorbed clerical region
+	if = {
+		limit = { exists = scope:target }
+		add = {
+			scope:target = {
+				every_county_in_clerical_region = {
+					limit = { faith.religion = religion:calradian_religion }
+					add = minor_piety_value
+				}
+			}
+		}
+	}
+}
+
+mend_schism_hof_support_requirement_value = {
+	save_temporary_scope_as = ruler_temp
+	religion = {
+		every_faith = {
+			limit = {
+				NOR = {
+					this = faith:darusan
+					this = faith:calradic
+				}
+				religious_head ?= {
+					NOT = { this = root }
+					OR = {
+						has_relation_friend = root
+						has_relation_lover = root
+						root = { has_hook = prev }
+					}
+				}
+			}
+		}
+	}
+}
+mend_schism_clerical_support_count_value = {
+	save_temporary_scope_as = ruler_temp
+	situation:the_christian_church.situation_participant_group:christian_clerical_main_power_rulers ?= {
+		every_situation_group_participant = {
+			limit = {
+				highest_held_title_tier >= tier_duchy
+				NOR = {
+					this = scope:ruler_temp
+					faith:calradic.religious_head ?= this
+					faith:darusan.religious_head ?= this
+				}
+			}
+			add = 1
+		}
+	}
+	max = 5
+}
+mend_schism_clerical_support_requirement_value = {
+	save_temporary_scope_as = ruler_temp
+	situation:the_christian_church.situation_participant_group:christian_clerical_main_power_rulers = {
+		every_situation_group_participant = {
+			limit = {
+				highest_held_title_tier >= tier_duchy
+				NOR = {
+					this = scope:ruler_temp
+					faith:calradic.religious_head ?= this
+					faith:darusan.religious_head ?= this
+				}
+				OR = {
+					has_relation_friend = scope:ruler_temp
+					has_relation_lover = scope:ruler_temp
+					scope:ruler_temp = { has_hook = prev }
+					scope:ruler_temp.puppet:theological_agent_puppet ?= this
+					scope:ruler_temp.puppet:external_theological_agent_puppet ?= this
+				}
+			}
+			add = 1
+		}
+	}
+}
+mend_schism_secondary_support_count_value = {
+	save_temporary_scope_as = ruler_temp
+	situation:the_christian_church.situation_participant_group:christian_clerical_secondary_powers_rulers ?= {
+		every_situation_group_participant = {
+			limit = {
+				highest_held_title_tier >= tier_duchy
+				NOR = {
+					this = scope:ruler_temp
+					faith:calradic.religious_head ?= this
+					faith:darusan.religious_head ?= this
+				}
+			}
+			add = 1
+		}
+	}
+	max = 5
+}
+mend_schism_secondary_support_requirement_value = {
+	save_temporary_scope_as = ruler_temp
+	situation:the_christian_church.situation_participant_group:christian_clerical_secondary_powers_rulers ?= {
+		every_situation_group_participant = {
+			limit = {
+				highest_held_title_tier >= tier_duchy
+				NOR = {
+					this = scope:ruler_temp
+					faith:calradic.religious_head ?= this
+					faith:darusan.religious_head ?= this
+				}
+				OR = {
+					has_relation_friend = scope:ruler_temp
+					has_relation_lover = scope:ruler_temp
+					scope:ruler_temp = { has_hook = prev }
+					scope:ruler_temp.puppet:theological_agent_puppet ?= this
+					scope:ruler_temp.puppet:external_theological_agent_puppet ?= this
+				}
+			}
+			add = 1
+		}
+	}
+}
+
+### Struggle Values
+
+befriend_interaction_cost_value = {
+	value = 0
+	if = {
+		limit = {
+			scope:puppet_or_actor = {
+				government_has_flag = government_is_nomadic
+				NOR = {
+					has_perk = befriend_perk
+					AND = {
+						exists = dynasty
+						dynasty = {
+							has_dynasty_perk = fp1_adventure_legacy_5
+						}
+						target_is_vassal_or_below = scope:recipient
+					}
+					culture = { has_cultural_parameter = automatic_befriend_access }
+					# any_character_struggle = {
+					# 	involvement = involved
+					# 	has_struggle_phase_parameter = struggle_unlocks_befriend_schemes_for_everyone
+					# }
+					AND = {
+						government_has_flag = government_is_clan
+						is_in_same_clan_as_trigger = { CHARACTER = scope:recipient }
+						house = { has_house_unity_stage = harmonious }
+					}
+				}
+			}
+		}
+		add = scope:puppet_or_actor.minor_prestige_value
+		if = {
+			limit = {
+				scope:recipient = {
+					is_vassal_of = scope:puppet_or_actor
+				}
+			}
+			add = scope:puppet_or_actor.miniscule_prestige_value
+		}
+		if = {
+			limit = {
+				scope:puppet_or_actor = {
+					is_vassal_of = scope:recipient
+				}
+			}
+			add = scope:puppet_or_actor.minor_prestige_value
+		}
+	}
+}
