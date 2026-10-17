@@ -296,3 +296,237 @@ heresy_historical.0050 = {
 		}
 	}
 }
+
+############################
+# 0011 - Spread sweep      #
+############################
+
+heresy_historical.0011 = {
+	hidden = yes
+	scope = faith
+
+	trigger = {
+		exists = scope:origin_faith
+		exists = scope:heresy_faith
+		exists = scope:epicenter_ruler
+		exists = scope:founder
+		exists = scope:c3_spread_owner
+		scope:c3_spread_owner = {
+			var:c3_spread_remaining_converts > 0
+		}
+	}
+
+	immediate = {
+		clear_saved_scope = convert_ruler
+
+		scope:origin_faith = {
+			random_faith_ruler = {
+				limit = {
+					is_physically_able_ai = yes
+					# is_landed and the county requirement drop mercenaries, adventurers and barony mayors
+					# Clerical-region holders can fail is_landed despite holding the see
+					OR = {
+						AND = {
+							is_landed = yes
+							highest_held_title_tier >= tier_county
+						}
+						any_held_title = { has_clerical_region = yes }
+					}
+					# A lay-clergy heresy with clerical regions strands archbishops as landless feudal holders
+					NAND = {
+						scope:heresy_faith = { has_doctrine = doctrine_theocracy_lay_clergy }
+						any_held_title = { has_clerical_region = yes }
+					}
+					NOR = {
+						this = scope:founder
+						this = scope:epicenter_ruler
+						this = faith.religious_head
+						any_held_title = { is_head_of_faith = yes }
+						has_character_flag = recently_converted_by_heresy
+						recently_converted_faith_trigger = yes
+					}
+					exists = capital_county
+					# We compare against the epicenter ruler, since the third component's founder is a landless courtier
+					OR = {
+						AND = {
+							faith = { has_doctrine_parameter = has_clerical_regions }
+							exists = capital_county.clerical_region_title
+							scope:epicenter_ruler.capital_county.clerical_region_title ?= capital_county.clerical_region_title
+						}
+						capital_county = {
+							squared_distance = {
+								target = scope:epicenter_ruler.capital_county
+								value <= squared_distance_small
+							}
+						}
+					}
+				}
+
+				weight = {
+					base = 100
+
+					modifier = {
+						add = -40
+						capital_county = {
+							squared_distance = {
+								target = scope:epicenter_ruler.capital_county
+								value > squared_distance_small
+							}
+						}
+					}
+
+					modifier = {
+						factor = 1.5
+						culture = { has_same_culture_heritage = scope:epicenter_ruler.culture }
+					}
+
+					modifier = {
+						factor = 0.4
+						highest_held_title_tier >= tier_kingdom
+					}
+
+					modifier = {
+						factor = 5
+						any_held_title = { has_clerical_region = yes }
+					}
+
+					modifier = {
+						factor = 3
+						faith = { has_doctrine_parameter = has_clerical_regions }
+						exists = capital_county.clerical_region_title
+						scope:epicenter_ruler.capital_county.clerical_region_title ?= capital_county.clerical_region_title
+					}
+
+					modifier = {
+						factor = 1.5
+						OR = {
+							has_trait = zealous
+							has_trait = lifestyle_mystic
+							has_trait = lifestyle_scholar
+							has_trait = theologian
+						}
+					}
+
+					modifier = {
+						factor = 0.001
+						OR = {
+							government_has_flag = government_is_nomadic
+							government_has_flag = government_is_herder
+						}
+					}
+				}
+
+				save_scope_as = convert_ruler
+			}
+		}
+
+		if = {
+			limit = { exists = scope:convert_ruler }
+
+			if = {
+				limit = {
+					scope:heresy_faith = { pam_heresy_faith_is_pre_declaration_trigger = yes }
+					exists = scope:new_rite
+				}
+				scope:convert_ruler = {
+					pam_heresy_convert_ruler_to_new_rite_effect = yes
+				}
+			}
+			else = {
+				scope:convert_ruler = {
+					pam_heresy_convert_ruler_to_heresy_faith_effect = yes
+				}
+			}
+
+			scope:c3_spread_owner = {
+				if = {
+					limit = {
+						scope:convert_ruler = {
+							highest_held_title_tier >= tier_kingdom
+						}
+					}
+					change_variable = {
+						name = c3_spread_remaining_converts
+						subtract = 4
+					}
+				}
+				else_if = {
+					limit = {
+						scope:convert_ruler = {
+							highest_held_title_tier = tier_duchy
+						}
+					}
+					change_variable = {
+						name = c3_spread_remaining_converts
+						subtract = 2
+					}
+				}
+				else = {
+					change_variable = {
+						name = c3_spread_remaining_converts
+						subtract = 1
+					}
+				}
+
+				if = {
+					limit = { var:c3_spread_remaining_converts > 0 }
+					trigger_event = {
+						id = heresy_historical.0011
+						days = { 5 12 }
+					}
+				}
+				else = {
+					remove_variable = c3_spread_remaining_converts
+				}
+			}
+
+			every_player = {
+				limit = {
+					faith = scope:origin_faith
+					NOR = {
+						this = scope:convert_ruler
+						this = scope:founder
+					}
+					capital_county ?= {
+						squared_distance = {
+							target = scope:convert_ruler.capital_county
+							value <= squared_distance_medium
+						}
+					}
+				}
+				if = {
+					limit = { exists = scope:new_rite }
+					send_interface_message = {
+						type = msg_pam_heresy_spread
+						title = heresy_historical.spread.title
+						left_icon = scope:convert_ruler
+						right_icon = scope:new_rite
+						show_as_tooltip = {
+							scope:convert_ruler = {
+								set_character_rite = scope:new_rite
+							}
+						}
+					}
+				}
+				else = {
+					send_interface_message = {
+						type = msg_pam_heresy_spread
+						title = heresy_historical.spread.title
+						left_icon = scope:convert_ruler
+						right_icon = scope:founder
+						show_as_tooltip = {
+							scope:convert_ruler = {
+								set_character_faith = scope:heresy_faith
+							}
+						}
+					}
+				}
+			}
+		}
+		else = {
+			scope:c3_spread_owner = {
+				remove_variable = c3_spread_remaining_converts
+			}
+		}
+	}
+}
