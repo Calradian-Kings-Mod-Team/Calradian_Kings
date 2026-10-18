@@ -186,3 +186,78 @@ pam_establish_antipope_effect = {
 	}
 	# CE3 achievement: Guido's Guiding Light
 }
+pam_antipope_become_hof_effect = {
+	$WINNER$ = { save_scope_as = new_hof }
+	scope:new_hof.faith = { save_scope_as = antipope_faith }
+	scope:antipope_faith = {
+		if = {
+			limit = { exists = religious_head_title }
+			religious_head_title = { save_scope_as = hof_title }
+		}
+	}
+	scope:antipope_faith.religious_head ?= { save_scope_as = old_hof }
+	if = {
+		limit = { exists = scope:old_hof }
+		if = {
+			limit = {
+				scope:antipope_faith = { has_doctrine_parameter = spiritual_head_of_faith }
+				scope:old_hof = { exists = capital_county }
+			}
+			scope:old_hof = {
+				capital_county = { save_scope_as = old_hof_capital }
+			}
+		}
+		create_title_and_vassal_change = {
+			type = usurped
+			save_scope_as = hof_titles_change
+			add_claim_on_loss = no
+		}
+		scope:old_hof = {
+			every_held_title = {
+				limit = {
+					tier >= tier_county
+				}
+				change_title_holder = {
+					holder = scope:new_hof
+					change = scope:hof_titles_change
+				}
+			}
+		}
+		resolve_title_and_vassal_change = scope:hof_titles_change
+	}
+	if = {
+		limit = {
+			scope:new_hof = {
+				has_title = title:k_darusan
+				faith = { has_doctrine_parameter = has_clerical_electors }
+				NOT = { has_realm_law = theocratic_elective_succession_law }
+			}
+		}
+		scope:new_hof = {
+			add_realm_law_skip_effects = theocratic_elective_succession_law
+		}
+	}
+	if = {
+		limit = { exists = scope:hof_title }
+		scope:antipope_faith = {
+			set_religious_head_title = scope:hof_title
+		}
+	}
+	if = {
+		limit = {
+			scope:antipope_faith = { has_doctrine_parameter = spiritual_head_of_faith }
+			exists = scope:old_hof_capital
+			scope:new_hof = {
+				is_landed = yes
+				NOT = { capital_county = scope:old_hof_capital }
+			}
+		}
+		scope:new_hof = {
+			set_realm_capital = scope:old_hof_capital
+		}
+	}
+	scope:new_hof = {
+		pam_set_pope_rite_mainline_effect = yes
+	}
+	pam_remove_antipope_effect = yes	
+}
