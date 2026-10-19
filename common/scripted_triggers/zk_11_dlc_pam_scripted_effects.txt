@@ -1,0 +1,85 @@
+﻿convert_to_rite_with_consequences_effect = {
+	clean_convert_modifier_effect = yes
+	if = {
+		limit = {
+			government_has_flag = government_is_mandala
+			$RITE$ = { rite_has_doctrine = doctrine_monotheist }
+		}
+		custom_description_no_bullet = { text = mandala_monotheist_warning_tt }
+	}
+	if = {
+		limit = {
+			knows_rite_level = {
+				target = $RITE$
+				value < 0.6
+			}
+			NOT = { exists = scope:convert_at_war } # be a bit kinder to forced converts
+		}
+		set_piety_level = {
+			value = 0
+		}
+		add_stress = massive_stress_gain
+		add_piety = {
+			value = piety
+			multiply = -1
+		}
+		add_character_modifier = {
+			modifier = foolish_convert_modifier
+			years = 5
+		}
+	}
+	else_if = {
+		limit = {
+			knows_rite_level = {
+				target = $RITE$
+				value < 0.8
+			}
+		}
+		add_piety_level = -1
+		add_stress = major_stress_gain
+		add_piety = {
+			value = piety
+			multiply = -0.5
+		}
+		add_character_modifier = {
+			modifier = reckless_convert_modifier
+			years = 5
+		}
+	}
+	else = {
+		add_piety = {
+			value = piety
+			multiply = -0.5
+		}
+		add_character_modifier = {
+			modifier = informed_convert_modifier
+			years = 5
+		}
+	}
+
+	# Not set_character_rite_with_conversion: avoids cascade, and this may be a forced conversion
+	set_character_rite = $RITE$
+	add_character_flag = {
+		flag = recent_convert
+		years = 5
+	}
+	#PAM - If a recent_convert in an archdiocese has a baptistery
+	if = {
+		limit = {
+			has_character_flag = recent_convert
+		#Does the archbishopric they reside in have a baptistery? 
+			liege.capital_county.clerical_region_title.holder ?= { 
+				domicile ?= {
+					has_domicile_parameter = estate_baptistery
+				}
+				rite = $RITE$ #Unop root is not always the converted character, e.g. when converting family members
+			}
+			#Does their liege have a baptistery? 
+			liege.domicile ?= { has_domicile_parameter = estate_baptistery }
+		}
+		add_character_modifier = {
+			modifier = pam_recently_baptized_at_domicile_modifier 
+			years = 5
+		}
+	} 
+}

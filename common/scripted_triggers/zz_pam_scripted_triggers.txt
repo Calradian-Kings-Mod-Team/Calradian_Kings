@@ -542,6 +542,53 @@ has_tenet_popularity_trigger = {
 has_papacy_trigger = {
 	this = faith:darusan
 }
+valid_claim_war_incited_attacker_trigger = {
+	faith = scope:puppet_or_actor.faith
+	highest_held_title_tier >= tier_county
+	is_at_war = no
+	is_landed = yes
+	gold > 0
+
+	is_available_quick = {
+		alive = yes
+		imprisoned = no
+		incapable = no
+	}
+	current_military_strength >= $RECIPIENT$.one_tenth_current_military_strength
+	NOR = {
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_nomadic
+		government_has_flag = government_is_celestial
+		government_has_flag = government_is_theocracy
+		government_has_flag = government_is_ecclesiastical
+		this = scope:puppet_or_actor
+		this = $RECIPIENT$
+		is_allied_to = $RECIPIENT$
+		has_truce = $RECIPIENT$
+		is_tributary_of = $RECIPIENT$.top_liege
+		is_tributary_of = $RECIPIENT$
+		top_liege = $RECIPIENT$.top_liege
+		liege = $RECIPIENT$
+		puppet:theological_agent_puppet ?= scope:puppet_or_actor
+		puppet:external_theological_agent_puppet ?= scope:puppet_or_actor
+	}
+	NOT = {
+		any_liege_or_above = {
+			is_at_war_with = $RECIPIENT$
+		}
+	}
+	any_claim = {
+		tier >= tier_county
+		tier <= tier_kingdom
+		is_landless_type_title = no
+		holder ?= {
+			target_is_same_character_or_above = $RECIPIENT$
+		}
+	}
+	$RECIPIENT$ = { save_temporary_scope_as = defender } #Unop Save the scopes used by tgp_japan_offensive_wars_ban_trigger
+	save_temporary_scope_as = attacker
+	tgp_japan_offensive_wars_ban_trigger = yes
+}
 valid_holy_war_incited_attacker_trigger = {
 	highest_held_title_tier >= tier_county
 	is_at_war = no
@@ -586,6 +633,7 @@ valid_holy_war_incited_attacker_trigger = {
 		save_temporary_scope_as = defender
 	}
 	save_temporary_scope_as = attacker
+	tgp_japan_offensive_wars_ban_trigger = yes #Unop Moved from above
 	# trigger_if = {
 	# 	limit = {
 	# 		scope:attacker = {
