@@ -722,13 +722,38 @@ scripted_trigger is_near_berber_pirates_trigger = {
 	}
 	location = {
 		any_neighboring_province = {
-			exists = county #Not at sea, not an impassable
-			county = {
+			county ?= { #Not at sea, not an impassable
 				holder = { in_diplomatic_range = root }
 				is_coastal_county = yes
-				OR = {
-					culture = { has_cultural_pillar = heritage_nahasi }
-					culture = { has_cultural_pillar = heritage_west_nahasan }
+				culture = {
+					OR = {
+						has_cultural_pillar = heritage_nahasi
+						has_cultural_pillar = heritage_west_nahasan
+						has_cultural_pillar = heritage_safanit
+					}
+				}
+			}
+		}
+	}
+}
+scripted_trigger is_near_geroian_pirates_trigger = {
+	# no same-culture protection
+	location = {
+		any_neighboring_province = {
+			county ?= { #Not at sea, not an impassable
+				holder = { in_diplomatic_range = root }
+				is_coastal_county = yes
+				culture = {
+					OR = {
+						has_cultural_pillar = heritage_geroian
+						has_cultural_pillar = heritage_lotkian
+						trigger_if = {
+							limit = {
+								has_cultural_tradition = tradition_practiced_pirates
+							}
+							has_cultural_pillar = heritage_balian
+						}
+					}
 				}
 			}
 		}
@@ -751,7 +776,13 @@ travel_events.4003 = {
 				trigger = {
 					is_near_berber_pirates_trigger = yes
 				}
-				desc = travel_events.4003.desc.berber_pirate
+				desc = travel_events.4003.desc.nahasan_pirate
+			}
+			triggered_desc = {
+				trigger = {
+					is_near_geroian_pirates_trigger = yes
+				}
+				desc = travel_events.4003.desc.geroian_pirate
 			}
 			desc = travel_events.4003.desc.regular_pirate
 		}
@@ -777,8 +808,7 @@ travel_events.4003 = {
 				county = {
 					holder = { in_diplomatic_range = root }
 					has_coastal_province = yes
-					culture = { has_innovation = innovation_longboats }
-					faith = { has_doctrine_parameter = faith_can_raid }
+					can_raid_across_water_trigger = yes
 				}
 			}
 		}
@@ -805,6 +835,10 @@ travel_events.4003 = {
 			add = 1
 			is_near_berber_pirates_trigger = yes
 		}
+		modifier = {
+			add = 2
+			is_near_geroian_pirates_trigger = yes
+		}
 	}
 	immediate = {
 		wayfarer_storyteller_fame_effect = { VALUE = roaming_reward_fame_medium }
@@ -819,8 +853,6 @@ travel_events.4003 = {
 						county = {
 							holder = { in_diplomatic_range = root }
 							has_coastal_province = yes
-							culture = { has_innovation = innovation_longboats }
-							faith = { has_doctrine_parameter = faith_can_raid }
 						}
 					}
 					county = {
@@ -857,6 +889,49 @@ travel_events.4003 = {
 									has_cultural_pillar = heritage_west_nahasan
 									has_cultural_pillar = heritage_nahasi
 									has_cultural_pillar = heritage_safanit
+								}
+							}
+						}
+					}
+					county = {
+						save_scope_as = pirate_county_scope
+					}
+				}
+			}
+			create_character = {
+				template = fp1_ms_warrior_character
+				location = root.location
+				culture = scope:pirate_county_scope.culture
+				faith = scope:pirate_county_scope.faith
+				rite = scope:pirate_county_scope.rite
+				#Set up the scope
+				save_scope_as = viking_scope
+				after_creation = {
+					add_character_flag = created
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				is_near_geroian_pirates_trigger = yes
+			}
+			location = {
+				random_neighboring_province = {
+					limit = {
+						exists = county #Not at sea, not an impassable
+						county = {
+							holder = { in_diplomatic_range = root }
+							has_coastal_province = yes
+							culture = {
+								OR = {
+									has_cultural_pillar = heritage_geroian
+									has_cultural_pillar = heritage_lotkian
+									trigger_if = {
+										limit = {
+											has_cultural_tradition = tradition_practiced_pirates
+										}
+										has_cultural_pillar = heritage_balian
+									}
 								}
 							}
 						}
@@ -3416,6 +3491,7 @@ travel_events.4018 = {
 		name = travel_events.4018.b
 		add_piety = major_piety_loss
 		set_character_faith = scope:mystic_scope.faith
+		set_character_rite = scope:mystic_scope.rite
 		if = {
 			limit = { 
 				scope:mystic_scope.faith = { has_doctrine = doctrine_monotheist }
@@ -5085,8 +5161,8 @@ travel_events.4029 = {
 		first_valid = {
 			triggered_desc = {
 				trigger = {
-					faith = {
-						has_doctrine = special_doctrine_darusian
+					rite = {
+						is_a_darusan_rite = yes
 					}
 				}
 				desc = travel_events.4029.desc.mid.darusan
@@ -5982,6 +6058,7 @@ travel_events.4033 = {
 					add_piety = medium_piety_gain
 					scope:witch_scope = {
 						set_character_faith = root.faith
+						set_character_rite = root.rite
 						remove_trait = witch
 					}
 					add_courtier = scope:witch_scope
@@ -6356,6 +6433,7 @@ travel_events.4035 = {
 					add_piety = medium_piety_gain
 					scope:zealous_priest_scope = {
 						set_character_faith = root.faith
+						set_character_rite = root.rite
 						add_trait = witch
 					}
 					add_courtier = scope:zealous_priest_scope
@@ -7189,15 +7267,6 @@ travel_events.4038 = {
 							years = 5
 						}
 					}
-					else_if = { #Unop Add sinitic_syncretic_actor_opinion_active
-						limit = {
-							faith = { has_doctrine_parameter = sinitic_syncretic_actor_opinion_active }
-						}
-						add_character_modifier = {
-							modifier = offended_sinitic_modifier
-							years = 5
-						}
-					}
 					else_if = {
 						limit = {
 							faith = { has_doctrine_parameter = sinitic_syncretic_actor }
@@ -7234,15 +7303,15 @@ travel_events.4038 = {
 							years = 5
 						}
 					}
-					# else_if = {
-					# 	limit = {
-					# 		faith = { has_doctrine_parameter = jewish_syncretic_actor }
-					# 	}
-					# 	add_character_modifier = {
-					# 		modifier = offended_jewish_modifier
-					# 		years = 5
-					# 	}
-					# }
+					else_if = {
+						limit = {
+							faith = { has_doctrine_parameter = jewish_syncretic_actor }
+						}
+						add_character_modifier = {
+							modifier = offended_jewish_modifier
+							years = 5
+						}
+					}
 				}
 			}
 		}
