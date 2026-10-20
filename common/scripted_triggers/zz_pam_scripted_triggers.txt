@@ -1158,7 +1158,29 @@ ck_pam_claimant_enforce_succession_trigger = {
 		}
 	}
 }
-# Evaluated in FAITH scope #\11_petition_head_of_faith_triggers.txt
+#11_petition_head_of_faith_triggers.txt
+# Target has grave sins (VERY_SINFUL_TRAITS bar: criminal traits, murderer, despoiler). Guarantees Cite Sins success.
+petition_head_of_faith_target_has_grave_sins_trigger = {
+	exists = scope:petition_target
+	exists = scope:recipient
+	OR = {
+		has_any_criminal_trait_in_rite_trigger = {
+			CHARACTER = scope:petition_target
+			RITE = scope:recipient.rite
+		}
+		scope:petition_target = {
+			AND = {
+				has_trait = murderer
+				NOT = {
+					scope:recipient.rite = {
+						trait_is_virtue_rite = murderer
+					}
+				}
+			}
+		}
+	}
+}
+# Evaluated in FAITH scope
 petition_head_of_faith_faith_qualifies_trigger = {
 	religion_tag = calradian_religion
 	main_rite ?= {
