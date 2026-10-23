@@ -1,0 +1,317 @@
+﻿
+
+# Applies the outcome of a passed debate vote to the host's faith.
+# scope:activity.var:current_topic holds the tenet/doctrine being debated.
+# scope:activity.var:current_debate_proposal holds the proposed change.
+ecumenical_council_apply_debate_outcome_effect = {
+	# Must stay above set_tenet_status so pre-change standing is readable
+	# Tenet demotion and make_core swap are if/else_if so make_core cannot book twice
+	if = {
+		limit = {
+			pam_great_schism_progress_can_change_trigger = yes
+			scope:host.faith = faith:calradic
+		}
+		if = {
+			# First/Second debate: tenet demotion of a schism-rite tenet counts; promotion books nothing
+			limit = {
+				OR = {
+					scope:activity.var:current_debate_proposal ?= flag:permit
+					scope:activity.var:current_debate_proposal ?= flag:prohibit
+					scope:activity.var:current_debate_proposal ?= flag:learn
+					scope:activity.var:current_debate_proposal ?= flag:make_core
+				}
+				# Rulings that are dropped below must not book progress either
+				exists = scope:activity.var:current_topic
+				NOT = {
+					scope:host.faith = {
+						pam_faith_tenet_is_core_trigger = { TENET = scope:activity.var:current_topic }
+					}
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						rite:darusan = { any_rite_tenet = { this = scope:activity.var:current_topic } }
+						rite:calradic = { any_rite_tenet = { this = scope:activity.var:current_topic } }
+					}
+				}
+				scope:activity.var:current_topic = {
+					save_temporary_scope_as = tenet # Read by the acceptance script values
+				}
+			}
+			if = {
+				limit = {
+					exists = scope:tenet
+					ecumenical_council_tenet_current_acceptance_value > ecumenical_council_proposal_target_acceptance_value
+				}
+				pam_change_great_schism_progress_effect = {
+					VALUE = pam_great_schism_progress_council_tenet_value
+					TT = ecumenical_council_schism_progress_gain_tt
+				}
+			}
+			# make_core already demotes the core you swapped out, so below the maximum there is nothing to record
+			else_if = {
+				limit = {
+					scope:activity.var:current_debate_proposal ?= flag:make_core
+					scope:host.faith = {
+						pam_faith_is_at_core_tenet_cap_trigger = yes
+					}
+				}
+				if = {
+					limit = { exists = scope:activity.var:core_tenet_to_swap_2 }
+					scope:activity.var:core_tenet_to_swap_2 = {
+						save_temporary_scope_as = pam_gs_swapped_tenet
+					}
+				}
+				else = {
+					scope:activity.var:core_tenet_to_swap_1 ?= {
+						save_temporary_scope_as = pam_gs_swapped_tenet
+					}
+				}
+				if = {
+					limit = {
+						exists = scope:pam_gs_swapped_tenet
+						OR = {
+							rite:darusan = { any_rite_tenet = { this = scope:pam_gs_swapped_tenet } }
+							rite:calradic = { any_rite_tenet = { this = scope:pam_gs_swapped_tenet } }
+						}
+					}
+					pam_change_great_schism_progress_effect = {
+						VALUE = pam_great_schism_progress_council_tenet_value
+						TT = ecumenical_council_schism_progress_gain_tt
+					}
+				}
+			}
+		}
+		else_if = {
+			# Third debate: dropping a schism-rite doctrine counts; adopting one does not
+			limit = {
+				scope:activity.var:current_debate_proposal ?= flag:doctrine_change
+				exists = scope:activity.var:third_debate_proposal
+			}
+			if = {
+				limit = {
+					OR = {
+						rite:darusan = { rite_has_doctrine = scope:activity.var:current_topic }
+						rite:calradic = { rite_has_doctrine = scope:activity.var:current_topic }
+					}
+				}
+				pam_change_great_schism_progress_effect = {
+					VALUE = pam_great_schism_progress_doctrine_value
+					TT = ecumenical_council_schism_progress_gain_tt
+				}
+			}
+		}
+	}
+	if = {
+		# First/Second debate: the proposal is a tenet status change.
+		limit = {
+			NOT = { exists = scope:ec_proposal_doctrine }
+			OR = {
+				scope:activity.var:current_debate_proposal ?= flag:permit
+				scope:activity.var:current_debate_proposal ?= flag:prohibit
+				scope:activity.var:current_debate_proposal ?= flag:learn
+				scope:activity.var:current_debate_proposal ?= flag:make_core
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:activity.var:core_tenet_to_swap_2
+			}
+			scope:activity.var:core_tenet_to_swap_2 = {
+				save_scope_as = tenet_to_swap
+			}
+		}
+		else = {
+			scope:activity.var:core_tenet_to_swap_1 ?= {
+				save_scope_as = tenet_to_swap
+			}
+		}
+		ecumenical_council_conservative_backlash_effect = yes
+		scope:host.faith = {
+			# Applying any ruling to an already-core tenet would empty a core slot for good
+			# Drop a missing topic: make_core would still demote and then have nothing to promote
+			if = {
+				limit = {
+					exists = scope:activity.var:current_topic
+					NOT = {
+						pam_faith_tenet_is_core_trigger = { TENET = scope:activity.var:current_topic }
+					}
+				}
+				switch = {
+					trigger = scope:activity.var:current_debate_proposal
+					flag:permit = {
+						set_tenet_status = { tenet = scope:activity.var:current_topic status = permitted }
+						if = {
+							limit = { has_tenet_popularity_trigger = yes }
+							change_tenet_popularity = { target = scope:activity.var:current_topic change = medium_tenet_popularity_gain }
+						}
+					}
+					flag:prohibit = {
+						set_tenet_status = { tenet = scope:activity.var:current_topic status = prohibited }
+						if = {
+							limit = { has_tenet_popularity_trigger = yes }
+							change_tenet_popularity = { target = scope:activity.var:current_topic change = major_tenet_popularity_loss }
+						}
+						pam_faith_grant_forbidden_personal_tenet_secrets_effect = { TENET = scope:activity.var:current_topic }
+					}
+					flag:learn = {
+						set_tenet_status = { tenet = scope:activity.var:current_topic status = known }
+						if = {
+							limit = { has_tenet_popularity_trigger = yes }
+							change_tenet_popularity = { target = scope:activity.var:current_topic change = minor_tenet_popularity_gain }
+						}
+					}
+					flag:make_core = {
+						# We only give up a core tenet at the maximum, because demoting anyway would strip a missing slot
+						if = {
+							limit = {
+								exists = scope:tenet_to_swap
+								pam_faith_is_at_core_tenet_cap_trigger = yes
+							}
+							scope:tenet_to_swap = {
+								save_temporary_scope_as = ec_demoted_tenet
+							}
+							custom_tooltip = {
+								text = ecumenical_council_demotes_tenet_tt
+								set_tenet_status = { tenet = scope:tenet_to_swap status = permitted }
+							}
+							if = {
+								limit = { has_tenet_popularity_trigger = yes }
+								change_tenet_popularity = { target = scope:tenet_to_swap change = medium_tenet_popularity_loss }
+							}
+						}
+						set_tenet_status = { tenet = scope:activity.var:current_topic status = core }
+						if = {
+							limit = { has_tenet_popularity_trigger = yes }
+							change_tenet_popularity = { target = scope:activity.var:current_topic change = major_tenet_popularity_gain }
+						}
+					}
+				}
+			}
+			pam_faith_cleanup_forbidden_personal_tenet_secrets_effect = yes
+		}
+		scope:activity = {
+			if = {
+				limit = {
+					NOT = { exists = var:first_debate_resolution }
+				}
+				set_variable = {
+					name = first_debate_resolution
+					value = flag:passed
+				}
+			}
+			else = {
+				set_variable = {
+					name = second_debate_resolution
+					value = flag:passed
+				}
+			}
+		}
+	}
+	else_if = {
+		# Third debate: proposal is the doctrine sentinel (see set_proposal effect).
+		# Swap the doctrine the rite currently holds for the proposed one.
+		limit = {
+			OR = {
+				exists = scope:ec_proposal_doctrine
+				scope:activity.var:current_debate_proposal ?= flag:doctrine_change
+			}
+		}
+		if = {
+			limit = { NOT = { exists = scope:ec_proposal_doctrine } }
+			scope:activity.var:third_debate_proposal ?= {
+				save_scope_as = ec_proposal_doctrine
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:ec_proposal_doctrine
+			}
+			scope:activity = {
+				save_temporary_scope_as = ec_proposal_activity
+			}
+			scope:host.faith = {
+				# Hide change_doctrine: its history text resolves FAITH from a scope gone on re-render
+				custom_tooltip = {
+					text = ecumenical_council_adopts_doctrine_tt
+					hidden_effect = {
+						change_doctrine = scope:ec_proposal_doctrine
+						# Conditional is crisis-wide, not per-rite
+						if = {
+							limit = {
+								scope:ec_proposal_doctrine ?= doctrine:doctrine_clerical_succession_conditional
+							}
+							every_faith_rite = {
+								limit = { NOT = { rite_has_doctrine = doctrine_clerical_succession_conditional } }
+								change_rite_doctrine = doctrine_clerical_succession_conditional
+							}
+						}
+					}
+				}
+			}
+		}
+		scope:activity = {
+			set_variable = {
+				name = third_debate_resolution
+				value = flag:passed
+			}
+		}
+	}
+	# CE3 achievement: Home See Advantage — the host archbishop changed the faith at a council in their own cathedral see
+	if = {
+		limit = {
+			scope:host = {
+				is_ai = no
+				any_held_title = {
+					has_clerical_region = yes
+					title_capital_county ?= scope:activity.activity_location.county
+				}
+			}
+		}
+		scope:host = {
+			add_achievement_global_variable_effect = {
+				VARIABLE = ce3_14_home_see_advantage_achievement_unlocked
+				VALUE = yes
+			}
+		}
+	}
+}
+
+
+# The Head check also needs the delegate check, because heading is a title property, not a personal rite
+# Character scope, inside an Ecumenical Council event
+pam_ecumenical_council_save_rite_champions_effect = {
+	involved_activity = {
+		random_attending_character = {
+			limit = {
+				pam_ecumenical_council_rite_delegate_trigger = { RITE = roman_rite }
+				rite:darusan.head_of_rite ?= this
+			}
+			save_scope_as = ec_roman_champion
+		}
+		if = {
+			limit = { NOT = { exists = scope:ec_roman_champion } }
+			ordered_attending_character = {
+				limit = { pam_ecumenical_council_rite_delegate_trigger = { RITE = roman_rite } }
+				order_by = pam_ecumenical_council_rite_champion_sort_value
+				save_scope_as = ec_roman_champion
+			}
+		}
+		random_attending_character = {
+			limit = {
+				pam_ecumenical_council_rite_delegate_trigger = { RITE = byzantine_rite }
+				rite:calradic.head_of_rite ?= this
+			}
+			save_scope_as = ec_greek_champion
+		}
+		if = {
+			limit = { NOT = { exists = scope:ec_greek_champion } }
+			ordered_attending_character = {
+				limit = { pam_ecumenical_council_rite_delegate_trigger = { RITE = byzantine_rite } }
+				order_by = pam_ecumenical_council_rite_champion_sort_value
+				save_scope_as = ec_greek_champion
+			}
+		}
+	}
+}

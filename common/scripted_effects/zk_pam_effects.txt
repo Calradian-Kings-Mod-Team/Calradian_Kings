@@ -3348,7 +3348,7 @@ request_legitimacy_interaction_effect = {
 	# Catalysts
 	if = {
 		limit = {
-			scope:puppet_or_actor.religion = religion:christianity_religion
+			scope:puppet_or_actor.religion = religion:calradian_religion
 			situation:the_christian_church ?= { situation_top_has_catalyst = catalyst_the_christian_church_requested_legitimacy }
 		}
 		situation:the_christian_church = { trigger_situation_catalyst = catalyst_the_christian_church_requested_legitimacy }
@@ -3978,4 +3978,65 @@ consecrate_kingdom_effect = {
             value = primary_title #Unop Root is not always the new king
         }
     }
+}
+
+update_syncretism_personal_tenet_effect = {
+	if = {
+		limit = {
+			is_available_quick = { advanced_ruler = yes }
+			scope:old_faith.religion != faith.religion
+		}
+		scope:old_faith = {
+			if = {
+				limit = { has_doctrine = sinitic_hostility_doctrine }
+				prev = { add_known_tenet_if_not = { TENET = tenet_sinitic_syncretism } }
+			}
+			else_if = {
+				limit = { has_doctrine = eastern_hostility_doctrine }
+				prev = { add_known_tenet_if_not = { TENET = tenet_eastern_syncretism } }
+			}
+			else_if = {
+				limit = { has_doctrine = pagan_hostility_doctrine }
+				prev = { add_known_tenet_if_not = { TENET = tenet_unreformed_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = calradian_religion }
+				prev = { add_known_tenet_if_not = { TENET = tenet_christian_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = aserai_religion }
+				prev = { add_known_tenet_if_not = { TENET = tenet_islamic_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = surrani_religion }
+				prev = { add_known_tenet_if_not = { TENET = tenet_jewish_syncretism } }
+			}
+		}
+		faith = {
+			if = {
+				limit = { has_doctrine = sinitic_hostility_doctrine }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_sinitic_syncretism } }
+			}
+			else_if = {
+				limit = { has_doctrine = eastern_hostility_doctrine }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_eastern_syncretism } }
+			}
+			else_if = {
+				limit = { has_doctrine = pagan_hostility_doctrine }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_unreformed_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = calradian_religion }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_christian_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = aserai_religion }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_islamic_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = surrani_religion }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_jewish_syncretism } }
+			}
+		}
+	}
 }
