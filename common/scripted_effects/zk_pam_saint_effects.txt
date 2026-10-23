@@ -1,0 +1,490 @@
+﻿
+# Canonizer is root, and this expects scope:saint_candidate and consecration_province already saved
+pam_commit_canonization_effect = {
+	if = {
+		limit = { pam_needs_hof_approval_for_canonization_trigger = yes }
+		faith.religious_head = { save_scope_as = petition_recipient }
+		# Pick the wording here so saint_candidate / consecration_province / petition_recipient stay reachable in the loc key (SelectLocalization would drop them).
+		if = {
+			limit = {
+				OR = {
+					religion = religion:calradian_religion 
+					rite ?= { rite_has_tenet = tenet_mystical_birthright }
+				}
+			}
+			custom_tooltip = pam_canonize_saint_petition_sent_tt_saint
+		}
+		else = {
+			custom_tooltip = pam_canonize_saint_petition_sent_tt_va
+		}
+		# Players acknowledge via event 0001, whose option starts the HoF's clock (0002 -> 0003/0004). The AI never sees that event, so schedule the HoF decision directly for it.
+		if = {
+			limit = { is_ai = no }
+			trigger_event = pam_saint_events.0001
+		}
+		else = {
+			hidden_effect = {
+				scope:petition_recipient = {
+					trigger_event = {
+						id = pam_saint_events.0002
+						days = 30
+					}
+				}
+			}
+		}
+	}
+	else = {
+		custom_tooltip = pam_canonize_saint_decision_canonize_tt
+		pam_canonize_saint_effect = {
+			CANONIZER = root
+			CANDIDATE = scope:saint_candidate
+			CONSECRATION_PROVINCE = scope:consecration_province
+			PRESET = no
+		}
+		# No HoF (or self-HoF): canonization is done, so show the finalization event now (players only).
+		if = {
+			limit = { is_ai = no }
+			trigger_event = pam_saint_events.0003
+		}
+	}
+}
+
+
+create_appropriate_relic_artifact_from_character_effect = {
+	$CREATOR$ = { save_scope_as = creator }
+	$OWNER$ = { save_scope_as = owner }
+	get_artifact_quality_effect = yes
+	get_artifact_wealth_effect = yes
+	$OWNER$ = {
+		random_list = {
+			20 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:thexnyian_religion
+							religion = religion:gazima_religion
+							religion = religion:shantaya_religion
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_finger } }
+				}
+				create_relic_artifact_effect = { NAME = finger TYPE = pedestal VISUAL = reliquary }
+			}
+			15 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:tammurum_religion
+							religion = religion:jumne_religion
+							religion = { is_in_family = rf_eastern }
+						}
+					}
+					scope:relic_site = {
+						has_none_of_variables = {
+							name = pam_relic_drawn_tooth
+							name = pam_relic_drawn_tooth_buddhism
+						}
+					}
+				}
+				if = {
+					limit = { religion =  { is_in_family = rf_eastern } }
+					create_relic_artifact_effect = { NAME = tooth_buddhism TYPE = pedestal VISUAL = reliquary }
+				}
+				else = {
+					create_relic_artifact_effect = { NAME = tooth TYPE = pedestal VISUAL = reliquary }
+				}
+			}
+			15 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:northern_gods_religion
+							religion = religion:palaic_religion
+							religion = religion:shantaya_religion
+							religion = { is_in_family = rf_pagan }
+							rite_has_parameter = cremation_funeral
+							AND = {
+								religion = religion:darshi_religion
+								rite_has_doctrine = doctrine_polytheist
+							}
+						}
+					}
+					scope:relic_site = {
+						has_none_of_variables = {
+							name = pam_relic_drawn_rib
+							name = pam_relic_drawn_rib_buddhism
+						}
+					}
+				}
+				if = {
+					limit = { religion = religion:shantaya_religion }
+					create_relic_artifact_effect = { NAME = rib_buddhism TYPE = pedestal VISUAL = reliquary }
+				}
+				else = {
+					create_relic_artifact_effect = { NAME = rib TYPE = pedestal VISUAL = reliquary }
+				}
+			}
+			15 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:shantaya_religion
+							religion = religion:vakken_religion
+							religion = religion:jumne_religion
+							religion = religion:sunsum_religion
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_hair } }
+				}
+				create_relic_artifact_effect = { NAME = hair TYPE = pedestal VISUAL = reliquary }
+			}
+			10 = {
+				trigger = {
+					rite = {
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:west_nahasan_religion
+							religion = religion:aserai_religion
+							religion = religion:thexnyian_religion
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_vestment } }
+				}
+				create_relic_artifact_effect = { NAME = vestment TYPE = pedestal VISUAL = reliquary }
+			}
+			8 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						NOT = { rite_has_parameter = cremation_funeral }
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:balian_religion
+							religion = religion:battanian_religion
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_hand } }
+				}
+				create_relic_artifact_effect = { NAME = hand TYPE = pedestal VISUAL = reliquary }
+			}
+			8 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						NOT = { rite_has_parameter = cremation_funeral }
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:oroki_religion
+							religion = religion:vakken_religion
+							religion = religion:northern_gods_religion
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_arm } }
+				}
+				create_relic_artifact_effect = { NAME = arm TYPE = pedestal VISUAL = reliquary }
+			}
+			5 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:shantaya_religion
+							religion = { is_in_family = rf_pagan }
+							religion = { has_graphical_faith = tengrism_gfx }
+							# religion = { has_graphical_faith = pagan_gfx }
+							rite_has_parameter = cremation_funeral
+							AND = {
+								religion = religion:darshi_religion
+								rite_has_doctrine = doctrine_polytheist
+							}
+						}
+					}
+					scope:relic_site = {
+						has_none_of_variables = {
+							name = pam_relic_drawn_skull
+							name = pam_relic_drawn_skull_buddhism
+						}
+					}
+				}
+				if = {
+					limit = { religion = { is_in_family = rf_eastern } }
+					create_relic_artifact_effect = { NAME = skull_buddhism TYPE = pedestal VISUAL = reliquary }
+				}
+				else = {
+					create_relic_artifact_effect = { NAME = skull TYPE = pedestal VISUAL = reliquary }
+				}
+			}
+			3 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:khuzait_religion
+							rite_has_parameter = mummification_funeral
+						}
+						NOT = { rite_has_parameter = cremation_funeral }
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_blood } }
+				}
+				create_relic_artifact_effect = { NAME = blood TYPE = pedestal VISUAL = reliquary }
+			}
+			1 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						NOT = { rite_has_parameter = cremation_funeral }
+						OR = {
+							religion = religion:calradian_religion
+							religion = religion:guzzic_religion
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_heart } }
+				}
+				create_relic_artifact_effect = { NAME = heart TYPE = pedestal VISUAL = reliquary }
+			}
+			10 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					religion = religion:shantaya_religion
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_sarira } }
+				}
+				create_relic_artifact_effect = { NAME = sarira TYPE = pedestal VISUAL = reliquary }
+			}
+			10 = {
+				trigger = {
+					rite = {
+						OR = {
+							religion = religion:confucianism_ph_religion
+							religion = religion:aserai_religion
+							religion = religion:surrani_religion
+							rite_has_tenet = tenet_pursuit_of_knowledge
+							rite_has_tenet = tenet_scholasticism
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_letter } }
+				}
+				create_relic_artifact_effect = { NAME = letter TYPE = pedestal VISUAL = reliquary }
+			}
+			10 = {
+				trigger = {
+					rite = {
+						OR = {
+							religion = religion:confucianism_ph_religion
+							rite_has_tenet = tenet_pursuit_of_knowledge
+						}
+					}
+					faith_is_aniconic_trigger = no
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_drawing } }
+				}
+				create_relic_artifact_effect = { NAME = drawing TYPE = wall_small VISUAL = reliquary }
+			}
+			10 = {
+				trigger = {
+					rite = {
+						OR = {
+							religion = religion:confucianism_ph_religion
+							rite_has_tenet = tenet_pursuit_of_knowledge
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_stationery } }
+				}
+				create_relic_artifact_effect = { NAME = stationery TYPE = pedestal VISUAL = reliquary }
+			}
+			10 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						rite_has_parameter = cremation_funeral
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_ash } }
+				}
+				create_relic_artifact_effect = { NAME = ash TYPE = pedestal VISUAL = urn }
+			}
+			10 = {
+				trigger = {
+					scope:creator = { has_corpse_trigger = yes }
+					rite = {
+						rite_has_parameter = mummification_funeral
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_canopic_jar } }
+				}
+				create_relic_artifact_effect = { NAME = canopic_jar TYPE = pedestal VISUAL = urn }
+			}
+			10 = {
+				trigger = {
+					OR = {
+						broadly_dharmic_faith_trigger = yes
+						rite = { rite_has_tenet = tenet_mendicant_preachers }
+						religion = religion:palaic_religion
+						scope:creator = { has_trait = pilgrim }
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_staff } }
+				}
+				create_relic_artifact_effect = { NAME = staff TYPE = pedestal VISUAL = spear_court }
+			}
+			10 = {
+				trigger = {
+					OR = {
+						broadly_dharmic_faith_trigger = yes
+						rite = { rite_has_tenet = tenet_mendicant_preachers }
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_water_filter } }
+				}
+				create_relic_artifact_effect = { NAME = water_filter TYPE = pedestal VISUAL = reliquary }
+			}
+			10 = {
+				trigger = {
+					OR = {
+						broadly_dharmic_faith_trigger = yes
+						rite = { rite_has_tenet = tenet_mendicant_preachers }
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_bowl } }
+				}
+				create_relic_artifact_effect = { NAME = bowl TYPE = pedestal VISUAL = bowl }
+			}
+			10 = {
+				trigger = {
+					broadly_dharmic_faith_trigger = yes
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_robe } }
+				}
+				create_relic_artifact_effect = { NAME = robe TYPE = pedestal VISUAL = reliquary }
+			}
+			1 = {
+				trigger = {
+					rite = {
+						OR = {
+							religion = religion:taoism_ph_religion
+							NOT = { rite_has_parameter = pacifist }
+						}
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_sword } }
+				}
+				modifier = {
+					add = 5
+					rite = { rite_has_parameter = sanctify_artifacts_weapons }
+				}
+				modifier = {
+					add = 9
+					religion = religion:taoism_ph_religion
+				}
+				create_relic_artifact_effect = { NAME = sword TYPE = pedestal VISUAL = sword_court }
+			}
+			10 = {
+				trigger = {
+					religion = religion:taoism_ph_religion
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_talisman } }
+				}
+				create_relic_artifact_effect = { NAME = talisman TYPE = pedestal VISUAL = reliquary }
+			}
+			10 = {
+				trigger = {
+					religion = religion:taoism_ph_religion
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_pellet } }
+				}
+				create_relic_artifact_effect = { NAME = pellet TYPE = pedestal VISUAL = flask }
+			}
+			10 = {
+				trigger = {
+					religion = religion:aserai_religion
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_footprint } }
+				}
+				create_relic_artifact_effect = { NAME = footprint TYPE = pedestal VISUAL = rock }
+			}
+			10 = {
+				trigger = {
+					faith_is_aniconic_trigger = no
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_effigy } }
+				}
+				if = {
+					limit = {
+						religion = {
+							is_in_family = rf_pagan
+							this != religion:thexnyian_religion
+						}
+						rite = {
+							rite_has_doctrine = unreformed_faith_doctrine
+						}
+					}
+					create_relic_artifact_effect = { NAME = effigy TYPE = pedestal VISUAL = statue }
+				}
+				else = {
+					create_relic_artifact_effect = { NAME = effigy TYPE = pedestal VISUAL = statue_roman_woman }
+				}
+			}
+			10 = {
+				trigger = {
+					religion = religion:darshi_religion
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_afarganyu } }
+				}
+				create_relic_artifact_effect = { NAME = afarganyu TYPE = pedestal VISUAL = urn }
+			}
+			10 = {
+				trigger = {
+					OR = {
+						religion = religion:darshi_religion # zorostrian seal
+						religion = religion:battanian_religion
+						rite = { rite_has_parameter = sanctify_artifacts_luxurious }
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_ring } }
+				}
+				create_relic_artifact_effect = { NAME = ring TYPE = pedestal VISUAL = ring_court }
+			}
+			10 = {
+				trigger = {
+					OR = {
+						religion = religion:darshi_religion
+						religion = religion:west_nahasan_religion
+						rite = { rite_has_parameter = sanctify_artifacts_luxurious }
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_bracelet } }
+				}
+				create_relic_artifact_effect = { NAME = bracelet TYPE = pedestal VISUAL = oxus_bracelet }
+			}
+			10 = {
+				trigger = {
+					OR = {
+						religion = religion:surrani_religion
+						religion = religion:balian_religion
+						rite = { rite_has_tenet = tenet_scholasticism }
+					}
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_commentary } }
+				}
+				create_relic_artifact_effect = { NAME = commentary TYPE = pedestal VISUAL = book }
+			}
+			10 = {
+				trigger = {
+					religion = religion:surrani_religion
+					NOT = { scope:relic_site = { has_variable = pam_relic_drawn_tzitzit } }
+				}
+				create_relic_artifact_effect = { NAME = tzitzit TYPE = pedestal VISUAL = reliquary }
+			}
+			# the final fallback. should never pick this at least in vanilla game
+			0 = {
+				create_relic_artifact_effect = { NAME = relic TYPE = pedestal VISUAL = reliquary }
+			}
+		}
+		hidden_effect_new_object = {
+			if = {
+				limit = { has_royal_court = no }
+				scope:newly_created_artifact = { reforge_artifact = { type = miscellaneous quality = scope:quality wealth = scope:wealth } }
+			}
+			scope:newly_created_artifact = {
+				set_variable = { name = relic_religion value = scope:relic_creator_saint.religion }
+				add_scaled_artifact_modifier_piety_effect = yes
+				add_scaled_artifact_modifier_devotion_effect = yes
+				add_scaled_artifact_modifier_grandeur_small_effect = yes
+				remove_artifact_modifier = artifact_placeholder_modifier
+			}
+		}
+	}
+}
