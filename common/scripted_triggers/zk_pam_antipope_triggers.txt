@@ -1,0 +1,82 @@
+﻿
+antipope_requirements_trigger = {
+	calc_true_if = {
+		amount >= $AMOUNT$
+		has_trait = herald
+		trigger_if = {
+		# 	limit = { religion = religion:islam_religion }
+		# 	# Sayyids get a free pass.
+		# 	has_trait = sayyid
+		# }
+		# trigger_else_if = {
+			limit = { religion = religion:darshi_religion }
+			OR = {
+				has_trait = saoshyant
+				has_trait = saoshyant_descendant
+			}
+		}
+		# to prevent "false" visible, but you should not get this as a potential antipope since this can only be granted to a HoF
+		trigger_else = {
+			has_trait = savior
+		}
+		has_trait_xp = {
+			trait = lifestyle_scholar
+			value >= 100
+		}
+		custom_description = {
+			text = is_head_of_rite_tt
+			subject = root
+			rite.head_of_rite ?= this
+		}
+		# has_relation_rival has no first-person trigger localization, so describe it explicitly
+		custom_description = {
+			text = declare_yourself_antipope_decision_hof_rival_tt
+			has_relation_rival = faith.religious_head
+		}
+		custom_description = {
+			text = appoint_a_righteous_caliph_decision.caliph_not_in_diplo_range
+			NOT = { in_diplomatic_range = faith.religious_head }
+		}
+		# Having a holy site.
+		custom_description = {
+			text = appoint_a_righteous_caliph_decision.control_one_holy_site
+			faith = {
+				any_holy_site_barony = {
+					count >= 1
+					holder ?= { target_is_same_character_or_above = root }
+				}
+			}
+		}
+		# Having *2* holy sites.
+		custom_description = {
+			text = appoint_a_righteous_caliph_decision.control_two_holy_sites
+			faith = {
+				any_holy_site_barony = {
+					count >= 2
+					holder ?= { target_is_same_character_or_above = root }
+				}
+			}
+		}
+		# Having a higher-than-minimum piety level.
+		piety_level >= very_high_piety_level
+		custom_description = {
+			text = declare_yourself_antipope_decision_hof_piety_level_tt
+			piety_level > faith.religious_head.piety_level
+		}
+		# And just having a caliph who doesn't live up to the root's faith's ideals.
+		custom_description = {
+			text = appoint_a_righteous_caliph_decision.caliph_has_x_or_more_traits_sinful_to_your_faith
+			faith.religious_head = {
+				num_sinful_traits = {
+					value >= 2
+					target = root.rite
+				}
+			}
+		}
+		# Has planned to schism off for a *while*.
+		custom_description = {
+			text = appoint_a_righteous_caliph_decision.has_wishes_to_schism_caliphate_flag
+			has_character_flag = wishes_to_schism_caliphate_flag
+		}
+	}
+}

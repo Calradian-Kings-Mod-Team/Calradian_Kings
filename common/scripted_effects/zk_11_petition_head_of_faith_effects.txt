@@ -1,0 +1,50 @@
+﻿# We save scope:petition_gravest_sin, because repentance uses scope:actor instead of petition_target
+petition_head_of_faith_save_gravest_sin_effect = {
+	if = {
+		limit = { petition_head_of_faith_target_net_sinful_trigger = yes }
+		scope:petition_target = {
+			ordered_character_trait = {
+				limit = { petition_head_of_faith_trait_sin_value < 0 }
+				order_by = petition_head_of_faith_trait_sin_magnitude_value
+				save_scope_as = petition_gravest_sin
+			}
+		}
+	}
+	else_if = {
+		limit = { petition_head_of_faith_target_has_grave_sins_trigger = yes }
+		scope:petition_target = {
+			ordered_character_trait = {
+				limit = {
+					OR = {
+						trait_is_criminal_in_rite_trigger = {
+							TRAIT = this
+							RITE = scope:recipient.rite
+							GENDER_CHARACTER = scope:petition_target
+						}
+						AND = {
+							scope:petition_target = { has_trait = murderer }
+							NOT = {
+								scope:recipient.rite = {
+									trait_is_virtue_rite = murderer
+								}
+							}
+						}
+						# scope:petition_target = { has_trait = despoiler_of_byzantium }
+					}
+				}
+				order_by = petition_head_of_faith_trait_sin_magnitude_value
+				save_scope_as = petition_gravest_sin
+			}
+		}
+	}
+	else_if = {
+		limit = { petition_head_of_faith_actor_net_sinful_trigger = yes }
+		scope:actor = {
+			ordered_character_trait = {
+				limit = { petition_head_of_faith_trait_sin_value < 0 }
+				order_by = petition_head_of_faith_trait_sin_magnitude_value
+				save_scope_as = petition_gravest_sin
+			}
+		}
+	}
+}

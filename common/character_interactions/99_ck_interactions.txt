@@ -4,7 +4,7 @@
 demand_change_senatorial_faction = { 
 	category = interaction_category_vassal
 	interface_priority = 110
-	icon = council
+	icon = puppet
 	desc = demand_change_senatorial_faction_desc
 	common_interaction = yes
 
@@ -22,27 +22,14 @@ demand_change_senatorial_faction = {
 	
 	is_shown = {
 		scope:recipient = {
-			is_vassal_of = scope:actor
-			OR = {
-				has_trait = ck_oligarch
-				has_trait = ck_populist
-				has_trait = ck_militarist
-				has_trait = ck_royalist
-			}
+			is_vassal_or_below_of = scope:actor
+			has_trait_with_flag = senate_faction
 		}
 		scope:actor = {
-			culture = {
-				has_cultural_pillar = heritage_calradian
-			}
-			highest_held_title_tier = tier_empire
-			OR = {
-				has_trait = ck_oligarch
-				has_trait = ck_populist
-				has_trait = ck_militarist
-				has_trait = ck_royalist
-			}
+			highest_held_title_tier >= tier_empire
+			has_trait_with_flag = senate_faction
+			is_valid_senator = yes
 		}
-		scope:actor != scope:recipient
 	}
 	
 	is_valid_showing_failures_only = {
@@ -99,16 +86,16 @@ demand_change_senatorial_faction = {
 	}
 	
 	is_highlighted = {
-		scope:actor = {
-			is_character_interaction_potentially_accepted = {
-				recipient = scope:recipient
-				interaction = contact_list_request_interaction
+		scope:recipient = {
+			OR = {
+				is_powerful_vassal_of = scope:actor
+				house ?= { is_powerful_family = yes }
 			}
 		}
 	}
-	can_be_picked = {
-		NOT = { scope:recipient = root }
-	}
+	# can_be_picked = {
+	# 	NOT = { scope:recipient = root }
+	# }
 	
 	#Gold bribe small
 	send_option = {
@@ -1109,10 +1096,10 @@ demand_change_senatorial_faction = {
 	on_auto_accept = {
 		scope:recipient = {
 			send_interface_toast = {
-				type = event_toast_effect_bad
+				type = msg_senate_faction_trait
 				title = forced_to_change_faction.tt.title
 				right_icon = scope:actor
-				custom_tooltip = forced_to_change_faction.tt.desc
+				desc = forced_to_change_faction.tt.desc
 			}
 		}
 	}

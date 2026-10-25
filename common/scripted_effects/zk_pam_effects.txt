@@ -2999,3 +2999,1044 @@ pam_save_selected_interaction_tenet_effect = {
 		}
 	}
 }
+
+request_legitimacy_interaction_effect = {
+	add_legitimacy = {
+		value = medium_legitimacy_gain
+		multiply = 1.5
+		if = {
+			limit = {
+				scope:monastic_support = yes
+			}
+			scope:puppet_or_actor = {
+				every_patroned_holy_order = {
+					limit = {
+						leader = {
+							government_has_flag = government_is_monastic_holy_order
+						}
+					}
+					add = minor_legitimacy_gain
+				}
+			}
+		}
+		if = {
+			limit = {
+				scope:puppet_or_actor ?= {
+					has_personal_tenet_flag = tenet_apostolic_succession_papal_legitimacy
+					faith.religious_head ?= scope:recipient
+				}
+			}
+			add = medium_legitimacy_gain
+		}
+		max = massive_legitimacy_gain
+	}
+	if = {
+		limit = {
+			rite = {
+				has_tenet_status = {
+					tenet = tenet_simony
+					status = prohibited
+				}
+			}
+		}
+		change_spiritual_fulfillment = medium_spiritual_fulfillment_loss
+	}
+	if = {
+		limit = {
+			any_vassal = {
+				NOT = {
+					faith = scope:puppet_or_actor.faith
+				}
+			}
+		}
+		every_vassal = {
+			custom = custom.every_astray_faith_vassal
+			limit = {
+				NOT = {
+					faith = scope:puppet_or_actor.faith
+				}
+				faith = {
+					faith_hostility_level = {
+						target = scope:puppet_or_actor.faith
+						value >= faith_astray_level
+					}
+				}
+			}
+			add_opinion = {
+				target = scope:puppet_or_actor
+				modifier = heathen_mandate_opinion
+				opinion = -20
+			}
+		}
+	}
+	if = {
+		limit = {
+			any_held_title = {
+				tier = tier_county
+				NOT = {
+					faith = scope:puppet_or_actor.faith
+				}
+				faith = {
+					faith_hostility_level = {
+						target = scope:puppet_or_actor.faith
+						value >= faith_astray_level
+					}
+				}
+			}
+		}
+		every_held_title = {
+			custom = custom.every_astray_faith_domain_county
+			limit = {
+				tier = tier_county
+				NOT = {
+					faith = scope:puppet_or_actor.faith
+				}
+				faith = {
+					faith_hostility_level = {
+						target = scope:puppet_or_actor.faith
+						value >= faith_astray_level
+					}
+				}
+			}
+			add_county_modifier = {
+				modifier = heathen_mandate_modifier
+				years = 5
+			}
+		}
+	}
+	if = {
+		limit = {
+			scope:monastic_support = yes
+		}
+		every_patroned_holy_order = {
+			limit = {
+				leader = {
+					government_has_flag = government_is_monastic_holy_order
+				}
+			}
+			scope:puppet_or_actor = {
+				pay_short_term_gold = {
+					target = prev.leader
+					gold = minor_gold_value
+				}
+			}
+		}
+	}
+	if = {
+		limit = {
+			scope:tithe = yes
+		}
+		every_held_title = {
+			limit = {
+				tier = tier_county
+				NOT = {
+					any_county_province = {
+						is_occupied = yes
+					}
+				}
+				development_level >= 1
+			}
+			add_to_list = tithed_counties
+		}
+		scope:recipient = {
+			add_gold = {
+				value = 0
+				every_in_list = {
+					list = tithed_counties
+					add = scope:recipient.miniscule_gold_value
+					add = {
+						value = development_level
+					}
+				}
+				max = monumental_gold_value
+			}
+		}
+		every_in_list = {
+			list = tithed_counties
+			custom = custom.every_domain_county_1_plus_development
+			if = {
+				limit = {
+					scope:recipient.culture = {
+						has_cultural_era_or_later = culture_era_late_medieval
+					}
+				}
+				change_development_progress = massive_development_progress_loss
+			}
+			else_if = {
+				limit = {
+					scope:recipient.culture = {
+						has_cultural_era_or_later = culture_era_high_medieval
+					}
+				}
+				change_development_progress = major_development_progress_loss
+			}
+			else = {
+				change_development_progress = medium_development_progress_loss
+			}
+		}
+		#Secretly take gold from wealthy-ass barons
+		hidden_effect = {
+			every_in_list = {
+				list = tithed_counties
+				every_county_province = {
+					limit = {
+						barony.holder ?= {
+							highest_held_title_tier = tier_barony
+							is_ai = yes
+							gold > medium_gold_value
+						}
+					}
+					barony.holder ?= {
+						remove_short_term_gold = medium_gold_value
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				any_vassal = {
+					has_vassal_stance = barons_and_minor_landholders
+				}
+			}
+			every_vassal = {
+				custom = custom.every_barons_and_minor_landholders_vassal
+				limit = {
+					has_vassal_stance = barons_and_minor_landholders
+				}
+				add_opinion = {
+					modifier = tithed_opinion
+					target = scope:puppet_or_actor
+					opinion = -25
+				}
+			}
+			custom_tooltip = tithe_takes_baron_gold_tt
+		}
+	}
+	if = {
+		limit = {
+			scope:donate_faith = yes
+		}
+		pay_short_term_gold = {
+			target = scope:recipient
+			gold = scope:puppet_or_actor.major_gold_value
+		}
+	}
+	if = {
+		limit = {
+			scope:use_hook = yes
+			has_usable_hook = scope:recipient
+		}
+		use_hook = scope:recipient
+	}
+	if = {
+		limit = {
+			scope:offer_hook = yes
+		}
+		scope:recipient = {
+			add_hook = {
+				type = favor_hook
+				target = scope:puppet_or_actor
+			}
+		}
+	}
+	if = {
+		limit = {
+			is_ai = yes
+		}
+		add_opinion = {
+			target = scope:recipient
+			modifier = grateful_opinion
+			opinion = 30
+		}
+	}
+	pam_offer_pilgrimage_effect = {
+		ACTOR = scope:puppet_or_actor
+		CLERIC = scope:recipient
+	}
+	#The cleric should lose spiritual fulfillment if they agree to supporting a wicked king or a tyrant
+	if = {
+		limit = {
+			OR = {
+				character_considered_wicked_trigger = { RITE = scope:recipient.rite }
+				scope:recipient = {
+					has_relation_rival = scope:puppet_or_actor
+				}
+				tyranny > medium_tyranny
+				has_trait = excommunicated
+			}
+		}
+		scope:recipient = {
+			# We never take more piety than the cleric has, or the Church goes into debt
+			add_piety = {
+				value = major_piety_value
+				multiply = {
+					value = scope:puppet_or_actor.highest_held_title_tier
+					subtract = 1
+				}
+				max = piety
+				min = 0
+				multiply = -1
+			}
+			change_spiritual_fulfillment = massive_spiritual_fulfillment_loss
+			if = {
+				limit = {
+					scope:puppet_or_actor = { has_trait = excommunicated }
+				}
+				custom_tooltip = sp_ful_loss_due_to_excommunicated
+			}
+			else_if = {
+				limit = {
+					has_relation_rival = scope:puppet_or_actor
+				}
+				custom_tooltip = sp_ful_loss_due_to_rival
+			}
+			else_if = {
+				limit = {
+					scope:puppet_or_actor = { tyranny > medium_tyranny }
+				}
+				custom_tooltip = sp_ful_loss_due_to_tyranny
+			}
+			else = { #Unop Was else_if without a limit
+				custom_tooltip = sp_ful_loss_due_to_wicked
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			OR = {
+				character_considered_morally_dubious_trigger = { RITE = scope:recipient.rite }
+				tyranny >= low_tyranny
+			}
+		}
+		scope:recipient = {
+			add_piety = {
+				value = minor_piety_value
+				multiply = {
+					value = scope:puppet_or_actor.highest_held_title_tier
+					subtract = 1
+				}
+				max = piety
+				min = 0
+				multiply = -1
+			}
+			change_spiritual_fulfillment = medium_spiritual_fulfillment_loss
+			if = {
+				limit = {
+					scope:puppet_or_actor = { tyranny >= low_tyranny }
+				}
+				custom_tooltip = sp_ful_loss_due_to_tyranny
+			}
+			else = {
+				custom_tooltip = sp_ful_loss_due_to_immoral
+			}
+		}
+	}
+	else = {
+		scope:recipient = {
+			add_piety = {
+				value = miniscule_piety_value
+				multiply = {
+					value = scope:puppet_or_actor.highest_held_title_tier
+					subtract = 1
+				}
+				max = piety
+				min = 0
+				multiply = -1
+			}
+		}
+	}
+	# Catalysts
+	if = {
+		limit = {
+			scope:puppet_or_actor.religion = religion:calradian_religion
+			situation:the_christian_church ?= { situation_top_has_catalyst = catalyst_the_christian_church_requested_legitimacy }
+		}
+		situation:the_christian_church = { trigger_situation_catalyst = catalyst_the_christian_church_requested_legitimacy }
+	}
+}
+
+pam_available_negotiation_methods_tooltip_effect = {
+	#show tooltips
+	if = {
+		limit = {
+			pam_forced_negotiate_land_success_trigger = yes
+		}
+		#Do not show AI behaviour tooltips if this is recipient viewing
+		if = {
+			limit = {
+				NOT = { exists = scope:recipient_event }
+			}
+			custom_tooltip = pam_clergy_land_forced_success_tt
+			custom_tooltip = pam_negotiate_land_force_by_tt
+		}
+		#FORCED FIRST
+		if = {
+			limit = {
+				pam_negotiate_land_forced_hook_trigger = yes
+			}
+			custom_tooltip = pam_forced_negotiate_land_hook_tt
+		}
+		if = {
+			limit = {
+				pam_negotiate_land_forced_relation_trigger = yes
+			}
+			custom_tooltip = pam_forced_negotiate_land_relation_tt
+		}
+		if = {
+			limit = {
+				pam_negotiate_land_forced_piety_level_trigger = yes
+			}
+			if = {
+				limit = {
+					scope:recipient.piety_level = 0
+				}
+				custom_tooltip = pam_forced_negotiate_land_piety_level_1_tt
+			}
+			else = {
+				custom_tooltip = pam_forced_negotiate_land_piety_level_2_tt
+			}
+		}
+		if = {
+			limit = {
+				pam_negotiate_land_forced_legitimacy_level_trigger = yes
+			}
+			if = {
+				limit = {
+					scope:recipient.legitimacy_level = 0
+				}
+				custom_tooltip = pam_forced_negotiate_land_legitimacy_level_1_tt
+			}
+			else = {
+				custom_tooltip = pam_forced_negotiate_land_legitimacy_level_2_tt
+			}
+		}
+		if = {
+			limit = {
+				pam_negotiate_land_forced_gold_trigger = yes
+			}
+			show_as_tooltip = {
+				if = {
+					limit = {
+						has_treasury = yes
+					}
+					pay_short_term_treasury = {
+						target = scope:recipient
+						treasury = scope:recipient.pam_transfer_land_gold_value #Unop Was gold, which pay_short_term_treasury doesn't support
+					}
+				}
+				else = {
+					pay_short_term_gold = {
+						target = scope:recipient
+						gold = scope:recipient.pam_transfer_land_gold_value
+					}
+				}
+			}
+		}
+	}
+	else = {
+		#Do not show AI behaviour tooltips if this is recipient viewing
+		if = {
+			limit = {
+				NOT = { exists = scope:recipient_event }
+			}
+			custom_tooltip = pam_clergy_land_possible_success_tt
+		}
+	}
+
+	if = {
+		limit = {
+			pam_possible_negotiate_land_success_trigger = yes
+		}
+		#Do not show AI behaviour tooltips if this is recipient viewing
+		if = {
+			limit = {
+				NOT = { exists = scope:recipient_event }
+			}
+			custom_tooltip = pam_negotiate_land_possible_by_tt
+		}
+		#POSSIBLE NEXT
+		if = {
+			limit = {
+				pam_negotiate_land_possible_hook_trigger = yes
+				pam_negotiate_land_forced_hook_trigger = no
+			}
+			custom_tooltip = pam_possible_negotiate_land_hook_tt
+		}
+		if = {
+			limit = {
+				pam_negotiate_land_possible_relation_trigger = yes
+				pam_negotiate_land_forced_relation_trigger = no
+			}
+			custom_tooltip = pam_possible_negotiate_land_relation_tt
+		}
+		if = {
+			limit = {
+				pam_negotiate_land_possible_piety_level_trigger = yes
+				pam_negotiate_land_forced_piety_level_trigger = no
+			}
+			custom_tooltip = pam_possible_negotiate_land_piety_level_tt
+		}
+		if = {
+			limit = {
+				pam_negotiate_land_possible_legitimacy_level_trigger = yes
+				pam_negotiate_land_forced_legitimacy_level_trigger = no
+			}
+			custom_tooltip = pam_possible_negotiate_land_legitimacy_level_tt
+		}
+		if = {
+			limit = {
+				pam_negotiate_land_possible_gold_trigger = yes
+				pam_negotiate_land_forced_gold_trigger = no
+			}
+			show_as_tooltip = {
+				pam_negotiate_land_gold_effect = yes
+			}
+		}
+	}
+}
+pam_negotiate_land_gold_effect = {
+	if = {
+		limit = {
+			has_treasury = yes
+		}
+		pay_short_term_treasury = {
+			target = scope:recipient
+			treasury = scope:recipient.pam_transfer_land_gold_value #Unop Was gold, which pay_short_term_treasury doesn't support
+		}
+	}
+	else = {
+		pay_short_term_gold = {
+			target = scope:recipient
+			gold = scope:recipient.pam_transfer_land_gold_value
+		}
+	}
+}
+pam_apply_ancestral_khachkar_effects = {
+	$LOCATION$ = {
+		save_scope_as = khachkar_location
+		set_variable = {
+			name = pam_khachkar_ancestor
+			value = $ANCESTOR$
+		}
+		set_variable = {
+			name = pam_khachkar_commissioner
+			value = root
+		}
+		add_county_modifier = {
+			modifier = pam_khachkar_ancestral_county
+			desc = pam_khachkar_ancestral_county_custom_desc
+		}
+	}
+	add_prestige = medium_prestige_value
+	add_piety = medium_piety_value
+	add_legitimacy_effect = { LEGITIMACY = 100 } #Unop Not all characters have legitimacy
+	remove_variable = pam_khachkar_ancestral_ancestor
+}
+
+pam_incite_holy_war_effect = {
+	scope:puppet_or_actor = {
+		if = {
+			limit = {
+				top_participant_group:the_christian_church ?= {
+					has_participant_group_parameter = the_christian_church_incite_holy_war_interaction
+				}
+				NOR = {
+					has_trait = forgiving
+					has_trait = compassionate
+				}
+			}
+			change_spiritual_fulfillment = {
+				value = miniscule_spiritual_fulfillment_value
+				multiply = {
+					value = scope:target.tier
+					subtract = 1
+				}
+			}
+		}
+	}
+	
+	scope:secondary_recipient = {
+		save_scope_as = sponsored_holy_war_attacker
+		add_piety = {
+			value = medium_piety_value
+			multiply = {
+				value = scope:target.tier
+				subtract = 1
+			}
+		}
+		if = {
+			limit = {
+				scope:puppet_or_actor = {
+					top_participant_group:the_christian_church ?= {
+						has_participant_group_parameter = the_christian_church_incite_holy_war_interaction
+					}
+				}
+				NOR = {
+					has_trait = forgiving
+					has_trait = compassionate
+				}
+			}
+			change_spiritual_fulfillment = {
+				value = minor_spiritual_fulfillment_value
+				multiply = {
+					value = scope:target.tier
+					subtract = 1
+				}
+			}
+		}
+	}
+	scope:recipient = {
+		save_scope_as = sponsored_holy_war_defender
+		if = {
+			limit = {
+				NOT = {
+					root ?= scope:secondary_recipient
+				}
+			}
+			add_opinion = {
+				target = scope:puppet_or_actor
+				modifier = incited_holy_war_opinion
+				opinion = -50
+			}
+		}
+	}
+	if = {
+		limit = {
+			root ?= scope:secondary_recipient
+		}
+		custom_tooltip = interaction_holy_war_attacker_tt
+		show_as_tooltip = {
+			scope:recipient = {
+				add_opinion = {
+					modifier = declared_war
+					target = scope:secondary_recipient
+				}
+			}
+		}
+	}
+	else = {
+		scope:recipient = {
+			custom_tooltip = interaction_holy_war_attacked_tt
+		}
+	}
+	
+	scope:sponsored_holy_war_attacker = {
+		add_character_flag = {
+			flag = holy_war_incited
+			days = 10
+		}
+		if = {
+			limit = {
+				scope:sponsored_holy_war_target.tier = tier_kingdom
+			}
+			hidden_effect = {
+				start_war = {
+					casus_belli = major_religious_war
+					target = scope:sponsored_holy_war_defender
+					target_title = scope:sponsored_holy_war_target
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				scope:sponsored_holy_war_target.tier = tier_duchy
+			}
+			hidden_effect = {
+				start_war = {
+					casus_belli = religious_war
+					target = scope:sponsored_holy_war_defender
+					target_title = scope:sponsored_holy_war_target
+				}
+			}
+		}
+		else = {
+			hidden_effect = {
+				start_war = {
+					casus_belli = minor_religious_war
+					target = scope:sponsored_holy_war_defender
+					target_title = scope:sponsored_holy_war_target
+				}
+			}
+		}
+		random_character_war = {
+			limit = {
+				OR = {
+					using_cb = major_religious_war
+					using_cb = religious_war
+					using_cb = minor_religious_war
+				}
+				primary_defender = scope:recipient
+			}
+			save_scope_as = holy_war
+			set_variable = {
+				name = holy_instigator
+				value = scope:puppet_or_actor
+			}
+		}
+	}
+	scope:puppet_or_actor = {
+		custom_tooltip = inciter_gain_prestige_if_holy_war_won_tt
+		if = {
+			limit = {
+				scope:fund_war ?= yes
+			}
+			pay_treasury_or_gold = {
+				target = scope:secondary_recipient
+				value = scope:puppet_or_actor.major_gold_value
+			}
+		}
+		if = {
+			limit = {
+				scope:join_war ?= yes
+			}
+			custom_tooltip = holy_war_interaction_join_war_tt
+			custom_tooltip = holy_war_cleric_loss_penalty_tt
+			scope:holy_war ?= {
+				hidden_effect = { add_attacker = scope:puppet_or_actor }
+				set_variable = {
+					name = holy_joiner
+					value = scope:puppet_or_actor
+				}
+			}
+		}
+		if = {
+			limit = {
+				scope:use_hook ?= yes
+				has_usable_hook = scope:secondary_recipient
+			}
+			use_hook = scope:secondary_recipient
+		}
+		if = {
+			limit = {
+				scope:rally_crusaders ?= yes
+			}
+			scope:secondary_recipient = {
+				if = {
+					limit = {
+						highest_held_title_tier < scope:puppet_or_actor.highest_held_title_tier
+						current_military_strength < scope:puppet_or_actor.current_military_strength
+					}
+					if = {
+						limit = {
+							is_ai = yes
+						}
+						add_character_modifier = {
+							modifier = crusader_momentum_modifier_large
+							years = 10
+							desc = crusader_momentum_ai_behavior_large_tt
+						}
+						custom_tooltip = crusader_momentum_ai_behavior_large_tt
+					}
+					else = {
+						add_character_modifier = {
+							modifier = crusader_momentum_modifier_large
+							years = 10
+						}
+					}
+				}
+				else = {
+					if = {
+						limit = {
+							is_ai = yes
+						}
+						add_character_modifier = {
+							modifier = crusader_momentum_modifier
+							years = 10
+							desc = crusader_momentum_ai_behavior_tt
+						}
+						custom_tooltip = crusader_momentum_ai_behavior_tt
+					}
+					else = {
+						add_character_modifier = {
+							modifier = crusader_momentum_modifier
+							years = 10
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					exists = scope:target
+				}
+				add_prestige = {
+					value = minor_prestige_loss
+					multiply = {
+						value = scope:target.tier
+						subtract = 1
+					}
+				}
+			}
+			else = {
+				add_prestige = medium_prestige_loss
+			}
+		}
+		if = {
+			limit = {
+				scope:inspire_realm ?= yes
+			}
+			scope:secondary_recipient = {
+				add_character_modifier = {
+					modifier = holy_war_incited_throughout_realm_modifier
+					years = 15
+				}
+			}
+		}
+		#Discount to expanding archbishopric into the area
+		if = {
+			limit = {
+				pam_can_expand_clerical_region_after_war_trigger = { HEATHEN = scope:recipient }
+			}
+			custom_tooltip = can_expand_clerical_region_into_target_tt
+		}
+	}
+	scope:recipient = {
+		trigger_event = {
+			id = pam_interactions_events.0072
+			days = 3
+		}
+	}
+	scope:puppet_or_actor = {
+		if = {
+			limit = {
+				exists = scope:target
+				scope:target.tier >= tier_kingdom
+				any_character_situation = {
+					situation_type = the_christian_church
+				}
+				situation:the_christian_church ?= {
+					situation_top_has_catalyst = catalyst_major_holy_war_incited
+				}
+			}
+			situation:the_christian_church = { trigger_situation_catalyst = catalyst_major_holy_war_incited } #Unop Needs a situation scope
+		}
+		else_if = {
+			limit = {
+				exists = scope:target
+				scope:target.tier >= tier_duchy
+				any_character_situation = {
+					situation_type = the_christian_church
+				}
+				situation:the_christian_church ?= {
+					situation_top_has_catalyst = catalyst_holy_war_incited
+				}
+			}
+			situation:the_christian_church = { trigger_situation_catalyst = catalyst_holy_war_incited } #Unop Needs a situation scope
+		}
+		else_if = { #Unop Was else with a limit
+			limit = {
+				any_character_situation = {
+					situation_type = the_christian_church
+				}
+				situation:the_christian_church ?= {
+					situation_top_has_catalyst = catalyst_minor_holy_war_incited
+				}
+			}
+			situation:the_christian_church = { trigger_situation_catalyst = catalyst_minor_holy_war_incited } #Unop Needs a situation scope
+		}
+	}
+}
+consecrate_kingdom_effect = {
+	#If you don't have sway over the pope... they get sway over you
+    if = {
+    	limit = {
+    		NOT = {
+    			this = scope:religious_authority
+    		}
+    	}
+    	if = {
+    		limit = {
+    			NOR = {
+    				has_hook = scope:religious_authority
+    				scope:king_aspirant.puppet:theological_agent_puppet ?= scope:religious_authority
+    				scope:king_aspirant.puppet:external_theological_agent_puppet ?= scope:religious_authority
+    			}
+    		}
+    		scope:religious_authority = {
+    			add_hook = {
+    				type = strong_obligation_hook
+    				target = scope:king_aspirant
+    			}
+    		}
+    	}
+    	else = {
+    		scope:religious_authority = {
+    			add_hook = {
+    				type = obligation_hook
+    				target = scope:king_aspirant
+    			}
+    		}
+    	}
+    }
+    if = {
+    	limit = {
+    		scope:religious_authority = {
+    			this = scope:king_aspirant
+    		}
+    	}
+    	every_held_title = {
+    		limit = {
+    			tier = tier_county
+    		}
+    		empire = {
+    			every_de_jure_county = {
+    				limit = {
+    					holder ?= {
+    						faith = scope:king_aspirant.faith
+    						NOT = {
+    							government_has_flag = government_is_theocracy
+    						}
+    					}	
+    				}
+    				holder = {
+    					add_to_list = angry_seculars
+    					every_liege_or_above = {
+    						limit = {
+    							faith = scope:king_aspirant.faith
+    							NOT = {
+    								government_has_flag = government_is_theocracy
+    							}
+    						}
+    						add_to_list = angry_seculars
+    					}
+    				}
+    			}
+    		}
+    	}
+    	every_in_list = {
+    		custom = custom.every_empire_secular_ruler
+    		list = angry_seculars
+
+    		add_opinion = {
+    			modifier = power_hungry_priest_opinion
+    			target = scope:king_aspirant
+    			opinion = -30
+    		}
+    	}
+    }
+    create_custom_kingdom_effect = yes
+    if = {
+    	limit = {
+    		NOT = {
+    			this = scope:religious_authority
+    		}
+    		top_participant_group:the_christian_church ?= {
+				OR = {
+					participant_group_type = christian_clerical_main_power_rulers
+					participant_group_type = christian_regular_main_power_rulers
+				}
+			}
+			situation:the_christian_church ?= {
+				situation_top_has_catalyst = catalyst_consecrated_kingdom_for_ruler
+			}
+			NOT = {
+				scope:king_aspirant = { government_has_flag = government_is_theocracy }
+			}
+    	}
+    	situation:the_christian_church = {
+    		trigger_situation_catalyst = catalyst_consecrated_kingdom_for_ruler
+    	}
+    }
+    else_if = {
+    	limit = {
+    		this = scope:religious_authority
+			situation:the_christian_church ?= {
+				situation_top_has_catalyst = catalyst_prelate_empowered_self_with_kingdom
+			}
+    	}
+    	situation:the_christian_church = {
+    		trigger_situation_catalyst = catalyst_prelate_empowered_self_with_kingdom
+    	}
+    }
+    else_if = {
+    	limit = {
+    		top_participant_group:the_christian_church ?= {
+				OR = {
+					participant_group_type = christian_clerical_main_power_rulers
+					participant_group_type = christian_regular_main_power_rulers
+				}
+			}
+			situation:the_christian_church ?= {
+				situation_top_has_catalyst = catalyst_consecrated_kingdom_for_theocrat
+			}
+			government_has_flag = government_is_theocracy
+    	}
+    	situation:the_christian_church = {
+    		trigger_situation_catalyst = catalyst_consecrated_kingdom_for_theocrat
+    	}
+    }
+    if = {
+        limit = {
+            is_ai = no
+            NOT = { exists = global_var:found_kingdom_decision  }
+        }
+        set_global_variable = {
+            name = found_kingdom_decision
+            value = this #Unop Root is not always the new king, e.g. in pam_interactions_events
+        }
+        set_global_variable = {
+            name = found_kingdom_decision_kingdom
+            value = primary_title #Unop Root is not always the new king
+        }
+    }
+}
+
+update_syncretism_personal_tenet_effect = {
+	if = {
+		limit = {
+			is_available_quick = { advanced_ruler = yes }
+			scope:old_faith.religion != faith.religion
+		}
+		scope:old_faith = {
+			if = {
+				limit = { has_doctrine = sinitic_hostility_doctrine }
+				prev = { add_known_tenet_if_not = { TENET = tenet_sinitic_syncretism } }
+			}
+			else_if = {
+				limit = { has_doctrine = eastern_hostility_doctrine }
+				prev = { add_known_tenet_if_not = { TENET = tenet_eastern_syncretism } }
+			}
+			else_if = {
+				limit = { has_doctrine = pagan_hostility_doctrine }
+				prev = { add_known_tenet_if_not = { TENET = tenet_unreformed_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = calradian_religion }
+				prev = { add_known_tenet_if_not = { TENET = tenet_christian_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = aserai_religion }
+				prev = { add_known_tenet_if_not = { TENET = tenet_islamic_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = surrani_religion }
+				prev = { add_known_tenet_if_not = { TENET = tenet_jewish_syncretism } }
+			}
+		}
+		faith = {
+			if = {
+				limit = { has_doctrine = sinitic_hostility_doctrine }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_sinitic_syncretism } }
+			}
+			else_if = {
+				limit = { has_doctrine = eastern_hostility_doctrine }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_eastern_syncretism } }
+			}
+			else_if = {
+				limit = { has_doctrine = pagan_hostility_doctrine }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_unreformed_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = calradian_religion }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_christian_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = aserai_religion }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_islamic_syncretism } }
+			}
+			else_if = {
+				limit = { religion_tag = surrani_religion }
+				prev = { remove_personal_tenet_if_has = { TENET = tenet_jewish_syncretism } }
+			}
+		}
+	}
+}

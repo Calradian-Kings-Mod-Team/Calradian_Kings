@@ -1,0 +1,96 @@
+﻿pam_create_saint_fingerbone_relic_effect = {
+	hidden_effect_new_object = {
+		$OWNER$ = { save_scope_as = pam_relic_owner save_scope_as = owner }
+
+		# Roll the saint once and keep it in scope so the baked artifact name stays stable.
+		random_list = {
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_augustine_of_hippo } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_benedict_of_nursia } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_lawrence } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_george_the_great } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_lucy_of_syracuse } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_helena_of_constantinople } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_patrick } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_boniface } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_luke_the_evangelist } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_leo_the_great } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_columba } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_cuthbert_of_lindisfarne } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_basil_the_great } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_isidore_of_seville } }
+			10 = { save_scope_value_as = { name = pam_relic_saint value = flag:saint_brigid_of_kildare } }
+		}
+
+		scope:pam_relic_owner = {
+			create_artifact = {
+				name = pam_sf_fingerbone_relic_name
+				creator = scope:pam_relic_owner
+				description = pam_sf_fingerbone_relic_desc
+				visuals = bone
+				type = pedestal
+				template = christian_relic_template
+				modifier = artifact_placeholder_modifier
+				save_scope_as = newly_created_artifact
+				quality = $QUALITY$
+				wealth = $WEALTH$
+			}
+		}
+
+		# Modifiers scale with the rolled rarity, and finer relics also pick up extra modifier types
+		scope:newly_created_artifact = {
+			set_variable = {
+				name = relic_religion
+				value = religion:calradian_religion
+			}
+			if = {
+				limit = {
+					rarity = illustrious
+				}
+				add_2_scaled_artifact_modifier_devotion_effect = yes
+				add_scaled_artifact_modifier_devotion_effect = yes
+				add_scaled_artifact_modifier_grandeur_big_effect = yes
+			}
+			else_if = {
+				limit = {
+					rarity = famed
+				}
+				add_scaled_artifact_modifier_piety_effect = yes
+				add_scaled_artifact_modifier_devotion_effect = yes
+				add_scaled_artifact_modifier_grandeur_big_effect = yes
+			}
+			else_if = {
+				limit= {
+					rarity = masterwork
+				}
+				add_scaled_artifact_modifier_piety_effect = yes
+				add_scaled_artifact_modifier_devotion_effect = yes
+				add_scaled_artifact_modifier_grandeur_small_effect = yes
+			}
+			else_if = {
+				limit= {
+					rarity = common
+				}
+				add_scaled_artifact_modifier_piety_effect = yes
+				add_scaled_artifact_modifier_devotion_effect = yes
+			}
+			remove_artifact_modifier = artifact_placeholder_modifier
+		}
+
+		# Without a Royal Court the relic becomes a Trinket-slot inventory item.
+		if = {
+			limit = { scope:pam_relic_owner = { has_royal_court = no } }
+			scope:newly_created_artifact = { reforge_artifact = { type = miscellaneous } }
+		}
+
+		send_interface_toast = {
+			title = pam_sf_acquire_relic_toast
+			left_icon = scope:pam_relic_owner
+			right_icon = scope:newly_created_artifact
+			scope:newly_created_artifact = {
+				show_as_tooltip = {
+					set_owner = { target = scope:pam_relic_owner }
+				}
+			}
+		}
+	}
+}

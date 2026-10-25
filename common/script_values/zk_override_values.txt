@@ -3136,3 +3136,316 @@ befriend_interaction_cost_value = {
 		}
 	}
 }
+
+clerical_hesitation_claim_interaction_value = {
+	if = {
+		limit = {
+			OR = {
+				character_considered_wicked_trigger = { RITE = scope:cleric.rite }
+				scope:cleric = {
+					has_relation_rival = scope:actor
+				}
+				tyranny > medium_tyranny
+				has_trait = excommunicated
+			}
+		}
+		add = 4
+	}
+	else_if = {
+		limit = {
+			OR = {
+				character_considered_morally_dubious_trigger = { RITE = scope:cleric.rite }
+				scope:cleric = {
+					is_ai = yes
+					opinion = {
+						target = scope:actor
+						value <= -50
+					}
+				}
+				tyranny >= low_tyranny
+			}
+		}
+		add = 2
+	}
+	if = {
+		limit = {
+			OR = {
+				piety_level >= 5
+				has_trait = saint
+				has_trait = herald
+				has_trait = saoshyant_descendant
+				has_trait = order_member
+				has_trait = faith_warrior
+				has_trait = saoshyant
+				has_trait = paragon
+				has_trait = savior
+				has_trait = crusader_king
+			}
+		}
+		add = -4
+	}
+	else_if = {
+		limit = {
+			OR = {
+				piety_level >= 4
+				has_trait = zealous
+				has_trait = theologian
+				has_trait = divine_blood
+				has_trait = consecrated_blood
+			}
+		}
+		add = -2
+	}
+	else_if = {
+		limit = {
+			piety_level >= 3
+		}
+		add = -1
+	}
+	#Your rite divergence
+	if = {
+		limit = {
+			rite = {
+				this != scope:cleric.rite
+				"divergence(scope:cleric.rite)" >= monumental_rite_divergence_value
+			}
+		}
+		add = 2
+	}
+	else_if = {
+		limit = {
+			rite = {
+				this != scope:cleric.rite
+				"divergence(scope:cleric.rite)" >= massive_rite_divergence_value
+			}
+		}
+		add = 1
+	}
+	#Scope saved in interactions that do not need these values
+	if = {
+		limit = {
+			NOT = { exists = scope:only_consideration }
+		}
+		add = clerical_hesitation_from_target_holder_value
+		add = clerical_hesitation_from_potential_defender_value
+	}
+}
+
+
+clerical_hesitation_from_target_holder_value = {
+	value = 0
+	#Target holder exists
+	if = {
+		limit = {
+			exists = scope:owner
+		}
+		#Target holder is wicked
+		if = {
+			limit = {
+				scope:owner = {
+					OR = {
+						character_considered_wicked_trigger = { RITE = scope:cleric.rite }
+						has_relation_rival = scope:cleric
+						tyranny > medium_tyranny
+						has_trait = excommunicated
+						faith = {
+							faith_hostility_level = {
+								target = scope:cleric.faith
+								value >= faith_evil_level
+							}
+						}
+					}
+				}
+			}
+			add = -4
+		}
+		#Target holder is morally dubious
+		else_if = {
+			limit = {
+				scope:owner = {
+					OR = {
+						character_considered_morally_dubious_trigger = { RITE = scope:cleric.rite }
+						scope:cleric = {
+							is_ai = yes
+							opinion = {
+								target = scope:owner
+								value <= -50
+							}
+						}
+						faith = {
+							faith_hostility_level = {
+								target = scope:cleric.faith
+								value >= faith_hostile_level
+							}
+						}
+					}
+				}
+			}
+			add = -2
+		}
+		#Target holder is same-faith, very pious
+		if = {
+			limit = {
+				scope:owner = {
+					faith = scope:cleric.faith
+					OR = {
+						piety_level >= 4
+						has_trait = saint
+						has_trait = herald
+						has_trait = saoshyant_descendant
+						has_trait = order_member
+						has_trait = faith_warrior
+						has_trait = saoshyant
+						has_trait = paragon
+						has_trait = savior
+						has_trait = crusader_king
+						has_trait = zealous
+						has_trait = theologian
+						has_trait = divine_blood
+						has_trait = consecrated_blood
+					}
+					OR = {
+						rite = scope:cleric.rite
+						rite = {
+							"divergence(scope:cleric.rite)" < massive_rite_divergence_value
+						}
+					}
+				}
+			}
+			add = 4
+		}
+		#Target holder is same faith
+		else_if = {
+			limit = {
+				scope:owner = {
+					piety_level >= 1
+					NOT = { has_trait = excommunicated }
+					faith = scope:cleric.faith
+					OR = {
+						rite = scope:cleric.rite
+						rite = {
+							"divergence(scope:cleric.rite)" < monumental_rite_divergence_value
+						}
+					}
+				}
+			}
+			add = 2
+		}
+		#Target holder is a friendly faith
+		else_if = {
+			limit = {
+				scope:owner = {
+					piety_level >= 1
+					NOT = { has_trait = excommunicated }
+					OR = {
+						AND = {
+							faith = scope:cleric.faith
+							NOT = { rite = scope:cleric.rite }
+						}
+						faith = {
+							faith_hostility_level = {
+								target = scope:cleric.faith
+								value < faith_astray_level
+							}
+						}
+					}
+				}
+			}
+			add = 1
+		}
+	}
+}
+#Please God forgive me. I'm tired.
+clerical_hesitation_sub_value = {
+	value = 0
+	#potential claim defender is wicked
+	if = {
+		limit = {
+			OR = {
+				character_considered_wicked_trigger = { RITE = scope:cleric.rite }
+				has_relation_rival = scope:cleric
+				tyranny > medium_tyranny
+				has_trait = excommunicated
+				faith = {
+					faith_hostility_level = {
+						target = scope:cleric.faith
+						value >= faith_evil_level
+					}
+				}
+			}
+		}
+		add = -2
+	}
+	#potential claim defender is morally dubious
+	else_if = {
+		limit = {
+			OR = {
+				character_considered_morally_dubious_trigger = { RITE = scope:cleric.rite }
+				trigger_if = {
+					limit = {
+						scope:cleric = {
+							is_ai = yes
+						}
+					}
+					is_ai = yes
+					reverse_opinion = {
+						target = scope:cleric
+						value <= -50
+					}
+				}
+				faith = {
+					faith_hostility_level = {
+						target = scope:cleric.faith
+						value >= faith_hostile_level
+					}
+				}
+			}
+		}
+		add = -1
+	}
+	#potential claim defender is same-faith, very pious
+	if = {
+		limit = {
+			faith = scope:cleric.faith
+			OR = {
+				piety_level >= 4
+				has_trait = saint
+				has_trait = herald
+				has_trait = saoshyant_descendant
+				has_trait = order_member
+				has_trait = faith_warrior
+				has_trait = saoshyant
+				has_trait = paragon
+				has_trait = savior
+				has_trait = crusader_king
+				has_trait = zealous
+				has_trait = theologian
+				has_trait = lifestyle_scholar
+				has_trait = divine_blood
+				has_trait = consecrated_blood
+			}
+			OR = {
+				rite = scope:cleric.rite
+				rite = {
+					"divergence(scope:cleric.rite)" < massive_rite_divergence_value
+				}
+			}
+		}
+		add = 2
+	}
+	#potential claim defender is same faith
+	else_if = {
+		limit = {
+			piety_level >= 1
+			NOT = { has_trait = excommunicated }
+			faith = scope:cleric.faith
+			OR = {
+				rite = scope:cleric.rite
+				rite = {
+					"divergence(scope:cleric.rite)" < monumental_rite_divergence_value
+				}
+			}
+		}
+		add = 1
+	}
+}

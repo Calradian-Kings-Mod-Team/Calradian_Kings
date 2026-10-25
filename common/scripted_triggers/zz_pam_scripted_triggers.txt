@@ -542,6 +542,53 @@ has_tenet_popularity_trigger = {
 has_papacy_trigger = {
 	this = faith:darusan
 }
+valid_claim_war_incited_attacker_trigger = {
+	faith = scope:puppet_or_actor.faith
+	highest_held_title_tier >= tier_county
+	is_at_war = no
+	is_landed = yes
+	gold > 0
+
+	is_available_quick = {
+		alive = yes
+		imprisoned = no
+		incapable = no
+	}
+	current_military_strength >= $RECIPIENT$.one_tenth_current_military_strength
+	NOR = {
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_nomadic
+		government_has_flag = government_is_celestial
+		government_has_flag = government_is_theocracy
+		government_has_flag = government_is_ecclesiastical
+		this = scope:puppet_or_actor
+		this = $RECIPIENT$
+		is_allied_to = $RECIPIENT$
+		has_truce = $RECIPIENT$
+		is_tributary_of = $RECIPIENT$.top_liege
+		is_tributary_of = $RECIPIENT$
+		top_liege = $RECIPIENT$.top_liege
+		liege = $RECIPIENT$
+		puppet:theological_agent_puppet ?= scope:puppet_or_actor
+		puppet:external_theological_agent_puppet ?= scope:puppet_or_actor
+	}
+	NOT = {
+		any_liege_or_above = {
+			is_at_war_with = $RECIPIENT$
+		}
+	}
+	any_claim = {
+		tier >= tier_county
+		tier <= tier_kingdom
+		is_landless_type_title = no
+		holder ?= {
+			target_is_same_character_or_above = $RECIPIENT$
+		}
+	}
+	$RECIPIENT$ = { save_temporary_scope_as = defender } #Unop Save the scopes used by tgp_japan_offensive_wars_ban_trigger
+	save_temporary_scope_as = attacker
+	tgp_japan_offensive_wars_ban_trigger = yes
+}
 valid_holy_war_incited_attacker_trigger = {
 	highest_held_title_tier >= tier_county
 	is_at_war = no
@@ -586,6 +633,7 @@ valid_holy_war_incited_attacker_trigger = {
 		save_temporary_scope_as = defender
 	}
 	save_temporary_scope_as = attacker
+	tgp_japan_offensive_wars_ban_trigger = yes #Unop Moved from above
 	# trigger_if = {
 	# 	limit = {
 	# 		scope:attacker = {
@@ -1045,7 +1093,54 @@ pam_clerical_self_candidacy_restriction_trigger = {
 		}
 	}
 }
+pam_tenet_is_christian_dogma_trigger = {
+	OR = {
+		this = tenet:tenet_apostolic_succession
+		this = tenet:tenet_divine_liturgy
+		this = tenet:tenet_communion
+		this = tenet:tenet_original_sin
+		this = tenet:tenet_transubstantiation
+		this = tenet:tenet_pentarchy
+		this = tenet:tenet_celestial_hierarchy
+		this = tenet:tenet_confession
+		this = tenet:tenet_philanthropia
+		this = tenet:tenet_hyperdulia
+		this = tenet:tenet_armed_pilgrimages
+		this = tenet:tenet_scholasticism
+		# this = tenet:tenet_holy_myron
+		this = tenet:tenet_alexandrian_catechism
+	}
+}
 
+# Current scope is a faith and root is the character choosing the personal tenet
+pam_personal_syncretism_faith_matches_trigger = {
+	OR = {
+		AND = {
+			root = { has_personal_tenet = tenet_sinitic_syncretism }
+			religion = { is_in_family = rf_sinitic }
+		}
+		AND = {
+			root = { has_personal_tenet = tenet_eastern_syncretism }
+			religion = { is_in_family = rf_eastern }
+		}
+		AND = {
+			root = { has_personal_tenet = tenet_unreformed_syncretism }
+			has_doctrine_parameter = unreformed
+		}
+		AND = {
+			root = { has_personal_tenet = tenet_christian_syncretism }
+			religion_tag = calradian_religion
+		}
+		AND = {
+			root = { has_personal_tenet = tenet_islamic_syncretism }
+			religion_tag = aserai_religion
+		}
+		AND = {
+			root = { has_personal_tenet = tenet_jewish_syncretism }
+			religion_tag = surrani_religion
+		}
+	}
+}
 ### Claimant Empire Enforce Succession
 ck_pam_claimant_enforce_succession_trigger = {
 	$TITLE$ = {
@@ -1063,7 +1158,29 @@ ck_pam_claimant_enforce_succession_trigger = {
 		}
 	}
 }
-# Evaluated in FAITH scope #\11_petition_head_of_faith_triggers.txt
+#11_petition_head_of_faith_triggers.txt
+# Target has grave sins (VERY_SINFUL_TRAITS bar: criminal traits, murderer, despoiler). Guarantees Cite Sins success.
+petition_head_of_faith_target_has_grave_sins_trigger = {
+	exists = scope:petition_target
+	exists = scope:recipient
+	OR = {
+		has_any_criminal_trait_in_rite_trigger = {
+			CHARACTER = scope:petition_target
+			RITE = scope:recipient.rite
+		}
+		scope:petition_target = {
+			AND = {
+				has_trait = murderer
+				NOT = {
+					scope:recipient.rite = {
+						trait_is_virtue_rite = murderer
+					}
+				}
+			}
+		}
+	}
+}
+# Evaluated in FAITH scope
 petition_head_of_faith_faith_qualifies_trigger = {
 	religion_tag = calradian_religion
 	main_rite ?= {
@@ -1093,5 +1210,56 @@ pam_nomad_inclined_to_settle_trigger = {
 		# TODO check game rules, ethos_bellicose?
 		domicile ?= { herd <= 500 }
 		is_independent_ruler = no
+	}
+}
+
+# 00_religion_faith_rite_triggers.txt
+# Fertility: sexuality, childbirth, life, growth, sacred love, solar vitality
+has_fertilitygod_tenet_trigger = {
+	OR = {
+		has_tenet_status = {
+			tenet = tenet_carnal_exaltation
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_divine_marriage
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_sacred_childbirth
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_sanctity_of_nature
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_sun_worship
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_polyamory
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_transubstantiation
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_be_fruitful_and_multiply
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_bhakti
+			status = core
+		}
+		has_tenet_status = {
+			tenet = tenet_love_thy_neighbour
+			status = core
+		}
+		# has_tenet_status = {
+		# 	tenet = tenet_holy_myron
+		# 	status = core
+		# }
 	}
 }

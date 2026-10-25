@@ -1472,10 +1472,12 @@ charas_library = {
 	
 	can_construct_potential = {
 		building_requirement_tribal = no
-		building_university_requirement = yes
+		this = title:b_charas.title_province
+		# building_university_requirement = yes
 	}
 	
-	can_construct = {
+	is_enabled = {
+		county.holder = { has_title = prev.duchy }
 	}
 	
 	show_disabled = yes
@@ -1483,17 +1485,33 @@ charas_library = {
 	cost_gold = 1000
 
 	character_modifier = {
-		learning_per_prestige_level = 2
+		learning_per_prestige_level = 1
 		monthly_lifestyle_xp_gain_mult = 0.1
 		cultural_head_fascination_mult = 0.05
 		monthly_dynasty_prestige = 0.25
 		monthly_prestige = 0.25
 	}
-	
-	county_modifier = {
+	character_culture_modifier = { # vlandian
+		parameter = knights_slightly_more_prone_to_injury # tradition_vlandian_banneret
+		learning_per_prestige_level = 0.5
+	}
+	character_culture_modifier = { # sarranid
+		parameter = same_faith_inheritance_only # tradition_faith_bound
+		learning_per_piety_level = 0.5
+	}
+	character_culture_modifier = { # other calradic
+		parameter = vengeful_trait_more_common
+		learning_mult = 0.1
+	}
+	province_government_modifier = { # feudal/clan
+		parameter = government_uses_crown_authority
+		building_slot_add = 1
+	}
+	duchy_capital_county_modifier = {
 		development_growth_factor = 0.2
+	}
+	county_modifier = {
 		development_growth = 0.3
-
 	}
 	
 	ai_value = {
@@ -1502,12 +1520,17 @@ charas_library = {
 			factor = 0
 			free_building_slots > 0
 		}
+		modifier = { # Less likely when the AI should build regular buildings first
+			factor = 0.1
+			scope:holder = { ai_should_focus_on_building_in_their_capital = yes }
+		}
 	}
-	
-	type = special
-
 	flag = travel_point_of_interest_learning
 	flag = special_university
+	flag = religious_studies_location
+	flag = duchy_building
+	flag = fully_upgraded_duchy_capital_building
+	type = duchy_capital
 }
 
 imperial_academy = {
@@ -1525,7 +1548,7 @@ imperial_academy = {
 		desc = university_effect_desc_ck
 	}
 
-	type_icon = "icon_structure_university_of_siena.dds"
+	type_icon = "compostela.dds"
 	## I want us to create a custom icon for this building. Will probably need to create a structure in the Bannerlord scene editor and vectorize it #CK_ART CK_TODO
 	can_construct_potential = {
 		building_requirement_tribal = no
@@ -1540,17 +1563,27 @@ imperial_academy = {
 	cost_gold = 1000
 
 	character_modifier = {
-		learning_per_prestige_level = 2
+		learning_per_prestige_level = 1.5
 		intrigue_per_prestige_level = 1
 		monthly_lifestyle_xp_gain_mult = 0.1
 		cultural_head_fascination_mult = 0.05
 		monthly_dynasty_prestige = 0.25
 	}
-	
+	character_government_modifier = {
+		parameter = government_has_influence
+		diplomacy_per_influence_level = 0.5
+	}
+	character_government_modifier = {
+		parameter = government_has_treasury
+		stewardship_per_piety_level = 0.5
+	}
 	county_modifier = {
 		development_growth_factor = 0.2
 		development_growth = 0.3
 	}
+	province_modifier = {
+		building_slot_add = 1
+	}	
 	
 	ai_value = {
 		base = 100
@@ -1563,6 +1596,7 @@ imperial_academy = {
 	type = special
 
 	flag = travel_point_of_interest_learning
+	flag = religious_studies_location
 	flag = special_university
 }
 ########
