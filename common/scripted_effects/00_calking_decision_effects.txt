@@ -248,14 +248,7 @@ give_senatorial_faction_effect = {
 				}
 			}
 			add_trait = ck_oligarch
-			scope:emperor_notification ?= {
-				send_interface_toast = {
-					type = msg_senate_faction_trait
-					title = faction_oligarch.notification
-					desc = faction_oligarch.notification_desc
-					left_icon = scope:root_icon
-				}
-			}
+			notify_senate_faction_effect = { TRAIT = oligarch }
 		}
 		0 = {
 			modifier = {
@@ -463,14 +456,7 @@ give_senatorial_faction_effect = {
 				}
 			}
 			add_trait = ck_royalist
-			scope:emperor_notification ?= {
-				send_interface_toast = {
-					type = msg_senate_faction_trait
-					title = faction_royalist.notification
-					desc = faction_royalist.notification_desc
-					left_icon = scope:root_icon
-				}
-			}
+			notify_senate_faction_effect = { TRAIT = royalist }
 		}
 		0 = { #Militarist
 			modifier = {
@@ -627,14 +613,7 @@ give_senatorial_faction_effect = {
 				}
 			}
 			add_trait = ck_militarist
-			scope:emperor_notification ?= {
-				send_interface_toast = {
-					type = msg_senate_faction_trait
-					title = faction_militarist.notification
-					desc = faction_militarist.notification_desc
-					left_icon = scope:root_icon
-				}
-			}
+			notify_senate_faction_effect = { TRAIT = militarist }
 		}
 		0 = {
 			modifier = {
@@ -775,18 +754,36 @@ give_senatorial_faction_effect = {
 				has_trait = compassionate
 			}
 			add_trait = ck_populist
-			scope:emperor_notification ?= {
-				send_interface_toast = {
-					type = msg_senate_faction_trait
-					title = faction_populist.notification
-					desc = faction_populist.notification_desc
-					left_icon = scope:root_icon
-				}
+			notify_senate_faction_effect = { TRAIT = populist }
+		}
+	}
+}
+notify_senate_faction_effect = {
+	scope:emperor_notification ?= {
+		if = {
+			limit = {
+				has_trait = ck_$TRAIT$
+			}
+			send_interface_toast = {
+				type = msg_senate_faction_$TRAIT$
+				title = faction_$TRAIT$.notification
+				desc = faction_$TRAIT$.notification_same
+				left_icon = scope:root_icon
+			}
+		}
+		else = {
+			send_interface_toast = {
+				type = msg_senate_faction_trait
+				title = faction_$TRAIT$.notification
+				desc = faction_$TRAIT$.notification_desc
+				left_icon = scope:root_icon
+				# show_as_tooltip = {
+				# 	scope:root_icon = { add_trait_force_tooltip = ck_$TRAIT$ }
+				# }
 			}
 		}
 	}
 }
-
 set_senate_faction_effect = {
 	## Senate Factions
 	if = {
