@@ -1,0 +1,43 @@
+﻿# When the timer runs out we fire this from the situation on_monthly
+pam_start_investiture_council_effect = {
+	religion:calradian_religion = {
+		every_faith = {
+			limit = {
+				has_doctrine = doctrine_clerical_succession_conditional
+				exists = religious_head
+				NOT = { has_variable = investiture_council_pending }
+			}
+			# Self-clearing flag: if the backstop mis-fires, a later crisis can still convene a fresh council.
+			set_variable = { name = investiture_council_pending value = yes days = 1095 }
+			# $FAITH$ substitutes literally, so this would resolve to the player below without a saved scope
+			save_temporary_scope_as = investiture_pending_faith
+			pam_investiture_fire_event_for_participant_players_effect = {
+				EVENT = pam_the_christian_church.0058
+				FAITH = scope:investiture_pending_faith
+			}
+			pam_nudge_investiture_council_host_effect = yes
+		}
+	}
+}
+# What the Investiture panel expects from committed and default leanings, not the council tally
+pam_investiture_update_vote_estimate_effect = {
+	situation:the_christian_church ?= {
+		set_variable = { name = investiture_est_spiritual value = 0 }
+		set_variable = { name = investiture_est_temporal value = 0 }
+	}
+	religion:calradian_religion = {
+		every_faith = {
+			limit = { has_doctrine = doctrine_clerical_succession_conditional }
+			every_faith_character = {
+				limit = { pam_valid_ecumenical_council_voter_trigger = yes }
+				if = {
+					limit = { pam_investiture_supports_spiritual_revocable_trigger = yes }
+					situation:the_christian_church ?= { change_variable = { name = investiture_est_spiritual add = 1 } }
+				}
+				else = {
+					situation:the_christian_church ?= { change_variable = { name = investiture_est_temporal add = 1 } }
+				}
+			}
+		}
+	}
+}
