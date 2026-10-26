@@ -1,0 +1,171 @@
+﻿namespace = pam_theocratic_ruler_events
+
+###########################
+## pam_theocratic_ruler_events.0011 — Rest for the Fallen
+############################
+
+pam_theocratic_ruler_events.0011 = {
+	id_override_priority = 120
+	type = character_event
+	title = pam_theocratic_ruler_events.0011.t
+	desc = pam_theocratic_ruler_events.0011.desc
+	theme = christian
+	override_background = { reference = temple }
+
+	left_portrait = {
+		character = root
+		animation = prayer
+	}
+	right_portrait = {
+		character = scope:landed_subject
+		animation = grief
+	}
+	artifact = {
+		target = scope:crusader_sword
+		position = lower_center_portrait
+	}
+
+	cooldown = { years = 8 }
+
+	trigger = {
+		pam_government_is_religious_playable_trigger = yes
+		is_available_adult = yes
+		has_religion = religion:calradian_religion
+		NOT = {
+    		any_character_artifact = {
+        		artifact_type = sword
+    		}
+		}
+		any_vassal_or_below = {
+			this != root
+			is_available = yes
+			is_landed = yes
+			faith = root.faith
+		}
+	}
+
+	immediate = {
+		random_vassal_or_below = {
+			limit = {
+				this != root
+				is_available = yes
+				is_landed = yes
+				faith = root.faith
+			}
+			save_scope_as = landed_subject
+		}
+		hidden_effect = {
+			create_artifact = {
+				name = pam_fallen_knight_crusader_sword_name
+				description = pam_fallen_knight_crusader_sword_desc
+				type = sword
+				visuals = sword
+				modifier = artifact_prowess_2_modifier
+				save_scope_as = crusader_sword
+			}
+			scope:crusader_sword = {
+				set_artifact_rarity_common = yes
+				set_max_durability = 40
+			}
+		}
+	}
+
+	# Grant church burial with the crusader sword.
+	option = {
+		name = pam_theocratic_ruler_events.0011.a
+		flavor = pam_theocratic_ruler_events.0011.a.flavor
+		scope:landed_subject = {
+			pay_treasury_or_gold = {
+				target = root
+				value = minor_treasury_or_gold_value
+			}
+		}
+		if = {
+			limit = {
+				can_add_hook = {
+					target = scope:landed_subject
+					type = strong_favor_hook
+				}
+			}
+			add_hook = {
+				target = scope:landed_subject
+				type = strong_favor_hook
+			}
+		}
+		add_piety = minor_piety_loss
+		destroy_artifact = scope:crusader_sword
+		scope:landed_subject = {
+			add_opinion = {
+				modifier = grateful_opinion
+				target = root
+				opinion = 15
+			}
+		}
+		stress_and_fulfillment_impact = {
+			compassionate = minor_stress_impact_loss
+			zealous = minor_stress_impact_loss
+			greedy = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 45
+			ai_value_modifier = {
+				ai_compassion = 0.35
+				ai_zeal = 0.25
+				ai_honor = 0.2
+			}
+		}
+	}
+
+	# Keep the sword while still granting burial.
+	option = {
+		name = pam_theocratic_ruler_events.0011.b
+		flavor = pam_theocratic_ruler_events.0011.b.flavor
+		scope:crusader_sword = { set_owner = root }
+		scope:landed_subject = {
+			add_opinion = {
+				modifier = upset_opinion
+				target = root
+				opinion = -20
+			}
+		}
+		stress_and_fulfillment_impact = {
+			deceitful = minor_stress_impact_loss
+			greedy = minor_stress_impact_loss
+			honest = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 30
+			ai_value_modifier = {
+				ai_greed = 0.4
+				ai_rationality = 0.2
+			}
+		}
+	}
+
+	# Bury the knight beneath the open sky.
+	option = {
+		name = pam_theocratic_ruler_events.0011.c
+		flavor = pam_theocratic_ruler_events.0011.c.flavor
+		add_piety = medium_piety_gain
+		destroy_artifact = scope:crusader_sword
+		scope:landed_subject = {
+			add_opinion = {
+				modifier = upset_opinion
+				target = root
+				opinion = -10
+			}
+		}
+		stress_and_fulfillment_impact = {
+			zealous = minor_stress_impact_loss
+			stubborn = minor_stress_impact_loss
+			compassionate = minor_stress_impact_gain
+		}
+		ai_chance = {
+			base = 25
+			ai_value_modifier = {
+				ai_zeal = 0.45
+				ai_boldness = 0.2
+			}
+		}
+	}
+}

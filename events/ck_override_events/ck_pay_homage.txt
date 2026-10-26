@@ -1,0 +1,384 @@
+namespace = pay_homage
+# Liege recieves homagee
+pay_homage.0101 = {
+	id_override_priority = 120
+	type = character_event # to avoid too much in the court for ruler
+	title = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { exists = scope:homage_faux_pas_language }
+				desc = pay_homage.0101.t.language
+			}
+			triggered_desc = {
+				trigger = { exists = scope:homage_faux_pas_clumsy }
+				desc = pay_homage.0101.t.clumsy
+			}
+			triggered_desc = {
+				trigger = { exists = scope:homage_faux_pas_infatuation }
+				desc = pay_homage.0101.t.infatuation
+			}
+			triggered_desc = {
+				trigger = { exists = scope:homage_faux_pas_delivery }
+				desc = pay_homage.0101.t.delivery
+			}
+			desc = pay_homage.0101.t
+		}
+	}
+	desc = {
+		desc = pay_homage.0101.desc
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:homage_vassal.var:homage_type = flag:homage_submission }
+				desc = pay_homage.0101.desc.submission
+			}
+			triggered_desc = {
+				trigger = { scope:homage_vassal.var:homage_type = flag:homage_gold }
+				desc = pay_homage.0101.desc.gold
+			}
+			triggered_desc = {
+				trigger = { scope:homage_vassal.var:homage_type = flag:homage_hook }
+				desc = pay_homage.0101.desc.hook
+			}
+			triggered_desc = {
+				trigger = { scope:homage_vassal.var:homage_type = flag:homage_contract }
+				desc = pay_homage.0101.desc.contract
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { exists = scope:homage_faux_pas_language }
+				desc = pay_homage.0101.desc.language
+			}
+			triggered_desc = {
+				trigger = { exists = scope:homage_faux_pas_clumsy }
+				desc = pay_homage.0101.desc.clumsy
+			}
+			triggered_desc = {
+				trigger = { exists = scope:homage_faux_pas_infatuation }
+				desc = pay_homage.0101.desc.infatuation
+			}
+			triggered_desc = {
+				trigger = { exists = scope:homage_faux_pas_delivery }
+				desc = pay_homage.0101.desc.delivery
+			}
+			desc = pay_homage.0101.desc.success
+		}
+	}
+	theme = crown
+	override_sound = { reference = "event:/SFX/Events/Themes/sfx_event_theme_type_duty" }
+	left_portrait = {
+		triggered_animation = {
+			trigger = {
+				religion = religion:calradian_religion
+				highest_held_title_tier >= tier_kingdom
+			}
+			animation = scepter
+		}
+		triggered_animation = {
+			trigger = {
+				coronation_host_east_asian_steppe_admin_trigger = yes
+				highest_held_title_tier >= tier_kingdom
+			}
+			animation = holding_hu
+		}
+		animation = personality_honorable
+		character = scope:homage_liege
+		camera = camera_event_very_left
+	}
+	right_portrait = {
+		character = scope:homage_vassal
+		animation = throne_room_bow_1
+	}
+
+	trigger = {
+		scope:homage_vassal = {
+			is_alive = yes
+			is_imprisoned = no
+		}
+	}
+
+	on_trigger_fail = {
+		scope:homage_vassal = {
+			if = {
+				limit = { is_alive = yes }
+				trigger_event = pay_homage.9999
+			}
+		}
+	}
+
+	immediate = {
+		random_list = {
+			2 = { # Linguistic
+				trigger = {
+					scope:homage_vassal.learning < average_skill_rating
+					NOT = {
+						scope:homage_vassal = { knows_court_language_of = scope:homage_liege }
+					}
+				}
+				modifier = {
+					factor = 2
+					NOT = {
+						any_culture_global = {
+							has_same_culture_heritage = scope:homage_vassal.culture
+							save_temporary_scope_as = compare_culture
+							scope:homage_liege = { has_court_language_of_culture = scope:compare_culture }
+						}
+					}
+				}
+				save_scope_value_as = { name = homage_faux_pas_language value = yes }
+			}
+			2 = { # Clumsy
+				trigger = { scope:homage_vassal.prowess < low_skill_rating }
+				save_scope_value_as = { name = homage_faux_pas_clumsy value = yes }
+			}
+			2 = { # Infatuation
+				trigger = { 
+					exists = scope:homage_infatuation 
+					scope:homage_vassal.attraction >= 20
+				}
+				save_scope_value_as = { name = homage_faux_pas_infatuation value = yes }
+			}
+			2 = { # Delivery
+				trigger = {
+					scope:homage_vassal = {
+						diplomacy < average_skill_rating
+						OR = {
+							has_trait = stuttering
+							has_trait = lisping
+							has_trait = dull
+							has_trait = wheezing
+							has_trait = intellect_bad
+							AND = {
+								learning < average_skill_rating
+								has_trait = arrogant
+							}
+						}
+					}
+				}
+				save_scope_value_as = { name = homage_faux_pas_delivery value = yes }
+			}
+			50 = {}
+		}
+		pay_homage_select_nickname_effect = yes # pick a nick to give, if faux pas
+		save_opinion_value_as = {
+			name = opinion_of_petitioner
+			target = scope:homage_vassal
+		}
+	}
+
+	option = { # Smooth
+		name = {
+			trigger = { scope:homage_vassal.var:homage_type = flag:homage_submission }
+			text = pay_homage.0101.smooth.submission
+		}
+		name = {
+			trigger = { scope:homage_vassal.var:homage_type = flag:homage_gold }
+			text = pay_homage.0101.smooth.gold
+		}
+		name = {
+			trigger = { scope:homage_vassal.var:homage_type = flag:homage_hook }
+			text = pay_homage.0101.smooth.hook
+		}
+		name = {
+			trigger = { scope:homage_vassal.var:homage_type = flag:homage_contract }
+			text = pay_homage.0101.smooth.contract
+		}
+		trigger = {
+			NOR = {
+				exists = scope:homage_faux_pas_language
+				exists = scope:homage_faux_pas_clumsy
+				exists = scope:homage_faux_pas_infatuation
+				exists = scope:homage_faux_pas_delivery
+			}
+		}
+		show_as_tooltip = {
+			scope:homage_vassal = { add_prestige = minor_prestige_gain }
+		}
+	}
+
+	option = { # Faux Pas: Brush Off
+		name = {
+			trigger = { exists = scope:homage_faux_pas_language }
+			text = pay_homage.0101.faux_pas.language
+		}
+		name = {
+			trigger = { exists = scope:homage_faux_pas_clumsy }
+			text = pay_homage.0101.faux_pas.clumsy
+		}
+		name = {
+			trigger = { exists = scope:homage_faux_pas_infatuation }
+			text = pay_homage.0101.faux_pas.infatuation
+		}
+		name = {
+			trigger = { exists = scope:homage_faux_pas_delivery }
+			text = pay_homage.0101.faux_pas.delivery
+		}
+		trigger = {
+			OR = {
+				exists = scope:homage_faux_pas_language
+				exists = scope:homage_faux_pas_clumsy
+				exists = scope:homage_faux_pas_infatuation
+				exists = scope:homage_faux_pas_delivery
+			}
+		}
+		show_as_tooltip = {
+			scope:homage_vassal = { add_prestige = minor_prestige_loss }
+		}
+		stress_and_fulfillment_impact = {
+			callous = medium_stress_impact_gain
+			arrogant = medium_stress_impact_gain
+		}
+		ai_chance = {
+			base = 25
+			# Personality
+			ai_value_modifier = {
+				ai_compassion = 2
+				ai_honor = 2
+				ai_boldness = -1
+			}
+			# Opinion
+			compare_modifier = {
+				value = scope:opinion_of_petitioner
+				multiplier = 1
+			}
+			# Renown 
+			modifier = {
+				add = 25
+				dynasty = scope:homage_vassal.dynasty
+			}
+			# Empathy
+			modifier = {
+				add = -20
+				exists = scope:homage_faux_pas_clumsy
+				prowess < low_skill_rating
+			}
+			modifier = {
+				add = -20
+				exists = scope:homage_faux_pas_delivery
+				OR = {
+					has_trait = stuttering
+					has_trait = lisping
+					has_trait = dull
+					has_trait = wheezing
+					has_trait = intellect_bad
+				}
+			}
+			# Relations
+			modifier = { 
+				add = 10
+				is_close_family_of = scope:homage_vassal
+			}
+			modifier = {
+				add = 20
+				has_relation_friend = scope:homage_vassal
+			}
+			modifier = {
+				add = 40
+				has_relation_best_friend = scope:homage_vassal
+			}
+			modifier = {
+				add = 20
+				has_relation_lover = scope:homage_vassal
+			}
+			modifier = {
+				add = 40
+				has_relation_soulmate = scope:homage_vassal
+			}
+		}
+	}
+
+	option = { # Faux Pas: Insult
+		name = {
+			trigger = { exists = scope:homage_faux_pas_language }
+			text = pay_homage.0101.insult.language
+		}
+		name = {
+			trigger = { exists = scope:homage_faux_pas_clumsy }
+			text = pay_homage.0101.insult.clumsy
+		}
+		name = {
+			trigger = { exists = scope:homage_faux_pas_infatuation }
+			text = pay_homage.0101.insult.infatuation
+		}
+		name = {
+			trigger = { exists = scope:homage_faux_pas_delivery }
+			text = pay_homage.0101.insult.delivery
+		}
+		trigger = {
+			OR = {
+				exists = scope:homage_faux_pas_language
+				exists = scope:homage_faux_pas_clumsy
+				exists = scope:homage_faux_pas_infatuation
+				exists = scope:homage_faux_pas_delivery
+			}
+		}
+		save_scope_value_as = { name = homage_faux_pas_mocked value = yes }
+		show_as_tooltip = { pay_homage_give_nickname_effect = yes }
+		scope:homage_vassal = {
+			show_as_tooltip = {
+				add_prestige = medium_prestige_loss
+				add_legitimacy = minor_legitimacy_loss
+			}
+			add_opinion = {
+				target = scope:homage_liege
+				modifier = insulted_opinion
+				opinion = -10
+			}
+		}
+		stress_and_fulfillment_impact = {
+			just = medium_stress_impact_gain
+			compassionate = medium_stress_impact_gain
+			humble = medium_stress_impact_gain
+			irritable = medium_stress_impact_loss
+		}
+		ai_chance = {
+			base = 5
+			# Personality
+			ai_value_modifier = {
+				ai_compassion = -2
+				ai_honor = -2
+				ai_boldness = 1
+			}
+			# Opinion
+			compare_modifier = {
+				value = scope:opinion_of_petitioner
+				multiplier = -1
+			}
+			# No gift
+			modifier = {
+				add = 10
+				scope:homage_vassal.var:homage_type = flag:homage_contract
+			}
+			# Relations
+			modifier = {
+				add = 20
+				has_relation_rival = scope:homage_vassal
+			}
+			modifier = {
+				add = 40
+				has_relation_nemesis = scope:homage_vassal
+			}
+			# Power
+			modifier = {
+				add = -20
+				max_military_strength < scope:homage_vassal.max_military_strength
+			}
+			modifier = {
+				add = -10
+				scope:homage_vassal = { is_powerful_vassal = yes }
+			}
+			modifier = {
+				add = -10
+				any_targeting_faction = {
+					faction_leader = scope:homage_vassal
+					faction_power >= 60
+				}
+			}
+		}
+	}
+
+	after = {
+		pay_homage_liege_reward_effect = yes
+		scope:homage_vassal = { trigger_event = pay_homage.0201 }
+	}
+}
