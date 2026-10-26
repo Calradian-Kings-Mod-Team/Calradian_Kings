@@ -1,0 +1,159 @@
+﻿namespace = study_faith_ongoing
+
+# The target is actually a practitioner of ancient rites! Learn of the secret, change your plans or find another target.
+study_faith_ongoing.1012 = {
+	id_override_priority = 120
+	type = character_event
+	title = study_faith_ongoing.1012.t
+	desc = study_faith_ongoing.1012.desc
+	theme = study_faith
+
+	left_portrait = {
+		character = root
+		animation = personality_rational
+	}
+	right_portrait = {
+		character = scope:target
+		animation = holding_scrolls
+	}
+	widget = {
+		gui = "event_window_widget_scheme"
+		container = "custom_widgets_container"
+	}
+
+	immediate = {
+		scope:target = {
+			if = {
+				limit = {
+					# study_faith_potential_hellenic_believer = yes
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_lotkian
+							has_cultural_pillar = language_lotkian
+							has_cultural_pillar = heritage_geroian
+							has_cultural_pillar = language_geroian
+						}
+					}
+				}
+				faith:thexnyian_pagan = {
+					save_scope_as = actual_faith
+				}
+			}
+			else_if = {
+				limit = { 
+					# study_faith_potential_pagan_believer = yes
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_battanian
+							has_cultural_pillar = language_battanian
+							has_cultural_pillar = heritage_palaic
+							has_cultural_pillar = language_palaic
+						}
+					}
+				}
+				faith:battanian_faith = {
+					save_scope_as = actual_faith
+				}
+			}
+			else_if = {
+				limit = { 
+					# study_faith_potential_pagan_believer = yes
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_byalic
+							has_cultural_pillar = language_byalic
+							has_cultural_pillar = heritage_sturgic
+							has_cultural_pillar = language_sturgic
+							has_cultural_pillar = language_nordic
+						}
+					}
+				}
+				faith:old_jumne = {
+					save_scope_as = actual_faith
+				}
+			}
+			else = {
+				faith:pagan = {
+					save_scope_as = actual_faith
+				}
+			}
+		}
+	}
+
+	# open the possibility to blackmail
+	option = {
+		name = study_faith_ongoing.1012.a
+
+		scope:target = {
+			give_witch_secret_or_trait_effect = yes
+			random_secret = {
+				type = secret_witch
+				save_scope_as = witch_secret
+			}
+		}
+
+		scope:scheme = {
+			end_scheme = yes
+		}
+		scope:witch_secret ?= {
+			reveal_to = root
+		}
+		stress_and_fulfillment_impact = {
+			honest = minor_stress_impact_gain
+			compassionate = minor_stress_impact_gain
+			zealous = major_stress_impact_loss
+			lazy = minor_stress_impact_loss
+		}
+	}
+
+	# find another target
+	option = {
+		name = study_faith_ongoing.1012.b
+
+		
+		custom_tooltip = study_faith_ongoing.1012.b.tt
+
+		hidden_effect = {			
+			scope:target = {
+				give_witch_secret_or_trait_effect = yes
+			}
+		}
+		study_faith_find_new_teacher_effect = yes
+		
+		stress_and_fulfillment_impact = {
+			stubborn = minor_stress_impact_loss
+			diligent = minor_stress_impact_loss
+			zealous = minor_stress_impact_gain
+			lazy = miniscule_stress_impact_gain
+		}
+	}
+
+	# change of plans, study this faith instead
+	option = {
+		name = study_faith_ongoing.1012.c
+		custom_tooltip = study_faith_ongoing.1012.c.tt
+
+		trigger = {
+			exists = scope:actual_faith
+		}
+
+		scope:target = {
+			set_character_faith = scope:actual_faith
+		}
+
+		scope:scheme = {
+			remove_scheme_modifier = study_faith_learning_mannerism
+			add_scheme_modifier = {
+				type = study_faith_newfound_coherence
+			}
+			add_scheme_progress = scheme_progress_loss
+		}
+		
+		stress_and_fulfillment_impact = {
+			diligent = minor_stress_impact_loss
+			zealous = medium_stress_impact_gain
+			lazy = miniscule_stress_impact_gain
+			eccentric = medium_stress_impact_loss
+		}
+	}
+}
