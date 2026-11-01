@@ -1,0 +1,472 @@
+﻿pamphian_palaces = {
+	icon = { reference = "gfx/interface/icons/dlc/dlc_024.dds" }
+	illustration = { reference = "gfx/interface/court_scene/backgrounds/mediterranean.dds" }
+
+	name = {
+		desc = building_type_pamphian_palaces
+	}
+	is_important = yes
+	province_filter = capital
+	is_shown = {
+		NOR = {
+			is_planning_great_project = pamphian_palaces
+			custom_tooltip = {
+				text = only_single_great_project_type_allowed
+				any_great_project = {
+					great_project_type = pamphian_palaces
+				}
+			}
+		}
+		any_sub_realm_county = {
+			title_province = {
+				# has_ruined_great_building = yes
+				has_building = pamphian_palaces_ruined
+			}
+		}
+	}
+
+	can_start_planning = {
+		is_independent_ruler = yes
+		capital_province ?= {
+			has_building = pamphian_palaces_ruined
+			is_occupied = no
+			is_raided = no
+		}
+	}
+
+	is_valid = {
+		scope:province ?= {
+			is_occupied = no
+			province_owner.top_liege ?= scope:owner
+		}
+	}
+
+	cost = {
+		treasury_or_gold = {
+			value = great_project_base_starting_cost
+			multiply = 2
+		}
+	}
+
+	construction_time = {
+		value = great_project_base_construction_time
+		multiply = common_great_project_construction_time_multiplier_value
+	}
+
+	allowed_contributor_filter = {
+		owner = yes
+		vassals = yes
+		tributaries = yes
+		duchy = yes
+		# liege = yes
+		# top_liege = yes
+		head_of_faith = yes
+	}
+
+	contributor_cooldown = standard_contributor_cooldown_value
+
+	on_start_build = {}
+
+	on_complete = {
+		scope:province.county = {
+			add_county_modifier = {
+				modifier = ck_pamphian_palaces_modifier
+				# years = 20
+			}
+		}
+		show_as_tooltip = {
+			scope:founder.top_liege ?= { # because the real owner doesn't exist in the effect preview
+				send_interface_toast = {
+					type = msg_great_project_reward
+					left_icon = scope:owner
+					right_icon = scope:province.county
+
+					add_character_modifier = {
+						modifier = ck_pamphian_palaces_character_modifier
+						years = 20
+					}
+
+					scope:province = { remove_building = pamphian_palaces_ruined }
+					
+					if = {
+						limit = { is_valid_for_legitimacy_change = yes }
+						add_legitimacy = {
+							value = medium_legitimacy_gain
+							if = {
+								limit = {
+									any_character_situation = {
+										situation_type = dynastic_cycle
+										has_situation_top_phase_parameter = dynastic_cycle_great_projects_increased_legitimacy
+									}
+								}
+								multiply = 2
+							}
+						}
+					}
+				}
+			}		
+		}
+		hidden_effect = {
+			scope:province = {
+				if = {
+					limit = {
+						has_building = pamphian_palaces_ruined
+					}
+					remove_building = pamphian_palaces_ruined
+				}
+			}
+			scope:owner ?= {
+				send_interface_toast = {
+					type = msg_great_project_reward
+					left_icon = scope:owner
+					right_icon = scope:province.county
+
+					add_character_modifier = {
+						modifier = ck_pamphian_palaces_character_modifier
+						years = 20
+					}
+					
+					if = {
+						limit = { is_valid_for_legitimacy_change = yes }
+						add_legitimacy = {
+							value = medium_legitimacy_gain
+							if = {
+								limit = {
+									any_character_situation = {
+										situation_type = dynastic_cycle
+										has_situation_top_phase_parameter = dynastic_cycle_great_projects_increased_legitimacy
+									}
+								}
+								multiply = 2
+							}
+						}
+					}
+				}
+			}
+		}
+		scope:founder ?= {
+			if = {
+				limit = {
+					# tgp_is_any_minister = yes
+					is_alive = yes # this is actually necessary, because they remain the scope character and accessible even after death
+					government_has_flag = government_has_influence
+				}
+				change_influence = minister_influence_gain_value
+			}
+		}
+		# # The ruling house can only do this once, so let's set a cooldown
+		# situation:dynastic_cycle ?= {
+		# 	set_variable = {
+		# 		name = gp_pamphian_palaces_cooldown
+		# 		value = scope:owner.house
+		# 	}
+		# }
+	}
+
+	on_cancel = {}
+
+	# Top liege pays with the treasury, while vassals may pitch in with gold
+	project_contributions = {
+		materials = {
+			cost = {
+				treasury_or_gold = {
+					value = great_project_base_contribution_cost
+					multiply = 2
+				}
+			}
+
+			contributor_cooldown = individual_contribution_cooldown_value
+
+			is_required = yes
+
+			on_complete = {
+				great_project_reward_contribution_completion_notification_effect = {
+					LEVEL = minor
+					NON_OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+					OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+				}
+			}
+			on_contribution_funded = {
+				great_project_notify_contribution = yes
+				great_project_contribution_catalyst_effect = yes
+			}
+
+			ai_check_interval_by_tier = {
+				barony = 0
+				county = 12
+				duchy = 9
+				kingdom = 6
+				empire = 6
+				hegemony = 6
+			}
+			ai_will_do = {
+				value = chinese_great_projects_contribution_ai_will_do_base_value
+			}
+		}
+		workforce = {
+			cost = {
+				treasury_or_gold = {
+					value = great_project_base_contribution_cost
+					multiply = 2
+				}
+			}
+
+			contributor_cooldown = individual_contribution_cooldown_value
+
+			is_required = yes
+
+			on_complete = {
+				great_project_reward_contribution_completion_notification_effect = {
+					LEVEL = minor
+					NON_OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+					OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+				}
+			}
+			on_contribution_funded = {
+				great_project_notify_contribution = yes
+				great_project_contribution_catalyst_effect = yes
+			}
+
+			ai_check_interval_by_tier = {
+				barony = 0
+				county = 12
+				duchy = 9
+				kingdom = 6
+				empire = 6
+				hegemony = 6
+			}
+			ai_will_do = {
+				value = chinese_great_projects_contribution_ai_will_do_base_value
+			}
+		}
+		architects = {
+			cost = {
+				treasury_or_gold = {
+					value = great_project_base_contribution_cost
+					multiply = 1.5
+				}
+			}
+
+			contributor_cooldown = individual_contribution_cooldown_value
+
+			is_required = no
+
+			on_complete = {
+				great_project_reward_contribution_completion_notification_effect = {
+					LEVEL = major
+					NON_OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+					OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+				}
+				scope:province.duchy ?= {
+					every_de_jure_county = {
+						add_county_modifier = {
+							modifier = ck_pamphian_palaces_architects_modifier
+							years = 10 # shortened
+						}
+					}
+				}
+			}
+			on_contribution_funded = {
+				great_project_notify_contribution = yes
+				great_project_contribution_catalyst_effect = yes
+			}
+
+			ai_check_interval_by_tier = {
+				barony = 0
+				county = 12
+				duchy = 9
+				kingdom = 6
+				empire = 6
+				hegemony = 6
+			}
+			ai_will_do = {
+				value = chinese_great_projects_contribution_ai_will_do_base_value
+			}
+		}
+		engineers = {
+			cost = {
+				treasury_or_gold = {
+					value = great_project_base_contribution_cost
+					multiply = 1.5
+				}
+			}
+
+			contributor_cooldown = individual_contribution_cooldown_value
+
+			is_required = no
+
+			on_complete = {
+				great_project_reward_contribution_completion_notification_effect = {
+					LEVEL = major
+					NON_OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+					OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+				}
+				scope:province.county = {
+					add_county_modifier = {
+						modifier = ck_pamphian_palaces_engineers_modifier
+						years = 20
+					}
+				}
+			}
+			on_contribution_funded = {
+				great_project_notify_contribution = yes
+				great_project_contribution_catalyst_effect = yes
+			}
+
+			ai_check_interval_by_tier = {
+				barony = 0
+				county = 12
+				duchy = 9
+				kingdom = 6
+				empire = 6
+				hegemony = 6
+			}
+			ai_will_do = {
+				value = chinese_great_projects_contribution_ai_will_do_base_value
+			}
+		}
+		sculptors = {
+			cost = {
+				treasury_or_gold = {
+					value = great_project_base_contribution_cost
+					multiply = 1.5
+				}
+			}
+
+			contributor_cooldown = individual_contribution_cooldown_value
+
+			is_required = no
+
+			on_complete = {
+				great_project_reward_contribution_completion_notification_effect = {
+					LEVEL = major
+					NON_OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+					OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+				}
+				scope:province.county.holder = {
+					add_character_modifier = {
+						modifier = ck_pamphian_palaces_sculptors_character_modifier
+						years = 20
+					}
+				}
+			}
+			on_contribution_funded = {
+				great_project_notify_contribution = yes
+				great_project_contribution_catalyst_effect = yes
+			}
+
+			ai_check_interval_by_tier = {
+				barony = 0
+				county = 12
+				duchy = 9
+				kingdom = 6
+				empire = 6
+				hegemony = 6
+			}
+			ai_will_do = {
+				value = chinese_great_projects_contribution_ai_will_do_base_value
+			}
+		}
+		# forbidden_city = {
+		# 	is_shown = {
+		# 		scope:owner = {
+		# 			capital_barony.title_province ?= {
+		# 				NOT = { has_building = forbidden_city_01 }
+		# 			}
+		# 		}
+		# 	}
+
+		# 	cost = {
+		# 		treasury_or_gold = {
+		# 			value = great_project_base_contribution_cost
+		# 			multiply = 3
+		# 		}
+		# 	}
+
+		# 	contributor_cooldown = individual_contribution_cooldown_value
+
+		# 	is_required = no
+
+		# 	on_complete = {
+		# 		great_project_reward_contribution_completion_notification_effect = {
+		# 			LEVEL = major
+		# 			NON_OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+		# 			OWNER_REWARD_EFFECT = great_project_reward_contribution_completion_null
+		# 		}
+		# 		scope:province = {
+		# 			set_great_building = forbidden_city_01
+		# 		}
+		# 	}
+		# 	on_contribution_funded = {
+		# 		great_project_notify_contribution = yes
+		# 		great_project_contribution_catalyst_effect = yes
+		# 	}
+
+		# 	ai_check_interval_by_tier = {
+		# 		barony = 0
+		# 		county = 12
+		# 		duchy = 9
+		# 		kingdom = 6
+		# 		empire = 6
+		# 		hegemony = 6
+		# 	}
+		# 	ai_will_do = {
+		# 		value = chinese_great_projects_contribution_ai_will_do_base_value
+		# 		if = {
+		# 			limit = {
+		# 				exists = scope:great_project
+		# 				scope:great_project.great_project_location = {
+		# 					has_great_building = yes
+		# 					county.holder = {
+		# 						NOR = {
+		# 							this = { is_ai = no }
+		# 							any_liege_or_above = { is_ai = no }
+		# 						}
+		# 					}
+		# 				}
+		# 			}
+		# 			multiply = 0
+		# 		}
+		# 	}
+		# }
+	}
+
+	ai_target_quick_trigger = {
+		adult = yes
+		rank = kingdom
+	}
+	ai_check_interval_by_tier = {
+		barony = 0
+		county = 0
+		duchy = 0
+		kingdom = 12
+		empire = 8
+		hegemony = 6
+	}
+	ai_will_do = {
+		value = 500
+		if = {
+			limit = {
+				is_culture_or_descended_from_trigger = { CULTURE = culture:pamphian }
+			}
+			multiply = 2
+		}
+		else_if = {
+			limit = {
+				character_is_calradian = yes
+			}
+			multiply = 1.5
+		}
+		if = {
+			limit = {
+				OR = {
+					is_at_war = yes
+					has_royal_court = no
+				}
+			}
+			multiply = 0
+		}
+	}
+
+	completion_sound_effect = "event:/DLC/EP3/SFX/Stingers/Byzantine_Flavor/ep3_mx_sting_byzantineflavor_become_governor"
+}

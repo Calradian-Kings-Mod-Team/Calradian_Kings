@@ -71,7 +71,12 @@ pamphian_palaces = {
 		always = no #We only build this through Decision -> Great Projects
 	}
 	
-	cost_gold = 5000
+	cost = {
+		treasury_or_gold = {
+			value = great_project_base_starting_cost
+			multiply = 2
+		}
+	}
 
 	character_modifier = {
  		monthly_dynasty_prestige_mult = 0.1
@@ -80,10 +85,12 @@ pamphian_palaces = {
  		courtly_opinion = 5
  		parochial_opinion = 5
  		legitimacy_gain_mult = 0.1
+	}
+	character_government_modifier = {
+		parameter = government_has_influence
  		monthly_influence = 0.2
  		monthly_influence_mult = 0.3
 	}
-	
 	county_modifier = {
 		monthly_county_control_growth_add = 0.5
  		county_opinion_add = 20
@@ -92,19 +99,81 @@ pamphian_palaces = {
 	}
 	
 	ai_value = {
-		base = 100
-		modifier = { # Fill all building slots before going for special buildings
-			factor = 0
-			free_building_slots > 0
+		base = 0
+	}
+
+	is_enabled = {
+		#It needs to be your capital
+		scope:holder = {
+			# highest_held_title_tier >= tier_kingdom # recommendation, not required
+			# government_has_flag = government_is_mandala
+			capital_province = root #The province
 		}
 	}
-	
-	next_building = pamphian_palaces_ruined
-	
-	type = special
+	can_rebuild = {
+		is_occupied = no
+		is_raided = no
+		scope:county.holder = {
+			is_independent_ruler = yes
+			# has_royal_court = yes
+		}
+	}
+
+	show_disabled = yes
+
+	rebuild_cost = {
+		treasury_or_gold = {
+			if = {
+				limit = { is_ai = yes }
+				value = ai_rebuild_value
+			}
+			else = { 
+				value = {
+					add = standard_rebuild_value
+					multiply = 2
+				}
+			}
+		}
+		prestige = {
+			if = {
+				limit = { is_ai = yes }
+				value = ai_rebuild_value
+			}
+			else = { 
+				value = {
+					add = standard_rebuild_value
+					multiply = 2
+				}
+			}
+		}
+	}
+
+	fallback = { # ruined modifiers
+		character_government_modifier = {
+			parameter = government_has_influence
+			monthly_influence_mult = -0.15
+			governor_xp_gain_mult = -0.15
+		}
+		county_modifier = {
+			monthly_county_control_growth_add = -0.15
+			county_opinion_add = -15
+			build_speed = -0.15
+		}
+	}
+
+	type = great_building
+	great_project_type = pamphian_palaces
 
 	flag = travel_point_of_interest_diplomatic
 	flag = no_wall
+	effect_desc = {
+		triggered_desc = {
+			trigger = { has_dlc_feature = tours_and_tournaments }
+			desc = wedding_bonus_effect
+		}
+		# desc = wineyard_effect_desc
+	}
+	flag = wedding_bonus
 }
 pamphian_palaces_ruined = {
 
