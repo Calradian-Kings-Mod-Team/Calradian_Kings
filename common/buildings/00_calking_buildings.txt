@@ -70,13 +70,6 @@ pamphian_palaces = {
 	can_construct_potential = {
 		always = no #We only build this through Decision -> Great Projects
 	}
-	
-	cost = {
-		treasury_or_gold = {
-			value = great_project_base_starting_cost
-			multiply = 2
-		}
-	}
 
 	character_modifier = {
  		monthly_dynasty_prestige_mult = 0.1
@@ -299,6 +292,102 @@ robber_keeps_2 = {
 }
 ## Geroia ##
 # Great Citadel #
+geroian_citadel = {
+	asset = {
+		type = pdxmesh
+		name = "geroian_great_fortress_2_mesh"
+	}
+
+	construction_time = very_slow_construction_time
+
+	type_icon = "icon_pamphian_palaces.dds"
+	
+	can_construct_potential = {
+		custom_description = {
+			text = holy_site_building_trigger
+			barony = {
+				is_holy_site_of = scope:holder.faith
+			}
+		}
+	}
+	is_enabled = {
+		scope:holder.rite ?= { rite_has_parameter = geroian_citadel }
+	}
+	fallback = {
+		character_modifier = {
+			legitimacy_gain_mult = 0.1
+		}
+		province_modifier = {
+			fort_level = 3
+		}
+	}
+	cost_gold = 2500
+
+
+	character_modifier = {
+		piety_standalone_gain_mult = 1
+		zealot_same_faith_opinion = 40
+		negate_health_penalty_add = 0.4
+	}
+	character_government_modifier = {
+		parameter = government_is_theocracy
+		monthly_piety_from_buildings_mult = 0.5
+	}
+	character_culture_modifier = { # tradition_family_entrepreneurship
+		parameter = close_family_better_councillors
+		monthly_dynasty_prestige_mult = 0.1
+	}
+	character_culture_modifier = { # tradition_warrior_monks
+		parameter = culture_clergy_can_fight
+		prowess_mult = 0.1
+		character_opinion_from_low_prowess_add = -1
+	}
+	character_culture_modifier = { # thonian
+		parameter = commanders_likelier_to_gain_commander_traits # tradition_fp2_strategy_gamers
+		negate_prowess_penalty_add = 2
+	}
+	character_culture_modifier = { # lotkian
+		parameter = cheaper_to_hybridize # tradition_malleable_invaders
+		same_heritage_county_advantage_add = 1
+	}
+	province_modifier = {
+		garrison_size = 1
+		fort_level = 3
+		travel_danger = -10
+	}
+	province_rite_modifier = { # agreki
+		parameter = sanctify_artifacts_regal # tenet_pursuit_of_power
+		stationed_maa_damage_add = 3
+	}
+	province_rite_modifier = { # miraclist
+		parameter = consolamentum_active # tenet_consolamentum
+		hostile_raid_time = 0.25
+		levy_reinforcement_rate = 0.25
+	}
+	province_culture_modifier = {
+		parameter = next_level_fortification
+		fort_level = 1
+	}
+	province_culture_modifier = {
+		parameter = monastery_prowess_martial_bonus
+		stationed_maa_toughness_add = 3
+	}
+	
+	ai_value = {
+		base = 0
+	}
+	next_building = geroian_citadel_ruined
+	type = great_building
+	# great_project_type = geroian_citadel
+	# flag = grand_cathedral_flag
+	# flag = great_project_cathedral_building
+	# flag = holy_building
+
+	# flag = travel_point_of_interest_learning
+	flag = travel_point_of_interest_martial
+	flag = raid_protection_1
+	effect_desc = marches_effect_desc
+}
 geroian_citadel_ruined = {
 
 	asset = {
@@ -312,10 +401,9 @@ geroian_citadel_ruined = {
 	type_icon = "icon_pamphian_palaces_ruined.dds"
 	
 	can_construct_potential = {
-		always = no
+		barony = title:b_potenzam
 	}
 	
-	cost_gold = 0
 	character_modifier = {
 		monthly_piety_gain_mult = -0.05
 	}
@@ -329,11 +417,7 @@ geroian_citadel_ruined = {
 		fort_level = 2
 	}
 	ai_value = {
-		base = 100
-		modifier = { # Fill all building slots before going for special buildings
-			factor = 0
-			free_building_slots > 0
-		}
+		base = 0
 	}
 	
 	next_building = geroian_citadel_good
@@ -363,32 +447,85 @@ geroian_citadel_good = {
 	can_construct_potential = {
 		building_requirement_tribal = no
 	}
-	
-	cost_gold = 2500
 
 	character_modifier = {
- 		monthly_dynasty_prestige_mult = 0.1
-		prowess = 5
  		courtly_opinion = 5
- 		parochial_opinion = 5
  		legitimacy_gain_mult = 0.1
-		monthly_piety_gain_mult = 1.5
+		piety_standalone_gain_mult = 1.5
 		zealot_same_faith_opinion = 40
-		health = 0.6
+		negate_health_penalty_add = 0.6
 		monthly_learning_lifestyle_xp_gain_mult = 0.25
-		defender_advantage = 4
+		controlled_province_advantage = 4
+	}
+	character_government_modifier = {
+		parameter = government_is_theocracy
+		elderly_health = 0.6
+		zealot_different_culture_opinion = -40
+		monthly_piety_from_buildings_mult = 1
+	}
+	character_culture_modifier = { # tradition_family_entrepreneurship
+		parameter = close_family_better_councillors
+		monthly_dynasty_prestige_mult = 0.1
+	}
+	character_culture_modifier = { # tradition_parochialism
+		parameter = more_parochial_vassals
+		parochial_opinion = 5
+	}
+	character_culture_modifier = { # tradition_warrior_monks
+		parameter = culture_clergy_can_fight
+		prowess_mult = 0.20
+		character_opinion_from_low_prowess_add = -1
+	}
+	character_culture_modifier = { # thonian
+		parameter = commanders_likelier_to_gain_commander_traits # tradition_fp2_strategy_gamers
+		negate_prowess_penalty_add = 5
+	}
+	character_culture_modifier = { # lotkian
+		parameter = cheaper_to_hybridize # tradition_malleable_invaders
+		same_heritage_county_advantage_add = 2
 	}
 	
 	county_modifier = {
- 		county_opinion_add = 20
-		tax_mult = 0.3
+		tax_mult = 0.15
 		development_growth_factor = 0.2
 	}
+	county_rite_modifier = {
+		parameter = geroian_citadel
+		county_opinion_add = 20
+	}
+	county_rite_modifier = { # aekekartel_rite
+		parameter = pacifist # tenet_pacifism
+		defender_holding_advantage = 4
+	}
+	county_culture_modifier = {
+		parameter = next_level_cities
+		tax_mult = 0.15
+	}
 	province_modifier = {
-		garrison_size = 1.5
-		fort_level = 6
-		travel_danger = -20
+		garrison_size = 1
+		fort_level = 5
+	}
+	province_rite_modifier = { # agreki
+		parameter = sanctify_artifacts_regal # tenet_pursuit_of_power
 		stationed_maa_damage_mult = normal_maa_damage_tier_1
+		levy_size = 0.25
+	}
+	province_rite_modifier = { # miraclist
+		parameter = consolamentum_active # tenet_consolamentum
+		hostile_raid_time = 0.25
+		levy_reinforcement_rate = 0.25
+	}
+	province_rite_modifier = {
+		parameter = geroian_citadel
+		travel_danger = -20
+		garrison_size = 0.5
+	}
+	province_culture_modifier = {
+		parameter = next_level_fortification
+		fort_level = 1
+	}
+	province_culture_modifier = {
+		parameter = monastery_prowess_martial_bonus
 		stationed_maa_toughness_mult = normal_maa_toughness_tier_1
 	}
 	
