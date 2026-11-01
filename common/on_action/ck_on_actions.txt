@@ -1574,6 +1574,26 @@ ck_game_start_after_lobby = {
 						}
 						fill_external_east_asian_estate_building_effect = yes
 					}
+					ecclesiastical_domicile = {
+						fill_ecclesiastical_domicile_building_effect = yes
+						if = { # another level for hof
+							limit = {
+								domicile_owner ?= {
+									religious_head_or_challenger = this
+								}
+							}
+							add_random_internal_ecclesiastical_domicile_building = yes
+						}
+						if = {
+							limit = {
+								exists = domicile_faith
+								domicile_location.barony ?= {
+									is_holy_site_of = prev.domicile_faith
+								}
+							}
+							add_random_external_ecclesiastical_domicile_building = yes
+						}
+					}
 				}
 			}
 		}
@@ -1838,6 +1858,39 @@ ck_game_start_after_lobby = {
 								}
 							}
 							fill_external_east_asian_estate_building_effect = yes
+						}
+						ecclesiastical_domicile = {
+							if = {
+								limit = {
+									domicile_location ?= {
+										OR = { # they might not be the same building
+											has_building_with_flag = grand_cathedral_flag # citadel
+											has_building_with_flag = holy_building # natural features
+										}
+									}
+								}
+								add_domicile_building = ecclesiastical_domicile_main_02
+							}
+							else = {
+								if = { # another level for hof
+									limit = {
+										domicile_owner ?= {
+											religious_head_or_challenger = this
+										}
+									}
+									add_random_internal_ecclesiastical_domicile_building = yes
+								}
+								if = {
+									limit = {
+										exists = domicile_faith
+										domicile_location.barony ?= {
+											is_holy_site_of = prev.domicile_faith
+										}
+									}
+									add_random_external_ecclesiastical_domicile_building = yes
+								}
+							}
+							fill_ecclesiastical_domicile_building_effect = yes
 						}
 					}
 				}
