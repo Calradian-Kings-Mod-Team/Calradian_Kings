@@ -6429,17 +6429,14 @@ create_artifact_book_effect = {
 		clear_saved_scope = should_be_trinket 	
 	}
 }
-
+# see also create_artifact_pedestal_christian_relic_effect_hist - these are "knockoffs"
 create_artifact_pedestal_reliquary_christian_effect = {
 	$OWNER$ = { save_scope_as = owner }
 
 	random_list = {
 		20 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6448,10 +6445,7 @@ create_artifact_pedestal_reliquary_christian_effect = {
 		}
 		15 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6469,10 +6463,7 @@ create_artifact_pedestal_reliquary_christian_effect = {
 		}
 		5 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6481,10 +6472,7 @@ create_artifact_pedestal_reliquary_christian_effect = {
 		}
 		10 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6493,10 +6481,7 @@ create_artifact_pedestal_reliquary_christian_effect = {
 		}
 		10 = {
 			trigger = {
-				OR = {
-					faith = faith:western_calradic
-					faith = faith:hetjur
-				}
+				rite ?= { rite_has_doctrine = special_doctrine_is_western_christian_faith }
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6505,10 +6490,7 @@ create_artifact_pedestal_reliquary_christian_effect = {
 		}
 		5 = {
 			trigger = {
-				OR = {
-					faith = faith:western_calradic
-					faith = faith:hetjur
-				}
+				rite ?= { rite_has_doctrine = special_doctrine_is_western_christian_faith }
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6517,10 +6499,7 @@ create_artifact_pedestal_reliquary_christian_effect = {
 		}
 		20 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6529,10 +6508,7 @@ create_artifact_pedestal_reliquary_christian_effect = {
 		}
 		5 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6541,10 +6517,7 @@ create_artifact_pedestal_reliquary_christian_effect = {
 		}
 		5 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -6557,25 +6530,38 @@ create_artifact_pedestal_reliquary_christian_effect = {
 	get_artifact_wealth_effect = yes
 
 	scope:owner = {
-		create_artifact = {	
-			name = artifact_pedestal_reliquary_christian_name
-			creator = scope:owner
-			description = artifact_pedestal_reliquary_christian_description
-			visuals = reliquary
-			type = pedestal
-			template = christian_relic_template
-			modifier = artifact_monthly_piety_3_modifier
-			save_scope_as = newly_created_artifact
-			wealth = scope:wealth
-			quality = scope:quality
-			#decaying = no
+		if = {
+			limit = {
+				exists = scope:christian_relic_name
+			}
+			create_artifact = {	
+				name = artifact_pedestal_reliquary_christian_name
+				creator = scope:owner
+				description = artifact_pedestal_reliquary_christian_description
+				visuals = reliquary
+				type = pedestal
+				template = christian_relic_template
+				modifier = artifact_monthly_piety_3_modifier
+				save_scope_as = newly_created_artifact
+				wealth = scope:wealth
+				quality = scope:quality
+				#decaying = no
+			}
+			scope:newly_created_artifact ?= {
+				add_scaled_artifact_modifier_piety_effect = yes
+				add_scaled_artifact_modifier_devotion_effect = yes
+				add_scaled_artifact_modifier_grandeur_small_effect = yes
+			}
+		}
+		else = { #fallback - not darusan or western enough, or called from wrong owner
+			create_christian_religious_artifact_effect = {
+				OWNER = scope:owner
+				CREATOR = scope:owner
+			}
 		}
 	}
 
-	scope:newly_created_artifact = {
-		add_scaled_artifact_modifier_piety_effect = yes
-		add_scaled_artifact_modifier_devotion_effect = yes
-		add_scaled_artifact_modifier_grandeur_small_effect = yes
+	scope:newly_created_artifact ?= {
 		set_variable = {
 			name = relic_religion
 			value = religion:calradian_religion
@@ -6771,29 +6757,29 @@ create_artifact_sculpture_religious_effect = {
 					quality = scope:quality
 				}
 			}
-			1 = {
-				trigger = {
-					religion = religion:calradian_religion
-					faith = {
-						has_doctrine = special_doctrine_darusian
-					}
-				}
-				create_artifact = {
-					name = artifact_sculpture_religious_deianiras_name
-					description = artifact_sculpture_religious_deianiras_description
-					creator = scope:creator
-					visuals = statue
-					type = sculpture
-					template = religious_statue_template
-					modifier = artifact_monthly_piety_3_modifier
-					save_scope_as = newly_created_artifact
-					wealth = scope:wealth
-					quality = scope:quality
-				}
-				scope:newly_created_artifact = {
-					set_variable = statue_artifact_female_gender
-				}
-			}
+			# 1 = { # moved to create_artifact_pedestal_christian_relic_effect_hist
+			# 	trigger = {
+			# 		religion = religion:calradian_religion
+			# 		faith = {
+			# 			has_doctrine = special_doctrine_darusian
+			# 		}
+			# 	}
+			# 	create_artifact = {
+			# 		name = artifact_sculpture_religious_deianiras_name
+			# 		description = artifact_sculpture_religious_deianiras_description
+			# 		creator = scope:creator
+			# 		visuals = statue
+			# 		type = sculpture
+			# 		template = religious_statue_template
+			# 		modifier = artifact_monthly_piety_3_modifier
+			# 		save_scope_as = newly_created_artifact
+			# 		wealth = scope:wealth
+			# 		quality = scope:quality
+			# 	}
+			# 	scope:newly_created_artifact = {
+			# 		set_variable = statue_artifact_female_gender
+			# 	}
+			# }
 			1 = {
 				create_artifact = {
 					name = artifact_sculpture_religious_health_name

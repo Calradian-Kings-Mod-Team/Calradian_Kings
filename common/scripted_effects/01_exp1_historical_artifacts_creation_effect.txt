@@ -55,10 +55,7 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 	random_list = {
 		10 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -67,10 +64,7 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -79,12 +73,10 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				AND = {
-					faith = faith:calradic
-					NOT = {
-						any_artifact = {
-							has_variable = christian_sandals
-						}
+				faith = faith:calradic
+				NOT = {
+					any_artifact = {
+						has_variable = christian_sandals
 					}
 				}
 			}
@@ -95,15 +87,10 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				AND = {
-					OR = {
-						faith = faith:darusan
-						faith = faith:ember_flame
-					}
-					NOT = {
-						any_artifact = {
-							has_variable = christian_girdle
-						}
+				is_a_darusan_rite = yes
+				NOT = {
+					any_artifact = {
+						has_variable = christian_girdle
 					}
 				}
 			}
@@ -127,15 +114,10 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				AND = {
-					OR = {
-						faith = faith:darusan
-						faith = faith:ember_flame
-					}
-					NOT = {
-						any_artifact = {
-							has_variable = christian_skull
-						}
+				is_a_darusan_rite = yes
+				NOT = {
+					any_artifact = {
+						has_variable = christian_skull
 					}
 				}
 			}
@@ -146,16 +128,11 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				AND = {
-					OR = {
-						faith = faith:western_calradic
-						faith = faith:hetjur
-					}
-					NOT = {
-						any_artifact = {
-							count > 5
-							has_variable = christian_arm
-						}
+				rite ?= { rite_has_doctrine = special_doctrine_is_western_christian_faith }
+				NOT = {
+					any_artifact = {
+						count > 5
+						has_variable = christian_arm
 					}
 				}
 			}
@@ -166,15 +143,10 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				AND = {
-					OR = {
-						faith = faith:western_calradic
-						faith = faith:hetjur
-					}
-					NOT = {
-						any_artifact = {
-							has_variable = christian_loincloth
-						}
+				rite ?= { rite_has_doctrine = special_doctrine_is_western_christian_faith }
+				NOT = {
+					any_artifact = {
+						has_variable = christian_loincloth
 					}
 				}
 			}
@@ -185,10 +157,7 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				OR = {
-					faith = faith:darusan
-					faith = faith:ember_flame
-				}
+				is_a_darusan_rite = yes
 			}
 			save_scope_value_as = {
 				name = christian_relic_name
@@ -197,15 +166,10 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				AND = {
-					OR = {
-						faith = faith:darusan
-						faith = faith:ember_flame
-					}
-					NOT = {
-						any_artifact = {
-							has_variable = christian_crown
-						}
+				is_a_darusan_rite = yes
+				NOT = {
+					any_artifact = {
+						has_variable = christian_crown
 					}
 				}
 			}
@@ -216,15 +180,10 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 		}
 		10 = {
 			trigger = {
-				AND = {
-					OR = {
-						faith = faith:darusan
-						faith = faith:ember_flame
-					}
-					NOT = {
-						any_artifact = {
-							has_variable = christian_veil
-						}
+				is_a_darusan_rite = yes
+				NOT = {
+					any_artifact = {
+						has_variable = christian_veil
 					}
 				}
 			}
@@ -233,13 +192,26 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 				value = flag:veronica
 			}
 		}
+		10 = {
+			trigger = {
+				is_a_darusan_rite = yes
+				NOT = {
+					any_artifact = {
+						has_variable = christian_statue
+					}
+				}
+			}
+			save_scope_value_as = {
+				name = christian_relic_name
+				value = flag:statue
+			}
+		}
 	}
 
 	# Create the artifact
 	if = {
 		limit = {
-			exists = scope:christian_relic_name
-			scope:christian_relic_name = flag:lance
+			scope:christian_relic_name ?= flag:lance
 		}
 		set_artifact_rarity_illustrious = yes
 		create_artifact = {	
@@ -260,13 +232,49 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 	}
 	else_if = {
 		limit = {
+			scope:christian_relic_name ?= flag:statue
+		}
+		set_artifact_rarity_illustrious = yes
+		create_artifact = {
+			name = artifact_sculpture_religious_deianiras_name
+			description = artifact_sculpture_religious_deianiras_description
+			creator = scope:creator
+			visuals = statue
+			type = sculpture
+			template = religious_statue_template
+			modifier = pam_chrismated_artifact_modifier
+			save_scope_as = newly_created_artifact
+			wealth = scope:wealth
+			quality = scope:quality
+		}
+	}
+	else_if = {
+		limit = {
+			scope:christian_relic_name ?= flag:veronica
+		}
+		set_artifact_rarity_illustrious = yes
+		create_artifact = {
+			name = artifact_sculpture_religious_deianiras_name
+			description = artifact_sculpture_religious_deianiras_description
+			creator = scope:creator
+			visuals = statue
+			type = sculpture
+			template = religious_statue_template
+			modifier = pam_anointed_with_holy_oil_modifier
+			save_scope_as = newly_created_artifact
+			wealth = scope:wealth
+			quality = scope:quality
+		}
+	}
+	else_if = {
+		limit = {
 			exists = scope:christian_relic_name
 			OR = {
 				scope:christian_relic_name = flag:sandals
 				scope:christian_relic_name = flag:girdle
 				scope:christian_relic_name = flag:loincloth
 				scope:christian_relic_name = flag:crown
-				scope:christian_relic_name = flag:veronica
+				# scope:christian_relic_name = flag:veronica
 			}
 		}
 		set_artifact_rarity_illustrious = yes
@@ -287,12 +295,7 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 	}
 	else_if = {
 		limit = {
-			OR = {
-				scope:owner.faith = faith:darusan
-				scope:owner.faith = faith:ember_flame
-			}
-			exists = scope:christian_relic_name
-			scope:christian_relic_name = flag:skull
+			scope:christian_relic_name ?= flag:skull
 		}
 		create_artifact = {
 			name = artifact_pedestal_reliquary_christian_name
@@ -302,6 +305,25 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 			quality = scope:quality
 			template = christian_artifact_template
 			visuals = human_skull
+			history = {
+				type = created_before_history
+			}
+			modifier = artifact_placeholder_modifier
+			save_scope_as = newly_created_artifact
+		}
+	}
+	else_if = {
+		limit = {
+			scope:christian_relic_name ?= flag:thorn
+		}
+		create_artifact = {
+			name = artifact_pedestal_reliquary_christian_name
+			description = artifact_pedestal_reliquary_christian_description
+			type = pedestal
+			wealth = scope:wealth
+			quality = scope:quality
+			template = christian_artifact_template
+			visuals = flowers # holy leaf
 			history = {
 				type = created_before_history
 			}
@@ -387,6 +409,18 @@ create_artifact_pedestal_christian_relic_effect_hist = {
 				scope:christian_relic_name = flag:skull
 			}
 			set_variable = christian_skull
+		}
+		else_if = {
+			limit = {
+				exists = scope:christian_relic_name
+				scope:christian_relic_name = flag:statue
+			}
+			set_variable = christian_statue
+			set_variable = statue_artifact_female_gender
+			set_variable = {
+				name = statue_religion
+				value = var:relic_religion
+			}
 		}
 		add_scaled_artifact_modifier_piety_effect = yes
 		add_scaled_artifact_modifier_grandeur_small_effect = yes
@@ -499,6 +533,26 @@ create_artifact_pedestal_islamic_relic_effect_hist = {
 	# Create the artifact
 	if = {
 		limit = {
+			scope:islam_relic_name ?= flag:banner
+		}
+		set_artifact_rarity_illustrious = yes
+		create_artifact = {	
+			name = artifact_scroll_aserai_name
+			description = artifact_scroll_aserai_description
+			type = pedestal
+			template = islam_artifact_template
+			visuals = scroll
+			wealth = scope:wealth
+			quality = scope:quality
+			history = {
+				type = created_before_history
+			}
+			modifier = artifact_placeholder_modifier
+			save_scope_as = newly_created_artifact
+		}
+	}
+	else_if = {
+		limit = {
 			exists = scope:islam_relic_name
 			OR = {
 				scope:islam_relic_name = flag:cloak
@@ -522,7 +576,7 @@ create_artifact_pedestal_islamic_relic_effect_hist = {
 			modifier = artifact_placeholder_modifier
 			save_scope_as = newly_created_artifact
 		}
-	}	
+	}
 	else = {
 		create_artifact = {	
 			name = artifact_pedestal_reliquary_aserai_name
