@@ -40,10 +40,10 @@ huscarl = {
 	}
 
 	can_recruit = {
-		valid_for_maa_trigger = { PARAMETER = unlock_maa_huscarls_ck }
+		ck_tradition_troops_enabled = yes
+		valid_for_maa_trigger = { PARAMETER = unlock_maa_huscarls }
 		NOR = {
 			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
-			ck_unique_troops_trigger = yes
 		}
 	}
 
@@ -96,12 +96,8 @@ landsknecht = {
 longbowmen = {
 	type = archers
 	can_recruit = {
-		AND = {
-			NOT = {
-				ck_unique_troops_trigger = yes
-			}
-			valid_for_maa_trigger = { PARAMETER = unlock_maa_longbowmen_ck }
-		}
+		ck_tradition_troops_enabled = yes
+		valid_for_maa_trigger = { PARAMETER = unlock_maa_longbowmen_ck }
 	}
 	
 	damage = 20
@@ -226,36 +222,36 @@ chasseur = {
 	icon = light_cavalry
 }
 
-picchieri = {
-	type = pikemen
+# picchieri = {
+# 	type = pikemen
 	
-	damage = 40
-	toughness = 24
-	pursuit = 0
-	screen = 0
+# 	damage = 40
+# 	toughness = 24
+# 	pursuit = 0
+# 	screen = 0
 	
-	terrain_bonus = {
-		mountains = { toughness = 12 }
-		desert_mountains = { toughness = 12 }
-		hills = { toughness = 10 }
-	}
+# 	terrain_bonus = {
+# 		mountains = { toughness = 12 }
+# 		desert_mountains = { toughness = 12 }
+# 		hills = { toughness = 10 }
+# 	}
 
-	counters = {
-		light_cavalry = 1
-		heavy_cavalry = 1
-		camel_cavalry = 1
-		elephant_cavalry = 1
-	}
+# 	counters = {
+# 		light_cavalry = 1
+# 		heavy_cavalry = 1
+# 		camel_cavalry = 1
+# 		elephant_cavalry = 1
+# 	}
 
-	buy_cost = { gold = picchieri_recruitment_cost }
-	low_maintenance_cost = { gold = picchieri_low_maint_cost }
-	high_maintenance_cost = { gold = picchieri_high_maint_cost }
-	provision_cost = @provisions_cost_infantry_cheap
+# 	buy_cost = { gold = picchieri_recruitment_cost }
+# 	low_maintenance_cost = { gold = picchieri_low_maint_cost }
+# 	high_maintenance_cost = { gold = picchieri_high_maint_cost }
+# 	provision_cost = @provisions_cost_infantry_cheap
 	
-	stack = 100
-	ai_quality = { value = @cultural_maa_extra_ai_score }
-	icon = pikemen
-}
+# 	stack = 100
+# 	ai_quality = { value = @cultural_maa_extra_ai_score }
+# 	icon = pikemen
+# }
 
 # praetorian = {
 # 	type = heavy_infantry
@@ -391,41 +387,42 @@ schiltron = {
 	icon = pikemen
 }
 
-metsanvartija = {
-	type = archers
+# metsanvartija = {
+# 	type = archers
 	
-	damage = 30
-	toughness = 14
-	pursuit = 10
-	screen = 10
+# 	damage = 30
+# 	toughness = 14
+# 	pursuit = 10
+# 	screen = 10
 	
-	terrain_bonus = {
-		forest = { damage = 10 toughness = 4 }
-		taiga = { damage = 10 toughness = 4 }
-	}
+# 	terrain_bonus = {
+# 		forest = { damage = 10 toughness = 4 }
+# 		taiga = { damage = 10 toughness = 4 }
+# 	}
 
-	counters = {
-		skirmishers = 1
-	}
+# 	counters = {
+# 		skirmishers = 1
+# 	}
 	
-	winter_bonus = {
-		normal_winter = { toughness = 4 screen = 8 }
-		harsh_winter = { toughness = 4 screen = 8 }
-	}
+# 	winter_bonus = {
+# 		normal_winter = { toughness = 4 screen = 8 }
+# 		harsh_winter = { toughness = 4 screen = 8 }
+# 	}
 
-	can_recruit = {
-		valid_for_maa_trigger = { PARAMETER = unlock_maa_metsanvartija }
-	}
+# 	can_recruit = {
+# 		ck_tradition_troops_enabled = yes # vakken
+# 		valid_for_maa_trigger = { PARAMETER = unlock_maa_metsanvartija }
+# 	}
 
-	buy_cost = { gold = metsanvartija_recruitment_cost }
-	low_maintenance_cost = { gold = metsanvartija_low_maint_cost }
-	high_maintenance_cost = { gold = metsanvartija_high_maint_cost }
-	provision_cost = @provisions_cost_infantry_cheap
+# 	buy_cost = { gold = metsanvartija_recruitment_cost }
+# 	low_maintenance_cost = { gold = metsanvartija_low_maint_cost }
+# 	high_maintenance_cost = { gold = metsanvartija_high_maint_cost }
+# 	provision_cost = @provisions_cost_infantry_cheap
 	
-	stack = 100
-	ai_quality = { value = @cultural_maa_extra_ai_score }
-	icon = bowmen
-}
+# 	stack = 100
+# 	ai_quality = { value = @cultural_maa_extra_ai_score }
+# 	icon = bowmen
+# }
 
 horse_archers = {
 	type = archer_cavalry
@@ -460,10 +457,18 @@ horse_archers = {
 			AND = {
 				is_landless_adventurer = yes
 				has_perk = planned_cultivation_perk
+				NOT = {
+					has_access_to_maa = camel_skirmisher
+				}
 				location.county.culture ?= { culture_has_archer_cavalry_maa = yes }
 			}
 			culture = { has_cultural_parameter = unlock_maa_horse_archers }
-			mpo_can_recruit_nomad_maa_trigger = yes
+			trigger_if = {
+				limit = {
+					mpo_can_recruit_nomad_maa_trigger = yes
+				}
+				mpo_can_recruit_desert_nomad_maa_trigger = no
+			}
 		}
 	}
 
@@ -494,6 +499,7 @@ ayyar = {
 	}
 
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # darshi
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_ayyar }
 		NOT = {
 			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
@@ -525,6 +531,7 @@ mubarizun = {
 	}
 	
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # darshi
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_mubarizun }
 		NOT = {
 			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
@@ -571,6 +578,7 @@ mulaththamun = { #Murabit Cavalry
 	}
 
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # mgarren
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_mulaththamun }
 	}
 
@@ -604,6 +612,7 @@ archers_of_the_damar = { #Nile Archers
 	}
 
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # east nahasan (ancient/offmap?)
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_archers_of_the_damar }
 	}
 
@@ -735,6 +744,7 @@ horn_warrior = {
 	}
 
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # offmap?
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_horn_warrior }
 	}
 
@@ -767,6 +777,7 @@ bush_hunter = {
 	}
 
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # akoko+ tefeyo
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_bush_hunter }
 	}
 
@@ -865,6 +876,7 @@ khandayat = {
 	}
 	
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # not used
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_khandayat }
 		NOT = {
 			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
@@ -906,6 +918,7 @@ mountaineer = {
 	}
 
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # not used
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_mountaineer }
 		NOT = {
 			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
@@ -993,38 +1006,6 @@ sarawit = { #AKA Ethiopian mountaineer
 	ai_quality = { value = @cultural_maa_extra_ai_score }
 	icon = heavy_infantry
 }
-guinea_warrior = { #AKA Guinean uplander
-	type = skirmishers
-	
-	damage = 18
-	toughness = 14
-	pursuit = 0
-	screen = 20
-	
-	terrain_bonus = {
-		forest = { damage = 10 toughness = 8 }
-		hills = { damage = 6 toughness = 4 }
-		drylands = { damage = 6 toughness = 4 }
-	}
-
-	counters = {
-		heavy_infantry = 1
-	}
-
-	can_recruit = {
-		valid_for_maa_trigger = { PARAMETER = unlock_maa_guinea_warrior }
-	}
-
-	buy_cost = { gold = guinea_warrior_recruitment_cost }
-	low_maintenance_cost = { gold = guinea_warrior_low_maint_cost }
-	high_maintenance_cost = { gold = guinea_warrior_high_maint_cost }
-	provision_cost = @provisions_cost_infantry_cheap
-	
-	stack = 100
-	ai_quality = { value = @cultural_maa_extra_ai_score }
-	icon = skirmishers
-}
-
 sarawit = { #AKA Ethiopian (Merechati) mountaineer
 	type = heavy_infantry
 	
@@ -1076,6 +1057,7 @@ abudrar = { #AKA Jabali - Berber mountaineer
 	}
 
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # izerfani
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_abudrar }
 	}
 	
@@ -1111,6 +1093,7 @@ zbrojnosh = {
 	}
 	
 	can_recruit = {
+		ck_tradition_troops_enabled = yes # not used
 		valid_for_maa_trigger = { PARAMETER = unlock_maa_zbrojnosh }
 		NOT = {
 			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
@@ -1147,10 +1130,11 @@ palace_guards = {
 
 	can_recruit = {
 		always = no # mount&blade: burmanlord
+		# ck_tradition_troops_enabled = yes
 		# valid_for_maa_trigger = { PARAMETER = unlock_maa_palace_guards }
-		NOT = {
-			culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
-		}
+		# NOT = {
+		# 	culture = { has_cultural_parameter = strength_in_numbers_heavy_maa_ban }
+		# }
 	}
 	
 	buy_cost = { gold = palace_guards_recruitment_cost }

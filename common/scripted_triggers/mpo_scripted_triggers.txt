@@ -632,8 +632,7 @@ mpo_valid_dead_husband_trigger = {
 			has_contagious_deadly_disease_trigger = yes
 			has_trait = incapable
 			is_ruler = yes
-			has_trait = celibate
-			has_trait = devoted
+			has_trait_with_flag = can_not_marry
 		}
 		save_temporary_scope_as = widow
 	}
@@ -697,13 +696,7 @@ mpo_valid_widow_marrier_trigger = {
 	
 	OR = {
 		has_trait = nomadic_philosophy
-		culture = {
-			has_cultural_pillar = heritage_khiindai
-		}
-		culture = {
-			has_cultural_pillar = heritage_khuzic
-		}
-		faith.religion = faith:khuzait_faith.religion
+		ck_original_nomad_philosophy = yes
 	}
 	#Can have multiple wives or concubines
 	rite = {
@@ -714,11 +707,7 @@ mpo_valid_widow_marrier_trigger = {
 	}
 	is_male = yes
 	is_adult = yes
-	NOR = {
-		has_trait = celibate
-		has_trait = eunuch
-		has_trait = devoted
-	}
+	NOT = { has_trait_with_flag = can_not_marry }
 	#Has a free slot for a wife or concubine
 	OR = {
 		allowed_more_spouses = yes
@@ -729,7 +718,34 @@ mpo_valid_widow_marrier_trigger = {
 		relation_with_character_is_incestuous_in_my_rite_trigger = { CHARACTER = scope:widow }
 	}
 }
-
+# CK_STEPPE
+ck_original_nomad_philosophy = {
+	OR = {
+		culture ?= {
+			OR = {
+				has_cultural_pillar = heritage_khuzic
+				has_cultural_pillar = heritage_khiindai
+				has_cultural_pillar = heritage_lir_ovus
+			}
+		}
+		# and faith is still east-steppe unreformed?
+		religion ?= religion:khuzait_religion
+		religion ?= religion:guzzic_religion
+		# has_trait = nomadic_philosophy
+	}
+}
+ck_can_embrace_steppe_faith = {
+	# still kicking around
+	$FAITH$ ?= {
+		num_county_followers > 0
+		has_doctrine_parameter = unreformed
+	}
+	# not a total mismatch
+	num_sinful_traits = {
+		value < 3
+		target = $FAITH$
+	}
+}
 mpo_nomads_camel_culture_trigger = {
 	culture = {
 		OR = {
@@ -757,7 +773,7 @@ mpo_nomads_sheep_culture_trigger = {
 			has_cultural_tradition = tradition_festivities
 			has_cultural_tradition = tradition_sacred_mountains
 			has_cultural_tradition = tradition_himalayan_settlers
-			# has_cultural_tradition = tradition_ep3_indomitable_azatani
+			has_cultural_tradition = tradition_ep3_indomitable_azatani
 			has_cultural_tradition = tradition_caucasian_wolves
 			has_cultural_tradition = tradition_fp3_irrigation_experts
 			has_cultural_tradition = tradition_mountain_herding
@@ -793,7 +809,7 @@ mpo_nomads_horse_culture_trigger = {
 			has_cultural_tradition = tradition_ep3_audacious_cadets
 			has_cultural_tradition = tradition_fp3_fierce_independence
 			has_cultural_tradition = tradition_fp3_frontier_warriors
-			# has_cultural_tradition = tradition_ep3_indomitable_azatani
+			has_cultural_tradition = tradition_ep3_indomitable_azatani
 			has_cultural_tradition = tradition_caucasian_wolves
 			# has_cultural_tradition = tradition_hussar
 			has_cultural_tradition = tradition_calradian_descent
@@ -855,6 +871,22 @@ mpo_can_recruit_nomad_maa_trigger = {
 	OR = {
 		government_has_flag = government_is_nomadic
 		has_trait = nomadic_philosophy
+	}
+}
+# CK_NAHASA
+mpo_can_recruit_desert_nomad_maa_trigger = {
+	# do not check for innovation/has_access_to_maa
+	culture = { has_cultural_pillar = heritage_nahasi }
+	trigger_if = {
+		limit = {
+			has_game_rule = nahasa_nomad_region_on
+		}
+		any_character_situation = {
+			this = situation:game_rule_extra_nomads_arabs
+		}
+	}
+	trigger_else = {
+		is_independent_ruler = yes
 	}
 }
 
@@ -1495,6 +1527,95 @@ has_good_season_in_county_trigger = {
 			sub_region_current_phase = situation_steppe_abundant_grazing_season
 			sub_region_current_phase = situation_steppe_warm_nights_season
 			sub_region_current_phase = situation_steppe_sky_blessing_season
+		}
+	}
+}
+# CK_GREAT_HORDE blocker for decisions
+ck_should_ai_stay_nomad = {
+	OR = {
+		any_relation = {
+			type = blood_brother
+			is_ruler = yes
+			government_has_flag = government_is_nomadic
+		}
+		has_variable = steppe_game_start_var
+		# any_owned_story = {
+		# 	OR = {
+		# 		story_type = story_mongol_invasion
+		# 		story_type = story_greatest_of_khans
+		# 	}
+		# }
+	}
+}
+
+# CK_STEPPE to be used in decision widgets
+expand_the_steppe_is_shown = {
+	save_temporary_scope_as = ruler
+	situation:the_great_steppe ?= {
+		any_situation_sub_region = {
+			# show the other side anyway?
+			any_situation_sub_region_participant = {
+				this = scope:ruler
+			}
+			trigger_if = {
+				limit = {
+					this = situation:the_great_steppe.situation_sub_region:steppe_warband
+				}
+				NOR = { # do not re-add starting & overlapping imperial regions
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_empire_battania_frontier
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_southwest_central_empire
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_northwest_empire
+					geographical_region:$REGION$ = geographical_region:ck_steppe_expansion_central_empire
+					geographical_region:$REGION$ = geographical_region:region_warband_khergits
+				}
+				region_is_adjacent = geographical_region:$REGION$
+			}
+			trigger_else = {
+				region_is_adjacent = geographical_region:$REGION$
+			}
+		}
+	}
+}
+expand_the_steppe_is_valid = {
+	custom_tooltip = {
+		text = ck_steppe_expanded_already
+	# 	text = situation_sub_region_has_geographical_region
+	# 	subject = geographical_region:$REGION$
+	# 	object = 
+		NOT = {
+			situation:the_great_steppe ?= {
+				any_situation_sub_region = {
+					situation_sub_region_has_geographical_region = $REGION$
+				}
+			}
+		}
+	}
+	custom_description = {
+		text = ck_steppe_expansion
+		subject = geographical_region:$REGION$
+		prev = {
+			any_realm_province = {
+				geographical_region = $REGION$
+			}
+		}
+	}
+}
+expand_the_steppe_eliminated = {
+	title:$FACTION$ = {
+		exists = previous_holder
+		trigger_if = {
+			limit = {
+				exists = holder
+			}
+			holder.top_overlord ?= prev
+		}
+		trigger_else = {
+			custom_description = {
+				text = DESTROY_TITLE
+				object = this
+				NOT = { any_claimant = {} }
+			}
+			custom_tooltip = NOT_ANY_CLAIMANT
 		}
 	}
 }
