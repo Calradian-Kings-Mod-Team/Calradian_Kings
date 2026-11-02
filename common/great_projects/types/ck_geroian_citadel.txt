@@ -8,27 +8,65 @@
 
 	is_shown = {
 		# pam_cathedral_project_requirements_trigger = yes
+		has_spiritual_fulfillment_type = christian_fulfillment
 		OR = {
-			faith = faith:aekekartel
-			has_title = title:c_saverip # show in list, even if already complete
+			trigger_if = {
+				limit = { rite = { rite_has_parameter = geroian_citadel }}
+				has_clerical_region_in_realm = title:c_saverip.clerical_region_title
+			}
+			any_sub_realm_county = { # faith:aekekartel
+				faith = { has_doctrine = special_doctrine_ascensionist }
+				any_county_holy_site = {
+					is_holy_site_of = prev.faith
+				}
+			}
+			# top_liege ?= title:c_saverip.holder.top_liege # show in list, even if already complete
+			capital_province ?= { geographical_region = region_geroia }
 		}
 	}
 
-	province_filter = clerical_region_theocracy_capitals
+	province_filter = anointment_candidates
+	ai_province_filter = clerical_region_theocracy_capitals
 	owner = province_clerical_region_or_theocracy_holder
 	is_important = yes
 
 	is_location_valid = {
 		scope:province = {
-			# has_building = geroian_citadel_ruined
-			# OR = {
-			# 	terrain = mountains
-			# 	terrain = hills
-			# }
-			barony ?= {
-				is_holy_site_of = faith:aekekartel
+			trigger_if = {
+				limit = {
+					county ?= title:c_saverip # block other baronies
+				}
+				has_building = geroian_citadel_ruined
 			}
-			# is_valid_cathedral_spot_in_province_trigger = no
+			trigger_else = {
+				county.faith = scope:founder.faith
+				barony ?= {
+					is_holy_site_of = scope:founder.faith
+				}
+				is_valid_cathedral_spot_in_province_trigger = yes
+				custom_tooltip = {
+					text = citadel_terrain_requirement_tt
+					terrain = mountains
+				}
+				trigger_if = {
+					limit = {
+						scope:founder = {
+							is_clergy = yes
+						}
+					}
+					county.clerical_region_title ?= { 
+						holder = scope:founder
+					}
+				}
+				trigger_else_if = {
+					limit = { county.holder = root }
+					has_holding = yes
+				}
+				trigger_else = {
+					has_holding = yes
+					scope:founder = { is_liege_or_above_of = scope:province.county.holder }
+				}
+			}
 		}
 	}
 
@@ -58,9 +96,11 @@
 				}
 			}
 			custom_tooltip = {
-				text = valid_cathedral_spot_in_sub_realm_tt
-				any_sub_realm_county = {
-					any_county_province = {
+				text = valid_citadel_spot_in_sub_realm_tt
+				any_sub_realm_barony = {
+					is_holy_site_of = faith:aekekartel
+					title_province = {
+						has_holding = yes
 						is_valid_cathedral_spot_in_province_trigger = yes
 					}
 				}
@@ -71,12 +111,14 @@
 		}
 		trigger_else = {
 			faith = {
-				this = faith:aekekartel # clergy cannot be different mandate
-				any_faith_ruler = {
-					highest_held_title_tier >= tier_county
-					custom_tooltip = {
-						text = valid_cathedral_spot_in_realm_tt
-						any_realm_province = {
+				has_doctrine = special_doctrine_ascensionist
+				# any_faith_ruler = {
+				# 	highest_held_title_tier >= tier_county
+				custom_tooltip = {
+					text = valid_citadel_spot_in_realm_tt
+					any_holy_site_barony = {
+						title_province = {
+							has_holding = yes
 							is_valid_cathedral_spot_in_province_trigger = yes
 						}
 					}
@@ -129,9 +171,11 @@
 		scope:province ?= {
 			if = {
 				limit = {
-					has_ruined_great_building = no
+					has_great_building_slot = no
+					# has_ruined_great_building = no
 				}
-				set_great_building = geroian_citadel_ruined
+				custom_tooltip = cathedral_under_construction_building_tt
+				set_great_building = great_project_cathedral_under_construction
 			}
 		}
 		cathedral_great_project_funded_started_event_sender_effect = yes
@@ -187,7 +231,7 @@
 		# 		every_province_domicile = {
 		# 			limit = {
 		# 				is_domicile_type = ecclesiastical_domicile
-		# 				domicile_owner ?= scope:owner
+		# 				owner ?= scope:owner
 		# 			}
 		# 		}
 		# 		switch = {
@@ -204,7 +248,17 @@
 		# else = {
 		# 	custom_tooltip = cathedral_domicile_gain_tt
 		# }
-		custom_tooltip = citadel_or_upgraded_special_building_tt
+		if = {
+			limit = {
+				scope:province ?= { has_building = geroian_citadel_ruined }
+			}
+			show_as_tooltip = {
+				scope:province = { upgrade_building_effect = geroian_citadel_good }
+			}
+		}
+		else = {
+			custom_tooltip = citadel_or_upgraded_special_building_tt
+		}
 		scope:founder_heir ?= {
 			if = {
 				limit = { is_alive = yes }
@@ -238,7 +292,7 @@
 
 		hidden_effect = {
 			cathedral_great_project_completed_event_sender_effect = yes
-			scope:province = {
+			scope:province ?= {
 				if = {
 					limit = {
 						has_building = geroian_citadel_ruined
@@ -246,7 +300,8 @@
 					upgrade_building_effect = geroian_citadel_good
 				}
 				else = {
-					set_great_building = geroian_citadel_good
+					remove_building = great_project_cathedral_under_construction
+					set_great_building = geroian_citadel
 				}
 				custom_tooltip = {
 					text = cathedral_county_poi_bonus
@@ -277,10 +332,10 @@
 
 	on_cancel = {
 		scope:province ?= {
-			# if = {
-			# 	limit = { has_building = geroian_citadel_ruined }
-			# 	remove_building = geroian_citadel_ruined
-			# }
+			if = {
+				limit = { has_building = great_project_cathedral_under_construction }
+				remove_building = great_project_cathedral_under_construction
+			}
 		}
 	}
 
