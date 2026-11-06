@@ -1304,14 +1304,19 @@ window = {
 					flowcontainer = {
 						name = "doctrines_compact_grid_core_tenets"
 						visible = "[GetVariableSystem.Exists( 'compact_faith_window' )]"
-						margin_bottom = 8
+						# margin_bottom = 8
 
 						datamodel = "[FaithWindow.GetCoreTenetItems]"
-						wrap_count = 3
+						wrap_count = 4
 
 						item = {
 							flowcontainer = {
 								widget_tenet_item_compact = {
+									max_width = 150
+									blockoverride "popularity" {
+										visible = no
+									}
+									scale = 0.9
 									datacontext = "[TenetItem.GetTenet]"
 									datacontext = "[TenetItem.GetFaith]"
 									datacontext = "[TenetItem.GetRite]"
@@ -1323,11 +1328,13 @@ window = {
 			}
 
 			### Sins & Virtues
-			widget_sins_virtues = {}
-
-			spacer = {
-				size = { 0 4 }
+			widget_sins_virtues = {
+				visible = "[Not(IsCompactFaith)]"
 			}
+
+			# spacer = {
+			# 	size = { 0 4 }
+			# }
 
 			### Doctrines
 			scrollbox = {
@@ -1348,6 +1355,10 @@ window = {
 				}
 			}
 
+			widget_sins_virtues = {
+				visible = "[IsCompactFaith]"
+				size = { 100% 44 }
+			}
 			vbox = {
 				layoutpolicy_horizontal = expanding
 
@@ -2186,7 +2197,7 @@ types FaithWindow
 		}
 	}
 
-	type widget_sins_virtues = widget {
+	type widget_sins_virtues = vbox {
 		size = { 592 94 }
 		layoutpolicy_horizontal = expanding
 
@@ -2234,6 +2245,7 @@ types FaithWindow
 				position = { 80 -1 }
 				text = "FAITH_WINDOW_SINS"
 				using = Font_Size_Medium
+				default_format = "#glow_color:{1,0,0,1}"
 				align = nobaseline
 			}
 
@@ -2242,6 +2254,7 @@ types FaithWindow
 				position = { -80 -1 }
 				text = "FAITH_WINDOW_VIRTUES"
 				using = Font_Size_Medium
+				default_format = "#glow_color:{0,0,1,1}"
 				align = nobaseline|left
 			}
 
@@ -2259,12 +2272,16 @@ types FaithWindow
 					alwaystransparent = yes
 				}
 			}
+			visible = "[Not(IsCompactFaith)]"
 		}
 
 		### Sins & Virtues | Traits
 		hbox = {
 			name = "sins_and_virtues"
-			margin_top = 40
+			background = {
+				texture = "gfx/interface/window_faith/sin_virtue_banner.dds"
+				visible = "[IsCompactFaith]"
+			}
 			margin_bottom = 5
 			spacing = 5
 
@@ -3001,7 +3018,7 @@ types FaithWindow
 	type widget_doctrine_group_item = widget {
 		datacontext = "[DoctrineGroupItem.GetSelectedDoctrineItem]"
 		datacontext = "[DoctrineItem.GetDoctrine]"
-		size = { 275 50 }
+		size = { 321 50 }
 
 		background = {
 			using = Background_Area
@@ -3450,7 +3467,7 @@ types FaithWindow
 				layoutpolicy_vertical = expanding
 
 				addrow = 50
-				addcolumn = 275
+				addcolumn = 315
 
 				datamodel_wrap = 2
 				flipdirection = yes
