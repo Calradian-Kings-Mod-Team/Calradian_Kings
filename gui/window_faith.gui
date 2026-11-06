@@ -20,7 +20,7 @@ window = {
 	movable = no
 	layer = middle
 
-	size = { 660 100% }
+	size = { 666 100% }
 
 	using = Window_Background_Sidebar
 
@@ -226,6 +226,18 @@ window = {
 								blockoverride "button_me"
 								{
 									onclick = "[DefaultOnCharacterClick(GetPlayer.GetID)]"
+								}
+
+								blockoverride "extra_buttons" {
+									# datamodel = "[LedgerWindow]"
+									button_pin = {
+										shortcut = "pin"
+										tooltip = "OPEN_LEDGER"
+										onclick = "[ToggleGameView('ledger')]"
+										onclick = "[GetVariableSystem.Set( 'ledger_tab', 'faiths' )]"
+										onclick = "[GetVariableSystem.Set( 'ledger_faith_tab', 'rites' )]"
+										# onrightclick = "[LedgerWindow.ToggleRitePin(Rite.Self)]"
+									}
 								}
 							}
 						}
@@ -471,6 +483,9 @@ window = {
 				}
 
 				blockoverride "icon_visible" {}
+				animation_aggressive = {
+					visible = "[FaithWindow.IsActiveTab( 'tab_holy_orders' )]"
+				}
 
 				blockoverride "tab_icon"
 				{
@@ -532,7 +547,7 @@ window = {
 				background = {
 					texture = "[Illustration.GetTexture( FaithWindow.GetFaith.MakeScope )]"
 					fittype = centercrop
-					alpha = 0.8
+					alpha = "[Divide_CFixedPoint(Add_CFixedPoint(Faith.GetFervor, '(CFixedPoint)60'),'(CFixedPoint)140')]"
 					using = Mask_Rough_Edges
 
 					modify_texture = {
@@ -824,7 +839,23 @@ window = {
 									text = "RITE_VIEW_OUR_VIEW"
 									align = right|nobaseline
 									elide = left
-									default_format = "#low"
+									# default_format = "#low"
+									background = {
+										visible = "[EqualTo_string( GetPlayer.GetRite.GetRelationNameTo( Rite.Self ), GetHostilityLevelName('(int32)0'))]"
+										using = Status_Good
+									}
+									background = {
+										visible = "[EqualTo_string( GetPlayer.GetRite.GetRelationNameTo( Rite.Self ), GetHostilityLevelName('(int32)1'))]"
+										using = Status_Highlight
+									}
+									background = {
+										visible = "[EqualTo_string(GetPlayer.GetRite.GetRelationNameTo( Rite.Self ), GetHostilityLevelName('(int32)2'))]"
+										using = Status_Suggestion_Bad
+									}
+									background = {
+										visible = "[EqualTo_string(GetPlayer.GetRite.GetRelationNameTo( Rite.Self ), GetHostilityLevelName('(int32)3'))]"
+										using = Status_Bad
+									}
 								}
 							}
 
@@ -838,7 +869,23 @@ window = {
 									text = "RITE_VIEW_THEIR_VIEW"
 									align = right|nobaseline
 									elide = left
-									default_format = "#low"
+									# default_format = "#low"
+									background = {
+										visible = "[EqualTo_string(Rite.GetRelationNameTo( GetPlayer.GetRite ), GetHostilityLevelName('(int32)0'))]"
+										using = Status_Good
+									}
+									background = {
+										visible = "[EqualTo_string(Rite.GetRelationNameTo( GetPlayer.GetRite ), GetHostilityLevelName('(int32)1'))]"
+										using = Status_Highlight
+									}
+									background = {
+										visible = "[EqualTo_string(Rite.GetRelationNameTo( GetPlayer.GetRite ), GetHostilityLevelName('(int32)2'))]"
+										using = Status_Suggestion_Bad
+									}
+									background = {
+										visible = "[EqualTo_string(Rite.GetRelationNameTo( GetPlayer.GetRite ), GetHostilityLevelName('(int32)3'))]"
+										using = Status_Bad
+									}
 								}
 							}
 
