@@ -58,20 +58,18 @@ lake_rat_hideout = {
 
 pamphian_palaces = {
 
-	#asset = {
-	#	type = pdxmesh
-	#	name = "building_special_colosseum_mesh"
-	#}
+	# asset = {
+	# 	type = pdxmesh
+	# 	name = "ep3_meteora_02_mesh"
+	# }
 
 	construction_time = very_slow_construction_time
 
 	type_icon = "icon_pamphian_palaces.dds"
 	
 	can_construct_potential = {
-		building_requirement_tribal = no
+		always = no #We only build this through Decision -> Great Projects
 	}
-	
-	cost_gold = 5000
 
 	character_modifier = {
  		monthly_dynasty_prestige_mult = 0.1
@@ -80,10 +78,12 @@ pamphian_palaces = {
  		courtly_opinion = 5
  		parochial_opinion = 5
  		legitimacy_gain_mult = 0.1
+	}
+	character_government_modifier = {
+		parameter = government_has_influence
  		monthly_influence = 0.2
  		monthly_influence_mult = 0.3
 	}
-	
 	county_modifier = {
 		monthly_county_control_growth_add = 0.5
  		county_opinion_add = 20
@@ -92,25 +92,88 @@ pamphian_palaces = {
 	}
 	
 	ai_value = {
-		base = 100
-		modifier = { # Fill all building slots before going for special buildings
-			factor = 0
-			free_building_slots > 0
+		base = 0
+	}
+
+	is_enabled = {
+		#It needs to be your capital
+		scope:holder = {
+			# highest_held_title_tier >= tier_kingdom # recommendation, not required
+			# government_has_flag = government_is_mandala
+			capital_province = root #The province
 		}
 	}
-	
-	next_building = pamphian_palaces_ruined
-	
-	type = special
+	can_rebuild = {
+		is_occupied = no
+		is_raided = no
+		scope:county.holder = {
+			is_independent_ruler = yes
+			# has_royal_court = yes
+		}
+	}
+
+	show_disabled = yes
+
+	rebuild_cost = {
+		treasury_or_gold = {
+			if = {
+				limit = { is_ai = yes }
+				value = ai_rebuild_value
+			}
+			else = { 
+				value = {
+					add = standard_rebuild_value
+					multiply = 2
+				}
+			}
+		}
+		prestige = {
+			if = {
+				limit = { is_ai = yes }
+				value = ai_rebuild_value
+			}
+			else = { 
+				value = {
+					add = standard_rebuild_value
+					multiply = 2
+				}
+			}
+		}
+	}
+
+	fallback = { # ruined modifiers
+		character_government_modifier = {
+			parameter = government_has_influence
+			monthly_influence_mult = -0.15
+			governor_xp_gain_mult = -0.15
+		}
+		county_modifier = {
+			monthly_county_control_growth_add = -0.15
+			county_opinion_add = -15
+			build_speed = -0.15
+		}
+	}
+
+	type = great_building
+	great_project_type = pamphian_palaces
 
 	flag = travel_point_of_interest_diplomatic
+	flag = no_wall
+	effect_desc = {
+		triggered_desc = {
+			trigger = { has_dlc_feature = tours_and_tournaments }
+			desc = wedding_bonus_effect
+		}
+		# desc = wineyard_effect_desc
+	}
+	flag = wedding_bonus
 }
 pamphian_palaces_ruined = {
 
-	#asset = {
-	#	type = pdxmesh
-	#	name = "building_special_colosseum_mesh"
-	#}
+	# asset = {
+	# 	type = pdxmesh
+	# 	name = "ep3_meteora_01_mesh"
+	# }
 
 	construction_time = very_slow_construction_time
 
@@ -136,64 +199,14 @@ pamphian_palaces_ruined = {
 		}
 	}
 	
-	next_building = pamphian_palaces_restored
+	next_building = pamphian_palaces # show in gui but don't allow
 	
-	type = special
+	type = duchy_capital # block off other development until restored
 
 	flag = travel_point_of_interest_diplomatic
+	flag = no_wall
 }
-pamphian_palaces_restored = {
 
-	#asset = {
-	#	type = pdxmesh
-	#	name = "building_special_colosseum_mesh"
-	#}
-
-	construction_time = very_slow_construction_time
-
-	type_icon = "icon_pamphian_palaces.dds"
-	
-	can_construct_potential = {
-		building_requirement_tribal = no
-	}
-	
-	cost_gold = 5000
-
-	character_modifier = {
- 		monthly_dynasty_prestige_mult = 0.1
- 		powerful_vassal_opinion = 5
- 		monthly_prestige_gain_per_happy_powerful_vassal_add = 0.15
- 		monthly_influence = 0.2
- 		monthly_influence_mult = 0.3
-	}
-	
-	county_modifier = {
-		monthly_county_control_growth_add = 0.5
- 		county_opinion_add = 20
-		tax_mult = 0.3
-		development_growth_factor = 0.2
-	}
-	
-	ai_value = {
-		base = 100
-		modifier = { # Fill all building slots before going for special buildings
-			factor = 0
-			free_building_slots > 0
-		}
-	}
-	
-	
-	type = special
-	effect_desc = {
-		triggered_desc = {
-			trigger = { has_dlc_feature = tours_and_tournaments }
-			desc = wedding_bonus_effect
-		}
-		# desc = wineyard_effect_desc
-	}
-	flag = wedding_bonus
-	flag = travel_point_of_interest_diplomatic
-}
 robber_keeps_1 = {
 
 	#asset = {
@@ -279,8 +292,7 @@ robber_keeps_2 = {
 }
 ## Geroia ##
 # Great Citadel #
-geroian_citadel_ruined = {
-
+geroian_citadel = {
 	asset = {
 		type = pdxmesh
 		name = "geroian_great_fortress_2_mesh"
@@ -288,13 +300,110 @@ geroian_citadel_ruined = {
 
 	construction_time = very_slow_construction_time
 
+	type_icon = "icon_pamphian_palaces.dds"
+	
+	can_construct_potential = {
+		custom_description = {
+			text = holy_site_building_trigger
+			barony = {
+				is_holy_site_of = scope:holder.faith
+			}
+		}
+	}
+	is_enabled = {
+		scope:holder.rite ?= { rite_has_parameter = geroian_citadel }
+	}
+	fallback = {
+		character_modifier = {
+			legitimacy_gain_mult = 0.1
+		}
+		province_modifier = {
+			fort_level = 3
+		}
+	}
+	cost_gold = 2500
+
+
+	character_modifier = {
+		piety_standalone_gain_mult = 1
+		zealot_same_faith_opinion = 40
+		negate_health_penalty_add = 0.4
+	}
+	character_government_modifier = {
+		parameter = government_is_theocracy
+		monthly_piety_from_buildings_mult = 0.5
+	}
+	character_culture_modifier = { # tradition_family_entrepreneurship
+		parameter = close_family_better_councillors
+		monthly_dynasty_prestige_mult = 0.1
+	}
+	character_culture_modifier = { # tradition_warrior_monks
+		parameter = culture_clergy_can_fight
+		prowess_mult = 0.1
+		character_opinion_from_low_prowess_add = -1
+	}
+	character_culture_modifier = { # thonian
+		parameter = commanders_likelier_to_gain_commander_traits # tradition_fp2_strategy_gamers
+		negate_prowess_penalty_add = 2
+	}
+	character_culture_modifier = { # lotkian
+		parameter = cheaper_to_hybridize # tradition_malleable_invaders
+		same_heritage_county_advantage_add = 1
+	}
+	province_modifier = {
+		garrison_size = 1
+		fort_level = 3
+		travel_danger = -10
+	}
+	province_rite_modifier = { # agreki
+		parameter = sanctify_artifacts_regal # tenet_pursuit_of_power
+		stationed_maa_damage_add = 3
+	}
+	province_rite_modifier = { # miraclist
+		parameter = consolamentum_active # tenet_consolamentum
+		hostile_raid_time = 0.25
+		levy_reinforcement_rate = 0.25
+	}
+	province_culture_modifier = {
+		parameter = next_level_fortification
+		fort_level = 1
+	}
+	province_culture_modifier = {
+		parameter = monastery_prowess_martial_bonus
+		stationed_maa_toughness_add = 3
+	}
+	
+	ai_value = {
+		base = 0
+	}
+	next_building = geroian_citadel_ruined
+	type = great_building
+	# great_project_type = geroian_citadel
+	# flag = grand_cathedral_flag
+	# flag = great_project_cathedral_building
+	# flag = holy_building
+
+	# flag = travel_point_of_interest_learning
+	flag = travel_point_of_interest_martial
+	flag = raid_protection_1
+	effect_desc = marches_effect_desc
+}
+geroian_citadel_ruined = {
+
+	asset = {
+		type = pdxmesh
+		name = "geroian_great_fortress_2_mesh"
+		# illustration = "gfx/interface/illustrations/event_scenes/pam_cathedral_construction.dds"
+	}
+
+	construction_time = very_slow_construction_time
+
 	type_icon = "icon_pamphian_palaces_ruined.dds"
 	
 	can_construct_potential = {
-		always = no
+		barony = title:b_potenzam
 	}
 	
-	cost_gold = 0
 	character_modifier = {
 		monthly_piety_gain_mult = -0.05
 	}
@@ -308,25 +417,27 @@ geroian_citadel_ruined = {
 		fort_level = 2
 	}
 	ai_value = {
-		base = 100
-		modifier = { # Fill all building slots before going for special buildings
-			factor = 0
-			free_building_slots > 0
-		}
+		base = 0
 	}
 	
 	next_building = geroian_citadel_good
 	
-	type = special
+	type = great_building
+	great_project_type = geroian_citadel
+	# flag = great_project_cathedral_building
 
 	flag = travel_point_of_interest_learning
 	flag = travel_point_of_interest_martial_minor
+	flag = raid_protection_1
+	effect_desc = marches_effect_desc
+	# flag = no_wall
 }
 geroian_citadel_good = {
 
 	asset = {
 		type = pdxmesh
 		name = "geroian_great_fortress_1_mesh"
+		# illustration = "gfx/interface/illustrations/activity_backgrounds/temple.dds"
 	}
 
 	construction_time = very_slow_construction_time
@@ -336,32 +447,85 @@ geroian_citadel_good = {
 	can_construct_potential = {
 		building_requirement_tribal = no
 	}
-	
-	cost_gold = 2500
 
 	character_modifier = {
- 		monthly_dynasty_prestige_mult = 0.1
-		prowess = 5
  		courtly_opinion = 5
- 		parochial_opinion = 5
  		legitimacy_gain_mult = 0.1
-		monthly_piety_gain_mult = 1.5
+		piety_standalone_gain_mult = 1.5
 		zealot_same_faith_opinion = 40
-		health = 0.6
+		negate_health_penalty_add = 0.6
 		monthly_learning_lifestyle_xp_gain_mult = 0.25
-		defender_advantage = 4
+		controlled_province_advantage = 4
+	}
+	character_government_modifier = {
+		parameter = government_is_theocracy
+		elderly_health = 0.6
+		zealot_different_culture_opinion = -40
+		monthly_piety_from_buildings_mult = 1
+	}
+	character_culture_modifier = { # tradition_family_entrepreneurship
+		parameter = close_family_better_councillors
+		monthly_dynasty_prestige_mult = 0.1
+	}
+	character_culture_modifier = { # tradition_parochialism
+		parameter = more_parochial_vassals
+		parochial_opinion = 5
+	}
+	character_culture_modifier = { # tradition_warrior_monks
+		parameter = culture_clergy_can_fight
+		prowess_mult = 0.20
+		character_opinion_from_low_prowess_add = -1
+	}
+	character_culture_modifier = { # thonian
+		parameter = commanders_likelier_to_gain_commander_traits # tradition_fp2_strategy_gamers
+		negate_prowess_penalty_add = 5
+	}
+	character_culture_modifier = { # lotkian
+		parameter = cheaper_to_hybridize # tradition_malleable_invaders
+		same_heritage_county_advantage_add = 2
 	}
 	
 	county_modifier = {
- 		county_opinion_add = 20
-		tax_mult = 0.3
+		tax_mult = 0.15
 		development_growth_factor = 0.2
 	}
+	county_rite_modifier = {
+		parameter = geroian_citadel
+		county_opinion_add = 20
+	}
+	county_rite_modifier = { # aekekartel_rite
+		parameter = pacifist # tenet_pacifism
+		defender_holding_advantage = 4
+	}
+	county_culture_modifier = {
+		parameter = next_level_cities
+		tax_mult = 0.15
+	}
 	province_modifier = {
-		garrison_size = 1.5
-		fort_level = 6
-		travel_danger = -20
+		garrison_size = 1
+		fort_level = 5
+	}
+	province_rite_modifier = { # agreki
+		parameter = sanctify_artifacts_regal # tenet_pursuit_of_power
 		stationed_maa_damage_mult = normal_maa_damage_tier_1
+		levy_size = 0.25
+	}
+	province_rite_modifier = { # miraclist
+		parameter = consolamentum_active # tenet_consolamentum
+		hostile_raid_time = 0.25
+		levy_reinforcement_rate = 0.25
+	}
+	province_rite_modifier = {
+		parameter = geroian_citadel
+		travel_danger = -20
+		garrison_size = 0.5
+	}
+	province_culture_modifier = {
+		parameter = next_level_fortification
+		fort_level = 1
+	}
+	province_culture_modifier = {
+		parameter = monastery_prowess_martial_bonus
 		stationed_maa_toughness_mult = normal_maa_toughness_tier_1
 	}
 	
@@ -374,10 +538,16 @@ geroian_citadel_good = {
 	}
 	
 	
-	type = special
+	type = great_building
+	great_project_type = geroian_citadel
+	flag = grand_cathedral_flag
+	flag = great_project_cathedral_building
+	flag = holy_building
 
 	flag = travel_point_of_interest_learning
 	flag = travel_point_of_interest_martial
+	flag = raid_protection_2
+	effect_desc = marches_effect_2_desc
 }
 paravendic_arena = {
 
@@ -430,6 +600,10 @@ gundars_landing = {
 	#	type = pdxmesh
 	#	name = "building_special_colosseum_mesh"
 	#}
+	asset = {
+		type = pdxmesh
+		name = "ep3_maidens_tower_01_a_mesh"
+	}
 
 	construction_time = very_slow_construction_time
 
@@ -467,10 +641,16 @@ gundars_landing = {
 	type = special
 
 	flag = travel_point_of_interest_economic
+	flag = raid_protection_1
+	effect_desc = marches_effect_desc
+	flag = no_wall
 }
 
 prytanikka = {
-
+	asset = {
+		type = pdxmesh
+		name = "fp2_building_special_tower_of_hercules_mesh"
+	}
 	#asset = {
 	#	type = pdxmesh
 	#	name = "building_special_colosseum_mesh"
@@ -516,10 +696,10 @@ prytanikka = {
 
 vaktulisija = {
 
-	#asset = {
-	#	type = pdxmesh
-	#	name = "building_special_colosseum_mesh"
-	#}
+	asset = {
+		type = pdxmesh
+		name = "tree_pine_impassable_01_a_mesh"
+	}
 
 	construction_time = very_slow_construction_time
 
@@ -569,16 +749,16 @@ vaktulisija = {
 	
 	type = special
 
-	flag = travel_point_of_interest_learning
+	# flag = travel_point_of_interest_learning
+	flag = travel_point_of_interest_religious
+	flag = holy_building
 }
 
 tomchul = {
-
-	#asset = {
-	#	type = pdxmesh
-	#	name = "building_special_colosseum_mesh"
-	#}
-
+	asset = {
+		type = pdxmesh
+		name = "mpo_building_special_burkhan_khaldun_mesh"
+	}
 	construction_time = very_slow_construction_time
 
 	type_icon = "icon_structure_mount_damavand.dds"
@@ -626,7 +806,10 @@ tomchul = {
 	
 	type = special
 
-	flag = travel_point_of_interest_learning
+	# flag = travel_point_of_interest_learning
+	flag = travel_point_of_interest_religious
+	flag = holy_building
+	flag = no_wall
 }
 
 mouth_of_nahasa = {

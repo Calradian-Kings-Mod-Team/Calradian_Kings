@@ -234,67 +234,6 @@ ck_game_start = {
 				set_language_from = culture:tyvallian
 			}
 		}
-		### CALRADIC KINGS - UNIVERSITIES ###
-		title:b_charas.title_province = { 
-			if = {
-				limit = {
-					NOT = {
-						has_special_building_slot = yes
-					}
-				}
-				add_special_building_slot = generic_university
-			}
-		}
-		title:b_ortysia.title_province = { 
-			if = {
-				limit = {
-					NOT = {
-						has_special_building_slot = yes
-					}
-				}
-				add_special_building_slot = generic_university
-			}
-		}
-		title:b_pravend.title_province = { 
-			if = {
-				limit = {
-					NOT = {
-						has_special_building_slot = yes
-					}
-				}
-				add_special_building_slot = generic_university
-			}
-		}
-		title:b_lycaron.title_province = { 
-			if = {
-				limit = {
-					NOT = {
-						has_special_building_slot = yes
-					}
-				}
-				add_special_building_slot = generic_university
-			}
-		}
-		title:b_sanala.title_province = { 
-			if = {
-				limit = {
-					NOT = {
-						has_special_building_slot = yes
-					}
-				}
-				add_special_building_slot = generic_university
-			}
-		}
-		title:b_razih.title_province = { 
-			if = {
-				limit = {
-					NOT = {
-						has_special_building_slot = yes
-					}
-				}
-				add_special_building_slot = generic_university
-			}
-		}
 		## Add buildings to canon settlements
 		add_canon_buildings_effect = yes
 		## Non-Standard COAs at 976 game start ##
@@ -1635,6 +1574,26 @@ ck_game_start_after_lobby = {
 						}
 						fill_external_east_asian_estate_building_effect = yes
 					}
+					ecclesiastical_domicile = {
+						fill_ecclesiastical_domicile_building_effect = yes
+						if = { # another level for hof
+							limit = {
+								owner ?= {
+									religious_head_or_challenger = this
+								}
+							}
+							add_random_internal_ecclesiastical_domicile_building = yes
+						}
+						if = {
+							limit = {
+								exists = domicile_faith
+								domicile_location.barony ?= {
+									is_holy_site_of = prev.domicile_faith
+								}
+							}
+							add_random_external_ecclesiastical_domicile_building = yes
+						}
+					}
 				}
 			}
 		}
@@ -1899,6 +1858,40 @@ ck_game_start_after_lobby = {
 								}
 							}
 							fill_external_east_asian_estate_building_effect = yes
+						}
+						ecclesiastical_domicile = {
+							if = {
+								limit = {
+									has_domicile_building = ecclesiastical_domicile_main_01
+									domicile_location ?= {
+										OR = { # they might not be the same building
+											has_building_with_flag = grand_cathedral_flag # citadel
+											has_building_with_flag = holy_building # natural features
+										}
+									}
+								}
+								add_domicile_building = ecclesiastical_domicile_main_02
+							}
+							else = {
+								if = { # another level for hof
+									limit = {
+										owner ?= {
+											religious_head_or_challenger = this
+										}
+									}
+									add_random_internal_ecclesiastical_domicile_building = yes
+								}
+								if = {
+									limit = {
+										exists = domicile_faith
+										domicile_location.barony ?= {
+											is_holy_site_of = prev.domicile_faith
+										}
+									}
+									add_random_external_ecclesiastical_domicile_building = yes
+								}
+							}
+							fill_ecclesiastical_domicile_building_effect = yes
 						}
 					}
 				}
@@ -2237,6 +2230,26 @@ ck_game_start_after_lobby = {
 							trigger_event = ep3_laamps.9982
 						}
 					}
+				}
+			}
+		}
+
+		if = {
+			limit = {
+				game_start_date >= 1200.1.1
+			}
+			#residual from add_canon_buildings_effect - apply "project" modifiers
+			title:c_martilet = {
+				add_county_modifier = {
+					modifier = ck_pamphian_palaces_modifier
+					# years = 10
+				}
+				holder.top_liege ?= {
+					add_character_modifier = { # modifiers cannot be added in history
+						modifier = ck_pamphian_palaces_character_modifier
+						years = 10 # even if it was 50 years ago
+					}
+					remove_short_term_gold = starting_gold
 				}
 			}
 		}

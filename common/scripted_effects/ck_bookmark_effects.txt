@@ -280,3 +280,48 @@
 			}
 		}
 }
+ck_apply_great_schism_merge_effect = {
+	religion:calradian_religion = {
+		every_faith = {
+			limit = {
+				this != scope:darusan
+				has_doctrine = special_doctrine_is_western_christian_faith
+			}
+			add_to_list = merge_faith
+			if = {
+				limit = {
+					this = faith:western_calradic
+				}
+				save_scope_as = old_faith
+			}
+		}
+	}
+	every_in_list = {
+		list = merge_faith  # used in scripted_gui is_shown
+		set_variable = block_conversion_till_decision_taken
+		if = { # not applied twice (history and game_start)
+			limit = {
+				has_global_variable = game_has_started
+				# main_rite = { is_rite_enabled = yes }
+			}
+			every_faith_rite = {
+				set_parent_faith = {
+					target = scope:darusan
+					main = no
+				}
+				if = {
+					limit = {
+						faith.num_county_followers <= 0
+					}
+					set_rite_enabled = no
+				}
+				else_if = {
+					limit = {
+						faith.num_character_followers <= 0
+					}
+					set_can_convert_to_rite = no
+				}
+			}
+		}
+	}
+}

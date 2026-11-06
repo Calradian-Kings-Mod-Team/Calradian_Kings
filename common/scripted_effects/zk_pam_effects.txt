@@ -185,7 +185,7 @@ pam_apply_great_schism_creation_effect = {
 	custom_tooltip = {
 		text = pam_create_great_schism_effect_tt
 		faith:calradic = {
-			save_scope_as = old_rite
+			# save_scope_as = old_rite # not destroyed - saved in ck_apply_great_schism_merge_effect
 			every_faith_rite = {
 				limit = { rite_has_doctrine = doctrine_no_head }
 				change_rite_doctrine = doctrine_spiritual_head
@@ -197,46 +197,26 @@ pam_apply_great_schism_creation_effect = {
 		faith:calradic = { 
 			set_religious_head_title = title:k_calradic
 		}
-		rite:darusan = {
+		rite:darusan ?= {
 			save_scope_as = roman_rite
 			set_can_convert_to_rite = yes
-			set_parent_faith = {
-				target = faith:darusan
-				main = yes
-			}
+			save_scope_as = darusan
+			# set_parent_faith = {
+			# 	target = faith:darusan
+			# 	main = yes
+			# }
 		}
-		rite:western_calradic = {
-			set_can_convert_to_rite = no
-			set_rite_enabled = no
-			set_parent_faith = {
-				target = faith:darusan
-				main = no
-			}
-		}
-		rite:ember_flame = {
-			set_can_convert_to_rite = no
-			set_rite_enabled = no
-			set_parent_faith = {
-				target = faith:darusan
-				main = no
-			}
-		}
-		rite:calradic = {
+
+		rite:calradic ?= {
 			save_scope_as = byzantine_rite
 			set_can_convert_to_rite = yes
-			set_parent_faith = {
-				target = faith:calradic
-				main = yes
-			}
+			save_scope_as = calradic
+			# set_parent_faith = {
+			# 	target = faith:calradic
+			# 	main = yes
+			# }
 		}
-		rite:hetjur = {
-			# set_can_convert_to_rite = no
-			# set_rite_enabled = no
-			set_parent_faith = {
-				target = faith:darusan
-				main = no
-			}
-		}
+		ck_apply_great_schism_merge_effect = yes
 		# struggle:iberian_struggle ?= {
 		# 	set_faith_as_involved = rite:mozarabic_church.faith
 		# 	set_faith_as_uninvolved = faith:christian_faith
@@ -254,7 +234,7 @@ pam_apply_great_schism_creation_effect = {
 						var:pam_schism_stance ?= flag:competitor
 					}
 					OR = {
-						faith = faith:calradic
+						faith = scope:calradic
 						faith = scope:schism_mainline_faith
 						faith = scope:schism_competitor_faith
 					}
@@ -293,24 +273,19 @@ pam_apply_great_schism_creation_effect = {
 						OR = {
 							portrait_religious_catholic_trigger = yes
 							AND = {
-								faith = faith:calradic
-								OR = {
-									rite = rite:darusan
-									rite = rite:hetjur
-									rite = rite:ember_flame
-									rite = rite:western_calradic
-								}
+								faith = scope:calradic
+								character_is_calradian = no
 							}
 						}
 					}
 				}
 				holder = {
 					if = {
-						limit = { NOT = { faith = faith:darusan } }
-						set_character_faith = faith:darusan
+						limit = { NOT = { faith = scope:darusan } }
+						set_character_faith = scope:darusan
 					}
 				}
-				add_clerical_elector = faith:darusan
+				add_clerical_elector = scope:darusan
 			}
 			else_if = {
 				limit = { exists = holder }
@@ -319,9 +294,14 @@ pam_apply_great_schism_creation_effect = {
 				}
 			}
 		}
-		faith:calradic = { remove_doctrine = special_doctrine_has_clerical_electors }
+		scope:calradic = { 
+			if = {
+				limit = { has_doctrine_parameter = has_clerical_electors }
+				remove_doctrine = special_doctrine_has_clerical_electors
+			}
+		}
 		# Catholicism starts with a College so AI clergy do not spam the Pope to fill vacancies
-		faith:darusan = { pam_seed_cardinals_effect = yes }
+		scope:darusan = { pam_seed_cardinals_effect = yes }
 		if = {
 			limit = { exists = situation:the_christian_church }
 			the_christian_church_set_main_power_faith_effect = yes
