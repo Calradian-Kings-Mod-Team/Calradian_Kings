@@ -1259,92 +1259,43 @@ ck_game_start_after_lobby = {
 		### Give Imperials their appropriate faction traits ###
 		if = { # SIMPs
 			limit = {
-				AND = {
-					game_start_date = 1084.5.1 
-					exists = title:e_southern_empire.holder
-				}
+				game_start_date = 1084.5.1
 			}
-			title:e_southern_empire.holder = {
-				every_vassal = {
-					limit = {
-						is_ai = yes
-						culture = {
-							has_cultural_pillar = heritage_calradian
-						}
-					}
-					save_temporary_scope_as = sempire_game_start_vassal
-					add_trait = ck_royalist
-					if = {
+			every_empire = {
+				limit = {
+					holder ?= { has_trait = claimant_emperor }
+				}
+				holder = { 
+					every_vassal_or_below = {
 						limit = {
-							title:e_southern_empire.holder = {
-								NOT = {
-									is_rightful_liege_of = scope:sempire_game_start_vassal
+							is_ai = yes
+							is_playable_character = yes
+						}
+						if = {
+							limit = {
+								is_valid_senator = yes
+								NOT = { has_trait_with_flag = senate_faction }
+							}
+							switch = {
+								trigger = top_liege
+								character:Simp_P_1 = { add_trait = ck_royalist }
+								character:Nimp_O_1 = { add_trait = ck_oligarch }
+								character:Wimp_C_1 = { add_trait = ck_militarist }
+								fallback = { # player took over an empire
+									add_trait = ck_populist # or spam them with give_senatorial_faction_effect
 								}
 							}
 						}
-						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
-					}
-				}
-			}
-		}
-		if = { # NIMPs
-			limit = {
-				AND = {
-					game_start_date = 1084.5.1 
-					exists = title:e_northern_empire.holder
-				}
-
-			}
-			title:e_northern_empire.holder = {
-				every_vassal = {
-					limit = {
-						is_ai = yes
-						culture = {
-							has_cultural_pillar = heritage_calradian
-						}
-					}
-					save_temporary_scope_as = nempire_game_start_vassal
-					add_trait = ck_oligarch
-					if = {
-						limit = {
-							title:e_northern_empire.holder = {
-								NOT = {
-									is_rightful_liege_of = scope:nempire_game_start_vassal
+						if = {
+							limit = {
+								top_liege = {
+									NOT = {
+										is_rightful_liege_of = prev
+									}
 								}
 							}
+							vassal_contract_set_obligation_level = { type = special_contract level = 5 }
 						}
-						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
-					}
-				}
-			}
-		}
-		if = { # WIMPs
-			limit = {
-				AND = {
-					game_start_date = 1084.5.1 
-					exists = title:e_western_empire.holder
-				}
-
-			}
-			title:e_western_empire.holder = {
-				every_vassal = {
-					limit = {
-						is_ai = yes
-						culture = {
-							has_cultural_pillar = heritage_calradian
-						}
-					}
-					save_temporary_scope_as = wempire_game_start_vassal
-					add_trait = ck_militarist
-					if = {
-						limit = {
-							title:e_western_empire.holder = {
-								NOT = {
-									is_rightful_liege_of = scope:wempire_game_start_vassal
-								}
-							}
-						}
-						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
 					}
 				}
 			}
