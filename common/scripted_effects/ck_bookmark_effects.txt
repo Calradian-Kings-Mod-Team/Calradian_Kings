@@ -325,3 +325,39 @@ ck_apply_great_schism_merge_effect = {
 		}
 	}
 }
+
+# do not call these on tiered traits with multiple tracks
+ck_on_personal_tenet_gain_xp = {
+	if = {
+		limit = {
+			NOT = { exists = global_var:game_has_started }
+			exists = primary_title
+			has_trait_xp = {
+				trait = $TRAIT$
+				value = 0
+			}
+		}
+		add_trait_xp = {
+			trait = $TRAIT$
+			value = {
+				value = primary_title.title_held_years
+				multiply = 2
+				add = age
+				divide = 3
+				max = 50
+			}
+		}
+	}
+}
+ck_on_personal_tenet_loss_trait = {
+	if = {
+		limit = { # make sure flag is the sole provider of this trait
+			NOT = { has_personal_tenet_flag = $FLAG$ }
+			has_trait_xp = {
+				trait = $TRAIT$
+				value = 0
+			}
+		}
+		remove_trait = $TRAIT$ # make_trait_inactive_force_tooltip
+	}
+}
