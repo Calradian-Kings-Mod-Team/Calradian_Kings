@@ -68,10 +68,10 @@ is_roman_emperor_primary_title_excluding_byzantium_trigger = {
 show_byzantion_throne_room_background = {
 	save_temporary_scope_as = background_check
 	OR = {
-		location ?= title:b_lycaron.title_province
+		location ?= title:c_lycaron.title_province
 		AND = {
-			is_roman_emperor_primary_title_trigger = yes
-			title:b_lycaron = {
+			is_calradian_claimant_or_emperor = yes
+			title:c_lycaron = {
 				any_de_jure_top_liege = { this = scope:background_check }
 			}
 		}
@@ -80,7 +80,23 @@ show_byzantion_throne_room_background = {
 
 valid_for_byz_emperor_content_trigger = {
 	has_ep3_dlc_trigger = yes
-	character_is_calradian = yes
+	trigger_if = {
+		limit = {
+			primary_title ?= title:e_southern_empire
+			game_start_date >= 1257.3.23
+		}
+		culture ?= {
+			switch = {
+				trigger = has_game_rule
+				default_name_of_southern_empire_1257 = { has_cultural_pillar = heritage_calradian }
+				southern_empire_name_of_southern_empire_1257 = { var:troops_culture ?= culture:calradian }
+				calradian_empire_name_of_southern_empire_1247 = { culture_head = prev }
+			}
+		}
+	}
+	trigger_else = {
+		character_is_calradian = yes
+	}
 	OR = {
 		is_roman_emperor_primary_title_trigger = yes
 		has_trait = claimant_emperor
