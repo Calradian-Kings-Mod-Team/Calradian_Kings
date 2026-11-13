@@ -77,6 +77,7 @@ ck_game_start = {
 			shatter_khanate_effect = yes
 			make_khuzait_khanate_nomadic_effect = yes
 		}
+		
 		### No Feudal Battania or Sturgia ###
 		# Makes sure Battania & Sturgia are NOT feudal #
 		if = {
@@ -575,12 +576,46 @@ ck_game_start = {
 
 		
 
+
+		### Setting up appropriate dynasty splendor levels (1084 onward)
+		dynasty_prestige_setup = yes
+		ck_initialize_troops_culture = yes
+
+		# give canoes to only these along the river for now
+		culture:dambaya = { add_innovation = innovation_african_canoes }
+		culture:yenkanji = { add_innovation = innovation_african_canoes }
+		culture:tafeyora = { add_innovation = innovation_african_canoes }
+		# darshi handled in history
+		culture:aserai = {
+			add_innovation = innovation_ghilman	
+		}
+		culture:karnyid = {
+			add_innovation = innovation_ghilman	
+		}
+		# hybrid across 2 heritages
+		culture:yenkanji = {
+			get_all_innovations_from = culture:dambaya
+		}
+
 		#### === WARBAND RELATED === ####
 		### Warband Setup
 		if = {
 			limit = {
 				game_start_date >= 1257.3.23
 			}
+			# Change Swadian and Rhodok heritages to Esbalian
+			culture:swadian = {
+				set_heritage_from = culture:tyvallian
+				set_language_from = culture:tyvallian
+			}
+			culture:rhodok = {
+				set_heritage_from = culture:tyvallian
+				set_language_from = culture:tyvallian
+			}
+			culture:tamarken = { # camelfied (all other heritage_west_nahasan can't get camels past mountains)
+				add_innovation = innovation_war_camels
+			}
+
 			if = {
 				limit = {
 					has_game_rule = ck_shatter_warband
@@ -611,6 +646,8 @@ ck_game_start = {
 							destroy_title = primary_title
 						}
 						destroy_title = prev
+						# remove_character_flag = make_suicide_available
+						add_character_flag = do_not_generate_starting_family
 					}
 				}
 			}
@@ -682,10 +719,10 @@ ck_game_start = {
 								has_game_rule = situation_the_great_steppe_toggle_on
 								exists = situation:the_great_steppe
 							}
-							# region_warband_khergits + a few extra borders
+							# region_warband_khergits starting borders only
 							expanding_steppe_add_region_effect = {
 								SUB_REGION = warband
-								REGION = world_steppe_khergits
+								REGION = region_warband_khergits
 							}
 						}
 						every_ruler = {
@@ -706,10 +743,14 @@ ck_game_start = {
 								# situation:the_great_steppe ?= {
 								# }
 							}
-							# grab the whole region until decision for partial expansion is added
+							# region_warband_khergits + a few extra borders
 							expanding_steppe_add_region_effect = {
 								SUB_REGION = warband
-								REGION = region_warband
+								REGION = region_warband_khergits
+							}
+							expanding_steppe_add_region_effect = {
+								SUB_REGION = warband
+								REGION = world_steppe_khergits
 							}
 							situation:the_great_steppe = {
 								situation_sub_region:steppe_warband ?= {
@@ -719,6 +760,10 @@ ck_game_start = {
 											culture = culture:khergit
 										}
 										change_government = nomad_government
+										set_variable = {
+											name = steppe_game_start_var
+											years = 2
+										}
 										# every_directly_owned_province = {
 										# 	limit = {
 										# 		NOR = {
@@ -736,14 +781,9 @@ ck_game_start = {
 					}
 				}
 			}
-			# was at "base origin" instead of bookmark's 4 value
-			dynasty:dynn_banu_sarran = {
-				if = {
-					limit = {
-						dynasty_prestige_level < 4
-					}
-					add_dynasty_prestige_level = 5
-				}
+			culture:tojjeredi = {
+				# get tradition back from sarranid + extinct togerds
+				add_culture_tradition = tradition_maritime_mercantilism 
 			}
 		}
 	}
@@ -861,7 +901,7 @@ ck_game_start_after_lobby = {
 		if = {
 		    limit = {
 				has_mpo_dlc_trigger = yes
-				has_game_rule = nahasa_nomad_region_on_on
+				has_game_rule = nahasa_nomad_region_on
 			}
 			start_situation = {
 				type = game_rule_extra_nomads_arabs
@@ -1057,7 +1097,7 @@ ck_game_start_after_lobby = {
 			}
 			recalculate_cultural_heads_of_type = herd
 		}
-		### Setup Cultural Acceptance
+		#Set starting cultural acceptance
 		culture:sturgian = {
 			change_cultural_acceptance = {
 				target = culture:nord
@@ -1099,8 +1139,15 @@ ck_game_start_after_lobby = {
 		## This is for a bookmark cultural tolerance/acceptance, for Warband era 
 		if = {
 			limit = { game_start_date >= 1257.3.23 }
+			culture:sudican = { # not in history because culture_head doesn't exist
+				add_innovation = innovation_arbalests
+			}
+			culture:tojjeredi = { # can't forget how crossbows work
+				add_innovation = innovation_advanced_bowmaking
+			}
 			# Rhodok
 			culture:rhodok = {
+				add_innovation = innovation_arbalests
 				change_cultural_acceptance = {
 					target = culture:jendea
 					value = 25
@@ -1155,6 +1202,7 @@ ck_game_start_after_lobby = {
 			}
 			# Vaegir
 			culture:vaegir = {
+				add_innovation = innovation_knighthood # unlock knights
 				change_cultural_acceptance = {
 					target = culture:vysoicau
 					value = 25
@@ -1163,6 +1211,7 @@ ck_game_start_after_lobby = {
 			}
 			# Sarranid
 			culture:sarranid = {
+				add_innovation = innovation_ghilman # unlock mameluke, from karnyid ancestor
 				change_cultural_acceptance = {
 					target = culture:tojjeredi
 					value = 25
@@ -1194,6 +1243,7 @@ ck_game_start_after_lobby = {
 				}
 			}
 		}
+
 		###So player-controlled Rhagaea doesn't immediately abandon widow trait
 		character:Simp_P_1 = {
 		    if = {
@@ -1209,92 +1259,44 @@ ck_game_start_after_lobby = {
 		### Give Imperials their appropriate faction traits ###
 		if = { # SIMPs
 			limit = {
-				AND = {
-					game_start_date = 1084.5.1 
-					exists = title:e_southern_empire.holder
-				}
+				game_start_date = 1084.5.1
 			}
-			title:e_southern_empire.holder = {
-				every_vassal = {
-					limit = {
-						is_ai = yes
-						culture = {
-							has_cultural_pillar = heritage_calradian
-						}
-					}
-					save_temporary_scope_as = sempire_game_start_vassal
-					add_trait = ck_royalist
-					if = {
+			every_empire = {
+				limit = {
+					holder ?= { has_trait = claimant_emperor }
+				}
+				holder = { 
+					every_vassal_or_below = {
 						limit = {
-							title:e_southern_empire.holder = {
-								NOT = {
-									is_rightful_liege_of = scope:sempire_game_start_vassal
+							is_ai = yes
+							is_playable_character = yes
+						}
+						if = {
+							limit = {
+								is_valid_senator = yes
+								NOT = { has_trait_with_flag = senate_faction }
+							}
+							switch = {
+								trigger = top_liege
+								character:Simp_P_1 = { add_trait = ck_royalist }
+								character:Nimp_O_1 = { add_trait = ck_oligarch }
+								character:Wimp_C_1 = { add_trait = ck_militarist }
+								fallback = { # player took over an empire
+									add_trait = ck_populist # or spam them with give_senatorial_faction_effect
 								}
 							}
 						}
-						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
-					}
-				}
-			}
-		}
-		if = { # NIMPs
-			limit = {
-				AND = {
-					game_start_date = 1084.5.1 
-					exists = title:e_northern_empire.holder
-				}
-
-			}
-			title:e_northern_empire.holder = {
-				every_vassal = {
-					limit = {
-						is_ai = yes
-						culture = {
-							has_cultural_pillar = heritage_calradian
-						}
-					}
-					save_temporary_scope_as = nempire_game_start_vassal
-					add_trait = ck_oligarch
-					if = {
-						limit = {
-							title:e_northern_empire.holder = {
-								NOT = {
-									is_rightful_liege_of = scope:nempire_game_start_vassal
+						if = {
+							limit = {
+								top_liege ?= liege
+								top_liege = {
+									NOT = {
+										is_rightful_liege_of = prev
+									}
 								}
 							}
+							vassal_contract_set_obligation_level = { type = special_contract level = 5 }
 						}
-						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
-					}
-				}
-			}
-		}
-		if = { # WIMPs
-			limit = {
-				AND = {
-					game_start_date = 1084.5.1 
-					exists = title:e_western_empire.holder
-				}
-
-			}
-			title:e_western_empire.holder = {
-				every_vassal = {
-					limit = {
-						is_ai = yes
-						culture = {
-							has_cultural_pillar = heritage_calradian
-						}
-					}
-					save_temporary_scope_as = wempire_game_start_vassal
-					add_trait = ck_militarist
-					if = {
-						limit = {
-							title:e_western_empire.holder = {
-								NOT = {
-									is_rightful_liege_of = scope:wempire_game_start_vassal
-								}
-							}
-						}
-						vassal_contract_set_obligation_level = { type = special_contract level = 5 }
 					}
 				}
 			}
@@ -2161,6 +2163,7 @@ ck_game_start_after_lobby = {
 			limit = {
 				game_start_date >= 1257.3.23
 			}
+			steppe_great_horde_effects = yes
 			# Gamerule: Canonical Families - If enabled, rulers like Harlaus will start with a pre-generated family
 			if = {
 				limit = {

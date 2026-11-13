@@ -477,6 +477,13 @@ trait_is_criminal_in_rite_trigger = {
 			$TRAIT$ = trait:devoted
 			$RITE$ = { rite_has_parameter = devoted_trait_criminal }
 		}
+		AND = {
+			OR = {
+				$TRAIT$ = trait:possessed_1
+				$TRAIT$ = trait:possessed_genetic
+			}
+			$RITE$ = { rite_has_parameter = spirit_possession_crime }
+		}
 	}
 }
 
@@ -529,6 +536,11 @@ trait_is_shunned_in_rite_trigger = {
 					$GENDER_CHARACTER$ = { is_male = yes }
 				}
 			}
+		}
+		#REINCEST
+		AND = {
+			$TRAIT$ = trait:reincarnation
+			$RITE$ = { rite_has_parameter = reincarnation_shunned }
 		}
 	}
 }
@@ -613,6 +625,15 @@ has_any_shunned_or_criminal_trait_in_rite_trigger = {
 				has_trait = devoted
 				$RITE$ = { rite_has_parameter = devoted_trait_criminal }
 			}
+			# tenet_djinns (bad)
+			AND = {
+				has_trait = possessed
+				$RITE$ = { rite_has_parameter = spirit_possession_crime }
+			}
+			AND = {
+				has_trait = reincarnation
+				$RITE$ = { rite_has_parameter = reincarnation_shunned }
+			}
 		}
 	}
 }
@@ -671,6 +692,11 @@ has_any_criminal_trait_in_rite_trigger = {
 				has_trait = devoted
 				$RITE$ = { rite_has_parameter = devoted_trait_criminal }
 			}
+			# tenet_djinns (bad)
+			AND = {
+				has_trait = possessed
+				$RITE$ = { rite_has_parameter = spirit_possession_crime }
+			}
 		}
 	}
 }
@@ -723,6 +749,10 @@ has_any_shunned_trait_in_rite_trigger = {
 			AND = {
 				has_trait = fornicator
 				trait_is_shunned_in_rite_trigger = { TRAIT = trait:fornicator RITE = $RITE$ GENDER_CHARACTER = $CHARACTER$ }
+			}
+			AND = {
+				has_trait = reincarnation
+				trait_is_shunned_in_rite_trigger = { TRAIT = trait:reincarnation RITE = $RITE$ GENDER_CHARACTER = $CHARACTER$ }
 			}
 		}
 	}
@@ -1198,12 +1228,12 @@ valid_demand_conversion_conditions_trigger = {
 		}
 		custom_tooltip = {
 			text = demand_conversion_nomadic_zealous_tt
-		NAND = {
-			has_trait = nomadic_philosophy
-			has_trait = zealous
+			NAND = {
+				has_trait = nomadic_philosophy
+				has_trait = zealous
+			}
 		}
 	}
-}
 
 	custom_description = {
 		text = "is_head_of_religion"
@@ -1373,6 +1403,24 @@ can_reincarnate_trigger = {
 		has_trait = intellect_good
 		has_trait = strong
 		has_trait = physique_good
+
+		# very famous traits - not re-applied via reincarnation_pick_trait_effect
+		has_trait = crusader_king
+		has_trait = conqueror
+		has_trait = claimant_emperor
+		has_trait = restorer_emperor
+		has_trait = saint
+		has_trait = savior
+		has_trait = herald
+		has_trait = legend
+		has_trait = paragon
+
+		# personal
+		# has_trait = historical_character
+		# has_trait = ck_mandated_miraclist_ascendant # not enabled
+		has_trait = reincarnation # not again
+		has_trait = possessed # djinns
+
 	}
 }
 

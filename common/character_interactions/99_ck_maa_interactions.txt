@@ -1,0 +1,641 @@
+﻿request_laamp_use_troops = {
+	icon = holy_order
+	interface_priority = 40
+	common_interaction = yes
+	category = interaction_category_laamp
+	# cooldown = { years = 1 }
+	cooldown_against_recipient = { years = 5 }
+
+	greeting = positive
+	popup_on_receive = yes
+	notification_text = request_laamp_sent
+	answer_accept_key = bp2_yearly.2020.a
+	answer_reject_key = bp2_yearly.2020.b
+	
+	desc = request_laamp_use_troops_desc
+	options_heading = request_laamp_use_troops_heading
+	is_shown = {
+		scope:actor = {
+			is_landed = yes
+			OR = {
+				has_variable = recruits_local_troops
+				ck_unique_troops_trigger = yes
+			}
+			maa_regiments_count > 0
+		}
+		scope:recipient = {
+			is_landless_ruler = yes
+			government_has_flag = cannot_be_vassal_or_liege
+			NOR = { # holy order has fixed list of maa types + fallbacks, not cultural ones?
+				government_has_flag = government_is_holy_order
+				has_variable = recruits_local_troops
+				ck_shares_unique_troops = { CHARACTER = scope:actor }
+			}
+		}
+	}
+	
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			is_available_quick = {
+				ruler = yes
+				imprisoned = no
+				at_war = no
+			}
+			trigger_if = {
+				limit = {
+					is_landless_adventurer = yes
+				}
+				# has_contact = scope:actor
+				# ep3_laamp_diplo_range_trigger = {
+				# 	TARGET = scope:actor
+				# 	LAAMP = scope:recipient
+				# }
+				custom_tooltip = {
+					text = the_wake_1
+					NOT = {
+						is_laamp_exiled_from_province_trigger = {
+							PROVINCE = scope:actor.capital_province
+							LAAMP = scope:recipient
+						}
+					}
+				}
+			}
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_mercenary
+				}
+				custom_tooltip = {
+					text = MERCENARY_COMPANY_NOT_HIRED_BY_ME
+					scope:actor = { 
+						any_hired_mercenary = {
+							mercenary_company_leader = scope:recipient
+						}
+					}
+				}
+			}
+			# trigger_if = {
+				# limit = {
+				# 	scope:recipient = { government_has_flag = government_is_holy_order }
+				# }
+				# scope:recipient.faith = scope:actor.faith
+				# any_patroned_holy_order = {
+				# 	leader = scope:recipient
+				# }
+			# }
+		}
+		scope:actor = { 
+			has_raised_armies = no
+			is_available_quick = {
+				# ai = no
+				imprisoned = no
+				at_war = no
+			}
+		}
+	}
+
+	target_type = men_at_arms
+	target_filter = actor_personal_maa
+	can_be_picked_regiment = {
+		scope:target ?= {
+			maa_size > 1
+
+		}
+	}
+	has_valid_target_showing_failures_only = {
+		scope:target ?= {
+			maa_size > 1
+			NOT = {
+				is_unit_type = siege_weapon
+			}
+			# scope:actor ?= { has_access_to_maa = prev }
+			is_raised = no
+			# custom_tooltip = { # vbox_list_interaction_maa_selection doesn't show tooltip/have enabled state
+			# 	text = request_laamp_troop_mismatch
+			# 	object = regiment_owner
+				trigger_if = {
+					limit = {
+						regiment_owner = { has_variable = recruits_local_troops }
+					}
+					ck_regiment_match_culture = { CULTURE = regiment_owner.var:recruits_local_troops}
+				}
+				trigger_else = {
+					ck_regiment_match_culture = { CULTURE = regiment_owner.culture.var:troops_culture}
+				}
+			# }
+		}
+	}
+
+	#TODO add a secondary_actor list with knights to send off
+	auto_accept = {
+		custom_description = {
+			text = "spending_hook"
+			subject = scope:actor
+			object = scope:recipient
+			scope:hook = yes
+		}
+	}
+	send_option = {
+		is_valid = {
+			scope:actor = {
+				has_usable_hook = scope:recipient
+			}
+		}
+		flag = hook
+		localization = SCHEME_HOOK
+	}
+	send_options_exclusive = no
+
+	cost = {
+		gold = {
+			value = scope:actor.major_gold_value
+			if = {
+				limit = {
+					scope:actor.dynasty = scope:recipient.dynasty
+				}
+				divide = 2
+			}
+			if = {
+				limit = {
+					scope:actor.culture ?= { has_same_culture_martial_tradition = scope:recipient.culture }
+				}
+				divide = 2
+			}
+			if = {
+				limit = {
+					scope:actor.culture ?= { has_same_culture_heritage = scope:recipient.culture }
+				}
+				divide = 2
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			if = {
+				limit = {
+					is_landless_adventurer = yes
+				}
+				create_maa_regiment = {
+					check_can_recruit = no
+					type_of = scope:target
+					size = 1
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_contact = scope:actor
+						}
+					}
+					add_contact = scope:actor
+				}
+				domicile ?= {
+					if = {
+						limit = {
+							domicile_uses_provisions = yes
+						}
+						change_provisions = human_provision_value
+					}
+				}
+			}
+			else = { # giving its holder maa doesn't do anything when hired...
+				hidden_effect = {
+					add_long_term_gold = scope:actor.major_gold_value # we do a little money laundering
+				}
+				if = {
+					limit = {
+						government_has_flag = government_is_holy_order
+					}
+					scope:actor = {
+						add_piety_experience = medium_gold_value
+					}
+				}
+				else = {
+					scope:actor = {
+						add_prestige_experience = medium_gold_loss
+					}
+				}
+			}
+			scope:target ?= {
+				change_maa_regiment_size = {
+					size = -1
+				}
+			}
+			if = {
+				limit = {
+					scope:actor = { has_variable = recruits_local_troops }
+				}
+				scope:actor.var:recruits_local_troops = {
+					save_scope_as = liege_troops
+				}
+			}
+			else = {
+				scope:actor.culture.var:troops_culture = {
+					save_scope_as = liege_troops
+				}
+			}
+			set_variable = {
+				name = recruits_local_troops
+				value = scope:liege_troops
+			}
+			every_knight = {
+				# custom = every_knight_troops_approval
+				trigger_event = {
+					id = culture_emergence_events.1085
+					delayed = no 
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_character_modifier = recruits_local_troops
+					}
+				}
+				add_character_modifier = {
+					modifier = recruits_local_troops
+					# desc = will_recruit_variable
+					weeks = 12
+				}
+			}
+		}
+		# worded the other way around because it doesn't show x-y acceptance
+		scope:actor.culture = {
+			change_cultural_acceptance = {
+				target = scope:recipient.culture
+				desc = request_laamp_troops_used
+				value = 1
+			}
+		}
+	}
+
+	on_decline = {
+
+	}
+
+	use_diplomatic_range = yes
+
+	ai_accept = {
+		base = -60
+		opinion_modifier = { # Opinion Factor
+			who = scope:recipient
+			opinion_target = scope:actor
+			multiplier = 1
+			desc = AI_OPINION_REASON
+		}
+		modifier = {
+			add = {
+				value = "culture.cultural_acceptance(scope:actor.culture)"
+				subtract = 50
+				divide = 4
+				round = yes
+			}
+			scope:actor = {
+				NOT = { has_variable = recruits_local_troops }
+			# 	culture.culture_head ?= this
+			}
+			desc = CULTURAL_ACCEPTANCE
+		}
+		modifier = {
+			faith = {
+				faith_hostility_level = {
+					target = scope:actor.faith
+					value >= faith_astray_level
+				}
+			}
+			add = {
+				value = "faith.faith_hostility_level(scope:actor.faith)"
+				multiply = -10
+			}
+			desc = FAITH_HOSTILITY_LEVEL
+		}
+		modifier = {
+			add = 10
+			dynasty ?= scope:actor.dynasty
+			desc = BF_AI_SAME_DYNASTY_REASON
+		}
+		modifier = {
+			add = 20
+			house ?= scope:actor.house
+			desc = IS_SAME_HOUSE_REASON
+		}
+		modifier = {
+			add = 15
+			scope:actor = {
+				is_contact_of = scope:recipient
+			}
+			desc = has_contact_reason
+		}
+		modifier = {
+			add = 20
+			has_trait = ambitious
+			desc = RECIPIENT_IS_AMBITIOUS
+		}
+		modifier = {
+			desc = DEMAND_SUBMISSION_RECIPIENT_IS_PARANOID
+			add = -10
+			has_trait = paranoid
+		}
+		modifier = {
+			desc = DEMAND_SUBMISSION_RECIPIENT_IS_ARROGANT
+			add = -20
+			has_trait = arrogant
+			ai_boldness > 0
+		}
+		modifier = {
+			desc = DEMAND_SUBMISSION_RECIPIENT_IS_TRUSTING
+			add = 15
+			has_trait = trusting
+		}
+		modifier = {
+			add = 10
+			has_trait = greedy
+			desc = RECIPIENT_IS_GREEDY
+		}
+		## education
+		modifier = {
+			desc = recipient_is_martial
+			add = martial
+			has_trait = education_martial
+		}
+		modifier = {
+			desc = recipient_is_learning
+			add = { value = 0 subtract = learning }
+			has_trait = education_learning
+		}
+		## Dread
+		modifier = {
+			add = intimidated_halved_reason_value
+			has_dread_level_towards = {
+				target = scope:actor
+				level = 1
+			}
+			desc = INTIMIDATED_REASON
+		}
+		modifier = {
+			add = cowed_halved_reason_value
+			has_dread_level_towards = {
+				target = scope:actor
+				level = 2
+			}
+			desc = COWED_REASON
+		}
+		# Prestige (level)
+		modifier = {
+			add = 20
+			prestige_level < scope:actor.prestige_level
+			desc = AI_RELATIVE_PRESTIGE_LEVEL_REASON
+		}
+		modifier = {
+			add = 50
+			desc = camp_purpose_mercenaries_reason
+			has_realm_law = camp_purpose_mercenaries
+		}
+		# #You are criminal scum
+		# modifier = {
+		# 	add = -50
+		# 	desc = PROCURE_ESTATE_BRIGANDS_REASON
+		# 	scope:recipient = {
+		# 		has_realm_law = camp_purpose_brigands
+		# 	}
+		# }
+		modifier = {
+			add = 25
+			desc = PROCURE_ESTATE_LEGITIMISTS_REASON
+			has_realm_law = camp_purpose_legitimists
+		}
+		modifier = {
+			add = {
+				value = -100
+				add = age
+			}
+			desc = recipient_is_claimant
+			character_is_wb_claimant = yes
+		}
+		# scope:target weights
+		modifier = {
+			add = culture_ai_weight_skirmishers
+			desc = ai_li_accept
+			scope:target = { is_unit_type = skirmishers }
+		}
+		modifier = {
+			add = culture_ai_weight_pikemen
+			desc = ai_pm_accept
+			scope:target = { is_unit_type = pikemen }
+		}
+		modifier = {
+			add = culture_ai_weight_heavy_infantry
+			desc = ai_hi_accept
+			scope:target = { is_unit_type = heavy_infantry }
+		}
+		modifier = {
+			add = culture_ai_weight_shock
+			desc = ai_si_accept
+			scope:target = { is_unit_type = shock_troops }
+		}
+		modifier = {
+			add = culture_ai_weight_archers
+			desc = ai_bm_accept
+			scope:target = { is_unit_type = archers }
+		}
+		modifier = {
+			add = culture_ai_weight_light_cavalry
+			desc = ai_lc_accept
+			scope:target = { is_unit_type = light_cavalry }
+		}
+		modifier = {
+			add = culture_ai_weight_heavy_cavalry
+			desc = ai_hc_accept
+			scope:target = { is_unit_type = heavy_cavalry }
+		}
+	}
+
+	can_send_despite_rejection = no
+	is_available = { is_ai = no }
+}
+
+
+debug_yoink_troops = {
+	icon = icon_soldier_survivor
+	category = interaction_debug_main
+	desc = debug_yoink_troops_desc
+
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	override_background = { reference = ep3_city_gate }
+	is_shown = {
+		debug_only = yes
+		scope:recipient = {
+			is_ruler = yes
+			any_maa_regiment = {}
+			# this != scope:actor
+		}
+	}
+	is_available = { is_ai = no }
+	options_heading = debug_yoink_troops_heading
+	auto_accept = yes
+	send_options_exclusive = no
+	send_option = {
+		flag = realm
+		is_shown = {
+			scope:recipient = {
+				is_landed = yes
+				any_vassal = { number_of_maa_regiments > 0 }
+			}
+		}
+		starts_enabled = {
+			scope:recipient = {
+				is_independent_ruler = yes
+			}
+		}
+		localization = take_realm_interaction
+		current_description = yoink_realm
+	}
+	send_option = {
+		flag = title_only
+		is_shown = {
+			scope:recipient = {
+				highest_held_title_tier >= min_title_maa_tier
+			}
+		}
+		localization = take_title_interaction
+		current_description = yoink_title
+	}
+	send_option = {
+		flag = culture
+		is_shown = {
+			scope:recipient = {
+				# OR = {
+				# 	number_of_maa_regiments > 0
+				# 	any_vassal = { number_of_maa_regiments > 0 }
+				# }
+				ck_unique_troops_trigger = yes
+			}
+		}
+		starts_enabled = {
+			scope:recipient = {
+				culture ?= { culture_head = prev }
+			}
+		}
+		localization = COUNTY_OPINION_SAME_CULTURE
+		current_description = yoink_culture
+	}
+	send_option = {
+		flag = destroy
+		is_shown = {
+			scope:actor = {
+				number_of_maa_regiments > 0
+			}
+		}
+		starts_enabled = {
+			scope:actor = {
+				number_of_maa_regiments > 9
+			}
+		}
+		localization = DISBAND_ALL
+		current_description = yoink_clear
+	}
+	on_accept = {
+		if = {
+			limit = {
+				scope:destroy = yes
+			}
+			scope:actor = {  # spawn_army needs an actual key, can't use type_of and regiment.maa_type isn't a thing?
+				# destroy_all_event_troops = yes
+				hidden_effect = {
+					every_maa_regiment = {
+						destroy_maa_regiment = yes
+					}
+				}
+			# every_owned_title_maa_regiment = { 
+			# 	destroy_maa_regiment = yes
+			# }
+			}
+		}
+		scope:recipient = {
+			# capital_province ?= {
+			# 	save_scope_as = origin
+			# }
+			culture ?= {
+				var:troops_culture ?= {
+					save_scope_as = liege_culture
+				}
+			}
+			save_scope_as = secondary_recipient
+			# add_gold = "number_maa_regiments_of_base_type(siege_weapon)"
+			custom_tooltip = {
+				text = debug_yoink_recipient
+				if = {
+					limit = {
+						this != scope:actor
+					}
+					every_maa_regiment = {
+						save_scope_as = reg
+						# regiment_station ?= {
+						# 	save_scope_as = origin
+						# }
+						scope:actor = {
+							create_maa_sized = { SIZE = scope:reg.maa_size TYPE = type_of OF = scope:reg }
+							# # note that your max != their max
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					scope:realm = yes
+				}
+				every_vassal_or_below = {
+					limit = {
+						any_maa_regiment = { }
+						trigger_if = {
+							limit = {
+								scope:culture = yes
+								exists = scope:liege_culture
+							}
+							ck_can_recruit_scoped_troops = { SCOPE = scope:liege_culture }
+						}
+					}
+					save_scope_as = secondary_recipient
+					# capital_province ?= {
+					# 	save_scope_as = origin
+					# }
+					custom_tooltip = {
+						text = debug_yoink_recipient
+						every_maa_regiment = {
+							save_scope_as = reg
+							scope:actor = {
+								create_maa_sized = { SIZE = scope:reg.maa_size TYPE = type_of OF = scope:reg }
+							}
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					scope:title_only = yes
+				}
+				every_sub_realm_title = {
+					every_title_maa_regiment = {
+						save_scope_as = reg
+						scope:actor = {
+							create_maa_sized = { SIZE = scope:reg.maa_size TYPE = type_of OF = scope:reg }
+						}
+					}
+				}
+			}
+		}
+		scope:actor = {
+			open_view = {
+				view = military
+				data = scope:actor
+				player = scope:actor
+			}
+			open_view_data = {
+				view = character
+				data = scope:actor
+				player = scope:actor
+			}
+		}
+	}
+}

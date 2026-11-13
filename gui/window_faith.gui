@@ -20,8 +20,8 @@ window = {
 	movable = no
 	layer = middle
 
-	size = { 660 100% }
-
+	size = { 666 100% }
+	
 	using = Window_Background_Sidebar
 
 	state = {
@@ -73,6 +73,13 @@ window = {
 				margin_left = 5
 				margin_right = 5
 				margin_bottom = 10
+				visible = "[Rite.IsEnabled]"
+			}
+			background = {
+				texture = "gfx/interface/illustrations/background_ruler_transition.dds"
+				visible = "[Not(Rite.IsEnabled)]"
+				fittype = centercrop
+				margin_bottom = 80
 			}
 
 			background = {
@@ -226,6 +233,18 @@ window = {
 								blockoverride "button_me"
 								{
 									onclick = "[DefaultOnCharacterClick(GetPlayer.GetID)]"
+								}
+
+								blockoverride "extra_buttons" {
+									# datamodel = "[LedgerWindow]"
+									button_pin = {
+										shortcut = "pin"
+										tooltip = "OPEN_LEDGER"
+										onclick = "[ToggleGameView('ledger')]"
+										onclick = "[GetVariableSystem.Set( 'ledger_tab', 'faiths' )]"
+										onclick = "[GetVariableSystem.Set( 'ledger_faith_tab', 'rites' )]"
+										# onrightclick = "[LedgerWindow.ToggleRitePin(Rite.Self)]"
+									}
 								}
 							}
 						}
@@ -445,6 +464,9 @@ window = {
 					max_width = 140
 				}
 
+				background = {
+					texture = "gfx/interface/window_scheme/scheme_panel_header_banner.dds"
+				}
 				blockoverride "icon_visible" {}
 
 				blockoverride "tab_icon"
@@ -468,6 +490,9 @@ window = {
 				}
 
 				blockoverride "icon_visible" {}
+				animation_aggressive = {
+					visible = "[FaithWindow.IsActiveTab( 'tab_holy_orders' )]"
+				}
 
 				blockoverride "tab_icon"
 				{
@@ -488,7 +513,10 @@ window = {
 					text = "FAITH_HOLY_SITES"
 					max_width = 140
 				}
-
+				background = {
+					texture = "gfx/interface/window_scheme/scheme_panel_header_banner_red.dds"
+					mirror = horizontal
+				}
 				blockoverride "icon_visible" {}
 
 				blockoverride "tab_icon"
@@ -521,18 +549,26 @@ window = {
 			vbox = {
 				layoutpolicy_horizontal = expanding
 				datacontext = "[GetIllustration( 'religion_interior' )]"
+				visible = "[Faith.IsValid]"
 
 				### Top Area Background Texture
 				background = {
 					texture = "[Illustration.GetTexture( FaithWindow.GetFaith.MakeScope )]"
 					fittype = centercrop
-					alpha = 0.8
+					alpha = "[Divide_CFixedPoint(Add_CFixedPoint(Faith.GetFervor, '(CFixedPoint)60'),'(CFixedPoint)140')]"
 					using = Mask_Rough_Edges
 
 					modify_texture = {
 						texture = "gfx/interface/component_masks/mask_fade_vertical.dds"
 						blend_mode = alphamultiply
 						alpha = 0.7
+					}
+					modify_texture = {
+						texture = "gfx/interface/component_masks/mask_rough_texture_02.dds"
+						blend_mode = overlay
+						spriteType = Corneredtiled
+						spriteborder = { 15 15 }
+						visible = "[Not(Rite.IsEnabled)]"
 					}
 				}
 
@@ -803,7 +839,7 @@ window = {
 
 						# Rite Hostility
 						vbox = {
-							visible = "[And3( Not( ObjectsEqual( GetPlayer.GetFaith, Faith.Self ) ), GetPlayer.IsValid, Rite.IsVisibleInGui )]"
+							visible = "[And4( Not( ObjectsEqual( GetPlayer.GetRite, Rite.Self ) ), GetPlayer.IsValid, Rite.IsVisibleInGui, Rite.IsEnabled )]"
 							spacing = 4
 
 							expand = {}
@@ -818,7 +854,23 @@ window = {
 									text = "RITE_VIEW_OUR_VIEW"
 									align = right|nobaseline
 									elide = left
-									default_format = "#low"
+									# default_format = "#low"
+									background = {
+										visible = "[EqualTo_string( GetPlayer.GetRite.GetRelationNameTo( Rite.Self ), GetHostilityLevelName('(int32)0'))]"
+										using = Status_Good
+									}
+									background = {
+										visible = "[EqualTo_string( GetPlayer.GetRite.GetRelationNameTo( Rite.Self ), GetHostilityLevelName('(int32)1'))]"
+										using = Status_Highlight
+									}
+									background = {
+										visible = "[EqualTo_string(GetPlayer.GetRite.GetRelationNameTo( Rite.Self ), GetHostilityLevelName('(int32)2'))]"
+										using = Status_Suggestion_Bad
+									}
+									background = {
+										visible = "[EqualTo_string(GetPlayer.GetRite.GetRelationNameTo( Rite.Self ), GetHostilityLevelName('(int32)3'))]"
+										using = Status_Bad
+									}
 								}
 							}
 
@@ -832,7 +884,23 @@ window = {
 									text = "RITE_VIEW_THEIR_VIEW"
 									align = right|nobaseline
 									elide = left
-									default_format = "#low"
+									# default_format = "#low"
+									background = {
+										visible = "[EqualTo_string(Rite.GetRelationNameTo( GetPlayer.GetRite ), GetHostilityLevelName('(int32)0'))]"
+										using = Status_Good
+									}
+									background = {
+										visible = "[EqualTo_string(Rite.GetRelationNameTo( GetPlayer.GetRite ), GetHostilityLevelName('(int32)1'))]"
+										using = Status_Highlight
+									}
+									background = {
+										visible = "[EqualTo_string(Rite.GetRelationNameTo( GetPlayer.GetRite ), GetHostilityLevelName('(int32)2'))]"
+										using = Status_Suggestion_Bad
+									}
+									background = {
+										visible = "[EqualTo_string(Rite.GetRelationNameTo( GetPlayer.GetRite ), GetHostilityLevelName('(int32)3'))]"
+										using = Status_Bad
+									}
 								}
 							}
 
@@ -842,7 +910,7 @@ window = {
 						# Your faith
 						hbox = {
 							datacontext = "[GetPlayer]"
-							visible = "[ObjectsEqual( GetPlayer.GetFaith, Faith.Self )]"
+							visible = "[ObjectsEqual( GetPlayer.GetRite, Rite.Self )]"
 							layoutpolicy_horizontal = expanding
 							layoutpolicy_vertical = expanding
 							spacing = 10
@@ -1251,14 +1319,19 @@ window = {
 					flowcontainer = {
 						name = "doctrines_compact_grid_core_tenets"
 						visible = "[GetVariableSystem.Exists( 'compact_faith_window' )]"
-						margin_bottom = 8
+						# margin_bottom = 8
 
 						datamodel = "[FaithWindow.GetCoreTenetItems]"
-						wrap_count = 3
+						wrap_count = 4
 
 						item = {
 							flowcontainer = {
 								widget_tenet_item_compact = {
+									max_width = 150
+									blockoverride "popularity" {
+										visible = no
+									}
+									scale = 0.9
 									datacontext = "[TenetItem.GetTenet]"
 									datacontext = "[TenetItem.GetFaith]"
 									datacontext = "[TenetItem.GetRite]"
@@ -1270,11 +1343,13 @@ window = {
 			}
 
 			### Sins & Virtues
-			widget_sins_virtues = {}
-
-			spacer = {
-				size = { 0 4 }
+			widget_sins_virtues = {
+				visible = "[Not(IsCompactFaith)]"
 			}
+
+			# spacer = {
+			# 	size = { 0 4 }
+			# }
 
 			### Doctrines
 			scrollbox = {
@@ -1295,6 +1370,10 @@ window = {
 				}
 			}
 
+			widget_sins_virtues = {
+				visible = "[IsCompactFaith]"
+				size = { 100% 44 }
+			}
 			vbox = {
 				layoutpolicy_horizontal = expanding
 
@@ -1727,6 +1806,7 @@ types FaithWindow
 			position = { 0 -5 }
 			size = { 94 132 }
 			texture = "gfx/interface/window_faith/faith_window_header_bg.dds"
+			visible = "[Rite.IsEnabled]"
 		}
 
 		widget_rite_icon = {
@@ -2133,7 +2213,7 @@ types FaithWindow
 		}
 	}
 
-	type widget_sins_virtues = widget {
+	type widget_sins_virtues = vbox {
 		size = { 592 94 }
 		layoutpolicy_horizontal = expanding
 
@@ -2181,6 +2261,7 @@ types FaithWindow
 				position = { 80 -1 }
 				text = "FAITH_WINDOW_SINS"
 				using = Font_Size_Medium
+				default_format = "#glow_color:{1,0,0,1}"
 				align = nobaseline
 			}
 
@@ -2189,6 +2270,7 @@ types FaithWindow
 				position = { -80 -1 }
 				text = "FAITH_WINDOW_VIRTUES"
 				using = Font_Size_Medium
+				default_format = "#glow_color:{0,0,1,1}"
 				align = nobaseline|left
 			}
 
@@ -2206,12 +2288,16 @@ types FaithWindow
 					alwaystransparent = yes
 				}
 			}
+			visible = "[Not(IsCompactFaith)]"
 		}
 
 		### Sins & Virtues | Traits
 		hbox = {
 			name = "sins_and_virtues"
-			margin_top = 40
+			background = {
+				texture = "gfx/interface/window_faith/sin_virtue_banner.dds"
+				visible = "[IsCompactFaith]"
+			}
 			margin_bottom = 5
 			spacing = 5
 
@@ -2527,7 +2613,7 @@ types FaithWindow
 			icon = {
 				visible = "[Not( Rite.GetFaith.GetMainRite.HasTenet( TenetType.Self ) )]"
 				texture = "gfx/interface/icons/faith_tenets/tenet_banner_glow_small.dds"
-				size = { 5 92 }
+				size = { 84 92 }
 				parentanchor = left
 				position = { -6 -3 }
 				color = { 0.85 0.75 0.45 1 }
@@ -2948,7 +3034,7 @@ types FaithWindow
 	type widget_doctrine_group_item = widget {
 		datacontext = "[DoctrineGroupItem.GetSelectedDoctrineItem]"
 		datacontext = "[DoctrineItem.GetDoctrine]"
-		size = { 275 50 }
+		size = { 321 50 }
 
 		background = {
 			using = Background_Area
@@ -3397,7 +3483,7 @@ types FaithWindow
 				layoutpolicy_vertical = expanding
 
 				addrow = 50
-				addcolumn = 275
+				addcolumn = 315
 
 				datamodel_wrap = 2
 				flipdirection = yes
@@ -4487,19 +4573,19 @@ types FaithWindow
 					background = {
 						texture = "[Illustration.GetTexture( Character.MakeScope )]"
 						fittype = centercrop
-						using = Mask_Rough_Edges
+						using = Mask_Background_Header
 						alpha = 0.3
 
 						modify_texture = {
-							texture = "gfx/interface/component_masks/mask_fade_vertical.dds"
+							texture = "gfx/interface/component_masks/mask_fade_horizontal_middle_thick_vertical.dds"
 							blend_mode = alphamultiply
-							mirror = vertical
+							# mirror = vertical
 						}
 					}
 
 					blockoverride "portrait_mask"
 					{
-						mask = "gfx/portraits/portrait_mask_council.dds"
+						mask = "gfx/portraits/portrait_mask_body.dds"
 					}
 
 					blockoverride "portrait_texture"
@@ -4518,6 +4604,24 @@ types FaithWindow
 					blockoverride "status_icons" {}
 
 					blockoverride "grayscale" {}
+					blockoverride "portrait_button_template_onrightclick"
+					{
+						onrightclick = "[DefaultOnCoatOfArmsRightClick(SaintItem.GetLocation.GetTitle.GetID)]"
+						button_ignore = none
+						tooltip_visible = no
+					}
+					blockoverride "portrait_button_template_tooltip"
+					{
+						tooltip_visible = yes
+						tooltipwidget = {
+							cooltip_type = {
+								blockoverride "interaction_info" {
+									text = "GO_TO_RIGHT_CLICK"
+									default_format = "#I"
+								}
+							}
+						}
+					}
 				}
 
 				expand = {}
@@ -5190,7 +5294,7 @@ types FaithWindow
 						text_single = {
 							max_width = 590
 
-							text = "FAITH_VIEW_SUB_WINDOW_SAINTS_HEADER"
+							text = "FAITH_VIEW_SUB_WINDOW_SAINTS_HEADER_CK"
 						}
 
 						expand = {}
@@ -5202,6 +5306,9 @@ types FaithWindow
 
 						blockoverride "scrollbox_content"
 						{
+							background = {
+								texture = "gfx/interface/window_the_christian_church/book_background_floral_pattern.dds"
+							}
 							spacing = 15
 
 							vbox = {
@@ -5215,7 +5322,7 @@ types FaithWindow
 
 								button_expandable_toggle_field = {
 									blockoverride "text" {
-										text = "FAITH_VIEW_SAINTS_IN_YOUR_REALM"
+										text = "FAITH_VIEW_SAINTS_IN_YOUR_REALM_CK"
 									}
 								}
 
@@ -5247,9 +5354,10 @@ types FaithWindow
 
 								button_expandable_toggle_field = {
 									blockoverride "text" {
-										text = "FAITH_VIEW_SAINTS_OUTSIDE_YOUR_REALM"
+										text = "FAITH_VIEW_SAINTS_OUTSIDE_YOUR_REALM_CK"
 									}
 								}
+								# using = Background_Challenger
 
 								flowcontainer = {
 									visible = "[PdxGuiFoldOut.IsUnfolded]"
