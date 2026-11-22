@@ -133,7 +133,7 @@
 			#If you don't have a capital to return to, don't bother
 			exists = capital_province
 			is_physically_able_adult = yes
-			is_playable_character = yes 
+			is_playable_character = yes
 			#Invalidate flag, until/unless this is fixed in code
 			NOT = { has_variable = pilgrimage_invalidated_illness }
 			#Don't change your capital to be the holy site destination
@@ -347,7 +347,7 @@
 		# Is it a unique holy site? (does it have bespoke events, even if minor)
 		triggered_desc = {
 			trigger = {
-				OR = {
+				OR = { ## CK_JUMNE CK_RELIGION CK_NORD - Need to add/change with addition of new regions
 					#Taken from the Pilgrimage arrival on_action event triggers
 					# Calradian
 					AND = {
@@ -714,34 +714,34 @@
 			}
 		}
 		if = {
-        	limit = {
+			limit = {
 				has_pam_dlc_trigger = yes
 				faith = { has_variable = pam_secured_pilgrim_routes }
-        	}
-        	add = {
+			}
+			add = {
 				value = 10
 				desc = pam_secure_pilgrim_routes_ai_pilgrimage
-        	}
-    	}
+			}
+		}
 		add = activity_general_ai_will_do_value
 		if = {
-    	    limit = {
+			limit = {
 				has_character_modifier = promised_pilgrimage_to_clergy_modifier
-    	    }
-    	    add = {
+			}
+			add = {
 				value = 1000
 				desc = promised_pilgrimage_to_clergy_modifier
-    	    }
-    	}
-    	if = {
-    	    limit = {
+			}
+		}
+		if = {
+			limit = {
 				has_character_modifier = pam_sf_demon_torment_modifier
-    	    }
-    	    add = {
+			}
+			add = {
 				value = 1000
 				desc = pam_sf_demon_torment_modifier
-    	    }
-    	}
+			}
+		}
 	}
 
 	ai_check_interval_by_tier = {
@@ -850,15 +850,15 @@
 			}
 		}
 		# Plague
-    	if = {
+		if = {
 			limit = {
 				any_province_epidemic = { }
-    	    }
-    	    add = {
-    	        value = -200
-    	        desc = "Plague in Destination"
-    	    }
-    	}
+			}
+			add = {
+				value = -200
+				desc = "Plague in Destination"
+			}
+		}
 	}
 
 	###################
@@ -929,7 +929,7 @@
 							"squared_distance(root.capital_province)" > squared_distance_small
 							"squared_distance(root.capital_province)" <= squared_distance_medium
 						}
-			add = {
+						add = {
 							value = root.medium_gold_value 
 							multiply = 0.2
 						}
@@ -940,7 +940,7 @@
 							"squared_distance(root.capital_province)" > squared_distance_medium
 							"squared_distance(root.capital_province)" <= squared_distance_large
 						}
-				add = {
+						add = {
 							value = root.medium_gold_value 
 							multiply = 0.4
 						}
@@ -950,8 +950,8 @@
 						limit = {
 							"squared_distance(root.capital_province)" > squared_distance_large
 							"squared_distance(root.capital_province)" <= squared_distance_huge
-				}
-				add = {
+						}
+						add = {
 							value = root.medium_gold_value 
 							multiply = 0.6
 						}
@@ -1014,136 +1014,137 @@
 				# Ensure that we never drop to 0
 				min = 1
 			}
+			if = {
+				limit = {
+					dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
+				}
+				multiply = ep2_activities_legacy_1_pilgrimages_discount_value
+			}
 
 			add = { # Base cost, scaled by era
-					value = pilgrimage_base_cost
-					multiply = activity_cost_scale_by_era
-				}
+				value = pilgrimage_base_cost
+				multiply = activity_cost_scale_by_era
+			}
 			
 			# Options 
-			add = { # Pomp Option 
+			add = { # Pomp Option
 				value = 0 # Appropriate Cost
-				add = -10 # Humble Cost
-				add = 50 # Ceremonial Cost
-				add = 100 # Throng Cost
 				# Scale option costs by tier and era
 				multiply = activity_cost_scale_by_tier
 				multiply = activity_cost_scale_by_era
-				# Divide by the number of option levels to get an average option cost
-				divide = 4
 			}
 
-				if = {
-					limit = { has_character_modifier = ghost_pilgrimage_promised_modifier }
-					subtract = {
-						value = medium_gold_value
-						desc = pilgrimage_cost_triggered_by_ghosts
-					}
+			if = {
+				limit = { has_character_modifier = ghost_pilgrimage_promised_modifier }
+				subtract = {
+					value = medium_gold_value
+					desc = pilgrimage_cost_triggered_by_ghosts
 				}
-				# #You should really only have this flag if your religion has Hajj and you've never Hajj'd
-				# if = {
-				# 	limit = { has_character_modifier = hajj_promised_modifier }
-				# 	subtract = {
-				# 		value = medium_gold_value
-				# 		desc = pilgrimage_cost_triggered_by_dead_hajj_relative
-				# 	}
-				# }
-				#You should really only have this flag if you haven't Pilgrim'd before
-				if = {
-					limit = { has_character_modifier = pilgrimage_promised_modifier }
-					subtract = {
-						value = medium_gold_value
-						desc = pilgrimage_cost_triggered_by_dead_pilgrimage_relative
-					}
+			}
+			#You should really only have this flag if your religion has Hajj and you've never Hajj'd
+			#if = {
+			#	limit = { has_character_modifier = hajj_promised_modifier }
+			#	subtract = {
+			#		value = medium_gold_value
+			#		desc = pilgrimage_cost_triggered_by_dead_hajj_relative
+			#	}
+			#}
+			#You should really only have this flag if you haven't Pilgrim'd before
+			if = {
+				limit = { has_character_modifier = pilgrimage_promised_modifier }
+				subtract = {
+					value = medium_gold_value
+					desc = pilgrimage_cost_triggered_by_dead_pilgrimage_relative
 				}
-				if = {
-					limit = {
-						dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
-					}
-					subtract = {
-						value = pilgrimage_base_cost
-						multiply = ep2_activities_legacy_1_pilgrimages_discount_value
-						desc = ep2_activities_legacy_track
-					}
+			}
+			if = {
+				limit = {
+					dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
 				}
-				#court.8140
-				if = {
-					limit = {
-						has_character_flag = court_event_discount_pilgrimage
-					}
-					multiply = {
-						value = 0.75
-					}
+				subtract = {
+					value = pilgrimage_base_cost
+					multiply = ep2_activities_legacy_1_pilgrimages_discount_value
+					desc = ep2_activities_legacy_track
 				}
+			}
+			#court.8140
+			if = {
+				limit = {
+					has_character_flag = court_event_discount_pilgrimage
+				}
+				multiply = {
+					value = 0.75
+				}
+			}
 			# By God Alone - Secular Faith & Rite: a sponsored pilgrimage (0042) halves every cost.
-				if = {
-					limit = {
+			if = {
+				limit = {
 					has_character_modifier = pam_sf_pilgrimage_funded_modifier
-					}
-					multiply = {
+				}
+				multiply = {
 					value = 0.5
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						has_fulfillment_parameter = sp_cheaper_pilgrimage_major
+						has_fulfillment_parameter = sp_cheaper_pilgrimage
 					}
 				}
-				if = {
-					limit = {
-						OR = {
-							has_fulfillment_parameter = sp_cheaper_pilgrimage_major
-							has_fulfillment_parameter = sp_cheaper_pilgrimage
-						}
-					}
-					multiply = {
-						value = spiritual_fulfillment_pilgrimage_cost_mult
-					}
+				multiply = {
+					value = spiritual_fulfillment_pilgrimage_cost_mult
 				}
-				if = {
-					limit = {
+			}
+			if = {
+				limit = {
 					has_government = landless_adventurer_government
 					has_perk = clerical_justifications_perk
-					}
-					multiply = {
+				}
+				multiply = {
 					value = 0.25
 					desc = adventurer_discount_desc
-					}
 				}
-				if = {
-					limit = {
-						rite = { rite_has_parameter = local_shrine_offering }
-					}
-					multiply = {
-						value = 1.75
-						desc = doctrine_pilgrimage_local_rites_name
-					}
+			}
+			if = {
+				limit = {
+					rite = { rite_has_parameter = local_shrine_offering }
 				}
-				if = {
-					limit = {
-						confederation ?= { has_cohesion_level_parameter = any_member_activity_cost_reduced }
-					}
-					multiply = {
-						value = 0.9
-						desc = CB_COHESION_PARAMETER_DISCOUNT
-					}
+				multiply = {
+					value = 1.75
+					desc = doctrine_pilgrimage_local_rites_name
 				}
-				if = {
-					limit = {
-						var:tgp_ceremonial_liege_events_0020_discount ?= flag:pilgrimage
-					}
-					multiply = {
-						value = 0.85
-						desc = tgp_ceremonial_liege_events_0020_discount_desc
-					}
+			}
+			if = {
+				limit = {
+					confederation ?= { has_cohesion_level_parameter = any_member_activity_cost_reduced }
 				}
+				multiply = {
+					value = 0.9
+					desc = CB_COHESION_PARAMETER_DISCOUNT
+				}
+			}
+			if = {
+				limit = {
+					var:tgp_ceremonial_liege_events_0020_discount ?= flag:pilgrimage
+				}
+				multiply = {
+					value = 0.85
+					desc = tgp_ceremonial_liege_events_0020_discount_desc
+				}
+			}
 			min = minor_gold_value
 			
 			# Make it a multiple of 5 (rounded up)
 			divide = 5
 			ceiling = yes 
 			multiply = 5
-				if = {
-					limit = { 
+			if = {
+				limit = {
 					has_title = title:e_minister_of_revenue
-					}
-				multiply = 0.85
 				}
+				multiply = 0.85
+			}
 		
 			}
 		}
@@ -1254,6 +1255,12 @@
 				# Ensure that we never drop to 0
 				min = 1
 			}
+			if = {
+				limit = {
+					dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
+				}
+				multiply = ep2_activities_legacy_1_pilgrimages_discount_value
+			}
 
 			add = { # Base cost, scaled by era
 				value = pilgrimage_base_cost
@@ -1261,16 +1268,11 @@
 			}
 			
 			# Options 
-			add = { # Pomp Option 
+			add = { # Pomp Option
 				value = 0 # Appropriate Cost
-				add = -10 # Humble Cost
-				add = 50 # Ceremonial Cost
-				add = 100 # Throng Cost
 				# Scale option costs by tier and era
 				multiply = activity_cost_scale_by_tier
 				multiply = activity_cost_scale_by_era
-				# Divide by the number of option levels to get an average option cost
-				divide = 4
 			}
 
 			if = {
@@ -1484,7 +1486,7 @@
 					custom_tooltip = {
 						text = activity_pilgrimage.is_valid.other.mandatory_or_impatient
 						OR = {
-								rite = { rite_has_parameter = mandatory_pilgrimage }
+							rite = { rite_has_parameter = mandatory_pilgrimage }
 							has_trait = impatient
 						}
 					}
@@ -1631,25 +1633,25 @@
 							value = 0
 						}
 						else = {
-						subtract = {
-							desc = pilgrimage_cost_pomp_ceremonial
-							add = {
-								value = 10
+							subtract = {
 								desc = pilgrimage_cost_pomp_ceremonial
+								add = {
+									value = 7
+									desc = pilgrimage_cost_pomp_ceremonial
+								}
+								add = {
+									value = 7 
+									multiply = activity_cost_scale_by_tier
+									subtract = 7
+									desc = activity_cost_scale_by_tier_desc
+								}
+								add = {
+									value = 7 
+									multiply = activity_cost_scale_by_era
+									subtract = 7 
+									desc = activity_cost_scale_by_era_desc
+								}
 							}
-							add = {
-								value = 10 
-								multiply = activity_cost_scale_by_tier
-								subtract = 10
-								desc = activity_cost_scale_by_tier_desc
-							}
-							add = {
-								value = 10 
-								multiply = activity_cost_scale_by_era
-								subtract = 10 
-								desc = activity_cost_scale_by_era_desc
-							}
-						}
 						}
 					}
 					treasury = {
@@ -1658,7 +1660,7 @@
 								OR = {
 									has_treasury = no
 									NOT = { government_has_flag = government_is_theocracy }
-							}
+								}
 							}
 							value = 0
 						}
@@ -1666,19 +1668,19 @@
 							subtract = {
 								desc = pilgrimage_cost_pomp_ceremonial
 								add = {
-									value = 10
+									value = 7
 									desc = pilgrimage_cost_pomp_ceremonial
 								}
 								add = {
-									value = 10 
+									value = 7 
 									multiply = activity_cost_scale_by_tier
-									subtract = 10
+									subtract = 7
 									desc = activity_cost_scale_by_tier_desc
 								}
 								add = {
-									value = 10 
+									value = 7 
 									multiply = activity_cost_scale_by_era
-									subtract = 10 
+									subtract = 7 
 									desc = activity_cost_scale_by_era_desc
 								}
 							}
@@ -1746,19 +1748,19 @@
 							add = {
 								desc = pilgrimage_cost_pomp_ceremonial
 								add = {
-									value = 50
+									value = 33
 									desc = pilgrimage_cost_pomp_ceremonial
 								}
 								add = {
-									value = 50 
+									value = 33 
 									multiply = activity_cost_scale_by_tier
-									subtract = 50
+									subtract = 33
 									desc = activity_cost_scale_by_tier_desc
 								}
 								add = {
-									value = 50 
+									value = 33 
 									multiply = activity_cost_scale_by_era
-									subtract = 50 
+									subtract = 33 
 									desc = activity_cost_scale_by_era_desc
 								}
 								if = {
@@ -1766,7 +1768,7 @@
 										dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
 									}
 									subtract = {
-										value = 50
+										value = 33
 										multiply = ep2_activities_legacy_1_pilgrimages_discount_value
 										desc = ep2_activities_legacy_track
 									}
@@ -1804,41 +1806,41 @@
 							value = 0
 						}
 						else = {
-						add = {
-							desc = pilgrimage_cost_pomp_ceremonial
 							add = {
-								value = 50
 								desc = pilgrimage_cost_pomp_ceremonial
-							}
-							add = {
-								value = 50 
-								multiply = activity_cost_scale_by_tier
-								subtract = 50
-								desc = activity_cost_scale_by_tier_desc
-							}
-							add = {
-								value = 50 
-								multiply = activity_cost_scale_by_era
-								subtract = 50 
-								desc = activity_cost_scale_by_era_desc
-							}
-							if = {
-								limit = {
-									dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
+								add = {
+									value = 33
+									desc = pilgrimage_cost_pomp_ceremonial
 								}
-								subtract = {
-									value = 50
-									multiply = ep2_activities_legacy_1_pilgrimages_discount_value
-									desc = ep2_activities_legacy_track
+								add = {
+									value = 33 
+									multiply = activity_cost_scale_by_tier
+									subtract = 33
+									desc = activity_cost_scale_by_tier_desc
 								}
-							}
-							if = {
-								limit = {
-									has_perk = journey_planner_perk
+								add = {
+									value = 33 
+									multiply = activity_cost_scale_by_era
+									subtract = 33 
+									desc = activity_cost_scale_by_era_desc
 								}
-								multiply = {
-									value = voyager_journey_planner_value
-									desc = journey_planner_perk_name
+								if = {
+									limit = {
+										dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
+									}
+									subtract = {
+										value = 33
+										multiply = ep2_activities_legacy_1_pilgrimages_discount_value
+										desc = ep2_activities_legacy_track
+									}
+								}
+								if = {
+									limit = {
+										has_perk = journey_planner_perk
+									}
+									multiply = {
+										value = voyager_journey_planner_value
+										desc = journey_planner_perk_name
 									}
 								}
 								# By God Alone - Secular Faith & Rite: a sponsored pilgrimage (0042) halves this pomp cost.
@@ -1891,43 +1893,43 @@
 							value = 0
 						}
 						else = {
-						add = {
-							desc = pilgrimage_cost_pomp_throng
 							add = {
-								value = 100
 								desc = pilgrimage_cost_pomp_throng
-							}
-							add = {
-								value = 100 
-								multiply = activity_cost_scale_by_tier
-								subtract = 100
-								desc = activity_cost_scale_by_tier_desc
-							}
-							add = {
-								value = 100 
-								multiply = activity_cost_scale_by_era
-								subtract = 100 
-								desc = activity_cost_scale_by_era_desc
-							}
-							if = {
-								limit = {
-									dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
+								add = {
+									value = 67
+									desc = pilgrimage_cost_pomp_throng
 								}
-								subtract = {
-									value = 100
-									multiply = ep2_activities_legacy_1_pilgrimages_discount_value
-									desc = ep2_activities_legacy_track
+								add = {
+									value = 67 
+									multiply = activity_cost_scale_by_tier
+									subtract = 67
+									desc = activity_cost_scale_by_tier_desc
 								}
-							}
-							if = {
-								limit = {
-									has_perk = journey_planner_perk
+								add = {
+									value = 67 
+									multiply = activity_cost_scale_by_era
+									subtract = 67 
+									desc = activity_cost_scale_by_era_desc
 								}
-								multiply = {
-									value = voyager_journey_planner_value
-									desc = journey_planner_perk_name
+								if = {
+									limit = {
+										dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
+									}
+									subtract = {
+										value = 67
+										multiply = ep2_activities_legacy_1_pilgrimages_discount_value
+										desc = ep2_activities_legacy_track
+									}
 								}
-							}
+								if = {
+									limit = {
+										has_perk = journey_planner_perk
+									}
+									multiply = {
+										value = voyager_journey_planner_value
+										desc = journey_planner_perk_name
+									}
+								}
 								# By God Alone - Secular Faith & Rite: a sponsored pilgrimage (0042) halves this pomp cost.
 								if = {
 									limit = {
@@ -1955,19 +1957,19 @@
 							add = {
 								desc = pilgrimage_cost_pomp_throng
 								add = {
-									value = 100
+									value = 67
 									desc = pilgrimage_cost_pomp_throng
 								}
 								add = {
-									value = 100 
+									value = 67 
 									multiply = activity_cost_scale_by_tier
-									subtract = 100
+									subtract = 67
 									desc = activity_cost_scale_by_tier_desc
 								}
 								add = {
-									value = 100 
+									value = 67 
 									multiply = activity_cost_scale_by_era
-									subtract = 100 
+									subtract = 67 
 									desc = activity_cost_scale_by_era_desc
 								}
 								if = {
@@ -1975,7 +1977,7 @@
 										dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
 									}
 									subtract = {
-										value = 100
+										value = 67
 										multiply = ep2_activities_legacy_1_pilgrimages_discount_value
 										desc = ep2_activities_legacy_track
 									}
@@ -2038,7 +2040,7 @@
 			is_predefined = yes
 
 			cost = {
-				gold = {
+								gold = {
 					if = {
 						limit = {
 							government_has_flag = government_is_theocracy
@@ -2147,6 +2149,15 @@
 							multiply = {
 								value = 0.5
 								desc = pam_sf_pilgrimage_funded_discount_desc
+							}
+						}
+						if = {
+							limit = {
+								dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
+							}
+							multiply = {
+								value = ep2_activities_legacy_1_pilgrimages_discount_value
+								desc = ep2_activities_legacy_track
 							}
 						}
 					}
@@ -2264,6 +2275,15 @@
 							multiply = {
 								value = 0.5
 								desc = pam_sf_pilgrimage_funded_discount_desc
+							}
+						}
+						if = {
+							limit = {
+								dynasty ?= { has_dynasty_perk = ep2_activities_legacy_1 }
+							}
+							multiply = {
+								value = ep2_activities_legacy_1_pilgrimages_discount_value
+								desc = ep2_activities_legacy_track
 							}
 						}
 					}
@@ -2743,118 +2763,118 @@
 
 		#Set up Hajj memories
 		#Otherwise set up Pilgrimage memories
-		#For the follow-up reflective event when back home, triggered through travel_plan_completion on_action
-		set_variable = {
-			name = has_completed_pilgrimage
-			value = flag:pilgrimage
-		}
-		if = {
-			limit = { var:has_completed_pilgrimage ?= flag:pilgrimage }
-			#To prevent 'unused except in loc' errors :catto:
-		}
-		#Create a memory of your very first pilgrimage
-		if = {
-			limit = { 
-				NOT = {
-					any_memory = {
-						memory_type = completed_pilgrimage
-						has_variable = first_pilgrimage
-					}
-				}
-			}
-			create_character_memory = { type = completed_pilgrimage }
-			scope:new_memory = {
-				set_variable = {
-					name = first_pilgrimage
-					value = flag:completed_pilgrimage
-				}
-				set_variable = {
-					name = pilgrimage_destination
-					value = scope:activity.activity_location
-				}
+			#For the follow-up reflective event when back home, triggered through travel_plan_completion on_action
+			set_variable = {
+				name = has_completed_pilgrimage
+				value = flag:pilgrimage
 			}
 			if = {
-				limit = { exists = var:pilgrimage_distance }
+				limit = { var:has_completed_pilgrimage ?= flag:pilgrimage }
+				#To prevent 'unused except in loc' errors :catto:
+			}
+			#Create a memory of your very first pilgrimage
+			if = {
+				limit = { 
+					NOT = {
+						any_memory = {
+							memory_type = completed_pilgrimage
+							has_variable = first_pilgrimage
+						}
+					}
+				}
+				create_character_memory = { type = completed_pilgrimage }
 				scope:new_memory = {
 					set_variable = {
-						name = pilgrimage_length
-						value = scope:activity.var:pilgrimage_distance
-					} 
-					if = {
-						limit = { exists = var:pilgrimage_length }
-						#To prevent 'unused except in loc' errors :catto:
-					}
-				}
-			}
-		}
-		#Creates a character memory of the completed pilgrimage with your friend
-		else_if = {
-			limit = { exists = scope:activity.var:friend_companion }
-			create_character_memory = {
-				type = completed_pilgrimage_friend 
-				participants = { friend = scope:activity.var:friend_companion }
-			}
-			scope:new_memory = {
-				set_variable = {
-					name = pilgrimage_destination
-					value = scope:activity.activity_location
-				} 
-			}
-		}
-		#Creates a character memory of the completed pilgrimage
-		else = {
-			create_character_memory = { type = completed_pilgrimage }
-			scope:new_memory = {
-				set_variable = {
-					name = pilgrimage_destination
-					value = scope:activity.activity_location
-				}
-				#Save type of pilgrimage for loc - Pious/Worldly
-				if = {
-					limit = {
-						scope:activity = {
-							has_activity_option = {
-								category = special_type
-								option = pilgrimage_type_pious
-							}
-						}
+						name = first_pilgrimage
+						value = flag:completed_pilgrimage
 					}
 					set_variable = {
-						name = memory_type_of_pilgrimage
-						value = flag:pious
-					}
-				}
-				else_if = {
-					limit = {
-						scope:activity = {
-							has_activity_option = {
-								category = special_type
-								option = pilgrimage_type_worldly
-							}
-						}
-					}
-					set_variable = {
-						name = memory_type_of_pilgrimage
-						value = flag:worldly
+						name = pilgrimage_destination
+						value = scope:activity.activity_location
 					}
 				}
 				if = {
 					limit = { exists = var:pilgrimage_distance }
-					set_variable = {
-						name = pilgrimage_length
-						value = scope:activity.var:pilgrimage_distance
-					} 
-					if = {
-						limit = { exists = var:pilgrimage_length }
-						#To prevent 'unused except in loc' errors :catto:
+					scope:new_memory = {
+						set_variable = {
+							name = pilgrimage_length
+							value = scope:activity.var:pilgrimage_distance
+						} 
+						if = {
+							limit = { exists = var:pilgrimage_length }
+							#To prevent 'unused except in loc' errors :catto:
+						}
 					}
 				}
-				if = {
-					limit = { exists = var:memory_type_of_pilgrimage }
-					#To prevent 'unused except in loc' errors :catto:
+			}
+			#Creates a character memory of the completed pilgrimage with your friend
+			else_if = {
+				limit = { exists = scope:activity.var:friend_companion }
+				create_character_memory = {
+					type = completed_pilgrimage_friend 
+					participants = { friend = scope:activity.var:friend_companion }
 				}
-			}	
-		}
+				scope:new_memory = {
+					set_variable = {
+						name = pilgrimage_destination
+						value = scope:activity.activity_location
+					} 
+				}
+			}
+			#Creates a character memory of the completed pilgrimage
+			else = {
+				create_character_memory = { type = completed_pilgrimage }
+				scope:new_memory = {
+					set_variable = {
+						name = pilgrimage_destination
+						value = scope:activity.activity_location
+					}
+					#Save type of pilgrimage for loc - Pious/Worldly
+					if = {
+						limit = {
+							scope:activity = {
+								has_activity_option = {
+									category = special_type
+									option = pilgrimage_type_pious
+								}
+							}
+						}
+						set_variable = {
+							name = memory_type_of_pilgrimage
+							value = flag:pious
+						}
+					}
+					else_if = {
+						limit = {
+							scope:activity = {
+								has_activity_option = {
+									category = special_type
+									option = pilgrimage_type_worldly
+								}
+							}
+						}
+						set_variable = {
+							name = memory_type_of_pilgrimage
+							value = flag:worldly
+						}
+					}
+					if = {
+						limit = { exists = var:pilgrimage_distance }
+						set_variable = {
+							name = pilgrimage_length
+							value = scope:activity.var:pilgrimage_distance
+						} 
+						if = {
+							limit = { exists = var:pilgrimage_length }
+							#To prevent 'unused except in loc' errors :catto:
+						}
+					}
+					if = {
+						limit = { exists = var:memory_type_of_pilgrimage }
+						#To prevent 'unused except in loc' errors :catto:
+					}
+				}	
+			}
 		
 		# Keep holy-site cooldown tracking unified across all pilgrimage completion memories.
 		if = {
@@ -3026,11 +3046,7 @@
 		trigger = {
 			scope:host.location != scope:activity.activity_location
 			scope:host.location = {
-				terrain = farmlands
-				OR = {
-					terrain = terraced_hills
-					has_building_or_higher = paddy_fields_01
-				}
+				has_rice_fields_district = yes
 			}
 		}
 		texture = "gfx/interface/illustrations/event_scenes/tgp_rice_fields.dds"
@@ -3624,9 +3640,7 @@
 				}
 			}
 
-			scripted_animation = {
-				animation = jockey_walk
-			}
+			scripted_animation = horse_camel_activity_travel_animation
 		}
 
 		pilgrim = { # Travel
@@ -3645,9 +3659,7 @@
 				}
 			}
 
-			scripted_animation = {
-				animation = jockey_walk
-			}
+			scripted_animation = horse_camel_activity_travel_animation
 		}
 		
 		host = {
@@ -3703,13 +3715,7 @@
 					}
 				}
 			}
-			scripted_animation = {
-				triggered_animation = {
-					trigger = { scope:character = { has_trait = impatient } }
-					animation = { jockey_gallop }
-				}
-				animation = jockey_walk
-			}
+			scripted_animation = horse_camel_activity_travel_animation
 		}
 
 		pilgrim = {
@@ -3810,9 +3816,7 @@
 				}
 			}
 
-			scripted_animation = {
-				animation = jockey_walk
-			}
+			scripted_animation = horse_camel_activity_travel_animation
 		}
 
 		pilgrim = { # Travel
@@ -3839,9 +3843,7 @@
 				}
 			}
 
-			scripted_animation = {
-				animation = jockey_walk
-			}
+			scripted_animation = horse_camel_activity_travel_animation
 		}
 	}
 }
