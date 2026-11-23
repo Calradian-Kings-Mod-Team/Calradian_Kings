@@ -1,0 +1,1011 @@
+﻿displace_guelph_ghibelline_ruler_cb = {
+	icon = guelph_ghibelline_cb
+	group = guelph_ghibelline
+	combine_into_one = yes
+	ai_only_against_neighbors = yes
+	allow_hostages = no
+	should_show_war_goal_subview = no
+
+	# scope:attacker
+	allowed_for_character = {
+		always = no
+	}
+	
+	# scope:defender
+	allowed_against_character = {
+		always = no
+	}
+
+	cost = {
+		piety = {
+			value = 0
+			add = common_cb_impious_piety_cost
+		}
+		prestige = {
+			value = minor_prestige_value
+			multiply = common_cb_prestige_cost_multiplier
+		}
+	}
+
+	should_invalidate = {
+		OR = {
+			NOT = { exists = situation:guelph_ghibelline }
+			scope:defender = {
+				#Invalidate if the defender is on the attacker's side or Undecided
+				trigger_if = {
+					limit = {
+						scope:attacker = { is_guelph_trigger = yes }
+					}
+					is_ghibelline_trigger = no
+				}
+				trigger_else_if = {
+					limit = {
+						scope:attacker = { is_ghibelline_trigger = yes }
+					}
+					is_guelph_trigger = no
+				}
+				trigger_else = {
+					always = no
+				}
+			}
+		}	
+	}
+
+	on_invalidated_desc = {
+		desc = displace_guelph_ghibelline_ruler_cb_ended_invalid.desc
+	}
+
+	on_declaration = {
+		on_declared_war = yes
+	}
+
+	on_victory_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:defender = {
+						any_vassal = {
+							trigger_if = {
+								limit = {
+									scope:attacker = { is_guelph_trigger = yes }
+								}
+								is_guelph_trigger = yes
+							}
+							trigger_else = { is_ghibelline_trigger = yes }
+						}
+					}
+				}
+				desc = displace_guelph_ghibelline_ruler_cb_victory_vassal_desc
+			}
+			desc = displace_guelph_ghibelline_ruler_cb_victory_other_desc
+		}	
+	}
+
+	on_victory = {
+		on_victory_aggressive_war_effect = yes
+
+		scope:attacker = { 
+			#EP2 Accolade glory gain from winning against higher ranked enemy
+			accolade_attacker_war_end_glory_gain_low_effect = yes
+
+			add_prestige = scope:defender.tier_scaled_prestige_value
+		}
+		scope:defender = {
+			if = {
+				limit = { 
+					any_vassal = {
+						trigger_if = {
+							limit = {
+								scope:attacker = { is_guelph_trigger = yes }
+							}
+							is_guelph_trigger = yes
+						}
+						trigger_else = { is_ghibelline_trigger = yes }
+					}
+				}
+				ordered_vassal = {
+					limit = {
+						trigger_if = {
+							limit = {
+								scope:attacker = { is_guelph_trigger = yes }
+							}
+							is_guelph_trigger = yes
+						}
+						trigger_else = { is_ghibelline_trigger = yes }
+					}
+					save_scope_as = target_character
+				}
+			}
+			else = {
+				custom_tooltip = {
+					text = displace_gg_ruler_created_character_tt
+					primary_title = { save_scope_as = target_title }
+					#Create a loyalist
+					create_character = {
+						template = gg_ruler_template
+						location = scope:target_title.title_province
+						save_scope_as = target_character
+					}
+					scope:target_character ?= {
+						if = {
+							limit = {
+								scope:attacker = { is_guelph_trigger = yes }
+							}
+							set_variable = guelph_member_override
+						}
+						else = { set_variable = ghibelline_member_override }
+						set_variable = is_created_by_displacement_cb
+					}
+				}
+			}
+			every_held_title = {
+				title_tier >= county
+				limit = { is_noble_family_title = no }
+				add_to_list = target_titles
+				save_temporary_scope_as = title_to_add
+				scope:defender = {
+					add_to_variable_list = {
+						name = gg_displaced_titles
+						target = scope:title_to_add
+					}
+				}
+			}
+			if = {
+				limit = { is_guelph_trigger = yes }
+				set_variable = {
+					name = displaced_guelph_ruler
+					value = scope:attacker
+				}
+				situation:guelph_ghibelline = {
+					add_to_variable_list = {
+						name = displaced_guelph_rulers
+						target = scope:defender
+					}
+				}
+			}
+			else = {
+				set_variable = {
+					name = displaced_ghibelline_ruler
+					value = scope:attacker
+				}
+				situation:guelph_ghibelline = {
+					add_to_variable_list = {
+						name = displaced_ghibelline_rulers
+						target = scope:defender
+					}
+				}
+			}
+			set_variable = {
+				name = displaced_gg_primary_title
+				value = primary_title
+			}
+		}
+		create_title_and_vassal_change = {
+			type = conquest
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		# Create a claim CB which is executed to handle title/vassal changes, in addition to being used to calculate Prestige awards for war participants.
+		setup_claim_cb = {
+			titles = target_titles
+			attacker = scope:attacker
+			defender = scope:defender
+			claimant = scope:target_character
+			change = scope:change
+		}
+		scope:target_character ?= {
+			if = {
+				limit = { exists = var:is_created_by_displacement_cb }
+				becomes_independent = { change = scope:change }
+			}
+			set_variable = {
+				name = has_received_gg_displacement_titles_from #To check for the Reinstate CB
+				value = scope:defender
+			}
+			set_variable = {
+				name = primary_gg_displacement_title
+				value = scope:defender.primary_title
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+
+		scope:defender = { 
+			depose = yes
+			hidden_effect = { move_to_pool = yes }
+		}
+			
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:attacker
+			FAME_BASE = major_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_victory_effect = yes
+	}
+
+	on_white_peace_desc = {
+		desc = displace_guelph_ghibelline_ruler_cb_white_peace_desc
+	}
+
+	on_white_peace = {
+		on_white_peace_effect = yes
+
+		# Create a 'helper' claim CB which we won't execute, but can use to determine how much Prestige should be given to war participants.
+		setup_invasion_cb = {
+			titles = target_titles
+			attacker = scope:attacker
+			defender = scope:defender
+			victory = no
+		}
+
+		scope:attacker = {
+			# Prestige loss for the attacker
+			add_prestige = {
+				value = minor_prestige_value
+				multiply = -1.0
+			}
+		}
+
+		#EP2 accolade glory gain for doing ok against higher ranked enemy
+		scope:defender = { 
+			accolade_defender_war_end_glory_gain_low_effect = yes
+		}
+
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:attacker # Not important as the scales are identical
+			FAME_BASE = minor_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_white_peace_effect = yes
+	}
+
+	on_defeat_desc = {
+		desc = displace_guelph_ghibelline_ruler_cb_defeat_desc
+	}
+
+	on_defeat = {
+		on_defeat_aggressive_war_effect = yes
+		# Create a 'helper' claim CB which we won't execute, but can use to determine how much Prestige should be given to war participants.
+		setup_invasion_cb = {
+			titles = target_titles
+			attacker = scope:attacker
+			defender = scope:defender
+			victory = no
+		}
+
+		scope:attacker = {
+			pay_short_term_gold_reparations_effect = {
+				GOLD_VALUE = 3
+			}
+			# Prestige loss for the attacker
+			add_prestige = {
+				value = major_prestige_value
+				multiply = -1.0
+			}
+		}
+		scope:defender = { 
+			#EP2 accolade glory gain for winning against higher ranked enemy
+			accolade_defender_war_end_glory_gain_high_effect = yes
+			# Prestige for Defender
+			add_prestige_war_defender_effect = {
+				PRESTIGE_VALUE = medium_prestige_value
+			}
+		}
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:defender
+			FAME_BASE = major_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_defeat_effect = yes
+	}
+
+	on_primary_attacker_death = inherit
+	on_primary_defender_death = inherit
+
+	attacker_allies_inherit = yes
+	defender_allies_inherit = yes
+
+	war_name = "DISPLACE_GUELPH_GHIBELLINE_RULER_WAR_NAME"
+	war_name_base = "DISPLACE_GUELPH_GHIBELLINE_RULER_WAR_NAME_BASE"
+	cb_name = "DISPLACE_GUELPH_GHIBELLINE_RULER_CB_NAME"
+	interface_priority = 80
+
+	ticking_war_score_targets_entire_realm = yes
+	attacker_ticking_warscore = 0.01
+	attacker_wargoal_percentage = 0.01
+	attacker_score_from_occupation_scale = 50
+	defender_score_from_occupation_scale = 50
+	attacker_score_from_battles_scale = 250
+	defender_score_from_battles_scale = 250
+
+	max_attacker_score_from_battles = 200
+	max_defender_score_from_battles = 200
+	
+	max_defender_score_from_occupation = 50
+	max_attacker_score_from_occupation = 50
+
+	max_ai_diplo_distance_to_title = 500
+	
+	ai_score = {
+		value = displace_gg_ai_score_value
+	}
+	ai_score_mult = {
+		value = 1
+		add = common_cb_ai_score_mult_additive
+		multiply = aggressive_cb_ai_score_mult
+		multiply = common_cb_ai_score_mult
+	}
+}
+
+
+reinstate_guelph_ghibelline_ruler_cb = {
+	icon = guelph_ghibelline_cb
+	group = guelph_ghibelline
+	combine_into_one = yes
+	ai_only_against_neighbors = yes
+	allow_hostages = no
+	should_show_war_goal_subview = no
+
+	allowed_for_character = {
+		always = no
+	}
+
+	cost = {
+		piety = {
+			value = 0
+			add = common_cb_impious_piety_cost
+		}
+		prestige = {
+			value = 0
+			add = claim_cb_prestige_cost
+			multiply = common_cb_prestige_cost_multiplier
+
+			if = {
+				limit = {
+					scope:attacker = {
+						has_character_flag = temp_no_claim_war_cost
+					}
+				}
+				multiply = {
+					value = 0
+					desc = "free_cost" # Says 'free'
+				}
+			}
+
+			# LEGITIMACY AFFECTS COST
+			multiply = claim_cb_cost_multiplier_legitimacy
+		}
+	}
+
+	on_declaration = {
+		on_declared_war = yes
+		save_attacker_exiled_courtier_scope_effect = yes
+		scope:war ?= {
+			set_variable = {
+				name = ongoing_gg_reinstatement_war_claimant
+				value = scope:exiled_courtier
+			}
+		}
+	}
+
+	should_invalidate = {
+		OR = {
+			NOT = { exists = situation:guelph_ghibelline }
+			scope:defender = {
+				#Invalidate if the defender is on the attacker's side or Undecided
+				trigger_if = {
+					limit = {
+						scope:attacker = { is_guelph_trigger = yes }
+					}
+					is_ghibelline_trigger = no
+				}
+				trigger_else_if = {
+					limit = {
+						scope:attacker = { is_ghibelline_trigger = yes }
+					}
+					is_guelph_trigger = no
+				}
+				trigger_else = {
+					always = no
+				}
+			}
+			#Regular Claim invalidation
+			OR = {
+				NOT = {
+					scope:war.var:ongoing_gg_reinstatement_war_claimant = { save_temporary_scope_as = exiled_courtier_check }
+					scope:exiled_courtier_check.var:displaced_gg_primary_title ?= {
+						any_in_de_jure_hierarchy = {
+							tier >= tier_county
+							holder ?= {
+								OR = {
+									this = scope:defender
+									target_is_liege_or_above = scope:defender
+								}
+							}
+						}
+					}
+				}
+				scope:war.var:ongoing_gg_reinstatement_war_claimant = {
+					this != scope:attacker
+					OR = {
+						is_alive = no
+						NOR = {
+							is_vassal_or_below_of = scope:attacker
+							is_courtier_of = scope:attacker
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_invalidated_desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:war.var:ongoing_gg_reinstatement_war_claimant ?= {
+						this != scope:attacker
+						this = { is_alive = no }
+					}	
+				}
+				desc = msg_reinstatement_war_invalidated_gg_unavailable_dead_message
+			}
+			triggered_desc = {
+				trigger = {
+					scope:war.var:ongoing_gg_reinstatement_war_claimant ?= {
+						NOR = {
+						 	this = scope:attacker
+						 	NOR = {
+						 		is_vassal_or_below_of = scope:attacker
+						 		is_courtier_of = scope:attacker
+						 	}
+						}
+					}
+				}
+				desc = msg_reinstatement_war_invalidated_gg_unavailable_not_vassal_message
+			}
+			desc = msg_claim_war_invalidated_message
+		}
+	}
+
+	on_invalidated = {
+	}
+
+	on_victory_desc = reinstate_guelph_ghibelline_ruler_cb_victory_desc
+
+	on_victory = {
+		on_victory_aggressive_war_effect = yes
+		#Since we can't use the claimant scope, find the exiled Guelph/Ghibelline
+		scope:war ?= { 
+			var:ongoing_gg_reinstatement_war_claimant ?= { save_scope_as = exiled_courtier }
+		}
+		if = {
+			limit = {
+				NOT = { exists = scope:exiled_courtier }
+			}
+			save_attacker_exiled_courtier_scope_effect = yes
+		}
+		scope:attacker = {
+			if = {
+				limit = {
+					has_variable = install_claimants_oath
+					has_variable = install_claimants_oath_counter
+				}
+				add_to_variable_list = {
+					name = installed_claimants_oath
+					target = scope:exiled_courtier
+				}
+				change_variable = {
+					name = install_claimants_oath_counter
+					add = 1
+				}
+			}
+
+			#EP2 Accolade glory gain from winning against higher ranked enemy
+			accolade_attacker_war_end_glory_gain_med_effect = yes
+		}
+
+		scope:defender ?= {
+			#Set up the transfer titles
+			every_held_title = {
+				limit = {
+					scope:exiled_courtier = {
+						is_target_in_variable_list = {
+							name = gg_displaced_titles
+							target = prev
+						}
+					}
+				}
+				add_to_list = target_titles
+			}
+		}
+
+		create_title_and_vassal_change = {
+			type = conquest
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+
+		setup_claim_cb = {
+			titles = target_titles
+			attacker = scope:attacker
+			defender = scope:defender
+			claimant = scope:exiled_courtier
+			change = scope:change
+		}
+		#Go Guelph
+		if = {
+			limit = {
+				scope:attacker = { is_guelph_trigger = yes }
+				scope:exiled_courtier = { exists = var:displaced_guelph_ruler }
+			}
+			situation:guelph_ghibelline ?= {
+				remove_list_variable = {
+					name = displaced_guelph_rulers
+					target = scope:exiled_courtier
+				}
+			}
+			scope:exiled_courtier = { 
+				remove_variable = displaced_guelph_ruler
+				set_variable = guelph_member_override
+			}
+		}
+		#Go Ghibelline
+		if = {
+			limit = {
+				scope:attacker = { is_ghibelline_trigger = yes }
+				scope:exiled_courtier = { exists = var:displaced_ghibelline_ruler }
+			}
+			situation:guelph_ghibelline ?= {
+				remove_list_variable = {
+					name = displaced_ghibelline_rulers
+					target = scope:exiled_courtier
+				}
+			}
+			scope:exiled_courtier = { 
+				remove_variable = displaced_ghibelline_ruler
+				set_variable = ghibelline_member_override
+			}
+		}
+
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:attacker
+			FAME_BASE = major_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+
+		resolve_title_and_vassal_change = scope:change
+
+		scope:exiled_courtier = {
+			remove_variable = displaced_gg_primary_title
+			clear_variable_list = gg_displaced_titles
+		}
+		scope:defender = {	
+			remove_variable = has_received_gg_displacement_titles_from
+			remove_variable = primary_gg_displacement_title
+			remove_variable = ghibelline_member_override
+			remove_variable = guelph_member_override
+			#Sweep, sweep
+			hidden_effect = {
+				if = {
+					limit = {
+						is_ai = yes
+						#Did we create them?
+						OR = {
+							exists = var:is_created_by_displacement_cb
+							exists = var:is_created_by_replace_ruler_scheme
+						}
+						#Do they hold anything that isn't a noble family title?
+						NOT = {
+							any_held_title = { 
+								this = { is_noble_family_title = no }
+							}
+						}
+					}
+					#Then clean them up
+					trigger_event = {
+						id = tribute_mission.0005
+						delayed = yes
+					}
+				}
+			}
+		}
+
+		if = {
+			limit = {
+				scope:exiled_courtier != scope:attacker
+				scope:attacker = {
+					can_add_hook = {
+					  	type = favor_hook
+					  	target = scope:exiled_courtier
+					}
+				}
+			}
+			scope:attacker = {
+				add_hook = {
+		  			target = scope:exiled_courtier
+		  			type = favor_hook
+		 		}
+			}
+		}
+
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_victory_effect = yes
+	}
+
+	on_white_peace_desc = reinstate_guelph_ghibelline_ruler_cb_white_peace_desc
+
+	on_white_peace = {
+		on_white_peace_effect = yes
+		#Since we can't use the claimant scope, find the exiled Guelph/Ghibelline
+		scope:war ?= { 
+			var:ongoing_gg_reinstatement_war_claimant ?= { save_scope_as = exiled_courtier }
+		}
+		if = {
+			limit = {
+				NOT = { exists = scope:exiled_courtier }
+			}
+			save_attacker_exiled_courtier_scope_effect = yes
+		}
+
+		#EP2 accolade glory gain for defender doing alright
+		scope:defender = { accolade_defender_war_end_glory_gain_low_effect = yes }
+
+		# Create a 'helper' claim CB which we won't execute, but can use to determine how much Prestige should be given to war participants.
+		setup_claim_cb = {
+			titles = target_titles
+			attacker = scope:attacker
+			defender = scope:defender
+			claimant = scope:exiled_courtier
+			victory = no
+		}
+		# Prestige loss for the attacker
+		scope:attacker = {
+			add_prestige = {
+				value = scope:cb_prestige_factor # Set by 'setup_claim_cb'
+				multiply = -5.0
+			}
+		}
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:attacker # Not important as the scales are identical
+			FAME_BASE = minor_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_white_peace_effect = yes
+	}
+
+	on_defeat_desc = reinstate_guelph_ghibelline_ruler_cb_defeat_desc
+
+	on_defeat = {
+		on_defeat_aggressive_war_effect = yes
+		#Since we can't use the claimant scope, find the exiled Guelph/Ghibelline
+		scope:war ?= { 
+			var:ongoing_gg_reinstatement_war_claimant ?= { save_scope_as = exiled_courtier }
+		}
+		if = {
+			limit = {
+				NOT = { exists = scope:exiled_courtier }
+			}
+			save_attacker_exiled_courtier_scope_effect = yes
+		}
+
+		#EP2 accolade glory gain for winning against higher ranked enemy
+		scope:defender = {
+			accolade_defender_war_end_glory_gain_med_effect = yes
+		}
+
+		# lose claims
+		situation:guelph_ghibelline ?= {
+			remove_list_variable = {
+				name = displaced_guelph_rulers
+				target = scope:exiled_courtier
+			}
+			remove_list_variable = {
+				name = displaced_ghibelline_rulers
+				target = scope:exiled_courtier
+			}
+		}
+		scope:exiled_courtier = { 
+			remove_variable = displaced_guelph_ruler
+			remove_variable = displaced_ghibelline_ruler
+			remove_variable = displaced_gg_primary_title
+			clear_variable_list = gg_displaced_titles
+		}
+		scope:defender = {	
+			remove_variable = has_received_gg_displacement_titles_from
+			remove_variable = primary_gg_displacement_title
+			remove_variable = ghibelline_member_override
+			remove_variable = guelph_member_override
+		}
+
+		# Attacker pays gold to the defender as reparations.
+		scope:attacker = {
+			pay_short_term_gold_reparations_effect = {
+				GOLD_VALUE = 3
+			}
+		}
+		# Create a 'helper' claim CB which we won't execute, but can use to determine how much Prestige should be given to war participants.
+		setup_claim_cb = {
+			titles = target_titles
+			attacker = scope:attacker
+			defender = scope:defender
+			claimant = scope:exiled_courtier
+			victory = no
+		}
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:defender
+			FAME_BASE = major_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_defeat_effect = yes
+	}
+
+	on_primary_attacker_death = inherit
+	on_primary_defender_death = inherit
+
+	transfer_behavior = transfer
+
+	attacker_allies_inherit = yes
+	defender_allies_inherit = yes
+
+	war_name = "REINSTATE_GUELPH_GHIBELLINE_RULER_WAR_NAME"
+	war_name_base = "REINSTATE_GUELPH_GHIBELLINE_RULER_WAR_NAME_BASE"
+	cb_name = "REINSTATE_GUELPH_GHIBELLINE_RULER_CB_NAME"
+	interface_priority = 60
+
+	attacker_wargoal_percentage = 0.8
+
+	max_defender_score_from_occupation = 150
+	max_attacker_score_from_occupation = 150
+
+	max_ai_diplo_distance_to_title = 1000
+
+	ai_score = {
+		value = reinstate_gg_ai_score_value
+	}
+	ai_score_mult = {
+		value = 1
+		add = common_cb_ai_score_mult_additive
+		multiply = aggressive_cb_ai_score_mult
+		multiply = common_cb_ai_score_mult
+	}
+}
+
+dissolve_lombard_league_cb = {
+	icon = lombard_league_cb
+	group = guelph_ghibelline
+	combine_into_one = yes
+	ai_only_against_neighbors = yes
+	allow_hostages = yes
+	should_show_war_goal_subview = no
+
+	# scope:attacker
+	allowed_for_character = {
+		always = no
+	}
+	
+	# scope:defender
+	allowed_against_character = {
+		always = no
+	}
+
+	valid_to_start = {
+		always = no
+	}
+
+	cost = {
+		piety = {
+			value = 0
+			add = common_cb_impious_piety_cost
+		}
+		prestige = {
+			value = minor_prestige_value
+			multiply = common_cb_prestige_cost_multiplier
+		}
+	}
+
+	should_invalidate = {
+		NOT = { exists = situation:guelph_ghibelline }
+		scope:defender = {
+			OR = {
+				is_independent_ruler = no
+				trigger_if = {
+					limit = {
+						any_confederation = {
+							has_variable = is_lombard_league
+							save_temporary_scope_as = the_lombard_league
+						}
+					}
+					NOT = { is_member_of_confederation = scope:the_lombard_league }
+				}
+			}
+		}
+	}
+
+	on_invalidated_desc = {
+		desc = dissolve_lombard_league_cb_ended_invalid.desc
+	}
+
+	on_declaration = {
+		on_declared_war = yes
+	}
+
+	on_victory_desc = {
+		desc = dissolve_lombard_league_cb_victory_desc
+	}
+
+	on_victory = {
+		on_victory_aggressive_war_effect = yes
+		scope:attacker = { 
+			#EP2 Accolade glory gain from winning against higher ranked enemy
+			accolade_attacker_war_end_glory_gain_low_effect = yes
+			add_prestige = scope:defender.tier_scaled_prestige_value
+		}
+		#Make 'em a vassal
+		create_title_and_vassal_change = {
+			type = swear_fealty
+			save_scope_as = change
+			add_claim_on_loss = no
+		}	
+		scope:defender = {
+			#Dissolve the League
+			random_confederation = {
+				limit = { has_variable = is_lombard_league }
+				disband_confederation = yes
+			}
+			change_liege = {
+				liege = scope:attacker
+				change = scope:change
+			}
+			resolve_title_and_vassal_change = scope:change
+			# Prestige loss for the defender
+			add_prestige = {
+				value = medium_prestige_value
+				multiply = -1.0
+			}
+			#GG flips the loser from opposing side to Undecided
+			if = {
+				limit = {
+					gg_first_and_second_are_opposite_sides_trigger = { FIRST = scope:attacker SECOND = scope:defender }
+				}
+				gg_swap_to_undecided_forced_effect = { USE_MODIFIERS = flag:yes }
+			}
+		}
+	
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:attacker
+			FAME_BASE = major_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_victory_effect = yes
+	}
+
+	on_white_peace_desc = {
+		desc = dissolve_lombard_league_cb_white_peace_desc
+	}
+
+	on_white_peace = {
+		on_white_peace_effect = yes
+		scope:attacker = {
+			# Prestige loss for the attacker
+			add_prestige = {
+				value = minor_prestige_value
+				multiply = -1.0
+			}
+		}
+
+		#EP2 accolade glory gain for doing ok against higher ranked enemy
+		scope:defender = { 
+			accolade_defender_war_end_glory_gain_low_effect = yes
+		}
+
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:attacker # Not important as the scales are identical
+			FAME_BASE = minor_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_white_peace_effect = yes
+	}
+
+	on_defeat_desc = {
+		desc = dissolve_lombard_league_cb_defeat_desc
+	}
+
+	on_defeat = {
+		on_defeat_aggressive_war_effect = yes
+		scope:attacker = { 
+			pay_short_term_gold_reparations_effect = {
+				GOLD_VALUE = 3
+			}
+			# Prestige loss for the attacker
+			add_prestige = {
+				value = major_prestige_value
+				multiply = -1.0
+			}
+		}
+		scope:defender = { 
+			#EP2 accolade glory gain for winning against higher ranked enemy
+			accolade_defender_war_end_glory_gain_high_effect = yes
+			# Prestige for Defender
+			add_prestige_war_defender_effect = {
+				PRESTIGE_VALUE = medium_prestige_value
+			}
+		}
+		# Allies on both sides get full prestige value for helping in the war, based on their war participation.
+		modify_allies_of_participants_fame_values = {
+			WINNER = scope:defender
+			FAME_BASE = major_prestige_value
+			IS_RELIGIOUS_WAR = no
+			WINNER_ALLY_FAME_SCALE = 1
+			LOSER_ALLY_FAME_SCALE = 1
+		}
+
+		#Guelphs & Ghibellines: gain Involvement based on war contribution
+		gg_involvement_cb_defeat_effect = yes
+	}
+
+	on_primary_attacker_death = inherit
+	on_primary_defender_death = inherit
+
+	attacker_allies_inherit = yes
+	defender_allies_inherit = yes
+
+	war_name = "DISSOLVE_LOMBARD_LEAGUE_WAR_NAME"
+	war_name_base = "DISSOLVE_LOMBARD_LEAGUE_WAR_NAME_BASE"
+	cb_name = "DISSOLVE_LOMBARD_LEAGUE_CB_NAME"
+	interface_priority = 80
+
+	ticking_war_score_targets_entire_realm = yes
+	attacker_ticking_warscore = 0.01
+	attacker_wargoal_percentage = 0.01
+	attacker_score_from_occupation_scale = 50
+	defender_score_from_occupation_scale = 50
+	attacker_score_from_battles_scale = 250
+	defender_score_from_battles_scale = 250
+
+	max_attacker_score_from_battles = 200
+	max_defender_score_from_battles = 200
+	
+	max_defender_score_from_occupation = 50
+	max_attacker_score_from_occupation = 50
+
+	max_ai_diplo_distance_to_title = 500
+
+	ai_score_mult = {
+		value = 1
+		add = common_cb_ai_score_mult_additive
+		multiply = aggressive_cb_ai_score_mult
+		multiply = common_cb_ai_score_mult
+	}
+}

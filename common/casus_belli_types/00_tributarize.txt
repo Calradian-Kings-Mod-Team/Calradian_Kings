@@ -282,7 +282,7 @@
 	}
 	
 	on_victory = {
-		scope:attacker = { show_pow_release_message_effect = yes }
+		on_victory_effect = yes
 
 		scope:attacker = {
 			if = {
@@ -321,6 +321,7 @@
 			limit = {
 				scope:defender = {
 					is_confederation_member = yes
+					confederation ?= { is_title_based = no }
 				}
 			}
 			scope:defender.confederation = {
@@ -351,16 +352,6 @@
 			WINNER_ALLY_FAME_SCALE = 1
 			LOSER_ALLY_FAME_SCALE = 1
 		}
-		
-		# Truce
-		add_truce_attacker_victory_effect = yes
-
-		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
-		laamp_as_mercenary_payout_tooltip_effect = yes
-
-		#Mandalas gain or lose piety/devotion depending on Decree
-		mandala_war_victory_effects = yes
-		
 	}
 
 	on_white_peace_desc = {
@@ -374,7 +365,7 @@
 	}
 	
 	on_white_peace = {
-		scope:attacker = { show_pow_release_message_effect = yes }
+		on_white_peace_effect = yes
 
 		#EP2 accolade glory gain for doing ok against higher ranked enemy
 		scope:defender = { accolade_defender_war_end_glory_gain_low_effect = yes }
@@ -384,10 +375,6 @@
 			add_prestige = {
 				value = minor_prestige_value
 				multiply = -1.0
-			}
-			stress_and_fulfillment_impact = {
-				ambitious = medium_stress_impact_gain
-				arrogant = medium_stress_impact_gain
 			}
 		}
 
@@ -399,18 +386,6 @@
 			WINNER_ALLY_FAME_SCALE = 1
 			LOSER_ALLY_FAME_SCALE = 1
 		}
-		
-		scope:defender = {
-			stress_and_fulfillment_impact = {
-				arrogant = medium_stress_impact_gain
-			}
-		}
-
-		# Truce
-		add_truce_white_peace_effect = yes
-
-		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
-		laamp_as_mercenary_payout_tooltip_effect = yes
 	}
 
 	on_defeat_desc = {
@@ -433,10 +408,9 @@
 	}
 	
 	on_defeat = {
-		scope:attacker = { show_pow_release_message_effect = yes }
+		on_defeat_effect = yes
 
 		scope:defender = { 
-			mandala_peacemaker_perk_serenity_effect = yes
 			#EP2 accolade glory gain for winning against higher ranked enemy
 			accolade_defender_war_end_glory_gain_high_effect = yes
 			# Prestige for Defender
@@ -461,21 +435,6 @@
 			WINNER_ALLY_FAME_SCALE = 1
 			LOSER_ALLY_FAME_SCALE = 1
 		}
-		
-		scope:attacker = {
-			save_temporary_scope_as = loser
-		}
-
-		# Truce
-		add_truce_attacker_defeat_effect = yes
-		
-		on_lost_aggression_war_discontent_loss = yes
-
-		# EP3: note gold gained from military assistance/join war contracts and their war contribution threshold
-		laamp_as_mercenary_payout_tooltip_effect = yes
-
-		#Mandalas gain or lose piety/devotion depending on Decree
-		mandala_war_defeat_effects = yes
 	}
 	
 	on_primary_attacker_death = invalidate
@@ -504,6 +463,8 @@
 		# consider: something about only attacking landed titles to make them tributaries, unless a nomadic character ceased payments? Or consider that only landed could cease payments?
 		# consider: scope:attacker.primary_title.tier > scope:defender.primary_title.tier # something about tiers here
 
+		add = common_cb_ai_score_mult_additive
+
 		add = {
 			if = {
 				limit = {
@@ -521,9 +482,6 @@
 			}
 		}
 
-		# AI in struggles act insularly for wars that don't have a familial or legal basis.
-		multiply = struggle_wars_prioritise_struggle_targets_value
-
 		if = {
 			limit = {
 				scope:defender.primary_title.tier >= scope:attacker.primary_title.tier
@@ -531,8 +489,6 @@
 			multiply = 0.1
 		}
 
-		# multiply = struggle_wars_prioritise_struggle_targets_value
-		
 		if = {
 			limit = {
 				scope:attacker = { government_has_flag = government_is_nomadic }
@@ -541,9 +497,7 @@
 			multiply = 0.1
 		}
 
-		multiply = pam_peace_of_god_coreligionist_war_ai_score_value
-		multiply = zealous_war_on_head_of_faith_ai_score_value
-		add = frankokratia_leader_protection_value #Set back to 0. Declaring war on the frankokratia leader can really ruin the whole thing
+		multiply = common_cb_ai_score_mult
 	}
 
 	ai_score = {
@@ -582,13 +536,6 @@
 						}
 					}
 				}
-
-				if = {
-					limit = {
-						NOT = { government_has_flag = government_is_mandala }
-					}
-					add = -1000
-				} 
 			}
 		}
 	}
@@ -602,6 +549,7 @@ tributary_independence_war = {
 	allow_hostages = no
 	allowed_for_character = {
 		scope:attacker = {
+			gdp_merchant_may_wage_independence_war_trigger = yes
 			this != suzerain # has a suzerain
 			NOT = { obedience_target ?= suzerain } # if the attacker is subject to Obedience and their target is their suzerain, they cannot fight for their freedom
 		}
@@ -650,7 +598,8 @@ tributary_independence_war = {
 	}
 
 	on_victory = {
-		scope:attacker = { show_pow_release_message_effect = yes }
+		save_scope_as = special_truce
+		on_victory_effect = yes
 
 		#EP2 Accolade glory gain from winning against higher ranked enemy
 		scope:attacker = { accolade_attacker_war_end_glory_gain_high_effect = yes }
@@ -718,34 +667,16 @@ tributary_independence_war = {
 	}
 
 	on_white_peace = {
+		on_white_peace_effect = yes
 		save_scope_value_as = { name = low_obligations value = yes } # sets low obligations in the resulting tributary contract
 		start_tributary_from_war_effect = {
 			TRIBUTARY = scope:attacker
 			SUZERAIN = scope:defender
 			WAR = root.war
 		}
-		scope:attacker = {
-			show_pow_release_message_effect = yes
-			stress_and_fulfillment_impact = {
- 				ambitious = medium_stress_impact_gain
- 				arrogant = medium_stress_impact_gain
- 			}
-		}
-		hidden_effect = {
-			scope:attacker = {
-				add_truce_one_way = {
-				 	character = scope:defender
-					war = root.war
-					result = white_peace
-				}
-			}
-		}
 
 		scope:defender = {
 			add_prestige = minor_prestige_value
-			stress_and_fulfillment_impact = {
- 				arrogant = medium_stress_impact_gain
- 			}
 		}
 	}
 
@@ -768,15 +699,16 @@ tributary_independence_war = {
 	}
 
 	on_defeat = {
+		save_scope_as = special_truce
+		on_defeat_effect = yes
+
 		start_tributary_from_war_effect = {
 			TRIBUTARY = scope:attacker
 			SUZERAIN = scope:defender
 			WAR = root.war
 		}
 
-		scope:attacker = { show_pow_release_message_effect = yes }
 		scope:defender = {
-			mandala_peacemaker_perk_serenity_effect = yes
 			add_dread = medium_dread_gain
 			# Prestige for Defender
 			add_prestige_war_defender_effect = {
@@ -799,8 +731,10 @@ tributary_independence_war = {
 	}
 
 	should_invalidate = {
-		scope:attacker.overlord = scope:defender
-		scope:defender.overlord = scope:attacker
+		OR = {
+			scope:attacker.overlord = scope:defender
+			scope:defender.overlord = scope:attacker
+		}
 	}
 
 	on_invalidated_desc = msg_invalidate_war_title

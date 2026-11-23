@@ -11,7 +11,7 @@ lake_rat_hideout = {
 	type_icon = "icon_special_building_lakerat_hideout.dds"
 	
 	can_construct_potential = {
-		building_requirement_tribal = no
+		holding_is_nomad = no
 	}
 	
 	cost_gold = 3000
@@ -31,6 +31,10 @@ lake_rat_hideout = {
 	province_modifier = {
 		stationed_maa_damage_mult = normal_maa_damage_tier_1
 		stationed_maa_toughness_mult = normal_maa_toughness_tier_1
+	}
+
+	market_modifier = {
+		trade_category_all_sell_price_mult = price_basic_building_2
 	}
 	
 	character_modifier = {
@@ -57,6 +61,12 @@ lake_rat_hideout = {
 }
 
 pamphian_palaces = {
+	effect_desc = {
+		triggered_desc = {
+			trigger = { has_dlc_feature = tours_and_tournaments }
+			desc = wedding_bonus_effect
+		}
+	}
 
 	# asset = {
 	# 	type = pdxmesh
@@ -79,20 +89,36 @@ pamphian_palaces = {
  		parochial_opinion = 5
  		legitimacy_gain_mult = 0.1
 	}
+
 	character_government_modifier = {
 		parameter = government_has_influence
  		monthly_influence = 0.2
  		monthly_influence_mult = 0.3
 	}
+
 	county_modifier = {
-		monthly_county_control_growth_add = 0.5
- 		county_opinion_add = 20
 		tax_mult = 0.3
 		development_growth_factor = 0.2
+
+		commerce_tax_mult = 0.15
+		maritime_tax_mult = 0.15
+		hostile_raid_time = 0.25
+	}
+
+	market_modifier = {
+		trade_good_books_paper_buy_price_mult = special_building_production_buy_price
+		trade_good_dyes_sell_price_mult = special_building_need_sell_price
+		trade_good_gems_sell_price_mult = special_building_need_sell_price
+		trade_good_stone_sell_price_mult = special_building_need_sell_price
 	}
 	
 	ai_value = {
 		base = 0
+		modifier = { # Fill all building slots before going for special buildings
+			factor = 0
+			free_building_slots > 0
+		}
+		ai_special_district_modifier = { LEVEL = 1 }
 	}
 
 	is_enabled = {
@@ -109,6 +135,18 @@ pamphian_palaces = {
 		scope:county.holder = {
 			is_independent_ruler = yes
 			# has_royal_court = yes
+		}
+	}
+
+	trade_good_need = {
+		trade_good = trade_good_stone
+		amount = special_building_need_amount
+		can_be_filled_multiple_times = 5
+
+		modifiers = {
+			province_modifier = {
+				province_size_baseline_add = 5
+			}
 		}
 	}
 
@@ -158,14 +196,8 @@ pamphian_palaces = {
 	great_project_type = pamphian_palaces
 
 	flag = travel_point_of_interest_diplomatic
+	flag = travel_point_of_interest_economic
 	flag = no_wall
-	effect_desc = {
-		triggered_desc = {
-			trigger = { has_dlc_feature = tours_and_tournaments }
-			desc = wedding_bonus_effect
-		}
-		# desc = wineyard_effect_desc
-	}
 	flag = wedding_bonus
 }
 pamphian_palaces_ruined = {
@@ -189,6 +221,25 @@ pamphian_palaces_ruined = {
 		monthly_county_control_growth_add = -0.15
  		county_opinion_add = -15
 		build_speed = -0.15
+	}
+
+	market_modifier = {
+		trade_good_books_paper_buy_price_mult = -0.0025
+		trade_good_dyes_sell_price_mult = 0.0025
+		trade_good_gems_sell_price_mult = 0.0025
+		trade_good_stone_sell_price_mult = 0.005
+	}
+
+	trade_good_need = {
+		trade_good = trade_good_stone
+		amount = special_building_need_amount
+		can_be_filled_multiple_times = 5
+
+		modifiers = {
+			province_modifier = {
+				province_size_baseline_add = 10
+			}
+		}
 	}
 	
 	ai_value = {
@@ -225,14 +276,34 @@ robber_keeps_1 = {
 	cost_gold = 500
 	
 	county_modifier = {
-		monthly_county_control_growth_add = 0.1
+		monthly_control_change_when_below_baseline_add = building_slight_monthly_control_below_baseline_gain
+		monthly_control_change_when_above_baseline_add = 0.05
+
  		county_opinion_add = -10
 		tax_mult = 0.15
 	}
+
 	
 	province_modifier = {
 		garrison_size = 0.25
 		fort_level = 2
+	}
+
+	market_modifier = {
+		trade_category_all_sell_price_mult = price_basic_building_1
+	}
+	trade_good_need = {
+		trade_good_category = trade_category_base_metals
+		amount = metal_resource_need
+
+		can_be_filled_multiple_times = 3
+
+		modifiers = {
+			county_modifier = {
+				monthly_control_change_when_below_baseline_add = building_negligible_monthly_control_below_baseline_gain
+				monthly_control_change_when_above_baseline_add = 0.025
+			}
+		}
 	}
 	
 	ai_value = {
@@ -241,6 +312,9 @@ robber_keeps_1 = {
 			factor = 0
 			free_building_slots > 0
 		}
+		ai_defensive_need_modifier = yes
+		ai_general_building_modifier = yes
+		directive_to_fortify_modifier = yes
 	}
 	
 	next_building = robber_keeps_2
@@ -265,9 +339,10 @@ robber_keeps_2 = {
 	}
 	
 	cost_gold = 1500
-	
+
 	county_modifier = {
-		monthly_county_control_growth_add = 0.2
+		monthly_control_change_when_below_baseline_add = building_slight_monthly_control_below_baseline_gain
+		monthly_control_change_when_above_baseline_add = 0.075
 		county_opinion_add = -5
 		tax_mult = 0.3
 	}
@@ -276,6 +351,24 @@ robber_keeps_2 = {
 		garrison_size = 0.50
 		fort_level = 3
 	}
+
+	market_modifier = {
+		trade_category_all_sell_price_mult = price_basic_building_1
+	}
+	trade_good_need = {
+		trade_good_category = trade_category_base_metals
+		amount = metal_resource_need
+
+		can_be_filled_multiple_times = 3
+
+		modifiers = {
+			county_modifier = {
+				monthly_control_change_when_below_baseline_add = building_negligible_monthly_control_below_baseline_gain
+				monthly_control_change_when_above_baseline_add = 0.025
+			}
+		}
+	}
+	
 	
 	ai_value = {
 		base = 100
@@ -283,6 +376,9 @@ robber_keeps_2 = {
 			factor = 0
 			free_building_slots > 0
 		}
+		ai_defensive_need_modifier = yes
+		ai_general_building_modifier = yes
+		directive_to_fortify_modifier = yes
 	}
 	
 	
@@ -372,9 +468,40 @@ geroian_citadel = {
 		parameter = monastery_prowess_martial_bonus
 		stationed_maa_toughness_add = 3
 	}
+
+	trade_good_need = {
+		trade_good = trade_good_books_paper
+		amount = basic_resource_need
+		modifiers = {
+			province_modifier = {
+				monthly_civic_tax = normal_building_tax_tier_1
+			}
+		}
+	}
+	trade_good_need = {
+		trade_good = trade_good_dyes
+		amount = basic_resource_need
+		modifiers = {
+			province_modifier = {
+				monthly_civic_tax = normal_building_tax_tier_1
+			}
+		}
+	}
+	trade_good_need = {
+		trade_good = trade_good_iron
+		amount = precious_metals_resource_need
+		modifiers = {
+			province_modifier = {
+				garrison_size = 0.05
+			}
+		}
+	}
 	
 	ai_value = {
 		base = 0
+		ai_defensive_need_modifier = yes
+		ai_general_building_modifier = yes
+		directive_to_fortify_modifier = yes
 	}
 	next_building = geroian_citadel_ruined
 	type = great_building
@@ -418,6 +545,34 @@ geroian_citadel_ruined = {
 	}
 	ai_value = {
 		base = 0
+	}
+
+	trade_good_need = {
+		trade_good = trade_good_books_paper
+		amount = basic_resource_need
+		modifiers = {
+			province_modifier = {
+				monthly_civic_tax = poor_building_tax_tier_1
+			}
+		}
+	}
+	trade_good_need = {
+		trade_good = trade_good_dyes
+		amount = basic_resource_need
+		modifiers = {
+			province_modifier = {
+				monthly_civic_tax = poor_building_tax_tier_1
+			}
+		}
+	}
+	trade_good_need = {
+		trade_good = trade_good_iron
+		amount = precious_metals_resource_need
+		modifiers = {
+			province_modifier = {
+				garrison_size = 0.125
+			}
+		}
 	}
 	
 	next_building = geroian_citadel_good
@@ -528,6 +683,34 @@ geroian_citadel_good = {
 		parameter = monastery_prowess_martial_bonus
 		stationed_maa_toughness_mult = normal_maa_toughness_tier_1
 	}
+
+	trade_good_need = {
+		trade_good = trade_good_books_paper
+		amount = basic_resource_need
+		modifiers = {
+			province_modifier = {
+				monthly_civic_tax = good_building_tax_tier_1
+			}
+		}
+	}
+	trade_good_need = {
+		trade_good = trade_good_dyes
+		amount = basic_resource_need
+		modifiers = {
+			province_modifier = {
+				monthly_civic_tax = good_building_tax_tier_1
+			}
+		}
+	}
+	trade_good_need = {
+		trade_good = trade_good_iron
+		amount = precious_metals_resource_need
+		modifiers = {
+			province_modifier = {
+				garrison_size = 0.1
+			}
+		}
+	}
 	
 	ai_value = {
 		base = 100
@@ -535,6 +718,9 @@ geroian_citadel_good = {
 			factor = 0
 			free_building_slots > 0
 		}
+		ai_defensive_need_modifier = yes
+		ai_general_building_modifier = yes
+		directive_to_fortify_modifier = yes
 	}
 	
 	
@@ -579,6 +765,39 @@ paravendic_arena = {
 	
 	province_modifier = {
 		monthly_income = 1
+	}
+
+	market_modifier = { # Great to sell at, expensive to export due to demand of these things in the arena
+		trade_good_beer_sell_price_mult = 0.0075
+		trade_good_beer_buy_price_mult = 0.0025
+		trade_good_wine_sell_price_mult = 0.0075
+		trade_good_wine_buy_price_mult = 0.0025
+		trade_category_comforts_sell_price_mult = 0.0075
+		trade_category_comforts_buy_price_mult = 0.0025
+	}
+	trade_good_need = {
+		trade_good_category = trade_category_alcohol
+		amount = holding_district_resource_need
+
+		can_be_filled_multiple_times = 3
+
+		modifiers = {
+			county_modifier = {
+				monthly_popular_opinion_change = 0.1
+			}
+		}
+	}
+	trade_good_need = {
+		trade_good_category = trade_category_comforts
+		amount = holding_district_resource_need
+
+		can_be_filled_multiple_times = 3
+
+		modifiers = {
+			county_modifier = {
+				monthly_popular_opinion_change = 0.05
+			}
+		}
 	}
 	
 	ai_value = {
@@ -670,15 +889,36 @@ prytanikka = {
  		monthly_dynasty_prestige_mult = 0.05
 		monthly_prestige_gain_mult = 0.05
 	}
+
+	character_government_modifier = {
+		parameter = government_has_influence
+ 		monthly_influence = 0.2
+ 		monthly_influence_mult = 0.3
+	}
+
+	county_modifier = {
+		tax_mult = 0.3
+		development_growth_factor = 0.2
+	}
 	
 	county_modifier = {
 		monthly_county_control_growth_add = 0.10
+
+		commerce_tax_mult = 0.05
+		hostile_raid_time = 0.1
 	}
 	
 	province_modifier = {
 		fort_level = 1
 		monthly_income = 1
 		travel_danger = -10
+	}
+	
+	market_modifier = {
+		trade_good_books_paper_buy_price_mult = special_building_production_buy_price
+		trade_good_dyes_sell_price_mult = special_building_need_sell_price
+		trade_good_gems_sell_price_mult = special_building_need_sell_price
+		trade_good_stone_sell_price_mult = special_building_need_sell_price
 	}
 	
 	ai_value = {
@@ -795,6 +1035,12 @@ tomchul = {
 	province_modifier = {
 		monthly_income = 1
 	}
+
+	county_potential_trade_good_modifier = {
+		trade_good = trade_good_gems
+		trade_good_gems_production_add = precious_mine_pit_mine_4
+		trade_good_gems_buy_price_mult = village_producer_buy_price_reduction
+	}
 	
 	ai_value = {
 		base = 100
@@ -833,9 +1079,18 @@ mouth_of_nahasa = {
 		development_growth_factor = 0.1
 		development_growth = 0.20
 	}
+
+	market_modifier = {
+		trade_category_all_sell_price_mult = price_basic_building_1
+		trade_category_all_buy_price_mult = -0.005
+	}
+
 	
 	province_modifier = {
 		monthly_income = 2
+		prosperity_growth = low_prosperity_tier_2
+
+		trade_good_fish_production_add = tier_1_rural_resource
 	}
 	
 	ai_value = {
