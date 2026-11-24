@@ -12,6 +12,7 @@ the_christian_church = {
 	gui_tooltip_group_focused = yes
 	illustration = "gfx/interface/illustrations/event_story/pam_the_christian_church_instability.dds"
 	situation_group_type = major
+	religion = calradian_religion
 
 	is_unique = yes
 	keep_full_history = yes
@@ -414,6 +415,7 @@ the_christian_church = {
 						catalyst_clergy_has_child = minor_situation_catalyst_gain
 						# CBs
 						catalyst_the_christian_church_humiliation_war_declared = medium_situation_catalyst_gain
+						catalyst_challenge_hof_replaced = monumental_situation_catalyst_gain
 						# Activities
 						catalyst_clergy_hosted_feast = minor_situation_catalyst_gain
 						catalyst_clergy_attended_feast = minimal_situation_catalyst_gain
@@ -482,6 +484,8 @@ the_christian_church = {
 						catalyst_clergy_cardinal_murdered = pam_investiture_crisis_catalyst_major_value
 						catalyst_clergy_head_of_rite_murdered = pam_investiture_crisis_catalyst_major_value
 						catalyst_the_christian_church_ruler_imprisons_head_of_faith = pam_investiture_crisis_catalyst_major_plus_value
+						#CBs
+						catalyst_challenge_hof_replaced = monumental_situation_catalyst_gain
 						# A cleric was elevated to an archbishopric (Request Elevation, or a HoF grant/replacement)
 						catalyst_clergy_elevated_to_archbishopric = pam_investiture_crisis_catalyst_massive_value
 						catalyst_clergy_gained_landed_title = pam_investiture_crisis_catalyst_trickle_value
@@ -816,6 +820,7 @@ the_christian_church = {
 							# Unique to Conversion
 							the_christian_church_county_conversion_bonus = yes
 							the_christian_church_easier_faith_conversion = yes
+							the_christian_church_mending_the_schism_active = yes
 						}
 					}
 					christian_regular_main_power_rulers = {
@@ -825,18 +830,21 @@ the_christian_church = {
 							# Unique to Conversion
 							the_christian_church_county_conversion_bonus = yes
 							the_christian_church_easier_faith_conversion = yes
+							the_christian_church_mending_the_schism_active = yes
 						}
 					}
 					christian_clerical_secondary_powers_rulers = {
 						parameters = {
 							# Unique to Conversion
 							the_christian_church_county_conversion_malus = yes
+							the_christian_church_mending_the_schism_active = yes
 						}
 					}
 					christian_regular_secondary_powers_rulers = {
 						parameters = {
 							# Unique to Conversion
 							the_christian_church_county_conversion_malus = yes
+							the_christian_church_mending_the_schism_active = yes
 						}
 					}
 					christian_clerical_heretic_rulers = {
@@ -982,6 +990,8 @@ the_christian_church = {
 						catalyst_clergy_embezzled_treasury = medium_situation_catalyst_gain
 						# EC
 						catalyst_hosted_ecumenical_council = massive_plus_situation_catalyst_gain
+						#CBs
+						catalyst_challenge_hof_replaced = monumental_situation_catalyst_gain
 					}
 				}
 				concord = {
@@ -1185,6 +1195,8 @@ the_christian_church = {
 						# A cleric was elevated to an archbishopric (Request Elevation, or a HoF grant/replacement)
 						catalyst_clergy_elevated_to_archbishopric = pam_investiture_crisis_catalyst_massive_value
 						catalyst_clergy_gained_landed_title = pam_investiture_crisis_catalyst_trickle_value
+						#CBs
+						catalyst_challenge_hof_replaced = monumental_situation_catalyst_gain
 					}
 				}
 				saeculum_obscurum = {
@@ -1380,8 +1392,8 @@ the_christian_church = {
 						character_modifier = {
 							# Unique to IC
 							ecclesiastical_government_tax_contribution_mult = -0.25
-							monthly_county_control_growth_factor = -0.5
-							monthly_county_control_decline_factor = 0.5
+							monthly_control_change_when_below_baseline_mult = -0.25
+							monthly_control_change_when_above_baseline_mult = 0.25
 						}
 						parameters = {
 							the_christian_church_personal_secular_obligations = yes
@@ -1402,8 +1414,8 @@ the_christian_church = {
 						character_modifier = {
 							# Unique to IC
 							ecclesiastical_government_tax_contribution_mult = -0.1
-							monthly_county_control_growth_factor = -0.25
-							monthly_county_control_decline_factor = 0.25
+							monthly_control_change_when_below_baseline_mult = -0.1
+							monthly_control_change_when_above_baseline_mult = 0.1
 						}
 						parameters = {
 							# Standard secondary
@@ -1436,7 +1448,7 @@ the_christian_church = {
 		#Crusade Phase - ~1096-1192AD  (First Three) Successful Crusades result in much more Papal Legitimacy, a gradual uptick of Fervor while in Crusades, AI way more likely to choose Crusade-like tenets, etc.
 		crusade_phase = { # ZEAL
 			icon = "gfx/interface/icons/the_christian_church/phase_type_icons/crusade.dds"
-			texture = "gfx/interface/illustrations/event_story/pam_the_christian_church_crusade.dds"
+			texture = "gfx/interface/icons/the_christian_church/phase_type_illustrations_wide/crusade.dds"
 			illustration = "gfx/interface/icons/the_christian_church/phase_type_illustrations/crusade.dds"
 
 			on_start = {
@@ -1446,6 +1458,13 @@ the_christian_church = {
 					every_faith = {
 						limit = { has_variable = variable_ghw_cooldown }
 						remove_variable = variable_ghw_cooldown
+						religious_head ?= {
+							remove_decision_cooldown = pick_crusade_target_decision
+							if = {
+								limit = { has_variable = enact_a_bull_crusade_cooldown }
+								remove_variable = enact_a_bull_crusade_cooldown
+							}
+						}
 					}
 				}
 				pam_refire_great_schism_catalyst_effect = yes
@@ -1462,12 +1481,14 @@ the_christian_church = {
 						parameters = {
 							# Shared with Zeal phases
 							the_christian_church_holy_site_poi_bonus = yes
+							the_christian_church_mending_the_schism_active = yes
 						}
 					}
 					christian_regular_main_power_rulers = {
 						parameters = {
 							# Shared with Zeal phases
 							the_christian_church_holy_site_poi_bonus = yes
+							the_christian_church_mending_the_schism_active = yes
 						}
 					}
 				}
@@ -1478,6 +1499,12 @@ the_christian_church = {
 						parameters = {
 							# Shared with Zeal phases
 							the_christian_church_cheaper_bulls = yes
+							# Unique to Crusades
+							the_christian_church_can_create_kingdom_of_heaven = yes
+						}
+					}
+					christian_regular_main_power_rulers = {
+						parameters = {
 							# Unique to Crusades
 							the_christian_church_can_create_kingdom_of_heaven = yes
 						}
@@ -1502,11 +1529,13 @@ the_christian_church = {
 					christian_clerical_secondary_powers_rulers = {
 						parameters = {
 							the_christian_church_mild_centralization = yes
+							the_christian_church_mending_the_schism_active = yes
 						}
 					}
 					christian_regular_secondary_powers_rulers = {
 						parameters = {
 							the_christian_church_personal_secular_obligations = yes
+							the_christian_church_mending_the_schism_active = yes
 						}
 					}
 				}
@@ -1935,6 +1964,7 @@ the_christian_church = {
 		pam_mend_great_schism_decision
 		mend_the_great_schism_decision
 		# pam_unite_miaphysite_churches_decision
+		# pam_kingdom_of_heaven_decision
 		petition_head_of_faith_decision
 	}
 
