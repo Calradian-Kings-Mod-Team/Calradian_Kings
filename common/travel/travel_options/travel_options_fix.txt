@@ -1,0 +1,179 @@
+﻿cultural_ambassador_option = {
+	is_shown = {
+		is_ruler = yes
+	}
+
+	is_valid = {
+	}
+	
+	cost = {
+		gold = {
+			if = {
+				limit = {
+					has_treasury = no
+				}
+				add = {
+					value = medium_travel_option_cost
+					if = {
+						limit = {
+							government_has_flag = government_is_nomadic
+						}
+						multiply = 0.5
+					}
+					desc = cultural_ambassador_option
+				}
+			}
+		}
+		treasury = {
+			if = {
+				limit = {
+					has_treasury = yes
+				}
+				add = {
+					value = medium_travel_option_cost
+					desc = cultural_ambassador_option
+				}
+			}
+		}
+		herd = {
+			if = {
+				limit = {
+					government_has_flag = government_is_nomadic
+				}
+				add = {
+					value = low_travel_option_cost
+					desc = cultural_ambassador_option
+				}
+			}
+		}
+	}
+	
+	on_applied_effect = {
+		hidden_effect = {
+			if = { # No reason to steal too many Mercenaries away for travels; players and AI kings+ only
+				limit = {
+					OR = {
+						is_ai = no
+						highest_held_title_tier >= tier_kingdom
+					}
+				}
+				if = {
+					limit = {
+						exists = root.capital_province
+						any_pool_character = {
+							province = root.capital_province
+							is_available_ai_adult = yes
+							has_no_particular_noble_roots_trigger = yes
+							age >= 30
+							age <= 55
+							is_married = no
+							diplomacy > 8
+						}
+					}
+					random_pool_character = {
+						province = root.capital_province
+						limit = {
+							is_available_ai_adult = yes
+							has_no_particular_noble_roots_trigger = yes
+							age >= 30
+							age <= 55
+							is_married = no
+							diplomacy > 10
+						}
+						save_scope_as = new_guide
+					}
+				}
+				else_if = {
+					limit = {
+						is_ai = no
+					}
+					create_character = {
+						location = root.location
+						template = cultural_ambassador
+						save_scope_as = new_guide
+					}
+				}
+				if = {
+					limit = {
+						exists = scope:new_guide
+					}
+					scope:new_guide = {
+						add_gold = root.medium_travel_option_cost
+						move_to_pool = yes
+						add_character_flag = travel_option_added_character	#to send it back to pool when the travel is done
+					}
+					send_interface_toast = {
+						type = event_toast_effect_good
+						title = cultural_ambassador_recruited.t
+						left_icon = scope:new_guide
+						root.current_travel_plan ?= {
+							add_companion = scope:new_guide
+						}
+					}
+					root.current_travel_plan ?= {
+						set_variable = {
+							name = cultural_ambassador_scope
+							value = scope:new_guide
+						}
+					}
+				}
+			}
+		}
+		custom_tooltip = cultural_ambassador_recruited.tt
+	}
+	
+	ai_will_do = {
+		value = 0
+		if = {
+			limit = {
+				any_future_path_location = {
+					count >= 3
+					exists = county
+					culture != root.travel_plan_owner.culture
+				}
+			}
+			add = {
+				value = 50
+			}
+		}
+		if = {
+			limit = {
+				travel_plan_owner.gold <= travel_plan_owner.minor_gold_value
+			}
+			add = {
+				value = -500
+			}
+		}
+		if = {
+			limit = {
+				travel_plan_owner = {
+					has_government = landless_adventurer_government
+				}
+			}
+			add = {
+				value = -500
+			}
+		}
+		if = {
+			limit = {
+				travel_plan_owner = {
+					exists = capital_province  #Unop ck3-tiger Use correct scope
+					NOT = {
+						any_pool_character = {
+							province = root.travel_plan_owner.capital_province  #Unop ck3-tiger Use correct scope
+							is_available_ai_adult = yes
+							has_no_particular_noble_roots_trigger = yes
+							age >= 30
+							age <= 55
+							is_married = no
+							diplomacy > 8
+						}
+					}
+				}
+			}
+			add = {
+				value = -500
+			}
+		}
+	}
+}
