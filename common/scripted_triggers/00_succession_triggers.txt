@@ -86,7 +86,7 @@ can_have_meritocratic_regency_succession_law_trigger = {
 	NOT = { government_allows = obedience } # Stop Khanates
 	# OR = {
 		# Ceremonial Monarch title always pairs with law
-		exists = primary_title.var:administrative_ui_special_title
+		exists = ceremonial_liege_title
 		# Jipjeong Jeong Jung-bu
 		# AND = {
 		# 	game_start_date = 1178.10.1
@@ -94,4 +94,43 @@ can_have_meritocratic_regency_succession_law_trigger = {
 		# 	months_from_game_start < 1
 		# }
 	# }
+}
+
+successor_is_a_landless_patrician_trigger = {
+	gdp_is_patrician_trigger = yes
+	is_landed = no
+}
+
+successor_is_not_a_traditional_feudal_esque_ruler_trigger = {
+	trigger_if = {
+		limit = { is_alive = no }
+		OR = {
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_merchant
+			government_has_flag = government_is_republic
+		}
+	}
+	trigger_else_if = {
+		limit = { is_ruler = yes }
+		OR = {
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_merchant
+			AND = {
+				OR = {
+					any_held_title = { is_noble_family_title = yes }
+					government_has_mechanic = administrative
+				}
+				is_independent_ruler = no
+			}
+			tgp_is_ceremonial_regent_trigger = yes
+		}
+	}
+	trigger_else = {
+		liege ?= {
+			OR = {
+				government_has_flag = government_is_landless_adventurer
+				government_has_flag = government_is_merchant
+			}
+		}
+	}
 }

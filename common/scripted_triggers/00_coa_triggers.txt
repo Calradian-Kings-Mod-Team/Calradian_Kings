@@ -37,12 +37,9 @@ coa_bishopric_trigger = {
 coa_calradian_trigger = {
 	OR = {
 		scope:culture = { has_coa_gfx = calradian_group_coa_gfx }
-		AND = {
-			exists = scope:title
-			scope:title = {
-				any_this_title_or_de_jure_above = {
-					this = title:e_calradian_empire
-				}
+		scope:title ?= {
+			any_this_title_or_de_jure_above = {
+				this = title:e_calradian_empire
 			}
 		}
 	}
@@ -95,6 +92,19 @@ coa_feudal_trigger = {
 	government_has_flag = government_is_feudal
 }
 
+coa_merchant_trigger = {
+	OR = {
+		AND = {
+			exists = root
+			government_has_flag = government_is_merchant
+		}
+		scope:title ?= {
+			exists = holder
+			holder = { government_has_flag = government_is_merchant }
+		}
+	}
+}
+
 coa_french_trigger = {
 	AND = {
 		scope:culture = { has_coa_gfx = vlandian_coa_gfx }
@@ -109,40 +119,20 @@ coa_french_trigger = {
 	}
 }
 
-
 coa_irish_trigger = {
 	OR = {
 		scope:culture = { has_coa_gfx = simple_battanian_coa_gfx }
 		AND = {
-			exists = scope:title
-			scope:title = {
+			scope:title ?= {
 				any_this_title_or_de_jure_above = {
-					this = title:k_battania
+					this = title:e_battania
 				}
 			}
 		}
 	}
 }
 
-coa_tamga_trigger = {
-	OR = {
-		scope:culture = { has_coa_gfx = steppe_coa_gfx }
-		scope:culture = { has_coa_gfx = mongol_coa_gfx }
-	}
-	
-}
 
-coa_mena_trigger = {
-	OR = {
-		scope:faith.religion = religion:aserai_religion
-		scope:culture = {
-			OR = {
-				has_coa_gfx = berber_group_coa_gfx
-				has_coa_gfx = aserai_group_coa_gfx
-			}
-		}
-	}
-}
 coa_indian_culture_trigger = {
 	# OR = {
 		# scope:culture = { has_coa_gfx = burman_group_coa_gfx }
@@ -151,24 +141,33 @@ coa_indian_culture_trigger = {
 		# scope:culture = { has_coa_gfx = tibetan_group_coa_gfx }
 	# }
 }
-coa_indian_religion_trigger = {
-	scope:faith.religion = { 
-		save_temporary_scope_as = religion 
-	}
-	scope:religion = {
-		OR = {
-			this = { is_in_family = rf_eastern }
-			this = religion:ghavati_religion
-		}
+coa_indian_region_trigger = {
+	scope:title ?= {
+		is_landless_type_title = no
+		title_province ?= { geographical_region = world_india }
 	}
 }
-
+coa_indian_religion_trigger = {
+	scope:religion = religion:ghavati_religion
+}
 coa_indian_trigger = {
 	OR = {
 		coa_indian_culture_trigger = yes
+		# coa_indian_region_trigger = yes
 		coa_indian_religion_trigger = yes
 	}
 	scope:culture = { has_graphical_east_asia_culture_group_trigger = no }
+}
+coa_mena_trigger = {
+	OR = {
+		scope:faith.religion = religion:aserai_religion
+		scope:culture = {
+			OR = {
+				has_coa_gfx = aserai_group_coa_gfx
+				has_coa_gfx = berber_group_coa_gfx
+			}
+		}
+	}
 }
 
 coa_suomenusko_trigger = {
@@ -184,14 +183,10 @@ coa_suomenusko_trigger = {
 	}
 }
 
-
 coa_scottish_trigger = {
-	AND = {
-		exists = scope:title
-		scope:title = {
-			any_this_title_or_de_jure_above = {
-				this = title:k_battania
-			}
+	scope:title ?= {
+		any_this_title_or_de_jure_above = {
+			this = title:k_battania
 		}
 	}
 }
@@ -206,6 +201,13 @@ coa_theocratic_trigger = {
 
 coa_welsh_trigger = {
 	scope:culture = { has_cultural_pillar = heritage_battanian }
+}
+
+coa_tamga_trigger = {
+	OR = {
+		scope:culture = { has_coa_gfx = steppe_coa_gfx }
+		scope:culture = { has_coa_gfx = mongol_coa_gfx }
+	}	
 }
 
 coa_scandinavian_trigger = {

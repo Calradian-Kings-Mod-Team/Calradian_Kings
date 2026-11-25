@@ -85,10 +85,8 @@ can_be_drunkard = {
 		has_trait = hashishiyah
 		has_trait = temperate
 	}
-	faith = { # Cannot be Muslim ( some Muslims did actually drink, but ideally we want Muslims to be Hashishiyahs instead of Drunkards because it is more thematic).
-		NOT = {
-			religion_tag = aserai_religion
-		}
+	NOT = {
+		rite = { rite_has_parameter = alcohol_forbidden_strict }
 	}
 }
 
@@ -137,6 +135,7 @@ can_be_rakish = { # Must have a fitting personality or lifestyle
 		has_sexuality = asexual
 		has_trait = celibate
 		has_trait = chaste
+		has_trait = widow
 	}
 	OR = {
 		has_trait = lustful
@@ -144,8 +143,9 @@ can_be_rakish = { # Must have a fitting personality or lifestyle
 		has_trait = deceitful
 		has_trait = gallant
 		has_trait = seducer
+		num_of_relation_lover >= 3
+		has_trait = ck_royalist
 	}
-	has_trait = widow
 }
 
 can_be_reclusive = { # Must have a fitting personality or lifestyle
@@ -157,6 +157,7 @@ can_be_reclusive = { # Must have a fitting personality or lifestyle
 		has_trait = craven
 		has_trait = cynical
 		has_trait = just # Does this make sense here?
+		has_personal_tenet_flag = tenet_anachoresis_always_cave_hermit
 	}
 }
 
@@ -171,13 +172,14 @@ can_be_irritable = { # Must have a fitting personality or lifestyle
 		has_trait = stubborn
 		has_trait = vengeful
 		has_trait = callous
+		has_trait = ck_militarist
 	}
 }
 
 can_be_flagellant = { # Must have a fitting personality or lifestyle
 	NOR = { 
 		has_trait = flagellant
-		faith = { has_doctrine = special_doctrine_immaterial_harmony }
+		rite = { rite_has_doctrine = special_doctrine_immaterial_harmony }
 	}
 	OR = {
 		has_trait = zealous
@@ -185,6 +187,7 @@ can_be_flagellant = { # Must have a fitting personality or lifestyle
 		has_trait = temperate
 		has_trait = humble
 		has_trait = lifestyle_mystic
+		has_personal_tenet_flag = tenet_mortification_mortify_flesh
 	}
 }
 
@@ -196,6 +199,7 @@ can_be_profligate = { # Must have a fitting personality or lifestyle
 		has_trait = arbitrary
 		has_trait = gregarious
 		has_trait = cynical
+		has_trait = ck_oligarch
 	}
 }
 
@@ -207,6 +211,7 @@ can_be_improvident = { # Must have a fitting personality or lifestyle
 		has_trait = compassionate
 		has_trait = just
 		has_trait = content
+		has_trait = ck_populist
 	}
 }
 
@@ -328,8 +333,8 @@ can_be_eccentric = {
 }
 
 has_witnessed_stress_coping_trait = {
-	NOT = { has_trait = $TRAIT$ }
 	var:witnessed_trait ?= flag:$TRAIT$	
+	NOT = { has_trait = $TRAIT$ }
 }
 
 can_be_burdened = {
@@ -337,19 +342,7 @@ can_be_burdened = {
 		has_trait = burdened
 	}
 	is_adult = no
-	trigger_if = {
-		limit = {
-			rite = { rite_has_doctrine = doctrine_gender_female_dominated }
-		}
-		is_female = yes
-	}
-	trigger_else_if = {
-		limit = {
-			rite = { rite_has_doctrine = doctrine_gender_male_dominated }
-		}
-		is_female = no
-	}
-	trigger_else = { always = yes }
+	rite = { rite_has_dominant_ruling_gender = prev }
 	# TGP flavor stress trait
 	government_allows = merit
 	OR = {
@@ -371,9 +364,8 @@ stress_rite_conversion_trigger = {
 	# A child re-founding their realm's religion over a tantrum is not a story we want.
 	is_adult = yes
 	spiritual_fulfillment < 0
-	rite_fulfillment_score = {
-		target = root.rite
-		value <= 0
+	faith = {
+		fervor <= define:NFaith|BASE_FERVOR
 	}
 	OR = {
 		has_trait = cynical
@@ -381,8 +373,9 @@ stress_rite_conversion_trigger = {
 		has_trait = fickle
 		spiritual_fulfillment < spiritual_fulfillment_minus_1
 	}
-	faith = {
-		fervor <= 50
+	rite_fulfillment_score = {
+		target = root.rite
+		value <= 0
 	}
 	# Must stay in step with stress_threshold.1501's picker, or the option has no rite
 	any_available_rite = {

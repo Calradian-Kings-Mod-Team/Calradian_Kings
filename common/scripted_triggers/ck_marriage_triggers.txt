@@ -1,0 +1,62 @@
+﻿# Is allowed to marry (current marriage/concubine status ignored)
+can_marry_common_trigger = {
+	is_alive = yes
+	NOT = { has_trait_with_flag = can_not_marry }
+	NOT = { has_variable = can_not_marry }
+
+	trigger_if = {
+		limit = {
+			exists = primary_title
+		}
+		NOR = {
+			# Block Mercenaries from marrying or showing up in marriage interactions
+			primary_title = {
+				is_mercenary_company = yes
+			}
+			is_leading_faction_type = peasant_faction
+			is_leading_faction_type = populist_faction
+			government_has_flag = government_is_herder
+		}
+	}
+
+	# Clergy cannot marry if their faith disallows it
+	trigger_if = {
+		limit = { is_clergy = yes }
+		marriage_clergy_can_marry_trigger = yes
+	}
+	trigger_if = {
+		limit = {
+			exists = liege.involved_activity.var:tournament_marriage_prize
+			this = liege.involved_activity.var:tournament_marriage_prize
+		}
+		exists = scope:contest_winner
+	}
+	trigger_if = {
+		limit = {
+			character_is_wb_claimant = yes # Keep pretending you're single
+		}
+		# landing as duke (or camping as adventurer) is good enough?
+		highest_held_title_tier >= tier_duchy
+		is_landless_adventurer = no # Landless Titles are Duchy-tiered, so specify in case they become actually landed
+	}
+}
+
+#Can marry right now
+can_marry_trigger = {
+	can_marry_common_trigger = yes
+	allowed_more_spouses = yes
+	NOR = {
+		has_trait = widow
+		has_trait = calking_slave
+		trigger_if = {
+			limit = {
+				has_character_flag = companion_recruitable_var # Keep companions from marrying before being recruited
+			}
+			NOR = {
+				highest_held_title_tier >= tier_duchy
+				has_character_flag = ck_companion_recruited
+			}
+		}
+	}
+	#To account for a person marrying their concubines please use can_marry_character_trigger
+}

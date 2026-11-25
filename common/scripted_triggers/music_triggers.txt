@@ -71,6 +71,24 @@ should_use_asian_music_trigger = {
 	}
 }
 
+# Merchants hear the music of the regions their trade routes pass through, not only where their capital is
+merchant_has_trade_route_in_region_trigger = {
+	government_has_flag = government_is_merchant
+	any_trade_route = {
+		any_trade_market_on_route = {
+			trade_market_owner.title_province = { geographical_region = $REGION$ }
+		}
+	}
+}
+
+# Kept separate from should_use_asian_music_trigger, which also blocks the generic moodtracks
+should_use_asian_merchant_music_trigger = {
+	OR = {
+		merchant_has_trade_route_in_region_trigger = { REGION = world_asia_and_india }
+		merchant_has_trade_route_in_region_trigger = { REGION = world_tibet }
+	}
+}
+
 should_use_chinese_music_trigger = {
 	OR = {
 		culture = { has_cultural_pillar = heritage_chinese_ck }
@@ -132,6 +150,7 @@ should_use_sami_music_trigger = {
 			exists = capital_province
 			capital_province = { geographical_region = cp4_music_area }
 		}
+		merchant_has_trade_route_in_region_trigger = { REGION = cp4_music_area }
 	}
 }
 
@@ -157,6 +176,7 @@ should_use_iberian_music_trigger = {
 			exists = capital_province
 			capital_province = { geographical_region = region_perassic }
 		}
+		merchant_has_trade_route_in_region_trigger = { REGION = region_perassic }
 	}
 }
 
@@ -182,6 +202,7 @@ should_use_iranian_music_trigger = {
 			exists = capital_province
 			capital_province = { geographical_region = world_persian_empire }
 		}
+		merchant_has_trade_route_in_region_trigger = { REGION = world_persian_empire }
 	}
 }
 
@@ -197,6 +218,7 @@ should_use_specifically_persian_music_trigger = {
 			exists = capital_province
 			capital_province = { geographical_region = world_persian_empire }
 		}
+		merchant_has_trade_route_in_region_trigger = { REGION = world_persian_empire }
 	}
 }
 
@@ -225,6 +247,9 @@ should_use_european_christian_music_trigger = {
 				}
 			}
 		}
+		merchant_has_trade_route_in_region_trigger = { REGION = world_europe_west }
+		merchant_has_trade_route_in_region_trigger = { REGION = world_europe_north }
+		merchant_has_trade_route_in_region_trigger = { REGION = world_europe_south }
 	}
 }
 
@@ -241,6 +266,14 @@ should_use_broadly_european_music_trigger = {
 				}
 			}
 			religion != religion:aserai_religion
+		}
+		AND = {
+			religion != religion:aserai_religion
+			OR = {
+				merchant_has_trade_route_in_region_trigger = { REGION = world_europe_west }
+				merchant_has_trade_route_in_region_trigger = { REGION = world_europe_north }
+				merchant_has_trade_route_in_region_trigger = { REGION = world_europe_south }
+			}
 		}
 		culture ?= {
 			OR = {

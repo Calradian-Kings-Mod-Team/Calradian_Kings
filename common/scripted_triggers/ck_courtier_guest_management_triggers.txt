@@ -1,0 +1,323 @@
+﻿character_is_wb_claimant = {
+	has_variable = wb_claimant
+	save_temporary_scope_as = pretender
+	any_claim = { # despite the name any_pretender_title doesn't do what you think
+		this = scope:pretender.var:wb_claimant # explicitly set variable
+		# tier >= tier_kingdom
+		# pressed = yes
+		# explicit = yes
+		# some of them don't actually qualify
+		# any_past_holder_reversed = {
+		# 	this = scope:pretender
+		# }
+		# holder ?= {
+		# 	OR = {
+		# 		reverse_has_opinion_modifier = {
+		# 			modifier = usurped_title
+		# 			target = scope:pretender
+		# 		}
+		# 		has_relation_rival = scope:pretender
+		# 	}
+		# }
+		#or recent_history if title was replaced via "usurped" instead of rivalry reason
+	}
+}
+
+#This is a localized trigger for checking that a character do not have a spouse that's employed or has some other circumstance blocking them from being recruited to a court
+can_recruit_character_to_court_trigger = {
+	$RECRUITER$ = { save_temporary_scope_as = recruiter }
+	$RECRUITEE$ = { save_temporary_scope_as = recruitee }
+	scope:recruitee = {
+		bp2_valid_for_standard_interactions_trigger = yes
+		trigger_if = {
+			limit = { is_adult = no }
+			custom_description = {
+				text = is_not_wandering_child
+				subject = scope:recruitee
+				OR = {
+					is_close_or_extended_family_of = scope:recruiter
+					scope:recruiter = {
+						any_spouse = {
+							any_child = { this = scope:recruitee }
+						}
+					}
+					trigger_if = {
+						limit = {
+							scope:recruiter.culture = { has_cultural_parameter = wider_adoption }
+							scope:recruitee.culture = { has_cultural_parameter = wider_adoption }
+						}
+						NOT = {
+							any_parent = {
+								is_alive = yes
+								can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = liege }
+							}
+						}
+					}
+				}
+			}
+		}
+		NOR = {
+			is_imprisoned = yes
+			is_theocratic_lessee = yes
+			is_diarch = yes
+			trigger_if = {
+				limit = {
+					exists = host
+					host = { is_ai = no }
+					NOT = { is_player_heir_of = scope:recruiter }
+				}
+				is_player_heir_of = host
+			}
+			trigger_if = {
+				limit = {
+					exists = host
+					host = { is_ai = yes }
+					NOT = { is_player_heir_of = scope:recruiter }
+				}
+				is_primary_heir_of = host
+			}
+			trigger_if = {
+				limit = { exists = host }
+				is_consort_of = host
+			}
+			trigger_if = {
+				limit = { exists = host }
+				host = {
+					pressing_claim_of_character_trigger = { CHARACTER = scope:recruitee }
+				}
+			}
+			trigger_if = {
+				limit = { exists = host }
+				#Are they employed?
+				OR = {
+				is_councillor_of = scope:recruitee.host
+				is_knight_of = scope:recruitee.host
+					custom_description = {
+						text = can_recruit_character_to_court_employed_by_host
+						subject = scope:recruitee
+						OR = {
+							any_relation = {
+								type = ward
+								OR = {
+									this = scope:recruitee.host
+									is_close_family_of = scope:recruitee.host
+								}
+							}
+							any_relation = {
+								type = guardian
+								OR = {
+									this = scope:recruitee.host
+									is_close_family_of = scope:recruitee.host
+								}
+							}
+							any_relation = {
+								type = mentor
+								OR = {
+									this = scope:recruitee.host
+									is_close_family_of = scope:recruitee.host
+								}
+							}
+							any_relation = {
+								type = student
+								OR = {
+									this = scope:recruitee.host
+									is_close_family_of = scope:recruitee.host
+								}
+							}
+							any_court_position_employer = { this = scope:recruitee.host }
+						}
+					}
+				}
+			}
+			trigger_if = {
+				limit = {
+					scope:recruiter = { has_government = landless_adventurer_government }
+				}
+				custom_tooltip = {
+					text = can_recruit_character_to_court_trigger.tt.laamps_invitation_restrictions
+					NOR = {
+						is_player_heir_of = scope:recruiter
+						has_relation_soulmate = scope:recruiter
+						has_relation_best_friend = scope:recruiter
+						is_consort_of = scope:recruiter
+						AND = {
+							is_pool_character = yes
+							OR = {
+								has_relation_friend = scope:recruiter
+								has_relation_lover = scope:recruiter
+								is_close_family_of = scope:recruiter
+							}
+						}
+					}
+				}
+			}
+			
+			#Do they have the "wrong" marriage type and the spouse is employed?
+			custom_description = {
+				text = is_married_matrilineally_and_spouse_is_dominant_partner
+				subject = scope:recruitee
+				any_spouse = {
+					is_female = yes
+					matrilinear_marriage = yes
+					host ?= scope:recruitee.host
+					save_temporary_scope_as = spouse
+					OR = { #Is employed in some way
+						is_councillor_of = scope:recruitee.host
+						is_knight_of = scope:recruitee.host
+						any_relation = {
+							type = ward
+							OR = {
+								this = scope:recruitee.host
+								is_close_family_of = scope:recruitee.host
+							}
+						}
+						any_relation = {
+							type = guardian
+							OR = {
+								this = scope:recruitee.host
+								is_close_family_of = scope:recruitee.host
+							}
+						}
+						any_relation = {
+							type = mentor
+							OR = {
+								this = scope:recruitee.host
+								is_close_family_of = scope:recruitee.host
+							}
+						}
+						any_relation = {
+							type = student
+							OR = {
+								this = scope:recruitee.host
+								is_close_family_of = scope:recruitee.host
+							}
+						}
+						scope:spouse = {
+							any_court_position_employer = { this = scope:recruitee.host }
+						}
+					}
+				}
+			}
+			custom_description = {
+				text = is_married_patrilineally_and_spouse_is_dominant_partner
+				subject = scope:recruitee
+				any_spouse = {
+					is_male = yes
+					patrilinear_marriage = yes
+					host ?= scope:recruitee.host
+					save_temporary_scope_as = spouse
+					OR = { #Is employed in some way
+						is_councillor_of = scope:recruitee.host
+						is_knight_of = scope:recruitee.host
+						any_relation = {
+							type = ward
+							OR = {
+								this = scope:recruitee.host
+								is_close_family_of = scope:recruitee.host
+							}
+						}
+						any_relation = {
+							type = guardian
+							OR = {
+								this = scope:recruitee.host
+								is_close_family_of = scope:recruitee.host
+							}
+						}
+						any_relation = {
+							type = mentor
+							OR = {
+								this = scope:recruitee.host
+								is_close_family_of = scope:recruitee.host
+							}
+						}
+						any_relation = {
+							type = student
+							OR = {
+								this = scope:recruitee.host
+								is_close_family_of = scope:recruitee.host
+							}
+						}
+						scope:spouse = {
+							any_court_position_employer = { this = scope:recruitee.host }
+						}
+					}
+				}
+			}
+			custom_description = {
+				text = "is_escaped_prisoner"
+				subject = scope:recruitee
+				OR = {
+					has_opinion_modifier = {
+						modifier = attempted_imprisonment_opinion
+						target = scope:recruiter
+					}
+					has_opinion_modifier = {
+						modifier = treasonous_imprison_refusal
+						target = scope:recruiter
+					}
+					AND = {
+						exists = var:escaped_imprisonment_from
+						var:escaped_imprisonment_from = scope:recruiter
+					}
+				}
+			}
+			trigger_if = {
+				limit = {
+					scope:recruitee ?= {
+						OR = {
+							# ai_boldness < high_positive_ai_value
+							dread_modified_ai_boldness = {
+								dreaded_character = scope:recruiter
+								value < high_positive_ai_value
+							}
+							character_is_wb_claimant = yes
+						}
+						trigger_if = {
+							limit = {
+								has_variable_list = claimant_factions
+							}
+							NOT = {
+								any_in_list = {
+									variable = claimant_factions
+									# special_title ?= {
+									# 	tier >= tier_kingdom
+									# }
+									any_faction_member = {
+										# should this be the faction leader?
+										this = scope:recruiter
+										# and should it be actually viable?
+									}
+								}
+							}
+						}
+					}
+				}
+				scope:recruitee = {
+					custom_description = {
+						text = wb_claimant_warning_tt
+						any_claim = {
+							pressed = yes
+							tier >= tier_kingdom
+							holder ?= { 
+								OR = {
+									this = scope:recruiter
+									this = scope:recruiter.top_overlord
+								}
+								#demand courtier interaction is why we don't use top_liege
+							}
+						}
+					# 	# subject = scope:recruiter
+						object = scope:recruiter.top_overlord
+					}
+				}
+			}
+			custom_description = {
+				text = "is_paiza_merchant"
+				subject = scope:recruitee
+				scope:recruitee = {
+					has_variable = merchant_var
+				}
+			}
+		}
+	}
+}

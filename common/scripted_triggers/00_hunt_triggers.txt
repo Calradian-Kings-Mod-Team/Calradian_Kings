@@ -343,10 +343,7 @@ hunt_animal_big_available_trigger = {
 		geographical_region = region_west_isles # No big animals on the Western Isles
 	}
 	OR = {
-		OR = {
-			has_building_or_higher = hunting_grounds_01
-			has_building_or_higher = royal_forest_01
-		}
+		has_hunting_district_or_building = yes
 		trigger_if = {
 			limit = { exists = duchy }
 			NOR = {
@@ -361,10 +358,7 @@ hunt_animal_big_available_trigger = {
 
 hunt_animal_small_available_trigger = {
 	OR = {
-		OR = {
-			has_building_or_higher = hunting_grounds_01
-			has_building_or_higher = royal_forest_01
-		}
+		has_hunting_district_or_building = yes
 		AND = {
 			trigger_if = {
 				limit = { exists = county }
@@ -439,6 +433,7 @@ hunt_activity_herd_game_trigger = {
 		hunt_activity_deer_antelope_game_trigger = { VAR = $VAR$ }
 		$VAR$ ?= flag:bison
 		$VAR$ ?= flag:aurochs
+		$VAR$ ?= flag:elephant
 	}
 }
 
@@ -450,6 +445,9 @@ hunt_activity_exotic_bird_trigger = {
 		$VAR$ ?= flag:egret
 		$VAR$ ?= flag:flamingo
 		$VAR$ ?= flag:pelican
+		$VAR$ ?= flag:peacock
+		$VAR$ ?= flag:cockatoo
+		$VAR$ ?= flag:parrot
 	}
 }
 
@@ -469,6 +467,9 @@ hunt_activity_bird_trigger = {
 		$VAR$ ?= flag:egret
 		$VAR$ ?= flag:flamingo
 		$VAR$ ?= flag:pelican
+		$VAR$ ?= flag:peacock
+		$VAR$ ?= flag:cockatoo
+		$VAR$ ?= flag:parrot
 	}
 }
 
@@ -478,6 +479,7 @@ hunt_activity_ground_bird_trigger = {
 		$VAR$ ?= flag:bustard
 		$VAR$ ?= flag:grouse
 		$VAR$ ?= flag:quail
+		$VAR$ ?= flag:peacock
 	}
 }
 
@@ -496,10 +498,10 @@ hunt_sighting_event_trigger = {
 	is_available_adult = yes
 	is_landless_adventurer = no
 	NOT = { has_character_flag = recent_hunt_sighting }
-	trigger_if = {
-		limit = { is_landed = no }
-		NOT = { domicile.domicile_location ?= province:902 }
-	}
+	# trigger_if = {
+	# 	limit = { is_landed = no }
+	# 	NOT = { domicile.domicile_location ?= province:902 }
+	# }
 	OR = {
 		court_position:master_of_hunt_court_position ?= { is_available_adult = yes }
 		court_position:huntperson_camp_officer ?= { is_available_adult = yes }
@@ -1070,5 +1072,21 @@ hunt_is_nerge_type = {
 activity_is_nerge_type = {
 	scope:activity ?= {
 		hunt_is_nerge_type = yes
+	}
+}
+
+hunt_option_costs_gold_trigger = {
+	NOR = {
+		government_has_flag = government_is_nomadic
+		has_character_flag = free_hunt
+		AND = {
+			has_character_flag = free_falconry
+			scope:special_option ?= flag:hunt_type_falconry
+		}
+		government_has_flag = government_is_mandala
+		AND = {
+			house ?= { has_house_aspiration_parameter = hunts_costs_treasury }
+			has_treasury = yes
+		}
 	}
 }

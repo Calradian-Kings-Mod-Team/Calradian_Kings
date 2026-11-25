@@ -21,25 +21,22 @@ drinks_alcohol_trigger = {
 }
 
 faith_forbids_alcohol_trigger = {
-	OR = {
-		AND = {
-			has_trait = zealous
-			religion = religion:aserai_religion # Discouraged as it disrupts progress to follow Asera
-		}
-		AND = {
-			has_trait = zealous
-			religion = religion:shantaya_religion # Discouraged as it disrupts progress along the eightfold path
-		}
-	}
+    rite = { rite_has_parameter = alcohol_forbidden }
+    OR = {
+        # Restricted for everyone
+        rite = { rite_has_parameter = alcohol_forbidden_strict }
+        # Lowborns receive the first restrictions on alchohol
+        is_lowborn = yes
+        # Pious figures should not be doing this
+        is_clergy = yes
+        has_trait = devoted
+        has_trait = temperate
+    }
 }
 
 # If you need to check if a county drinks alcohol.
 faith_only_forbids_alcohol_trigger = {
-	OR = {
-		religion = religion:aserai_religion # Prohibited by khamr, a prohibition against intoxicants
-		# religion = religion:jainism_religion # Prohibited along with the consumption of any fermented food
-		religion = religion:shantaya_religion # Discouraged as it disrupts progress along the eightfold path
-	}
+	main_rite = { rite_has_parameter = alcohol_forbidden }
 }
 
 holder_or_above_is_player_of_culture = {
@@ -119,7 +116,7 @@ culture_not_warlike_trigger = {
 			culture_tradition:tradition_martial_admiration = { is_in_list = traits }
 			culture_tradition:tradition_tgp_bushido = { is_in_list = traits }
 			culture_tradition:tradition_tgp_defiant_ambushers = { is_in_list = traits }
-			# culture_tradition:tradition_tgp_warrior_monks = { is_in_list = traits }
+			culture_tradition:tradition_tgp_warrior_monks = { is_in_list = traits }
 			culture_tradition:tradition_tgp_art_of_war = { is_in_list = traits }
 		}
 	}
@@ -644,9 +641,7 @@ is_vegetarian_trigger = {
 }
 
 faith_is_vegetarian_trigger = {
-	faith = {
-		religion = religion:shantaya_religion
-	}
+	rite = { rite_has_parameter = meat_forbidden }
 }
 
 culture_tradition_reduction_trigger = {
