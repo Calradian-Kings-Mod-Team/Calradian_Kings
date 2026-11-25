@@ -110,7 +110,6 @@ city_01 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_se_asia_city_01_a_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_seasia
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/sea_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { southeast_asian_building_gfx }
@@ -120,7 +119,6 @@ city_01 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_chinese_city_01_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_china
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/chinese_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { chinese_building_gfx }
@@ -130,7 +128,6 @@ city_01 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_japanese_city_01_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_japan
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/japanese_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { japanese_building_gfx }
@@ -154,13 +151,12 @@ city_01 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_chinese_city_01_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_china
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/chinese_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { steppe_building_gfx }
 			graphical_regions = { graphical_east_asia } #Use East Asian in East Asia
 		}
-		#Steppe - South Asia, includes East Asia if you lack TGP
+		#Steppe - South Asia
 		asset = {
 			type = pdxmesh
 			names = {
@@ -169,7 +165,7 @@ city_01 = {
 			illustration = @holding_illustration_india
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/indian_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { steppe_building_gfx }
-			graphical_regions = { graphical_india graphical_east_asia }
+			graphical_regions = { graphical_india }
 		}
 		#Steppe - Mediterranean graphical_mediterranean
 		asset = {
@@ -456,12 +452,6 @@ city_01 = {
 		barony_cannot_construct_holding = no
 	}
 
-	can_construct = {
-		culture = {
-			has_innovation = innovation_city_planning
-		}
-	}
-
 	can_construct_showing_failures_only = {
 		building_requirement_tribal_ck_castles = no
 		building_requirement_tribal_holding_in_county = yes
@@ -472,45 +462,801 @@ city_01 = {
 	}
 	cost_gold = main_building_tier_1_cost
 
-	levy = poor_building_levy_tier_2
-	max_garrison = normal_building_max_garrison_tier_1
+	levy = normal_building_levy_tier_1
+	max_garrison = poor_building_max_garrison_tier_1
 	garrison_reinforcement_factor = building_garrison_reinforcement_factor_tier_1
+	market_rite_modifier = {
+		parameter = textiles_in_demand
+		trade_good_textiles_sell_price_mult = 0.01
+	}
+	market_culture_modifier = {
+		parameter = vegetarianism_no_meat_buildings
+		trade_good_fish_sell_price_mult = holding_diet_no_fish_sell_price_mult
+	}
+	market_rite_modifier = {
+		parameter = diet_needs_comforts
+		trade_good_fish_sell_price_mult = holding_diet_no_fish_sell_price_mult
+	}
+
 	province_modifier = {
-		monthly_income = good_building_tax_tier_2
-		travel_danger = -10
+		building_slots_for_host_district = 1
+		monthly_urban_tax = good_building_tax_halved_tier_2
+		province_size_baseline_add = holding_primary_province_size_baseline_tier_1
+		stationed_maa_toughness_mult = low_maa_toughness_tier_1
+		stationed_maa_damage_mult = low_maa_damage_tier_1
+	}
+
+	character_government_modifier = {
+		parameter = government_is_republic
+		trade_competitiveness_add = 10
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		province_size = 1
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	#Meats
+	#Together with Cereal Needs these offset the penalty to size growth from size levels.
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		province_size = 1
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		province_size = 1
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
 	}
 
 	province_culture_modifier = {
 		parameter = city_buildings_more_powerful
 		levy_size = 0.25
-		tax_mult = 0.01
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_more_county_opinion
-		county_opinion_add = 5
+		urban_tax_mult = 0.005
 	}
 
 	province_terrain_modifier = {
-		parameter = maritime_mercantilism_coastal_holdings
+		parameter = maritime_mercantilism_coastal_districts
 		is_coastal = yes
-		tax_mult = maritime_mercantilism_coastal_holdings_value
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_more_powerful
-		development_growth_factor = 0.05
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_less_control
-		monthly_county_control_growth_factor = -0.25
-	}
-
-	province_terrain_modifier = {
-		parameter = coastal_holding_bonuses
-		is_coastal = yes
-		build_speed = -0.1
+		market_district_district_build_gold_cost = -0.1
+		guild_district_district_build_gold_cost = -0.1
 	}
 
 	province_terrain_modifier = {
@@ -518,16 +1264,31 @@ city_01 = {
 		is_coastal = yes
 		defender_holding_advantage = 2
 	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = forest
+		monthly_religious_tax = poor_building_tax_halved_tier_1
+	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = jungle
+		monthly_religious_tax = poor_building_tax_halved_tier_1
+	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = taiga
+		monthly_religious_tax = poor_building_tax_halved_tier_1
+	}
 
 	county_dynasty_modifier = {
 		county_holder_dynasty_perk = fp2_urbanism_legacy_1 # check if the dynasty of the county holder has a specific perk
-		development_growth_factor = fp2_urbanism_legacy_1_bonus_value
+		prosperity_growth_factor = fp2_urbanism_legacy_1_bonus_value
 	}
 
 	flag = city
 	next_building = city_02
 
-	type_icon = "icon_building_guild_halls.dds"
+	type_icon = "holding_buildings/city.dds"
 
 	on_complete = {
 		county.holder = {
@@ -560,15 +1321,191 @@ city_01 = {
 					county.holder = {
 						has_character_modifier = oath_of_buildings
 					}
+					exists = holding_district
 				}
-				county.holder = { save_scope_as = holder }
-				add_random_economic_building_effect = yes
-				add_random_military_building_effect = yes
-				add_random_fortification_building_effect = yes
+				holding_district = { save_scope_as = oath_holding_district }
+				build_random_district_building = { district = scope:oath_holding_district }
+				build_random_district_building = { district = scope:oath_holding_district }
+				build_random_district_building = { district = scope:oath_holding_district }
 			}
 		}
 	}
 
+	market_culture_modifier = {
+		parameter = fur_trimmed_finery
+		trade_good_furs_sell_price_mult = fur_finery_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_furs
+		amount = fur_finery_need
+		culture_parameter = fur_trimmed_finery
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = fur_finery_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = spiced_cuisine
+		trade_good_spices_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_spices
+		amount = spiced_cuisine_need
+		culture_parameter = spiced_cuisine
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = spiced_cuisine_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = cloth_mordant_alum
+		trade_good_alum_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_alum
+		amount = cloth_alum_need
+		culture_parameter = cloth_mordant_alum
+		potential_trade_good = trade_good_wool
+		modifiers = {
+			province_modifier = {
+				trade_good_textiles_production_mult = alum_cloth_output_mult
+				trade_category_fabrics_production_mult = alum_cloth_output_mult
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = northern_wine_imports
+		trade_good_wine_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_wine
+		amount = northern_wine_need
+		culture_parameter = northern_wine_imports
+		not_rite_parameter = alcohol_forbidden
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = northern_wine_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = northern_beer_imports
+		trade_good_beer_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_beer
+		amount = northern_beer_need
+		culture_parameter = northern_beer_imports
+		not_rite_parameter = alcohol_forbidden
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = northern_beer_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = saharan_gold_minting
+		trade_good_gold_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_gold
+		amount = saharan_gold_need
+		culture_parameter = saharan_gold_minting
+		modifiers = {
+			province_modifier = {
+				urban_tax_mult = regional_tax_mult_per_need
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = silver_ingot_currency
+		trade_good_silver_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_silver
+		amount = rus_silver_need
+		culture_parameter = silver_ingot_currency
+		modifiers = {
+			province_modifier = {
+				urban_tax_mult = regional_tax_mult_per_need
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = imported_porcelain_display
+		trade_good_ceramics_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_ceramics
+		amount = imported_porcelain_need
+		culture_parameter = imported_porcelain_display
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = imported_porcelain_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = fustian_weaving
+		trade_good_cotton_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_cotton
+		amount = fustian_cotton_need
+		culture_parameter = fustian_weaving
+		modifiers = {
+			province_modifier = {
+				artisan_tax_mult = regional_tax_mult_per_need
+				trade_good_textiles_production_mult = fustian_textiles_output_mult
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = ivory_carving_patronage
+		trade_good_ivory_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_ivory
+		amount = ivory_carving_need
+		culture_parameter = ivory_carving_patronage
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = ivory_carving_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = fleet_timber_imports
+		trade_good_wood_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_wood
+		amount = fleet_timber_need
+		culture_parameter = fleet_timber_imports
+		is_coastal = yes
+		modifiers = {
+			province_modifier = {
+				monthly_maritime_tax = poor_building_tax_tier_1
+			}
+		}
+	}
+	market_government_modifier = {
+		parameter = government_is_republic
+		trade_good_hemp_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_hemp
+		amount = arsenal_hemp_need
+		government_flag = government_is_republic
+		is_coastal = yes
+		modifiers = {
+			province_modifier = {
+				monthly_maritime_tax = poor_building_tax_tier_1
+			}
+		}
+	}
 	ai_value = {
 		base = 0
 		modifier = {
@@ -699,7 +1636,6 @@ city_02 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_se_asia_city_01_a_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_seasia
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/sea_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { southeast_asian_building_gfx }
@@ -709,7 +1645,6 @@ city_02 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_chinese_city_01_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_china
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/chinese_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { chinese_building_gfx }
@@ -719,7 +1654,6 @@ city_02 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_japanese_city_01_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_japan
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/japanese_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { japanese_building_gfx }
@@ -743,13 +1677,12 @@ city_02 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_chinese_city_01_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_china
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/chinese_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { steppe_building_gfx }
 			graphical_regions = { graphical_east_asia } #Use East Asian in East Asia
 		}
-		#Steppe - South Asia, includes East Asia if you lack TGP
+		#Steppe - South Asia
 		asset = {
 			type = pdxmesh
 			names = {
@@ -758,7 +1691,7 @@ city_02 = {
 			illustration = @holding_illustration_india
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/indian_city" soundparameter = { "Tier" = 0 } }
 			graphical_cultures = { steppe_building_gfx }
-			graphical_regions = { graphical_india graphical_east_asia }
+			graphical_regions = { graphical_india }
 		}
 		#Steppe - Mediterranean graphical_mediterranean
 		asset = {
@@ -1044,7 +1977,7 @@ city_02 = {
 	can_construct_potential = {
 		building_requirement_tribal_ck_castles = no
 	}
-	can_construct = {
+	can_construct_showing_failures_only = {
 		trigger_if = {
 			limit = {
 				NOT = {
@@ -1053,9 +1986,7 @@ city_02 = {
 					}
 				}
 			}
-			culture = {
-				has_innovation = innovation_manorialism
-			}
+			building_holding_early_medieval_trigger = yes
 		}
 		trigger_else = {
 			culture = {
@@ -1065,45 +1996,789 @@ city_02 = {
 	}
 	cost_gold = main_building_tier_2_cost
 
-	levy = poor_building_levy_tier_4
-	max_garrison = normal_building_max_garrison_tier_2
+	levy = normal_building_levy_tier_2
+	max_garrison = poor_building_max_garrison_tier_2
 	garrison_reinforcement_factor = building_garrison_reinforcement_factor_tier_2
+
 	province_modifier = {
-		monthly_income = good_building_tax_tier_4
-		travel_danger = -12
+		building_slots_for_host_district = 2
+		monthly_urban_tax = good_building_tax_halved_tier_4
+		province_size_baseline_add = holding_primary_province_size_baseline_tier_2
+		stationed_maa_toughness_mult = low_maa_toughness_tier_2
+		stationed_maa_damage_mult = low_maa_damage_tier_2
+	}
+
+	character_government_modifier = {
+		parameter = government_is_republic
+		trade_competitiveness_add = 10
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		province_size = 1
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	#Meats
+	#Together with Cereal Needs these offset the penalty to size growth from size levels.
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		province_size = 1
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		province_size = 1
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
 	}
 
 	province_culture_modifier = {
 		parameter = city_buildings_more_powerful
 		levy_size = 0.5
-		tax_mult = 0.02
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_more_county_opinion
-		county_opinion_add = 10
+		urban_tax_mult = 0.01
 	}
 
 	province_terrain_modifier = {
-		parameter = maritime_mercantilism_coastal_holdings
+		parameter = maritime_mercantilism_coastal_districts
 		is_coastal = yes
-		tax_mult = maritime_mercantilism_coastal_holdings_value
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_more_powerful
-		development_growth_factor = 0.1
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_less_control
-		monthly_county_control_growth_factor = -0.25
-	}
-
-	province_terrain_modifier = {
-		parameter = coastal_holding_bonuses
-		is_coastal = yes
-		build_speed = -0.1
+		market_district_district_build_gold_cost = -0.1
+		guild_district_district_build_gold_cost = -0.1
 	}
 
 	province_terrain_modifier = {
@@ -1111,13 +2786,41 @@ city_02 = {
 		is_coastal = yes
 		defender_holding_advantage = 3
 	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = forest
+		monthly_religious_tax = poor_building_tax_halved_tier_2
+	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = jungle
+		monthly_religious_tax = poor_building_tax_halved_tier_2
+	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = taiga
+		monthly_religious_tax = poor_building_tax_halved_tier_2
+	}
 
 	county_dynasty_modifier = {
 		county_holder_dynasty_perk = fp2_urbanism_legacy_1 # check if the dynasty of the county holder has a specific perk
-		development_growth_factor = fp2_urbanism_legacy_1_bonus_value
+		prosperity_growth_factor = fp2_urbanism_legacy_1_bonus_value
 	}
 
 	flag = city
+	market_rite_modifier = {
+		parameter = textiles_in_demand
+		trade_good_textiles_sell_price_mult = 0.01
+	}
+	market_culture_modifier = {
+		parameter = vegetarianism_no_meat_buildings
+		trade_good_fish_sell_price_mult = holding_diet_no_fish_sell_price_mult
+	}
+	market_rite_modifier = {
+		parameter = diet_needs_comforts
+		trade_good_fish_sell_price_mult = holding_diet_no_fish_sell_price_mult
+	}
+
 	next_building = city_03
 
 	on_complete = {
@@ -1144,24 +2847,205 @@ city_02 = {
 		#Mandala Creator Aspect
 		creator_mandala_upgraded_regular_holding_piety_effect = yes
 	}
+	market_culture_modifier = {
+		parameter = fur_trimmed_finery
+		trade_good_furs_sell_price_mult = fur_finery_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_furs
+		amount = fur_finery_need
+		culture_parameter = fur_trimmed_finery
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = fur_finery_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = spiced_cuisine
+		trade_good_spices_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_spices
+		amount = spiced_cuisine_need
+		culture_parameter = spiced_cuisine
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = spiced_cuisine_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = cloth_mordant_alum
+		trade_good_alum_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_alum
+		amount = cloth_alum_need
+		culture_parameter = cloth_mordant_alum
+		potential_trade_good = trade_good_wool
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			province_modifier = {
+				trade_good_textiles_production_mult = alum_cloth_output_mult
+				trade_category_fabrics_production_mult = alum_cloth_output_mult
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = northern_wine_imports
+		trade_good_wine_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_wine
+		amount = northern_wine_need
+		culture_parameter = northern_wine_imports
+		not_rite_parameter = alcohol_forbidden
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = northern_wine_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = northern_beer_imports
+		trade_good_beer_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_beer
+		amount = northern_beer_need
+		culture_parameter = northern_beer_imports
+		not_rite_parameter = alcohol_forbidden
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = northern_beer_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = saharan_gold_minting
+		trade_good_gold_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_gold
+		amount = saharan_gold_need
+		culture_parameter = saharan_gold_minting
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			province_modifier = {
+				urban_tax_mult = regional_tax_mult_per_need
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = silver_ingot_currency
+		trade_good_silver_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_silver
+		amount = rus_silver_need
+		culture_parameter = silver_ingot_currency
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			province_modifier = {
+				urban_tax_mult = regional_tax_mult_per_need
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = imported_porcelain_display
+		trade_good_ceramics_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_ceramics
+		amount = imported_porcelain_need
+		culture_parameter = imported_porcelain_display
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = imported_porcelain_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = fustian_weaving
+		trade_good_cotton_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_cotton
+		amount = fustian_cotton_need
+		culture_parameter = fustian_weaving
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			province_modifier = {
+				artisan_tax_mult = regional_tax_mult_per_need
+				trade_good_textiles_production_mult = fustian_textiles_output_mult
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = ivory_carving_patronage
+		trade_good_ivory_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_ivory
+		amount = ivory_carving_need
+		culture_parameter = ivory_carving_patronage
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = ivory_carving_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = fleet_timber_imports
+		trade_good_wood_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_wood
+		amount = fleet_timber_need
+		culture_parameter = fleet_timber_imports
+		is_coastal = yes
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			province_modifier = {
+				monthly_maritime_tax = poor_building_tax_tier_1
+			}
+		}
+	}
+	market_government_modifier = {
+		parameter = government_is_republic
+		trade_good_hemp_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_hemp
+		amount = arsenal_hemp_need
+		government_flag = government_is_republic
+		is_coastal = yes
+		can_be_filled_multiple_times = 2
+		modifiers = {
+			province_modifier = {
+				monthly_maritime_tax = poor_building_tax_tier_1
+			}
+		}
+	}
 	ai_value = {
-		base = 6
+		base = 10
+		ai_upgrade_holding_modifier = yes
 		modifier = {
-			add = 1
+			add = 0.1
 			scope:holder.culture = { has_cultural_parameter = ai_more_likely_to_city }
-		}
-		modifier = {
-			factor = 2
-			scope:holder.capital_province = this
-		}
-		modifier = {
-			factor = 0.1
-			free_building_slots >= 1
 		}
 		modifier = {
 			factor = 0.3
 			years_from_game_start <= 0.01
 		}
+		ai_capital_preference_modifier = yes
+		ai_holding_district_upgrade_modifier = { LEVEL = 2 }
 	}
 }
 
@@ -1264,7 +3148,6 @@ city_03 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_se_asia_city_02_a_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_seasia
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/sea_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { southeast_asian_building_gfx }
@@ -1274,7 +3157,6 @@ city_03 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_chinese_city_02_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_china
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/chinese_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { chinese_building_gfx }
@@ -1284,7 +3166,6 @@ city_03 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_japanese_city_02_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_japan
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/japanese_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { japanese_building_gfx }
@@ -1308,13 +3189,12 @@ city_03 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_chinese_city_02_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_china
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/chinese_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { steppe_building_gfx }
 			graphical_regions = { graphical_east_asia } #Use East Asian in East Asia
 		}
-		#Steppe - South Asia, includes East Asia if you lack TGP
+		#Steppe - South Asia
 		asset = {
 			type = pdxmesh
 			names = {
@@ -1323,7 +3203,7 @@ city_03 = {
 			illustration = @holding_illustration_india
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/indian_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { steppe_building_gfx }
-			graphical_regions = { graphical_india graphical_east_asia }
+			graphical_regions = { graphical_india }
 		}
 		#Steppe - Mediterranean graphical_mediterranean
 		asset = {
@@ -1597,7 +3477,7 @@ city_03 = {
 	can_construct_potential = {
 		building_requirement_tribal_ck_castles = no
 	}
-	can_construct = {
+	can_construct_showing_failures_only = {
 		trigger_if = {
 			limit = {
 				NOT = {
@@ -1606,62 +3486,811 @@ city_03 = {
 					}
 				}
 			}
-			culture = {
-				has_innovation = innovation_windmills
-			}
+			building_holding_high_medieval_trigger = yes
 		}
 		trigger_else = {
-			culture = {
-				has_cultural_parameter = next_level_cities
-			}
-			culture = {
-				has_innovation = innovation_manorialism
-			}
+			building_holding_early_medieval_trigger = yes
 		}
 	}
 	cost_gold = main_building_tier_3_cost
+	market_rite_modifier = {
+		parameter = textiles_in_demand
+		trade_good_textiles_sell_price_mult = 0.01
+	}
+	market_culture_modifier = {
+		parameter = vegetarianism_no_meat_buildings
+		trade_good_fish_sell_price_mult = holding_diet_no_fish_sell_price_mult
+	}
+	market_rite_modifier = {
+		parameter = diet_needs_comforts
+		trade_good_fish_sell_price_mult = holding_diet_no_fish_sell_price_mult
+	}
+
 	next_building = city_04
 
-	levy = poor_building_levy_tier_6
-	max_garrison = normal_building_max_garrison_tier_3
+	levy = normal_building_levy_tier_3
+	max_garrison = poor_building_max_garrison_tier_3
 	garrison_reinforcement_factor = building_garrison_reinforcement_factor_tier_3
+
 	province_modifier = {
-		monthly_income = good_building_tax_tier_6
-		travel_danger = -14
+		building_slots_for_host_district = 3
+		monthly_urban_tax = good_building_tax_halved_tier_6
+		province_size_baseline_add = holding_primary_province_size_baseline_tier_3
+		stationed_maa_toughness_mult = low_maa_toughness_tier_3
+		stationed_maa_damage_mult = low_maa_damage_tier_3
+	}
+
+	character_government_modifier = {
+		parameter = government_is_republic
+		trade_competitiveness_add = 10
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		province_size = 1
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	#Meats
+	#Together with Cereal Needs these offset the penalty to size growth from size levels.
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		province_size = 1
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		province_size = 1
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
 	}
 
 	province_culture_modifier = {
 		parameter = city_buildings_more_powerful
 		levy_size = 0.75
-		tax_mult = 0.03
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_more_county_opinion
-		county_opinion_add = 15
-	}
-
-
-	province_terrain_modifier = {
-		parameter = maritime_mercantilism_coastal_holdings
-		is_coastal = yes
-		tax_mult = maritime_mercantilism_coastal_holdings_value
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_more_powerful
-		development_growth_factor = 0.15
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_less_control
-		monthly_county_control_growth_factor = -0.25
+		urban_tax_mult = 0.015
 	}
 
 	province_terrain_modifier = {
-		parameter = coastal_holding_bonuses
+		parameter = maritime_mercantilism_coastal_districts
 		is_coastal = yes
-		build_speed = -0.1
+		market_district_district_build_gold_cost = -0.1
+		guild_district_district_build_gold_cost = -0.1
 	}
 
 	province_terrain_modifier = {
@@ -1669,10 +4298,25 @@ city_03 = {
 		is_coastal = yes
 		defender_holding_advantage = 4
 	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = forest
+		monthly_religious_tax = poor_building_tax_halved_tier_3
+	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = jungle
+		monthly_religious_tax = poor_building_tax_halved_tier_3
+	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = taiga
+		monthly_religious_tax = poor_building_tax_halved_tier_3
+	}
 
 	county_dynasty_modifier = {
 		county_holder_dynasty_perk = fp2_urbanism_legacy_1 # check if the dynasty of the county holder has a specific perk
-		development_growth_factor = fp2_urbanism_legacy_1_bonus_value
+		prosperity_growth_factor = fp2_urbanism_legacy_1_bonus_value
 	}
 
 	flag = city
@@ -1701,16 +4345,201 @@ city_03 = {
 		#Mandala Creator Aspect
 		creator_mandala_upgraded_regular_holding_piety_effect = yes
 	}
+	market_culture_modifier = {
+		parameter = fur_trimmed_finery
+		trade_good_furs_sell_price_mult = fur_finery_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_furs
+		amount = fur_finery_need
+		culture_parameter = fur_trimmed_finery
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = fur_finery_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = spiced_cuisine
+		trade_good_spices_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_spices
+		amount = spiced_cuisine_need
+		culture_parameter = spiced_cuisine
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = spiced_cuisine_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = cloth_mordant_alum
+		trade_good_alum_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_alum
+		amount = cloth_alum_need
+		culture_parameter = cloth_mordant_alum
+		potential_trade_good = trade_good_wool
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			province_modifier = {
+				trade_good_textiles_production_mult = alum_cloth_output_mult
+				trade_category_fabrics_production_mult = alum_cloth_output_mult
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = northern_wine_imports
+		trade_good_wine_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_wine
+		amount = northern_wine_need
+		culture_parameter = northern_wine_imports
+		not_rite_parameter = alcohol_forbidden
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = northern_wine_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = northern_beer_imports
+		trade_good_beer_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_beer
+		amount = northern_beer_need
+		culture_parameter = northern_beer_imports
+		not_rite_parameter = alcohol_forbidden
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = northern_beer_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = saharan_gold_minting
+		trade_good_gold_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_gold
+		amount = saharan_gold_need
+		culture_parameter = saharan_gold_minting
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			province_modifier = {
+				urban_tax_mult = regional_tax_mult_per_need
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = silver_ingot_currency
+		trade_good_silver_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_silver
+		amount = rus_silver_need
+		culture_parameter = silver_ingot_currency
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			province_modifier = {
+				urban_tax_mult = regional_tax_mult_per_need
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = imported_porcelain_display
+		trade_good_ceramics_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_ceramics
+		amount = imported_porcelain_need
+		culture_parameter = imported_porcelain_display
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = imported_porcelain_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = fustian_weaving
+		trade_good_cotton_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_cotton
+		amount = fustian_cotton_need
+		culture_parameter = fustian_weaving
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			province_modifier = {
+				artisan_tax_mult = regional_tax_mult_per_need
+				trade_good_textiles_production_mult = fustian_textiles_output_mult
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = ivory_carving_patronage
+		trade_good_ivory_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_ivory
+		amount = ivory_carving_need
+		culture_parameter = ivory_carving_patronage
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = ivory_carving_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = fleet_timber_imports
+		trade_good_wood_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_wood
+		amount = fleet_timber_need
+		culture_parameter = fleet_timber_imports
+		is_coastal = yes
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			province_modifier = {
+				monthly_maritime_tax = poor_building_tax_tier_1
+			}
+		}
+	}
+	market_government_modifier = {
+		parameter = government_is_republic
+		trade_good_hemp_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_hemp
+		amount = arsenal_hemp_need
+		government_flag = government_is_republic
+		is_coastal = yes
+		can_be_filled_multiple_times = 3
+		modifiers = {
+			province_modifier = {
+				monthly_maritime_tax = poor_building_tax_tier_1
+			}
+		}
+	}
 	ai_value = {
-		base = 5
+		base = 9.9
+		ai_upgrade_holding_modifier = yes
 		modifier = {
-			add = 1
+			add = 0.1
 			scope:holder.culture = { has_cultural_parameter = ai_more_likely_to_city }
 		}
-		modifier = {
-			factor = 2
-			scope:holder.capital_province = this
-		}
+		ai_capital_preference_modifier = yes
+		ai_holding_district_upgrade_modifier = { LEVEL = 3 }
 	}
 }
 
@@ -1813,7 +4642,6 @@ city_04 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_se_asia_city_02_a_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_seasia
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/sea_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { southeast_asian_building_gfx }
@@ -1823,7 +4651,6 @@ city_04 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_chinese_city_02_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_china
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/chinese_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { chinese_building_gfx }
@@ -1833,7 +4660,6 @@ city_04 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_japanese_city_02_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_japan
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/japanese_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { japanese_building_gfx }
@@ -1857,13 +4683,12 @@ city_04 = {
 		asset = {
 			type = pdxmesh
 			name = "tgp_building_chinese_city_02_mesh"
-			requires_dlc_flag = all_under_heaven
 			illustration = @holding_illustration_china
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/chinese_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { steppe_building_gfx }
 			graphical_regions = { graphical_east_asia } #Use East Asian in East Asia
 		}
-		#Steppe - South Asia, includes East Asia if you lack TGP
+		#Steppe - South Asia
 		asset = {
 			type = pdxmesh
 			names = {
@@ -1872,7 +4697,7 @@ city_04 = {
 			illustration = @holding_illustration_india
 			soundeffect = { soundeffect = "event:/SFX/Ambience/3DMapEmitters/Holdings/City/indian_city" soundparameter = { "Tier" = 2 } }
 			graphical_cultures = { steppe_building_gfx }
-			graphical_regions = { graphical_india graphical_east_asia }
+			graphical_regions = { graphical_india }
 		}
 		#Steppe - Mediterranean graphical_mediterranean
 		asset = {
@@ -2146,7 +4971,7 @@ city_04 = {
 	can_construct_potential = {
 		building_requirement_tribal_ck_castles = no
 	}
-	can_construct = {
+	can_construct_showing_failures_only = {
 		trigger_if = {
 			limit = {
 				NOT = {
@@ -2155,60 +4980,797 @@ city_04 = {
 					}
 				}
 			}
-			culture = {
-				has_innovation = innovation_cranes
-			}
+			building_holding_late_medieval_trigger = yes
 		}
 		trigger_else = {
-			culture = {
-				has_cultural_parameter = next_level_cities
-			}
-			culture = {
-				has_innovation = innovation_windmills
-			}
+			building_holding_high_medieval_trigger = yes
 		}
 	}
 	cost_gold = main_building_tier_4_cost
 
-	levy = poor_building_levy_tier_8
-	max_garrison = normal_building_max_garrison_tier_7
+	levy = normal_building_levy_tier_4
+	max_garrison = poor_building_max_garrison_tier_4
 	garrison_reinforcement_factor = building_garrison_reinforcement_factor_tier_4
+
 	province_modifier = {
-		monthly_income = good_building_tax_tier_8
-		travel_danger = -16
+		building_slots_for_host_district = 4
+		monthly_urban_tax = good_building_tax_halved_tier_8
+		province_size_baseline_add = holding_primary_province_size_baseline_tier_4
+		stationed_maa_toughness_mult = low_maa_toughness_tier_4
+		stationed_maa_damage_mult = low_maa_damage_tier_4
+	}
+
+	character_government_modifier = {
+		parameter = government_is_republic
+		trade_competitiveness_add = 10
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		province_size = 1
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_cereals
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10
+		not_rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10
+		rite_parameter = cereals_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	#Meats
+	#Together with Cereal Needs these offset the penalty to size growth from size levels.
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		province_size = 1
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		province_size = 1
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		province_size = 1
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 2
+		province_size = 2 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 3
+		province_size = 3 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 5
+		province_size = 4 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 7
+		province_size = 5 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 9
+		province_size = 6 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 12
+		province_size = 7 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 15
+		province_size = 8 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 18
+		province_size = 9 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+
+	trade_good_need = { 
+		trade_good_category = trade_category_meat
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		not_culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		culture_parameter = vegetarianism_no_meat_buildings
+		not_rite_parameter = meat_forbidden
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good_category = trade_category_comforts
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = meat_forbidden
+		not_rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
+	}
+	trade_good_need = { 
+		trade_good = trade_good_fish
+		amount = food_resource_need
+		can_be_filled_multiple_times = 22
+		province_size = 10 #Offsets Penalties from Settlement Size Levels
+		rite_parameter = fish_permitted
+		modifiers = {
+			province_modifier = {
+				food_supply_add = holding_food_need_per_size_level_bonus
+			}
+		}
 	}
 
 	province_culture_modifier = {
 		parameter = city_buildings_more_powerful
 		levy_size = 1
-		tax_mult = 0.04
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_more_county_opinion
-		county_opinion_add = 20
+		urban_tax_mult = 0.02
 	}
 
 	province_terrain_modifier = {
-		parameter = maritime_mercantilism_coastal_holdings
+		parameter = maritime_mercantilism_coastal_districts
 		is_coastal = yes
-		tax_mult = maritime_mercantilism_coastal_holdings_value
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_more_powerful
-		development_growth_factor = 0.2
-	}
-
-	county_culture_modifier = {
-		parameter = city_buildings_less_control
-		monthly_county_control_growth_factor = -0.25
-	}
-
-	province_terrain_modifier = {
-		parameter = coastal_holding_bonuses
-		is_coastal = yes
-		build_speed = -0.1
+		market_district_district_build_gold_cost = -0.1
+		guild_district_district_build_gold_cost = -0.1
 	}
 
 	province_terrain_modifier = {
@@ -2216,10 +5778,25 @@ city_04 = {
 		is_coastal = yes
 		defender_holding_advantage = 5
 	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = forest
+		monthly_religious_tax = poor_building_tax_halved_tier_4
+	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = jungle
+		monthly_religious_tax = poor_building_tax_halved_tier_4
+	}
+	province_terrain_modifier = {
+		parameter = sacred_groves_holding_religious_tax
+		terrain = taiga
+		monthly_religious_tax = poor_building_tax_halved_tier_4
+	}
 
 	county_dynasty_modifier = {
 		county_holder_dynasty_perk = fp2_urbanism_legacy_1 # check if the dynasty of the county holder has a specific perk
-		development_growth_factor = fp2_urbanism_legacy_1_bonus_value
+		prosperity_growth_factor = fp2_urbanism_legacy_1_bonus_value
 	}
 
 	flag = city
@@ -2248,461 +5825,214 @@ city_04 = {
 		#Mandala Creator Aspect
 		creator_mandala_upgraded_regular_holding_piety_effect = yes
 	}
+	market_rite_modifier = {
+		parameter = textiles_in_demand
+		trade_good_textiles_sell_price_mult = 0.01
+	}
+	market_culture_modifier = {
+		parameter = vegetarianism_no_meat_buildings
+		trade_good_fish_sell_price_mult = holding_diet_no_fish_sell_price_mult
+	}
+	market_rite_modifier = {
+		parameter = diet_needs_comforts
+		trade_good_fish_sell_price_mult = holding_diet_no_fish_sell_price_mult
+	}
+
+	market_culture_modifier = {
+		parameter = fur_trimmed_finery
+		trade_good_furs_sell_price_mult = fur_finery_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_furs
+		amount = fur_finery_need
+		culture_parameter = fur_trimmed_finery
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = fur_finery_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = spiced_cuisine
+		trade_good_spices_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_spices
+		amount = spiced_cuisine_need
+		culture_parameter = spiced_cuisine
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = spiced_cuisine_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = cloth_mordant_alum
+		trade_good_alum_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_alum
+		amount = cloth_alum_need
+		culture_parameter = cloth_mordant_alum
+		potential_trade_good = trade_good_wool
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			province_modifier = {
+				trade_good_textiles_production_mult = alum_cloth_output_mult
+				trade_category_fabrics_production_mult = alum_cloth_output_mult
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = northern_wine_imports
+		trade_good_wine_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_wine
+		amount = northern_wine_need
+		culture_parameter = northern_wine_imports
+		not_rite_parameter = alcohol_forbidden
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = northern_wine_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = northern_beer_imports
+		trade_good_beer_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_beer
+		amount = northern_beer_need
+		culture_parameter = northern_beer_imports
+		not_rite_parameter = alcohol_forbidden
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = northern_beer_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = saharan_gold_minting
+		trade_good_gold_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_gold
+		amount = saharan_gold_need
+		culture_parameter = saharan_gold_minting
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			province_modifier = {
+				urban_tax_mult = regional_tax_mult_per_need
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = silver_ingot_currency
+		trade_good_silver_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_silver
+		amount = rus_silver_need
+		culture_parameter = silver_ingot_currency
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			province_modifier = {
+				urban_tax_mult = regional_tax_mult_per_need
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = imported_porcelain_display
+		trade_good_ceramics_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_ceramics
+		amount = imported_porcelain_need
+		culture_parameter = imported_porcelain_display
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = imported_porcelain_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = fustian_weaving
+		trade_good_cotton_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_cotton
+		amount = fustian_cotton_need
+		culture_parameter = fustian_weaving
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			province_modifier = {
+				artisan_tax_mult = regional_tax_mult_per_need
+				trade_good_textiles_production_mult = fustian_textiles_output_mult
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = ivory_carving_patronage
+		trade_good_ivory_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_ivory
+		amount = ivory_carving_need
+		culture_parameter = ivory_carving_patronage
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			character_modifier = {
+				monthly_prestige = ivory_carving_prestige
+			}
+		}
+	}
+	market_culture_modifier = {
+		parameter = fleet_timber_imports
+		trade_good_wood_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_wood
+		amount = fleet_timber_need
+		culture_parameter = fleet_timber_imports
+		is_coastal = yes
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			province_modifier = {
+				monthly_maritime_tax = poor_building_tax_tier_1
+			}
+		}
+	}
+	market_government_modifier = {
+		parameter = government_is_republic
+		trade_good_hemp_sell_price_mult = regional_demand_price_mult
+	}
+	trade_good_need = {
+		trade_good = trade_good_hemp
+		amount = arsenal_hemp_need
+		government_flag = government_is_republic
+		is_coastal = yes
+		can_be_filled_multiple_times = 4
+		modifiers = {
+			province_modifier = {
+				monthly_maritime_tax = poor_building_tax_tier_1
+			}
+		}
+	}
 	ai_value = {
-		base = 4
+		base = 9.8
+		ai_upgrade_holding_modifier = yes
 		modifier = {
-			add = 1
+			add = 0.1
 			scope:holder.culture = { has_cultural_parameter = ai_more_likely_to_city }
 		}
-		modifier = {
-			factor = 2
-			scope:holder.capital_province = this
-		}
+		ai_capital_preference_modifier = yes
+		ai_holding_district_upgrade_modifier = { LEVEL = 4 }
 	}
 }
 
-
-####
-#
-# City Buildings
-#
-####
-
-### Guild Halls
-
-guild_halls_01 = {
-	construction_time = standard_construction_time
-
-	can_construct_potential = {
-		has_building_or_higher = city_01
-	}
-
-	cost_gold = normal_building_tier_1_cost
-
-	province_modifier = {
-		monthly_income = normal_building_tax_tier_1
-	}
-	county_modifier = {
-		development_growth_factor = 0.05
-	}
-
-	on_complete = {
-		#Mandala Creator Aspect
-		creator_mandala_built_regular_building_piety_effect = yes
-	}
-
-	next_building = guild_halls_02
-
-	type_icon = "icon_building_guild_halls.dds"
-
-	ai_value = {
-		base = 500
-		ai_tier_1_building_modifier = yes
-		modifier = {
-			add = 500
-			scope:holder = {
-				government_has_flag = government_is_republic
-			}
-		}
-	}
-}
-
-guild_halls_02 = {
-	construction_time = standard_construction_time
-
-	can_construct_potential = {
-		has_building_or_higher = city_01
-	}
-
-	can_construct_showing_failures_only = {
-		building_requirement_tribal = no
-		culture = {
-			trigger_if = {
-				limit = {
-					NOT = { has_cultural_parameter = next_level_guild_halls }
-				}
-				has_innovation = innovation_crop_rotation
-			}
-		}
-	}
-
-	cost_gold = normal_building_tier_2_cost
-
-	province_modifier = {
-		monthly_income = normal_building_tax_tier_2
-	}
-	county_modifier = {
-		development_growth_factor = 0.1
-	}
-
-	on_complete = {
-		#Mandala Creator Aspect
-		creator_mandala_built_regular_building_piety_effect = yes
-	}
-
-	next_building = guild_halls_03
-	ai_value = {
-		base = 9
-		ai_general_building_modifier = yes
-		ai_economical_building_preference_modifier = yes
-		directive_to_build_economy_modifier = yes
-		modifier = { # Fill all building slots before going for upgrades
-			factor = 0
-			free_building_slots > 0
-		}
-	}
-}
-
-guild_halls_03 = {
-	construction_time = standard_construction_time
-
-	can_construct = {
-		trigger_if = {
-			limit = {
-				NOT = {
-					culture = {
-						has_cultural_parameter = next_level_guild_halls
-					}
-				}
-			}
-			culture = {
-				has_innovation = innovation_manorialism
-			}
-			has_building_or_higher = city_02
-		}
-		trigger_else = {
-			culture = {
-				has_innovation = innovation_crop_rotation
-			}
-			culture = {
-				has_cultural_parameter = next_level_guild_halls
-			}
-			has_building_or_higher = city_01
-		}
-	}
-
-	can_construct_showing_failures_only = {
-		building_requirement_tribal = no
-	}
-
-	cost_gold = normal_building_tier_3_cost
-
-	province_modifier = {
-		monthly_income = normal_building_tax_tier_3
-	}
-	county_modifier = {
-		development_growth_factor = 0.15
-	}
-
-	on_complete = {
-		#Mandala Creator Aspect
-		creator_mandala_built_regular_building_piety_effect = yes
-	}
-
-	next_building = guild_halls_04
-	ai_value = {
-		base = 8
-		ai_general_building_modifier = yes
-		ai_economical_building_preference_modifier = yes
-		directive_to_build_economy_modifier = yes
-		modifier = { # Fill all building slots before going for upgrades
-			factor = 0
-			free_building_slots > 0
-		}
-	}
-}
-
-guild_halls_04 = {
-	construction_time = standard_construction_time
-
-	can_construct = {
-		trigger_if = {
-			limit = {
-				NOT = {
-					culture = {
-						has_cultural_parameter = next_level_guild_halls
-					}
-				}
-			}
-			culture = {
-				has_innovation = innovation_manorialism
-			}
-			has_building_or_higher = city_02
-
-		}
-		trigger_else = {
-			culture = {
-				has_innovation = innovation_crop_rotation
-			}
-			culture = {
-				has_cultural_parameter = next_level_guild_halls
-			}
-			has_building_or_higher = city_01
-		}
-	}
-
-	can_construct_showing_failures_only = {
-		building_requirement_tribal = no
-	}
-
-	cost_gold = normal_building_tier_4_cost
-
-	province_modifier = {
-		monthly_income = normal_building_tax_tier_4
-	}
-	county_modifier = {
-		development_growth_factor = 0.2
-	}
-
-	on_complete = {
-		#Mandala Creator Aspect
-		creator_mandala_built_regular_building_piety_effect = yes
-	}
-
-	next_building = guild_halls_05
-	ai_value = {
-		base = 7
-		ai_general_building_modifier = yes
-		ai_economical_building_preference_modifier = yes
-		directive_to_build_economy_modifier = yes
-		modifier = { # Fill all building slots before going for upgrades
-			factor = 0
-			free_building_slots > 0
-		}
-	}
-}
-
-guild_halls_05 = {
-	construction_time = standard_construction_time
-
-	can_construct = {
-		trigger_if = {
-			limit = {
-				NOT = {
-					culture = {
-						has_cultural_parameter = next_level_guild_halls
-					}
-				}
-			}
-			culture = {
-				has_innovation = innovation_guilds
-			}
-			has_building_or_higher = city_03
-		}
-		trigger_else = {
-			culture = {
-				has_innovation = innovation_manorialism
-			}
-			culture = {
-				has_cultural_parameter = next_level_guild_halls
-			}
-			has_building_or_higher = city_02
-		}
-	}
-
-	can_construct_showing_failures_only = {
-		building_requirement_tribal = no
-	}
-
-	cost_gold = normal_building_tier_5_cost
-
-	province_modifier = {
-		monthly_income = normal_building_tax_tier_5
-	}
-	county_modifier = {
-		development_growth_factor = 0.25
-	}
-
-	on_complete = {
-		#Mandala Creator Aspect
-		creator_mandala_built_regular_building_piety_effect = yes
-	}
-
-	next_building = guild_halls_06
-	ai_value = {
-		base = 6
-		ai_general_building_modifier = yes
-		ai_economical_building_preference_modifier = yes
-		directive_to_build_economy_modifier = yes
-		modifier = { # Fill all building slots before going for upgrades
-			factor = 0
-			free_building_slots > 0
-		}
-	}
-}
-
-guild_halls_06 = {
-	construction_time = standard_construction_time
-
-	can_construct = {
-		trigger_if = {
-			limit = {
-				NOT = {
-					culture = {
-						has_cultural_parameter = next_level_guild_halls
-					}
-				}
-			}
-			culture = {
-				has_innovation = innovation_guilds
-			}
-			has_building_or_higher = city_03
-		}
-		trigger_else = {
-			culture = {
-				has_innovation = innovation_manorialism
-			}
-			culture = {
-				has_cultural_parameter = next_level_guild_halls
-			}
-			has_building_or_higher = city_02
-		}
-	}
-
-	can_construct_showing_failures_only = {
-		building_requirement_tribal = no
-	}
-
-	cost_gold = normal_building_tier_6_cost
-
-	province_modifier = {
-		monthly_income = normal_building_tax_tier_6
-	}
-	county_modifier = {
-		development_growth_factor = 0.3
-	}
-
-	on_complete = {
-		#Mandala Creator Aspect
-		creator_mandala_built_regular_building_piety_effect = yes
-	}
-
-	next_building = guild_halls_07
-	ai_value = {
-		base = 5
-		ai_general_building_modifier = yes
-		ai_economical_building_preference_modifier = yes
-		directive_to_build_economy_modifier = yes
-		modifier = { # Fill all building slots before going for upgrades
-			factor = 0
-			free_building_slots > 0
-		}
-	}
-}
-
-guild_halls_07 = {
-	construction_time = standard_construction_time
-
-	can_construct = {
-		trigger_if = {
-			limit = {
-				NOT = {
-					culture = {
-						has_cultural_parameter = next_level_guild_halls
-					}
-				}
-			}
-			culture = {
-				has_innovation = innovation_cranes
-			}
-			has_building_or_higher = city_04
-		}
-		trigger_else = {
-			culture = {
-				has_innovation = innovation_guilds
-			}
-			culture = {
-				has_cultural_parameter = next_level_guild_halls
-			}
-			has_building_or_higher = city_03
-		}
-	}
-
-	can_construct_showing_failures_only = {
-		building_requirement_tribal = no
-	}
-
-	cost_gold = normal_building_tier_7_cost
-
-	province_modifier = {
-		monthly_income = normal_building_tax_tier_7
-	}
-	county_modifier = {
-		development_growth_factor = 0.35
-	}
-
-	on_complete = {
-		#Mandala Creator Aspect
-		creator_mandala_built_regular_building_piety_effect = yes
-	}
-
-	next_building = guild_halls_08
-	ai_value = {
-		base = 4
-		ai_general_building_modifier = yes
-		ai_economical_building_preference_modifier = yes
-		directive_to_build_economy_modifier = yes
-		modifier = { # Fill all building slots before going for upgrades
-			factor = 0
-			free_building_slots > 0
-		}
-	}
-}
-
-guild_halls_08 = {
-	construction_time = standard_construction_time
-
-	can_construct = {
-		trigger_if = {
-			limit = {
-				NOT = {
-					culture = {
-						has_cultural_parameter = next_level_guild_halls
-					}
-				}
-			}
-			culture = {
-				has_innovation = innovation_cranes
-			}
-			has_building_or_higher = city_04
-		}
-		trigger_else = {
-			culture = {
-				has_innovation = innovation_guilds
-			}
-			culture = {
-				has_cultural_parameter = next_level_guild_halls
-			}
-			has_building_or_higher = city_03
-		}
-	}
-
-	can_construct_showing_failures_only = {
-		building_requirement_tribal = no
-	}
-
-	cost_gold = normal_building_tier_8_cost
-
-	province_modifier = {
-		monthly_income = normal_building_tax_tier_8
-	}
-	county_modifier = {
-		development_growth_factor = 0.4
-	}
-
-	on_complete = {
-		#Mandala Creator Aspect
-		creator_mandala_built_regular_building_piety_effect = yes
-	}
-
-	ai_value = {
-		base = 3
-		ai_general_building_modifier = yes
-		ai_economical_building_preference_modifier = yes
-		directive_to_build_economy_modifier = yes
-		modifier = { # Fill all building slots before going for upgrades
-			factor = 0
-			free_building_slots > 0
-		}
-	}
-}

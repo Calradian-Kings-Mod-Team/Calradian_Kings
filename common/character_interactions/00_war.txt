@@ -20,6 +20,10 @@
 			NOT = {
 				is_at_war_with = scope:recipient
 			}
+			trigger_if = {
+				limit = { government_has_flag = government_is_merchant }
+				has_any_display_cb_on = scope:recipient
+			}
 		}
 	}
 
@@ -47,6 +51,15 @@
 				always = scope:hook
 			}
 		}
+		trigger_if = {
+			limit = {
+				scope:puppet_or_actor = { gdp_is_protected_city_war_target_trigger = { TARGET = scope:recipient } }
+			}
+			custom_tooltip = {
+				text = declare_war_strong_hook_on_protected_city_tt
+				always = scope:hook
+			}
+		}
 		scope:puppet_or_actor = {
 			NOR = {
 				is_at_war_with = scope:recipient
@@ -64,20 +77,39 @@
 	send_options_exclusive = no
 	send_option = {
 		is_shown = {
-			scope:puppet_or_actor = { war_declarer_needs_hook_on_liege = yes }
+			scope:puppet_or_actor = {
+				OR = {
+					war_declarer_needs_hook_on_liege = yes
+					gdp_is_protected_city_war_target_trigger = { TARGET = scope:recipient }
+				}
+			}
 		}
 		is_valid = {
 			scope:puppet_or_actor = {
+				trigger_if = {
+					limit = { gdp_is_protected_city_war_target_trigger = { TARGET = scope:recipient } }
+					has_strong_usable_hook = liege
+				}
+				trigger_else = {
 				has_usable_hook = liege
 			}
+		}
 		}
 		flag = hook
 		localization = WAR_LIEGE_HOOK
 		can_invalidate_interaction = yes
 	}
 	should_use_extra_icon = {
-		scope:puppet_or_actor = { war_declarer_needs_hook_on_liege = yes }
-		scope:puppet_or_actor = { has_usable_hook = liege }
+		scope:puppet_or_actor = {
+			trigger_if = {
+				limit = { gdp_is_protected_city_war_target_trigger = { TARGET = scope:recipient } }
+				has_strong_usable_hook = liege
+			}
+			trigger_else = {
+				war_declarer_needs_hook_on_liege = yes
+				has_usable_hook = liege
+			}
+		}
 	}
 	extra_icon = "gfx/interface/icons/character_interactions/hook_icon.dds"
 
@@ -240,6 +272,14 @@
 					has_variable = admin_permission_to_declare_war
 				}
 				remove_variable = admin_permission_to_declare_war
+			}
+
+			# If you are republic and had permission to start war, spend said permission
+			if = {
+				limit = {
+					has_variable = has_assembly_approval_declare_war
+				}
+				remove_variable = has_assembly_approval_declare_war
 			}
 		}
 		hidden_effect = {
@@ -723,10 +763,17 @@ end_war_attacker_victory_interaction = {
 			any_character_war = {
 				is_war_leader = root
 				OR = {
+					primary_defender ?= {
+						is_ai = yes
+						has_variable = conqueror
+					}
 					attacker_war_score >= 100
 					AND = {
 						primary_defender ?= {
 							is_ai = yes
+						}
+						root = {
+							has_perk = peacemaker_perk
 						}
 						OR = {
 							attacker_war_score >= 90
@@ -736,9 +783,6 @@ end_war_attacker_victory_interaction = {
 								}
 								attacker_war_score >= 80
 							}
-						}
-						root = {
-							has_perk = peacemaker_perk
 						}
 					}
 					AND = {
@@ -764,17 +808,13 @@ end_war_attacker_victory_interaction = {
 							save_temporary_scope_as = defender
 							is_ai = yes
 						}
-						attacker_war_score >= 70
 						root = {
 							has_variable = peace_acceptance_head_scare
 							var:peace_acceptance_head_scare ?= {
 								this = scope:defender
 							}
 						}
-					}
-					primary_defender ?= {
-						is_ai = yes
-						has_variable = conqueror
+						attacker_war_score >= 70
 					}
 				}
 			}
@@ -2091,6 +2131,9 @@ end_war_attacker_defeat_interaction = {
 						primary_defender ?= {
 							is_ai = yes
 						}
+						root = {
+							has_perk = peacemaker_perk
+						}
 						OR = {
 							attacker_war_score >= 90
 							AND = {
@@ -2099,9 +2142,6 @@ end_war_attacker_defeat_interaction = {
 								}
 								attacker_war_score >= 80
 							}
-						}
-						root = {
-							has_perk = peacemaker_perk
 						}
 					}
 					AND = {
@@ -2126,13 +2166,13 @@ end_war_attacker_defeat_interaction = {
 							save_temporary_scope_as = attacker
 							is_ai = yes
 						}
-						defender_war_score >= 70
 						root = {
 							has_variable = peace_acceptance_head_scare
 							var:peace_acceptance_head_scare ?= {
 								this = scope:attacker
 							}
 						}
+						defender_war_score >= 70
 					}
 				}
 			}

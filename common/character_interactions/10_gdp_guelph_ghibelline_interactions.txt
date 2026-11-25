@@ -1,0 +1,510 @@
+#Recruit Partisan
+gg_recruit_partisan_interaction = {
+	icon = {
+		trigger = {
+			scope:actor = { is_guelph_trigger = yes }
+		}
+		reference = recruit_partisan_guelph_interaction
+	}
+	icon = recruit_partisan_ghibelline_interaction
+	category = interaction_category_situation
+	
+	ai_maybe = yes
+	ai_min_reply_days = 4
+	ai_max_reply_days = 9
+	popup_on_receive = yes
+	pause_on_receive = yes
+
+	common_interaction = yes
+
+	desc = gg_recruit_partisan_interaction_desc
+
+	greeting = positive
+	notification_text = gg_recruit_partisan_interaction_notification
+
+	is_available = {
+		has_gdp_dlc_trigger = yes
+		is_guelph_or_ghibelline_trigger = yes
+		trigger_if = {
+			limit = { is_ai = yes }
+			is_adult = yes
+		}
+	}
+
+	is_shown = {
+		exists = scope:recipient.top_participant_group:guelph_ghibelline
+		trigger_if = {
+			limit = { 
+				scope:actor = { is_guelph_trigger = yes }
+			}
+			scope:recipient = { is_guelph_trigger = no }
+		}
+		trigger_if = {
+			limit = { 
+				scope:actor = { is_ghibelline_trigger = yes }
+			}
+			scope:recipient = { is_ghibelline_trigger = no }
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		scope:actor = {
+			is_adult = yes
+		}
+		scope:recipient = {
+			is_at_war = no
+			custom_tooltip = {
+				text = recruit_partisan_interaction_cooldown_active_tt
+				NOT = {
+					has_opinion_modifier = {
+						modifier = gg_recruit_partisan_denied_opinion
+						target = scope:actor
+					}
+				}
+			}
+			custom_tooltip = {
+				text = gg_recently_recruited_cooldown_active_tt
+				NOT = { exists = var:gg_recently_recruited }
+			}
+		}
+	}
+
+	send_option = {
+		is_valid = {
+			scope:actor = { has_weak_hook = scope:recipient }
+			scope:recipient = { is_ai = yes }
+			NOT = { scope:strong_hook = yes }
+		}
+		flag = hook
+		localization = SCHEME_HOOK
+	}
+	send_option = {
+		is_valid = {
+			scope:actor = { has_strong_usable_hook = scope:recipient }
+			scope:recipient = { is_ai = yes }
+			NOT = { scope:hook = yes }
+		}
+		flag = strong_hook
+		localization = GENERIC_USE_STRONG_HOOK
+	}
+	should_use_extra_icon = {
+		scope:actor = { has_strong_usable_hook = scope:recipient }
+	}
+	extra_icon = "gfx/interface/icons/character_interactions/hook_strong.dds"
+
+	send_options_exclusive = no
+
+	cost = {
+		prestige = medium_prestige_value
+	}
+
+	on_accept = {
+		scope:actor = {
+			if = {
+				limit = { 
+					OR = {
+						scope:hook = yes
+						scope:strong_hook = yes
+					}	
+				}
+				use_hook = scope:recipient
+			}
+			if = {
+				limit = { is_guelph_trigger = yes }
+				scope:recipient = { 
+					gg_change_side_to_guelph_effect = { REASON = flag:schemed }
+				}
+			}
+			else = {
+				scope:recipient = { 
+					gg_change_side_to_ghibelline_effect = { REASON = flag:schemed }
+				}
+			}
+			gg_involvement_interaction_effect = yes
+			gg_increment_recruitment_var_effect = yes
+		}
+		#Add a grace period so they can't flip-flop incessantly
+		scope:recipient = {
+			set_variable = {
+				name = gg_recently_recruited
+				years = 2
+			}
+		}
+		situation:guelph_ghibelline = {
+			every_situation_participant = {
+				limit = { 
+					is_ai = no
+					NOT = { this = scope:recipient }
+				}
+				if = {
+					limit = { 
+						scope:actor = { is_guelph_trigger = yes }
+					}
+					send_interface_message = {
+						type = msg_guelph_neutral_text
+						title = gg_recipient_joined_guelphs.t
+						left_icon = scope:actor
+						right_icon = scope:recipient
+						desc = gg_recipient_joined_guelphs.desc
+					}
+				}
+				else = {
+					send_interface_message = {
+						type = msg_ghibelline_neutral_text
+						title = gg_recipient_joined_ghibellines.t
+						left_icon = scope:actor
+						right_icon = scope:recipient
+						desc = gg_recipient_joined_ghibellines.desc
+					}
+				}
+			}
+		}
+	}
+
+	on_decline = {
+		scope:actor = {
+			trigger_event = gdp_guelph_ghibelline.5000
+		}
+		scope:recipient = {
+			add_opinion = {
+				modifier = gg_recruit_partisan_denied_opinion # this opinion also acts as a built-in cooldown
+				target = scope:actor
+				years = 5
+			}
+		}
+	}
+
+	auto_accept = {
+		custom_description = {
+			text = "spending_hook"
+			subject = scope:puppet_or_actor
+			object = scope:recipient
+			scope:recipient = { 
+				is_ai = yes
+				NOR = {
+					is_guelph_leader_trigger = yes
+					is_ghibelline_leader_trigger = yes
+					any_held_title = { this = title:k_darusan }
+					any_held_title = { this = title:e_west_calradia }
+				}
+			}
+			scope:strong_hook = yes
+		}
+	}
+
+	ai_accept = {
+		base = -50
+
+		modifier = {
+			desc = SCHEME_WEAK_HOOK_USED
+			add = 50
+			scope:hook ?= yes
+		}
+
+		modifier = {
+			desc = SCHEME_STRONG_HOOK_USED
+			add = 50
+			scope:strong_hook ?= yes
+		}
+
+		modifier = {
+			desc = KAISER_IS_EXCOMMUNICATED
+			add = -50
+			scope:actor = { is_ghibelline_trigger = yes }
+			title:e_west_calradia.holder ?= { has_trait = excommunicated }
+		}
+
+		modifier = {
+			desc = RECIPIENT_IS_GUELPH_OR_GHIBELLINE
+			add = -50
+			gg_first_and_second_are_opposite_sides_trigger = { FIRST = scope:actor SECOND = scope:recipient }
+		}
+
+		modifier = {
+			desc = RECIPIENT_IS_GG_LEADER
+			add = -50
+			scope:recipient = {
+				OR = {
+					is_guelph_leader_trigger = yes
+					is_ghibelline_leader_trigger = yes
+				}
+			}
+		}
+
+		modifier = {
+			desc = RECIPIENT_IS_POPE
+			add = -50
+			scope:recipient = { 
+				any_held_title = { this = title:k_darusan }
+			}
+		}
+
+		modifier = {
+			desc = RECIPIENT_IS_KAISER
+			add = -50
+			scope:recipient = {
+				OR = {
+					AND = {
+						any_held_title = { this = title:e_west_calradia }
+						primary_title.tier >= title:e_west_calradia.tier
+					}
+					primary_title = title:e_west_calradia
+				}
+			}
+		}
+
+		#Important Relations
+		modifier = {
+			scope:recipient = {
+				has_relation_friend = scope:actor
+				NOT = { has_relation_best_friend = scope:actor }
+			}
+			add = 10
+			desc = WE_ARE_FRIENDS
+		}
+		modifier = {
+			scope:recipient = { has_relation_best_friend = scope:actor }
+			add = 20
+			desc = offer_vassalization_interaction_aibehavior_best_friend_tt
+		}
+		modifier = {
+			scope:recipient = {
+				has_relation_lover = scope:actor
+				NOT = { has_relation_soulmate = scope:actor }
+			}
+			add = 10
+			desc = WE_ARE_LOVERS
+		}
+		modifier = {
+			scope:recipient = { has_relation_soulmate = scope:actor }
+			add = 20
+			desc = WE_ARE_SOULMATES
+		}
+		modifier = {
+			scope:recipient = { has_relation_rival = scope:actor }
+			add = -20
+			desc = WE_ARE_RIVALS
+		}
+		modifier = {
+			scope:recipient = { has_relation_nemesis = scope:actor }
+			add = -40
+			desc = WE_ARE_NEMESES
+		}
+
+		# OPINION INFLUENCE
+		opinion_modifier = { # Compare Opinion modifier.
+			who = scope:recipient
+			opinion_target = scope:actor
+			multiplier = 1
+			desc = AI_SIMPLE_OPINION_REASON
+		}
+	}
+
+	# AI will do
+	ai_targets = {
+		ai_recipients = neighboring_rulers
+		ai_recipients = hooked_characters
+		ai_recipients = vassals
+	}
+
+	ai_frequency_by_tier = {
+		barony = 0
+		county = 36
+		duchy = 12
+		kingdom = 12
+		empire = 0
+		hegemony = 0
+	}
+
+	ai_will_do = {
+		base = 0
+		modifier = {
+			OR = {
+				AND = {
+					situation_guelph_score_percentage > 0.6
+					scope:actor = { is_guelph_trigger = yes }
+				}
+				AND = {
+					situation_ghibelline_score_percentage > 0.6
+					scope:actor = { is_ghibelline_trigger = yes }
+				}
+			}
+			add = 50
+		}
+		modifier = {
+			scope:recipient = { is_ai = yes }
+			scope:actor = { has_strong_hook = scope:recipient }
+			add = 1000
+		}
+		modifier = {
+			scope:recipient = {
+				OR = {
+					#Not a player
+					is_ai = no
+					#Not the Kaiser
+					primary_title = title:e_west_calradia
+					#Not the Pope
+					any_held_title = { this = title:k_darusan }
+				}
+			}
+			factor = 0
+		}
+	}
+}
+
+#Join Lombard League, post-fact
+join_lombard_league_interaction = {
+	icon = join_lombard_league_interaction
+	category = interaction_category_situation
+
+	ai_maybe = yes
+	ai_min_reply_days = 4
+	ai_max_reply_days = 9
+	popup_on_receive = yes
+	pause_on_receive = yes
+
+	common_interaction = yes
+
+	desc = join_lombard_league_interaction_desc
+
+	greeting = positive
+	notification_text = JOIN_LOMBARD_LEAGUE_INTERACTION_NOTIFICATION
+
+	is_available = {
+		has_gdp_dlc_trigger = yes
+	}
+
+	is_shown = {
+		scope:actor = {
+			has_lombard_league_title_trigger = yes
+			is_confederation_member = no
+			is_ai = no
+		}
+		scope:recipient.confederation ?= { confederation_type = confederation_type:lombard_league }
+	}
+
+	is_valid_showing_failures_only = {
+		scope:actor = {
+			is_imprisoned = no
+			is_at_war = no
+			this = top_liege
+			custom_tooltip = {
+				text = recently_rejected_from_lombard_league_tt
+				NOT = { has_variable = rejected_from_lombard_league }
+			}
+			custom_tooltip = {
+				text = not_be_ghibelline_tt
+				is_ghibelline_trigger = no
+			}
+		}
+	}
+
+	cost = {
+		prestige = medium_prestige_value
+	}
+
+	on_accept = {
+		scope:recipient = {
+			save_scope_as = confederation_offerer
+			confederation ?= {
+				save_scope_as = confederation
+				#We only want the HRE/Ghibelline Leader aggressive wars
+				every_confederation_member = {
+					limit = { 
+						is_at_war_as_defender = yes
+						any_character_war = {
+							OR = {
+								AND = {
+									exists = title:e_west_calradia.holder
+									primary_attacker = title:e_west_calradia.holder
+								}
+								primary_attacker = { has_variable = ghibelline_leader }
+							}
+						}
+					}
+					save_temporary_scope_as = ll_member_check
+					every_character_war = {
+						limit = {
+							primary_defender = scope:ll_member_check
+							OR = {
+								AND = {
+									exists = title:e_west_calradia.holder
+									primary_attacker = title:e_west_calradia.holder
+								}
+								primary_attacker = { has_variable = ghibelline_leader }
+							}
+						}
+						add_to_list = recipient_wars
+					}
+				}
+			}
+		}
+		scope:actor = {
+			custom_tooltip = join_lombard_league_tt
+			scope:confederation = { add_confederation_member = scope:actor }
+			if = {
+				limit = { list_size:recipient_wars > 0 }
+				every_in_list = {
+					list = recipient_wars
+					save_scope_as = recipient_war
+					add_defender = scope:actor
+				}
+				custom_tooltip = lombard_league_defensive_wars_tt
+			}
+			gg_involvement_interaction_effect = yes
+		}	
+	}
+
+	on_decline = {
+		scope:actor = {
+			trigger_event = gdp_guelph_ghibelline.7015
+		}
+	}
+
+	ai_accept = {
+		base = 20
+		#You left LL recently
+		modifier = {
+			scope:actor = { has_variable = left_lombard_league }
+			add = -500	
+			desc = LEFT_LOMBARD_LEAGUE_REASON
+		}
+		#Actor tier rank
+		modifier = {
+			scope:actor.primary_title.tier = tier_county
+			add = 25
+			desc = YOUR_TIER_IS_COUNTY
+		}
+		modifier = {
+			scope:actor.primary_title.tier = tier_duchy
+			add = 50
+			desc = YOUR_TIER_IS_DUCHY
+		}
+		modifier = {
+			scope:actor.primary_title.tier = tier_kingdom
+			add = 75
+			desc = YOUR_TIER_IS_KINGDOM
+		}
+		modifier = {
+			scope:actor.primary_title.tier = tier_empire
+			add = 100
+			desc = YOUR_TIER_IS_EMPIRE
+		}
+		modifier = {
+			scope:actor.primary_title.tier = tier_hegemony
+			add = 150
+			desc = YOUR_TIER_IS_HEGEMONY
+		}
+		#Pope opinion
+		modifier = {
+			exists = title:k_darusan.holder
+			add = "title:k_darusan.holder.opinion(scope:actor)"
+			desc = LL_POPE_OPINION
+		}
+		modifier = {
+			scope:actor = { has_trait = excommunicated }
+			add = -50
+			desc = YOU_ARE_EXCOMMUNICATED
+		}
+	}
+}

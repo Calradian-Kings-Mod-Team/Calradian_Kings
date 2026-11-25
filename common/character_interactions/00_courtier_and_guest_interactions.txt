@@ -31,9 +31,6 @@
 	is_shown = {
 		scope:actor != scope:recipient
 		scope:recipient = { is_pool_guest_of = scope:actor }
-		scope:actor = {
-			is_ruler = yes
-		}
 		scope:recipient = {
 			NOT = {
 				has_character_flag = companion_recruitable_var
@@ -211,6 +208,15 @@
 		empire = 12
 		hegemony = 12
 	}
+	ai_frequency_by_tier_government_override = {
+		government = merchant_government
+		barony = 0
+		county = 108
+		duchy = 0
+		kingdom = 0
+		empire = 0
+		hegemony = 0
+	}
 
 	ai_will_do = {
 		base = 0
@@ -353,8 +359,6 @@
 					has_relation_lover = scope:actor
 					has_relation_friend = scope:actor
 					has_secret_relation_lover = scope:actor
-					has_relation_soulmate = scope:actor
-					has_relation_best_friend = scope:actor
 					is_child_of = scope:actor
 				}
 			}
@@ -389,7 +393,7 @@
 
 		# Make it all more likely
 		modifier = {
-			factor = scope:actor.highest_held_title_tier
+			factor = 4
 		}
 		# The AI will always use a hook if it can
 		modifier = {
@@ -625,6 +629,7 @@ invite_to_court_interaction = {
 	desc = invite_to_court_interaction_desc
 
 	is_shown = {
+		scope:actor = { is_ruler = yes }
 		scope:recipient = {
 			NOR = {
 				is_courtier_of = scope:actor
@@ -699,17 +704,13 @@ invite_to_court_interaction = {
 
 	#Pay som gold to persuade a wandering character to come to your court
 	send_option = {
-		is_shown = {
-			exists = scope:recipient
-		}
+		is_shown = { exists = scope:recipient }
 		flag = cover_travel_expenses
 		localization = COVER_TRAVEL_EXPENSES
 	}
 	send_option = { # EP3 Influence
 		is_shown = { # Actor must have a government that uses influence
-			scope:actor = {
-				government_has_flag = government_has_influence
-			}
+			scope:actor = { government_has_flag = government_has_influence }
 		}
 		is_valid = {
 			# Actor has enough influence
@@ -722,9 +723,7 @@ invite_to_court_interaction = {
 	}
 	send_option = {
 		is_valid = {
-			scope:actor = {
-				has_usable_hook = scope:recipient
-			}
+			scope:actor = { has_usable_hook = scope:recipient }
 		}
 		flag = hook
 		localization = SCHEME_HOOK
@@ -748,27 +747,59 @@ invite_to_court_interaction = {
 	}
 
 	on_accept = {
-		hidden_effect = {
 			scope:recipient = {
 				set_variable = {
 					name = invite_to_court_cooldown
 					years = 5
 				}
-			}
-
+			# Message relevant parties
+			liege ?= {
 			if = {
 				limit = {
-					exists = scope:recipient.liege
+						NOT = { government_has_flag = government_is_merchant }
 				}
-				scope:recipient.liege = {
 					send_interface_message = {
 						type = event_generic_neutral
 						title = msg_courtier_left_court_interaction_title
 
 						right_icon = scope:recipient
-
-						show_as_tooltip = {
-							remove_courtier_or_guest = scope:recipient
+						show_as_tooltip = { remove_courtier_or_guest = scope:recipient }
+					}
+				}
+				else = {
+					send_interface_message = {
+						type = event_generic_bad
+						title = msg_courtier_left_court_interaction_merchant_title
+						right_icon = scope:recipient
+						show_as_tooltip = { remove_courtier_or_guest = scope:recipient }
+					}
+				}
+				# House Relation impact
+				if = { # Only change house relations w vassals or below
+					limit = { this != scope:actor.liege }
+					house ?= {
+						if = {
+							limit = { this != scope:actor.house }
+							if = {
+								limit = {
+									NOT = { has_house_relation_with = scope:actor.house }
+								}
+								set_house_relation = {
+									target = scope:actor.house
+									level = quarrel
+									description = house_relation_poached_talent_desc
+								}
+							}
+							else = {
+								change_house_relation_effect = {
+									HOUSE = scope:actor.house
+									VALUE = house_relation_damage_minor_value
+									REASON = poached_talent
+									CHAR = scope:actor
+									TARGET_CHAR = scope:recipient.liege
+									TITLE = scope:dummy_gender
+								}
+							}
 						}
 					}
 				}
@@ -784,16 +815,22 @@ invite_to_court_interaction = {
 				scope:recipient = {
 					every_traveling_family_member = {
 						scope:actor = { add_courtier = prev }
-						hidden_effect = {
-							return_to_court = yes
+						hidden_effect = { return_to_court = yes }
 						}
 					}
+				if = {
+					limit = { always = scope:hook }
+					scope:actor = { use_hook = scope:recipient }
 				}
 
 				if = {
-					limit = { always = scope:hook }
-					scope:actor = {
-						use_hook = scope:recipient
+					limit = { government_has_flag = government_uses_company_sentiment }
+					house ?= {
+						add_unity_value = {
+							value = minor_unity_loss
+							character = scope:recipient
+							desc = merchant_invite_associate_loss
+						}
 					}
 				}
 			}
@@ -818,7 +855,7 @@ invite_to_court_interaction = {
 	}
 
 	ai_accept = {
- 		base = -50
+ 		base = -80
 
  		#Opinions
  		opinion_modifier = {
@@ -1005,18 +1042,14 @@ invite_to_court_interaction = {
  			add = -50
  			desc = AI_INSPIRED
  			inspiration ?= {
-				NOT = {
-					exists = inspiration_sponsor
-				}
+				NOT = { exists = inspiration_sponsor }
 			}
  		}
 
  		modifier = {
  			add = -500
  			desc = AI_SPONSORED_INSPIRATION
- 			inspiration ?= {
-				exists = inspiration_sponsor
-			}
+ 			inspiration ?= { exists = inspiration_sponsor }
  		}
 
  		modifier = {
@@ -1032,9 +1065,7 @@ invite_to_court_interaction = {
  			is_adult = no
  			any_memory = {
 				memory_type = family_castration_fled_memory
-				memory_participant:castrator ?= {
-					this = scope:actor
-				}
+				memory_participant:castrator ?= { this = scope:actor }
 			}
  		}
 
@@ -1052,9 +1083,7 @@ invite_to_court_interaction = {
 				add = scope:actor.diplomacy
 
 				if = {
-					limit = {
-						faith = scope:actor.faith
-					}
+					limit = { faith = scope:actor.faith }
 					add = 10
 				}
 				else_if = {
@@ -1070,16 +1099,12 @@ invite_to_court_interaction = {
 					add = 5
 				}
 				if = {
-					limit = {
-						culture = scope:actor.culture
-					}
+					limit = { culture = scope:actor.culture }
 					add = 10
 				}
 				else_if = {
 					limit = {
-						culture = {
-							has_same_culture_heritage = scope:actor.culture
-						}
+						culture = { has_same_culture_heritage = scope:actor.culture }
 					}
 					add = 5
 				}
@@ -1115,15 +1140,11 @@ invite_to_court_interaction = {
 			add = {
 				value = 20
 				if = {
-					limit = {
-						has_trait = greedy
-					}
+					limit = { has_trait = greedy }
 					multiply = 1.5
 				}
 				else_if = {
-					limit = {
-						has_trait = generous
-					}
+					limit = { has_trait = generous }
 					multiply = 0.5
 				}
 			}
@@ -1215,15 +1236,47 @@ invite_to_court_interaction = {
 				multiply = 0.5
 			}
  			desc = AI_HOUSE_UNITY
-			scope:actor = { government_has_flag = government_is_clan }
+			scope:actor = {
+				government_has_flag = government_uses_house_unity
+				exists = house
+			}
+			house ?= {
+				this = scope:actor.house
+				house_unity_is_positive_trigger = yes
+			}
+ 		}
+
+ 		modifier = {
+ 			add = {
+				value = scope:actor.house.house_unity_value
+				multiply = 0.5
+			}
+ 			desc = AI_COMPANY_DIRECTION
+			scope:actor = {
+				government_has_flag = government_uses_company_sentiment
 			exists = house
-			exists = scope:actor.house
-			house = scope:actor.house
-			house = {
-				OR = {
-					has_house_unity_stage = harmonious
-					has_house_unity_stage = friendly
 				}
+			house ?= {
+				this = scope:actor.house
+				house_unity_is_positive_trigger = yes
+			}
+ 		}
+
+ 		modifier = {
+ 			add = 50
+ 			desc = AI_RECIPIENT_COMPANY_SENTIMENT
+			scope:recipient.liege ?= {
+				government_has_flag = government_is_merchant
+				house ?= { has_house_unity_stage = rapacious_cs }
+			}
+ 		}
+
+ 		modifier = {
+ 			add = 20
+ 			desc = AI_RECIPIENT_COMPANY_SENTIMENT_OPPORTUNISTIC
+			scope:recipient.liege ?= {
+				government_has_flag = government_is_merchant
+				house ?= { has_house_unity_stage = opportunistic_cs }
 			}
  		}
 
@@ -1279,9 +1332,7 @@ invite_to_court_interaction = {
  		}
 
  		modifier = {
- 			scope:actor.culture = {
-				has_cultural_parameter = invite_courtiers_reasons
-			}
+ 			scope:actor.culture = { has_cultural_parameter = invite_courtiers_reasons }
  			add = 15
  			desc = invite_courtiers_additional_reason
  		}

@@ -8,7 +8,8 @@ feudalize_holding_interaction_cost_ck = {
 			}
 		}
 		add = {
-			value = 50
+			value = main_building_tier_1_cost
+			multiply = 0.125
 			desc = BASE
 		}
 	}
@@ -17,20 +18,22 @@ feudalize_holding_interaction_cost_ck = {
 			scope:target.county.culture ?= culture
 		}
 		add = {
-			value = 200
+			value = main_building_tier_1_cost
+			multiply = 0.5
 			desc = BASE
 		}
 	}
 	else = {
 		add = {
-			value = 500
+			value = main_building_tier_1_cost
+			multiply = 1.25
 			desc = BASE
 		}
 	}
 	if = {
 		limit = {
 			is_ai = yes
-			capital_province = { has_holding_type = tribal_holding }
+			capital_province ?= { has_holding_type = tribal_holding }
 		}
 		multiply = 0.5
 	}
@@ -71,14 +74,14 @@ feudalize_holding_interaction_cost_ck = {
 		}
 		else_if = {
 			limit = { realm_law_authority_level_2 = yes }
-			add = {
-				multiply = 0.15
+			multiply = {
+				value = 1.15
 				desc = has_admin_government
 			}
 		}
 		else = {
-			add = {
-				multiply = 0.25
+			multiply = {
+				value = 1.25
 				desc = has_admin_government
 			}
 		}
@@ -103,6 +106,138 @@ feudalize_holding_interaction_cost_ck = {
 }
 court_chaplain_conversion_factors_ck = {
 	value = 1
+	if = {
+		limit = { exists = scope:county.title_province }
+		multiply = {
+			value = 1
+			subtract = {
+				value = scope:county.title_province.province_size_level
+				multiply = convert_faith_settlement_size_penalty_step
+			}
+			desc = COURT_CHAPLAIN_CONVERSION_SETTLEMENT_SIZE
+		}
+	}
+	if = {
+		limit = {
+			exists = scope:county.faith
+			exists = scope:councillor.faith
+			scope:councillor.faith = {
+				faith_hostility_level = {
+					target = scope:county.faith
+					value >= faith_evil_level
+				}
+			}
+		}
+		multiply = {
+			value = convert_faith_hostility_evil_mult
+			desc = COURT_CHAPLAIN_CONVERSION_HOSTILITY
+		}
+	}
+	else_if = {
+		limit = {
+			exists = scope:county.faith
+			exists = scope:councillor.faith
+			scope:councillor.faith = {
+				faith_hostility_level = {
+					target = scope:county.faith
+					value >= faith_hostile_level
+				}
+			}
+		}
+		multiply = {
+			value = convert_faith_hostility_hostile_mult
+			desc = COURT_CHAPLAIN_CONVERSION_HOSTILITY
+		}
+	}
+	else_if = {
+		limit = {
+			exists = scope:county.faith
+			exists = scope:councillor.faith
+			scope:councillor.faith = {
+				faith_hostility_level = {
+					target = scope:county.faith
+					value >= faith_astray_level
+				}
+			}
+		}
+		multiply = {
+			value = convert_faith_hostility_astray_mult
+			desc = COURT_CHAPLAIN_CONVERSION_HOSTILITY
+		}
+	}
+	if = {
+		limit = {
+			exists = scope:county
+			scope:county.culture = {
+				OR = {
+					is_divergent_culture = yes
+					is_hybrid_culture = yes
+				}
+			}
+			scope:councillor_liege.culture = { has_same_culture_heritage = scope:county.culture }
+		}
+		multiply = {
+			value = convert_faith_divergence_shared_root_mult
+			desc = COURT_CHAPLAIN_CONVERSION_DIVERGENCE
+		}
+	}
+	if = {
+		limit = {
+			exists = scope:county
+			scope:county.culture = scope:councillor_liege.culture
+		}
+		multiply = {
+			value = convert_faith_cultural_same_culture_mult
+			desc = COURT_CHAPLAIN_CONVERSION_CULTURAL_SIMILARITY
+		}
+	}
+	else_if = {
+		limit = {
+			exists = scope:county
+			scope:councillor_liege.culture = { has_same_culture_heritage = scope:county.culture }
+		}
+		multiply = {
+			value = convert_faith_cultural_same_heritage_mult
+			desc = COURT_CHAPLAIN_CONVERSION_CULTURAL_SIMILARITY
+		}
+	}
+	else_if = {
+		limit = {
+			exists = scope:county
+			scope:councillor_liege.culture = {
+				cultural_acceptance = { target = scope:county.culture value < 25 }
+			}
+		}
+		multiply = {
+			value = convert_faith_cultural_acceptance_alien_mult
+			desc = COURT_CHAPLAIN_CONVERSION_CULTURAL_SIMILARITY
+		}
+	}
+	else_if = {
+		limit = {
+			exists = scope:county
+			scope:councillor_liege.culture = {
+				cultural_acceptance = { target = scope:county.culture value < 50 }
+			}
+		}
+		multiply = {
+			value = convert_faith_cultural_acceptance_low_mult
+			desc = COURT_CHAPLAIN_CONVERSION_CULTURAL_SIMILARITY
+		}
+	}
+	else_if = {
+		limit = {
+			exists = scope:county
+			scope:councillor_liege.culture = {
+				cultural_acceptance = { target = scope:county.culture value < 75 }
+			}
+		}
+		multiply = {
+			value = convert_faith_cultural_acceptance_mid_mult
+			desc = COURT_CHAPLAIN_CONVERSION_CULTURAL_SIMILARITY
+		}
+	}
+
 	if = {
 		limit = {
 			scope:councillor.faith = {
@@ -165,7 +300,7 @@ court_chaplain_conversion_factors_ck = {
 	# 		desc = fp2_struggle_hostility_faith_conversion_task_desc
 	# 	}
 	# }
-	# Faster conversion of infidels for FP2 Council Toledo Conversion
+	# # Faster conversion of infidels for FP2 Council Toledo Conversion
 	# if = {
 	# 	limit = {
 	# 		scope:councillor.liege = { has_character_modifier = fp2_council_conversion_modifier }
@@ -176,7 +311,7 @@ court_chaplain_conversion_factors_ck = {
 	# 		desc = council_toledo_conversion_task_desc
 	# 	}
 	# }
-	# Faster conversion of heretics for FP2 Council Toledo Heresies
+	# # Faster conversion of heretics for FP2 Council Toledo Heresies
 	# if = {
 	# 	limit = {
 	# 		scope:councillor.liege = { has_character_modifier = fp2_council_conversion_modifier }
@@ -192,20 +327,20 @@ court_chaplain_conversion_factors_ck = {
 	# 	}
 	# }
 
-	# Faster conversion of Persian counties with the FP3 Promote Persian Scripture decision
-	if = {
-		limit = {
-			scope:councillor.liege = { 
-				has_character_modifier = fp3_promoted_persian_scripture_modifier 
-				is_ai = no #this is so that we don't get AI converting and homogenizing Persia too quickly
-			}
-			scope:county.culture = { has_cultural_pillar = heritage_darshi } 
-		}
-		multiply = {
-			value = promote_persian_scripture_conversion_modifier_value
-			desc = fp3_promote_persian_scripture_task_desc
-		}
-	}
+	# # Faster conversion of Persian counties with the FP3 Promote Persian Scripture decision
+	# if = {
+	# 	limit = {
+	# 		scope:councillor.liege = { 
+	# 			has_character_modifier = fp3_promoted_persian_scripture_modifier 
+	# 			is_ai = no #this is so that we don't get AI converting and homogenizing Persia too quickly
+	# 		}
+	# 		scope:county.culture = { has_cultural_pillar = heritage_iranian } 
+	# 	}
+	# 	multiply = {
+	# 		value = promote_persian_scripture_conversion_modifier_value
+	# 		desc = fp3_promote_persian_scripture_task_desc
+	# 	}
+	# }
 
 	# # FP3 faster conversion struggle ending rewards
 	# if = {

@@ -53,17 +53,10 @@ start_murder_interaction = {
 			}
 		}
 		scope:recipient = { NOT = { has_strong_hook = scope:puppet_or_actor } }
-		trigger_if = {
-			limit = {
-				scope:puppet_or_actor = {
-					has_government = landless_adventurer_government
-				}
-			}
-			#Has to be used instead of diplo range checks in laamp to landed interactions
-			ep3_laamp_diplo_range_trigger = {
+		#limit range for landless adventurers/merchants
+		exceptional_diplo_range_trigger = {
+			CHARACTER = scope:puppet_or_actor
 				TARGET = scope:recipient
-				LAAMP = scope:puppet_or_actor
-			}
 		}
 		trigger_if = {
 			limit = { scope:puppet_or_actor = { has_variable = no_scheming_allowed_var } }
@@ -129,12 +122,21 @@ start_murder_interaction = {
 		scope:puppet_or_actor = {
 			if = { # Only get stressed/SP penalties if you don't have the parameter
 				limit = {
-					NOT = { has_fulfillment_parameter = sp_murder_yields_no_sp_or_stress_loss }
+					NOR = {
+						has_fulfillment_parameter = sp_murder_yields_no_sp_or_stress_loss
+						has_variable = recently_troubled_by_murder_plot
+					}
 				}
 				stress_and_fulfillment_impact = {
 					compassionate = major_stress_impact_gain
 					honest = medium_stress_impact_gain
 					just = medium_stress_impact_gain
+				}
+				hidden_effect = {
+					set_variable = {
+						name = recently_troubled_by_murder_plot
+						years = 1
+					}
 				}
 			}
 			send_interface_toast = {
@@ -218,9 +220,7 @@ start_murder_interaction = {
 				# Hand over the modifier.
 				random_scheme = {
 					type = murder
-					limit = {
-						scheme_target_character = scope:recipient
-					}
+					limit = { scheme_target_character = scope:recipient }
 					add_scheme_modifier = { type = feast_learnt_habits_modifier }
 				}
 				# Remove the variable now that we're done with it.
@@ -327,18 +327,10 @@ start_abduct = {
 			}
 		}
 		scope:recipient = { NOT = { has_strong_hook = scope:puppet_or_actor } }
-		#limit range for landless adventurers
-		trigger_if = {
-			limit = {
-				scope:puppet_or_actor = {
-					has_government = landless_adventurer_government
-				}
-			}
-			#Has to be used instead of diplo range checks in laamp to landed interactions
-			ep3_laamp_diplo_range_trigger = {
+		#limit range for landless adventurers/merchants
+		exceptional_diplo_range_trigger = {
+			CHARACTER = scope:puppet_or_actor
 				TARGET = scope:recipient
-				LAAMP = scope:puppet_or_actor
-			}
 		}
 		trigger_if = {
 			limit = { scope:puppet_or_actor = { has_variable = no_scheming_allowed_var } }
@@ -689,18 +681,10 @@ befriend_interaction = {
 				target_character = scope:recipient
 			}
 		}
-		#limit range for landless adventurers
-		trigger_if = {
-			limit = {
-				scope:puppet_or_actor = {
-					has_government = landless_adventurer_government
-				}
-			}
-			#Has to be used instead of diplo range checks in laamp to landed interactions
-			ep3_laamp_diplo_range_trigger = {
+		#limit range for landless adventurers/merchants
+		exceptional_diplo_range_trigger = {
+			CHARACTER = scope:puppet_or_actor
 				TARGET = scope:recipient
-				LAAMP = scope:puppet_or_actor
-			}
 		}
 		trigger_if = {
 			limit = { scope:is_puppet_action ?= yes }
@@ -1112,6 +1096,15 @@ seduce_interaction = {
 		empire = 12
 		hegemony = 12
 	}
+	ai_frequency_by_tier_government_override = {
+		government = merchant_government
+		barony = 0
+		county = 216
+		duchy = 0
+		kingdom = 0
+		empire = 0
+		hegemony = 0
+	}
 
 	is_available = {
 		trigger_if = {
@@ -1244,10 +1237,7 @@ seduce_interaction = {
 
 	is_valid_showing_failures_only = {
 		scope:puppet_or_actor = {
-			NOR = {
-				is_at_war_with = scope:recipient
-				has_trait = widow
-			}
+			NOT = { is_at_war_with = scope:recipient }
 			can_start_scheme = {
 				type = seduce
 				target_character = scope:recipient
@@ -1263,19 +1253,10 @@ seduce_interaction = {
 			}
 			scope:recipient = { primary_spouse = { NOT = { has_strong_hook = scope:puppet_or_actor } } }
 		}
-		scope:recipient = { NOT = { has_trait = widow } }
-		#limit range for landless adventurers
-		trigger_if = {
-			limit = {
-				scope:puppet_or_actor = {
-					has_government = landless_adventurer_government
-				}
-			}
-			#Has to be used instead of diplo range checks in laamp to landed interactions
-			ep3_laamp_diplo_range_trigger = {
+		#limit range for landless adventurers/merchants
+		exceptional_diplo_range_trigger = {
+			CHARACTER = scope:puppet_or_actor
 				TARGET = scope:recipient
-				LAAMP = scope:puppet_or_actor
-			}
 		}
 	}
 
@@ -1459,10 +1440,7 @@ seduce_interaction = {
 			add = 25
 			scope:recipient = {
 				primary_spouse ?= {
-					OR = {
 						has_relation_rival = scope:puppet_or_actor
-						has_relation_nemesis = scope:puppet_or_actor
-					}
 				}
 			}
 		}
@@ -1916,10 +1894,7 @@ court_interaction = {
 
 	is_valid_showing_failures_only = {
 		scope:puppet_or_actor = {
-			NOR = { 
-				is_at_war_with = scope:recipient
-				has_trait = widow
-			}
+			NOT = { is_at_war_with = scope:recipient }
 			can_start_scheme = {
 				type = courting
 				target_character = scope:recipient
@@ -1929,18 +1904,10 @@ court_interaction = {
 				NOT = { has_character_modifier = clerical_chastity_vow_modifier }
 			}
 		}
-		#limit range for landless adventurers
-		trigger_if = {
-			limit = {
-				scope:puppet_or_actor = {
-					has_government = landless_adventurer_government
-				}
-			}
-			#Has to be used instead of diplo range checks in laamp to landed interactions
-			ep3_laamp_diplo_range_trigger = {
+		#limit range for landless adventurers/merchants
+		exceptional_diplo_range_trigger = {
+			CHARACTER = scope:puppet_or_actor
 				TARGET = scope:recipient
-				LAAMP = scope:puppet_or_actor
-			}
 		}
 		scope:recipient = { NOT = { has_trait = widow } } 
 	}
@@ -2266,6 +2233,15 @@ sway_interaction = {
 		empire = 6
 		hegemony = 6
 	}
+	ai_frequency_by_tier_government_override = {
+		government = merchant_government
+		barony = 0
+		county = 360
+		duchy = 0
+		kingdom = 0
+		empire = 0
+		hegemony = 0
+	}
 
 	is_available = {
 		trigger_if = {
@@ -2355,18 +2331,10 @@ sway_interaction = {
 				target_character = scope:recipient
 			}
 		}
-		#limit range for landless adventurers
-		trigger_if = {
-			limit = {
-				scope:puppet_or_actor = {
-					has_government = landless_adventurer_government
-				}
-			}
-			#Has to be used instead of diplo range checks in laamp to landed interactions
-			ep3_laamp_diplo_range_trigger = {
+		#limit range for landless adventurers/merchants
+		exceptional_diplo_range_trigger = {
+			CHARACTER = scope:puppet_or_actor
 				TARGET = scope:recipient
-				LAAMP = scope:puppet_or_actor
-			}
 		}
 	}
 
@@ -2672,18 +2640,10 @@ learn_language_interaction = {
 				target_character = scope:recipient
 			}
 		}
-		#limit range for landless adventurers
-		trigger_if = {
-			limit = {
-				scope:puppet_or_actor = {
-					has_government = landless_adventurer_government
-				}
-			}
-			#Has to be used instead of diplo range checks in laamp to landed interactions
-			ep3_laamp_diplo_range_trigger = {
+		#limit range for landless adventurers/merchants
+		exceptional_diplo_range_trigger = {
+			CHARACTER = scope:puppet_or_actor
 				TARGET = scope:recipient
-				LAAMP = scope:puppet_or_actor
-			}
 		}
 	}
 
@@ -2790,6 +2750,23 @@ learn_language_interaction = {
 				}
 			}
 			scope:puppet_or_actor.religion = scope:recipient.religion
+		}
+
+		modifier = {
+			add = 50
+			scope:puppet_or_actor = {
+				culture = {
+					has_cultural_parameter = wants_to_learn_chinese
+				}
+				NOT = {
+					knows_language = language_chinese_ck
+				}
+			}
+			scope:recipient = {
+				culture = {
+					has_cultural_pillar = language_chinese_ck
+				}
+			}
 		}
 
 		modifier = {
@@ -2984,7 +2961,7 @@ learn_language_interaction = {
 		modifier = {
 			add = 100
 			scope:puppet_or_actor.culture = {
-				has_cultural_tradition = tradition_loyal_soldiers
+				has_cultural_parameter = wants_to_learn_liege_language
 			}
 			top_liege != this
 			scope:puppet_or_actor = {
@@ -3072,6 +3049,15 @@ study_faith_interaction = {
 		empire = 36
 		hegemony = 36
 	}
+	ai_frequency_by_tier_government_override = {
+		government = merchant_government
+		barony = 0
+		county = 216
+		duchy = 0
+		kingdom = 0
+		empire = 0
+		hegemony = 0
+	}
 
 	is_available = {
 		trigger_if = {
@@ -3119,18 +3105,10 @@ study_faith_interaction = {
 				target_character = scope:recipient
 			}
 		}
-		#limit range for landless adventurers
-		trigger_if = {
-			limit = {
-				scope:puppet_or_actor = {
-					has_government = landless_adventurer_government
-				}
-			}
-			#Has to be used instead of diplo range checks in laamp to landed interactions
-			ep3_laamp_diplo_range_trigger = {
+		#limit range for landless adventurers/merchants
+		exceptional_diplo_range_trigger = {
+			CHARACTER = scope:puppet_or_actor
 				TARGET = scope:recipient
-				LAAMP = scope:puppet_or_actor
-			}
 		}
 		trigger_if = {
 			limit = { scope:is_puppet_action ?= yes }
@@ -3535,4 +3513,3 @@ study_faith_interaction = {
 		}
 	}
 }
-

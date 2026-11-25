@@ -40,10 +40,30 @@ offer_hostage_interaction = {
 		# Only significant rulers use hostages
 		scope:recipient.highest_held_title_tier > tier_barony
 		# Laamps can't do anything with hostages but return/recall them.
+		scope:actor = {
+			NOR = {
+				government_has_flag = government_is_landless_adventurer
+				government_has_flag = government_is_merchant
+				government_has_flag = government_is_herder
+			}
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
+			}
+		}
 		scope:recipient = {
 			NOR = {
 				government_has_flag = government_is_landless_adventurer
+				government_has_flag = government_is_merchant
 				government_has_flag = government_is_herder
+			}
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
 			}
 		}
 		#Inside a merit realm vassals won't offer hostages except to your top liege.
@@ -253,12 +273,7 @@ offer_hostage_interaction = {
 		}
 		scope:actor = { trigger_event = char_interaction.0330 }
 		# If we're of the same clan this interaction affects unity
-		if = {
-			limit = {
-				scope:actor = { government_has_flag = government_is_clan }
-				scope:actor.house = scope:recipient.house
-			}
-			add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 				CHARACTER = scope:actor
 				TARGET = scope:recipient
 				VALUE = medium_unity_loss
@@ -266,7 +281,6 @@ offer_hostage_interaction = {
 				REVERSE_NON_HOUSE_TARGET = no
 			}
 		}
-	}
 
 	on_decline = {
 		scope:actor = {
@@ -468,7 +482,25 @@ offer_hostage_interaction = {
 			limit = {
 				is_ai = yes
 			}
-			NOT = { has_variable = conqueror }
+			NOR = {
+				government_has_flag = government_is_merchant
+				government_has_flag = government_is_herder
+				government_has_flag = government_is_theocracy
+				has_variable = conqueror
+			}
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
+			}
+			OR = {
+				is_landless_ruler = no
+				is_landless_administrative = yes
+			}
+			any_close_family_member = {
+				bp2_valid_to_offer_as_hostage_trigger = { SENDER = root }
+			}
 		}
 	}
 
@@ -649,7 +681,24 @@ demand_hostage_interaction = {
 		# Laamps can't do anything with hostages but return/recall them.
 		NOR = {
 			scope:actor = { government_has_flag = government_is_landless_adventurer }
+			scope:actor = { government_has_flag = government_is_merchant }
 			scope:recipient = { government_has_flag = government_is_landless_adventurer }
+		}
+		scope:actor = {
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
+			}
+		}
+		scope:recipient = {
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
+			}
 		}
 		#Inside a merit realm vassals won't demand hostages.
 		trigger_if = {
@@ -897,12 +946,7 @@ demand_hostage_interaction = {
 		}
 		scope:actor = { trigger_event = char_interaction.0331 }
 		# If we're of the same clan this interaction affects unity
-		if = {
-			limit = {
-				scope:actor = { government_has_flag = government_is_clan }
-				scope:actor.house = scope:recipient.house
-			}
-			add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 				CHARACTER = scope:actor
 				TARGET = scope:recipient
 				VALUE = minor_unity_loss
@@ -910,7 +954,6 @@ demand_hostage_interaction = {
 				REVERSE_NON_HOUSE_TARGET = no
 			}
 		}
-	}
 
 	on_decline = {
 		show_as_tooltip = {
@@ -1353,7 +1396,24 @@ exchange_hostage_interaction = {
 		# Laamps can't do anything with hostages but return/recall them.
 		NOR = {
 			scope:actor = { government_has_flag = government_is_landless_adventurer }
+			scope:actor = { government_has_flag = government_is_merchant }
 			scope:recipient = { government_has_flag = government_is_landless_adventurer }
+		}
+		scope:actor = {
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
+			}
+		}
+		scope:recipient = {
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
+			}
 		}
 		#Inside a merit realm vassals won't exchange hostages.
 		trigger_if = {
@@ -1642,19 +1702,13 @@ exchange_hostage_interaction = {
 		}
 		scope:actor = { trigger_event = char_interaction.0332 }
 		# If we're of the same clan this interaction affects unity
-		if = {
-			limit = {
-				scope:actor = { government_has_flag = government_is_clan }
-				scope:actor.house = scope:recipient.house
-			}
-			add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 				CHARACTER = scope:actor
 				TARGET = scope:recipient
 				VALUE = medium_unity_loss
 				DESC = clan_unity_hostage.desc
 				REVERSE_NON_HOUSE_TARGET = no
 			}
-		}
 		scope:actor.house = {
 			change_house_relation_effect = {
 				HOUSE = scope:recipient.house

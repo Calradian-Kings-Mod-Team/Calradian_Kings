@@ -1,0 +1,919 @@
+﻿###############################
+# Guelph & Ghibelline Effects
+###############################
+
+try_set_up_new_gg_leader_effect = {
+	save_temporary_scope_as = gg_departing_leader
+	#Special handling to make sure Pope stays Guelph leader, and HRE inheritor stays Ghibelline leader
+	if = {
+		limit = { 
+			gg_phase_is_pre_gg_trigger = yes
+			exists = var:guelph_leader
+		}
+		if = {
+			limit = {
+				exists = title:k_darusan
+				this != title:k_darusan.holder
+				title:k_darusan.holder = {
+					NOT = { exists = var:guelph_leader }
+				}
+			}
+			title:k_darusan.holder = {
+				set_variable = guelph_leader
+				recalculate_participant_group = situation:guelph_ghibelline
+				if = {
+					limit = { NOT = { exists = var:gg_involvement } }
+					set_variable = {
+						name = gg_involvement
+						value = gg_involvement_base_value
+					}
+				}
+			}
+			remove_variable = guelph_leader
+			recalculate_participant_group = situation:guelph_ghibelline
+		}		
+	}
+	else_if = {
+		limit = { 
+			gg_phase_is_pre_gg_trigger = yes
+			exists = var:ghibelline_leader
+		}
+		if = {
+			limit = { 
+				exists = title:e_west_calradia
+				this != title:e_west_calradia.holder
+				title:e_west_calradia.holder = {
+					NOT = { exists = var:ghibelline_leader }
+				} 
+			}
+			title:e_west_calradia.holder = {
+				set_variable = ghibelline_leader
+				recalculate_participant_group = situation:guelph_ghibelline
+				if = {
+					limit = { NOT = { exists = var:gg_involvement } }
+					set_variable = {
+						name = gg_involvement
+						value = gg_involvement_base_value
+					}
+				}
+			}
+			remove_variable = ghibelline_leader
+			recalculate_participant_group = situation:guelph_ghibelline
+		}
+	}
+	else = {
+		if = {
+			limit = { has_variable = guelph_leader }
+			if = {
+				limit = {
+					primary_heir ?= {
+						this != scope:gg_departing_leader # Republics can re-elect, so the primary heir may be this dead ruler
+						save_temporary_scope_as = heir_check
+						situation:guelph_ghibelline ?= { 
+							any_situation_participant = { this = scope:heir_check }
+						}
+						NOR = { 
+							has_variable = ghibelline_leader
+							any_held_title = { this = title:k_darusan }
+						}
+						top_liege = scope:gg_departing_leader
+					}
+				}
+				primary_heir = {
+					set_variable = guelph_leader
+					save_scope_as = new_gg_leader
+				}
+			}
+			else_if = {
+				limit = {
+					situation:guelph_ghibelline = {
+						situation_participant_group:guelph_member = {
+							any_situation_group_participant = { 
+								count >= 1
+								NOT = { 
+									any_held_title = { this = title:k_darusan }
+								}
+							}
+						}
+					}
+				}
+				situation:guelph_ghibelline = {
+					situation_participant_group:guelph_member = {
+						ordered_situation_group_participant = {
+							limit = { 
+								NOT = { 
+									any_held_title = { this = title:k_darusan }
+								}
+							}
+							order_by = primary_title.tier
+							set_variable = guelph_leader
+							save_scope_as = new_gg_leader
+						}
+					}
+				}
+			}
+			else = {
+				save_scope_value_as = {
+					name = missing_leader
+					value = flag:guelph
+				}
+				gg_invalidation_missing_leader_message_effect = { MISSING_LEADER = scope:missing_leader }
+				situation:guelph_ghibelline = { end_situation = yes }
+			}
+			remove_variable = guelph_leader
+		}
+		if = {
+			limit = { has_variable = ghibelline_leader }
+			if = {
+				limit = {
+					primary_heir ?= {
+						this != scope:gg_departing_leader
+						save_temporary_scope_as = heir_check
+						situation:guelph_ghibelline ?= { 
+							any_situation_participant = { this = scope:heir_check }
+						}
+						NOT = { has_variable = guelph_leader }
+						top_liege = scope:gg_departing_leader
+					}
+				}
+				primary_heir = { 
+					set_variable = ghibelline_leader
+					save_scope_as = new_gg_leader
+				}
+			}
+			else_if = {
+				limit = {
+					situation:guelph_ghibelline = {
+						situation_participant_group:ghibelline_member = {
+							any_situation_group_participant = { count >= 1 }
+						}
+					}
+				}
+				situation:guelph_ghibelline = {
+					situation_participant_group:ghibelline_member = {
+						ordered_situation_group_participant = {
+							order_by = primary_title.tier
+							set_variable = ghibelline_leader
+							save_scope_as = new_gg_leader
+						}
+					}
+				}
+			}
+			else = {
+				save_scope_value_as = {
+					name = missing_leader
+					value = flag:ghibelline
+				}
+				gg_invalidation_missing_leader_message_effect = { MISSING_LEADER = scope:missing_leader }
+				situation:guelph_ghibelline = { end_situation = yes }
+			}
+			remove_variable = ghibelline_leader
+		}
+		if = {
+			limit = { exists = situation:guelph_ghibelline }
+			custom_tooltip = {
+				text = new_gg_leader_tt
+				scope:new_gg_leader = { recalculate_participant_group = situation:guelph_ghibelline }
+				recalculate_participant_group = situation:guelph_ghibelline
+			}
+		}
+	}
+}
+
+gg_clean_up_pope_modifiers_effect = {
+	#Remove Pope-specific GG modifiers
+	if = {
+		limit = {
+			faith = {
+				OR = {
+					religion != religion:calradian_religion
+					has_doctrine_parameter = no_head_of_faith
+				}
+			}				
+		}
+		if = {
+			limit = { has_character_modifier = favored_by_pope_modifier }
+			remove_character_modifier = favored_by_pope_modifier
+		}
+		if = {
+			limit = { has_character_modifier = scorned_pope_modifier }
+			remove_character_modifier = scorned_pope_modifier
+		}
+	}
+}
+
+#Endings
+gg_guelph_situation_victory_effect = {
+	#if = {
+	#	limit = { has_dlc_feature = legends }
+	#	legend_seed_struggle_ending_effect = {
+	#		ENDER = root
+	#		STRUGGLE = iberian_struggle
+	#	}
+	#}
+	save_scope_as = root_scope
+
+	##### Major Effects #####
+	situation:guelph_ghibelline ?= {
+		#Guelph Leader
+		every_situation_participant = {
+			custom = custom.every_guelph_leader
+			limit = { has_variable = guelph_leader }
+			dynasty ?= { add_dynasty_prestige = prev.gg_leader_victory_renown } 
+			save_scope_as = current_guelph_leader
+		}
+		#Guelph Members
+		every_situation_participant = {
+			custom = custom.every_guelph_only_member
+			limit = { 
+				is_guelph_trigger = yes
+				NOR = { 
+					has_variable = guelph_leader
+					dynasty ?= scope:current_guelph_leader.dynasty
+				}
+			}
+			dynasty ?= { add_dynasty_prestige = prev.gg_supporter_victory_renown }
+		}
+		#Guelphs
+		every_situation_participant = {
+			custom = custom.every_guelph_member
+			limit = { is_guelph_trigger = yes }
+			add_character_modifier = guelph_victor_modifier
+			if = {
+				limit = {
+					NOT = { this = title:k_darusan.holder }
+				}
+				add_character_modifier = {
+					modifier = favored_by_pope_modifier
+					years = 30
+				}
+				custom_tooltip = {
+					text = every_guelph_favored_by_pope_tt
+					title:k_darusan.holder ?= {
+						add_opinion = {
+							modifier = favored_by_pope_opinion
+							target = prev
+							opinion = gg_pope_opinion_value
+						}
+					}
+				}
+			}	
+		}
+		#Ghibellines
+		every_situation_participant = {
+			custom = custom.every_ghibelline_member
+			limit = { is_ghibelline_trigger = yes }
+			dynasty ?= {
+				add_dynasty_modifier = {
+					modifier = ghibelline_defeat_dynasty_modifier
+					years = 50
+				}
+			}
+			add_character_modifier = {
+				modifier = ghibelline_loser_modifier
+				years = 30
+			}
+		}
+	}
+	#The Italians disrespect the Germans slightly more now
+	culture:italian = {
+		change_cultural_acceptance = {
+			target = title:e_west_calradia.holder.culture
+			value = -20
+			desc = guelph_victory_cultural_acceptance_decline
+		}
+	}
+	#Any HRE vassal in Northern Italy becomes independent
+	title:e_west_calradia.holder ?= {
+		every_vassal = {
+			custom = custom.every_hre_vassal_northern_italy
+			limit = {
+				primary_title = {
+					title_province = { geographical_region = gdp_guelph_ghibelline_northern_italy_region }
+				}
+			}
+			create_title_and_vassal_change = {
+				type = independency
+				save_scope_as = change
+			}
+			becomes_independent = { change = scope:change }
+			resolve_title_and_vassal_change = scope:change
+		}
+	}
+
+	#Your involvement score
+	if = {
+		limit = {
+			is_guelph_trigger = yes
+			has_variable = guelph_leader
+			has_variable = gg_involvement
+			var:gg_involvement > gg_involvement_base_value
+		}
+		custom_description_no_bullet = {
+			text = gg_victory_leader_involvement_effect
+			dynasty ?= { add_dynasty_prestige = scope:root_scope.gg_leader_involvement_renown }
+		}
+	}
+	else_if = {
+		limit = {
+			is_guelph_trigger = yes
+			has_variable = gg_involvement
+			var:gg_involvement > gg_involvement_base_value
+		}
+		custom_description_no_bullet = {
+			text = gg_victory_member_involvement_effect
+			dynasty ?= { add_dynasty_prestige = scope:root_scope.gg_supporter_involvement_renown }
+		}
+	}
+	else_if = {
+		limit = {
+			is_guelph_or_ghibelline_trigger = no
+			has_variable = gg_involvement
+			var:gg_involvement > gg_involvement_base_value
+		}
+		custom_description_no_bullet = {
+			text = gg_victory_predicted_involvement_effect
+			dynasty ?= { add_dynasty_prestige = scope:root_scope.gg_supporter_involvement_renown }
+		}
+	}
+
+	custom_description_no_bullet = {
+		text = guelph_victory_hre_effects
+		#HRE may not declare wars on Northern Italians for a good while
+		set_global_variable = {
+			name = gg_hre_no_cb_northern_italy
+			years = gg_hre_no_cb_northern_italy_years_value
+		}
+		#HRE aren't allowed to declare wars on their Theocratic vassals anymore
+		set_global_variable = gg_ended_in_guelph_victory_no_hre_wars_on_theocratic_vassals
+	}
+
+	if = {
+		limit = {
+			exists = title:k_darusan.holder
+			title:k_darusan.holder = { realm_law_use_church_authority = yes }
+		}
+		title:k_darusan.holder = {
+			custom_tooltip = {
+				text = gg_guelph_victory_pope_church_authority_tt
+				change_authority_effect = { CHANGE = 1 }
+			}
+		}
+	}
+	
+	
+	#fp2_struggle_hostility_ender_effect = yes
+
+	# Hispania is available!
+	#custom_tooltip = fp2_struggle_can_create_empire_of_hispania_tt
+	#custom_description_no_bullet = { text = fp2_struggle_house_tt }
+
+	# Keep the Struggle Clash for your House
+	#custom_tooltip = fp2_struggle_can_keep_using_struggle_clash_tt
+
+	# Damage opinion with other culture/faiths
+	#custom_tooltip = fp2_struggle_hostility_opinion_tt
+	#custom_tooltip = fp2_struggle_hostility_opinion_negative_tt
+
+	# Choose Holy War boost, Culture War boost, or both
+	#custom_description_no_bullet = { text = fp2_struggle_hostility_list_tt }
+
+	stress_and_fulfillment_impact = {
+		zealous = medium_stress_impact_loss
+	}
+
+	# Achievements
+	#add_achievement_global_variable_effect = {
+	#	VARIABLE = fp2_iberian_hostilities_achievement_unlocked
+	#	VALUE = yes
+	#}
+}
+
+gg_ghibelline_situation_victory_effect = {
+	save_scope_as = root_scope
+	##### Major Effects #####
+	situation:guelph_ghibelline ?= {	
+		#Ghibelline Leader
+		every_situation_participant = {
+			custom = custom.every_ghibelline_leader
+			limit = { has_variable = ghibelline_leader }
+			dynasty ?= { add_dynasty_prestige = prev.gg_leader_victory_renown }
+			save_scope_as = current_ghibelline_leader
+		}
+		#Ghibelline Members
+		every_situation_participant = {
+			custom = custom.every_ghibelline_only_member
+			limit = { 
+				is_ghibelline_trigger = yes
+				NOR = { 
+					has_variable = ghibelline_leader
+					dynasty ?= scope:current_ghibelline_leader.dynasty
+				}
+			}
+			dynasty ?= { add_dynasty_prestige = prev.gg_supporter_victory_renown }
+		}
+		#Ghibellines
+		every_situation_participant = {
+			custom = custom.every_ghibelline_member
+			limit = { is_ghibelline_trigger = yes }
+			dynasty ?= {
+				add_dynasty_modifier = {
+					modifier = ghibelline_victory_dynasty_modifier
+					years = 50
+				}
+			}
+			add_character_modifier = ghibelline_victor_modifier
+			if = {
+				limit = {
+					NOT = { this = title:k_darusan.holder }
+				}
+				add_character_modifier = {
+					modifier = scorned_pope_modifier
+					years = 30
+				}
+				custom_tooltip = {
+					text = every_ghibelline_scorned_with_pope_tt
+					title:k_darusan.holder = {
+						add_opinion = {
+							modifier = scorned_pope_opinion
+							target = prev
+							opinion = gg_pope_opinion_negative_value
+						}
+					}
+				}
+			}
+		}
+		#Guelphs
+		every_situation_participant = {
+			custom = custom.every_guelph_member
+			limit = { is_guelph_trigger = yes }
+			add_character_modifier = {
+				modifier = guelph_loser_modifier
+				years = 30
+			}
+		}
+	}
+
+	#Your involvement score
+	if = {
+		limit = {
+			is_ghibelline_trigger = yes
+			has_variable = ghibelline_leader
+			has_variable = gg_involvement
+			var:gg_involvement > gg_involvement_base_value
+		}
+		custom_description_no_bullet = {
+			text = gg_victory_leader_involvement_effect
+			dynasty ?= { add_dynasty_prestige = scope:root_scope.gg_leader_involvement_renown }
+		}
+	}
+	else_if = {
+		limit = {
+			is_ghibelline_trigger = yes
+			has_variable = gg_involvement
+			var:gg_involvement > gg_involvement_base_value
+		}
+		custom_description_no_bullet = {
+			text = gg_victory_member_involvement_effect
+			dynasty ?= { add_dynasty_prestige = scope:root_scope.gg_supporter_involvement_renown }
+		}
+	}
+	else_if = {
+		limit = {
+			is_guelph_or_ghibelline_trigger = no
+			has_variable = gg_involvement
+			var:gg_involvement > gg_involvement_base_value
+		}
+		custom_description_no_bullet = {
+			text = gg_victory_predicted_involvement_effect
+			dynasty ?= { add_dynasty_prestige = scope:root_scope.gg_supporter_involvement_renown }
+		}
+	}
+
+	#It's all HRE from here
+	custom_description_no_bullet = { #This looks better :colbert:
+		text = ghibelline_victory_hre_effects
+		title:k_italy = { set_de_jure_liege_title = title:e_west_calradia }
+		title:k_romagna = { set_de_jure_liege_title = title:e_west_calradia }
+	}
+
+	if = {
+		limit = {
+			exists = title:k_darusan.holder
+			title:k_darusan.holder = { realm_law_use_church_authority = yes }
+		}
+		title:k_darusan.holder = {
+			custom_tooltip = {
+				text = gg_ghibelline_victory_pope_church_authority_tt
+				change_authority_effect = { CHANGE = -1 }
+			}
+		}
+	}
+	
+	stress_and_fulfillment_impact = {
+		cynical = medium_stress_impact_loss
+	}
+	
+}
+
+
+#FOR THE INTERACTION. We use gg_situation_compromise_effect here and in gg_situation_compromise_actual_effect
+gg_situation_compromise_display_effect = {
+	##### Major Effects #####
+	$GUELPH_LEADER$ = { save_scope_as = current_guelph_leader }
+	$GHIBELLINE_LEADER$ = { save_scope_as = current_ghibelline_leader }
+	#Leaders
+	scope:actor = {
+		custom_tooltip = {
+			text = actor_compromise_renown_tt
+			dynasty ?= {
+				add_dynasty_prestige = {
+					add = prev.gg_leader_compromise_renown
+					multiply = gg_compromise_factor
+				}
+			}
+		}
+		if = {
+			limit = { is_guelph_trigger = yes }
+			custom_description_no_bullet = { text = gg_increased_by_independent_guelph_supporters }
+		}
+		else = {
+			custom_description_no_bullet = { text = gg_increased_by_independent_ghibelline_supporters }
+		}
+		add_character_modifier = {
+			modifier = compromising_leader_modifier
+			years = 25
+		}
+	}
+	scope:recipient = {
+		custom_tooltip = {
+			text = recipient_compromise_renown_tt
+			dynasty ?= {
+				add_dynasty_prestige = {
+					add = prev.gg_leader_compromise_renown
+					multiply = gg_compromise_factor
+				}
+			}
+		}
+		if = {
+			limit = { is_guelph_trigger = yes }
+			custom_description_no_bullet = { text = gg_increased_by_independent_guelph_supporters }
+		}
+		else = {
+			custom_description_no_bullet = { text = gg_increased_by_independent_ghibelline_supporters }
+		}
+		add_character_modifier = {
+			modifier = compromising_leader_modifier
+			years = 25
+		}
+	}
+	#Let's be friends
+	custom_tooltip = {
+		text = italian_hre_culture_acceptance_tt
+		culture:italian = {
+			change_cultural_acceptance = {
+				target = title:e_west_calradia.holder.culture
+				value = gg_compromise_cultural_acceptance_increase
+				desc = guelph_victory_cultural_acceptance_growth
+			}
+		}
+	}
+	#Lose some control
+	custom_tooltip = {
+		text = every_county_in_every_hre_vassal_northern_italy
+		title:e_west_calradia.holder ?= {
+			every_vassal = {
+				custom = custom.every_hre_vassal_northern_italy
+				limit = {
+					primary_title = {
+						title_province = { geographical_region = gdp_guelph_ghibelline_northern_italy_region }
+					}
+				}
+				every_realm_county = {
+					custom = every_county
+					change_county_control = 10
+					add_county_modifier = ghibelline_compromise_county_modifier
+				}
+			}
+		}
+	}
+	
+	gg_situation_compromise_effect = yes
+}
+
+#FOR THE EVENT
+gg_situation_compromise_actual_effect = {
+	##### Major Effects #####
+	$GUELPH_LEADER$ = { save_scope_as = current_guelph_leader }
+	$GHIBELLINE_LEADER$ = { save_scope_as = current_ghibelline_leader }
+	#Leaders
+	scope:current_guelph_leader = {
+		dynasty ?= {
+			add_dynasty_prestige = {
+				add = prev.gg_leader_compromise_renown
+				multiply = gg_compromise_factor
+			}
+		}
+		custom_description_no_bullet = { text = gg_increased_by_independent_guelph_supporters }
+		add_character_modifier = {
+			modifier = compromising_leader_modifier
+			years = 25
+		}
+	}
+	scope:current_ghibelline_leader = {
+		dynasty ?= {
+			add_dynasty_prestige = {
+				add = prev.gg_leader_compromise_renown
+				multiply = gg_compromise_factor
+			}
+		}
+		custom_description_no_bullet = { text = gg_increased_by_independent_ghibelline_supporters }
+		add_character_modifier = {
+			modifier = compromising_leader_modifier
+			years = 25
+		}
+	}
+	#Let's be friends
+	culture:italian = {
+		change_cultural_acceptance = {
+			target = title:e_west_calradia.holder.culture
+			value = 5
+			desc = guelph_victory_cultural_acceptance_growth
+		}
+	}
+	#Lose some control
+	title:e_west_calradia.holder ?= {
+		every_vassal = {
+			custom = custom.every_hre_vassal_northern_italy
+			limit = {
+				primary_title = {
+					title_province = { geographical_region = gdp_guelph_ghibelline_northern_italy_region }
+				}
+			}
+			every_realm_county = {
+				custom = every_county
+				change_county_control = gg_ghibelline_compromise_control_negative_value
+				add_county_modifier = {
+					modifier = ghibelline_compromise_county_modifier
+					years = gg_ghibelline_compromise_modifier_length_years
+				}
+			}
+		}
+	}
+	gg_situation_compromise_effect = yes
+}
+
+gg_claim_unites_pope_and_emperor_tooltip_effect = {
+	if = {
+		limit = {
+			exists = situation:guelph_ghibelline
+			OR = {
+				AND = {
+					scope:claimant = { has_title = title:k_darusan }
+					any_in_list = {
+						list = target_titles
+						this = title:e_west_calradia
+					}
+				}
+				AND = {
+					scope:claimant = { has_title = title:e_west_calradia }
+					any_in_list = {
+						list = target_titles
+						this = title:k_darusan
+					}
+				}
+			}
+		}
+		custom_tooltip = gg_claim_unites_pope_and_emperor_tt
+	}
+}
+
+try_to_set_up_lombard_league_with_effect = {
+	$TITLE$ = { save_scope_as = title_to_check }
+	if = {
+		limit = {
+			scope:title_to_check = {
+				holder ?= { 
+					is_either_hre_vassal_or_independent_duke_or_less_trigger = yes
+					#This should be your primary title
+					primary_title = scope:title_to_check
+					is_ai = yes
+				}
+			}
+		}
+		#Save the scope
+		scope:title_to_check.holder ?= { create_lombard_league_effect = yes }
+	}
+}
+
+create_lombard_league_effect = {
+	#Ditch those shackles, man
+	if = {
+		limit = { is_independent_ruler = no }
+		custom_description_no_bullet = {
+			text = become_independent_effect
+			gg_become_independent_effect = { TITLE = scope:league_creator.primary_title }
+		}
+	}
+	#Create the Lombard League
+	custom_description_no_bullet = {
+		text = create_lombard_league_effect
+		create_confederation = {
+			name = lombard_league_name
+			type = confederation_type:lombard_league
+		}
+	}
+	if = {
+		limit = { is_ai = yes }
+		add_character_modifier = lombard_founder_modifier
+	}
+	#See who's available to join
+	scope:new_confederation ?= {
+		set_coa = lombard_league
+	}
+	#Notify the relevant people
+	situation:guelph_ghibelline = {
+		random_situation_participant = {
+			limit = { has_variable = ghibelline_leader }
+			save_scope_as = ghibelline_leader
+		}
+		every_situation_participant = {
+			limit = { 
+				is_ai = no
+				save_temporary_scope_as = participant_check
+				scope:new_confederation ?= {
+					NOT = { 
+						any_confederation_member = { this = scope:participant_check }
+					}
+				}
+			}
+			if = {
+				limit = { scope:became_independent ?= scope:league_creator }
+				send_interface_message = {
+					type = msg_guelph_ghibelline_neutral_text
+					title = gg_league_created.t
+					left_icon = scope:league_creator
+					desc = gg_league_created_and_independence.desc
+				}
+			}
+			else = {
+				send_interface_message = {
+					type = msg_guelph_ghibelline_neutral_text
+					title = gg_league_created.t
+					left_icon = scope:league_creator
+					desc = gg_league_created.desc
+				}
+			}
+		}
+		situation:guelph_ghibelline = {
+			if = {
+				limit = { 
+					NOT = { situation_current_phase = agitation }
+				}
+				situation_top_sub_region = { change_phase = agitation }
+			}		
+		}
+	}
+	#... and make the HRE angry
+	scope:ghibelline_leader = {
+		if = {
+			limit = { is_ai = no }
+			custom_tooltip = hre_is_a_player_and_may_start_war_against_you.tt
+			trigger_event = gdp_guelph_ghibelline.7010
+		}
+		else = {
+			if = {
+				limit = { is_at_war = no }
+				custom_description_no_bullet = {
+					text = hre_starts_war_ll_effect
+					start_war = {
+						casus_belli = "dissolve_lombard_league_cb"
+						target = scope:league_creator
+					}
+				}
+			}
+		}
+	}
+	set_global_variable = {
+		name = lombard_league_created
+		value = scope:league_creator
+	}
+	situation:guelph_ghibelline = {
+		record_situation_special_event = {
+			key = gg_history_key_precursor_league_is_created
+			variables = {
+				league_creator = scope:league_creator
+			}
+		}
+	}
+}
+
+#We print this for the event so the player knows who will join the league
+display_who_might_join_lombard_league_effect = {
+	custom_tooltip = all_counties_in_lombard_league_will_join.tt
+	
+	show_as_tooltip = {
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:verona }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_verona }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:padua }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_padua }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:treviso }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_treviso }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:bologna }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_bologna }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:ferrara }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_ferrara }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:modena }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_modena }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:mantua }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_mantua }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:cremona }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_cremona }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:brescia }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_brescia }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:novara }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_novara }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:tortona }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_tortona }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:piacenza }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_piacenza }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:parma }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_parma }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:genoa }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_genoa }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:guastalla }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_guastalla }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:polesine }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_polesine }
+		# }
+		# if = {
+		# 	limit = {
+		# 		NOT = { scope:league_creator_title = flag:lombardia }
+		# 	}
+		# 	display_join_lombard_league_effect = { TITLE = title:c_lombardia }
+		# }
+	}
+}

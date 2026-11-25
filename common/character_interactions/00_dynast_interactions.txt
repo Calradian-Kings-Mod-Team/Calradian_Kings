@@ -38,8 +38,9 @@ disinherit_interaction = {
 
 		}
 		scope:recipient = {
-			NOT = {
+			NOR = {
 				has_trait = disinherited
+				has_trait = adopted_no_inheritance
 			}
 		}
 	}
@@ -184,7 +185,7 @@ disinherit_interaction = {
 		}
 
 		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 			CHARACTER = scope:puppet_or_actor
 			TARGET = scope:recipient
 			VALUE = medium_unity_loss
@@ -335,10 +336,7 @@ disinherit_interaction = {
 		modifier = {
 			add = 100
 			scope:recipient = {
-				OR = {
 					has_relation_rival = scope:puppet_or_actor
-					has_relation_nemesis = scope:puppet_or_actor
-				}
 			}
 		}
 		
@@ -438,10 +436,7 @@ disinherit_interaction = {
 		modifier = {
 			factor = 0
 			scope:recipient = {
-				OR = {
 					has_relation_friend = scope:puppet_or_actor
-					has_relation_best_friend = scope:puppet_or_actor
-				}
 			}
 		}
 		
@@ -484,8 +479,9 @@ disinherit_children_interaction = {
 			has_dynasty_perk = fp2_coterie_legacy_5
 		}
 		scope:recipient = {
-			NOT = {
+			NOR = {
 				has_trait = disinherited
+				has_trait = adopted_no_inheritance
 			}
 		}
 	}
@@ -592,7 +588,7 @@ disinherit_children_interaction = {
 		}
 
 		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 			CHARACTER = scope:puppet_or_actor
 			TARGET = scope:recipient
 			VALUE = minor_unity_loss
@@ -654,10 +650,7 @@ disinherit_children_interaction = {
 		modifier = {
 			add = 100
 			scope:recipient = {
-				OR = {
 					has_relation_rival = scope:puppet_or_actor
-					has_relation_nemesis = scope:puppet_or_actor
-				}
 			}
 		}
 
@@ -757,10 +750,7 @@ disinherit_children_interaction = {
 		modifier = {
 			factor = 0
 			scope:recipient = {
-				OR = {
 					has_relation_friend = scope:puppet_or_actor
-					has_relation_best_friend = scope:puppet_or_actor
-				}
 			}
 		}
 
@@ -795,7 +785,10 @@ restore_inheritance_interaction = {
 
 		}
 		scope:recipient = {
+			OR = {
 			has_trait = disinherited
+				has_trait = adopted_no_inheritance
+			}
 		}
 	}
 
@@ -836,7 +829,7 @@ restore_inheritance_interaction = {
 		}
 
 		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 			CHARACTER = scope:puppet_or_actor
 			TARGET = scope:recipient
 			VALUE = minor_unity_gain
@@ -877,10 +870,7 @@ restore_inheritance_interaction = {
 		modifier = {
 			add = 100
 			scope:recipient = {
-				OR = {
 					has_relation_friend = scope:puppet_or_actor
-					has_relation_best_friend = scope:puppet_or_actor
-				}
 			}
 		}
 		
@@ -902,10 +892,7 @@ restore_inheritance_interaction = {
 		modifier = {
 			factor = 0
 			scope:recipient = {
-				OR = {
 					has_relation_rival = scope:puppet_or_actor
-					has_relation_nemesis = scope:puppet_or_actor
-				}
 			}
 		}
 	}
@@ -1017,7 +1004,7 @@ denounce_interaction = {
 		}
 
 		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 			CHARACTER = scope:puppet_or_actor
 			TARGET = scope:recipient
 			VALUE = minor_unity_loss
@@ -1107,10 +1094,7 @@ denounce_interaction = {
 		modifier = {
 			add = 100
 			scope:recipient = {
-				OR = {
 					has_relation_rival = scope:puppet_or_actor
-					has_relation_nemesis = scope:puppet_or_actor
-				}
 			}
 		}
 		
@@ -1195,10 +1179,7 @@ denounce_interaction = {
 		modifier = {
 			factor = 0
 			scope:recipient = {
-				OR = {
 					has_relation_friend = scope:puppet_or_actor
-					has_relation_best_friend = scope:puppet_or_actor
-				}
 			}
 		}
 	}
@@ -1266,7 +1247,7 @@ forgive_interaction = {
 		}
 
 		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 			CHARACTER = scope:puppet_or_actor
 			TARGET = scope:recipient
 			VALUE = minor_unity_gain
@@ -1307,10 +1288,7 @@ forgive_interaction = {
 		modifier = {
 			add = 100
 			scope:recipient = {
-				OR = {
 					has_relation_friend = scope:puppet_or_actor
-					has_relation_best_friend = scope:puppet_or_actor
-				}
 			}
 		}
 		
@@ -1332,10 +1310,7 @@ forgive_interaction = {
 		modifier = {
 			factor = 0
 			scope:recipient = {
-				OR = {
 					has_relation_rival = scope:puppet_or_actor
-					has_relation_nemesis = scope:puppet_or_actor
-				}
 			}
 		}
 	}
@@ -1496,6 +1471,22 @@ call_dynasty_member_to_war_interaction = {
 	
 	ai_accept = {
 		base = 20
+
+		modifier = {  # Refuse call to conflicts of little benefit
+			add = -1000
+			desc = WONT_FIGHT_MEANINGLESS_REASON
+			trigger_if = {
+				limit = { exists = scope:target }
+				scope:target = { using_cb = fp2_border_raid }
+				scope:recipient = { # Unless they like going on raids
+					NOR = {
+						has_trait = viking
+						has_trait = reaver
+					}
+				}
+			}
+			trigger_else = { always = no }
+		}
 
 		modifier = {  # Refuse call against Heir
 			add = -1000
@@ -1690,11 +1681,14 @@ dynast_claim_title_interaction = {
 	}
 	
 	can_be_picked_title = {
+		scope:target = {
+			tier >= tier_county
 		custom_tooltip = {
 			NOT = { any_claimant = { this = scope:puppet_or_actor } }
 			text = "ALREADY_HAVE_CLAIM_ON_THIS_TITLE"
 		}
 		is_landless_type_title = no
+	}
 	}
 
 	is_valid_showing_failures_only = {
@@ -1774,7 +1768,7 @@ dynast_claim_title_interaction = {
 		}
 
 		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 			CHARACTER = scope:puppet_or_actor
 			TARGET = scope:recipient
 			VALUE = medium_unity_loss
@@ -2128,7 +2122,7 @@ send_to_varangian_guard_interaction = {
 		}
 		
 		# If we're a clan this interaction affects unity
-		add_clan_unity_interaction_effect = {
+		add_house_unity_interaction_effect = {
 			CHARACTER = scope:puppet_or_actor
 			TARGET = scope:recipient
 			VALUE = miniscule_unity_loss

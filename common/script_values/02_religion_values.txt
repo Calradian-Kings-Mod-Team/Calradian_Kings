@@ -60,16 +60,16 @@ meditation_duration = 185 # In days
 
 local_shrine_duration = 14
 
-faction_county_opinion_astray = {
-	value = county_opinion
+faction_popular_opinion_astray = {
+	value = popular_opinion
 	multiply = -1.0
 }
-faction_county_opinion_hostile = {
-	value = county_opinion
+faction_popular_opinion_hostile = {
+	value = popular_opinion
 	multiply = -2.5
 }
-faction_county_opinion_evil = {
-	value = county_opinion
+faction_popular_opinion_evil = {
+	value = popular_opinion
 	multiply = -5.0
 }
 
@@ -96,7 +96,7 @@ head_of_faith_selection_weight = {
 	if = {
 		limit = {
 			any_sub_realm_barony = {
-				is_holy_site_of = root.faith
+				is_holy_site_of = prev.faith
 			}
 		}
 		add = 40
@@ -1082,50 +1082,46 @@ great_holy_war_target_kingdom_weight = {
 	# 	add = ghw_target_stretch
 	# }
 	# # Mande Paganism & Senegambian Paganism heartlands
-	# else_if = {
-	# 	limit = {
-	# 		scope:the_faith.religion = {
-	# 			OR = {
-	# 				this = religion:west_african_roog_religion
-	# 				this = religion:west_african_religion
-	# 			}
-	# 		}
-	# 		title_capital_county.title_province = { geographical_region = ghw_region_the_sahel }
-	# 	}
-	# 	add = ghw_target_heartlands
-	# }
+	else_if = {
+		limit = {
+			scope:the_faith.religion = {
+				OR = {
+					this = religion:gazima_religion
+					this = religion:west_nahasan_religion
+				}
+			}
+			title_capital_county.title_province = { geographical_region = region_far_southwest_nahasa }
+		}
+		add = ghw_target_heartlands
+	}
 	# # Mande Paganism & Senegambian Paganism frontier
-	# else_if = {
-	# 	limit = {
-	# 		scope:the_faith.religion = {
-	# 			OR = {
-	# 				this = religion:west_african_roog_religion
-	# 				this = religion:west_african_religion
-	# 			}
-	# 		}
-	# 		title_capital_county.title_province = {
-	# 			OR = {
-	# 				geographical_region = ghw_region_subsahelian_africa
-	# 				geographical_region = ghw_region_north_african_interior
-	# 				geographical_region = ghw_region_western_sahara
-	# 			}
-	# 		}
-	# 	}
-	# 	add = ghw_target_frontier
-	# }
-	# # Mande Paganism & Senegambian Paganism fringe
-	# else_if = {
-	# 	limit = {
-	# 		scope:the_faith.religion = {
-	# 			OR = {
-	# 				this = religion:west_african_roog_religion
-	# 				this = religion:west_african_religion
-	# 			}
-	# 		}
-	# 		title_capital_county.title_province = { geographical_region = ghw_region_north_africa }
-	# 	}
-	# 	add = ghw_target_fringe
-	# }
+	else_if = {
+		limit = {
+			scope:the_faith.religion = {
+				OR = {
+					this = religion:gazima_religion
+					this = religion:west_nahasan_religion
+				}
+			}
+			title_capital_county.title_province = {
+					geographical_region = region_west_nahasa
+			}
+		}
+		add = ghw_target_frontier
+	}
+	# Mande Paganism & Senegambian Paganism fringe
+	else_if = {
+		limit = {
+			scope:the_faith.religion = {
+				OR = {
+					this = religion:west_african_roog_religion
+					this = religion:west_african_religion
+				}
+			}
+			title_capital_county.title_province = { geographical_region = region_north_nahasa_coast }
+		}
+		add = ghw_target_fringe
+	}
 	# # Hausan Paganism heartlands
 	# else_if = {
 	# 	limit = {
@@ -2420,13 +2416,6 @@ great_holy_war_pledge_amount = {
 # Referenced in code; don't delete this. When determining GHW participation score, the character's score from the war is multiplied by this. ROOT is the character
 ghw_score_mult = {
 	value = 1
-	if = {
-		limit = {
-			this = faith.religious_head
-			faith = { has_doctrine = doctrine_spiritual_head } # Temporal heads get credit
-		}
-		value = 0
-	}
 }
 
 # Referenced in code; don't delete this. When determining GHW participation score, the character's score percentage is capped at this. ROOT is the character
@@ -2571,7 +2560,7 @@ rite_creation_cost_mult = {
 # Modify (multiply) the doctrine cost when converting to a faith.
 # The returned value is interpreted as a multiplicative modifier (e.g. 0.5 means +50% cost).
 # scope:character = the converting character
-# scope:new_faith = the faith the character is converting to
+# scope:new_rite = the rite the character is converting to
 # There should be no subtract equal or higher than 1
 faith_conversion_cost_mult = {
 	
@@ -2602,7 +2591,7 @@ faith_conversion_cost_mult = {
 		multiply = {
 			value = 1
 			add = {
-				value = scope:new_faith.faith_conversion_fervor_mult
+				value = scope:new_rite.faith.faith_conversion_fervor_mult
 				subtract = scope:character.faith.faith_conversion_fervor_mult
 				desc = "faith_conversion_cost_fervor_difference"
 				format = "BREAKDOWN_FORMAT_PIETY_PERCENTAGE_POSITIVE_IS_BAD"
@@ -2612,7 +2601,7 @@ faith_conversion_cost_mult = {
 	# Try to always be cheaper than creating a new faith
 	if = {
 		limit = {
-			scope:new_faith.religion = scope:character.faith.religion
+			scope:new_rite.faith.religion = scope:character.faith.religion
 		}
 		multiply = {
 			value = 1
@@ -2637,7 +2626,7 @@ faith_conversion_cost_mult = {
 	# Pluralistic faiths have it easier converting to each other
 	if = {
 		limit = {
-			scope:new_faith.main_rite = { rite_has_doctrine = doctrine_pluralism_pluralistic }
+			scope:new_rite = { rite_has_doctrine = doctrine_pluralism_pluralistic }
 			scope:character.rite = { rite_has_doctrine = doctrine_pluralism_pluralistic }
 		}
 		multiply = {
@@ -2669,7 +2658,7 @@ faith_conversion_cost_mult = {
 	###############################################################
 	if = {
 		limit = {
-			scope:new_faith = {
+			scope:new_rite.faith = {
 				has_doctrine_parameter = unreformed
 			}
 		}
@@ -2748,7 +2737,7 @@ faith_conversion_cost_mult = {
 	#More expensive to convert to a dead religion
 	if = {
 		limit = {
-			scope:new_faith = {
+			scope:new_rite.faith = {
 				religion = {
 					any_faith = {
 						count = all
@@ -2773,7 +2762,7 @@ faith_conversion_cost_mult = {
 	# More expensive if you convert to a faith outside of your religion's family
 	if = {
 		limit = {
-			scope:new_faith = { has_doctrine = special_doctrine_immaterial_harmony }
+			scope:new_rite.faith = { has_doctrine = special_doctrine_immaterial_harmony }
 			scope:character.faith = { has_doctrine = special_doctrine_immaterial_harmony }
 		}
 		multiply = {
@@ -2787,7 +2776,7 @@ faith_conversion_cost_mult = {
 	}
 	else_if = {
 		limit = {
-			NOT = { scope:new_faith = { faith_is_in_same_rf = { FAITH = scope:character.faith } } }
+			NOT = { scope:new_rite.faith = { faith_is_in_same_rf = { FAITH = scope:character.faith } } }
 		}
 		multiply = {
 			value = 1
@@ -2802,7 +2791,7 @@ faith_conversion_cost_mult = {
 	# Unreformed Faiths have an easier way converting to Organized faiths
 	if = {
 		limit = {
-			scope:new_faith = {
+			scope:new_rite.faith = {
 				NOT = { has_doctrine_parameter = unreformed }
 			}
 			scope:character.faith = { has_doctrine_parameter = unreformed }
@@ -2812,7 +2801,7 @@ faith_conversion_cost_mult = {
 			subtract = {
 				desc = faith_conversion_cost_unreformed_to_organized
 				format = "BREAKDOWN_FORMAT_PIETY_PERCENTAGE_POSITIVE_IS_BAD"
-				value = 0.75
+				value = 0.9
 			}
 		}
 	}
@@ -2822,7 +2811,7 @@ faith_conversion_cost_mult = {
 			scope:character = {
 				any_courtier = {
 					has_character_flag = suzerains_missionary
-					faith = scope:new_faith
+					rite = scope:new_rite
 				}
 			}
 		}
@@ -2839,7 +2828,7 @@ faith_conversion_cost_mult = {
 	# More expensive to convert to something inside your religion family that's not the same religion
 	if = {
 		limit = {
-			scope:new_faith = {
+			scope:new_rite.faith = {
 				religion != scope:character.religion
 				faith_is_in_same_rf = { FAITH = scope:character.faith }
 			}
@@ -2865,14 +2854,14 @@ faith_conversion_cost_mult = {
 				any_in_list = {
 					variable = humsacd_hofs
 					faith_hostility_level = {
-						target = scope:new_faith
+						target = scope:new_rite.faith
 						value <= faith_astray_level
 					}
 				}
 			}
 			# Exemptions for people who already practice HumSac: they're likely not happy, but it's not the ultimate taboo for them.
-			scope:new_faith = {
-				NOT = { has_doctrine_parameter = human_sacrifice_active }
+			scope:new_rite = {
+				NOT = { rite_has_parameter = human_sacrifice_active }
 			}
 		}
 		multiply = {
@@ -2900,7 +2889,7 @@ faith_conversion_cost_mult = {
 		}
 		if = { # Even cheaper if unreformed
 			limit = {
-				scope:new_faith = {
+				scope:new_rite.faith = {
 					NOT = { has_doctrine_parameter = unreformed }
 				}
 				scope:character = {
@@ -2934,13 +2923,13 @@ faith_conversion_cost_mult = {
 		limit = {
 			scope:character = {
 				any_spouse = {
-					faith = scope:new_faith
+					rite = scope:new_rite
 				}
 			}
 		}
 		if = { # Even cheaper if unreformed
 			limit = {
-				scope:new_faith = {
+				scope:new_rite.faith = {
 					NOT = { has_doctrine_parameter = unreformed }
 				}
 				scope:character = {
@@ -2974,13 +2963,13 @@ faith_conversion_cost_mult = {
 		limit = {
 			scope:character = {
 				any_concubine = {
-					faith = scope:new_faith
+					rite = scope:new_rite
 				}
 			}
 		}
 		if = { # Even cheaper if unreformed
 			limit = {
-				scope:new_faith = {
+				scope:new_rite.faith = {
 					NOT = { has_doctrine_parameter = unreformed }
 				}
 				scope:character = {
@@ -3016,21 +3005,21 @@ faith_conversion_cost_mult = {
 			scope:character = {
 				OR = {
 					any_neighboring_top_liege_realm_owner = {
-						faith = scope:new_faith
+						rite = scope:new_rite
 					}
 					any_vassal = {
-						faith = scope:new_faith
+						rite = scope:new_rite
 					}
 					any_realm_province = {
-						faith = scope:new_faith
+						rite = scope:new_rite
 					}
 					liege ?= {
-						faith = scope:new_faith
+						rite = scope:new_rite
 					}
 
 					liege ?= {	
 						any_vassal = {
-							faith = scope:new_faith
+							rite = scope:new_rite
 						}
 					}
 				}
@@ -3038,7 +3027,7 @@ faith_conversion_cost_mult = {
 		}
 		if = {
 			limit = {
-				scope:new_faith = {
+				scope:new_rite.faith = {
 					NOT = { faith_is_in_same_rf = { FAITH = scope:character.faith } }
 				}
 			}
@@ -3053,7 +3042,7 @@ faith_conversion_cost_mult = {
 		}
 		else_if = {
 			limit = {
-				scope:new_faith.religion != scope:character.religion
+				scope:new_rite.faith.religion != scope:character.religion
 			}
 			multiply = {
 				value = 1 
@@ -3102,7 +3091,7 @@ faith_conversion_cost_mult = {
 
 	if = {
 		limit = {
-			scope:new_faith.religion = religion:confucianism_religion
+			scope:new_rite.faith.religion = religion:confucianism_religion
 			scope:character = {
 				has_trait = confucian_education
 				has_trait_xp = {
@@ -3180,7 +3169,7 @@ faith_conversion_cost_mult = {
 	########################################
 	# Conversion Discounts from Traditions #
 	########################################
-	# scope:new_faith.religion = scope:character.faith.religion
+	# scope:new_rite.faith.religion = scope:character.faith.religion
 
 	# Pacifism Tenet
 	if = {
@@ -3191,10 +3180,8 @@ faith_conversion_cost_mult = {
 						has_cultural_parameter = reduced_cost_for_conversion_to_pacifist_faith
 					}
 				}
-				scope:new_faith = {
-					main_rite = {
+				scope:new_rite = {
 						rite_has_tenet = tenet_pacifism 
-					}
 				}
 			}
 		}
@@ -3216,7 +3203,7 @@ faith_conversion_cost_mult = {
 			scope:character = {
 				exists = var:discounted_faith_to_convert_to_var
 			}
-			scope:character.var:discounted_faith_to_convert_to_var = scope:new_faith
+			scope:character.var:discounted_faith_to_convert_to_var = scope:new_rite.faith
 		}
 		multiply = {
 			value = 1
@@ -3232,7 +3219,7 @@ faith_conversion_cost_mult = {
 			scope:character = {
 				has_character_modifier = mpo_islam_conversion_modifier
 			}
-			scope:new_faith = { religion = religion:aserai_religion }
+			scope:new_rite.faith = { religion = religion:islam_religion }
 		}
 		multiply = {
 			value = 1
@@ -3248,7 +3235,7 @@ faith_conversion_cost_mult = {
 			scope:character = {
 				has_variable = japan_1010_discount
 			}
-			scope:new_faith = var:japan_1010_discount
+			scope:new_rite.faith = var:japan_1010_discount
 		}
 		multiply = {
 			value = 1
@@ -3332,7 +3319,6 @@ faith_conversion_cost_mult = {
 	subtract = {
 		value = 1
 	}
-
 }
 
 reincarnation_chance = 4
@@ -3437,8 +3423,8 @@ create_hof_gold_cost = {
 
 faith_military_strength = {
 	every_ruler = {
+		faith_filter = this # filters are built before the every_ list, so [this] resolves to the faith
 		limit = {
-			faith = prev
 			is_at_war = no
 		}
 		add = max_military_strength
@@ -3489,7 +3475,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 		# For every county with a GHWable liege...
 		limit = {
 			tier = tier_county
-			scope:the_faith.main_rite = {
+			scope:the_faith.main_rite ?= {
 				is_hostile_enough_for_holy_war_trigger = { RITE = prev.holder.top_liege.rite }
 			}
 		}
@@ -3501,11 +3487,11 @@ great_holy_war_target_kingdom_weight_simplified = {
 			OR = {
 				AND = {
 					exists = holder
-					holder.faith = scope:the_faith
+					scope:the_faith ?= holder.faith
 				}
 				any_claimant = {
 					exists = this
-					faith = scope:the_faith
+					scope:the_faith ?= faith
 					is_available_adult = yes
 				}
 			}
@@ -3518,7 +3504,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 			OR = {
 				AND = {
 					# Catholic sphere.
-					scope:the_faith = { not_non_calradian_standard_christian_faith_trigger = yes }
+					scope:the_faith ?= { not_non_calradian_standard_christian_faith_trigger = yes }
 					title_capital_county.title_province = {
 						OR = {
 							geographical_region = region_rhodokia
@@ -3528,7 +3514,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 				}
 				AND = {
 					# Orthodox sphere.
-					scope:the_faith = { not_non_orthodox_standard_christian_faith_trigger = yes }
+					scope:the_faith ?= { not_non_orthodox_standard_christian_faith_trigger = yes }
 					title_capital_county.title_province = {
 						OR = {
 							geographical_region = region_imperial_calradia
@@ -3538,12 +3524,12 @@ great_holy_war_target_kingdom_weight_simplified = {
 				}
 				AND = {
 					# Coptic sphere.
-					scope:the_faith = { not_non_coptic_standard_christian_faith_trigger = yes }
+					scope:the_faith ?= { not_non_coptic_standard_christian_faith_trigger = yes }
 					title_capital_county.title_province = { geographical_region = region_hetjur_faith }
 				}
 				AND = {
 					# Armenian sphere.
-					scope:the_faith = { not_non_armenian_standard_christian_faith_trigger = yes }
+					scope:the_faith ?= { not_non_armenian_standard_christian_faith_trigger = yes }
 					title_capital_county.title_province = { geographical_region = world_steppe_west }
 				}
 			}
@@ -3556,7 +3542,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 			OR = {
 				AND = {
 					# Shared Orthodox/Armenian sphere.
-					scope:the_faith = {
+					scope:the_faith ?= {
 						OR = {
 							# Bit cack-handed to check it like this, but keeps things hygienic.
 							not_non_orthodox_standard_christian_faith_trigger = yes
@@ -3567,7 +3553,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 				}
 				AND = {
 					# Shared Catholic/Orthodox/Armenian sphere.
-					scope:the_faith = {
+					scope:the_faith ?= {
 						OR = {
 							# Bit cack-handed to check it like this, but keeps things hygienic.
 							not_non_calradian_standard_christian_faith_trigger = yes
@@ -3575,7 +3561,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 							not_non_armenian_standard_christian_faith_trigger = yes
 						}
 					}
-					title_capital_county.title_province = {
+					title_capital_county.title_province ?= {
 						OR = {
 							geographical_region = world_near_east
 							geographical_region = custom_roman_aegyptus
@@ -3584,14 +3570,14 @@ great_holy_war_target_kingdom_weight_simplified = {
 				}
 				AND = {
 					# Shared Catholic/Orthodox sphere.
-					scope:the_faith = {
+					scope:the_faith ?= {
 						OR = {
 							# Bit cack-handed to check it like this, but keeps things hygienic.
 							not_non_calradian_standard_christian_faith_trigger = yes
 							not_non_orthodox_standard_christian_faith_trigger = yes
 						}
 					}
-					title_capital_county.title_province = {
+					title_capital_county.title_province ?= {
 						# OR = {
 							geographical_region = region_perassic
 							# geographical_region = ghw_region_balkans
@@ -3600,7 +3586,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 				}
 				AND = {
 					# Shared Catholic/Orthodox/Armenian sphere.
-					scope:the_faith = {
+					scope:the_faith ?= {
 						OR = {
 							# Bit cack-handed to check it like this, but keeps things hygienic.
 							not_non_calradian_standard_christian_faith_trigger = yes
@@ -3608,11 +3594,11 @@ great_holy_war_target_kingdom_weight_simplified = {
 							not_non_armenian_standard_christian_faith_trigger = yes
 						}
 					}
-					title_capital_county.title_province = { geographical_region = region_east_nahasa }
+					title_capital_county.title_province ?= { geographical_region = region_east_nahasa }
 				}
 				AND = {
-					scope:the_faith = { not_non_calradian_standard_christian_faith_trigger = yes }
-					title_capital_county.title_province = { geographical_region = region_rhodokia }
+					scope:the_faith ?= { not_non_calradian_standard_christian_faith_trigger = yes }
+					title_capital_county.title_province ?= { geographical_region = region_rhodokia }
 				}
 			}
 		}
@@ -3623,8 +3609,8 @@ great_holy_war_target_kingdom_weight_simplified = {
 		limit = {
 			OR = {
 				AND = {
-					scope:the_faith = { not_non_calradian_standard_christian_faith_trigger = yes }
-					title_capital_county.title_province = {
+					scope:the_faith ?= { not_non_calradian_standard_christian_faith_trigger = yes }
+					title_capital_county.title_province ?= {
 						OR = {
 							geographical_region = region_battania
 							geographical_region = region_longships
@@ -3633,14 +3619,14 @@ great_holy_war_target_kingdom_weight_simplified = {
 				}
 				AND = {
 					# Shared Catholic/Orthodox sphere.
-					scope:the_faith = {
+					scope:the_faith ?= {
 						OR = {
 							# Bit cack-handed to check it like this, but keeps things hygienic.
 							not_non_calradian_standard_christian_faith_trigger = yes
 							not_non_orthodox_standard_christian_faith_trigger = yes
 						}
 					}
-					title_capital_county.title_province = { geographical_region = region_laconis }
+					title_capital_county.title_province ?= { geographical_region = region_laconis }
 				}
 			}
 		}
@@ -3650,11 +3636,11 @@ great_holy_war_target_kingdom_weight_simplified = {
 	else_if = {
 		limit = {
 			AND = {
-				scope:the_faith = {
+				scope:the_faith ?= {
 					religion = religion:calradian_religion
 					not_non_calradian_standard_christian_faith_trigger = yes
 				}
-				title_capital_county.title_province = { geographical_region = region_calradia_northeast }
+				title_capital_county.title_province ?= { geographical_region = region_calradia_northeast }
 			}
 		}
 		add = ghw_target_stretch
@@ -3662,7 +3648,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 	# Prio to kingdoms that border Byzantium
 	if = {
 		limit = {
-			title_capital_county = {
+			title_capital_county ?= {
 				squared_distance = {
 					target = title:c_lycaron
 					value <= ghw_target_distance_01_threshold
@@ -3682,7 +3668,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 	#Weight down farthest kingdoms
 	if = {
 		limit = {
-			title_capital_county = {
+			title_capital_county ?= {
 				squared_distance = {
 					target = title:c_lycaron
 					value >= ghw_target_distance_02_threshold
@@ -3694,6 +3680,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 	# Always weight-up kingdoms containing holy sites.
 	if = {
 		limit = {
+			exists = scope:the_faith
 			any_in_de_jure_hierarchy = {
 				tier = tier_barony
 				continue = { tier > tier_barony }
@@ -3705,6 +3692,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 	# Christian preference for Jerusalem
 	if = {
 		limit = {
+			exists = scope:the_faith
 			# Not a non-Catholic standard Christian faith.
 			scope:the_faith = { not_non_calradian_standard_christian_faith_trigger = yes }
 			# Definitely actually considers Jerusalem holy.
@@ -3723,6 +3711,7 @@ great_holy_war_target_kingdom_weight_simplified = {
 	# A defender in the region HumSac'd your HoF
 	if = {
 		limit = {
+			exists = scope:the_faith
 			any_in_de_jure_hierarchy = {
 				continue = { tier > tier_county }
 				tier = tier_county
@@ -3775,11 +3764,11 @@ holy_site_reform_tracker_value = {
 ############################
 
 @rite_growth_counties_per_rite = 70
-@rite_growth_min_cooldown_years = 3
-@rite_growth_max_cooldown_years = 18
+@rite_growth_min_cooldown_years = 5
+@rite_growth_max_cooldown_years = 25
 @rite_growth_fallback_cooldown_years = 5
 @rite_growth_grace_period_years = 10
-@rite_growth_heresy_cooldown_years = 3
+@rite_growth_heresy_cooldown_years = 5
 @rite_growth_fallback_min_counties = 50
 @rite_growth_soft_cap_overshoot = 2
 
@@ -3811,19 +3800,19 @@ rite_growth_counties_per_rite = {
 rite_growth_min_cooldown_years = {
 	if = {
 		limit = { has_game_rule = much_less_branched_rite_frequency }
-		value = 8
+		value = 12
 	}
 	else_if = {
 		limit = { has_game_rule = less_branched_rite_frequency }
-		value = 5
+		value = 8
 	}
 	else_if = {
 		limit = { has_game_rule = more_branched_rite_frequency }
-		value = 2
+		value = 3
 	}
 	else_if = {
 		limit = { has_game_rule = much_more_branched_rite_frequency }
-		value = 1
+		value = 2
 	}
 	else = {
 		value = @rite_growth_min_cooldown_years
@@ -3833,19 +3822,19 @@ rite_growth_min_cooldown_years = {
 rite_growth_max_cooldown_years = {
 	if = {
 		limit = { has_game_rule = much_less_branched_rite_frequency }
-		value = 45
+		value = 50
 	}
 	else_if = {
 		limit = { has_game_rule = less_branched_rite_frequency }
-		value = 27
+		value = 36
 	}
 	else_if = {
 		limit = { has_game_rule = more_branched_rite_frequency }
-		value = 12
+		value = 15
 	}
 	else_if = {
 		limit = { has_game_rule = much_more_branched_rite_frequency }
-		value = 8
+		value = 11
 	}
 	else = {
 		value = @rite_growth_max_cooldown_years
@@ -3977,19 +3966,19 @@ rite_growth_grace_period_days = {
 rite_growth_heresy_cooldown_days = {
 	if = {
 		limit = { has_game_rule = much_less_branched_rite_frequency }
-		value = 8
+		value = 12
 	}
 	else_if = {
 		limit = { has_game_rule = less_branched_rite_frequency }
-		value = 5
+		value = 8
 	}
 	else_if = {
 		limit = { has_game_rule = more_branched_rite_frequency }
-		value = 2
+		value = 3
 	}
 	else_if = {
 		limit = { has_game_rule = much_more_branched_rite_frequency }
-		value = 1
+		value = 2
 	}
 	else = {
 		value = @rite_growth_heresy_cooldown_years

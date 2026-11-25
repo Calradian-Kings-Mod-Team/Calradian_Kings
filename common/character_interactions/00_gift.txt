@@ -37,6 +37,15 @@ gift_interaction = {
 		empire = 36
 		hegemony = 36
 	}
+	ai_frequency_by_tier_government_override = {
+		government = merchant_government
+		barony = 0
+		county = 180
+		duchy = 0
+		kingdom = 0
+		empire = 0
+		hegemony = 0
+	}
 
 	is_available = {
 		trigger_if = {
@@ -56,12 +65,11 @@ gift_interaction = {
 		# Prioritize paying back loans first
 		scope:puppet_or_actor ?= {
 			this != scope:recipient
-			trigger_if = {
-				limit = {
-					exists = var:loan_amount_owed
-					exists = var:loan_holder
+			NOT = {
+				any_owned_story = {
+					type = story_cycle_loan
+					var:lender = scope:recipient
 				}
-				NOT = { var:loan_holder = scope:recipient }
 			}
 			# A landless puppet has nothing to gift that is not already the puppeteer's
 			trigger_if = {
@@ -618,9 +626,7 @@ gift_interaction = {
 							}
 							has_secret_relation_lover = scope:puppet_or_actor
 							has_relation_lover = scope:puppet_or_actor
-							has_relation_soulmate = scope:puppet_or_actor
 							has_relation_friend = scope:puppet_or_actor
-							has_relation_best_friend = scope:puppet_or_actor
 						}
 						gold < 0
 					}
@@ -629,9 +635,7 @@ gift_interaction = {
 						OR = {
 							has_secret_relation_lover = scope:puppet_or_actor
 							has_relation_lover = scope:puppet_or_actor
-							has_relation_soulmate = scope:puppet_or_actor
 							has_relation_friend = scope:puppet_or_actor
-							has_relation_best_friend = scope:puppet_or_actor
 						}
 						scope:puppet_or_actor = {
 							OR = {
@@ -662,7 +666,6 @@ gift_interaction = {
 						OR = {
 							scope:puppet_or_actor.liege ?= this
 							has_relation_friend = scope:puppet_or_actor
-							has_relation_best_friend = scope:puppet_or_actor
 							is_allied_to = scope:puppet_or_actor
 							is_close_or_extended_family_of = scope:puppet_or_actor
 						}
