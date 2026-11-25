@@ -180,15 +180,13 @@ pam_court_wants_monk_courtiers_trigger = {
 	}
 }
 # Any living ruler of kingdom tier or above whose capital lies in Europe and follows a non-Christian religion
-pam_non_christian_kingdom_holder_in_europe_trigger = {
-	any_ruler = {
-		is_alive = yes
-		religion != religion:calradian_religion
-		highest_held_title_tier >= tier_kingdom
-		capital_province = {
-			geographical_region = world_calradia
-		}
-		NOT = { has_variable = pam_non_christian_kingdom_holder_in_europe_trigger_var } # To avoid the same ruler counting every year
+pam_is_non_christian_kingdom_holder_in_europe_trigger = {
+	highest_held_title_tier >= tier_kingdom
+	is_alive = yes
+	religion != religion:calradian_religion
+	NOT = { has_variable = pam_non_christian_kingdom_holder_in_europe_trigger_var } # To avoid the same ruler counting every year
+	capital_province = {
+		geographical_region = world_calradia
 	}
 }
 # A cardinal, Head of Rite, or archbishop of $CHARACTER$'s faith
@@ -511,7 +509,7 @@ pam_ai_can_proclaim_armed_pilgrimages_core_trigger = {
 }
 
 pam_any_muslim_holy_site_not_under_muslim_control_trigger = {
-	religion:aserai_religion {
+	religion:aserai_religion = {
 		any_faith = {
 			any_holy_site_barony = {
 				holder.top_liege.faith.religion != religion:aserai_religion
@@ -815,7 +813,7 @@ pam_valid_excommunication_target_trigger = {
 			trigger_else = {
 				custom_tooltip = {
 					text = bishop_excommunication_target_wanderer_tt
-					location.county = {
+					location.county ?= {
 						OR = {
 							holder ?= {
 								target_is_same_character_or_above = $EXCOMMUNICATOR$
@@ -944,6 +942,7 @@ pam_leads_college_of_cardinals_trigger = {
 pam_pope_is_head_of_faith_or_rite_trigger = {
 	OR = {
 		rite.head_of_rite ?= { has_title = title:k_darusan }
+		faith.main_rite.head_of_rite ?= { has_title = title:k_darusan }
 		faith.religious_head ?= { has_title = title:k_darusan }
 	}
 }
@@ -984,7 +983,13 @@ pam_college_election_title_has_electors_trigger = {
 		faith.religious_head_title = { any_elector = {} }
 	}
 	trigger_else = {
-		title:k_darusan = { any_elector = {} }
+		# A higher tier primary title takes over the realm election from the Papacy
+		title:k_papal_state = {
+			OR = {
+				any_elector = {}
+				holder ?= { primary_title = { any_elector = {} } }
+			}
+		}
 	}
 }
 
@@ -1008,9 +1013,16 @@ pam_is_college_election_candidate_trigger = {
 				source = $SOURCE$
 			}
 		}
-		trigger_else = {
+		trigger_else_if = {
+			limit = { title:k_darusan = { any_elector = {} } }
 			is_candidate_from_set = {
 				title = title:k_darusan
+				source = $SOURCE$
+			}
+		}
+		trigger_else = {
+			is_candidate_from_set = {
+				title = title:k_darusan.holder.primary_title
 				source = $SOURCE$
 			}
 		}
@@ -1074,6 +1086,18 @@ pam_ai_meaningful_islamic_presence_trigger = {
 
 # Expects interaction scopes actor/target/secondary_recipient
 pam_clerical_self_candidacy_restriction_trigger = {
+	trigger_if = {
+		limit = {
+			exists = scope:secondary_recipient
+			scope:actor = {
+				is_landless_adventurer = yes
+				this = scope:secondary_recipient
+			}
+		}
+		scope:actor = {
+			employs_court_position = camp_priest_camp_officer
+		}
+	}
 	trigger_if = {
 		limit = {
 			exists = scope:target
