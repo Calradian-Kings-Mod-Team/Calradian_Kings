@@ -7,7 +7,7 @@ evaluate_action_decreasing_house_unity = {
 	modifier = {
 		desc = DECREASE_UNITY_DESC
 		scope:actor = {
-			government_has_flag = government_is_clan
+			government_has_flag = government_uses_house_unity
 			exists = scope:recipient.house
 			house ?= scope:recipient.house
 		}
@@ -32,12 +32,7 @@ evaluate_action_decreasing_house_unity = {
 				limit = {
 					# if you are aboe impassive, you really want to lower unity
 					house ?= {
-						OR = {
-							has_house_unity_stage = harmonious
-							has_house_unity_stage = friendly
-							has_house_unity_stage = impassive
-
-						}
+						house_unity_is_negative_trigger = no
 					}
 					# only valid for some personnality, and not the heir of the current house head
 					AND = {
@@ -54,21 +49,24 @@ evaluate_action_decreasing_house_unity = {
 			}
 
 			### Struggle
-			# if = {
-			# 	limit = { has_trait = fp3_struggle_detractor }
-			# 	multiply = 1.5
-			# }
-			# else_if = {
-			# 	limit = { has_trait = fp3_struggle_supporter }
-			# 	multiply = 0.5
-			# }
+			if = {
+				limit = { has_trait = disloyal }
+				multiply = 1.5
+			}
+			else_if = {
+				limit = { has_trait = loyal }
+				multiply = 0.5
+			}
 
 			### Current Unity state
 			# lower the overall weight if unity is already low: you don't care of lowering unity if you are at 0
 			if = {
 				limit = {
 					house ?= {
-						has_house_unity_stage = harmonious
+						OR = { 
+							has_house_unity_stage = harmonious
+							has_house_unity_stage = ennobled_cs
+						}
 					}
 				}
 				multiply = 1.2
@@ -76,7 +74,10 @@ evaluate_action_decreasing_house_unity = {
 			else_if = {
 				limit = {
 					house ?= {
-						has_house_unity_stage = friendly
+						OR = {
+							has_house_unity_stage = friendly
+							has_house_unity_stage = grasping_cs
+						}
 					}
 				}
 				multiply = 1.1
@@ -84,7 +85,10 @@ evaluate_action_decreasing_house_unity = {
 			else_if = {
 				limit = {
 					house ?= {
-						has_house_unity_stage = competitive
+						OR = {
+							has_house_unity_stage = competitive
+							has_house_unity_stage = opportunistic_cs
+						}
 					}
 				}
 				multiply = 0.9
@@ -92,7 +96,10 @@ evaluate_action_decreasing_house_unity = {
 			else_if = {
 				limit = {
 					house ?= {
-						has_house_unity_stage = antagonistic
+						OR = {
+							has_house_unity_stage = antagonistic
+							has_house_unity_stage = rapacious_cs
+						}
 					}
 				}
 				multiply = {
@@ -105,6 +112,14 @@ evaluate_action_decreasing_house_unity = {
 					}
 				}
 			}
+			# Root is the actor in ai_will_do and the recipient in ai_accept, so this only caps the AI choosing the action
+			if = {
+				limit = {
+					this = scope:actor
+					ai_wants_low_unity = no
+				}
+				max = 0
+			}
 		}
 	}
 }
@@ -113,7 +128,7 @@ evaluate_action_increasing_house_unity = {
 	modifier = {
 		desc = INCREASE_UNITY_DESC
 		scope:actor = {
-			government_has_flag = government_is_clan
+			government_has_flag = government_uses_house_unity
 			house ?= scope:recipient.house
 		}
 		add = {
@@ -137,15 +152,10 @@ evaluate_action_increasing_house_unity = {
 				limit = {
 					# if you are under impassive, you really want to increase unity
 					house ?= {
-						OR = {
-							has_house_unity_stage = antagonistic
-							has_house_unity_stage = competitive
-							has_house_unity_stage = impassive
-
-						}
+						house_unity_is_positive_trigger = no
 					}
 					# only valid for people outside of their liege realm
-					NOR ={
+					NOR = {
 						house.house_head = top_liege
 						house.house_head = liege
 					}
@@ -155,21 +165,24 @@ evaluate_action_increasing_house_unity = {
 			}
 
 			### Struggle
-			# if = {
-			# 	limit = { has_trait = fp3_struggle_supporter }
-			# 	multiply = 1.5
-			# }
-			# else_if = {
-			# 	limit = { has_trait = fp3_struggle_detractor }
-			# 	multiply = 0.5
-			# }
+			if = {
+				limit = { has_trait = extolled }
+				multiply = 1.5
+			}
+			else_if = {
+				limit = { has_trait = decadent }
+				multiply = 0.5
+			}
 
 			### Current Unity state
 			# lower the overall weight if unity is already high: you don't care of increasing unity if you are at 100
 			if = {
 				limit = {
 					house ?= {
-						has_house_unity_stage = antagonistic
+						OR = {
+							has_house_unity_stage = antagonistic
+							has_house_unity_stage = rapacious_cs
+						}
 					}
 				}
 				multiply = 1.2
@@ -177,7 +190,10 @@ evaluate_action_increasing_house_unity = {
 			else_if = {
 				limit = {
 					house ?= {
-						has_house_unity_stage = competitive
+						OR = {
+							has_house_unity_stage = competitive
+							has_house_unity_stage = opportunistic_cs
+						}
 					}
 				}
 				multiply = 1.1
@@ -185,7 +201,10 @@ evaluate_action_increasing_house_unity = {
 			else_if = {
 				limit = {
 					house ?= {
-						has_house_unity_stage = friendly
+						OR = {
+							has_house_unity_stage = friendly
+							has_house_unity_stage = grasping_cs
+						}
 					}
 				}
 				multiply = 0.9
@@ -193,7 +212,10 @@ evaluate_action_increasing_house_unity = {
 			else_if = {
 				limit = {
 					house ?= {
-						has_house_unity_stage = harmonious
+						OR = {
+							has_house_unity_stage = harmonious
+							has_house_unity_stage = ennobled_cs
+						}
 					}
 				}
 				multiply = {
@@ -277,22 +299,22 @@ fp3_struggle_0001_change_sides_weight_modifier = {
 	}
 }
 
-# fp3_struggle_resist_allied_wars_modifier = {
-# 	modifier = {  # Opposing struggle sides don't want to join.
-# 		add = -100
-# 		OR = {
-# 			AND = {
-# 				scope:actor = { has_trait = fp3_struggle_detractor }
-# 				scope:recipient = { has_trait = fp3_struggle_supporter }
-# 			}
-# 			AND = {
-# 				scope:actor = { has_trait = fp3_struggle_supporter }
-# 				scope:recipient = { has_trait = fp3_struggle_detractor }
-# 			}
-# 		}
-# 		desc = WONT_HELP_STRUGGLE_FOE_REASON
-# 	}
-# }
+fp3_struggle_resist_allied_wars_modifier = {
+	# modifier = {  # Opposing struggle sides don't want to join.
+	# 	add = -100
+	# 	OR = {
+	# 		AND = {
+	# 			scope:actor = { has_trait = fp3_struggle_detractor }
+	# 			scope:recipient = { has_trait = fp3_struggle_supporter }
+	# 		}
+	# 		AND = {
+	# 			scope:actor = { has_trait = fp3_struggle_supporter }
+	# 			scope:recipient = { has_trait = fp3_struggle_detractor }
+	# 		}
+	# 	}
+	# 	desc = WONT_HELP_STRUGGLE_FOE_REASON
+	# }
+}
 
 ##################################################
 # #Decision Modifiers

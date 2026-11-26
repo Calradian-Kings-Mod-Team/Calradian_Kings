@@ -532,8 +532,8 @@ elector_voting_pattern_circumstances_feudal_elective_modifier = {
 		add = {
 			subtract = 30
 			if = { #Candidate is a foreign non-dejure ruler.
-				limit = {
-					NOT = { capital_county = { scope:title = { is_de_jure_liege_or_above_target = prev } } }
+				limit = { #Unop: Adding scope:candidate to make it actually work
+					NOT = { scope:candidate.capital_county = { scope:title = { is_de_jure_liege_or_above_target = prev } } }
 				}
 				subtract = 470
 			}
@@ -2764,8 +2764,8 @@ elector_voting_pattern_circumstances_gaelic_elective_modifier = {
 		add = {
 			subtract = 100
 			if = { #Candidate is a foreign non-dejure ruler.
-				limit = {
-					NOT = { capital_county = { scope:title = { is_de_jure_liege_or_above_target = prev } } }
+				limit = { #Unop: Adding scope:candidate to make it actually work
+					NOT = { scope:candidate.capital_county = { scope:title = { is_de_jure_liege_or_above_target = prev } } }
 				}
 				subtract = 500
 			}
@@ -3370,8 +3370,8 @@ elector_voting_pattern_circumstances_tribal_elective_modifier = {
 		add = {
 			subtract = 100
 			if = { #Candidate is a foreign non-dejure ruler.
-				limit = {
-					NOT = { capital_county = { scope:title = { is_de_jure_liege_or_above_target = prev } } }
+				limit = { #Unop: Adding scope:candidate to make it actually work
+					NOT = { scope:candidate.capital_county = { scope:title = { is_de_jure_liege_or_above_target = prev } } }
 				}
 				subtract = 500
 			}
@@ -3853,6 +3853,29 @@ elector_voting_pattern_confederation_modifier = {
 }
 
 elector_voting_pattern_theocratic_elective_modifier = {
+	modifier = {
+		desc = ghibelline_ecclesiastical_succession_desc
+		is_guelph_trigger = yes
+		scope:candidate = {
+			is_ghibelline_trigger = yes
+		}
+		add = {
+			value = gdp_ghibelline_ecclesiastical_succession_penalty_value
+			multiply = -1
+		}
+	}
+	modifier = {
+		desc = ghibelline_family_ecclesiastical_succession_desc
+		is_guelph_trigger = yes
+		scope:candidate = {
+			is_ghibelline_trigger = no
+			is_family_of_ghibelline_leader_trigger = yes
+		}
+		add = {
+			value = gdp_ghibelline_family_ecclesiastical_succession_penalty_value
+			multiply = -1
+		}
+	}
 	modifier = { # Piety level
 		desc = tooltip_feudal_elector_vote_piety_positive
 		add = {
@@ -4126,8 +4149,8 @@ elector_voting_pattern_theocratic_elective_modifier = {
 				source = theocratic_elective_powerful
 			}
 		}
-		pam_papal_elector_powerful_affinity_value >= pam_papal_elector_populist_affinity_value
-		pam_papal_elector_powerful_affinity_value >= pam_papal_elector_pious_affinity_value
+		pam_papal_powerful_priority_value >= pam_papal_populist_priority_value
+		pam_papal_powerful_priority_value >= pam_papal_pious_priority_value
 		add = 150
 	}
 	modifier = { # The elector would himself be raised as The Populist
@@ -4139,8 +4162,8 @@ elector_voting_pattern_theocratic_elective_modifier = {
 				source = theocratic_elective_populist
 			}
 		}
-		pam_papal_elector_populist_affinity_value > pam_papal_elector_powerful_affinity_value
-		pam_papal_elector_populist_affinity_value >= pam_papal_elector_pious_affinity_value
+		pam_papal_populist_priority_value > pam_papal_powerful_priority_value
+		pam_papal_populist_priority_value >= pam_papal_pious_priority_value
 		add = 150
 	}
 	modifier = { # The elector would himself be raised as The Pious
@@ -4152,8 +4175,8 @@ elector_voting_pattern_theocratic_elective_modifier = {
 				source = theocratic_elective_pious
 			}
 		}
-		pam_papal_elector_pious_affinity_value > pam_papal_elector_powerful_affinity_value
-		pam_papal_elector_pious_affinity_value > pam_papal_elector_populist_affinity_value
+		pam_papal_pious_priority_value > pam_papal_powerful_priority_value
+		pam_papal_pious_priority_value > pam_papal_populist_priority_value
 		add = 150
 	}
 	modifier = { # influence_papal_vote_interaction

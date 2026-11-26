@@ -78,22 +78,25 @@ religion_demand_conversion_default_modifier = {
 	modifier = {
 		desc = ESTATE_INCREASE_CONVERSION_ACCEPTANCE
 		add = ecclesiastical_domicile_increase_conversion_acceptance_1
-		scope:recipient.liege.domicile ?= {
-			has_domicile_parameter = estate_increase_conversion_acceptance_1
+		OR = {
+			scope:recipient.liege.domicile ?= { has_domicile_parameter = estate_increase_conversion_acceptance_1 }
+			scope:puppet_or_actor.domicile ?= { has_domicile_parameter = estate_increase_conversion_acceptance_1 }
 		}
 	}
 	modifier = {
 		desc = ESTATE_INCREASE_CONVERSION_ACCEPTANCE
 		add = ecclesiastical_domicile_increase_conversion_acceptance_2
-		scope:recipient.liege.domicile ?= {
-			has_domicile_parameter = estate_increase_conversion_acceptance_2
+		OR = {
+			scope:recipient.liege.domicile ?= { has_domicile_parameter = estate_increase_conversion_acceptance_2 }
+			scope:puppet_or_actor.domicile ?= { has_domicile_parameter = estate_increase_conversion_acceptance_2 }
 		}
 	}
 	modifier = {
 		desc = ESTATE_INCREASE_CONVERSION_ACCEPTANCE
 		add = ecclesiastical_domicile_increase_conversion_acceptance_3
-		scope:recipient.liege.domicile ?= {
-			has_domicile_parameter = estate_increase_conversion_acceptance_3
+		OR = {
+			scope:recipient.liege.domicile ?= { has_domicile_parameter = estate_increase_conversion_acceptance_3 }
+			scope:puppet_or_actor.domicile ?= { has_domicile_parameter = estate_increase_conversion_acceptance_3 }
 		}
 	}
 	ecclesiastical_domicile_cathedral_awe_modifier = yes
@@ -643,10 +646,13 @@ religion_sway_to_rite_default_modifier = {
 			}
 		}
 		NAND = {
-			scope:puppet_or_actor.capital_county ?= {
-				squared_distance = {
-					target = scope:recipient.capital_county
-					value <= squared_distance_large
+			AND = {
+				exists = scope:recipient.capital_county
+				scope:puppet_or_actor.capital_county ?= {
+					squared_distance = {
+						target = scope:recipient.capital_county
+						value <= squared_distance_large
+					}
 				}
 			}
 			scope:puppet_or_actor ?= {
@@ -688,6 +694,7 @@ religion_sway_to_rite_default_modifier = {
 		add = 15
 		scope:recipient = {
 			is_ruler = yes
+			exists = capital_county
 			capital_county.rite = scope:puppet_or_actor.rite
 		}
 		desc = THEY_HAVE_CAPITAL_WITH_SAME_RITE_REASON
@@ -3278,7 +3285,7 @@ celestial_hierarchy_acceptance_modifier = {
 		add = 20
 		$ACTOR$ = {
 			is_clergy = yes
-			faith = { has_doctrine_parameter = tenet_celestial_hierarchy_clergy_acceptance }
+			rite = { rite_has_parameter = tenet_celestial_hierarchy_clergy_acceptance } #Unop: Check rite, not faith (main rite only)
 		}
 		$RECIPIENT$ = {
 			is_clergy = no
@@ -3315,7 +3322,7 @@ celestial_hierarchy_external_ruler_puppet_acceptance_modifier = {
 		add = 50
 		$ACTOR$ = {
 			is_clergy = yes
-			faith = { has_doctrine_parameter = tenet_celestial_hierarchy_clergy_acceptance }
+			rite = { rite_has_parameter = tenet_celestial_hierarchy_clergy_acceptance } #Unop: Check rite, not faith (main rite only)
 		}
 		$RECIPIENT$ = {
 			is_clergy = no
@@ -4235,7 +4242,6 @@ theocratic_related_puppet_acceptance_factors_modifier = {
 				has_trait = theologian
 				has_trait = divine_blood
 				has_trait = consecrated_blood
-				# has_trait = sayyid
 				has_trait = order_member
 				has_trait = faith_warrior
 				has_trait = devoted
@@ -5213,12 +5219,25 @@ theocratic_related_puppet_acceptance_factors_modifier = {
 		}
 		desc = CHRISTIAN_SITUATION_PHASE_REASON_SECULAR
 	}
+	modifier = {
+		add = -30
+		scope:actor = {
+			is_ghibelline_trigger = yes
+		}
+		scope:recipient = {
+			is_clergy = yes
+			is_ruler = yes
+			is_ghibelline_trigger = no
+		}
+		desc = GHIBELLINE_CLERICAL_PUPPET_REASON
+	}
 	#Capital is far from yours
 	modifier = {
 		add = -20
 		scope:recipient = {
 			is_ruler = yes
 			exists = capital_province
+			exists = scope:actor.capital_province
 			"capital_province.squared_distance(scope:actor.capital_province)" >= squared_distance_large
 			"capital_province.squared_distance(scope:actor.capital_province)" < squared_distance_huge
 		}
@@ -5229,6 +5248,7 @@ theocratic_related_puppet_acceptance_factors_modifier = {
 		scope:recipient = {
 			is_ruler = yes
 			exists = capital_province
+			exists = scope:actor.capital_province
 			"capital_province.squared_distance(scope:actor.capital_province)" >= squared_distance_huge
 			"capital_province.squared_distance(scope:actor.capital_province)" < squared_distance_massive
 		}
@@ -5239,6 +5259,7 @@ theocratic_related_puppet_acceptance_factors_modifier = {
 		scope:recipient = {
 			is_ruler = yes
 			exists = capital_province
+			exists = scope:actor.capital_province
 			"capital_province.squared_distance(scope:actor.capital_province)" >= squared_distance_massive
 		}
 		desc = DISTANCE_FROM_YOU_REASON
@@ -5453,7 +5474,7 @@ theocratic_related_puppet_acceptance_factors_modifier = {
 					OR = {
 						has_trait = murderer
 						has_trait = denounced
-						has_trait = gallowsbait
+						has_trait = despoiler_of_byzantium
 						has_trait = torturer
 						custom_tooltip = {
 							text = recipient_considers_you_criminal_tt
