@@ -200,6 +200,15 @@ pam_is_senior_cleric_of_character_trigger = {
 		any_held_title = { has_clerical_region = yes }
 	}
 }
+pam_clergy_interactions_faith_trigger = {
+	rite = { NOT = { rite_has_parameter = unreformed } } #Unop: Check rite, not faith (main rite only)
+	OR = {
+		#Has a theocratic head of faith
+		faith = { has_doctrine_parameter = spiritual_head_of_faith }
+		rite = { rite_has_parameter = theocracy_temple_lease }
+	}
+}
+
 # Head of Rite dies while still subject to short_reign on their primary title.
 pam_head_of_rite_had_short_reign_trigger = {
 	has_pam_dlc_trigger = yes
@@ -251,6 +260,25 @@ pam_the_christian_church_civil_war_in_christian_kingdom_participant_trigger = {
 	any_character_situation = {
 		situation_type = the_christian_church
 		situation_top_has_catalyst = catalyst_the_christian_church_civil_war_in_christian_kingdom
+	}
+}
+
+pam_neighboring_unreformed_pagan_raid_you_catalyst_trigger = {
+	scope:raider = {
+		religion = {
+			is_in_family = rf_pagan
+		}
+		rite = { rite_has_parameter = unreformed } #Unop: Check rite, not faith (main rite only)
+		any_neighboring_and_across_water_realm_owner = {
+			this = scope:county.holder.top_liege
+		}
+	}
+	scope:county.holder.top_liege = {
+		has_pam_dlc_trigger = yes
+		any_character_situation = {
+			situation_type = the_christian_church
+			situation_top_has_catalyst = catalyst_neighboring_unreformed_pagan_raid_you
+		}
 	}
 }
 
@@ -485,6 +513,105 @@ pam_church_event_background_is_developed_trigger = {
 		}
 	}
 }
+
+
+pam_can_expand_clerical_region_after_war_trigger = {
+	exists = scope:target
+	#You hold a clerical region that neighbors or is within target
+	save_temporary_scope_as = archbishop_temp
+	any_held_title = {
+		has_clerical_region = yes
+		save_temporary_scope_as = clerical_region_title_temp
+		any_county_in_clerical_region = {
+			trigger_if = {
+				limit = {
+					scope:target = {
+						tier = tier_county
+					}
+				}
+				any_neighboring_county = {
+					this = scope:target
+					NOT = { exists = clerical_region_title }
+				}
+				#The rest of the duchy needs to be ready
+				scope:target = {
+					duchy = {
+						#All counties must have no clerical region
+						#All counties must be within recipient's realm OR held by a same-faith ruler
+						any_de_jure_county = {
+							count >= all
+							NOT = { exists = clerical_region_title }
+							OR = {
+								this = scope:target
+								NOT = {
+									holder = {
+										faith = scope:puppet_or_actor.faith
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			trigger_else_if = {
+				limit = {
+					scope:target = {
+						tier = tier_duchy
+					}
+				}
+				any_neighboring_county = {
+					duchy = scope:target
+					NOT = { exists = scope:clerical_region_title }
+				}
+				scope:target = {
+					#All counties must have no clerical region
+					#All counties must be within recipient's realm OR held by a same-faith ruler
+					any_de_jure_county = {
+						count >= all
+						NOT = { exists = clerical_region_title }
+						holder = {
+							OR = {
+								this = $HEATHEN$
+								target_is_liege_or_above = $HEATHEN$
+								faith = scope:puppet_or_actor.faith
+							}
+						}
+					}
+				}
+			}
+			trigger_else = {
+				any_neighboring_county = {
+					kingdom = scope:target
+					NOT = { exists = clerical_region_title }
+					save_temporary_scope_as = county_temp
+				}
+				scope:target = {
+					any_direct_de_jure_vassal_title = {
+						#All counties must have no clerical region
+						#All counties must be within recipient's realm OR held by a same-faith ruler
+						any_de_jure_county = {
+							count >= all
+							NOT = {
+								exists = clerical_region_title
+							}
+							holder = {
+								OR = {
+									this = $HEATHEN$
+									target_is_liege_or_above = $HEATHEN$
+									faith = scope:puppet_or_actor.faith
+								}
+							}
+						}
+						any_de_jure_county = {
+							this = scope:county_temp
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 pam_any_christian_holy_site_not_under_christian_control_trigger = {
 	faith:darusan = {
 		any_holy_site_barony = {
@@ -651,6 +778,19 @@ valid_holy_war_incited_attacker_trigger = {
 	# 	are_holy_wars_disabled_in_struggle_phase_trigger = yes
 	# }
 }
+actor_incite_holy_war_shown_trigger = {
+	is_ruler = yes
+	OR = {
+		government_has_flag = government_is_ecclesiastical
+		this = religious_head_or_challenger
+	}
+	rite = { #Unop: Check rite, not faith (main rite only)
+		NOR = {
+			rite_has_parameter = holy_wars_forbidden #Unop: Rite check
+			rite_has_parameter = unreformed #Unop: Rite check
+		}
+	}
+}
 
 pam_request_white_peace_enemy_trigger = {
 	is_ruler = yes
@@ -683,10 +823,24 @@ eligible_for_pam_legacy_trigger = {
 		}
 	}
 }
+pam_ai_meaningful_unreformed_presence_trigger = {
+	OR = {
+		any_vassal = {
+			rite ?= { rite_has_parameter = unreformed } #Unop: Check rite, not faith (main rite only)
+		}
+		any_sub_realm_county = {
+			rite ?= { rite_has_parameter = unreformed } #Unop: Check rite, not faith (main rite only)
+		}
+		any_neighboring_and_across_water_realm_owner = {
+			rite ?= { rite_has_parameter = unreformed } #Unop: Check rite, not faith (main rite only)
+		}
+	}
+}
 pam_ai_oriental_christian_actor_trigger = {
 	OR = {
 		culture = { has_cultural_pillar = heritage_kohinik }
 		faith ?= faith:aren
+		faith ?= faith:kholradya
 		faith ?= faith:qvelgmerti
 	}
 }
@@ -702,7 +856,7 @@ pam_ai_pentarchy_christian_actor_trigger = {
 		culture = { has_same_culture_language = culture:calradian }
 		rite ?= { pam_greek_as_liturgical_language_trigger = yes }
 		# Alexandria and Antioch are Oriental Orthodox sees, so those churches count the five as their own.
-		pam_ai_oriental_christian_actor_trigger = yes
+		# pam_ai_oriental_christian_actor_trigger = yes
 	}
 }
 pam_ai_southeast_asian_actor_trigger = {
@@ -1220,6 +1374,28 @@ petition_head_of_faith_faith_qualifies_trigger = {
 		rite_has_parameter = spiritual_head_of_faith
 	}
 }
+petition_head_of_faith_excommunication_option_available_trigger = {
+	highest_held_title_tier >= tier_kingdom
+	custom_description = {
+		text = HOF_INTERACTION_UNREFORMED_FAITH
+		NOT = { faith = { has_doctrine_parameter = unreformed } }
+	}
+}
+petition_head_of_faith_request_excommunication_still_valid_trigger = {
+	custom_description = {
+		text = HOF_INTERACTION_UNREFORMED_FAITH
+		NOT = { faith = { has_doctrine_parameter = unreformed } }
+	}
+	var:petition_head_of_faith_target_character ?= {
+		is_alive = yes
+		petition_head_of_faith_excommunication_target_eligible_trigger = { ACTOR = prev }
+		NOR = {
+			this = prev
+			this = prev.var:petition_head_of_faith_recipient
+		}
+	}
+}
+
 # scripted_triggers/00_artifact_badge_triggers.txt
 barony_title_is_unique_badge_christian_holy_site_trigger = {
 	always = no

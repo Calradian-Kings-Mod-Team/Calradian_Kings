@@ -1,4 +1,63 @@
-﻿# # from 00_unop_court_positions_triggers
+﻿unop_is_loaded = { #Unop: For other mods to check if unop is there
+	always = yes
+}
+
+# Counterpart of vanilla mpo_war_of_defiance_notified_player_trigger taking the new Gurkhan as a parameter; the vanilla one is called from a casus belli on_victory where root is the casus belli, not a character
+unop_war_of_defiance_notified_player_trigger = {
+	NOT = {
+		this = $GOK$
+	}
+	OR = {
+		top_liege = $GOK$
+		top_suzerain = $GOK$
+		any_character_situation = {
+			this = situation:the_great_steppe
+		}
+		any_relation = {
+			type = rival
+			this = $GOK$
+		}
+		#Those within same de jure empire
+		capital_county ?= {
+			empire = {
+				any_de_jure_county = {
+					holder.top_liege = {
+						this = $GOK$
+					}
+				}
+			}
+		}
+		capital_county ?= {
+			empire = {
+				any_de_jure_county = {
+					holder.top_suzerain = {
+						this = $GOK$
+					}
+				}
+			}
+		}
+		AND = {
+			exists = $GOK$.capital_county
+			realm_to_title_distance_squared = {
+				target = $GOK$.capital_county
+				value <= squared_distance_almost_massive
+			}
+		}
+	}
+}
+
+# Used in change_to_administrative_effect to give the steppe_admin branch an independent-ruler resolution path,
+# mirroring the other branches. Restricted to current nomads so other callers are unaffected.
+unop_should_become_steppe_admin_trigger = {
+	government_has_flag = government_is_nomadic
+	has_tgp_dlc_trigger = yes
+	is_independent_ruler = yes
+	capital_province = {
+		geographical_region = world_steppe
+	}
+}
+
+# # from 00_unop_court_positions_triggers
 unop_can_contract_disease_trigger = {
 	switch = {
 		trigger = $DISEASE$
@@ -147,7 +206,7 @@ unop_is_sexually_compatible_with_character = {
 				}
 				#Unop: This is based from freely_accepts_sodomy_with_trigger but with the perk check added
 				trigger_if = {
-					limit = { relation_with_character_is_sodomy_in_my_or_lieges_faith_trigger = { CHARACTER = $CHARACTER$ } }
+					limit = { relation_with_character_is_sodomy_in_my_or_lieges_rite_trigger = { CHARACTER = $CHARACTER$ } }
 					OR = { #Will ignore sodomy consequences (because there are none or they have done this before)
 						has_trait = deviant
 						has_trait = sodomite
@@ -241,7 +300,7 @@ unop_can_be_combatant_based_on_culture_trigger = {
 unop_can_be_combatant_based_on_clergy_fighter_trigger = {
 	faith = $ARMY_OWNER$.faith
 	OR = {
-		faith = { has_doctrine_parameter = clergy_can_fight }
+		rite = { rite_has_parameter = clergy_can_fight }
 		culture = { has_cultural_parameter = culture_clergy_can_fight }
 	}
 }
@@ -274,13 +333,13 @@ unop_can_be_combatant_based_on_martial_or_faith_custom_trigger = {
 			object = this
 			subject = $ARMY_OWNER$
 			OR = {
-				$ARMY_OWNER$ = { faith = { has_doctrine_parameter = combatant_can_be_either_gender_if_no_roco } }
+				$ARMY_OWNER$.rite = { rite_has_parameter = combatant_can_be_either_gender_if_no_roco }
 				AND = {
-					$ARMY_OWNER$ = { faith = { has_doctrine_parameter = combatant_must_be_male_if_no_roco } }
+					$ARMY_OWNER$.rite = { rite_has_parameter = combatant_must_be_male_if_no_roco }
 					is_male = yes
 				}
 				AND = {
-					$ARMY_OWNER$ = { faith = { has_doctrine_parameter = combatant_must_be_female_if_no_roco } }
+					$ARMY_OWNER$.rite = { rite_has_parameter = combatant_must_be_female_if_no_roco }
 					is_female = yes
 				}
 			}
@@ -701,20 +760,18 @@ unop_can_adopt_trigger = {
 		AND = {
 			is_married = yes
 			# People in bisexual polygamous spheres are not valid for this
-			NOT = {
-				OR = {
-					AND = {
-						any_consort = {
-							is_female = yes
-						}
-						is_male = yes
-					}
-					AND = {
-						any_consort = {
-							is_male = yes
-						}
+			NOR = {
+				AND = {
+					any_consort = {
 						is_female = yes
 					}
+					is_male = yes
+				}
+				AND = {
+					any_consort = {
+						is_male = yes
+					}
+					is_female = yes
 				}
 			}
 		}
@@ -728,6 +785,7 @@ unop_can_adopt_trigger = {
 		}
 		# You have a cultrad that lets you adopt
 		culture = { has_cultural_parameter = allows_adoption }
+		has_variable = seeks_an_heir
 	}
 	OR = {
 		# You are unmarried
@@ -742,20 +800,18 @@ unop_can_adopt_trigger = {
 			matrilinear_marriage = no
 		}
 		# Your marriage is same-sex
-		NOT = {
-			OR = {
-				AND = {
-					any_consort = {
-						is_female = yes
-					}
-					is_male = yes
-				}
-				AND = {
-					any_consort = {
-						is_male = yes
-					}
+		NOR = {
+			AND = {
+				any_consort = {
 					is_female = yes
 				}
+				is_male = yes
+			}
+			AND = {
+				any_consort = {
+					is_male = yes
+				}
+				is_female = yes
 			}
 		}
 	}
@@ -880,18 +936,18 @@ unop_can_have_vassal_religious_rights_contract = { #Unop: Taken from religious_r
 	}
 	OR = {
 		NOT = {
-			scope:unop_liege.faith = {
+			scope:unop_liege = {
 				OR = {
-					has_doctrine = tenet_tax_nonbelievers
-					has_doctrine = special_doctrine_jizya
+					rite = { rite_has_tenet = tenet_tax_nonbelievers }
+					faith = { has_doctrine = special_doctrine_jizya }
 				}
 			}
 		}
 		AND = {
-			scope:unop_liege.faith = {
+			scope:unop_liege = {
 				OR = {
-					has_doctrine = tenet_tax_nonbelievers
-					has_doctrine = special_doctrine_jizya
+					rite = { rite_has_tenet = tenet_tax_nonbelievers }
+					faith = { has_doctrine = special_doctrine_jizya }
 				}
 			}
 			scope:unop_vassal = {
@@ -976,6 +1032,168 @@ unop_employer_can_have_cp_lax = {
 #		is_concubine = yes
 #	}
 #}
+
+
+#Unop: Domicile buildings other than the Western estate $TYPE$_01 whose cost uses the same raid_insight_$TYPE$ modifier
+#(Chinese estate & Japanese manor). Used by ep3_raid_insight_trigger, in a domicile scope
+unop_has_raid_insight_equivalent_building_trigger = {
+	OR = {
+		AND = {
+			flag:$TYPE$ = flag:living_quarters
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_living_quarters_01
+				has_domicile_building_or_higher = japanese_guest_house_01
+				has_domicile_building_or_higher = japanese_rock_garden_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:trophy_room
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_commander_study_01
+				has_domicile_building_or_higher = japanese_manor_trophy_room_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:office
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_office_01
+				has_domicile_building_or_higher = japanese_manor_office_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:servants_quarters
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_servants_quarters_01
+				has_domicile_building_or_higher = japanese_manor_servants_quarters_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:library
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_library_01
+				has_domicile_building_or_higher = japanese_manor_poetry_library_01
+				has_domicile_building_or_higher = japanese_manor_library_confucian_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:bath
+			has_domicile_building_or_higher = east_asian_estate_bath_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:guest_room
+			has_domicile_building_or_higher = east_asian_estate_guest_room_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:wine_cellar
+			has_domicile_building_or_higher = east_asian_estate_wine_cellar_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:courtyard
+			has_domicile_building_or_higher = east_asian_estate_courtyard_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:prison
+			has_domicile_building_or_higher = east_asian_estate_prison_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:reception_hall
+			has_domicile_building_or_higher = east_asian_estate_reception_hall_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:cabinet_of_curiosities
+			has_domicile_building_or_higher = east_asian_estate_cabinet_of_curiosities_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:barracks
+			has_domicile_building_or_higher = east_asian_estate_barracks_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:watchtower
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_watchtower_01
+				has_domicile_building_or_higher = japanese_watch_house_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:garden
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_garden_01
+				has_domicile_building_or_higher = japanese_garden_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:stable
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_stable_01
+				has_domicile_building_or_higher = japanese_stables_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:workshop
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_workshop_01
+				has_domicile_building_or_higher = japanese_workshop_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:storage
+			has_domicile_building_or_higher = east_asian_estate_storage_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:market
+			has_domicile_building_or_higher = east_asian_estate_market_01
+		}
+		AND = {
+			flag:$TYPE$ = flag:grazing_land
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_grazing_land_01
+				has_domicile_building_or_higher = japanese_horse_pastures_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:grain_field
+			OR = {
+				has_domicile_building_or_higher = japanese_fields_01
+				has_domicile_building_or_higher = japanese_granary_01
+				has_domicile_building_or_higher = japanese_rice_broker_01
+				has_domicile_building_or_higher = japanese_tenant_farmers_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:tea
+			OR = {
+				has_domicile_building_or_higher = east_asian_estate_tea_01
+				has_domicile_building_or_higher = japanese_tea_plantation_01
+				has_domicile_building_or_higher = japanese_matcha_factory_01
+				has_domicile_building_or_higher = japanese_medicine_house_01
+				has_domicile_building_or_higher = japanese_roastery_01
+			}
+		}
+		AND = {
+			flag:$TYPE$ = flag:silk
+			has_domicile_building_or_higher = east_asian_estate_silk_01
+		}
+	}
+}
+
+unop_is_landed_or_theocratic = {
+	OR = {
+		is_landed = yes
+		AND = {
+			is_ruler = yes
+			government_has_flag = government_is_theocracy
+		}
+	}
+}
+
+# Whether the character's vassal contract has the special_contract obligation (scutage, march, castellan, palatinate). Only these contract groups have it: feudal_vassal, clan_vassal, japan_feudal_vassal
+unop_has_special_contract_obligation_trigger = {
+	OR = {
+		has_subject_contract_group = feudal_vassal
+		has_subject_contract_group = clan_vassal
+		has_subject_contract_group = japan_feudal_vassal
+	}
+}
 
 unop_can_location_be_reset = {
 	location != $LIEGE$.capital_province
