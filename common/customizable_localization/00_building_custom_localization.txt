@@ -4,8 +4,22 @@
 	text = {
 		trigger = {
 			title_province = {
+				has_holding_type = church_holding
+			}
+		}
+		localization_key = barony_town_type_church_town
+	}
+
+	text = {
+		trigger = {
+			title_province = {
 				county = {
-					prosperity_level > medium_development_level
+					prosperity_level > medium_prosperity_level
+				}
+				NOR = {
+					has_holding_type = tribal_holding
+					has_holding_type = nomad_holding
+					has_holding_type = herder_holding
 				}
 			}
 		}
@@ -16,6 +30,12 @@
 		trigger = {
 			title_province = {
 				fort_level > 0
+				NOR = {
+					has_holding_type = tribal_holding
+					has_holding_type = nomad_holding
+					has_holding_type = herder_holding
+					has_holding_type = church_holding
+				}
 			}
 		}
 		localization_key = barony_town_type_castle_town
@@ -25,8 +45,13 @@
 		trigger = {
 			title_province = {
 				county = {
-					prosperity_level <= medium_development_level
-					prosperity_level >= bad_development_level
+					prosperity_level <= medium_prosperity_level
+					prosperity_level >= bad_prosperity_level
+				}
+				NOR = {
+					has_holding_type = tribal_holding
+					has_holding_type = nomad_holding
+					has_holding_type = herder_holding
 				}
 			}
 		}
@@ -37,7 +62,7 @@
 		trigger = {
 			title_province = {
 				county = {
-					prosperity_level < bad_development_level
+					prosperity_level < bad_prosperity_level
 				}
 			}
 		}
@@ -45,17 +70,23 @@
 	}
 }
 
+BaronyTownTypePossessive = {
+	type = landed_title
+	parent = BaronyTownType
+	suffix = _possessive
+}
+
 GetFaithGrandTemple = { # Get name of Grand Temple in religion
 	type = character
 
 	text = {
 		trigger = { faith.religion = religion:calradian_religion }
-		localization_key = building_holy_site_cathedral_01
+		localization_key = holy_site_cathedral_01
 	}
 
 	text = {
 		trigger = { faith.religion = religion:aserai_religion }
-		localization_key = building_holy_site_mosque_01
+		localization_key = holy_site_mosque_01
 	}
 
 	text = {
@@ -77,10 +108,10 @@ GetFaithTemple = { # Get name of regular temple in religion
 		localization_key = building_temple_mosque
 	}
 
-	# text = {
-	# 	trigger = { faith.religion = religion:buddhism_religion }
-	# 	localization_key = building_temple_monastery
-	# }
+	text = {
+		trigger = { faith.religion = religion:shantaya_religion }
+		localization_key = building_temple_monastery
+	}
 	text = {
 		trigger = { always = yes }
 		localization_key = building_temple_temple
@@ -94,60 +125,67 @@ GetGuildType = {
 	
 	random_valid = yes
 
-	text = { # Plain guild
+	text = {
 		trigger = {
-			has_building = guild_halls_01
+			has_building_or_higher = guild_hall_1
 		}
 		localization_key = building_guild_halls
 	}
-	
-	text = { # Carver's guild
+
+	text = {
 		trigger = {
-			has_building = guild_halls_02
-		}
-		localization_key = building_carvers_guild
-	}
-	
-	text = { # Carpenter's guild
-		trigger = {
-			has_building = guild_halls_03
+			has_building_or_higher = guild_carpenters_1
 		}
 		localization_key = building_carpenters_guild
 	}
-	
-	text = { # Hunter's guild
+
+	text = {
 		trigger = {
-			has_building = guild_halls_04
-		}
-		localization_key = building_hunters_guild
-	}
-	
-	text = { # Mason's guild
-		trigger = {
-			has_building = guild_halls_05
+			has_building_or_higher = guild_builders_1
 		}
 		localization_key = building_masons_guild
 	}
-	
-	text = { # Tailor's guild
+
+	text = {
 		trigger = {
-			has_building = guild_halls_06
-		}
-		localization_key = building_tailors_guild
-	}
-	
-	text = { # Glassworker's guild
-		trigger = {
-			has_building = guild_halls_07
+			has_building_or_higher = guild_glassmakers_1
 		}
 		localization_key = building_glassworkers_guild
 	}
-	
-	text = { # Artisan's guild
+
+	text = {
 		trigger = {
-			has_building = guild_halls_08
+			has_building_or_higher = guild_goldsmiths_1
 		}
 		localization_key = building_artisans_guild
+	}
+
+	text = {
+		trigger = {
+			OR = {
+				has_building_or_higher = weavers_guild_1
+				has_building_or_higher = guild_textiles_silk_1
+				has_building_or_higher = luxury_carpet_workshop_1
+			}
+		}
+		localization_key = building_tailors_guild
+	}
+
+	text = {
+		trigger = {
+			OR = {
+				has_building_or_higher = guild_butchery_1
+				has_building_or_higher = guild_tannery_1
+			}
+		}
+		localization_key = building_hunters_guild
+	}
+
+	text = {
+		trigger = {
+			has_building_or_higher = guild_parchment_workshop_1
+		}
+		localization_key = building_carvers_guild
 	}
 	
 	text = { # Fallback fishmongers
@@ -175,7 +213,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Mahabodhi Temple
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:1276 # Gaya
 	# 		has_building = holy_site_mahabodhi_temple_01
 	# 	}
@@ -184,7 +222,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Imam Ali Mosque
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:5993 # An-Najaf
 	# 		has_building = holy_site_imam_ali_mosque_01
 	# 	}
@@ -193,7 +231,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Great Mosque of Mecca
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:6223 # Mecca
 	# 		has_building = holy_site_great_mosque_of_mecca_01
 	# 	}
@@ -202,7 +240,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Great Mosque of Cordoba
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:1995 # Cordoba
 	# 		has_building = holy_site_great_mosque_of_cordoba_01
 	# 	}
@@ -211,7 +249,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Great Mosque of Djenne
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:6711 # Jenne-Jeno
 	# 		has_building = holy_site_great_mosque_of_djenne_01
 	# 	}
@@ -220,7 +258,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Great Mosque of Samarra
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:4805 # Jenne-Jeno
 	# 		has_building = holy_site_great_mosque_of_samarra_01
 	# 	}
@@ -229,7 +267,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Cologne Cathedral
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:2088 # Cologne
 	# 		has_building = holy_site_cologne_cathedral_01
 	# 	}
@@ -238,7 +276,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Canterbury Cathedral 1
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:1503 # Canterbury
 	# 		has_building = holy_site_canterbury_cathedral_01
 	# 	}
@@ -247,7 +285,7 @@ GetSpecialBuildingNameFromProvince = {
 	
 	# text = { # Canterbury Cathedral 2
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:1503 # Canterbury
 	# 		has_building = holy_site_canterbury_cathedral_02
 	# 	}
@@ -256,7 +294,7 @@ GetSpecialBuildingNameFromProvince = {
 	
 	# text = { # Canterbury Cathedral 3
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:1503 # Canterbury
 	# 		has_building = holy_site_canterbury_cathedral_03
 	# 	}
@@ -265,7 +303,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Prophetic Mosque
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:6212 # Medina
 	# 		has_building = holy_site_prophetic_mosque_01
 	# 	}
@@ -274,7 +312,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Doge's Palace
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:2517 # Venice
 	# 		has_building = doges_palace_01
 	# 	}
@@ -283,7 +321,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Walls of Genoa
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:2466 # Genoa
 	# 		has_building = walls_of_genoa_01
 	# 	}
@@ -292,7 +330,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Visby Ringmur
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:369 # Visby
 	# 		has_building = visby_ringmur_01
 	# 	}
@@ -301,7 +339,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Walls of Benin
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:8072 # Benin City
 	# 		has_building = walls_of_benin_01
 	# 	}
@@ -310,7 +348,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Theodosian Walls - Duchy Capital Building
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:902 # Constantinople
 	# 		has_building = theodosian_walls_01
 	# 	}
@@ -319,7 +357,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Aurelian Walls - Duchy Capital Building
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:2575 # Rome
 	# 		has_building = aurelian_walls_01
 	# 	}
@@ -328,7 +366,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # The Colosseum
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:2575 # Rome
 	# 		has_building = the_colosseum_01
 	# 	}
@@ -337,25 +375,25 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # The Pyramids
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			#this = province:6057 # Giza
 			has_building = the_pyramids_01
 		}
-		localization_key = building_the_pyramids_01
+		localization_key = the_pyramids_01
 	}
 
 	text = { # Lake Rat Hideout
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			#this = province:6057 # Giza
 			has_building = lake_rat_hideout
 		}
-		localization_key = building_lake_rat_hideout
+		localization_key = lake_rat_hideout
 	}
 
 	# text = { # House of Wisdom
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		#this = province:4828 # Baghdad
 	# 		has_building = house_of_wisdom_01
 	# 	}
@@ -365,240 +403,240 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Rammelsberg Mines 1
 		trigger = {
 			#this = province:2918 # Goslar
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rammelsberg_mines_01
 		}
-		localization_key = building_rammelsberg_mines_01
+		localization_key = rammelsberg_mines_01
 	}
 
 	text = { # Rammelsberg Mines 2
 		trigger = {
 			#this = province:2918 # Goslar
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rammelsberg_mines_02
 		}
-		localization_key = building_rammelsberg_mines_02
+		localization_key = rammelsberg_mines_02
 	}
 
 	text = { # Rammelsberg Mines 3
 		trigger = {
 			#this = province:2918 # Goslar
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rammelsberg_mines_03
 		}
-		localization_key = building_rammelsberg_mines_03
+		localization_key = rammelsberg_mines_03
 	}
 
 	text = { # Rammelsberg Mines 4
 		trigger = {
 			#this = province:2918 # Goslar
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rammelsberg_mines_04
 		}
-		localization_key = building_rammelsberg_mines_04
+		localization_key = rammelsberg_mines_04
 	}
 
 	text = { # Baofeng Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = baofeng_mines_01
 		}
-		localization_key = building_baofeng_mines_01
+		localization_key = baofeng_mines_01
 	}
 
 	text = { # Baofeng Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = baofeng_mines_02
 		}
-		localization_key = building_baofeng_mines_02
+		localization_key = baofeng_mines_02
 	}
 
 	text = { # Baofeng Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = baofeng_mines_03
 		}
-		localization_key = building_baofeng_mines_03
+		localization_key = baofeng_mines_03
 	}
 
 	text = { # Baofeng Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = baofeng_mines_04
 		}
-		localization_key = building_baofeng_mines_04
+		localization_key = baofeng_mines_04
 	}
 
 	text = { # Kutna Hora Mines 1
 		trigger = {
 			#this = province:4161 # Caslav
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kutna_hora_mines_01
 		}
-		localization_key = building_kutna_hora_mines_01
+		localization_key = kutna_hora_mines_01
 	}
 
 	text = { # Kutna Hora Mines 2
 		trigger = {
 			#this = province:4161 # Caslav
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kutna_hora_mines_02
 		}
-		localization_key = building_kutna_hora_mines_02
+		localization_key = kutna_hora_mines_02
 	}
 
 	text = { # Kutna Hora Mines 3
 		trigger = {
 			#this = province:4161 # Caslav
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kutna_hora_mines_03
 		}
-		localization_key = building_kutna_hora_mines_03
+		localization_key = kutna_hora_mines_03
 	}
 
 	text = { # Kutna Hora Mines 4
 		trigger = {
 			#this = province:4161 # Caslav
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kutna_hora_mines_04
 		}
-		localization_key = building_kutna_hora_mines_04
+		localization_key = kutna_hora_mines_04
 	}
 
 	text = { # Kremnica Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kremnica_mines_01
 		}
-		localization_key = building_kremnica_mines_01
+		localization_key = kremnica_mines_01
 	}
 
 	text = { # Kremnica Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kremnica_mines_02
 		}
-		localization_key = building_kremnica_mines_02
+		localization_key = kremnica_mines_02
 	}
 
 	text = { # Kremnica Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kremnica_mines_03
 		}
-		localization_key = building_kremnica_mines_03
+		localization_key = kremnica_mines_03
 	}
 
 	text = { # Kremnica Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kremnica_mines_04
 		}
-		localization_key = building_kremnica_mines_04
+		localization_key = kremnica_mines_04
 	}
 
 	text = { # Zijinshan Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zijinshan_mines_01
 		}
-		localization_key = building_zijinshan_mines_01
+		localization_key = zijinshan_mines_01
 	}
 
 	text = { # Zijinshan Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zijinshan_mines_02
 		}
-		localization_key = building_zijinshan_mines_02
+		localization_key = zijinshan_mines_02
 	}
 
 	text = { # Zijinshan Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zijinshan_mines_03
 		}
-		localization_key = building_zijinshan_mines_03
+		localization_key = zijinshan_mines_03
 	}
 
 	text = { # Zijinshan Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zijinshan_mines_04
 		}
-		localization_key = building_zijinshan_mines_04
+		localization_key = zijinshan_mines_04
 	}
 
 	text = { # Hanxing Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hanxing_mines_01
 		}
-		localization_key = building_hanxing_mines_01
+		localization_key = hanxing_mines_01
 	}
 
 	text = { # Hanxing Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hanxing_mines_02
 		}
-		localization_key = building_hanxing_mines_02
+		localization_key = hanxing_mines_02
 	}
 
 	text = { # Hanxing Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hanxing_mines_03
 		}
-		localization_key = building_hanxing_mines_03
+		localization_key = hanxing_mines_03
 	}
 
 	text = { # Hanxing Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hanxing_mines_04
 		}
-		localization_key = building_hanxing_mines_04
+		localization_key = hanxing_mines_04
 	}
 
 	text = { # Jiaodong Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = jiaodong_mines_01
 		}
-		localization_key = building_jiaodong_mines_01
+		localization_key = jiaodong_mines_01
 	}
 
 	text = { # Jiaodong Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = jiaodong_mines_02
 		}
-		localization_key = building_jiaodong_mines_02
+		localization_key = jiaodong_mines_02
 	}
 
 	text = { # Jiaodong Mines 3
 		trigger = {
 			#this = province:3814 # Turoc
-			has_special_building = yes
+			has_special_district = yes
 			has_building = jiaodong_mines_03
 		}
-		localization_key = building_jiaodong_mines_03
+		localization_key = jiaodong_mines_03
 	}
 
 	text = { # Jiaodong Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = jiaodong_mines_04
 		}
-		localization_key = building_jiaodong_mines_04
+		localization_key = jiaodong_mines_04
 	}
 
 	text = { # Falun Mines 1
 		trigger = {
 			#this = province:350 # Falun
-			has_special_building = yes
+			has_special_district = yes
 			has_building = falun_mines_01
 		}
 		localization_key = building_falun_mines_01
@@ -607,7 +645,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Falun Mines 2
 		trigger = {
 			#this = province:350 # Falun
-			has_special_building = yes
+			has_special_district = yes
 			has_building = falun_mines_02
 		}
 		localization_key = building_falun_mines_02
@@ -616,7 +654,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Falun Mines 3
 		trigger = {
 			#this = province:350 # Falun
-			has_special_building = yes
+			has_special_district = yes
 			has_building = falun_mines_03
 		}
 		localization_key = building_falun_mines_03
@@ -625,7 +663,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Falun Mines 4
 		trigger = {
 			#this = province:350 # Falun
-			has_special_building = yes
+			has_special_district = yes
 			has_building = falun_mines_04
 		}
 		localization_key = building_falun_mines_04
@@ -633,7 +671,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Konasamudram Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = konasamudram_mines_01
 		}
 		localization_key = building_konasamudram_mines_01
@@ -641,7 +679,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Konasamudram Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = konasamudram_mines_02
 		}
 		localization_key = building_konasamudram_mines_02
@@ -649,7 +687,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Konasamudram Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = konasamudram_mines_03
 		}
 		localization_key = building_konasamudram_mines_03
@@ -657,7 +695,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Konasamudram Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = konasamudram_mines_04
 		}
 		localization_key = building_konasamudram_mines_04
@@ -665,7 +703,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Forest of Dean Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = dean_mines_01
 		}
 		localization_key = building_dean_mines_01
@@ -673,7 +711,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Forest of Dean Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = dean_mines_02
 		}
 		localization_key = building_dean_mines_02
@@ -681,7 +719,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Forest of Dean Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = dean_mines_03
 		}
 		localization_key = building_dean_mines_03
@@ -689,7 +727,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Forest of Dean Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = dean_mines_04
 		}
 		localization_key = building_dean_mines_04
@@ -697,7 +735,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Phnom Dek Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = phnom_dek_mines_01
 		}
 		localization_key = building_phnom_dek_mines_01
@@ -705,7 +743,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Phnom Dek Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = phnom_dek_mines_02
 		}
 		localization_key = building_phnom_dek_mines_02
@@ -713,7 +751,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Phnom Dek Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = phnom_dek_mines_03
 		}
 		localization_key = building_phnom_dek_mines_03
@@ -721,7 +759,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Phnom Dek Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = phnom_dek_mines_04
 		}
 		localization_key = building_phnom_dek_mines_04
@@ -729,7 +767,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Chihu Iron Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = chihu_mines_01
 		}
 		localization_key = building_chihu_mines_01
@@ -737,7 +775,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Chihu Iron Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = chihu_mines_02
 		}
 		localization_key = building_chihu_mines_02
@@ -745,7 +783,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Chihu Iron Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = chihu_mines_03
 		}
 		localization_key = building_chihu_mines_03
@@ -753,7 +791,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Chihu Iron Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = chihu_mines_04
 		}
 		localization_key = building_chihu_mines_04
@@ -762,7 +800,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Schwarz Mines 1
 		trigger = {
 			#this = province:2950 # Innsbruck
-			has_special_building = yes
+			has_special_district = yes
 			has_building = schwaz_mines_01
 		}
 		localization_key = building_schwaz_mines_01
@@ -771,7 +809,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Schwarz Mines 2
 		trigger = {
 			#this = province:2950 # Innsbruck
-			has_special_building = yes
+			has_special_district = yes
 			has_building = schwaz_mines_02
 		}
 		localization_key = building_schwaz_mines_02
@@ -780,7 +818,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Schwarz Mines 3
 		trigger = {
 			#this = province:2950 # Innsbruck
-			has_special_building = yes
+			has_special_district = yes
 			has_building = schwaz_mines_03
 		}
 		localization_key = building_schwaz_mines_03
@@ -789,7 +827,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Schwarz Mines 4
 		trigger = {
 			#this = province:2950 # Innsbruck
-			has_special_building = yes
+			has_special_district = yes
 			has_building = schwaz_mines_04
 		}
 		localization_key = building_schwaz_mines_04
@@ -797,7 +835,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Liangzhe Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = liangzhe_mines_01
 		}
 		localization_key = building_liangzhe_mines_01
@@ -805,7 +843,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Liangzhe Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = liangzhe_mines_02
 		}
 		localization_key = building_liangzhe_mines_02
@@ -813,7 +851,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Liangzhe Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = liangzhe_mines_03
 		}
 		localization_key = building_liangzhe_mines_04
@@ -821,7 +859,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Liangzhe Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = liangzhe_mines_04
 		}
 		localization_key = building_liangzhe_mines_04
@@ -830,7 +868,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Argentiera Mines 1
 		trigger = {
 			#this = province:2653 # Cagliari
-			has_special_building = yes
+			has_special_district = yes
 			has_building = argentiera_mines_01
 		}
 		localization_key = building_argentiera_mines_01
@@ -839,7 +877,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Argentiera Mines 2
 		trigger = {
 			#this = province:2653 # Cagliari
-			has_special_building = yes
+			has_special_district = yes
 			has_building = argentiera_mines_02
 		}
 		localization_key = building_argentiera_mines_02
@@ -848,7 +886,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Argentiera Mines 3
 		trigger = {
 			#this = province:2653 # Cagliari
-			has_special_building = yes
+			has_special_district = yes
 			has_building = argentiera_mines_03
 		}
 		localization_key = building_argentiera_mines_03
@@ -857,7 +895,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Argentiera Mines 4
 		trigger = {
 			#this = province:2653 # Cagliari
-			has_special_building = yes
+			has_special_district = yes
 			has_building = argentiera_mines_04
 		}
 		localization_key = building_argentiera_mines_04
@@ -865,7 +903,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Srebrenica Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = srebrenica_mines_01
 		}
 		localization_key = building_srebrenica_mines_01
@@ -873,7 +911,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Srebrenica Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = srebrenica_mines_02
 		}
 		localization_key = building_srebrenica_mines_02
@@ -881,7 +919,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Srebrenica Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = srebrenica_mines_03
 		}
 		localization_key = building_srebrenica_mines_03
@@ -889,7 +927,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Srebrenica Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = srebrenica_mines_04
 		}
 		localization_key = building_srebrenica_mines_04
@@ -898,7 +936,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Kollur Diamond Mines 1
 		trigger = {
 			#this = province:7912 # Ellur
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kollur_mines_01
 		}
 		localization_key = building_kollur_mines_01
@@ -907,7 +945,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Kollur Diamond Mines 2
 		trigger = {
 			#this = province:7912 # Ellur
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kollur_mines_02
 		}
 		localization_key = building_kollur_mines_02
@@ -916,7 +954,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Kollur Diamond Mines 3
 		trigger = {
 			#this = province:7912 # Ellur
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kollur_mines_03
 		}
 		localization_key = building_kollur_mines_03
@@ -925,7 +963,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Kollur Diamond Mines 4
 		trigger = {
 			#this = province:7912 # Ellur
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kollur_mines_04
 		}
 		localization_key = building_kollur_mines_04
@@ -934,7 +972,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Siderokausia Mines 1
 		trigger = {
 			#this = province:491 # Polygyros
-			has_special_building = yes
+			has_special_district = yes
 			has_building = siderokausia_mines_01
 		}
 		localization_key = building_siderokausia_mines_01
@@ -943,7 +981,7 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Siderokausia Mines 2
 		trigger = {
 			#this = province:491 # Polygyros
-			has_special_building = yes
+			has_special_district = yes
 			has_building = siderokausia_mines_02
 		}
 		localization_key = building_siderokausia_mines_02
@@ -952,944 +990,976 @@ GetSpecialBuildingNameFromProvince = {
 	text = { # Siderokausia Mines 3
 		trigger = {
 			#this = province:491 # Polygyros
-			has_special_building = yes
+			has_special_district = yes
 			has_building = siderokausia_mines_03
 		}
-		localization_key = building_siderokausia_mines_03
+		localization_key = siderokausia_mines_03
 	}
 
 	text = { # Siderokausia Mines 4
 		trigger = {
 			#this = province:491 # Polygyros
-			has_special_building = yes
+			has_special_district = yes
 			has_building = siderokausia_mines_04
 		}
-		localization_key = building_siderokausia_mines_04
+		localization_key = siderokausia_mines_04
 	}
 
 	text = { # Zawar Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zawar_mines_01
 		}
-		localization_key = building_zawar_mines_01
+		localization_key = zawar_mines_01
 	}
 
 	text = { # Zawar Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zawar_mines_02
 		}
-		localization_key = building_zawar_mines_02
+		localization_key = zawar_mines_02
 	}
 
 	text = { # SideZawarrokausia Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zawar_mines_03
 		}
-		localization_key = building_zawar_mines_03
+		localization_key = zawar_mines_03
 	}
 
 	text = { # Zawar Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zawar_mines_04
 		}
-		localization_key = building_zawar_mines_04
+		localization_key = zawar_mines_04
 	}
 
 	text = { # Pansjhir Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = pansjhir_mines_01
 		}
-		localization_key = building_pansjhir_mines_01
+		localization_key = pansjhir_mines_01
 	}
 
 	text = { # Pansjhir Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = pansjhir_mines_02
 		}
-		localization_key = building_pansjhir_mines_02
+		localization_key = pansjhir_mines_02
 	}
 
 	text = { # Pansjhir Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = pansjhir_mines_03
 		}
-		localization_key = building_pansjhir_mines_03
+		localization_key = pansjhir_mines_03
 	}
 
 	text = { # Pansjhir Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = pansjhir_mines_04
 		}
-		localization_key = building_pansjhir_mines_04
+		localization_key = pansjhir_mines_04
 	}
 
 	text = { # Nishapur Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = nishapur_mines_01
 		}
-		localization_key = building_nishapur_mines_01
+		localization_key = nishapur_mines_01
 	}
 
 	text = { # Nishapur Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = nishapur_mines_02
 		}
-		localization_key = building_nishapur_mines_02
+		localization_key = nishapur_mines_02
 	}
 
 	text = { # Nishapur Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = nishapur_mines_03
 		}
-		localization_key = building_nishapur_mines_03
+		localization_key = nishapur_mines_03
 	}
 
 	text = { # Nishapur Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = nishapur_mines_04
 		}
-		localization_key = building_nishapur_mines_04
+		localization_key = nishapur_mines_04
 	}
 
 	text = { # Ratnapura Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = ratnapura_mines_01
 		}
-		localization_key = building_ratnapura_mines_01
+		localization_key = ratnapura_mines_01
 	}
 
 	text = { # Ratnapura Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = ratnapura_mines_02
 		}
-		localization_key = building_ratnapura_mines_02
+		localization_key = ratnapura_mines_02
 	}
 
 	text = { # Ratnapura Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = ratnapura_mines_03
 		}
-		localization_key = building_ratnapura_mines_03
+		localization_key = ratnapura_mines_03
 	}
 
 	text = { # Ratnapura Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = ratnapura_mines_04
 		}
-		localization_key = building_ratnapura_mines_04
+		localization_key = ratnapura_mines_04
 	}
 
 	text = { # Mogok Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mogok_mines_01
 		}
-		localization_key = building_mogok_mines_01
+		localization_key = mogok_mines_01
 	}
 
 	text = { # Mogok Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mogok_mines_02
 		}
-		localization_key = building_mogok_mines_02
+		localization_key = mogok_mines_02
 	}
 
 	text = { # Mogok Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mogok_mines_03
 		}
-		localization_key = building_mogok_mines_03
+		localization_key = mogok_mines_03
 	}
 
 	text = { # Mogok Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mogok_mines_04
 		}
-		localization_key = building_mogok_mines_04
+		localization_key = mogok_mines_04
 	}
 
 	text = { # Wadi Al-Allaq Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = allaq_mines_01
 		}
-		localization_key = building_allaq_mines_01
+		localization_key = allaq_mines_01
 	}
 
 	text = { # Wadi Al-Allaq Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = allaq_mines_02
 		}
-		localization_key = building_allaq_mines_02
+		localization_key = allaq_mines_02
 	}
 
 	text = { # Wadi Al-Allaq Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = allaq_mines_03
 		}
-		localization_key = building_allaq_mines_03
+		localization_key = allaq_mines_03
 	}
 
 	text = { # Wadi Al-Allaq Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = allaq_mines_04
 		}
-		localization_key = building_allaq_mines_04
+		localization_key = allaq_mines_04
 	}
 
 	text = { # Takkeda Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = takkeda_mines_01
 		}
-		localization_key = building_takkeda_mines_01
+		localization_key = takkeda_mines_01
 	}
 
 	text = { # Takkeda Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = takkeda_mines_02
 		}
-		localization_key = building_takkeda_mines_02
+		localization_key = takkeda_mines_02
 	}
 
 	text = { # Takkeda Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = takkeda_mines_03
 		}
-		localization_key = building_takkeda_mines_03
+		localization_key = takkeda_mines_03
 	}
 
 	text = { # Takkeda Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = takkeda_mines_04
 		}
-		localization_key = building_takkeda_mines_04
+		localization_key = takkeda_mines_04
 	}
 
 	text = { # Turda Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = turda_mines_01
 		}
-		localization_key = building_turda_mines_01
+		localization_key = turda_mines_01
 	}
 
 	text = { # Turda Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = turda_mines_02
 		}
-		localization_key = building_turda_mines_02
+		localization_key = turda_mines_02
 	}
 
 	text = { # Turda Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = turda_mines_03
 		}
-		localization_key = building_turda_mines_03
+		localization_key = turda_mines_03
 	}
 
 	text = { # Turda Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = turda_mines_04
 		}
-		localization_key = building_turda_mines_04
+		localization_key = turda_mines_04
+	}
+
+	text = { # Wieliczka Mines 1
+		trigger = {
+			has_special_district = yes
+			has_building = wieliczka_mines_01
+		}
+		localization_key = wieliczka_mines_01
+	}
+
+	text = { # Wieliczka Mines 2
+		trigger = {
+			has_special_district = yes
+			has_building = wieliczka_mines_02
+		}
+		localization_key = wieliczka_mines_02
+	}
+
+	text = { # Wieliczka Mines 3
+		trigger = {
+			has_special_district = yes
+			has_building = wieliczka_mines_03
+		}
+		localization_key = wieliczka_mines_03
+	}
+
+	text = { # Wieliczka Mines 4
+		trigger = {
+			has_special_district = yes
+			has_building = wieliczka_mines_04
+		}
+		localization_key = wieliczka_mines_04
 	}
 
 	text = { # Zigong Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zigong_mines_01
 		}
-		localization_key = building_zigong_mines_01
+		localization_key = zigong_mines_01
 	}
 
 	text = { # Zigong Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zigong_mines_02
 		}
-		localization_key = building_zigong_mines_02
+		localization_key = zigong_mines_02
 	}
 
 	text = { # Zigong Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zigong_mines_03
 		}
-		localization_key = building_zigong_mines_03
+		localization_key = zigong_mines_03
 	}
 
 	text = { # Zigong Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = zigong_mines_04
 		}
-		localization_key = building_zigong_mines_04
+		localization_key = zigong_mines_04
 	}
 
 	text = { # Taghaza Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = taghaza_mines_01
 		}
-		localization_key = building_taghaza_mines_01
+		localization_key = taghaza_mines_01
 	}
 
 	text = { # Taghaza Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = taghaza_mines_02
 		}
-		localization_key = building_taghaza_mines_02
+		localization_key = taghaza_mines_02
 	}
 
 	text = { # Taghaza Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = taghaza_mines_03
 		}
-		localization_key = building_taghaza_mines_03
+		localization_key = taghaza_mines_03
 	}
 
 	text = { # Taghaza Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = taghaza_mines_04
 		}
-		localization_key = building_taghaza_mines_04
+		localization_key = taghaza_mines_04
 	}
 
 	text = { # Phocaea Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = phocaea_mines_01
 		}
-		localization_key = building_phocaea_mines_01
+		localization_key = phocaea_mines_01
 	}
 
 	text = { # Phocaea Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = phocaea_mines_02
 		}
-		localization_key = building_phocaea_mines_02
+		localization_key = phocaea_mines_02
 	}
 
 	text = { # Phocaea Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = phocaea_mines_03
 		}
-		localization_key = building_phocaea_mines_03
+		localization_key = phocaea_mines_03
 	}
 
 	text = { # Phocaea Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = phocaea_mines_04
 		}
-		localization_key = building_phocaea_mines_04
+		localization_key = phocaea_mines_04
 	}
 
 	text = { # Verespatak Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = verespatak_mines_01
 		}
-		localization_key = building_verespatak_mines_01
+		localization_key = verespatak_mines_01
 	}
 
 	text = { # Verespatak Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = verespatak_mines_02
 		}
-		localization_key = building_verespatak_mines_02
+		localization_key = verespatak_mines_02
 	}
 
 	text = { # Verespatak Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = verespatak_mines_03
 		}
-		localization_key = building_verespatak_mines_03
+		localization_key = verespatak_mines_03
 	}
 
 	text = { # Verespatak Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = verespatak_mines_04
 		}
-		localization_key = building_verespatak_mines_04
+		localization_key = verespatak_mines_04
 	}
 
 	text = { # Suvarnadvipa Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = suvarnadvipa_mines_01
 		}
-		localization_key = building_suvarnadvipa_mines_01
+		localization_key = suvarnadvipa_mines_01
 	}
 
 	text = { # Suvarnadvipa Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = suvarnadvipa_mines_02
 		}
-		localization_key = building_suvarnadvipa_mines_02
+		localization_key = suvarnadvipa_mines_02
 	}
 
 	text = { # Suvarnadvipa Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = suvarnadvipa_mines_03
 		}
-		localization_key = building_suvarnadvipa_mines_03
+		localization_key = suvarnadvipa_mines_03
 	}
 
 	text = { # Suvarnadvipa Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = suvarnadvipa_mines_04
 		}
-		localization_key = building_suvarnadvipa_mines_04
+		localization_key = suvarnadvipa_mines_04
 	}
 
 	text = { # Khetri Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = khetri_mines_01
 		}
-		localization_key = building_khetri_mines_01
+		localization_key = khetri_mines_01
 	}
 
 	text = { # Khetri Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = khetri_mines_02
 		}
-		localization_key = building_khetri_mines_02
+		localization_key = khetri_mines_02
 	}
 
 	text = { # Khetri Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = khetri_mines_03
 		}
-		localization_key = building_khetri_mines_03
+		localization_key = khetri_mines_03
 	}
 
 	text = { # Khetri Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = khetri_mines_04
 		}
-		localization_key = building_khetri_mines_04
+		localization_key = khetri_mines_04
 	}
 
 	text = { # Trepca Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = trepca_mines_01
 		}
-		localization_key = building_trepca_mines_01
+		localization_key = trepca_mines_01
 	}
 
 	text = { # Trepca Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = trepca_mines_02
 		}
-		localization_key = building_trepca_mines_02
+		localization_key = trepca_mines_02
 	}
 
 	text = { # Trepca Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = trepca_mines_03
 		}
-		localization_key = building_trepca_mines_03
+		localization_key = trepca_mines_03
 	}
 
 	text = { # Trepca Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = trepca_mines_04
 		}
-		localization_key = building_trepca_mines_04
+		localization_key = trepca_mines_04
 	}
 
 	text = { # Rudnik Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rudnik_mines_01
 		}
-		localization_key = building_rudnik_mines_01
+		localization_key = rudnik_mines_01
 	}
 
 	text = { # Rudnik Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rudnik_mines_02
 		}
-		localization_key = building_rudnik_mines_02
+		localization_key = rudnik_mines_02
 	}
 
 	text = { # Rudnik Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rudnik_mines_03
 		}
-		localization_key = building_rudnik_mines_03
+		localization_key = rudnik_mines_03
 	}
 
 	text = { # Rudnik Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rudnik_mines_04
 		}
-		localization_key = building_rudnik_mines_04
+		localization_key = rudnik_mines_04
 	}
 
 	text = { # Ijil Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = ijil_mines_01
 		}
-		localization_key = building_ijil_mines_01
+		localization_key = ijil_mines_01
 	}
 
 	text = { # Ijil Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = ijil_mines_02
 		}
-		localization_key = building_ijil_mines_02
+		localization_key = ijil_mines_02
 	}
 
 	text = { # Ijil Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = ijil_mines_03
 		}
-		localization_key = building_ijil_mines_03
+		localization_key = ijil_mines_03
 	}
 
 	text = { # Ijil Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = ijil_mines_04
 		}
-		localization_key = building_ijil_mines_04
+		localization_key = ijil_mines_04
 	}
 
 	text = { # Cevennes Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = cevennes_mines_01
 		}
-		localization_key = building_cevennes_mines_01
+		localization_key = cevennes_mines_01
 	}
 
 	text = { # Cevennes Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = cevennes_mines_02
 		}
-		localization_key = building_cevennes_mines_02
+		localization_key = cevennes_mines_02
 	}
 
 	text = { # Cevennes Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = cevennes_mines_03
 		}
-		localization_key = building_cevennes_mines_03
+		localization_key = cevennes_mines_03
 	}
 
 	text = { # Cevennes Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = cevennes_mines_04
 		}
-		localization_key = building_cevennes_mines_04
+		localization_key = cevennes_mines_04
 	}
 
 	text = { # Guiyang Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = guiyang_mines_01
 		}
-		localization_key = building_guiyang_mines_01
+		localization_key = guiyang_mines_01
 	}
 
 	text = { # Guiyang Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = guiyang_mines_02
 		}
-		localization_key = building_guiyang_mines_02
+		localization_key = guiyang_mines_02
 	}
 
 	text = { # Guiyang Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = guiyang_mines_03
 		}
-		localization_key = building_guiyang_mines_03
+		localization_key = guiyang_mines_03
 	}
 
 	text = { # Guiyang Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = guiyang_mines_04
 		}
-		localization_key = building_guiyang_mines_04
+		localization_key = guiyang_mines_04
 	}
 
 	text = { # Kaibao Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kaibao_mines_01
 		}
-		localization_key = building_kaibao_mines_01
+		localization_key = kaibao_mines_01
 	}
 
 	text = { # Kaibao Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kaibao_mines_02
 		}
-		localization_key = building_kaibao_mines_02
+		localization_key = kaibao_mines_02
 	}
 
 	text = { # Kaibao Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kaibao_mines_03
 		}
-		localization_key = building_kaibao_mines_03
+		localization_key = kaibao_mines_03
 	}
 
 	text = { # Kaibao Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = kaibao_mines_04
 		}
-		localization_key = building_kaibao_mines_04
+		localization_key = kaibao_mines_04
 	}
 
 	text = { # Khotan Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hetian_mines_01
 		}
-		localization_key = building_hetian_mines_01
+		localization_key = hetian_mines_01
 	}
 
 	text = { # Khotan Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hetian_mines_02
 		}
-		localization_key = building_hetian_mines_02
+		localization_key = hetian_mines_02
 	}
 
 	text = { # Khotan Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hetian_mines_03
 		}
-		localization_key = building_hetian_mines_03
+		localization_key = hetian_mines_03
 	}
 
 	text = { # Khotan Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hetian_mines_04
 		}
-		localization_key = building_hetian_mines_04
+		localization_key = hetian_mines_04
 	}
 
 	text = { # Dushan Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = dushan_mines_01
 		}
-		localization_key = building_hetian_mines_01
+		localization_key = hetian_mines_01
 	}
 
 	text = { # Dushan Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = dushan_mines_02
 		}
-		localization_key = building_dushan_mines_02
+		localization_key = dushan_mines_02
 	}
 
 	text = { # Dushan Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hetian_mines_03
 		}
-		localization_key = building_dushan_mines_03
+		localization_key = dushan_mines_03
 	}
 
 	text = { # Dushan Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = dushan_mines_04
 		}
-		localization_key = building_dushan_mines_04
+		localization_key = dushan_mines_04
 	}
 
 	text = { # Xiuyan Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = xiuyan_mines_01
 		}
-		localization_key = building_xiuyan_mines_01
+		localization_key = xiuyan_mines_01
 	}
 
 	text = { # Xiuyan Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = xiuyan_mines_02
 		}
-		localization_key = building_xiuyan_mines_02
+		localization_key = xiuyan_mines_02
 	}
 
 	text = { # Xiuyan Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = xiuyan_mines_03
 		}
-		localization_key = building_xiuyan_mines_03
+		localization_key = xiuyan_mines_03
 	}
 
 	text = { # Xiuyan Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = xiuyan_mines_04
 		}
-		localization_key = building_xiuyan_mines_04
+		localization_key = xiuyan_mines_04
 	}
 
 	text = { # Itoigawa Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = itoigawa_mines_01
 		}
-		localization_key = building_itoigawa_mines_01
+		localization_key = itoigawa_mines_01
 	}
 
 	text = { # Itoigawa Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = itoigawa_mines_02
 		}
-		localization_key = building_itoigawa_mines_02
+		localization_key = itoigawa_mines_02
 	}
 
 	text = { # Itoigawa Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = itoigawa_mines_03
 		}
-		localization_key = building_itoigawa_mines_03
+		localization_key = itoigawa_mines_03
 	}
 
 	text = { # Itoigawa Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = itoigawa_mines_04
 		}
-		localization_key = building_itoigawa_mines_04
+		localization_key = itoigawa_mines_04
 	}
 
 	text = { # Lantian Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = lantian_mines_01
 		}
-		localization_key = building_lantian_mines_01
+		localization_key = lantian_mines_01
 	}
 
 	text = { # Lantian Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = lantian_mines_02
 		}
-		localization_key = building_lantian_mines_02
+		localization_key = lantian_mines_02
 	}
 
 	text = { # Lantian Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = lantian_mines_03
 		}
-		localization_key = building_lantian_mines_03
+		localization_key = lantian_mines_03
 	}
 
 	text = { # Lantian Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = lantian_mines_04
 		}
-		localization_key = building_lantian_mines_04
+		localization_key = lantian_mines_04
 	}
 
 	text = { # Fengtian Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = fengtian_mines_01
 		}
-		localization_key = building_fengtian_mines_01
+		localization_key = fengtian_mines_01
 	}
 
 	text = { # Fengtian Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = fengtian_mines_02
 		}
-		localization_key = building_fengtian_mines_02
+		localization_key = fengtian_mines_02
 	}
 
 	text = { # Fengtian Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = fengtian_mines_03
 		}
-		localization_key = building_fengtian_mines_03
+		localization_key = fengtian_mines_03
 	}
 
 	text = { # Hpakant Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hpakant_mines_01
 		}
-		localization_key = building_hpakant_mines_01
+		localization_key = hpakant_mines_01
 	}
 
 	text = { # Hpakant Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hpakant_mines_02
 		}
-		localization_key = building_hpakant_mines_02
+		localization_key = hpakant_mines_02
 	}
 
 	text = { # Hpakant Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hpakant_mines_03
 		}
-		localization_key = building_hpakant_mines_03
+		localization_key = hpakant_mines_03
 	}
 
 	text = { # Hpakant Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hpakant_mines_04
 		}
-		localization_key = building_hpakant_mines_04
+		localization_key = hpakant_mines_04
 	}
 
 	text = { # Malinese Gold Mines 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mali_mines_01
 		}
-		localization_key = building_mali_mines_01
+		localization_key = mali_mines_01
 	}
 
 	text = { # Malinese Gold Mines 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mali_mines_02
 		}
-		localization_key = building_mali_mines_02
+		localization_key = mali_mines_02
 	}
 
 	text = { # Malinese Gold Mines 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mali_mines_03
 		}
-		localization_key = building_mali_mines_03
+		localization_key = mali_mines_03
 	}
 
 	text = { # Malinese Gold Mines 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mali_mines_04
 		}
-		localization_key = building_mali_mines_04
+		localization_key = mali_mines_04
 	}
 
 	text = { # Hall of Heroes 1
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hall_of_heroes_01
 		}
-		localization_key = building_hall_of_heroes_01
+		localization_key = hall_of_heroes_01
 	}
 
 	text = { # Hall of Heroes 2
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hall_of_heroes_02
 		}
-		localization_key = building_hall_of_heroes_02
+		localization_key = hall_of_heroes_02
 	}
 
 	text = { # Hall of Heroes 3
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hall_of_heroes_03
 		}
-		localization_key = building_hall_of_heroes_03
+		localization_key = hall_of_heroes_03
 	}
 
 	text = { # Hall of Heroes 4
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hall_of_heroes_04
 		}
-		localization_key = building_hall_of_heroes_04
+		localization_key = hall_of_heroes_04
 	}
 
 	text = { # Hall of Heroes 5
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = hall_of_heroes_05
 		}
 		localization_key = building_hall_of_heroes_05
@@ -1899,23 +1969,23 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Generic University
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = generic_university
 		}
-		localization_key = building_generic_university
+		localization_key = generic_university
 	}
 
 	text = { # Al Azhar University
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = al_azhar_university
 		}
-		localization_key = building_al_sanala_university
+		localization_key = al_sanala_university
 	}
 
 	text = { # Siena University
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = charas_library
 		}
 		localization_key = building_charas_library ## Future content for Sarranids to either burn this in their conquests or not. Also, maybe more flavor events to pillage the library for raiders CK_UPDATE
@@ -1923,7 +1993,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Imperial Academy
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = imperial_academy
 		}
 		localization_key = building_imperial_academy ## Future content for Sarranids to either burn this in their conquests or not. Also, maybe more flavor events to pillage the library for raiders CK_UPDATE
@@ -1933,41 +2003,41 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Sicilian Parliament ### Turn this into the Senate building for Empire CK_UPDATE
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = special_sicilian_parliament_01
 		}
-		localization_key = building_special_sicilian_parliament_01
+		localization_key = special_sicilian_parliament_01
 	}
 
 	text = { # Greenhouse
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = special_greenhouse_01
 		}
-		localization_key = building_special_greenhouse_01
+		localization_key = special_greenhouse_01
 	}
 
 	text = { # Hagia Sophia
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			#this = province:496 # Constantinople
 			has_building = hagia_sophia_01
 		}
-		localization_key = building_hagia_sophia_01
+		localization_key = hagia_sophia_01
 	}
 
 	text = { # Hagia Sophia
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			#this = province:496 # Constantinople
 			has_building = hagia_sophia_02
 		}
-		localization_key = building_hagia_sophia_02
+		localization_key = hagia_sophia_02
 	}
 
 	# text = { # Hotin Fortress 1
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = hotin_fort_01
 	# 		#this = province:5040
 	# 	}
@@ -1976,7 +2046,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Hotin Fortress 2
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = hotin_fort_02
 	# 		#this = province:5040
 	# 	}
@@ -1985,7 +2055,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Heddal Stave Church
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = heddal_stave_church_01
 	# 		#this = province:286 # Tunsberg
 	# 	}
@@ -1994,7 +2064,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Temple of Uppsala 1
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = temple_of_uppsala_01
 	# 		#this = province:341 # Sigtuna
 	# 	}
@@ -2003,7 +2073,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Temple of Uppsala 2
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = temple_of_uppsala_02
 	# 		#this = province:341 # Sigtuna
 	# 	}
@@ -2012,7 +2082,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Lund Cathedral
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = lund_cathedral_01
 	# 		#this = province:70 # Lund
 	# 	}
@@ -2021,7 +2091,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Danevirke
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = danevirke_01
 	# 		#this = province:62 # Hedeby
 	# 	}
@@ -2030,7 +2100,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Roman Wall of Lugo
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = roman_wall_of_lugo_01
 	# 		#this = province:1792 # Lugo
 	# 	}
@@ -2039,16 +2109,16 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Gibraltar
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = rock_of_garantor_01
 			#this = province:4454 # Algeciras
 		}
-		localization_key = building_rock_of_garantor_01
+		localization_key = rock_of_garantor_01
 	}
 
 	# text = { # Gibraltar
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = aljaferia_palace_01
 	# 		#this = province:1887 # Zaragoza
 	# 	}
@@ -2057,7 +2127,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Tower of Hercules
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = tower_of_hercules_01
 	# 		#this = province:1787 # Coruna
 	# 	}
@@ -2066,7 +2136,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # City Walls of Toledo
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = city_wall_of_toledo_01
 	# 		#this = province:1919 # Toledo
 	# 	}
@@ -2075,7 +2145,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Alcazar of Segovia
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = alcazar_of_segovia_01
 	# 		#this = province:1924 # Segovia
 	# 	}
@@ -2084,7 +2154,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Basilica Santiago
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = holy_site_basilica_santiago_01
 	# 		#this = province:1785 # Santiago
 	# 	}
@@ -2093,7 +2163,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Cilician Gates
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = cilician_gates		
 	# 	}
 	# 	localization_key = building_cilician_gates
@@ -2101,7 +2171,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Fairy Chimneys
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = fairy_chimneys			
 	# 	}
 	# 	localization_key = building_fairy_chimneys
@@ -2109,7 +2179,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Church of Saint Sophia, Ohrid
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = sofia_ohrid			
 	# 	}
 	# 	localization_key = building_sofia_ohrid
@@ -2117,7 +2187,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Hosios Loukas
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = hosios_loukas			
 	# 	}
 	# 	localization_key = building_hosios_loukas
@@ -2125,7 +2195,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Cattolica di Stilo
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = cattolica_stilo			
 	# 	}
 	# 	localization_key = building_cattolica_stilo
@@ -2133,7 +2203,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Etchmiadzin Cathedral
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = etchmiadzin_cathedral		
 	# 	}
 	# 	localization_key = building_etchmiadzin_cathedral
@@ -2141,7 +2211,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Jvari Monastery
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = jvari_monastery		
 	# 	}
 	# 	localization_key = building_jvari_monastery
@@ -2149,7 +2219,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Saint Chatherine's Monastery
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = saint_catherine		
 	# 	}
 	# 	localization_key = building_saint_catherine
@@ -2157,7 +2227,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Sant'Apollinare Nuovo
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = apollinare_nuovo			
 	# 	}
 	# 	localization_key = building_apollinare_nuovo
@@ -2165,7 +2235,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Mt. Athos
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		OR = {
 	# 			has_building = mount_athos_01
 	# 			has_building = mount_athos_02
@@ -2177,7 +2247,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Meteora
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		OR = {
 	# 			has_building = meteora_01
 	# 			has_building = meteora_02
@@ -2188,7 +2258,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Despots' Palace at Mystras
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = despot_palace		
 	# 	}
 	# 	localization_key = building_despot_palace
@@ -2196,7 +2266,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Maiden's Tower
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = maiden_tower			
 	# 	}
 	# 	localization_key = building_maiden_tower
@@ -2204,7 +2274,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Patras Castle
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = patras_castle
 			
 	# 	}
@@ -2213,7 +2283,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Sumela Monastery
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		OR = {
 	# 			has_building = sumela_monastery_01
 	# 			has_building = sumela_monastery_02
@@ -2224,7 +2294,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Church of St. Lazarus
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = saint_lazarus			
 	# 	}
 	# 	localization_key = building_saint_lazarus
@@ -2232,7 +2302,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Kassiopi Castle
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = kassiopi_castle			
 	# 	}
 	# 	localization_key = building_kassiopi_castle
@@ -2240,7 +2310,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Hagios Demetrios
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = hagios_demetrios			
 	# 	}
 	# 	localization_key = building_hagios_demetrios
@@ -2248,7 +2318,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Church of the Theotokos
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = church_of_the_theotokos		
 	# 	}
 	# 	localization_key = building_church_of_the_theotokos
@@ -2256,7 +2326,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Parthenon
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = parthenon
 	# 	}
 	# 	localization_key = building_parthenon
@@ -2264,7 +2334,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Sancutary of Imam Reza
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = imam_reza_shrine_01
 	# 		#this = province:4012 # Tus
 	# 	}
@@ -2273,7 +2343,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# # text = { # Dome of Soltaniyeh
 	# # 	trigger = {
-	# # 		has_special_building = yes
+	# # 		has_special_district = yes
 	# # 		has_building = soltaniyeh_01
 	# # 		#this = province:4325 # Zanjan
 	# # 	}
@@ -2282,7 +2352,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Ruins of the Palace of Ctesiphon 1
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = palace_of_ctesiphon_01
 	# 		#this = province:4796 # An-Nahrawan
 	# 	}
@@ -2291,7 +2361,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Ruins of the Palace of Ctesiphon 2
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = palace_of_ctesiphon_02
 	# 		#this = province:4796 # An-Nahrawan
 	# 	}
@@ -2300,7 +2370,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Falak-ol-Aflak
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = falak_ol_aflak_citadel_01
 	# 		#this = province:4261 # Saburkhawasht #actually Khorramabad, Saburkhawasht or Shapurkhast
 	# 	}
@@ -2309,7 +2379,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Minarets of Jam
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = minarets_and_remains_of_jam_01
 	# 		#this = province:4225 # Firuzkuh	#AKA Chagcharan
 	# 	}
@@ -2318,7 +2388,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Great Wall of Gorgan
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = great_wall_of_gorgan_01
 	# 		#this = province:4030 # Bakrabad and 4031 #Abaskun
 	# 	}
@@ -2327,7 +2397,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Lake Maharloo
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = maharloo_lake_01
 	# 		#this = province:4177 # Shiraz-farsi
 	# 	}
@@ -2336,7 +2406,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Rainbow Mountains
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = rainbow_mountains_01
 	# 		#this = province:4540 # Ahar
 	# 	}
@@ -2345,7 +2415,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Mount Damavand
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = mount_damavand_01
 	# 		#this = province:4316 # Firrim
 	# 	}
@@ -2354,7 +2424,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Tomb of Batsheba
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = tomb_of_cyrus_01
 	# 		#this = province:4118 # Istakhr
 	# 	}
@@ -2363,7 +2433,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Ark of Bukhara
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = ark_of_bukhara_01
 	# 		#this = province:4394 # Bukhara
 	# 	}
@@ -2372,7 +2442,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Shah-i-Zinda 1
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = shah_i_zinda_01
 	# 		#this = province:4404 # Samarqand / Samarkand
 	# 	}
@@ -2381,7 +2451,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Shah-i-Zinda 2
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = shah_i_zinda_02
 	# 		#this = province:4404 # Samarqand / Samarkand
 	# 	}
@@ -2390,7 +2460,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Alamut Castle 1
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = alamut_castle_01
 	# 		#this = province:4323 # Qazwin / Qazvin
 	# 	}
@@ -2399,7 +2469,7 @@ GetSpecialBuildingNameFromProvince = {
 
 	# text = { # Alamut Castle 2
 	# 	trigger = {
-	# 		has_special_building = yes
+	# 		has_special_district = yes
 	# 		has_building = alamut_castle_02
 	# 		#this = province:4323 # Qazwin / Qazvin
 	# 	}
@@ -2408,36 +2478,36 @@ GetSpecialBuildingNameFromProvince = {
 
 	text = { # Generic Assassin's Fortress
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = assassin_castle_01
 			#this = province:any_mountain_or_desertmountain_province
 		}
-		localization_key = building_assassin_castle_01
+		localization_key = assassin_castle_01
 	}
 
 	text = { # Event Tower of Silence (typically a duchy building, this is a special for FP3 events)
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = event_tower_of_silence_01
 			#this = province:any_zoroastrian_faith
 		}
-		localization_key = building_event_tower_of_silence_01
+		localization_key = event_tower_of_silence_01
 	}	
 
 	text = { # Mount Fuji
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mount_fuji_01
 		}
-		localization_key = building_mount_fuji_01
+		localization_key = mount_fuji_01
 	}	
 
 	text = { # Mount Baekdu
 		trigger = {
-			has_special_building = yes
+			has_special_district = yes
 			has_building = mount_baekdu_01
 		}
-		localization_key = building_mount_baekdu_01
+		localization_key = mount_baekdu_01
 	}
 }
 
