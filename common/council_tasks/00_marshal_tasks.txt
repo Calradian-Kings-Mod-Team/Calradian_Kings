@@ -522,7 +522,7 @@ task_increase_control = {
 	ai_county_target = domain
 	task_progress = task_progress_value
 	task_current_value = scope:councillor_liege.marshal_increase_control_current_progress
-	task_max_value = 100 # Highest possible county control
+	task_max_value = scope:councillor_liege.marshal_increase_control_max_progress
 	highlight_own_realm = yes
 	restart_on_finish = yes # If it "finishes" by removing a corruption modifier, there'll still be control to regain
 
@@ -534,6 +534,10 @@ task_increase_control = {
 	}
 
 	effect_desc = {
+		triggered_desc = {
+			trigger = { council_task_not_started_in_county_trigger = yes }
+			desc = task_increase_control_current_status
+		}
 		desc = task_increase_control_effect_desc
 		desc = {
 			desc = council_task_possible_side_effects
@@ -686,9 +690,21 @@ task_increase_control = {
 			}
 		}
 		if = {
+			limit = {
+				exists = scope:county
+				scope:county.title_province = {
+					province_has_district = manor_houses_district
+				}
+			}
+			add = {
+				value = scope:councillor.manor_houses_marshal_increase_control_bonus
+				desc = MANOR_HOUSES_MARSHAL_CONTROL_BONUS
+			}
+		}
+		if = {
 			limit = { exists = scope:county }
 			multiply = {
-				value = scope:county.monthly_county_control_growth_factor
+				value = scope:county.monthly_county_control_change
 				desc = MARSHAL_COUNTY_SPEED_MODIFIERS
 			}
 		}
@@ -742,19 +758,16 @@ task_increase_control = {
 			custom_description = {
 				text = potential_county_control_task_trigger
 				OR = {
+					county_control < county_control_baseline
 					has_county_corruption_trigger = yes
-					county_control < full_county_control
 				}
 			}
-			# If the growth factor is 0, no amount of trying to control helps
-			# (happens when the county is under siege/occupied most likely)
-			monthly_county_control_growth_factor > 0
 		}
 	}
 
 	county_modifier = {
 		name = marshal_increase_control_modifier
-		monthly_county_control_growth_add = 1
+		monthly_control_change_when_below_baseline_add = 0.5
 		scale = marshal_increase_control_total
 	}
 
@@ -800,7 +813,7 @@ task_increase_control = {
 			}
 			scope:county = {
 				marshal_remove_random_county_corruption_modifier_effect = yes
-				change_county_control = -25
+				change_county_control = -10
 			}
 		}
 	}
@@ -812,6 +825,24 @@ task_increase_control = {
 			chance = scope:councillor.marshal_remove_county_corruption_chance
 			scope:county = {
 				marshal_remove_random_county_corruption_modifier_effect = yes
+			}
+		}
+	}
+
+	ai_target_score = {
+		value = 10
+		scope:county = {
+			if = {
+				limit = { county_control < county_control_baseline }
+				add = {
+					value = county_control_baseline
+					subtract = county_control
+					multiply = 10
+				}
+			}
+			add = {
+				value = county_corruption_modifier_count
+				multiply = 100
 			}
 		}
 	}

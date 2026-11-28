@@ -469,6 +469,144 @@ task_domestic_affairs = {
 	}
 }
 
+task_republic_assembly_preparation = {
+	position = councillor_chancellor
+	task_type = task_type_general
+	task_progress = task_progress_infinite
+
+	is_shown = {
+		scope:councillor_liege = {
+			government_has_flag = government_is_republic
+		}
+	}
+
+	asset = {
+		icon = "gfx/interface/icons/council_task_types/task_assembly_preparation.dds"
+		background = "gfx/interface/buttons/button_round_bg.dds"
+		frame = "gfx/interface/buttons/button_round_frame.dds"
+		glow = "gfx/particles/halo.dds"
+	}
+
+	effect_desc = {
+		# Effect and breakdown
+		desc = task_republic_assembly_preparation_effect_desc
+		triggered_desc = {
+			trigger = {
+				scope:councillor_liege.house ?= {
+					house_power_score >= gdp_patrician_house_score_threshold_2_value
+				}
+			}
+			desc = task_republic_assembly_preparation_patrician_bonus_desc
+		}
+		# Add text about reaching the max if applicable
+		triggered_desc = {
+			trigger = {
+				republic_assembly_preparation_max_value >= republic_assembly_preparation_max_limit_value
+			}
+			desc = task_republic_assembly_preparation_max_limit_desc
+		}
+		# Info that the bonus resets
+		desc = task_republic_assembly_preparation_reset_bonus_desc
+		# Side effects
+		desc = {
+			desc = council_task_possible_side_effects
+			triggered_desc = {
+				trigger = { diplomacy > mediocre_skill_rating }
+				desc = task_republic_assembly_preparation_secured_endorsement
+			}
+			triggered_desc = {
+				trigger = {
+					diplomacy > mediocre_skill_rating
+					NOT = { has_character_modifier = republic_procedural_advantage_modifier }
+				}
+				desc = task_republic_assembly_preparation_procedural_advantage
+			}
+			triggered_desc = {
+				trigger = {
+					diplomacy < high_skill_rating
+					has_variable = republic_assembly_preparation_value
+					var:republic_assembly_preparation_value > 0
+				}
+				desc = task_republic_assembly_preparation_leaked_bargains
+			}
+			triggered_desc = {
+				trigger = { diplomacy < high_skill_rating }
+				desc = task_republic_assembly_preparation_assembly_resentment
+			}
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		tgp_natural_disaster_councillor_available_for_task_trigger = yes
+	}
+
+	on_start_task = {
+		liege = {
+			set_variable = {
+				name = republic_assembly_preparation_value
+				value = 0
+			}
+		}
+	}
+
+	on_cancel_task = {
+		if = {
+			limit = {
+				is_alive = yes
+				has_variable = republic_assembly_preparation_value
+			}
+			remove_variable = republic_assembly_preparation_value
+		}
+	}
+
+	on_monthly = {
+		if = {
+			limit = { liege = { is_ai = no } }
+			if = {
+				limit = {
+					liege = {
+						has_variable = republic_assembly_preparation_value
+					}
+				}
+				liege = {
+					if = {
+						limit = {
+							var:republic_assembly_preparation_value < root.republic_assembly_preparation_max_value
+						}
+						change_variable = {
+							name = republic_assembly_preparation_value
+							add = root.republic_assembly_preparation_monthly_increase
+						}
+					}
+					if = {
+						limit = {
+							var:republic_assembly_preparation_value > root.republic_assembly_preparation_max_value
+						}
+						set_variable = {
+							name = republic_assembly_preparation_value
+							value = root.republic_assembly_preparation_max_value
+						}
+					}
+				}
+			}
+			else = {
+				liege = {
+					set_variable = {
+						name = republic_assembly_preparation_value
+						value = 0
+					}
+				}
+			}
+		}
+	}
+
+	monthly_on_action = task_republic_assembly_preparation_side_effects
+
+	ai_will_do = {
+		value = 0
+	}
+}
+
 task_integrate_title = {
 	position = councillor_chancellor
 	task_type = task_type_county
@@ -477,6 +615,17 @@ task_integrate_title = {
 	task_current_value = scope:councillor_liege.chancellor_integrate_title_current_progress
 
 	task_max_value = define:NTitle|DRIFT_PROGRESS_LIMIT
+
+	is_shown = {
+		scope:councillor_liege = {
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
+			}
+		}
+	}
 
 	asset = {
 		icon = "gfx/interface/icons/council_task_types/task_integrate_title.dds"
@@ -535,8 +684,8 @@ task_integrate_title = {
 			custom_tooltip = {
 				text = dynastic_cycle_locks_title_integration_tt
 				top_liege = {
-				top_participant_group:dynastic_cycle ?= {
-					NOT = { has_participant_group_parameter = dynastic_cycle_locks_title_integration }
+					top_participant_group:dynastic_cycle ?= {
+						NOT = { has_participant_group_parameter = dynastic_cycle_locks_title_integration }
 					}
 				}
 			}
@@ -641,6 +790,24 @@ task_bestow_royal_favor = {
 	task_progress = task_progress_percentage
 	restart_on_finish = yes
 
+	is_shown = {
+		has_dlc_feature = royal_court
+		trigger_if = {
+			limit = {
+				scope:councillor_liege = { tgp_has_access_to_ministry_trigger = yes }
+			}
+			has_council_position = minister_personnel
+		}
+		scope:councillor_liege = {
+			trigger_if = {
+				limit = {
+					government_has_flag = government_is_republic
+				}
+				is_landed = yes
+			}
+		}
+	}
+
 	asset = {
 		icon = "gfx/interface/icons/council_task_types/task_bestow_royal_favor.dds"
 		background = "gfx/interface/buttons/button_round_bg.dds"
@@ -730,16 +897,6 @@ task_bestow_royal_favor = {
 				}
 				desc = task_increase_control_worsen_contract
 			}
-		}
-	}
-
-	is_shown = {
-		has_dlc_feature = royal_court
-		trigger_if = {
-			limit = {
-				scope:councillor_liege = { tgp_has_access_to_ministry_trigger = yes }
-			}
-			has_council_position = minister_personnel
 		}
 	}
 
